@@ -4,6 +4,7 @@ namespace App\Http\Requests\Property;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use App\Models\SystemEnum;
 
 class UpdatePropertyRequest extends FormRequest
 {
@@ -33,9 +34,9 @@ class UpdatePropertyRequest extends FormRequest
             ],
             'title' => ['sometimes', 'required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
-            'property_type' => ['sometimes', 'required', 'string'],
-            'purpose' => ['sometimes', 'required', 'string'],
-            'status' => ['sometimes', 'required', 'string'],
+            'property_type' => ['sometimes', 'required', 'string', $this->enumValueRule('property_types')],
+            'purpose' => ['sometimes', 'required', 'string', $this->enumValueRule('property_purposes')],
+            'status' => ['sometimes', 'required', 'string', $this->enumValueRule('property_statuses')],
 
             // Location
             'zip_code' => ['sometimes', 'required', 'string', 'max:20'],
@@ -94,5 +95,27 @@ class UpdatePropertyRequest extends FormRequest
             'features' => ['sometimes', 'array'],
             'features.*' => ['exists:features,id'],
         ];
+    }
+
+    private function enumValueRule(string $tag): \Closure
+    {
+        return function (string $attribute, mixed $value, \Closure $fail) use ($tag) {
+            $enumData = SystemEnum::query()->where('tag', $tag)->value('data');
+
+            if (!is_array($enumData)) {
+                $fail("Nao foi possivel validar {$attribute}: enum {$tag} nao configurado.");
+                return;
+            }
+
+            $allowedValues = collect($enumData)
+                ->pluck('value')
+                ->filter(fn($item) => is_string($item))
+                ->values()
+                ->all();
+
+            if (!in_array($value, $allowedValues, true)) {
+                $fail("O valor selecionado para {$attribute} e invalido.");
+            }
+        };
     }
 }

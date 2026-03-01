@@ -97,7 +97,7 @@ function buildFormData(userData: UserFormData): FormData {
 
     // Campos numéricos obrigatórios (converter para string)
     formData.append("order", String(userData.order));
-    formData.append("group_id", String(userData.group_id));
+    formData.append("role_id", String(userData.role_id));
 
     // Booleanos: enviar "1" (true) ou "0" (false) sempre
     formData.append("is_active", userData.is_active ? "1" : "0");

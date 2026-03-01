@@ -11,7 +11,7 @@ export interface User {
   phone: string;
   creci: string | null;
   order: number;
-  group_id: number;
+  role_id: number;
   team_id: number | null;
   notes: string | null;
   is_active: boolean;
@@ -72,7 +72,7 @@ export interface UserFormData {
   avatar?: File | null;
   creci?: string;
   order: number;
-  group_id: number;
+  role_id: number;
   team_id?: number | null;
   notes?: string;
   is_active: boolean;

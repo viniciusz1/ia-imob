@@ -59,7 +59,7 @@ function getDefaultValues(user?: User | null): UserFormValues {
         person_type: user?.person_type || "F",
         creci: user?.creci || "",
         order: user?.order || 0,
-        group_id: user?.group_id || 1,
+        role_id: user?.role_id || 1,
         team_id: user?.team_id || null,
         notes: user?.notes || "",
         is_active: user?.is_active ?? true,
@@ -328,12 +328,12 @@ export function UserFormModal({
                                         <Select
                                             onValueChange={(val) =>
                                                 form.setValue(
-                                                    "group_id",
+                                                    "role_id",
                                                     Number(val)
                                                 )
                                             }
                                             value={String(
-                                                form.watch("group_id")
+                                                form.watch("role_id")
                                             )}
                                         >
                                             <SelectTrigger>

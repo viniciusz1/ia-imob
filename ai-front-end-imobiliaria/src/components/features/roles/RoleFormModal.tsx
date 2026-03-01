@@ -168,7 +168,7 @@ export function RoleFormModal({
                                                                     htmlFor={`permission-${permission.id}`}
                                                                     className="text-sm font-normal cursor-pointer leading-tight"
                                                                 >
-                                                                    {permission.name}
+                                                                    {permission.label ?? permission.name}
                                                                 </Label>
                                                             </div>
                                                         );

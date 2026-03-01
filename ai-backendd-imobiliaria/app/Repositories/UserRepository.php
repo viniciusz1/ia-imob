@@ -14,7 +14,7 @@ class UserRepository
 
     public function list(array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
-        $query = $this->model->newQuery();
+        $query = $this->model->newQuery()->with('roles:id,name');
 
         if (isset($filters['id']))
             $query->where('id', $filters['id']);
@@ -45,7 +45,7 @@ class UserRepository
 
     public function findById(int $id): ?User
     {
-        return $this->model->find($id);
+        return $this->model->with('roles:id,name')->find($id);
     }
     public function create(array $data): User
     {

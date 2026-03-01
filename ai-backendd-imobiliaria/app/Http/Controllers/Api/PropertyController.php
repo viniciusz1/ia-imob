@@ -38,7 +38,7 @@ class PropertyController extends Controller
     {
         \Illuminate\Support\Facades\Gate::authorize('create', Property::class);
         $property = $this->propertyService->createProperty($request->validated());
-        return new PropertyResource($property->load(['images', 'features', 'broker']));
+        return new PropertyResource($property->load(['images', 'features', 'broker', 'owner']));
     }
 
     /**
@@ -57,7 +57,7 @@ class PropertyController extends Controller
     {
         \Illuminate\Support\Facades\Gate::authorize('update', $property);
         $updatedProperty = $this->propertyService->updateProperty($property, $request->validated());
-        return new PropertyResource($updatedProperty->load(['images', 'features', 'broker']));
+        return new PropertyResource($updatedProperty->load(['images', 'features', 'broker', 'owner']));
     }
 
     /**

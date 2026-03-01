@@ -9,6 +9,7 @@ use App\Models\PropertyImage;
 use App\Services\PropertyImageService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Validator;
 
 class PropertyImageController extends Controller
 {
@@ -68,10 +69,30 @@ class PropertyImageController extends Controller
      */
     public function reorder(Request $request, Property $property)
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'order' => ['required', 'array'],
-            'order.*' => ['required', 'integer', 'exists:property_images,id'],
+            'order.*' => ['required', 'integer', 'min:1'],
         ]);
+
+        $validator->after(function ($validator) use ($request, $property) {
+            $orderMap = $request->input('order', []);
+            $imageIds = array_map('intval', array_keys($orderMap));
+
+            if (empty($imageIds)) {
+                return;
+            }
+
+            $matchedIdsCount = PropertyImage::query()
+                ->where('property_id', $property->id)
+                ->whereIn('id', $imageIds)
+                ->count();
+
+            if ($matchedIdsCount !== count($imageIds)) {
+                $validator->errors()->add('order', 'A lista de imagens contem IDs invalidos para este imovel.');
+            }
+        });
+
+        $validator->validate();
 
         $this->imageService->reorderImages($request->input('order'));
 

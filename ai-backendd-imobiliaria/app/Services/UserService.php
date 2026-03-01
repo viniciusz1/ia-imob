@@ -34,8 +34,8 @@ class UserService
 
     public function create(array $data, ?UploadedFile $avatar = null): User
     {
-        $roleId = $data['role_id'] ?? $data['group_id'] ?? null;
-        unset($data['role_id'], $data['group_id']);
+        $roleId = $data['role_id'] ?? null;
+        unset($data['role_id']);
 
         $data['password'] = Hash::make($data['password']);
         if ($avatar)
@@ -52,9 +52,9 @@ class UserService
 
     public function update(User $user, array $data, ?UploadedFile $avatar = null): User
     {
-        $hasRoleUpdate = array_key_exists('role_id', $data) || array_key_exists('group_id', $data);
-        $roleId = $data['role_id'] ?? $data['group_id'] ?? null;
-        unset($data['role_id'], $data['group_id']);
+        $hasRoleUpdate = array_key_exists('role_id', $data);
+        $roleId = $data['role_id'] ?? null;
+        unset($data['role_id']);
 
         if (!empty($data['password'])) {
             $data['password'] = Hash::make($data['password']);

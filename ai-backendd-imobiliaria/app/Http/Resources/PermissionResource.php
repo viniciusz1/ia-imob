@@ -14,10 +14,15 @@ class PermissionResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $permissionName = (string) $this->name;
+
         return [
             'id' => $this->id,
-            'name' => $this->name,
-            // 'label' if applicable in the future
+            'name' => $permissionName,
+            'label' => str($permissionName)
+                ->replace(['.', '_', '-'], ' ')
+                ->title()
+                ->toString(),
         ];
     }
 }

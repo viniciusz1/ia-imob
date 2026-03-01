@@ -27,7 +27,7 @@ export const userFormSchema = z
             .number({ message: "Ordem é obrigatória" })
             .int("Ordem deve ser um número inteiro")
             .min(0, "Ordem deve ser positiva"),
-        group_id: z.coerce.number({
+        role_id: z.coerce.number({
             message: "Grupo é obrigatório",
         }),
         team_id: z.coerce.number().nullable().optional(),
