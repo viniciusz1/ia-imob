@@ -26,6 +26,40 @@ description: Normas técnicas específicas para o Backend
 * **Autenticação Sanctum:** Utilize o Laravel Sanctum otimizado para SPA (utilizando cookies protegidos via *CSRF* em domínios pares) ou *API Tokens* caso a API vá servir aplicativos mobile.
 * **Policies e Gates:** A autorização deve ser resolvida através de [Policies](https://laravel.com/docs/authorization#creating-policies). Invoque as instâncias de autorização nas Form Requests (método `authorize()`) ou diretamente no Controller via middleware antes de executar qualquer mutação de dados.
 * **Mass Assignment:** Proteja todos os models definindo corretamente a propriedade `$fillable`. Nunca deixe a propriedade `$guarded` vazia sem um controle rigoroso de dados validados.
-### 6. Performance e Testes
+### 6. Registro de Enums no Sistema (SystemEnum)
+* **Tabela `system_enums` como fonte única de verdade:** Toda nova funcionalidade que introduza listas de opções, tipos, status ou qualquer conjunto enumerável que o front-end precise consumir **deve** ser registrada na tabela `system_enums` através do `SystemEnumSeeder` (`database/seeders/SystemEnumSeeder.php`).
+* **Estrutura obrigatória:** Cada entrada contém uma **`tag`** única (ex: `property_types`, `property_statuses`) e um campo JSONB **`data`** com um array de objetos `{ value, label }`. Ao criar um novo enum, adicione-o ao array `$enums` dentro do método `run()` do `SystemEnumSeeder`, seguindo o padrão existente:
+  ```php
+  [
+      'tag' => 'nome_do_enum',
+      'data' => [
+          ['value' => 'chave', 'label' => 'Rótulo Visível'],
+          // ...
+      ],
+  ],
+  ```
+* **Uso de `updateOrCreate`:** O seeder utiliza `SystemEnum::updateOrCreate(['tag' => ...])`, garantindo idempotência — pode ser executado múltiplas vezes sem duplicar registros.
+* **Validação integrada:** Nos Form Requests, utilize a tabela `system_enums` para validar dinamicamente se os valores enviados pelo cliente são válidos (consulte `StorePropertyRequest` e `UpdatePropertyRequest` como referência).
+### 7. Registro de Permissões (PermissionSeeder)
+* **Permissões obrigatórias para toda nova funcionalidade:** Sempre que uma nova entidade ou módulo for criado, **todas as permissões de acesso necessárias devem ser adicionadas** ao `PermissionSeeder` (`database/seeders/PermissionSeeder.php`).
+* **Convenção de nomenclatura:** Utilize o padrão `recurso.ação` (dot notation), com granularidade quando necessário. Exemplos:
+  - `recurso.view` — visualizar listagem/detalhes
+  - `recurso.create` — criar novos registros
+  - `recurso.edit.self` — editar apenas registros próprios
+  - `recurso.edit.all` — editar quaisquer registros
+  - `recurso.delete` — excluir registros
+  - `recurso.manage` — permissão administrativa completa sobre o recurso
+* **Idempotência com `firstOrCreate`:** O seeder utiliza `Permission::firstOrCreate(['name' => ...])`, permitindo re-execução segura sem duplicações.
+* **Vínculo com Policies:** As permissões registradas no seeder devem ser as mesmas referenciadas nas [Policies](https://laravel.com/docs/authorization#creating-policies) e nos middlewares de rota, garantindo consistência entre o banco de dados e a lógica de autorização.
+* **Autorização via Form Request (`authorize()`):** Quando uma rota exigir verificação de permissão, a checagem **deve** ser feita no método `authorize()` da Form Request correspondente, utilizando `$this->user()->can('permissao')`. Nunca deixe `return true` em rotas que requerem controle de acesso. Exemplo de referência:
+  ```php
+  public function authorize(): bool
+  {
+      return $this->user() && $this->user()->can('recurso.acao');
+  }
+  ```
+  Consulte `StoreRoleRequest` e `UpdateRoleRequest` como exemplos já implementados no projeto.
+* **Atualizar `RoleSeeder` quando pertinente:** Se novos papéis (roles) forem necessários para a funcionalidade, adicione-os ao `RoleSeeder` (`database/seeders/RoleSeeder.php`) seguindo o mesmo padrão de `Role::firstOrCreate`.
+### 8. Performance e Testes
 * **Prevenção de N+1 (Eager Loading):** Antecipe o carregamento de relacionamentos utilizando o método `with()` do Eloquent ao retornar coleções de dados (ex: trazer Empreendimento junto com Fotos). Ative o *Model Strict Mode* no `AppServiceProvider` (`Model::preventLazyLoading(! app()->isProduction());`) para alertar lógicas não eficientes no desenvolvimento local.
 * **Testes Automatizados (Pest PHP):** Adoção do framework [Pest](https://pestphp.com/) (padrão em Laravel 11) para implementação de testes. Cubra, no mínimo, endpoints essenciais com *Feature Tests* para garantir o formato do JSON e o status de retorno.
