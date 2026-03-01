@@ -22,6 +22,7 @@ class StoreUserRequest extends FormRequest
             'person_type' => ['required', 'string', 'size:1', 'in:F,J'],
             'notes' => ['nullable', 'string'],
             'group_id' => ['nullable', 'integer'],
+            'role_id' => ['nullable', 'integer'],
             'team_id' => ['nullable', 'integer'],
             'username' => ['required', 'string', 'max:100', 'unique:users,username'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],

@@ -35,6 +35,7 @@ import {
     UserFormValues,
 } from "@/schemas/userSchema";
 import { User } from "@/types/user";
+import { useRoles } from "@/hooks/useRoles";
 
 // =============================================================================
 // Props
@@ -92,6 +93,8 @@ export function UserFormModal({
 
     const createMutation = useCreateUser();
     const updateMutation = useUpdateUser(initialData?.id || 0);
+
+    const { data: roles, isLoading: isLoadingRoles } = useRoles();
 
     const form = useForm<UserFormValues>({
         // @ts-expect-error Zod effects type mismatch between schemas
@@ -334,16 +337,17 @@ export function UserFormModal({
                                             )}
                                         >
                                             <SelectTrigger>
-                                                <SelectValue placeholder="Selecione o grupo" />
+                                                <SelectValue placeholder={isLoadingRoles ? "Carregando grupos..." : "Selecione o grupo"} />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                {/* Placeholder para integração real */}
-                                                <SelectItem value="1">
-                                                    Administrador
-                                                </SelectItem>
-                                                <SelectItem value="2">
-                                                    Corretor
-                                                </SelectItem>
+                                                {roles?.map((role) => (
+                                                    <SelectItem key={role.id} value={String(role.id)}>
+                                                        {role.name}
+                                                    </SelectItem>
+                                                ))}
+                                                {roles?.length === 0 && (
+                                                    <SelectItem value="0" disabled>Nenhum grupo encontrado</SelectItem>
+                                                )}
                                             </SelectContent>
                                         </Select>
                                     </div>

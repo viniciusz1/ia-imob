@@ -9,11 +9,14 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use App\Actions\User\AssignRoleToUserAction;
 
 class UserService
 {
-    public function __construct(protected UserRepository $repository)
-    {
+    public function __construct(
+        protected UserRepository $repository,
+        protected AssignRoleToUserAction $assignRoleAction
+    ) {
     }
 
     public function list(array $filters = [], int $perPage = 15): LengthAwarePaginator
@@ -31,18 +34,31 @@ class UserService
 
     public function create(array $data, ?UploadedFile $avatar = null): User
     {
+        $roleId = $data['role_id'] ?? $data['group_id'] ?? null;
+        unset($data['role_id'], $data['group_id']);
+
         $data['password'] = Hash::make($data['password']);
         if ($avatar)
             $data['avatar_path'] = $avatar->storeAs('avatars', Str::uuid() . '.' . $avatar->extension(), 'public');
-        return $this->repository->create($data);
+
+        $user = $this->repository->create($data);
+
+        if ($roleId) {
+            $this->assignRoleAction->execute($user, $roleId);
+        }
+
+        return $user;
     }
 
     public function update(User $user, array $data, ?UploadedFile $avatar = null): User
     {
+        $hasRoleUpdate = array_key_exists('role_id', $data) || array_key_exists('group_id', $data);
+        $roleId = $data['role_id'] ?? $data['group_id'] ?? null;
+        unset($data['role_id'], $data['group_id']);
+
         if (!empty($data['password'])) {
             $data['password'] = Hash::make($data['password']);
-        }
-        else {
+        } else {
             unset($data['password']);
         }
         if ($avatar) {
@@ -51,7 +67,14 @@ class UserService
             }
             $data['avatar_path'] = $avatar->storeAs('avatars', Str::uuid() . '.' . $avatar->extension(), 'public');
         }
-        return $this->repository->update($user, $data);
+
+        $user = $this->repository->update($user, $data);
+
+        if ($hasRoleUpdate) {
+            $this->assignRoleAction->execute($user, $roleId);
+        }
+
+        return $user;
     }
 
     public function delete(User $user): bool

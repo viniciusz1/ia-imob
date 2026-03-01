@@ -24,6 +24,7 @@ class UpdateUserRequest extends FormRequest
             'person_type' => ['sometimes', 'string', 'size:1', 'in:F,J'],
             'notes' => ['nullable', 'string'],
             'group_id' => ['nullable', 'integer'],
+            'role_id' => ['nullable', 'integer'],
             'team_id' => ['nullable', 'integer'],
             'username' => ['sometimes', 'string', 'max:100', Rule::unique('users', 'username')->ignore($userId)],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
