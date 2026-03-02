@@ -7,7 +7,7 @@ import {
     updateRole,
     deleteRole,
     getPermissions,
-} from "@/services/roles";
+} from "@/services/roleService";
 import type { RoleFormData } from "@/types/role";
 
 export const ROLES_QUERY_KEY = ["roles"];
@@ -76,3 +76,4 @@ export function useDeleteRole() {
         },
     });
 }
+

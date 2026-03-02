@@ -1,4 +1,4 @@
-import { getPaginatedRoles } from "@/services/roles";
+import { getPaginatedRoles } from "@/services/roleService";
 import { RolesClient } from "@/components/features/roles/RolesClient";
 
 // =============================================================================
@@ -32,3 +32,4 @@ export default async function GruposPage({
         );
     }
 }
+

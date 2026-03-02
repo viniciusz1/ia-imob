@@ -4,7 +4,7 @@ import { useFormContext } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import type { PropertyFormValues } from "@/schemas/property";
+import type { PropertyFormValues } from "@/schemas/propertySchema";
 import type { PropertyFeature } from "@/types/property";
 
 interface FeaturesStepProps {
@@ -145,3 +145,4 @@ export function FeaturesStep({ featuresOptions }: FeaturesStepProps) {
         </section>
     );
 }
+

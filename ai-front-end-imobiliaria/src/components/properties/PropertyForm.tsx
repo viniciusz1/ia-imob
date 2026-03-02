@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { ArrowLeft, ArrowRight, Loader2, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { propertySchema, type PropertyFormValues } from "@/schemas/property";
+import { propertySchema, type PropertyFormValues } from "@/schemas/propertySchema";
 import type { Property, SelectOption } from "@/types/property";
 import { useCreateProperty, useGetFeatures, useUpdateProperty } from "@/hooks/useProperties";
 import { useSystemEnums } from "@/hooks/useSystemEnums";
@@ -379,3 +379,4 @@ export function PropertyForm({ mode, initialData }: PropertyFormProps) {
         </FormProvider>
     );
 }
+

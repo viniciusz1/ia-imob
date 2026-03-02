@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import type { PropertyFormValues } from "@/schemas/property";
+import type { PropertyFormValues } from "@/schemas/propertySchema";
 import { toast } from "sonner";
 
 function sanitizeCep(cep: string): string {
@@ -142,3 +142,4 @@ export function LocationStep() {
         </section>
     );
 }
+

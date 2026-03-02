@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { propertySchema } from "../property";
+import { propertySchema } from "../propertySchema";
 
 const validPayload = {
     reference_code: "REF-001",
@@ -75,3 +75,4 @@ describe("Property schema validation", () => {
         expect(result.success).toBe(true);
     });
 });
+

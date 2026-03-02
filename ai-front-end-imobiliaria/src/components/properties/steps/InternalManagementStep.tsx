@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import type { PropertyFormValues } from "@/schemas/property";
+import type { PropertyFormValues } from "@/schemas/propertySchema";
 
 function nullableNumber(value: unknown): number | null {
     if (value === "" || value == null) return null;
@@ -115,3 +115,4 @@ export function InternalManagementStep() {
         </section>
     );
 }
+

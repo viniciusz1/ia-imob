@@ -6,7 +6,7 @@ import { useFormContext } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import type { PropertyFormValues } from "@/schemas/property";
+import type { PropertyFormValues } from "@/schemas/propertySchema";
 import type { PropertyImage } from "@/types/property";
 
 export interface PendingImage {
@@ -200,3 +200,4 @@ export function MediaStep({
         </section>
     );
 }
+

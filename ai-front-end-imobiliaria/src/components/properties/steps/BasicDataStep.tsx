@@ -11,7 +11,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import type { PropertyFormValues } from "@/schemas/property";
+import type { PropertyFormValues } from "@/schemas/propertySchema";
 import type { SelectOption } from "@/types/property";
 
 interface BasicDataStepProps {
@@ -122,3 +122,4 @@ export function BasicDataStep({
         </section>
     );
 }
+
