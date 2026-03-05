@@ -3,14 +3,15 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Property\DestroyPropertyRequest;
+use App\Http\Requests\Property\IndexPropertyRequest;
+use App\Http\Requests\Property\ShowPropertyRequest;
 use App\Http\Requests\Property\StorePropertyRequest;
 use App\Http\Requests\Property\UpdatePropertyRequest;
 use App\Http\Resources\PropertyCollection;
 use App\Http\Resources\PropertyResource;
 use App\Models\Property;
 use App\Services\PropertyService;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 
 class PropertyController extends Controller
 {
@@ -24,9 +25,8 @@ class PropertyController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(IndexPropertyRequest $request)
     {
-        \Illuminate\Support\Facades\Gate::authorize('viewAny', Property::class);
         $properties = $this->propertyService->listProperties($request->all());
         return new PropertyCollection($properties);
     }
@@ -36,7 +36,6 @@ class PropertyController extends Controller
      */
     public function store(StorePropertyRequest $request)
     {
-        \Illuminate\Support\Facades\Gate::authorize('create', Property::class);
         $property = $this->propertyService->createProperty($request->validated());
         return new PropertyResource($property->load(['images', 'features', 'broker', 'owner']));
     }
@@ -44,9 +43,8 @@ class PropertyController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Property $property)
+    public function show(ShowPropertyRequest $request, Property $property)
     {
-        \Illuminate\Support\Facades\Gate::authorize('view', $property);
         return new PropertyResource($property->load(['images', 'features', 'broker', 'owner']));
     }
 
@@ -55,7 +53,6 @@ class PropertyController extends Controller
      */
     public function update(UpdatePropertyRequest $request, Property $property)
     {
-        \Illuminate\Support\Facades\Gate::authorize('update', $property);
         $updatedProperty = $this->propertyService->updateProperty($property, $request->validated());
         return new PropertyResource($updatedProperty->load(['images', 'features', 'broker', 'owner']));
     }
@@ -63,9 +60,8 @@ class PropertyController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Property $property)
+    public function destroy(DestroyPropertyRequest $request, Property $property)
     {
-        \Illuminate\Support\Facades\Gate::authorize('delete', $property);
         $this->propertyService->deleteProperty($property);
         return response()->noContent();
     }

@@ -14,6 +14,9 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, SoftDeletes, HasRoles;
 
+    protected $guard_name = 'web';
+
+
     protected $fillable = [
         'name', 'email', 'phone', 'creci', 'order', 'person_type',
         'group_id', 'team_id', 'username', 'password', 'avatar_path',

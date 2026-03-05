@@ -15,6 +15,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        $guard = (string) config('auth.defaults.guard', 'web');
+
         $this->call([
             PermissionSeeder::class,
             RoleSeeder::class,
@@ -22,8 +24,8 @@ class DatabaseSeeder extends Seeder
             FeatureSeeder::class,
         ]);
 
-        // Admin user
-        User::factory()->create([
+        // Create admin user and assign it to a variable
+        $adminUser = User::factory()->create([
             'name' => 'Administrador',
             'email' => 'admin@imobiliaria.com',
             'username' => 'admin',
@@ -33,6 +35,20 @@ class DatabaseSeeder extends Seeder
             'show_on_website' => true,
             'has_broker_page' => true,
         ]);
+
+        // Assign all permissions to the 'Administrador' role
+        $adminRole = \Spatie\Permission\Models\Role::where('name', 'Administrador')
+            ->where('guard_name', $guard)
+            ->first();
+
+        $adminRole?->syncPermissions(
+            \Spatie\Permission\Models\Permission::where('guard_name', $guard)->get()
+        );
+
+        // Assign the role to the admin user
+        if ($adminRole) {
+            $adminUser->assignRole($adminRole);
+        }
 
         // Broker 1
         User::factory()->create([

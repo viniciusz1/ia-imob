@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\Role;
 
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 class CreateRoleAction
@@ -15,15 +16,50 @@ class CreateRoleAction
      */
     public function execute(string $name, array $permissions): Role
     {
+        $guard = (string) config('auth.defaults.guard', 'web');
+
         $role = Role::create([
             'name' => $name,
-            'guard_name' => 'sanctum',
+            'guard_name' => $guard,
         ]);
 
         if (!empty($permissions)) {
-            $role->syncPermissions($permissions);
+            $role->syncPermissions($this->normalizePermissionIdsForGuard($permissions, $guard));
         }
 
         return $role;
+    }
+
+    /**
+     * @param array<int, int|string> $permissions
+     * @return array<int, int>
+     */
+    private function normalizePermissionIdsForGuard(array $permissions, string $guard): array
+    {
+        return collect($permissions)
+            ->map(function (int|string $permission) use ($guard): ?int {
+                $sourcePermission = is_numeric($permission)
+                    ? Permission::query()->find((int) $permission)
+                    : Permission::query()->where('name', (string) $permission)->first();
+
+                if (!$sourcePermission) {
+                    return null;
+                }
+
+                if ($sourcePermission->guard_name === $guard) {
+                    return (int) $sourcePermission->id;
+                }
+
+                $targetPermission = Permission::query()->firstOrCreate([
+                    'name' => (string) $sourcePermission->name,
+                    'guard_name' => $guard,
+                ]);
+
+                return (int) $targetPermission->id;
+            })
+            ->filter(fn (?int $id): bool => $id !== null)
+            ->unique()
+            ->values()
+            ->all();
     }
 }

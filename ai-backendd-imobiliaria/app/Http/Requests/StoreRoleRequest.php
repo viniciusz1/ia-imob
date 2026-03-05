@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreRoleRequest extends FormRequest
 {
@@ -21,10 +22,17 @@ class StoreRoleRequest extends FormRequest
      */
     public function rules(): array
     {
+        $guard = (string) config('auth.defaults.guard', 'web');
+
         return [
-            'name' => ['required', 'string', 'max:255', 'unique:roles,name'],
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('roles', 'name')->where('guard_name', $guard),
+            ],
             'permissions' => ['required', 'array'],
-            'permissions.*' => ['exists:permissions,name'] // Assuming we pass permission names based on PRD: "array, required, exist in permissions table"
+            'permissions.*' => ['integer', Rule::exists('permissions', 'id')],
         ];
     }
 }

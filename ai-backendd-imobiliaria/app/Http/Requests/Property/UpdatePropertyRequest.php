@@ -2,9 +2,10 @@
 
 namespace App\Http\Requests\Property;
 
+use App\Models\Property;
+use App\Models\SystemEnum;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-use App\Models\SystemEnum;
 
 class UpdatePropertyRequest extends FormRequest
 {
@@ -13,7 +14,17 @@ class UpdatePropertyRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true; // Authorization handled by middleware/policy
+        $property = $this->route('property');
+
+        if (!$property instanceof Property) {
+            $property = Property::query()->find((int) $property);
+        }
+
+        if (!$property) {
+            return true;
+        }
+
+        return $this->user()?->can('update', $property) ?? false;
     }
 
     /**

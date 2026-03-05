@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Property;
 
 use Illuminate\Foundation\Http\FormRequest;
+use App\Models\Property;
 use App\Models\SystemEnum;
 
 class StorePropertyRequest extends FormRequest
@@ -12,7 +13,7 @@ class StorePropertyRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true; // Authorization handled by middleware/policy
+        return $this->user()?->can('create', Property::class) ?? false;
     }
 
     /**

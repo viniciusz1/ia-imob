@@ -13,6 +13,8 @@ class RoleSeeder extends Seeder
      */
     public function run(): void
     {
+        $guard = (string) config('auth.defaults.guard', 'web');
+
         // Define the default roles for the system
         $roles = [
             'Administrador',
@@ -20,7 +22,10 @@ class RoleSeeder extends Seeder
         ];
 
         foreach ($roles as $roleName) {
-            Role::firstOrCreate(['name' => $roleName]);
+            Role::firstOrCreate([
+                'name' => $roleName,
+                'guard_name' => $guard,
+            ]);
         }
     }
 }

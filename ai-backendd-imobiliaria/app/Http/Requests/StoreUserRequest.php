@@ -2,17 +2,21 @@
 
 namespace App\Http\Requests;
 
+use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreUserRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()?->can('create', User::class) ?? false;
     }
 
     public function rules(): array
     {
+        $guard = (string) config('auth.defaults.guard', 'web');
+
         return [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
@@ -22,7 +26,7 @@ class StoreUserRequest extends FormRequest
             'person_type' => ['required', 'string', 'size:1', 'in:F,J'],
             'notes' => ['nullable', 'string'],
             'group_id' => ['prohibited'],
-            'role_id' => ['nullable', 'integer', 'exists:roles,id'],
+            'role_id' => ['nullable', 'integer', Rule::exists('roles', 'id')->where('guard_name', $guard)],
             'team_id' => ['nullable', 'integer'],
             'username' => ['required', 'string', 'max:100', 'unique:users,username'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],

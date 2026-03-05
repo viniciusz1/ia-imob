@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -9,12 +10,24 @@ class UpdateUserRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        $targetUser = $this->route('user');
+
+        if (!$targetUser instanceof User) {
+            $targetUser = User::query()->find((int) $targetUser);
+        }
+
+        if (!$targetUser) {
+            return true;
+        }
+
+        return $this->user()?->can('update', $targetUser) ?? false;
     }
 
     public function rules(): array
     {
         $userId = $this->route('user');
+        $guard = (string) config('auth.defaults.guard', 'web');
+
         return [
             'name' => ['sometimes', 'string', 'max:255'],
             'email' => ['sometimes', 'email', 'max:255', Rule::unique('users', 'email')->ignore($userId)],
@@ -24,7 +37,7 @@ class UpdateUserRequest extends FormRequest
             'person_type' => ['sometimes', 'string', 'size:1', 'in:F,J'],
             'notes' => ['nullable', 'string'],
             'group_id' => ['prohibited'],
-            'role_id' => ['nullable', 'integer', 'exists:roles,id'],
+            'role_id' => ['nullable', 'integer', Rule::exists('roles', 'id')->where('guard_name', $guard)],
             'team_id' => ['nullable', 'integer'],
             'username' => ['sometimes', 'string', 'max:100', Rule::unique('users', 'username')->ignore($userId)],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],

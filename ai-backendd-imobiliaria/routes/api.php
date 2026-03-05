@@ -30,6 +30,6 @@ Route::middleware('auth:sanctum')->group(function () {
     // Enums & Features
     Route::get('enums', [\App\Http\Controllers\Api\SystemEnumController::class, 'index']);
     Route::get('features', [\App\Http\Controllers\Api\FeatureController::class, 'index']);
-});
 
-require __DIR__ . '/api/user_routes.php';
+    require __DIR__ . '/api/user_routes.php';
+});

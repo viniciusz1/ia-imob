@@ -13,6 +13,8 @@ class PermissionSeeder extends Seeder
      */
     public function run(): void
     {
+        $guard = (string) config('auth.defaults.guard', 'web');
+
         // Define default permissions for the system
         $permissions = [
             'users.view',
@@ -29,7 +31,10 @@ class PermissionSeeder extends Seeder
         ];
 
         foreach ($permissions as $permissionName) {
-            Permission::firstOrCreate(['name' => $permissionName]);
+            Permission::firstOrCreate([
+                'name' => $permissionName,
+                'guard_name' => $guard,
+            ]);
         }
     }
 }

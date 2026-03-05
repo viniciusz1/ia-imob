@@ -16,15 +16,25 @@ class AssignRoleToUserAction
      */
     public function execute(User $user, int|string|null $roleIdentifier): void
     {
+        $guard = (string) config('auth.defaults.guard', 'web');
+
         if (empty($roleIdentifier)) {
-            // Optional: You could choose to remove all roles if null is passed
             $user->syncRoles([]);
             return;
         }
 
-        // We use syncRoles replacing any previous role the user had. 
-        // If the system allows multiple roles per user, you could use assignRole().
-        // For standard "Group" logic, syncRoles ensures they stay in exactly the specified group.
-        $user->syncRoles([$roleIdentifier]);
+        if (is_numeric($roleIdentifier)) {
+            $role = Role::query()
+                ->where('id', (int) $roleIdentifier)
+                ->where('guard_name', $guard)
+                ->firstOrFail();
+            $user->syncRoles([$role]);
+        } else {
+            $role = Role::query()
+                ->where('name', (string) $roleIdentifier)
+                ->where('guard_name', $guard)
+                ->firstOrFail();
+            $user->syncRoles([$role]);
+        }
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\Role;
 
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 class UpdateRoleAction
@@ -16,10 +17,48 @@ class UpdateRoleAction
      */
     public function execute(Role $role, string $name, array $permissions): Role
     {
-        $role->update(['name' => $name]);
+        $guard = (string) config('auth.defaults.guard', 'web');
 
-        $role->syncPermissions($permissions);
+        $role->update([
+            'name' => $name,
+            'guard_name' => $guard,
+        ]);
+
+        $role->syncPermissions($this->normalizePermissionIdsForGuard($permissions, $guard));
 
         return $role;
+    }
+
+    /**
+     * @param array<int, int|string> $permissions
+     * @return array<int, int>
+     */
+    private function normalizePermissionIdsForGuard(array $permissions, string $guard): array
+    {
+        return collect($permissions)
+            ->map(function (int|string $permission) use ($guard): ?int {
+                $sourcePermission = is_numeric($permission)
+                    ? Permission::query()->find((int) $permission)
+                    : Permission::query()->where('name', (string) $permission)->first();
+
+                if (!$sourcePermission) {
+                    return null;
+                }
+
+                if ($sourcePermission->guard_name === $guard) {
+                    return (int) $sourcePermission->id;
+                }
+
+                $targetPermission = Permission::query()->firstOrCreate([
+                    'name' => (string) $sourcePermission->name,
+                    'guard_name' => $guard,
+                ]);
+
+                return (int) $targetPermission->id;
+            })
+            ->filter(fn (?int $id): bool => $id !== null)
+            ->unique()
+            ->values()
+            ->all();
     }
 }

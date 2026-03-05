@@ -2,49 +2,94 @@
 description: Workflow: API Contract Synchronization Check (Laravel & Next.js)
 ---
 
-Workflow: API Contract Synchronization Check (Laravel & Next.js)
-Description: Este workflow garante a integridade dos dados entre o backend (Laravel) e o frontend (Next.js) analisando as definições técnicas nos arquivos de docs.
-Trigger: Comando manual "Validar sincronização do módulo [nome]" ou alteração detectada nos arquivos dentro da pasta docs/{nome-modulo}/.
+# Workflow: API Contract Synchronization Check (Laravel & Next.js)
 
-Phase 1: Data Extraction (Mining)
-Backend Scan:
+## Objetivo
+Garantir consistência entre o contrato documentado do backend (Laravel) e do frontend (Next.js), atuando somente em documentação do diretório `docs/`.
 
-Acesse a pasta docs/{nome-modulo}/laravel/.
+## Trigger
+- Comando manual: `Validar sincronização do módulo {nome-feature}`
+- Mudanças em qualquer arquivo dentro de `docs/technical-implementations/{nome-feature}/`
 
-Extraia todos os campos definidos em "API Resources", "Database Schema" e "Request Validation".
+## Entradas obrigatórias
+- `docs/technical-implementations/{nome-feature}/laravel/`
+- `docs/technical-implementations/{nome-feature}/next/`
+- Template de relatório:
+  - `.agents/workflows/templates/SYNC_REPORT.template.md`
+- Regras de arquitetura:
+  - `.agents/rules/tech-laravel.md`
+  - `.agents/rules/tech-nextjs.md`
 
-Mapeie nomes de campos, tipos (string, int, float, boolean) e nulidade.
+## Fase 1: Extração de Contrato (Mining)
+### 1. Backend scan
+- Ler documentação em `docs/technical-implementations/{nome-feature}/laravel/`.
+- Extrair campos definidos em:
+  - API Resources (payload de resposta)
+  - Request Validation (payload de entrada)
+  - Database Schema (tipagem e nulidade)
+- Normalizar cada campo em uma estrutura comparável:
+  - `path` (ex: `data.user.id`)
+  - `type` (string, integer, number, boolean, array, object, enum, datetime)
+  - `required` (sim/nao)
+  - `nullable` (sim/nao)
+  - `enum_values` (quando existir)
 
-Frontend Scan:
+### 2. Frontend scan
+- Ler documentação em `docs/technical-implementations/{nome-feature}/next/`.
+- Extrair definições de:
+  - Zod Schemas
+  - TypeScript Interfaces/Types
+  - Contratos de Services (request/response)
+- Normalizar para a mesma estrutura do backend (`path`, `type`, `required`, `nullable`, `enum_values`).
 
-Acesse a pasta docs/{nome-modulo}/next/.
+## Fase 2: Analise Estrutural (Cross-Check)
+### 1. Regras de comparacao
+- Comparar backend vs frontend por `path`.
+- Tratar `snake_case` vs `camelCase` como potencial mapeamento, nao equivalencia automatica.
+- Confirmar consistencia de:
+  - Presenca de campo
+  - Tipo
+  - Obrigatoriedade (`required`)
+  - Nulidade (`nullable`)
+  - Dominio (`enum_values`)
 
-Extraia definições de Zod Schemas, TypeScript Interfaces e contratos de Services.
+### 2. Classificacao de divergencias
+- `[ERRO]`:
+  - Campo ausente em um dos lados
+  - Tipo incompativel (ex: `uuid:string` vs `number`)
+  - Campo obrigatorio em um lado e opcional no outro sem justificativa documentada
+  - Enum com valores diferentes
+- `[AVISO]`:
+  - Diferenca de naming com mapeamento possivel (ex: `user_id` vs `userId`)
+  - Diferencas que nao quebram contrato imediatamente, mas geram risco de manutencao
 
-Mapeie nomes de campos e validações correspondentes.
+## Fase 3: Relatorio e Ajuste de Documentacao
+### 1. Geracao de relatorio
+- Criar ou atualizar `docs/technical-implementations/{nome-feature}/SYNC_REPORT.md`.
+- Usar `.agents/workflows/templates/SYNC_REPORT.template.md` como base inicial.
+- Manter historico por data (`YYYY-MM-DD`) no topo do arquivo.
+- Usar formato padrao por item:
 
-Phase 2: Structural Analysis (Cross-Check)
-Field Mapping: Compare cada campo do backend com o seu correspondente no frontend.
+```md
+- [ERRO|AVISO] Campo: <path>
+  - Backend: <definicao>
+  - Frontend: <definicao>
+  - Impacto: <quebra em runtime, tipagem incorreta, risco de regressao, etc.>
+  - Acao recomendada: <ajuste em docs/technical-implementations/{nome-feature}/laravel/... ou docs/technical-implementations/{nome-feature}/next/...>
+```
 
-Mismatch Detection: Identifique falhas críticas, incluindo:
+### 2. Proposta arquitetural
+- Para cada divergencia, recomendar ajuste alinhado com:
+  - `.agents/rules/tech-laravel.md`
+  - `.agents/rules/tech-nextjs.md`
 
-Naming Collision: Ex: user_id no Laravel vs userId no Next.
+## Restricoes
+- Nao editar arquivos de codigo-fonte (`.php`, `.ts`, `.tsx`, etc.).
+- Limitar alteracoes a documentacao em `docs/`.
+- Se faltar documentacao em qualquer lado (Laravel/Next), registrar bloqueio no `SYNC_REPORT.md` como `[ERRO] Documentacao incompleta`.
 
-Missing Fields: Campos presentes em um docs mas ausentes no outro.
-
-Type Incompatibility: Ex: Backend enviando string (UUID) enquanto o frontend espera number (ID sequencial).
-
-Validation Audit: Verifique se as regras de obrigatoriedade do Laravel coincidem com as validações .optional() ou .required() do Zod no Next.js.
-
-Phase 3: Reporting & Documentation Adjustment
-Report Generation:
-
-Crie ou atualize o arquivo docs/{nome-modulo}/SYNC_REPORT.md.
-
-Liste todos os erros encontrados com o status [ERRO] ou [AVISO].
-
-Architectural Proposal:
-
-Para cada divergência, sugira a alteração técnica necessária em conformidade com as rules de cada stack (tech-laravel.md ou tech-nextjs.md).
-
-Finalization: Notifique o usuário sobre o estado da sincronização. Não altere arquivos de código fonte (.php, .ts, .tsx); limite-se à documentação técnica no diretório docs/.
+## Criterio de conclusao
+- Workflow so pode ser finalizado com:
+  - `SYNC_REPORT.md` atualizado
+  - divergencias classificadas (`[ERRO]` e `[AVISO]`)
+  - recomendacoes objetivas de correcao documentadas
