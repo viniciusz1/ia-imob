@@ -19,6 +19,7 @@ export const metadata: Metadata = {
 
 import Providers from "./providers";
 import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 export default function RootLayout({
   children,
@@ -31,7 +32,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Providers>
-          {children}
+          <TooltipProvider>{children}</TooltipProvider>
         </Providers>
         <Toaster />
       </body>

@@ -30,8 +30,8 @@ export default async function UsuariosPage({ searchParams }: PageProps) {
         const response = await getUsers(filters);
         data = response.data;
         meta = response.meta;
-    } catch (error) {
-        console.error("Backend offline ou API não encontrada. Exibindo lista vazia.");
+    } catch (error: any) {
+        console.error("Erro ao buscar usuários (SSR):", error.message, error.response?.data);
     }
 
     return <UsuariosClient initialData={data} pageCount={meta.last_page} />;

@@ -32,7 +32,7 @@ export function LoginForm() {
     } = useForm<LoginFormData>({
         resolver: zodResolver(loginSchema),
         defaultValues: {
-            email: "",
+            login: "",
             password: "",
             remember: false,
         },
@@ -84,17 +84,17 @@ export function LoginForm() {
             <form onSubmit={handleSubmit(onSubmit)}>
                 <CardContent className="space-y-5">
                     <div className="space-y-2">
-                        <Label htmlFor="email" className={errors.email ? "text-red-400" : "text-slate-200"}>Usuário ou E-mail</Label>
+                        <Label htmlFor="login" className={errors.login ? "text-red-400" : "text-slate-200"}>Usuário ou E-mail</Label>
                         <Input
-                            id="email"
+                            id="login"
                             type="text"
                             placeholder="usuario@exemplo.com"
-                            {...register("email")}
-                            aria-invalid={!!errors.email}
-                            className={`bg-white/5 border-white/10 text-white placeholder:text-slate-500 focus-visible:ring-primary ${errors.email ? "border-red-500 focus-visible:ring-red-500" : ""}`}
+                            {...register("login")}
+                            aria-invalid={!!errors.login}
+                            className={`bg-white/5 border-white/10 text-white placeholder:text-slate-500 focus-visible:ring-primary ${errors.login ? "border-red-500 focus-visible:ring-red-500" : ""}`}
                         />
-                        {errors.email && (
-                            <p className="text-sm font-medium text-red-400">{errors.email.message}</p>
+                        {errors.login && (
+                            <p className="text-sm font-medium text-red-400">{errors.login.message}</p>
                         )}
                     </div>
 

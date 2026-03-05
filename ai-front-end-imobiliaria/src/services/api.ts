@@ -1,11 +1,12 @@
 import axios from "axios";
+import { config } from "process";
 import { toast } from "sonner";
 
 // Pega a URL do backend base, removendo o sufixo /api caso exista na env, pois o Sanctum 
 // usa rotas web (/sanctum/csrf-cookie, /login) e rotas api (/api/user)
 const backendUrl = process.env.NEXT_PUBLIC_API_URL
     ? process.env.NEXT_PUBLIC_API_URL.replace(/\/api\/?$/, "")
-    : "http://localhost:8000";
+    : "http://localhost";
 
 const api = axios.create({
     baseURL: backendUrl,
@@ -34,10 +35,12 @@ api.interceptors.request.use(async (config) => {
             const cookieStore = await cookies();
             const cookieString = cookieStore
                 .getAll()
-                .map((cookie) => `${cookie.name}=${cookie.value}`)
+                .map((cookie: any) => `${cookie.name}=${cookie.value}`)
                 .join("; ");
             if (cookieString) {
                 config.headers.Cookie = cookieString;
+                // Sanctum requires Referer or Origin to treat the request as stateful:
+                config.headers.Referer = "http://localhost:3000";
             }
         } catch (error) {
             // Ignorado, apenas significa que não estamos num contexto Next SSR
