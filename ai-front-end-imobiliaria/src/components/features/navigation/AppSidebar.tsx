@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+    Bot,
     Building2,
+    CreditCard,
     LayoutDashboard,
     ShieldCheck,
     Users,
@@ -46,6 +48,16 @@ const navItems = [
         title: "Grupos",
         href: "/grupos",
         icon: ShieldCheck,
+    },
+    {
+        title: "Buscador com IA",
+        href: "/ai-searcher",
+        icon: Bot,
+    },
+    {
+        title: "Plano & Assinatura",
+        href: "/billing",
+        icon: CreditCard,
     },
 ];
 

@@ -28,6 +28,8 @@ class PermissionSeeder extends Seeder
             'properties.edit.all',
             'properties.delete',
             'roles.manage',
+            'subscriptions.view',
+            'subscriptions.manage',
         ];
 
         foreach ($permissions as $permissionName) {

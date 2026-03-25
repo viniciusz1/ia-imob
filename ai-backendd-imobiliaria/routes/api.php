@@ -20,6 +20,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Properties Module
     Route::apiResource('properties', \App\Http\Controllers\Api\PropertyController::class);
+    Route::apiResource('scrapy-properties', \App\Http\Controllers\Api\ScrapyPropertyController::class);
 
     // Property Images
     Route::post('properties/{property}/images', [\App\Http\Controllers\Api\PropertyImageController::class, 'store']);
@@ -31,5 +32,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('enums', [\App\Http\Controllers\Api\SystemEnumController::class, 'index']);
     Route::get('features', [\App\Http\Controllers\Api\FeatureController::class, 'index']);
 
+    // Subscriptions (Authenticated)
+    Route::get('/subscriptions/current', [\App\Http\Controllers\Api\SubscriptionController::class, 'current']);
+    Route::post('/subscriptions', [\App\Http\Controllers\Api\SubscriptionController::class, 'store']);
+    Route::delete('/subscriptions/{id}', [\App\Http\Controllers\Api\SubscriptionController::class, 'destroy']);
+
     require __DIR__ . '/api/user_routes.php';
 });
+
+// Plans (Public)
+Route::get('/plans', [\App\Http\Controllers\Api\PlanController::class, 'index']);
+
+// Asaas Webhook (Public POST)
+Route::post('/webhooks/asaas', [\App\Http\Controllers\Api\AsaasWebhookController::class, 'handle']);

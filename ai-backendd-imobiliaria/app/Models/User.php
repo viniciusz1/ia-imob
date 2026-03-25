@@ -25,6 +25,7 @@ class User extends Authenticatable
         'work_period_2_start', 'work_period_2_end',
         'website_name', 'facebook_link', 'instagram_link',
         'description', 'notes', 'last_seen_at',
+        'asaas_customer_id',
     ];
 
     protected $hidden = [
@@ -51,5 +52,10 @@ class User extends Authenticatable
     public function scopeOnline(Builder $query): Builder
     {
         return $query->where('last_seen_at', '>=', now()->subMinutes(5));
+    }
+
+    public function subscriptions(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(TenantSubscription::class, 'user_id');
     }
 }

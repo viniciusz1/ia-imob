@@ -1,132 +1,73 @@
-# Detalhamento de Execução: Plataforma White-Label B2B (Módulo de Sites)
+# Plano de Arquitetura: Plataforma White-Label (B2B SaaS) para Imobiliárias
 
-Este documento traduz o plano estrutural ("O que fazer") num **Guia de Execução Técnica ("Como fazer")**, totalmente alinhado com as regras do sistema prescritas em `.agents/rules/`.
-
----
-
-## FASE 1: Fundação Multi-Tenant (Backend - Laravel)
-*Regras aplicáveis: `tech-laravel.md` (item 1, 4 e 5)*
-
-**Ojetivo:** Preparar o banco de dados e as models para suportar múliplas imobiliárias isoladas sem vazar dados entre elas.
-
-### 1. Modelagem Inicial
-- Criar a entity `Tenant`:
-  - `php artisan make:model Tenant -m`
-  - Migration: `id`, `name`, `document` (CNPJ), `email` (contato), `is_active`, `timestamps`, `softDeletes`.
-- Criar a entity `TenantDomain`:
-  - `php artisan make:model TenantDomain -m`
-  - Migration: `id`, `tenant_id`, `domain` (ex: `www.imobizi.com`), `is_primary` (boolean), `is_verified` (boolean), `ssl_status`.
-
-### 2. Isolamento de Escopo (Global Scopes)
-- Alterar as principais Migrations (`users`, `properties`, `leads`) para incluir um `$table->foreignId('tenant_id')->constrained()`.
-- Criar uma Trait `BelongsToTenant`:
-  ```php
-  trait BelongsToTenant {
-      protected static function booted() {
-          static::addGlobalScope('tenant', function (Builder $builder) {
-              if (auth()->check()) {
-                  $builder->where('tenant_id', auth()->user()->tenant_id);
-              }
-              // Opcional: Se a requisição vier da API pública (site), o tenant_id é resolvido via Header/QueryParam injetado pelo Middleware.
-          });
-      }
-  }
-  ```
-- Aplicar a Trait nos Models: `User`, `Property`, `Lead`.
+## 1. Visão Geral do Módulo
+O sistema deixará de ser apenas um CRM/ERP interno para uma única imobiliária e passará a atuar como um **SaaS Multi-Tenant (B2B)**. As imobiliárias ("Tenants") poderão se cadastrar, gerenciar seus imóveis e **gerar automaticamente um site público (front-end independente)** com seu próprio domínio, identidade visual e templates otimizados para SEO.
 
 ---
 
-## FASE 2: API de Gestão do Site no CRM (Backend - Laravel)
-*Regras aplicáveis: `tech-laravel.md` (item 1, 2, 3 e 6)*
+## 2. Mudanças Estruturais Core (O "Motor" do Sistema)
 
-**Objetivo:** Fornecer endpoints protegidos pelo Sanctum onde o gestor da imobiliária personalize o site.
+### 2.1 Multi-Tenancy (Isolamento de Dados)
+Para que várias imobiliárias usem o mesmo banco de dados sem misturar os imóveis, será necessário implementar **Multi-Tenancy lógico**.
+- **Novo Model `Tenant` (Agência/Imobiliária):** Todo usuário, imóvel, lead e configuração pertencerá a um `tenant_id`.
+- **Global Scopes (Laravel):** Aplicar um escopo global no Eloquent para que querys (ex: `Property::all()`) retornem *apenas* os dados do `tenant_id` atrelado ao usuário logado ou ao domínio da requisição pública.
+- **Isolamento de Midia:** As imagens/vídeos no S3/Storage precisarão ser separadas por pastas (ex: `/tenants/{id}/properties/`).
 
-### 1. Customização (TenantSiteSetting)
-- Migration: `id`, `tenant_id`, `theme_slug` (enum/string - validado via `system_enums`), `primary_color`, `secondary_color`, `logo_path`, `favicon_path`, `facebook_url`, `instagram_url`, `whatsapp_number`, `google_analytics_id`.
-- Criar `SystemEnumSeeder` para temas:
-  ```php
-  SystemEnum::updateOrCreate(['tag' => 'site_themes'], [
-      'data' => [
-          ['value' => 'modern-glass', 'label' => 'Modern Glass'],
-          ['value' => 'classic-luxury', 'label' => 'Classic Luxury'],
-      ]
-  ]);
-  ```
-
-### 2. Arquitetura (Action/Service/Repository)
-- **Controller Magro:** `TenantSiteSettingController`
-- **Form Request:** `UpdateSiteSettingRequest` validando cores com regex HEX, URLs com `url`, e uploads via rules exclusivas para imagens (`mimes:jpeg,png,svg`). Validar `theme_slug` forçando que ele exista na tag `site_themes` do `system_enums`.
-- **Action:** `UpdateTenantSiteSettingsAction` encarregada de gerir os arquivos no `$storage->put('tenants/{id}/public/...` e salvar as strings/HEX na model de Settings.
-- **Resource:** `TenantSiteSettingResource` montando o response mapeado.
+### 2.2 Gestão de Domínios Customizados e Roteamento
+O Next.js público (site final) precisará saber *qual* imobiliária carregar baseado na URL acessada (ex: `www.imobiliaria-cliente.com.br`).
+- **Tabela `domains`:** Vincular um ou mais domínios a um `Tenant`.
+- **Next.js Middleware:** Interceptar todas as requisições (`middleware.ts`), ler o cabeçalho `Host` e fazer um "rewrite" para a rota correta da imobiliária (ex: `/sites/[tenant_id]`).
+- **Configuração de Infraestrutura:** O servidor DNS e o proxy reverso (Nginx/Vercel/Cloudflare) precisarão aceitar *Wildcard Subdomains* (`*.seusistema.com`) e roteamento de domínios customizados apontando para a aplicação.
 
 ---
 
-## FASE 3: API Aberta (API Pública para o Frontend Next.js B2B)
-*Regras aplicáveis: `tech-laravel.md` (item 3 e 8)*
+## 3. Novas Features a Serem Implementadas
 
-**Objetivo:** Servir os dados para o Next.js público sem o uso de tokens Sanctum por visitante, mas com validação rigorosa via domínio.
+### 3.1 Módulo: Gestor de Sites (Site Builder) no CRM
+Um painel administrativo onde o dono da imobiliária configurará seu site.
+- **Configurações Gerais:** Upload de Logo, Favicon, paleta de cores (variáveis CSS dinâmicas baseadas em Hexadecimal), links de redes sociais, script de Google Analytics/Pixel.
+- **Gestão de Domínios:** Interface para a agência cadastrar seu domínio próprio e visualizar as instruções de apontamento DNS (CNAME/A Record).
+- **Temas (Templates):** Seleção de templates pré-construídos. O backend armazenará qual o `theme_slug` ativo para o tenant.
 
-### 1. Roteamento Público e Middleware
-- Criar rota `routes/public.php` (ou prefixo em `api.php`).
-- Criar Middleware `IdentifyTenantByDomain`:
-  - Lê o cabeçalho passado pelo Next.js (ex: `X-Domain: www.site-da-imob.com.br`).
-  - Busca na model `TenantDomain` -> Descobre o `tenant_id`.
-  - Se não achar, aborta 404 (domínio descadastrado).
-  - Guarda o `Tenant` atual num Service Container ou injeta o escopo global.
-
-### 2. Endpoints e Performance (Prevenindo N+1)
-- `GET /api/public/site-settings`: Retorna cores, logo e tema escolhido (`TenantSiteSettingResource`). Cacheável no backend ou na CDN.
-- `GET /api/public/properties`: Repository isolado (`PublicPropertyRepository`). 
-  - Regra dura: `where('is_published', true)`.
-  - Eager Loading Obrigatório (`tech-laravel.md` Item 8): `$query->with(['images' => fn($q) => $q->where('is_cover', true)->orderBy('order')])`.
-  - Filtros traduzidos diretamente do Request param (price min/max, type, etc).
-- `GET /api/public/properties/{reference_code}`: Endpoint base para o SSR das páginas detalhadas dos imóveis.
+### 3.2 Novo Frontend: O Motor de Temas Públicos (Next.js)
+Teremos um repositório Next.js separado para o site público.
+- **Motor de Renderização Base:** Componentização robusta onde a injeção do tema (cores, fontes) ocorra no nível máximo do Layout.
+- **Sistema de Templates:** O código responderá condicionalmente ao `theme_slug` da agência, carregando componentes visuais diferentes (ex: `components/themes/modern-glass/Home.tsx` vs `components/themes/classic-gold/Home.tsx`).
+- **Motor de Busca Público:** O site precisa de uma API pública rápida (`GET /api/public/properties?domain=...`) que receba filtros (bairro, cidade, valor, quartos) e devolva apenas os imóveis **publicados** daquela agência.
 
 ---
 
-## FASE 4: Frontend Público (Motor B2B em Next.js 15+)
-*Regras aplicáveis: `tech-nextjs.md` (item 1, 2, 4, 6, 7)*
+## 4. Otimização Profunda para Google SEO (A Grande Vantagem)
 
-**Objetivo:** Um repositório à parte (ou projeto isolado com Next Router próprio) encarregado unicamente de servir os sites gerados.
+Vender sites exige tráfego orgânico. O Next.js resolverá isso com Server-Side Rendering (SSR) e Static Site Generation (SSG).
 
-### 1. Middleware e Roteamento Edge (O Coração do SaaS)
-- O arquivo `middleware.ts` do Next.js será usado para ler o Host request.
-- Padrão **Rewrite no Edge**:
-  ```typescript
-  export default async function middleware(req: NextRequest) {
-      const hostname = req.headers.get('host');
-      // Reescreve internamente para uma rota dinâmica [domain]
-      return NextResponse.rewrite(new URL(`/sites/${hostname}${req.nextUrl.pathname}`, req.url));
-  }
-  ```
-- Estrutura de Rotas (RSC por padrão - `tech-nextjs.md` Item 1): `app/sites/[domain]/page.tsx` e `app/sites/[domain]/imoveis/[slug]/page.tsx`.
-
-### 2. Injeção de Temas e UI Dinâmica
-- **Busca de Dados Nativa (`fetch` com caching):** No `layout.tsx` de raiz de `[domain]`, executar:
-  ```typescript
-  const settings = await fetch(`https://api.system.com/api/public/site-settings`, { 
-      headers: { 'X-Domain': domain } 
-  }).then(r => r.json());
-  ```
-- **Injetar Variáveis CSS:** No body / html encapsular as cores retornadas em Tag `<style>` ou props CSS (ex: `--primary-color: ${settings.primary_color}`). O Tailwind ('`tech-nextjs.md` Item 7) será mapeado no config para ler o valor de `var(--primary_color)`.
-- Renderizar condicionalmente os blocos baseados no `settings.theme_slug` carregando importações preguiçosas/dinâmicas para não inchar o bundle.
-
-### 3. SEO Profundo e SSG/SSR Obrigatório
-- **Metadados Dinâmicos:**
-  - `generateMetadata({ params })` em `/imoveis/[slug]/page.tsx`.
-  - Buscar e mapear o Título do Imóvel para a tag `<title>`. Descrição rica para `<meta name="description">`. Tag OG Images preenchida obrigatoriamente para WhatsApp.
-- **Microdados JSON-LD (Schema.org):** Integrar React Server Components e retornar um bloco estático de JSON no topo das páginas detalhadas mapeando preçoe  tipologia para "Rich Snippets" orgânicos do Google.
-- **Sitemap Dinâmico:** Utilizar `app/sitemap.ts` recebendo o Header do host para devolver pro Google Robot uma lista exclusiva apenas com URLs relativas àquele subdomínio/cliente.
-- **Componente `<Image />`:** Uso proibido de tags `<img />` tradicionais em galerias de fotos. Obrigatoriedade de `next/image` (`tech-nextjs.md` Item 6) usando URLs do Storage resolvidas como loader para converter JPGs não compactados dos corretores nos leves Webp em real-time.
+### Arquitetura de SEO Obrigatória:
+1. **Dynamic Metadata:** As páginas de detalhes do imóvel (ex: `/imovel/venda-apartamento-3-quartos-centro-sp-ref123`) devem gerar as tags `<title>`, `<meta name="description">` dinamicamente baseadas nos dados do imóvel via Server Components (`generateMetadata` do Next.js).
+2. **Open Graph & Twitter Cards:** Injeção da foto de capa do imóvel nos cabeçalhos OG para que o compartilhamento no WhatsApp/Redes Sociais seja renderizado com a foto grande.
+3. **URL Semântica (Slugs):** Criar uma rotina no backend para gerar "slugs" amigáveis quando o corretor cadastrar o imóvel (ex: `/{finalidade}-{tipo}-{bairro}-{cidade}`). URLs com IDs feios como `/property/152` prejudicam SEO.
+4. **Sitemap Dinâmico (Sitemap.xml):** O Next.js deverá gerar sitemaps on-the-fly (`app/sitemap.ts`) batendo na API e listando absolutamente todos os links de imóveis daquela agência.
+5. **Schema.org estruturado:** Injeção de marcação JSON-LD em cada imóvel (Type: `RealEstateListing` e `Product`), informando ao robô do Google exatamente onde está o preço, a latitude/longitude, a área e as fotos. Isso permite que o Google crie "Rich Snippets" (exibindo preço direto na busca).
+6. **Core Web Vitals:** Para uso das imagens em alta resolução enviadas pelos corretores, é vital utilizar o componente `<Image>` do Next formatando em `WebP`/`AVIF` com loaders proativos.
 
 ---
 
-## FASE 5: Contratos de Integração e Workflow
-*Regra aplicável: workflow `api-contract-sync.md`*
+## 5. Próximos Passos (Plano de Execução)
 
-Ao iniciar a codificação desta documentação, o fluxo da API Sync deve ser estritamente rodado. 
+Para transformar a arquitetura atual para este modelo SaaS Multi-tenant, recomendo a seguinte ordem:
 
-**Como funcionará a manutenção deste módulo no workflow de Sync:**
-- Os arquivos do backend no repositório gerarão documentação para `docs/technical-implementations/site-b2b/laravel/public-api.md`.
-- Os contratos requeridos pela camada do Next Server (`types`) irão constar em `docs/technical-implementations/site-b2b/next/specs.md`.
-- A trigger rodará cruzando via `SYNC_REPORT` se propriedades vitais como `theme_slug` no frontend exigidas para montagem visual do tema estão sendo mapeadas nula/indefinida ou não-tipadas na entrega REST da Public API. Se houver mismatch, os relatórios alertarão no formato `[ERRO]` já instruído.
+1. **Refatoração Multi-Tenant (Backend Base):**
+   - Criar model/migration `Tenants`.
+   - Modificar a tabela `users` (e as demais atuais) adicionando `tenant_id`.
+   - Adicionar o escopo global no Eloquent.
+
+2. **Criação do Módulo Site Builder (Backend e CRM Atual):**
+   - Criar as tabelas `tenant_domains` e `tenant_site_settings`.
+   - Construir os formulários no painel (Gestão de Cores, Logos, Templates).
+
+3. **Início do Motor Público (Novo Projeto Next.js Frontend):**
+   - Desenhar a arquitetura do middleware para detecção de domínios.
+   - Criar 1 template funcional completo listando imóveis mockados da API.
+   - Implementar os filtros e paginação.
+
+4. **SEO e Polimento Final:**
+   - Aplicar SSR, Sitemaps e Schema.org no projeto Next.js público.

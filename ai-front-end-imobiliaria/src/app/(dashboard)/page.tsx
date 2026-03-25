@@ -1,4 +1,4 @@
-import { Building2, ShieldCheck, Users } from "lucide-react";
+import { Bot, Building2, ShieldCheck, Users } from "lucide-react";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -25,6 +25,12 @@ const modules = [
         description: "Gerencie os grupos e permissões",
         href: "/grupos",
         icon: ShieldCheck,
+    },
+    {
+        title: "Buscador com IA",
+        description: "Encontre imóveis rapidamente usando inteligência artificial",
+        href: "/ai-searcher",
+        icon: Bot,
     },
 ];
 

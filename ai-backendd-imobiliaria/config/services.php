@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    'asaas' => [
+        'token'         => env('ASAAS_API_TOKEN'),
+        'webhook_token' => env('ASAAS_WEBHOOK_TOKEN'),
+        'base_url'      => env('ASAAS_BASE_URL', 'https://api-sandbox.asaas.com'),
+    ],
+
 ];

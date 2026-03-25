@@ -130,6 +130,56 @@ Sistema de gestão imobiliária completo, composto por um painel administrativo 
 
 ---
 
+### 7. Pagamento Recorrente (Asaas)
+
+**Status:** 📋 Planejado
+
+**Descrição:** Integração com o gateway [Asaas](https://asaas.com) para cobrança recorrente dos planos de assinatura SaaS do sistema. As imobiliárias escolhem um plano e o Asaas gerencia automaticamente a gebrança nos ciclos definidos. O backend recebe eventos de pagamento via webhook para manter o status de assinatura sincronizado.
+
+**Planos disponíveis:**
+
+| Plano | Ciclo | Valor/mês exibido | Valor cobrado |
+|-------|-------|-------------------|---------------|
+| Mensal | Mensal | R$ 299,00 | R$ 299,00 |
+| Semestral | A cada 6 meses | R$ 249,00 | R$ 1.494,00 |
+| Anual | Anual | R$ 199,00 | R$ 2.388,00 |
+
+**Funcionalidades:**
+- Criação automática de Customer no Asaas ao assinar (vinculado ao Tenant por `externalReference`)
+- Criação de Subscription Asaas com ciclos `MONTHLY`, `SEMIANNUALLY`, `YEARLY`
+- Suporte a PIX, Boleto e Cartão de Crédito como formas de pagamento
+- Processamento de webhooks Asaas: `PAYMENT_CONFIRMED`, `PAYMENT_OVERDUE`, `SUBSCRIPTION_DELETED`
+- Tabela `tenant_subscriptions` para rastrear status local da assinatura
+- Tabela `subscription_plans` com seed dos 3 planos
+- Tela de billing no dashboard (`/dashboard/billing`) para seleção, confirmação e cancelamento de plano
+- Banner de assinatura ativa com data da próxima cobrança
+
+**Especificação técnica:**
+- Backend: [technical-implementations/pagamento-recorrente/laravel/](file:///home/vinicius/apps/ia-imob/docs/technical-implementations/pagamento-recorrente/laravel/)
+- Frontend: [technical-implementations/pagamento-recorrente/next/](file:///home/vinicius/apps/ia-imob/docs/technical-implementations/pagamento-recorrente/next/)
+
+---
+
+### 8. Busca de Imóveis (AI Searcher - Scrapy Properties)
+
+**Status:** ✅ Concluído
+
+**Descrição:** Módulo de busca e listagem de imóveis extraídos ("Scrapy Properties") do front-end legado ou fontes externas, permitindo que o usuário aplique filtros avançados de busca na interface. A estrutura backend expõe os dados através de uma API consumida pelo Next.js.
+
+**Funcionalidades:**
+- Leitura e importação (seed) de dados JSON (`sitemap_jaragua_do_sul_pradi_ajustado.json`)
+- Estrutura de banco de dados (`scrapy-properties`) para abrigar imóveis extraídos
+- Rota de API (`/api/scrapy-properties`) para listagem completa de imóveis
+- Interface front-end (`AiSearcherClient`) com estados de loading e fallback do React Suspense
+- Filtros dinâmicos no front-end por tipo, valor, cidade, bairro e quartos (via URL Search Params)
+- Ordenação e paginação local no front-end
+
+**Especificação técnica:**
+- Backend: [technical-implementations/ai-searcher/laravel/](file:///home/vinicius/apps/ia-imob/docs/technical-implementations/ai-searcher/laravel/)
+- Frontend: [technical-implementations/ai-searcher/next/](file:///home/vinicius/apps/ia-imob/docs/technical-implementations/ai-searcher/next/)
+
+---
+
 ## Convenções de Documentação
 
 > [!IMPORTANT]
