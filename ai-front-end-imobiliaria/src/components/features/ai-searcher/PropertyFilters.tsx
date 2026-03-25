@@ -6,7 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Search } from "lucide-react";
-import type { AiSearcherProperty, AiSearcherFiltersState } from "./types";
+import type { AiSearcherProperty, AiSearcherFiltersState, AiSearcherFiltersOptions } from "./types";
+import api from "@/services/api";
 
 interface PropertyFiltersProps {
   properties: AiSearcherProperty[];
@@ -16,11 +17,26 @@ interface PropertyFiltersProps {
 }
 
 export function PropertyFilters({
-  properties,
+  properties, // Note: no longer used for filter option extraction
   onFilterChange,
   initialState,
   onFilterStateChange,
 }: PropertyFiltersProps) {
+  // Filter options from API
+  const [filterOptions, setFilterOptions] = useState<AiSearcherFiltersOptions>({
+    tipos: [],
+    bairros: [],
+    cidades: [],
+    imobiliarias: [],
+    quartos: [],
+  });
+
+  useEffect(() => {
+    api.get('/api/scrapy-properties/filters')
+      .then(res => setFilterOptions(res.data))
+      .catch(console.error);
+  }, []);
+
   // Filter states
   const [selectedTipos, setSelectedTipos] = useState<string[]>(
     initialState.selectedTipos
@@ -46,16 +62,8 @@ export function PropertyFilters({
   const [searchCidade, setSearchCidade] = useState<string>("");
   const [searchImobiliaria, setSearchImobiliaria] = useState<string>("");
 
-  // Extract distinct options
-  const tipos = Array.from(new Set(properties.map((p) => p.tipo))).sort();
-  const bairros = Array.from(new Set(properties.map((p) => p.bairro))).sort();
-  const cidades = Array.from(new Set(properties.map((p) => p.cidade))).sort();
-  const imobiliarias = Array.from(
-    new Set(properties.map((p) => p.imobiliaria))
-  ).sort();
-  const quartos = Array.from(
-    new Set(properties.map((p) => p.quartos).filter((q) => q > 0))
-  ).sort((a, b) => a - b);
+  // Extract variables
+  const { tipos, bairros, cidades, imobiliarias, quartos } = filterOptions;
 
   // Filter options by search
   const filteredTipos = tipos.filter((t) =>

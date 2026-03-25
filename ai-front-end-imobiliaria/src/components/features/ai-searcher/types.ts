@@ -21,3 +21,11 @@ export interface AiSearcherFiltersState {
   minPrice: string;
   maxPrice: string;
 }
+
+export interface AiSearcherFiltersOptions {
+  tipos: string[];
+  bairros: string[];
+  cidades: string[];
+  imobiliarias: string[];
+  quartos: number[];
+}

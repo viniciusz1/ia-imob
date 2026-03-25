@@ -20,6 +20,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Properties Module
     Route::apiResource('properties', \App\Http\Controllers\Api\PropertyController::class);
+    Route::get('scrapy-properties/filters', [\App\Http\Controllers\Api\ScrapyPropertyController::class, 'filters']);
     Route::apiResource('scrapy-properties', \App\Http\Controllers\Api\ScrapyPropertyController::class);
 
     // Property Images

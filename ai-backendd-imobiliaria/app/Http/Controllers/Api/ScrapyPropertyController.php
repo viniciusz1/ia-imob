@@ -56,4 +56,48 @@ class ScrapyPropertyController extends Controller
 
         return \App\Http\Resources\Api\ScrapyPropertyResource::collection($properties);
     }
+
+    /**
+     * Get distinct values for filter options.
+     */
+    public function filters()
+    {
+        $tipos = ScrapyProperty::whereNotNull('tipo')
+            ->where('tipo', '!=', '')
+            ->distinct()
+            ->orderBy('tipo')
+            ->pluck('tipo');
+
+        $bairros = ScrapyProperty::whereNotNull('bairro')
+            ->where('bairro', '!=', '')
+            ->distinct()
+            ->orderBy('bairro')
+            ->pluck('bairro');
+
+        $cidades = ScrapyProperty::whereNotNull('cidade')
+            ->where('cidade', '!=', '')
+            ->distinct()
+            ->orderBy('cidade')
+            ->pluck('cidade');
+
+        $imobiliarias = ScrapyProperty::whereNotNull('imobiliaria')
+            ->where('imobiliaria', '!=', '')
+            ->distinct()
+            ->orderBy('imobiliaria')
+            ->pluck('imobiliaria');
+
+        $quartos = ScrapyProperty::whereNotNull('qtd_quartos')
+            ->where('qtd_quartos', '>', 0)
+            ->distinct()
+            ->orderBy('qtd_quartos')
+            ->pluck('qtd_quartos');
+
+        return response()->json([
+            'tipos' => $tipos,
+            'bairros' => $bairros,
+            'cidades' => $cidades,
+            'imobiliarias' => $imobiliarias,
+            'quartos' => $quartos,
+        ]);
+    }
 }
