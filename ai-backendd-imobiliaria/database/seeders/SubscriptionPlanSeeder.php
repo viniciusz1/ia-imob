@@ -20,6 +20,7 @@ class SubscriptionPlanSeeder extends Seeder
                 'asaas_cycle'     => AsaasCycle::Monthly->value,
                 'price_per_month' => 299.00,
                 'total_price'     => 299.00,
+                'is_active'       => true,
                 'description'     => 'Acesso completo, cobrança mensal.',
             ],
             [
@@ -28,6 +29,7 @@ class SubscriptionPlanSeeder extends Seeder
                 'asaas_cycle'     => AsaasCycle::Semiannually->value,
                 'price_per_month' => 249.00,
                 'total_price'     => 1494.00, // 249 * 6
+                'is_active'       => true,
                 'description'     => 'Acesso completo, economize pagando por semestre.',
             ],
             [
@@ -36,6 +38,7 @@ class SubscriptionPlanSeeder extends Seeder
                 'asaas_cycle'     => AsaasCycle::Yearly->value,
                 'price_per_month' => 199.00,
                 'total_price'     => 2388.00, // 199 * 12
+                'is_active'       => true,
                 'description'     => 'Acesso completo, o maior desconto com cobrança anual.',
             ],
         ];

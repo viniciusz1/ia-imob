@@ -76,4 +76,33 @@ class SubscriptionController extends Controller
 
         return response()->json(['message' => 'Assinatura cancelada com sucesso.']);
     }
+
+    /**
+     * Change the plan and/or billing type of the active subscription.
+     */
+    public function changePlan(SubscriptionStoreRequest $request): JsonResponse
+    {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $subscription = $user->subscriptions()
+            ->whereIn('status', [SubscriptionStatus::Active, SubscriptionStatus::Pending])
+            ->first();
+
+        if (!$subscription) {
+            return response()->json([
+                'message' => 'Você não possui uma assinatura ativa ou pendente para alterar.'
+            ], 400);
+        }
+
+        $newPlan = SubscriptionPlan::where('slug', $request->plan_slug)->firstOrFail();
+
+        $updatedSubscription = $this->service->changePlan(
+            tenantSubscription: $subscription,
+            newPlan: $newPlan,
+            newBillingType: BillingType::from($request->billing_type)
+        );
+
+        return response()->json(new TenantSubscriptionResource($updatedSubscription));
+    }
 }

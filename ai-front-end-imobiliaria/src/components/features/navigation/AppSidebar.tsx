@@ -1,19 +1,22 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
     Bot,
     Building2,
     CreditCard,
     LayoutDashboard,
+    LogOut,
     ShieldCheck,
     Users,
 } from "lucide-react";
+import { toast } from "sonner";
 
 import {
     Sidebar,
     SidebarContent,
+    SidebarFooter,
     SidebarGroup,
     SidebarGroupContent,
     SidebarGroupLabel,
@@ -23,6 +26,8 @@ import {
     SidebarMenuItem,
     SidebarRail,
 } from "@/components/ui/sidebar";
+import { useAuthStore } from "@/store/useAuthStore";
+import { authService } from "@/services/authService";
 
 // ---------------------------------------------------------------------------
 // Navigation items
@@ -67,6 +72,23 @@ const navItems = [
 
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
     const pathname = usePathname();
+    const router = useRouter();
+    const { user, clearAuth } = useAuthStore();
+
+    const handleLogout = async () => {
+        try {
+            await authService.logout();
+        } catch (error) {
+            console.error("Erro no logout via backend", error);
+        } finally {
+            clearAuth();
+            // Clear session cookies manually to ensure middleware detects unauthenticated state
+            document.cookie = "laravel_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            document.cookie = "XSRF-TOKEN=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            // Hard redirect to force full page reload and clear cached state
+            window.location.href = "/login";
+        }
+    };
 
     return (
         <Sidebar collapsible="icon" {...props}>
@@ -123,7 +145,35 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                 </SidebarGroup>
             </SidebarContent>
 
+            <SidebarFooter className="border-t border-sidebar-border">
+                <SidebarMenu>
+                    {user && (
+                        <SidebarMenuItem>
+                            <div className="flex flex-col gap-0.5 px-2 py-1.5 group-data-[collapsible=icon]:hidden">
+                                <span className="text-sm font-medium truncate">
+                                    {user.name}
+                                </span>
+                                <span className="text-xs text-muted-foreground truncate">
+                                    {user.email}
+                                </span>
+                            </div>
+                        </SidebarMenuItem>
+                    )}
+                    <SidebarMenuItem>
+                        <SidebarMenuButton
+                            tooltip="Sair"
+                            onClick={handleLogout}
+                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                        >
+                            <LogOut />
+                            <span>Sair da conta</span>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                </SidebarMenu>
+            </SidebarFooter>
+
             <SidebarRail />
         </Sidebar>
     );
 }
+

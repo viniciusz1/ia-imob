@@ -10,7 +10,8 @@ interface PlanSelectorProps {
   billingType: BillingType;
   onSelectPlan: (plan: SubscriptionPlan) => void;
   onChangeBillingType: (type: BillingType) => void;
-  onContinue: () => void;
+  onContinue?: () => void;
+  hideSubmitButton?: boolean;
 }
 
 export function PlanSelector({
@@ -20,41 +21,50 @@ export function PlanSelector({
   onSelectPlan,
   onChangeBillingType,
   onContinue,
+  hideSubmitButton,
 }: PlanSelectorProps) {
+  // We sort plans by price so they display logically
+  const sortedPlans = [...plans].sort(
+    (a, b) => a.pricePerMonth - b.pricePerMonth,
+  );
+
   return (
     <div className="space-y-8">
-      {/* Plan cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
-        {plans.map((plan) => (
-          <PlanCard
-            key={plan.id}
-            plan={plan}
-            isSelected={selectedPlan?.id === plan.id}
-            onSelect={() => onSelectPlan(plan)}
-            isMostPopular={plan.slug === "semiannual"}
-          />
-        ))}
-      </div>
-
-      {/* Billing type + CTA */}
-      <div className="rounded-2xl border bg-card p-6 space-y-6">
-        <BillingTypeSelector
-          value={billingType}
-          onChange={onChangeBillingType}
-        />
-
-        <div className="flex justify-end">
-          <Button
-            disabled={!selectedPlan}
-            onClick={onContinue}
-            className="gap-2"
-            size="lg"
-          >
-            Continuar
-            <ArrowRight className="h-4 w-4" />
-          </Button>
+      {/* 1. Seleção de Plano */}
+      <div className="space-y-4">
+        <h2 className="text-xl font-bold text-foreground">1. Escolha um plano</h2>
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {sortedPlans.map((plan) => (
+            <PlanCard
+              key={plan.id}
+              plan={plan}
+              isSelected={selectedPlan?.id === plan.id}
+              onSelect={() => onSelectPlan(plan)}
+              isMostPopular={plan.slug === "semiannual"}
+            />
+          ))}
         </div>
       </div>
+
+      {selectedPlan && (
+        <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-300">
+          <h2 className="text-xl font-bold text-foreground">
+            2. Selecione o Pagamento
+          </h2>
+          <BillingTypeSelector
+            value={billingType}
+            onChange={onChangeBillingType}
+          />
+
+          {!hideSubmitButton && (
+            <div className="flex justify-end pt-4">
+              <Button size="lg" onClick={onContinue}>
+                Continuar
+              </Button>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

@@ -59,8 +59,21 @@ description: Normas técnicas específicas para o Backend
   }
   ```
   Consulte `StoreRoleRequest` e `UpdateRoleRequest` como exemplos já implementados no projeto.
+* **Super Admin / Administrador com Acesso Total:** O papel `Administrador` possui acesso irrestrito assegurado via interceptação no `Gate::before` (ver `AppServiceProvider`). Portanto, **nunca** crie códigos verificando manualmente o papel (ex: `if ($user->hasRole('Administrador'))`) junto com permissões, use apenas `$user->can('permissao_especifica')` e confie na configuração global que garantirá o acesso total do admin. Assegure-se de refletir isso nos painéis do frontend para que o admin gerencie novos recursos.
 * **Atualizar `RoleSeeder` quando pertinente:** Se novos papéis (roles) forem necessários para a funcionalidade, adicione-os ao `RoleSeeder` (`database/seeders/RoleSeeder.php`) seguindo o mesmo padrão de `Role::firstOrCreate`.
-### 8. Performance e Testes
+### 8. Performance
 * **Prevenção de N+1 (Eager Loading):** Antecipe o carregamento de relacionamentos utilizando o método `with()` do Eloquent ao retornar coleções de dados (ex: trazer Empreendimento junto com Fotos). Ative o *Model Strict Mode* no `AppServiceProvider` (`Model::preventLazyLoading(! app()->isProduction());`) para alertar lógicas não eficientes no desenvolvimento local.
-* **Testes Automatizados (Pest PHP):** Adoção do framework [Pest](https://pestphp.com/) (padrão em Laravel 11) para implementação de testes. Cubra, no mínimo, endpoints essenciais com *Feature Tests* para garantir o formato do JSON e o status de retorno.
-* **Execução obrigatória após mudanças (via Sail):** Sempre que houver alteração de código no backend, execute a suíte automatizada com `./vendor/bin/sail test` antes de concluir a tarefa e reporte explicitamente o resultado. Se não for possível executar (ex: Docker indisponível), registre o bloqueio técnico e o motivo.
+### 9. Testes Automatizados — OBRIGATÓRIO
+> **REGRA INVIOLÁVEL:** Toda feature implementada, correção de bug ou alteração de código no backend **DEVE** ser acompanhada de testes automatizados correspondentes. Código entregue sem testes é considerado **incompleto**.
+
+* **Framework:** [Pest PHP](https://pestphp.com/) (padrão Laravel 11+).
+* **Diretório:** `tests/Feature/` para testes de integração com HTTP; `tests/Unit/` para lógica isolada de Services/Actions.
+* **Cobertura mínima obrigatória por feature:**
+  - **Endpoints da API:** Testar todos os verbos HTTP do recurso (GET, POST, PUT/PATCH, DELETE) validando status code, estrutura JSON de resposta e headers.
+  - **Autorização:** Verificar que usuários sem permissão recebem 403, que não-autenticados recebem 401, e que o papel `Administrador` tem acesso total (via `Gate::before`).
+  - **Validação:** Testar que payloads inválidos retornam 422 com os campos de erro esperados.
+  - **Regras de negócio:** Testar os fluxos de sucesso e de falha dos Services/Actions (ex: criação de assinatura, cancelamento, webhook).
+  - **Edge cases:** Status inexistentes, IDs inválidos, registros duplicados, etc.
+* **Nomenclatura:** Use descrições claras em português ou inglês: `it('retorna 403 quando usuário não tem permissão')` ou `it('creates a subscription successfully')`.
+* **Execução obrigatória (via Sail):** Sempre que houver alteração de código no backend, execute a suíte automatizada com `./vendor/bin/sail test` antes de concluir a tarefa e reporte explicitamente o resultado. Se não for possível executar (ex: Docker indisponível), registre o bloqueio técnico e o motivo.
+* **Nunca pule os testes:** Mesmo para correções "triviais" (ex: typo em mensagem, ajuste de cast), crie pelo menos um teste de regressão que prove que o comportamento está correto.

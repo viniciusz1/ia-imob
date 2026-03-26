@@ -35,6 +35,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Subscriptions (Authenticated)
     Route::get('/subscriptions/current', [\App\Http\Controllers\Api\SubscriptionController::class, 'current']);
     Route::post('/subscriptions', [\App\Http\Controllers\Api\SubscriptionController::class, 'store']);
+    Route::post('/subscriptions/change-plan', [\App\Http\Controllers\Api\SubscriptionController::class, 'changePlan']);
     Route::delete('/subscriptions/{id}', [\App\Http\Controllers\Api\SubscriptionController::class, 'destroy']);
 
     require __DIR__ . '/api/user_routes.php';

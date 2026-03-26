@@ -8,10 +8,11 @@ import type {
   TenantSubscription,
   BillingType,
 } from "@/types/billing";
-import { createSubscription } from "@/services/billingService";
+import { createSubscription, changePlan } from "@/services/billingService";
 import { PlanSelector } from "./PlanSelector";
 import { CurrentSubscriptionBanner } from "./CurrentSubscriptionBanner";
 import { SubscriptionConfirmModal } from "./SubscriptionConfirmModal";
+import { ChangePlanModal } from "./ChangePlanModal";
 import { CreditCard } from "lucide-react";
 
 interface BillingPageProps {
@@ -29,11 +30,13 @@ export function BillingPage({ plans, currentSubscription }: BillingPageProps) {
   );
   const [billingType, setBillingType] = useState<BillingType>("PIX");
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [changePlanModalOpen, setChangePlanModalOpen] = useState(false);
 
   // Show the banner for active/pending/inactive; show plan selector for expired/cancelled/null
+  const currentStatus = currentSubscription?.status?.toString().toLowerCase() || "";
   const hasActiveSubscription =
     currentSubscription !== null &&
-    !SHOW_PLAN_SELECTOR_STATUSES.has(currentSubscription.status);
+    !SHOW_PLAN_SELECTOR_STATUSES.has(currentStatus);
 
   async function handleConfirm() {
     if (!selectedPlan) return;
@@ -48,6 +51,20 @@ export function BillingPage({ plans, currentSubscription }: BillingPageProps) {
       toast.error("Erro ao criar assinatura. Tente novamente.");
     } finally {
       setConfirmOpen(false);
+    }
+  }
+
+  async function handleChangePlan(planSlug: string, billingType: BillingType) {
+    try {
+      await changePlan({ plan_slug: planSlug, billing_type: billingType });
+      toast.success("Plano alterado com sucesso! O próximo ciclo será ajustado.");
+      setChangePlanModalOpen(false);
+      router.refresh();
+    } catch (error: any) {
+      const msg =
+        error?.response?.data?.message ||
+        "Erro ao alterar o plano. Tente novamente mais tarde.";
+      toast.error(msg);
     }
   }
 
@@ -73,6 +90,7 @@ export function BillingPage({ plans, currentSubscription }: BillingPageProps) {
         <CurrentSubscriptionBanner
           subscription={currentSubscription}
           canManage
+          onChangePlanClick={() => setChangePlanModalOpen(true)}
         />
       )}
 
@@ -104,6 +122,15 @@ export function BillingPage({ plans, currentSubscription }: BillingPageProps) {
         onConfirm={handleConfirm}
         plan={selectedPlan}
         billingType={billingType}
+      />
+
+      {/* Change Plan Modal */}
+      <ChangePlanModal
+        open={changePlanModalOpen}
+        onClose={() => setChangePlanModalOpen(false)}
+        onConfirm={handleChangePlan}
+        plans={plans}
+        currentPlanSlug={currentSubscription?.plan?.slug}
       />
     </div>
   );

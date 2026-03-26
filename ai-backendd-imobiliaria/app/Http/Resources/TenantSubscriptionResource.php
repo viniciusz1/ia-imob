@@ -16,7 +16,7 @@ class TenantSubscriptionResource extends JsonResource
     {
         return [
             'id'                  => $this->id,
-            'plan'                => new SubscriptionPlanResource($this->whenLoaded('plan')),
+            'plan'                => new SubscriptionPlanResource($this->plan),
             'billingType'         => $this->billing_type->value,
             'status'              => $this->status->value,
             'nextDueDate'         => $this->next_due_date?->format('Y-m-d'),

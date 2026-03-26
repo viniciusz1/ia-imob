@@ -74,17 +74,26 @@ const STATUS_MESSAGE: Partial<Record<SubscriptionStatus, string>> = {
 interface CurrentSubscriptionBannerProps {
   subscription: TenantSubscription;
   canManage?: boolean;
+  onChangePlanClick?: () => void;
 }
 
 export function CurrentSubscriptionBanner({
   subscription,
   canManage = true,
+  onChangePlanClick,
 }: CurrentSubscriptionBannerProps) {
   const router = useRouter();
   const [isCancelling, setIsCancelling] = useState(false);
 
-  const config = STATUS_CONFIG[subscription.status];
+  const rawStatus = (subscription?.status || "pending").toString().toLowerCase();
+  const config =
+    STATUS_CONFIG[rawStatus as SubscriptionStatus] || STATUS_CONFIG.pending;
   const StatusIcon = config.icon;
+
+  if (typeof window === "undefined") {
+    // Log in next.js server console to see why it was faulty
+    console.log("CurrentSubscriptionBanner received subscription:", subscription);
+  }
 
   async function handleCancel() {
     setIsCancelling(true);
@@ -104,6 +113,9 @@ export function CurrentSubscriptionBanner({
         new Date(subscription.nextDueDate),
       )
     : null;
+    
+  // Format billingType to ensure case-insensitive lookup, defaulting to "PIX" if undefined
+  const rawBillingType = (subscription?.billingType || "PIX").toString().toUpperCase();
 
   return (
     <div className={cn("rounded-2xl border p-5", config.banner)}>
@@ -113,7 +125,7 @@ export function CurrentSubscriptionBanner({
           <div className="space-y-1">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="font-semibold text-foreground">
-                {subscription.plan.name}
+                {subscription.plan?.name ?? "Plano"}
               </span>
               <Badge className={cn("text-white text-xs", config.variant)}>
                 {config.label}
@@ -136,7 +148,7 @@ export function CurrentSubscriptionBanner({
               <span>
                 Método:{" "}
                 <strong className="text-foreground">
-                  {BILLING_LABEL[subscription.billingType]}
+                  {BILLING_LABEL[rawBillingType]}
                 </strong>
               </span>
             </div>
@@ -144,22 +156,32 @@ export function CurrentSubscriptionBanner({
         </div>
 
         {canManage &&
-          (subscription.status === "active" ||
-            subscription.status === "pending") && (
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
+          (rawStatus === "active" ||
+            rawStatus === "pending") && (
+            <div className="flex items-center gap-2 shrink-0">
+              {onChangePlanClick && (
                 <Button
                   variant="outline"
                   size="sm"
                   disabled={isCancelling}
-                  className="shrink-0"
+                  onClick={onChangePlanClick}
                 >
-                  {isCancelling && (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  )}
-                  Cancelar Assinatura
+                  Alterar Plano
                 </Button>
-              </AlertDialogTrigger>
+              )}
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={isCancelling}
+                  >
+                    {isCancelling && (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    )}
+                    Cancelar
+                  </Button>
+                </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
                   <AlertDialogTitle>Cancelar assinatura?</AlertDialogTitle>
@@ -178,7 +200,8 @@ export function CurrentSubscriptionBanner({
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
-            </AlertDialog>
+              </AlertDialog>
+            </div>
           )}
       </div>
     </div>

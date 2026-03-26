@@ -38,3 +38,17 @@ description: Normas técnicas específicas para o Frontend
 ### 7. Estilização e Acessibilidade (a11y)
 * **Tailwind e Utilitários de Merge:** Em toda customização do Shadcn ou extensões visuais, utilize estritamente a dupla `clsx` + `tailwind-merge` para evitar o temido conflito de estilos de herança caso um componente pai sobrescreva atributos do filho.
 * **Acessibilidade First:** Trabalhe assegurando as funções de teclado e leitores de tela na navegação dos componentes complexos (O Shadcn com a base do Radix Vue/UI já faz parte deste engajamento, mantenha o padrão não destruindo o semantic-html).
+### 8. Testes Automatizados — OBRIGATÓRIO
+> **REGRA INVIOLÁVEL:** Toda feature implementada, correção de bug ou alteração de código no frontend **DEVE** ser acompanhada de testes automatizados correspondentes. Código entregue sem testes é considerado **incompleto**.
+
+* **Framework:** [Vitest](https://vitest.dev/) para testes unitários e de integração + [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/) para testes de componentes.
+* **Diretório:** Testes devem ser colocados em `__tests__/` no mesmo nível do respectivo componente/service, ou em `src/__tests__/` para testes mais amplos.
+* **Cobertura mínima obrigatória por feature:**
+  - **Componentes interativos:** Testar renderização, eventos de clique, estados condicionais (loading, error, empty) e acessibilidade básica.
+  - **Services/Hooks:** Testar que os services chamam as APIs corretas e tratam erros adequadamente (mock do axios/fetch).
+  - **Formulários:** Validar que os schemas Zod rejeitam inputs inválidos e aceitam inputs válidos, e que o formulário exibe mensagens de erro.
+  - **Fluxos críticos:** Login, logout, criação de recursos, navegação protegida.
+* **Mocking:** Use `vi.mock()` para mockar módulos como `@/services/api`, `next/navigation`, `sonner`, etc.
+* **Nomenclatura:** Use `describe` + `it` com descrições claras: `it('exibe mensagem de erro quando a API retorna 500')`.
+* **Execução obrigatória:** Sempre que houver alteração de código no frontend, execute a suíte com `npm test` ou `npx vitest run` antes de concluir a tarefa e reporte explicitamente o resultado. Se não for possível executar, registre o bloqueio técnico e o motivo.
+* **Nunca pule os testes:** Mesmo para correções visuais ou de estilo, crie pelo menos um teste de snapshot ou de renderização que prove que o componente renderiza sem erros.

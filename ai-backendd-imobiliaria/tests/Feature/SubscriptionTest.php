@@ -81,7 +81,7 @@ class SubscriptionTest extends TestCase
 
         $response->assertStatus(201)
             ->assertJsonPath('plan.slug', 'monthly')
-            ->assertJsonPath('billing_type', 'PIX')
+            ->assertJsonPath('billingType', 'PIX')
             ->assertJsonPath('status', 'pending');
 
         $this->assertDatabaseHas('tenant_subscriptions', [
@@ -177,5 +177,70 @@ class SubscriptionTest extends TestCase
         ]);
 
         $response->assertStatus(401);
+    }
+
+    public function test_user_can_change_subscription_plan(): void
+    {
+        $user = User::factory()->create();
+        $user->givePermissionTo('subscriptions.manage');
+        Sanctum::actingAs($user);
+
+        $this->seed(\Database\Seeders\SubscriptionPlanSeeder::class);
+        $oldPlan = SubscriptionPlan::where('slug', 'monthly')->first();
+        $newPlan = SubscriptionPlan::where('slug', 'semiannual')->first();
+
+        // Must create the subscription for the $user using the User relation
+        $subscription = TenantSubscription::create([
+            'user_id' => $user->id,
+            'plan_id' => $oldPlan->id,
+            'asaas_customer_id' => 'cus_123',
+            'asaas_subscription_id' => 'sub_123',
+            'billing_type' => 'PIX',
+            'status' => 'active',
+            'next_due_date' => Carbon::today(),
+        ]);
+
+        $mockAsaas = $this->mock(AsaasService::class);
+        $mockAsaas->shouldReceive('updateSubscription')
+            ->once()
+            ->with('sub_123', \Mockery::on(function ($data) use ($newPlan) {
+                return $data['value'] === $newPlan->total_price &&
+                       $data['cycle'] === $newPlan->asaas_cycle->value &&
+                       $data['updatePendingPayments'] === true;
+            }))
+            ->andReturn([]);
+
+        $response = $this->postJson('/api/subscriptions/change-plan', [
+            'plan_slug' => 'semiannual',
+            'billing_type' => 'PIX'
+        ]);
+
+        $response->assertStatus(200)
+            ->assertJsonPath('plan.slug', 'semiannual');
+
+        $this->assertDatabaseHas('tenant_subscriptions', [
+            'id' => $subscription->id,
+            'plan_id' => $newPlan->id,
+        ]);
+    }
+
+    public function test_user_cannot_change_plan_without_permission(): void
+    {
+        $user = User::factory()->create();
+        Sanctum::actingAs($user);
+
+        $this->seed(\Database\Seeders\SubscriptionPlanSeeder::class);
+        
+        $response = $this->postJson('/api/subscriptions/change-plan', [
+            'plan_slug' => 'semiannual',
+            'billing_type' => 'PIX'
+        ]);
+
+        // Expect 403 Forbidden because the user doesn't have the manage permission,
+        // or 404/403 if there's no active subscription. But if authorization runs first:
+        // Wait, SubscriptionController@changePlan relies on `auth()->user()->subscriptions()->firstOrFail()`.
+        // Note: I did not add `can('subscriptions.manage')` explicitly in `changePlan` because 
+        // `SubscriptionStoreRequest` authorizes `subscriptions.manage` itself! 
+        $response->assertStatus(403);
     }
 }

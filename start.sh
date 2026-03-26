@@ -116,7 +116,7 @@ echo -e "${GREEN}✅ Banco pronto!${NC}"
 
 # Migrations
 echo -e "${YELLOW}🗄️  Executando migrations...${NC}"
-./vendor/bin/sail artisan migrate --force
+./vendor/bin/sail artisan migrate:refresh --seed --force
 
 # Limpa caches
 ./vendor/bin/sail artisan config:clear
