@@ -14,6 +14,7 @@ class TenantSubscription extends Model
         'plan_id',
         'asaas_customer_id',
         'asaas_subscription_id',
+        'payment_url',
         'billing_type',
         'status',
         'next_due_date',

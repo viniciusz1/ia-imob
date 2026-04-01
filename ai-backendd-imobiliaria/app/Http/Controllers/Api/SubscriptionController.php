@@ -105,4 +105,18 @@ class SubscriptionController extends Controller
 
         return response()->json(new TenantSubscriptionResource($updatedSubscription));
     }
+    /**
+     * Get payment history for the subscription.
+     */
+    public function payments(int $id): JsonResponse
+    {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $subscription = $user->subscriptions()->findOrFail($id);
+
+        $payments = $this->service->getPayments($subscription);
+
+        return response()->json($payments);
+    }
 }

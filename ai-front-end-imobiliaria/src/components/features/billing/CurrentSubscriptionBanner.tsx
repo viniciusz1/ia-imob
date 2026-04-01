@@ -15,7 +15,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { CheckCircle, Clock, AlertTriangle, Loader2 } from "lucide-react";
+import { CheckCircle, Clock, AlertTriangle, Loader2, ExternalLink } from "lucide-react";
 import { cancelSubscription } from "@/services/billingService";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -159,6 +159,18 @@ export function CurrentSubscriptionBanner({
           (rawStatus === "active" ||
             rawStatus === "pending") && (
             <div className="flex items-center gap-2 shrink-0">
+              {rawStatus === "pending" && subscription.paymentUrl && (
+                <Button variant="default" size="sm" asChild>
+                  <a
+                    href={subscription.paymentUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <ExternalLink className="mr-2 h-4 w-4" />
+                    Pagar Agora
+                  </a>
+                </Button>
+              )}
               {onChangePlanClick && (
                 <Button
                   variant="outline"

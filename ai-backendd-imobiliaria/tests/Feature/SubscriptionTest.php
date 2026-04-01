@@ -74,6 +74,12 @@ class SubscriptionTest extends TestCase
             'nextDueDate' => Carbon::today()->format('Y-m-d')
         ]);
 
+        $mockAsaas->shouldReceive('getSubscriptionPayments')->once()->with('sub_123')->andReturn([
+            'data' => [
+                ['invoiceUrl' => 'https://asaas.com/i/123']
+            ]
+        ]);
+
         $response = $this->postJson('/api/subscriptions', [
             'plan_slug' => 'monthly',
             'billing_type' => 'PIX',
@@ -87,6 +93,7 @@ class SubscriptionTest extends TestCase
         $this->assertDatabaseHas('tenant_subscriptions', [
             'user_id' => $user->id,
             'asaas_subscription_id' => 'sub_123',
+            'payment_url' => 'https://asaas.com/i/123',
             'status' => 'pending'
         ]);
 

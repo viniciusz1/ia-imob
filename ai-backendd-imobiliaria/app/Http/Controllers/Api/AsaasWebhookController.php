@@ -55,6 +55,9 @@ class AsaasWebhookController extends Controller
             'PAYMENT_OVERDUE' => $subscription->update([
                 'status' => SubscriptionStatus::Inactive->value,
             ]),
+            'PAYMENT_REFUNDED', 'PAYMENT_DELETED' => $subscription->update([
+                'status' => SubscriptionStatus::Inactive->value,
+            ]),
             'SUBSCRIPTION_DELETED' => $subscription->update([
                 'status'  => SubscriptionStatus::Expired->value,
                 'ends_at' => Carbon::now(),

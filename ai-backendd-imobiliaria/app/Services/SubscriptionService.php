@@ -49,6 +49,12 @@ class SubscriptionService
                 ]);
                 $asaasCustomerId = $customer['id'];
                 $user->update(['asaas_customer_id' => $asaasCustomerId]);
+            } else {
+                // Update customer data if they already exist to ensure sync
+                $this->asaas->updateCustomer($asaasCustomerId, [
+                    'name'  => $user->name,
+                    'email' => $user->email,
+                ]);
             }
 
             // 2. Create Subscription in Asaas
@@ -62,12 +68,27 @@ class SubscriptionService
                 'externalReference' => (string) $user->id,
             ]);
 
-            // 3. Persist locally
+            // 3. Get the first payment URL if available (Pix/Boleto)
+            // Asaas returns a 'payments' list or we might need to fetch it if it's not in the response
+            // For now, we'll check if 'invoiceUrl' is in the subscription object (sometimes it is for the first one)
+            // or fetch the payments of this subscription.
+            $paymentUrl = $subscription['invoiceUrl'] ?? null;
+            
+            if (!$paymentUrl) {
+                $payments = $this->asaas->getSubscriptionPayments($subscription['id']);
+                if (!empty($payments['data'])) {
+                    $firstPayment = $payments['data'][0];
+                    $paymentUrl = $firstPayment['invoiceUrl'] ?? $firstPayment['bankSlipUrl'] ?? null;
+                }
+            }
+
+            // 4. Persist locally
             return TenantSubscription::create([
                 'user_id'               => $user->id,
                 'plan_id'               => $plan->id,
                 'asaas_customer_id'     => $asaasCustomerId,
                 'asaas_subscription_id' => $subscription['id'],
+                'payment_url'           => $paymentUrl,
                 'billing_type'          => $billingType->value,
                 'status'                => SubscriptionStatus::Pending->value, // activated by webhook
                 'next_due_date'         => $subscription['nextDueDate'],
@@ -112,5 +133,10 @@ class SubscriptionService
 
             return $tenantSubscription->refresh();
         });
+    }
+    /** Proxy to fetch payments from Asaas. */
+    public function getPayments(TenantSubscription $tenantSubscription): array
+    {
+        return $this->asaas->getSubscriptionPayments($tenantSubscription->asaas_subscription_id);
     }
 }

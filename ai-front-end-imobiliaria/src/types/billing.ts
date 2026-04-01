@@ -27,6 +27,7 @@ export interface TenantSubscription {
   nextDueDate: string | null;
   startedAt: string | null;
   endsAt: string | null;
+  paymentUrl: string | null;
 }
 
 export interface SubscriptionCreatePayload {

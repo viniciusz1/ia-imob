@@ -41,11 +41,11 @@ export function BillingPage({ plans, currentSubscription }: BillingPageProps) {
   async function handleConfirm() {
     if (!selectedPlan) return;
     try {
-      await createSubscription({
+      const sub = await createSubscription({
         plan_slug: selectedPlan.slug,
         billing_type: billingType,
       });
-      toast.success("Assinatura criada! Realize o pagamento para ativar.");
+      toast.success("Assinatura criada! Acesse o link de pagamento para ativar.");
       router.refresh();
     } catch {
       toast.error("Erro ao criar assinatura. Tente novamente.");

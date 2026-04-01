@@ -23,6 +23,7 @@ class TenantSubscriptionResource extends JsonResource
             'startedAt'           => $this->started_at?->toIso8601String(),
             'endsAt'              => $this->ends_at?->toIso8601String(),
             'asaasSubscriptionId' => $this->asaas_subscription_id,
+            'paymentUrl'          => $this->payment_url,
         ];
     }
 }
