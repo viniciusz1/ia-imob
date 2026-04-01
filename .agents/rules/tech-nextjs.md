@@ -38,3 +38,5 @@ description: Normas técnicas específicas para o Frontend
 ### 7. Estilização e Acessibilidade (a11y)
 * **Tailwind e Utilitários de Merge:** Em toda customização do Shadcn ou extensões visuais, utilize estritamente a dupla `clsx` + `tailwind-merge` para evitar o temido conflito de estilos de herança caso um componente pai sobrescreva atributos do filho.
 * **Acessibilidade First:** Trabalhe assegurando as funções de teclado e leitores de tela na navegação dos componentes complexos (O Shadcn com a base do Radix Vue/UI já faz parte deste engajamento, mantenha o padrão não destruindo o semantic-html).
+### 8. Documentação Dinâmica Visual
+* Sempre que novos fluxos de usuários, rotas mestres (ex. formulários complexos) ou lógicas de domínio forem desenvolvidas no front-end em adequação ao backend, assegure de atualizar o seu correspondente visual em `docs/use-case-diagrams/README.md` (casos de uso) ou `docs/class-diagrams/README.md` (arquitetura global).

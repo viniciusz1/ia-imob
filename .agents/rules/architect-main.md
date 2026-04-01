@@ -25,3 +25,8 @@ Sempre que um novo módulo ou funcionalidade for planejado, você deve obrigator
 - Detalhar exatamente o que deve ser implementado: modelos de dados, regras de negócio, contratos de API e lógica de validação.
 - Garantir que a documentação técnica seja autossuficiente para que um desenvolvedor humano siga as instruções sem ambiguidades.
 - Manter o PRD (`docs/roadmaps/PRD.md`) atualizado sempre que houver mudanças no escopo de módulos.
+
+### Atualização Contínua de Diagramas (Regra Absoluta)
+Sempre que você criar, planejar ou alterar lógicas de módulos (Models, Services, Casos de Uso), você é **obrigado** a atualizar os diagramas técnicos:
+1. **Diagramas de Classe**: Atualizar o arquivo `docs/class-diagrams/README.md` com a sintaxe Mermaid refeltindo a estrutura atualizada.
+2. **Diagramas de Caso de Uso**: Atualizar o arquivo `docs/use-case-diagrams/README.md` com as novas ações ou relações propostas.

@@ -22,6 +22,7 @@ description: Normas técnicas específicas para o Backend
 * **Timestamps e SoftDeletes:** Quase todos os Models relevantes para o negócio devem utilizar as traits `SoftDeletes` e conter `created_at`, `updated_at` e `deleted_at`.
 * **Enums Nativos (PHP 8.1+):** Para campos de status, tipos (ex: *venda, aluguel, comercial*), utilize classes `Enum` do PHP, integradas aos *casts* do Laravel nos Models, garantindo *type-safety* até o banco de dados.
 * **Índices e PostGIS:** Assegure-se de criar `indexes` em colunas amplamente buscadas (preço, bairro) e estipular índices compatíveis (como GIST) para as colunas de coordenadas/polígonos geridas pelo PostGIS, documentando isso nas migrations.
+* **Diagramas Obrigatórios:** Ao criar ou modificar Models, Services e Actions, atualize imediatamente os arquivos `docs/class-diagrams/README.md` e `docs/use-case-diagrams/README.md` para mapeá-los.
 ### 5. Segurança, Autenticação e Autorização
 * **Autenticação Sanctum:** Utilize o Laravel Sanctum otimizado para SPA (utilizando cookies protegidos via *CSRF* em domínios pares) ou *API Tokens* caso a API vá servir aplicativos mobile.
 * **Policies e Gates:** A autorização deve ser resolvida através de [Policies](https://laravel.com/docs/authorization#creating-policies). Invoque as instâncias de autorização nas Form Requests (método `authorize()`) ou diretamente no Controller via middleware antes de executar qualquer mutação de dados.
