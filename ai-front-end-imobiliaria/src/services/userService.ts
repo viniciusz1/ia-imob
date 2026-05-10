@@ -1,4 +1,4 @@
-import api from "./api";
+import api, { API_PREFIX } from "./api";
 import type {
     User,
     UserFiltersParams,
@@ -10,7 +10,7 @@ import type {
 // Serviço de Usuários — Chamadas HTTP à API Laravel
 // =============================================================================
 
-const BASE_PATH = "/api/users";
+const BASE_PATH = `${API_PREFIX}/users`;
 
 /**
  * Lista usuários com filtros e paginação server-side.

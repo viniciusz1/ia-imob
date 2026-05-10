@@ -2,6 +2,8 @@ import { getUsers } from "@/services/userService";
 import { UserFiltersParams } from "@/types/user";
 import { UsuariosClient } from "@/components/features/users/UsuariosClient";
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
     title: "Gestão de Usuários",
 };

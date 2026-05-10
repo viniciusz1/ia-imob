@@ -1,4 +1,4 @@
-import api from "./api";
+import api, { API_PREFIX } from "./api";
 import type {
     Property,
     PropertyFeature,
@@ -9,9 +9,9 @@ import type {
     SystemEnum,
 } from "@/types/property";
 
-const PROPERTIES_BASE_PATH = "/api/properties";
-const ENUMS_BASE_PATH = "/api/enums";
-const FEATURES_BASE_PATH = "/api/features";
+const PROPERTIES_BASE_PATH = `${API_PREFIX}/properties`;
+const ENUMS_BASE_PATH = `${API_PREFIX}/enums`;
+const FEATURES_BASE_PATH = `${API_PREFIX}/features`;
 
 type PropertyApiResource = {
     id: number;

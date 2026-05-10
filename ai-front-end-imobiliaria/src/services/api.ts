@@ -1,12 +1,13 @@
 import axios from "axios";
-import { config } from "process";
 import { toast } from "sonner";
 
-// Pega a URL do backend base, removendo o sufixo /api caso exista na env, pois o Sanctum 
-// usa rotas web (/sanctum/csrf-cookie, /login) e rotas api (/api/user)
+export const API_PREFIX = "/api/v1";
+
+// Pega a origem do backend. As rotas web do Sanctum usam a raiz do backend,
+// enquanto as rotas JSON passam pelo prefixo versionado em API_PREFIX.
 const backendUrl = process.env.NEXT_PUBLIC_API_URL
-    ? process.env.NEXT_PUBLIC_API_URL.replace(/\/api\/?$/, "")
-    : "http://localhost";
+    ? process.env.NEXT_PUBLIC_API_URL.replace(/\/api(?:\/v\d+)?\/?$/, "")
+    : "";
 
 const api = axios.create({
     baseURL: backendUrl,

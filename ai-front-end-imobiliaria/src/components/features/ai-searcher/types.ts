@@ -7,9 +7,30 @@ export interface AiSearcherProperty {
   cidade: string;
   imobiliaria: string;
   quartos: number;
-  areaPrivativa: number;
+  suites: number;
+  banheiros: number;
+  vagas: number;
+  area: number;
   descricao: string;
   link_imovel: string;
+  piscina: boolean;
+  churrasqueira: boolean;
+  academia: boolean;
+  salao_festas: boolean;
+  playground: boolean;
+  sacada: boolean;
+  mobiliado: boolean;
+  ar_condicionado: boolean;
+  lavanderia: boolean;
+  escritorio: boolean;
+  closet: boolean;
+  elevador: boolean;
+  portaria_24h: boolean;
+  aceita_permuta: boolean;
+  financiamento: boolean;
+  andar: string;
+  posicao_solar: string;
+  ano_construcao: number;
 }
 
 export interface AiSearcherFiltersState {
@@ -18,6 +39,14 @@ export interface AiSearcherFiltersState {
   selectedCidades: string[];
   selectedImobiliarias: string[];
   selectedQuartos: number[];
+  selectedQuartosPlus: boolean;
+  selectedSuites: number[];
+  selectedSuitesPlus: boolean;
+  selectedBanheiros: number[];
+  selectedBanheirosPlus: boolean;
+  selectedVagas: number[];
+  selectedVagasPlus: boolean;
+  selectedComodidades: string[];
   minPrice: string;
   maxPrice: string;
 }
@@ -28,4 +57,7 @@ export interface AiSearcherFiltersOptions {
   cidades: string[];
   imobiliarias: string[];
   quartos: number[];
+  suites: number[];
+  banheiros: number[];
+  vagas: number[];
 }

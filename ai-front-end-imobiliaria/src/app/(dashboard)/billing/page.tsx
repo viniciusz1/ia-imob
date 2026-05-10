@@ -1,6 +1,8 @@
 import { BillingPage } from '@/components/features/billing/BillingPage';
 import { fetchPlans, fetchCurrentSubscription } from '@/services/billingService';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: 'Planos e Assinatura — ia-imob',
   description: 'Gerencie o plano de assinatura da sua imobiliária.',

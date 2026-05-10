@@ -1,6 +1,8 @@
 import { getProperties } from "@/services/propertyService";
 import { PropertiesClient } from "@/components/properties/PropertiesClient";
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
     title: "Cadastro de Imóveis",
 };

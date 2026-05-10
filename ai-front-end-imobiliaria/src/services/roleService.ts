@@ -1,12 +1,12 @@
-import api from "./api";
+import api, { API_PREFIX } from "./api";
 import type { Role, Permission, RoleFormData, PaginatedRolesResponse } from "@/types/role";
 
 // =============================================================================
 // Serviço de Grupos de Usuários (Roles) — API Laravel
 // =============================================================================
 
-const BASE_PATH = "/api/roles";
-const PERM_PATH = "/api/permissions";
+const BASE_PATH = `${API_PREFIX}/roles`;
+const PERM_PATH = `${API_PREFIX}/permissions`;
 
 /**
  * Busca todas as roles disponíveis (sem paginação, para selects)

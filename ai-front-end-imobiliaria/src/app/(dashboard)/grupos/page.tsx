@@ -1,6 +1,8 @@
 import { getPaginatedRoles } from "@/services/roleService";
 import { RolesClient } from "@/components/features/roles/RolesClient";
 
+export const dynamic = 'force-dynamic';
+
 // =============================================================================
 // Server Component - Grupos de Usuários Page
 // =============================================================================

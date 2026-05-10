@@ -17,11 +17,7 @@ import {
   type AiSearcherProperty,
   type AiSearcherFiltersState,
 } from "./types";
-import api from "@/services/api";
-
-const ITEMS_PER_PAGE = 20;
-
-// --- URL param helpers ---
+import api, { API_PREFIX } from "@/services/api";
 
 function getStringArrayParam(params: URLSearchParams, key: string): string[] {
   return params.getAll(key).filter(Boolean);
@@ -63,6 +59,14 @@ function didFilterParamsChange(
   if (!areArrayParamsEqual(prev, next, "cidade")) return true;
   if (!areArrayParamsEqual(prev, next, "imobiliaria")) return true;
   if (!areArrayParamsEqual(prev, next, "quartos")) return true;
+  if (!areArrayParamsEqual(prev, next, "suites")) return true;
+  if (!areArrayParamsEqual(prev, next, "banheiros")) return true;
+  if (!areArrayParamsEqual(prev, next, "vagas")) return true;
+  if (!areArrayParamsEqual(prev, next, "comodidade")) return true;
+  if ((prev.get("quartos_plus") ?? "") !== (next.get("quartos_plus") ?? "")) return true;
+  if ((prev.get("suites_plus") ?? "") !== (next.get("suites_plus") ?? "")) return true;
+  if ((prev.get("banheiros_plus") ?? "") !== (next.get("banheiros_plus") ?? "")) return true;
+  if ((prev.get("vagas_plus") ?? "") !== (next.get("vagas_plus") ?? "")) return true;
   if ((prev.get("min") ?? "") !== (next.get("min") ?? "")) return true;
   if ((prev.get("max") ?? "") !== (next.get("max") ?? "")) return true;
   return false;
@@ -77,6 +81,14 @@ function buildFilterStateFromUrl(
     selectedCidades: getStringArrayParam(params, "cidade"),
     selectedImobiliarias: getStringArrayParam(params, "imobiliaria"),
     selectedQuartos: getNumberArrayParam(params, "quartos"),
+    selectedQuartosPlus: params.get("quartos_plus") === "1",
+    selectedSuites: getNumberArrayParam(params, "suites"),
+    selectedSuitesPlus: params.get("suites_plus") === "1",
+    selectedBanheiros: getNumberArrayParam(params, "banheiros"),
+    selectedBanheirosPlus: params.get("banheiros_plus") === "1",
+    selectedVagas: getNumberArrayParam(params, "vagas"),
+    selectedVagasPlus: params.get("vagas_plus") === "1",
+    selectedComodidades: getStringArrayParam(params, "comodidade"),
     minPrice: params.get("min") ?? "",
     maxPrice: params.get("max") ?? "",
   };
@@ -91,7 +103,6 @@ export function AiSearcherClient() {
   const [totalItems, setTotalItems] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Parse page from URL
   const pageParam = Number(searchParams.get("pagina") ?? "1");
   const currentPage = Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1;
 
@@ -100,15 +111,16 @@ export function AiSearcherClient() {
       setIsLoading(true);
       try {
         const queryParams = new URLSearchParams(searchParams.toString());
-        // Map frontend "pagina" to backend "page" (Laravel default for pagination)
         if (queryParams.has("pagina")) {
           queryParams.set("page", queryParams.get("pagina")!);
           queryParams.delete("pagina");
         }
+        if (!queryParams.has("per_page")) {
+          queryParams.set("per_page", String(perPage));
+        }
 
-        const response = await api.get(`/api/scrapy-properties?${queryParams.toString()}`);
-        
-        // Laravel's API Resource pagination format
+        const response = await api.get(`${API_PREFIX}/scrapy-properties?${queryParams.toString()}`);
+
         const data = response.data.data.map((item: any) => ({
           id: item.id,
           image: item.image || "",
@@ -118,9 +130,30 @@ export function AiSearcherClient() {
           cidade: item.cidade || "",
           imobiliaria: item.imobiliaria || "",
           quartos: item.quartos || 0,
-          areaPrivativa: Number(item.areaPrivativa) || 0,
+          suites: item.suites || 0,
+          banheiros: item.banheiros || 0,
+          vagas: item.vagas || 0,
+          area: Number(item.area) || 0,
           descricao: item.descricao || "",
           link_imovel: item.link_imovel || "",
+          piscina: item.piscina || false,
+          churrasqueira: item.churrasqueira || false,
+          academia: item.academia || false,
+          salao_festas: item.salao_festas || false,
+          playground: item.playground || false,
+          sacada: item.sacada || false,
+          mobiliado: item.mobiliado || false,
+          ar_condicionado: item.ar_condicionado || false,
+          lavanderia: item.lavanderia || false,
+          escritorio: item.escritorio || false,
+          closet: item.closet || false,
+          elevador: item.elevador || false,
+          portaria_24h: item.portaria_24h || false,
+          aceita_permuta: item.aceita_permuta || false,
+          financiamento: item.financiamento || false,
+          andar: item.andar || "",
+          posicao_solar: item.posicao_solar || "",
+          ano_construcao: item.ano_construcao || 0,
         }));
 
         setProperties(data);
@@ -146,9 +179,11 @@ export function AiSearcherClient() {
       ? sortOrderParam
       : "none";
 
+  const perPageParam = Number(searchParams.get("per_page") ?? "20");
+  const perPage = [20, 50, 100].includes(perPageParam) ? perPageParam : 20;
+
   const effectivePage = Math.min(Math.max(currentPage, 1), Math.max(totalPages, 1));
 
-  // --- Next.js URL update helper ---
   const pushSearchParams = useCallback(
     (updater: (params: URLSearchParams) => URLSearchParams, replace = false) => {
       const currentParamsStr = searchParams.toString();
@@ -156,7 +191,7 @@ export function AiSearcherClient() {
       const newParamsStr = newParams.toString();
 
       if (currentParamsStr === newParamsStr) {
-        return; // Break infinite loop
+        return;
       }
 
       const url = `${pathname}?${newParamsStr}`;
@@ -170,7 +205,6 @@ export function AiSearcherClient() {
   );
 
   const handleFilterChange = useCallback((filtered: AiSearcherProperty[]) => {
-    // Client-side filtering is now disabled; filtering is handled by the backend API via URL Sync
   }, []);
 
   const handleFilterStateChange = useCallback(
@@ -183,6 +217,34 @@ export function AiSearcherClient() {
         setArrayParam(nextParams, "cidade", state.selectedCidades);
         setArrayParam(nextParams, "imobiliaria", state.selectedImobiliarias);
         setArrayParam(nextParams, "quartos", state.selectedQuartos);
+        setArrayParam(nextParams, "suites", state.selectedSuites);
+        setArrayParam(nextParams, "banheiros", state.selectedBanheiros);
+        setArrayParam(nextParams, "vagas", state.selectedVagas);
+        setArrayParam(nextParams, "comodidade", state.selectedComodidades);
+
+        if (state.selectedQuartosPlus) {
+          nextParams.set("quartos_plus", "1");
+        } else {
+          nextParams.delete("quartos_plus");
+        }
+
+        if (state.selectedSuitesPlus) {
+          nextParams.set("suites_plus", "1");
+        } else {
+          nextParams.delete("suites_plus");
+        }
+
+        if (state.selectedBanheirosPlus) {
+          nextParams.set("banheiros_plus", "1");
+        } else {
+          nextParams.delete("banheiros_plus");
+        }
+
+        if (state.selectedVagasPlus) {
+          nextParams.set("vagas_plus", "1");
+        } else {
+          nextParams.delete("vagas_plus");
+        }
 
         if (state.minPrice) {
           nextParams.set("min", state.minPrice);
@@ -195,7 +257,6 @@ export function AiSearcherClient() {
           nextParams.delete("max");
         }
 
-        // Keep sort order
         const ordem = prev.get("ordem");
         if (ordem) nextParams.set("ordem", ordem);
 
@@ -215,7 +276,6 @@ export function AiSearcherClient() {
   const handleSortChange = useCallback(
     (value: string) => {
       pushSearchParams((nextParams) => {
-        // keep all current params
         const current = new URLSearchParams(searchParams.toString());
         const result = new URLSearchParams(current.toString());
 
@@ -224,6 +284,19 @@ export function AiSearcherClient() {
         } else {
           result.delete("ordem");
         }
+        result.delete("pagina");
+        return result;
+      });
+    },
+    [pushSearchParams, searchParams]
+  );
+
+  const handlePerPageChange = useCallback(
+    (value: string) => {
+      pushSearchParams((nextParams) => {
+        const current = new URLSearchParams(searchParams.toString());
+        const result = new URLSearchParams(current.toString());
+        result.set("per_page", value);
         result.delete("pagina");
         return result;
       });
@@ -247,7 +320,6 @@ export function AiSearcherClient() {
     [pushSearchParams, searchParams]
   );
 
-  // Correct page if out of range
   useEffect(() => {
     if (totalPages === 0 && currentPage !== 1) {
       pushSearchParams((params) => {
@@ -281,7 +353,6 @@ export function AiSearcherClient() {
 
   return (
     <div className="flex flex-col lg:flex-row gap-8">
-      {/* Sidebar com filtros */}
       <aside className="lg:w-80 shrink-0">
         <PropertyFilters
           properties={properties}
@@ -291,7 +362,6 @@ export function AiSearcherClient() {
         />
       </aside>
 
-      {/* Lista de imóveis */}
       <main className="flex-1 min-w-0">
         <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
@@ -308,35 +378,53 @@ export function AiSearcherClient() {
             </p>
           </div>
 
-          {/* Ordenação */}
-          <div className="flex items-center gap-2">
-            <label
-              htmlFor="sort-select"
-              className="text-sm text-muted-foreground whitespace-nowrap"
-            >
-              Ordenar por:
-            </label>
-            <Select value={sortOrder} onValueChange={handleSortChange}>
-              <SelectTrigger id="sort-select" className="w-[200px]">
-                <SelectValue placeholder="Selecione" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">Padrão</SelectItem>
-                <SelectItem value="asc">Menor valor</SelectItem>
-                <SelectItem value="desc">Maior valor</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <label
+                htmlFor="sort-select"
+                className="text-sm text-muted-foreground whitespace-nowrap cursor-pointer"
+              >
+                Ordenar por:
+              </label>
+              <Select value={sortOrder} onValueChange={handleSortChange}>
+                <SelectTrigger id="sort-select" className="w-[200px] cursor-pointer">
+                  <SelectValue placeholder="Selecione" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none" className="cursor-pointer">Padrão</SelectItem>
+                  <SelectItem value="asc" className="cursor-pointer">Menor valor</SelectItem>
+                  <SelectItem value="desc" className="cursor-pointer">Maior valor</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <label
+                htmlFor="per-page-select"
+                className="text-sm text-muted-foreground whitespace-nowrap cursor-pointer"
+              >
+                Itens por página:
+              </label>
+              <Select value={String(perPage)} onValueChange={handlePerPageChange}>
+                <SelectTrigger id="per-page-select" className="w-[90px] cursor-pointer">
+                  <SelectValue placeholder="20" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="20" className="cursor-pointer">20</SelectItem>
+                  <SelectItem value="50" className="cursor-pointer">50</SelectItem>
+                  <SelectItem value="100" className="cursor-pointer">100</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
 
-        {/* Grid de cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {properties.map((property) => (
             <PropertyCard key={property.id} property={property} />
           ))}
         </div>
 
-        {/* Empty state */}
         {properties.length === 0 && (
           <div className="text-center py-16">
             <p className="text-xl text-muted-foreground">
@@ -345,14 +433,13 @@ export function AiSearcherClient() {
           </div>
         )}
 
-        {/* Paginação */}
         {totalPages > 1 && (
           <div className="mt-8 flex justify-center items-center gap-2">
             <Button
               onClick={() => handlePageChange(effectivePage - 1)}
               disabled={effectivePage === 1}
               variant="outline"
-              className="flex items-center gap-1"
+              className="flex items-center gap-1 cursor-pointer"
             >
               <ChevronLeft className="w-4 h-4" />
               Anterior
@@ -373,7 +460,7 @@ export function AiSearcherClient() {
                         variant={
                           effectivePage === page ? "default" : "outline"
                         }
-                        className="min-w-[40px]"
+                        className="min-w-[40px] cursor-pointer"
                       >
                         {page}
                       </Button>
@@ -400,7 +487,7 @@ export function AiSearcherClient() {
               onClick={() => handlePageChange(effectivePage + 1)}
               disabled={effectivePage === totalPages}
               variant="outline"
-              className="flex items-center gap-1"
+              className="flex items-center gap-1 cursor-pointer"
             >
               Próxima
               <ChevronRight className="w-4 h-4" />

@@ -2,6 +2,8 @@ import { notFound } from "next/navigation";
 import { PropertyForm } from "@/components/properties/PropertyForm";
 import { getPropertyById } from "@/services/propertyService";
 
+export const dynamic = 'force-dynamic';
+
 interface EditPropertyPageProps {
     params: Promise<{ id: string }>;
 }
