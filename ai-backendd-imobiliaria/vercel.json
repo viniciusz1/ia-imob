@@ -1,0 +1,46 @@
+{
+  "framework": null,
+  "buildCommand": "",
+  "installCommand": "",
+  "functions": {
+    "api/index.php": {
+      "runtime": "vercel-php@0.9.0"
+    }
+  },
+  "routes": [
+    { "src": "/(.*)", "dest": "/api/index.php" }
+  ],
+  "env": {
+    "APP_NAME": "IA Imobiliaria",
+    "APP_ENV": "production",
+    "APP_KEY": "base64:BQf8ToZE/uNkbO2PmtmfMBmasM0IEpyxQLUXxi22XMo=",
+    "APP_DEBUG": "true",
+    "APP_URL": "https://ai-backendd-imobiliaria.vercel.app",
+    "APP_LOCALE": "pt_BR",
+    "APP_FALLBACK_LOCALE": "en",
+    "APP_FAKER_LOCALE": "pt_BR",
+    "LOG_CHANNEL": "stderr",
+    "LOG_LEVEL": "debug",
+    "LARAVEL_STORAGE_PATH": "/tmp/storage",
+    "VIEW_COMPILED_PATH": "/tmp/storage/framework/views",
+    "DB_CONNECTION": "pgsql",
+    "DB_HOST": "db.syrrucgkeyafcywhwhdu.supabase.co",
+    "DB_PORT": "5432",
+    "DB_DATABASE": "postgres",
+    "DB_USERNAME": "postgres",
+    "SESSION_DRIVER": "cookie",
+    "SESSION_ENCRYPT": "true",
+    "FILESYSTEM_DISK": "local",
+    "QUEUE_CONNECTION": "sync",
+    "CACHE_STORE": "file",
+    "SANCTUM_STATEFUL_DOMAINS": "ai-front-end-imobiliaria.vercel.app,localhost:3000",
+    "SESSION_DOMAIN": ".vercel.app",
+    "FRONTEND_URL": "https://ai-front-end-imobiliaria.vercel.app"
+  },
+  "build": {
+    "env": {
+      "COMPOSER_PROCESS_TIMEOUT": "600",
+      "COMPOSER_NO_INTERACTION": "1"
+    }
+  }
+}
