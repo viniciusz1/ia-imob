@@ -8,6 +8,12 @@ $_ENV['LARAVEL_STORAGE_PATH'] = $storagePath;
 $_SERVER['LARAVEL_STORAGE_PATH'] = $storagePath;
 putenv("LARAVEL_STORAGE_PATH={$storagePath}");
 
+// Vercel routes requests through the /api function path before Laravel sees
+// them, so /api/v1/login reaches Laravel as /v1/login.
+$_ENV['APP_API_PREFIX'] = 'v1';
+$_SERVER['APP_API_PREFIX'] = 'v1';
+putenv('APP_API_PREFIX=v1');
+
 foreach ([
     "{$storagePath}/app",
     "{$storagePath}/framework/cache/data",
