@@ -20,12 +20,12 @@ import {
 import api, { API_PREFIX } from "@/services/api";
 
 function getStringArrayParam(params: URLSearchParams, key: string): string[] {
-  return params.getAll(key).filter(Boolean);
+  return params.getAll(key + "[]").filter(Boolean);
 }
 
 function getNumberArrayParam(params: URLSearchParams, key: string): number[] {
   return params
-    .getAll(key)
+    .getAll(key + "[]")
     .map((v) => Number(v))
     .filter((v) => Number.isFinite(v));
 }
@@ -35,8 +35,9 @@ function setArrayParam(
   key: string,
   values: Array<string | number>
 ) {
-  params.delete(key);
-  values.forEach((v) => params.append(key, String(v)));
+  const bracketKey = key + "[]";
+  params.delete(bracketKey);
+  values.forEach((v) => params.append(bracketKey, String(v)));
 }
 
 function areArrayParamsEqual(
@@ -44,8 +45,8 @@ function areArrayParamsEqual(
   b: URLSearchParams,
   key: string
 ): boolean {
-  const left = a.getAll(key);
-  const right = b.getAll(key);
+  const left = a.getAll(key + "[]");
+  const right = b.getAll(key + "[]");
   if (left.length !== right.length) return false;
   return left.every((v, i) => v === right[i]);
 }

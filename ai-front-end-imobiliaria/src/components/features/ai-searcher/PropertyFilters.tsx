@@ -369,331 +369,337 @@ export function PropertyFilters(
   return (
     <>
       <div className="bg-card rounded-xl border shadow-sm p-4 sticky top-20">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2 min-w-0">
-            <h3 className="text-lg font-semibold text-foreground whitespace-nowrap">
-              Filtros
-            </h3>
+        {collapsed ? (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleToggleCollapse}
+            title="Expandir filtros"
+            className="relative"
+          >
+            <Search className="size-5" />
             {activeFilterCount > 0 && (
-              <span className="inline-flex items-center justify-center size-5 rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+              <span className="absolute -top-1 -right-1 inline-flex items-center justify-center size-4 rounded-full bg-primary text-[9px] font-bold text-primary-foreground">
                 {activeFilterCount}
               </span>
             )}
-          </div>
-          <div className="flex items-center gap-1 shrink-0">
-            <button
-              onClick={clearFilters}
-              className="text-sm text-primary hover:underline font-medium cursor-pointer"
-            >
-              Limpar
-            </button>
-            <Button
-              variant="ghost"
-              size="icon-xs"
-              onClick={handleToggleCollapse}
-              title={collapsed ? "Expandir filtros" : "Recolher filtros"}
-            >
-              {collapsed ? (
-                <ChevronDown className="size-4" />
-              ) : (
-                <ChevronUp className="size-4" />
-              )}
-            </Button>
-          </div>
-        </div>
-
-        {/* Saved Filters Toolbar */}
-        <div className="flex items-center gap-2 mb-3">
-          <Select
-            value={activeFilterId ?? ""}
-            onValueChange={handleSelectFilter}
-          >
-            <SelectTrigger className="flex-1 min-w-0 h-8 text-xs">
-              <SelectValue placeholder="Filtros salvos..." />
-            </SelectTrigger>
-            <SelectContent>
-              {savedFiltersLoading ? (
-                <div className="px-2 py-6 text-xs text-muted-foreground text-center">
-                  Carregando...
-                </div>
-              ) : savedFilters.length === 0 ? (
-                <div className="px-2 py-6 text-xs text-muted-foreground text-center">
-                  Nenhum filtro salvo
-                </div>
-              ) : (
-                savedFilters.map((f) => (
-                  <SelectItem key={f.id} value={f.id} className="text-xs cursor-pointer">
-                    {f.name}
-                  </SelectItem>
-                ))
-              )}
-            </SelectContent>
-          </Select>
-
-          <Button
-            variant="outline"
-            size="icon-xs"
-            onClick={() => setSaveDialogOpen(true)}
-            title="Salvar filtro atual"
-          >
-            <Save className="size-3.5" />
           </Button>
-
-          {hasActiveFilter && (
-            <>
-              <Button
-                variant="outline"
-                size="icon-xs"
-                onClick={handleUpdateFilter}
-                title="Atualizar filtro salvo"
-              >
-                <Pencil className="size-3.5" />
-              </Button>
-              <Button
-                variant="outline"
-                size="icon-xs"
-                onClick={handleDeleteFilter}
-                title="Excluir filtro salvo"
-              >
-                <Trash2 className="size-3.5" />
-              </Button>
-            </>
-          )}
-        </div>
-
-        <Separator className="mb-3" />
-
-        {!collapsed && (
-          <div className="space-y-6 max-h-[calc(100vh-320px)] overflow-y-auto pr-2 pb-4">
-            {/* Preço */}
-            <div>
-              <h4 className="font-semibold text-foreground mb-3 text-sm">
-                Preço
-              </h4>
-              <div className="space-y-3">
-                <div>
-                  <Label
-                    htmlFor="minPrice"
-                    className="text-sm text-muted-foreground"
-                  >
-                    Valor Mínimo
-                  </Label>
-                  <Input
-                    id="minPrice"
-                    type="text"
-                    placeholder="R$ 0"
-                    value={formatToBRL(minPrice)}
-                    onChange={(e) => handlePriceChange(e.target.value, "minPrice")}
-                    className="mt-1"
-                  />
-                </div>
-                <div>
-                  <Label
-                    htmlFor="maxPrice"
-                    className="text-sm text-muted-foreground"
-                  >
-                    Valor Máximo
-                  </Label>
-                  <Input
-                    id="maxPrice"
-                    type="text"
-                    placeholder="R$ 999.999"
-                    value={formatToBRL(maxPrice)}
-                    onChange={(e) => handlePriceChange(e.target.value, "maxPrice")}
-                    className="mt-1"
-                  />
-                </div>
+        ) : (
+          <>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2 min-w-0">
+                <h3 className="text-lg font-semibold text-foreground whitespace-nowrap">
+                  Filtros
+                </h3>
+                {activeFilterCount > 0 && (
+                  <span className="inline-flex items-center justify-center size-5 rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+                    {activeFilterCount}
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center gap-1 shrink-0">
+                <button
+                  onClick={clearFilters}
+                  className="text-sm text-primary hover:underline font-medium cursor-pointer"
+                >
+                  Limpar
+                </button>
+                <Button
+                  variant="ghost"
+                  size="icon-xs"
+                  onClick={handleToggleCollapse}
+                  title="Recolher filtros"
+                >
+                  <ChevronUp className="size-4" />
+                </Button>
               </div>
             </div>
 
-            <Separator />
+            {/* Saved Filters Toolbar */}
+            <div className="flex items-center gap-2 mb-3">
+              <Select
+                value={activeFilterId ?? ""}
+                onValueChange={handleSelectFilter}
+              >
+                <SelectTrigger className="flex-1 min-w-0 h-8 text-xs">
+                  <SelectValue placeholder="Filtros salvos..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {savedFiltersLoading ? (
+                    <div className="px-2 py-6 text-xs text-muted-foreground text-center">
+                      Carregando...
+                    </div>
+                  ) : savedFilters.length === 0 ? (
+                    <div className="px-2 py-6 text-xs text-muted-foreground text-center">
+                      Nenhum filtro salvo
+                    </div>
+                  ) : (
+                    savedFilters.map((f) => (
+                      <SelectItem key={f.id} value={f.id} className="text-xs cursor-pointer">
+                        {f.name}
+                      </SelectItem>
+                    ))
+                  )}
+                </SelectContent>
+              </Select>
 
-            {/* Tipo de Imóvel */}
-            <FilterSection
-              title="Tipo de Imóvel"
-              searchPlaceholder="Pesquisar tipo..."
-              searchValue={searchTipo}
-              onSearchChange={setSearchTipo}
-              items={filteredTipos}
-              selectedItems={selectedTipos}
-              idPrefix="tipo"
-              onToggle={(val, checked) =>
-                handleToggle("selectedTipos", val, checked)
-              }
-              emptyMessage="Nenhum tipo encontrado"
-            />
+              <Button
+                variant="outline"
+                size="icon-xs"
+                onClick={() => setSaveDialogOpen(true)}
+                title="Salvar filtro atual"
+              >
+                <Save className="size-3.5" />
+              </Button>
 
-            <Separator />
+              {hasActiveFilter && (
+                <>
+                  <Button
+                    variant="outline"
+                    size="icon-xs"
+                    onClick={handleUpdateFilter}
+                    title="Atualizar filtro salvo"
+                  >
+                    <Pencil className="size-3.5" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="icon-xs"
+                    onClick={handleDeleteFilter}
+                    title="Excluir filtro salvo"
+                  >
+                    <Trash2 className="size-3.5" />
+                  </Button>
+                </>
+              )}
+            </div>
 
-            {/* Cidade */}
-            <FilterSection
-              title="Cidade"
-              searchPlaceholder="Pesquisar cidade..."
-              searchValue={searchCidade}
-              onSearchChange={setSearchCidade}
-              items={filteredCidades}
-              selectedItems={selectedCidades}
-              idPrefix="cidade"
-              onToggle={(val, checked) =>
-                handleToggle("selectedCidades", val, checked)
-              }
-              emptyMessage="Nenhuma cidade encontrada"
-            />
+            <Separator className="mb-3" />
 
-            <Separator />
-
-            {/* Bairro */}
-            <FilterSection
-              title="Bairro"
-              searchPlaceholder="Pesquisar bairro..."
-              searchValue={searchBairro}
-              onSearchChange={setSearchBairro}
-              items={filteredBairros}
-              selectedItems={selectedBairros}
-              idPrefix="bairro"
-              onToggle={(val, checked) =>
-                handleToggle("selectedBairros", val, checked)
-              }
-              emptyMessage="Nenhum bairro encontrado"
-            />
-
-            <Separator />
-
-            {/* Imobiliária */}
-            <FilterSection
-              title="Imobiliária"
-              searchPlaceholder="Pesquisar imobiliária..."
-              searchValue={searchImobiliaria}
-              onSearchChange={setSearchImobiliaria}
-              items={filteredImobiliarias}
-              selectedItems={selectedImobiliarias}
-              idPrefix="imobiliaria"
-              onToggle={(val, checked) =>
-                handleToggle("selectedImobiliarias", val, checked)
-              }
-              emptyMessage="Nenhuma imobiliária encontrada"
-            />
-
-            <Separator />
-
-            {/* Quartos */}
-            <FixedRoomFilterSection
-              title="Quartos"
-              selectedItems={selectedQuartos}
-              selectedPlus={selectedQuartosPlus}
-              idPrefix="quartos"
-              labelSuffix="quarto"
-              onToggle={(val) =>
-                handleToggle("selectedQuartos", val, !selectedQuartos.includes(val))
-              }
-              onPlusToggle={() => handleBoolToggle("selectedQuartosPlus")}
-            />
-
-            {/* Suites */}
-            <FixedRoomFilterSection
-              title="Suítes"
-              selectedItems={selectedSuites}
-              selectedPlus={selectedSuitesPlus}
-              idPrefix="suites"
-              labelSuffix="suíte"
-              onToggle={(val) =>
-                handleToggle("selectedSuites", val, !selectedSuites.includes(val))
-              }
-              onPlusToggle={() => handleBoolToggle("selectedSuitesPlus")}
-            />
-
-            {/* Banheiros */}
-            <FixedRoomFilterSection
-              title="Banheiros"
-              selectedItems={selectedBanheiros}
-              selectedPlus={selectedBanheirosPlus}
-              idPrefix="banheiros"
-              labelSuffix="banheiro"
-              onToggle={(val) =>
-                handleToggle("selectedBanheiros", val, !selectedBanheiros.includes(val))
-              }
-              onPlusToggle={() => handleBoolToggle("selectedBanheirosPlus")}
-            />
-
-            {/* Vagas */}
-            <FixedRoomFilterSection
-              title="Vagas"
-              selectedItems={selectedVagas}
-              selectedPlus={selectedVagasPlus}
-              idPrefix="vagas"
-              labelSuffix="vaga"
-              onToggle={(val) =>
-                handleToggle("selectedVagas", val, !selectedVagas.includes(val))
-              }
-              onPlusToggle={() => handleBoolToggle("selectedVagasPlus")}
-            />
-
-            {COMODIDADE_GROUPS.some((g) => g.keys.length > 0) && (
-              <>
-                <Separator />
-
-                {/* Comodidades */}
-                <div>
-                  <h4 className="font-semibold text-foreground mb-3 text-sm">
-                    Características
-                  </h4>
-                  <Accordion type="multiple" className="border rounded-lg px-3">
-                    {COMODIDADE_GROUPS.map((group) => (
-                      <AccordionItem key={group.title} value={group.title}>
-                        <AccordionTrigger className="text-sm py-2 cursor-pointer">
-                          {group.title}
-                        </AccordionTrigger>
-                        <AccordionContent>
-                          <div className="space-y-2 pt-1">
-                            {group.keys.map((key) => (
-                              <div key={key} className="flex items-center space-x-2">
-                                <Checkbox
-                                  id={`comodidade-${key}`}
-                                  checked={selectedComodidades.includes(key)}
-                                  onCheckedChange={(checked) =>
-                                    handleToggle(
-                                      "selectedComodidades",
-                                      key,
-                                      checked as boolean
-                                    )
-                                  }
-                                />
-                                <Label
-                                  htmlFor={`comodidade-${key}`}
-                                  className="text-sm text-muted-foreground cursor-pointer"
-                                >
-                                  {COMODIDADE_LABELS[key]}
-                                </Label>
-                              </div>
-                            ))}
-                          </div>
-                        </AccordionContent>
-                      </AccordionItem>
-                    ))}
-                  </Accordion>
+            <div className="space-y-6 max-h-[calc(100vh-320px)] overflow-y-auto pr-2 pb-4">
+              {/* Preço */}
+              <div>
+                <h4 className="font-semibold text-foreground mb-3 text-sm">
+                  Preço
+                </h4>
+                <div className="space-y-3">
+                  <div>
+                    <Label
+                      htmlFor="minPrice"
+                      className="text-sm text-muted-foreground"
+                    >
+                      Valor Mínimo
+                    </Label>
+                    <Input
+                      id="minPrice"
+                      type="text"
+                      placeholder="R$ 0"
+                      value={formatToBRL(minPrice)}
+                      onChange={(e) => handlePriceChange(e.target.value, "minPrice")}
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label
+                      htmlFor="maxPrice"
+                      className="text-sm text-muted-foreground"
+                    >
+                      Valor Máximo
+                    </Label>
+                    <Input
+                      id="maxPrice"
+                      type="text"
+                      placeholder="R$ 999.999"
+                      value={formatToBRL(maxPrice)}
+                      onChange={(e) => handlePriceChange(e.target.value, "maxPrice")}
+                      className="mt-1"
+                    />
+                  </div>
                 </div>
-              </>
-            )}
-          </div>
-        )}
+              </div>
 
-        {collapsed && activeFilterCount > 0 && (
-          <p className="text-xs text-muted-foreground mb-3">
-            {activeFilterCount} filtro{activeFilterCount !== 1 ? "s" : ""} ativo
-            {activeFilterCount !== 1 ? "s" : ""}
-          </p>
-        )}
+              <Separator />
 
-        <div className="-mx-4 -mb-4 mt-4 border-t bg-card/95 px-4 py-4">
-          <Button
-            type="button"
-            onClick={applyFilters}
-            className="h-12 w-full cursor-pointer gap-2 text-base font-semibold"
-          >
-            <Search className="h-5 w-5" />
-            Buscar imóveis
-          </Button>
-        </div>
+              {/* Tipo de Imóvel */}
+              <FilterSection
+                title="Tipo de Imóvel"
+                searchPlaceholder="Pesquisar tipo..."
+                searchValue={searchTipo}
+                onSearchChange={setSearchTipo}
+                items={filteredTipos}
+                selectedItems={selectedTipos}
+                idPrefix="tipo"
+                onToggle={(val, checked) =>
+                  handleToggle("selectedTipos", val, checked)
+                }
+                emptyMessage="Nenhum tipo encontrado"
+              />
+
+              <Separator />
+
+              {/* Cidade */}
+              <FilterSection
+                title="Cidade"
+                searchPlaceholder="Pesquisar cidade..."
+                searchValue={searchCidade}
+                onSearchChange={setSearchCidade}
+                items={filteredCidades}
+                selectedItems={selectedCidades}
+                idPrefix="cidade"
+                onToggle={(val, checked) =>
+                  handleToggle("selectedCidades", val, checked)
+                }
+                emptyMessage="Nenhuma cidade encontrada"
+              />
+
+              <Separator />
+
+              {/* Bairro */}
+              <FilterSection
+                title="Bairro"
+                searchPlaceholder="Pesquisar bairro..."
+                searchValue={searchBairro}
+                onSearchChange={setSearchBairro}
+                items={filteredBairros}
+                selectedItems={selectedBairros}
+                idPrefix="bairro"
+                onToggle={(val, checked) =>
+                  handleToggle("selectedBairros", val, checked)
+                }
+                emptyMessage="Nenhum bairro encontrado"
+              />
+
+              <Separator />
+
+              {/* Imobiliária */}
+              <FilterSection
+                title="Imobiliária"
+                searchPlaceholder="Pesquisar imobiliária..."
+                searchValue={searchImobiliaria}
+                onSearchChange={setSearchImobiliaria}
+                items={filteredImobiliarias}
+                selectedItems={selectedImobiliarias}
+                idPrefix="imobiliaria"
+                onToggle={(val, checked) =>
+                  handleToggle("selectedImobiliarias", val, checked)
+                }
+                emptyMessage="Nenhuma imobiliária encontrada"
+              />
+
+              <Separator />
+
+              {/* Quartos */}
+              <FixedRoomFilterSection
+                title="Quartos"
+                selectedItems={selectedQuartos}
+                selectedPlus={selectedQuartosPlus}
+                idPrefix="quartos"
+                labelSuffix="quarto"
+                onToggle={(val) =>
+                  handleToggle("selectedQuartos", val, !selectedQuartos.includes(val))
+                }
+                onPlusToggle={() => handleBoolToggle("selectedQuartosPlus")}
+              />
+
+              {/* Suites */}
+              <FixedRoomFilterSection
+                title="Suítes"
+                selectedItems={selectedSuites}
+                selectedPlus={selectedSuitesPlus}
+                idPrefix="suites"
+                labelSuffix="suíte"
+                onToggle={(val) =>
+                  handleToggle("selectedSuites", val, !selectedSuites.includes(val))
+                }
+                onPlusToggle={() => handleBoolToggle("selectedSuitesPlus")}
+              />
+
+              {/* Banheiros */}
+              <FixedRoomFilterSection
+                title="Banheiros"
+                selectedItems={selectedBanheiros}
+                selectedPlus={selectedBanheirosPlus}
+                idPrefix="banheiros"
+                labelSuffix="banheiro"
+                onToggle={(val) =>
+                  handleToggle("selectedBanheiros", val, !selectedBanheiros.includes(val))
+                }
+                onPlusToggle={() => handleBoolToggle("selectedBanheirosPlus")}
+              />
+
+              {/* Vagas */}
+              <FixedRoomFilterSection
+                title="Vagas"
+                selectedItems={selectedVagas}
+                selectedPlus={selectedVagasPlus}
+                idPrefix="vagas"
+                labelSuffix="vaga"
+                onToggle={(val) =>
+                  handleToggle("selectedVagas", val, !selectedVagas.includes(val))
+                }
+                onPlusToggle={() => handleBoolToggle("selectedVagasPlus")}
+              />
+
+              {COMODIDADE_GROUPS.some((g) => g.keys.length > 0) && (
+                <>
+                  <Separator />
+
+                  {/* Comodidades */}
+                  <div>
+                    <h4 className="font-semibold text-foreground mb-3 text-sm">
+                      Características
+                    </h4>
+                    <Accordion type="multiple" className="border rounded-lg px-3">
+                      {COMODIDADE_GROUPS.map((group) => (
+                        <AccordionItem key={group.title} value={group.title}>
+                          <AccordionTrigger className="text-sm py-2 cursor-pointer">
+                            {group.title}
+                          </AccordionTrigger>
+                          <AccordionContent>
+                            <div className="space-y-2 pt-1">
+                              {group.keys.map((key) => (
+                                <div key={key} className="flex items-center space-x-2">
+                                  <Checkbox
+                                    id={`comodidade-${key}`}
+                                    checked={selectedComodidades.includes(key)}
+                                    onCheckedChange={(checked) =>
+                                      handleToggle(
+                                        "selectedComodidades",
+                                        key,
+                                        checked as boolean
+                                      )
+                                    }
+                                  />
+                                  <Label
+                                    htmlFor={`comodidade-${key}`}
+                                    className="text-sm text-muted-foreground cursor-pointer"
+                                  >
+                                    {COMODIDADE_LABELS[key]}
+                                  </Label>
+                                </div>
+                              ))}
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
+                      ))}
+                    </Accordion>
+                  </div>
+                </>
+              )}
+            </div>
+
+            <div className="-mx-4 -mb-4 mt-4 border-t bg-card/95 px-4 py-4">
+              <Button
+                type="button"
+                onClick={applyFilters}
+                className="h-12 w-full cursor-pointer gap-2 text-base font-semibold"
+              >
+                <Search className="h-5 w-5" />
+                Buscar imóveis
+              </Button>
+            </div>
+          </>
+        )}
       </div>
 
       {/* Save Filter Dialog */}
