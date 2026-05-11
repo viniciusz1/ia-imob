@@ -102,6 +102,7 @@ export function AiSearcherClient() {
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [isFilterCollapsed, setIsFilterCollapsed] = useState(false);
 
   const pageParam = Number(searchParams.get("pagina") ?? "1");
   const currentPage = Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1;
@@ -353,12 +354,16 @@ export function AiSearcherClient() {
 
   return (
     <div className="flex flex-col lg:flex-row gap-8">
-      <aside className="lg:w-80 shrink-0">
+      <aside
+        className={`${isFilterCollapsed ? "lg:w-56" : "lg:w-80"} shrink-0 transition-[width] duration-300`}
+      >
         <PropertyFilters
           properties={properties}
           onFilterChange={handleFilterChange}
           initialState={filtersFromUrl}
           onFilterStateChange={handleFilterStateChange}
+          onCollapseChange={setIsFilterCollapsed}
+          collapsed={isFilterCollapsed}
         />
       </aside>
 
@@ -419,7 +424,9 @@ export function AiSearcherClient() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        <div
+          className={`grid grid-cols-1 md:grid-cols-2 ${isFilterCollapsed ? "xl:grid-cols-4" : "xl:grid-cols-3"} gap-6 transition-[grid-template-columns] duration-300`}
+        >
           {properties.map((property) => (
             <PropertyCard key={property.id} property={property} />
           ))}

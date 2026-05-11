@@ -33,6 +33,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('enums', [\App\Http\Controllers\Api\SystemEnumController::class, 'index']);
     Route::get('features', [\App\Http\Controllers\Api\FeatureController::class, 'index']);
 
+    // Saved Filters (Authenticated, user-scoped)
+    Route::apiResource('saved-filters', \App\Http\Controllers\Api\SavedFilterController::class);
+
     // Subscriptions (Authenticated)
     Route::get('/subscriptions/current', [\App\Http\Controllers\Api\SubscriptionController::class, 'current']);
     Route::post('/subscriptions', [\App\Http\Controllers\Api\SubscriptionController::class, 'store']);

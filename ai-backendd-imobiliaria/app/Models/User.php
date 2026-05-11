@@ -58,4 +58,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(TenantSubscription::class, 'user_id');
     }
+
+    public function savedFilters(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(SavedFilter::class, 'user_id');
+    }
 }

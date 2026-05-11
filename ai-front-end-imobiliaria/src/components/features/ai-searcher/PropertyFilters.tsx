@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -12,8 +12,36 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Search } from "lucide-react";
-import type { AiSearcherProperty, AiSearcherFiltersState, AiSearcherFiltersOptions } from "./types";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { toast } from "sonner";
+import {
+  Search,
+  Save,
+  Pencil,
+  Trash2,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
+import type {
+  AiSearcherProperty,
+  AiSearcherFiltersState,
+  AiSearcherFiltersOptions,
+  SavedFilter,
+} from "./types";
 import api, { API_PREFIX } from "@/services/api";
 
 interface PropertyFiltersProps {
@@ -21,6 +49,8 @@ interface PropertyFiltersProps {
   onFilterChange: (filtered: AiSearcherProperty[]) => void;
   initialState: AiSearcherFiltersState;
   onFilterStateChange: (state: AiSearcherFiltersState) => void;
+  onCollapseChange?: (collapsed: boolean) => void;
+  collapsed?: boolean;
 }
 
 const FIXED_ROOM_OPTIONS = [1, 2, 3, 4];
@@ -80,12 +110,16 @@ const EMPTY_FILTER_STATE: AiSearcherFiltersState = {
   maxPrice: "",
 };
 
-export function PropertyFilters({
-  properties,
-  onFilterChange,
-  initialState,
-  onFilterStateChange,
-}: PropertyFiltersProps) {
+export function PropertyFilters(
+  props: PropertyFiltersProps
+) {
+  const {
+    initialState,
+    onFilterStateChange,
+    onCollapseChange,
+    collapsed = false,
+  } = props;
+  const [filterState, setFilterState] = useState<AiSearcherFiltersState>(initialState);
   const [filterOptions, setFilterOptions] = useState<AiSearcherFiltersOptions>({
     tipos: [],
     bairros: [],
@@ -97,58 +131,50 @@ export function PropertyFilters({
     vagas: [],
   });
 
-  useEffect(() => {
-    api.get(`${API_PREFIX}/scrapy-properties/filters`)
-      .then(res => setFilterOptions(res.data))
-      .catch(console.error);
-  }, []);
-
-  const [selectedTipos, setSelectedTipos] = useState<string[]>(
-    initialState.selectedTipos
-  );
-  const [selectedBairros, setSelectedBairros] = useState<string[]>(
-    initialState.selectedBairros
-  );
-  const [selectedCidades, setSelectedCidades] = useState<string[]>(
-    initialState.selectedCidades
-  );
-  const [selectedImobiliarias, setSelectedImobiliarias] = useState<string[]>(
-    initialState.selectedImobiliarias
-  );
-  const [selectedQuartos, setSelectedQuartos] = useState<number[]>(
-    initialState.selectedQuartos
-  );
-  const [selectedQuartosPlus, setSelectedQuartosPlus] = useState<boolean>(
-    initialState.selectedQuartosPlus
-  );
-  const [selectedSuites, setSelectedSuites] = useState<number[]>(
-    initialState.selectedSuites
-  );
-  const [selectedSuitesPlus, setSelectedSuitesPlus] = useState<boolean>(
-    initialState.selectedSuitesPlus
-  );
-  const [selectedBanheiros, setSelectedBanheiros] = useState<number[]>(
-    initialState.selectedBanheiros
-  );
-  const [selectedBanheirosPlus, setSelectedBanheirosPlus] = useState<boolean>(
-    initialState.selectedBanheirosPlus
-  );
-  const [selectedVagas, setSelectedVagas] = useState<number[]>(
-    initialState.selectedVagas
-  );
-  const [selectedVagasPlus, setSelectedVagasPlus] = useState<boolean>(
-    initialState.selectedVagasPlus
-  );
-  const [selectedComodidades, setSelectedComodidades] = useState<string[]>(
-    initialState.selectedComodidades
-  );
-  const [minPrice, setMinPrice] = useState<string>(initialState.minPrice);
-  const [maxPrice, setMaxPrice] = useState<string>(initialState.maxPrice);
+  const [savedFilters, setSavedFilters] = useState<SavedFilter[]>([]);
+  const [savedFiltersLoading, setSavedFiltersLoading] = useState(false);
+  const [activeFilterId, setActiveFilterId] = useState<string | null>(null);
+  const [saveDialogOpen, setSaveDialogOpen] = useState(false);
+  const [newFilterName, setNewFilterName] = useState("");
 
   const [searchTipo, setSearchTipo] = useState<string>("");
   const [searchBairro, setSearchBairro] = useState<string>("");
   const [searchCidade, setSearchCidade] = useState<string>("");
   const [searchImobiliaria, setSearchImobiliaria] = useState<string>("");
+
+  const isCommittingRef = useRef(false);
+
+  useEffect(() => {
+    api
+      .get(`${API_PREFIX}/scrapy-properties/filters`)
+      .then((res) => setFilterOptions(res.data))
+      .catch(console.error);
+  }, []);
+
+  useEffect(() => {
+    setSavedFiltersLoading(true);
+    api
+      .get(`${API_PREFIX}/saved-filters`)
+      .then((res) => setSavedFilters(res.data))
+      .catch(() => toast.error("Erro ao carregar filtros salvos."))
+      .finally(() => setSavedFiltersLoading(false));
+  }, []);
+
+  const initialStateKey = useMemo(
+    () => JSON.stringify(initialState),
+    [initialState]
+  );
+
+  const filterStateKey = JSON.stringify(filterState);
+
+  useEffect(() => {
+    if (isCommittingRef.current) return;
+    if (initialStateKey !== filterStateKey) {
+      setFilterState(initialState);
+      setActiveFilterId(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialStateKey]);
 
   const { tipos, bairros, cidades, imobiliarias } = filterOptions;
 
@@ -165,67 +191,61 @@ export function PropertyFilters({
     i.toLowerCase().includes(searchImobiliaria.toLowerCase())
   );
 
-  // Sync internal state when URL changes (back/forward)
-  useEffect(() => {
-    setSelectedTipos(initialState.selectedTipos);
-    setSelectedBairros(initialState.selectedBairros);
-    setSelectedCidades(initialState.selectedCidades);
-    setSelectedImobiliarias(initialState.selectedImobiliarias);
-    setSelectedQuartos(initialState.selectedQuartos);
-    setSelectedQuartosPlus(initialState.selectedQuartosPlus);
-    setSelectedSuites(initialState.selectedSuites);
-    setSelectedSuitesPlus(initialState.selectedSuitesPlus);
-    setSelectedBanheiros(initialState.selectedBanheiros);
-    setSelectedBanheirosPlus(initialState.selectedBanheirosPlus);
-    setSelectedVagas(initialState.selectedVagas);
-    setSelectedVagasPlus(initialState.selectedVagasPlus);
-    setSelectedComodidades(initialState.selectedComodidades);
-    setMinPrice(initialState.minPrice);
-    setMaxPrice(initialState.maxPrice);
-  }, [
-    initialState.selectedTipos.join(','),
-    initialState.selectedBairros.join(','),
-    initialState.selectedCidades.join(','),
-    initialState.selectedImobiliarias.join(','),
-    initialState.selectedQuartos.join(','),
-    initialState.selectedQuartosPlus,
-    initialState.selectedSuites.join(','),
-    initialState.selectedSuitesPlus,
-    initialState.selectedBanheiros.join(','),
-    initialState.selectedBanheirosPlus,
-    initialState.selectedVagas.join(','),
-    initialState.selectedVagasPlus,
-    initialState.selectedComodidades.join(','),
-    initialState.minPrice,
-    initialState.maxPrice,
-  ]);
+  const handleToggle = useCallback(
+    <T extends string | number>(
+      key: keyof AiSearcherFiltersState,
+      value: T,
+      checked: boolean
+    ) => {
+      setFilterState((prev) => ({
+        ...prev,
+        [key]: checked
+          ? [...(prev[key] as T[]), value]
+          : (prev[key] as T[]).filter((v) => v !== value),
+      }));
+    },
+    []
+  );
 
-  const getCurrentFilterState = (): AiSearcherFiltersState => ({
-    selectedTipos,
-    selectedBairros,
-    selectedCidades,
-    selectedImobiliarias,
-    selectedQuartos,
-    selectedQuartosPlus,
-    selectedSuites,
-    selectedSuitesPlus,
-    selectedBanheiros,
-    selectedBanheirosPlus,
-    selectedVagas,
-    selectedVagasPlus,
-    selectedComodidades,
-    minPrice,
-    maxPrice,
-  });
+  const handleBoolToggle = useCallback(
+    (key: keyof AiSearcherFiltersState) => {
+      setFilterState((prev) => ({ ...prev, [key]: !prev[key] }));
+    },
+    []
+  );
 
-  const applyFilters = () => {
-    onFilterStateChange(getCurrentFilterState());
-  };
+  const commitFilterState = useCallback(
+    (state: AiSearcherFiltersState) => {
+      isCommittingRef.current = true;
+      onFilterStateChange(state);
+      setTimeout(() => {
+        isCommittingRef.current = false;
+      }, 500);
+    },
+    [onFilterStateChange]
+  );
 
-  const handlePriceChange = (value: string, setter: (val: string) => void) => {
-    const numericStr = value.replace(/\D/g, "");
-    setter(numericStr);
-  };
+  const applyFilters = useCallback(() => {
+    commitFilterState(filterState);
+  }, [filterState, commitFilterState]);
+
+  const clearFilters = useCallback(() => {
+    setFilterState(EMPTY_FILTER_STATE);
+    setSearchTipo("");
+    setSearchBairro("");
+    setSearchCidade("");
+    setSearchImobiliaria("");
+    setActiveFilterId(null);
+    commitFilterState(EMPTY_FILTER_STATE);
+  }, [commitFilterState]);
+
+  const handlePriceChange = useCallback(
+    (value: string, key: "minPrice" | "maxPrice") => {
+      const numericStr = value.replace(/\D/g, "");
+      setFilterState((prev) => ({ ...prev, [key]: numericStr }));
+    },
+    []
+  );
 
   const formatToBRL = (value: string) => {
     if (!value) return "";
@@ -238,86 +258,83 @@ export function PropertyFilters({
     }).format(num);
   };
 
-  // Apply filters (debounced)
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const handleToggleCollapse = useCallback(() => {
+    const next = !collapsed;
+    onCollapseChange?.(next);
+  }, [collapsed, onCollapseChange]);
 
-  useEffect(() => {
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current);
-    }
+  const handleSelectFilter = useCallback(
+    (id: string) => {
+      const saved = savedFilters.find((f) => f.id === id);
+      if (saved) {
+        setFilterState(saved.filters);
+        setActiveFilterId(id);
+        commitFilterState(saved.filters);
+        setSearchTipo("");
+        setSearchBairro("");
+        setSearchCidade("");
+        setSearchImobiliaria("");
+      }
+    },
+    [savedFilters, commitFilterState]
+  );
 
-    debounceRef.current = setTimeout(() => {
-      let filtered = [...properties];
+  const handleSaveNewFilter = useCallback(() => {
+    const trimmed = newFilterName.trim();
+    if (!trimmed) return;
 
-      if (selectedTipos.length > 0) {
-        filtered = filtered.filter((p) => selectedTipos.includes(p.tipo));
-      }
-      if (selectedBairros.length > 0) {
-        filtered = filtered.filter((p) => selectedBairros.includes(p.bairro));
-      }
-      if (selectedCidades.length > 0) {
-        filtered = filtered.filter((p) => selectedCidades.includes(p.cidade));
-      }
-      if (selectedImobiliarias.length > 0) {
-        filtered = filtered.filter((p) =>
-          selectedImobiliarias.includes(p.imobiliaria)
+    api
+      .post(`${API_PREFIX}/saved-filters`, {
+        name: trimmed,
+        filters: filterState,
+      })
+      .then((res) => {
+        setSavedFilters((prev) => [res.data, ...prev]);
+        setActiveFilterId(res.data.id);
+        setSaveDialogOpen(false);
+        setNewFilterName("");
+        toast.success(`Filtro "${trimmed}" salvo com sucesso.`);
+      })
+      .catch(() => toast.error("Erro ao salvar filtro."));
+  }, [newFilterName, filterState]);
+
+  const handleUpdateFilter = useCallback(() => {
+    if (!activeFilterId) return;
+
+    api
+      .put(`${API_PREFIX}/saved-filters/${activeFilterId}`, {
+        filters: filterState,
+      })
+      .then((res) => {
+        setSavedFilters((prev) =>
+          prev.map((f) => (f.id === activeFilterId ? res.data : f))
         );
-      }
-      if (selectedQuartos.length > 0 || selectedQuartosPlus) {
-        filtered = filtered.filter((p) => {
-          const exactMatch = selectedQuartos.length === 0 || selectedQuartos.includes(p.quartos);
-          const plusMatch = selectedQuartosPlus && p.quartos >= 4;
-          return exactMatch || plusMatch;
-        });
-      }
-      if (selectedSuites.length > 0 || selectedSuitesPlus) {
-        filtered = filtered.filter((p) => {
-          const exactMatch = selectedSuites.length === 0 || selectedSuites.includes(p.suites);
-          const plusMatch = selectedSuitesPlus && p.suites >= 4;
-          return exactMatch || plusMatch;
-        });
-      }
-      if (selectedBanheiros.length > 0 || selectedBanheirosPlus) {
-        filtered = filtered.filter((p) => {
-          const exactMatch = selectedBanheiros.length === 0 || selectedBanheiros.includes(p.banheiros);
-          const plusMatch = selectedBanheirosPlus && p.banheiros >= 4;
-          return exactMatch || plusMatch;
-        });
-      }
-      if (selectedVagas.length > 0 || selectedVagasPlus) {
-        filtered = filtered.filter((p) => {
-          const exactMatch = selectedVagas.length === 0 || selectedVagas.includes(p.vagas);
-          const plusMatch = selectedVagasPlus && p.vagas >= 4;
-          return exactMatch || plusMatch;
-        });
-      }
-      if (selectedComodidades.length > 0) {
-        filtered = filtered.filter((p) =>
-          selectedComodidades.every((key) => (p as any)[key] === true)
-        );
-      }
-      if (minPrice) {
-        const min = parseFloat(minPrice);
-        if (!isNaN(min)) {
-          filtered = filtered.filter((p) => p.preco >= min);
-        }
-      }
-      if (maxPrice) {
-        const max = parseFloat(maxPrice);
-        if (!isNaN(max)) {
-          filtered = filtered.filter((p) => p.preco <= max);
-        }
-      }
+        const target = savedFilters.find((f) => f.id === activeFilterId);
+        const name = target?.name ?? "Filtro";
+        toast.success(`Filtro "${name}" atualizado.`);
+      })
+      .catch(() => toast.error("Erro ao atualizar filtro."));
+  }, [activeFilterId, filterState, savedFilters]);
 
-      onFilterChange(filtered);
-    }, 300);
+  const handleDeleteFilter = useCallback(() => {
+    if (!activeFilterId) return;
 
-    return () => {
-      if (debounceRef.current) {
-        clearTimeout(debounceRef.current);
-      }
-    };
-  }, [
+    const target = savedFilters.find((f) => f.id === activeFilterId);
+    const name = target?.name ?? "Filtro";
+
+    api
+      .delete(`${API_PREFIX}/saved-filters/${activeFilterId}`)
+      .then(() => {
+        setSavedFilters((prev) => prev.filter((f) => f.id !== activeFilterId));
+        setActiveFilterId(null);
+        toast.success(`Filtro "${name}" excluído.`);
+      })
+      .catch(() => toast.error("Erro ao excluir filtro."));
+  }, [activeFilterId, savedFilters]);
+
+  const hasActiveFilter = activeFilterId !== null;
+
+  const {
     selectedTipos,
     selectedBairros,
     selectedCidades,
@@ -333,247 +350,341 @@ export function PropertyFilters({
     selectedComodidades,
     minPrice,
     maxPrice,
-    properties,
-    onFilterChange,
-  ]);
+  } = filterState;
 
-  const handleToggle = <T,>(
-    setter: React.Dispatch<React.SetStateAction<T[]>>,
-    value: T,
-    checked: boolean
-  ) => {
-    setter((prev) =>
-      checked ? [...prev, value] : prev.filter((v) => v !== value)
-    );
-  };
-
-  const clearFilters = () => {
-    setSelectedTipos(EMPTY_FILTER_STATE.selectedTipos);
-    setSelectedBairros(EMPTY_FILTER_STATE.selectedBairros);
-    setSelectedCidades(EMPTY_FILTER_STATE.selectedCidades);
-    setSelectedImobiliarias(EMPTY_FILTER_STATE.selectedImobiliarias);
-    setSelectedQuartos(EMPTY_FILTER_STATE.selectedQuartos);
-    setSelectedQuartosPlus(EMPTY_FILTER_STATE.selectedQuartosPlus);
-    setSelectedSuites(EMPTY_FILTER_STATE.selectedSuites);
-    setSelectedSuitesPlus(EMPTY_FILTER_STATE.selectedSuitesPlus);
-    setSelectedBanheiros(EMPTY_FILTER_STATE.selectedBanheiros);
-    setSelectedBanheirosPlus(EMPTY_FILTER_STATE.selectedBanheirosPlus);
-    setSelectedVagas(EMPTY_FILTER_STATE.selectedVagas);
-    setSelectedVagasPlus(EMPTY_FILTER_STATE.selectedVagasPlus);
-    setSelectedComodidades(EMPTY_FILTER_STATE.selectedComodidades);
-    setMinPrice(EMPTY_FILTER_STATE.minPrice);
-    setMaxPrice(EMPTY_FILTER_STATE.maxPrice);
-    setSearchTipo("");
-    setSearchBairro("");
-    setSearchCidade("");
-    setSearchImobiliaria("");
-    onFilterStateChange(EMPTY_FILTER_STATE);
-  };
+  const activeFilterCount = [
+    selectedTipos.length,
+    selectedBairros.length,
+    selectedCidades.length,
+    selectedImobiliarias.length,
+    selectedQuartos.length + (selectedQuartosPlus ? 1 : 0),
+    selectedSuites.length + (selectedSuitesPlus ? 1 : 0),
+    selectedBanheiros.length + (selectedBanheirosPlus ? 1 : 0),
+    selectedVagas.length + (selectedVagasPlus ? 1 : 0),
+    selectedComodidades.length,
+    minPrice ? 1 : 0,
+    maxPrice ? 1 : 0,
+  ].reduce((a, b) => a + b, 0);
 
   return (
-      <div className="bg-card rounded-xl border shadow-sm p-6 sticky top-20">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-foreground">Filtros</h3>
-          <button
-            onClick={clearFilters}
-            className="text-sm text-primary hover:underline font-medium cursor-pointer"
-          >
-            Limpar
-          </button>
+    <>
+      <div className="bg-card rounded-xl border shadow-sm p-4 sticky top-20">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2 min-w-0">
+            <h3 className="text-lg font-semibold text-foreground whitespace-nowrap">
+              Filtros
+            </h3>
+            {activeFilterCount > 0 && (
+              <span className="inline-flex items-center justify-center size-5 rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+                {activeFilterCount}
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-1 shrink-0">
+            <button
+              onClick={clearFilters}
+              className="text-sm text-primary hover:underline font-medium cursor-pointer"
+            >
+              Limpar
+            </button>
+            <Button
+              variant="ghost"
+              size="icon-xs"
+              onClick={handleToggleCollapse}
+              title={collapsed ? "Expandir filtros" : "Recolher filtros"}
+            >
+              {collapsed ? (
+                <ChevronDown className="size-4" />
+              ) : (
+                <ChevronUp className="size-4" />
+              )}
+            </Button>
+          </div>
         </div>
 
-        <div className="space-y-6 max-h-[calc(100vh-280px)] overflow-y-auto pr-2 pb-4">
-          {/* Preço */}
-          <div>
-            <h4 className="font-semibold text-foreground mb-3 text-sm">Preço</h4>
-            <div className="space-y-3">
-              <div>
-                <Label htmlFor="minPrice" className="text-sm text-muted-foreground">
-                  Valor Mínimo
-                </Label>
-                <Input
-                  id="minPrice"
-                  type="text"
-                  placeholder="R$ 0"
-                  value={formatToBRL(minPrice)}
-                  onChange={(e) => handlePriceChange(e.target.value, setMinPrice)}
-                  className="mt-1"
-                />
-              </div>
-              <div>
-                <Label htmlFor="maxPrice" className="text-sm text-muted-foreground">
-                  Valor Máximo
-                </Label>
-                <Input
-                  id="maxPrice"
-                  type="text"
-                  placeholder="R$ 999.999"
-                  value={formatToBRL(maxPrice)}
-                  onChange={(e) => handlePriceChange(e.target.value, setMaxPrice)}
-                  className="mt-1"
-                />
-              </div>
-            </div>
-          </div>
+        {/* Saved Filters Toolbar */}
+        <div className="flex items-center gap-2 mb-3">
+          <Select
+            value={activeFilterId ?? ""}
+            onValueChange={handleSelectFilter}
+          >
+            <SelectTrigger className="flex-1 min-w-0 h-8 text-xs">
+              <SelectValue placeholder="Filtros salvos..." />
+            </SelectTrigger>
+            <SelectContent>
+              {savedFiltersLoading ? (
+                <div className="px-2 py-6 text-xs text-muted-foreground text-center">
+                  Carregando...
+                </div>
+              ) : savedFilters.length === 0 ? (
+                <div className="px-2 py-6 text-xs text-muted-foreground text-center">
+                  Nenhum filtro salvo
+                </div>
+              ) : (
+                savedFilters.map((f) => (
+                  <SelectItem key={f.id} value={f.id} className="text-xs cursor-pointer">
+                    {f.name}
+                  </SelectItem>
+                ))
+              )}
+            </SelectContent>
+          </Select>
 
-          <Separator />
+          <Button
+            variant="outline"
+            size="icon-xs"
+            onClick={() => setSaveDialogOpen(true)}
+            title="Salvar filtro atual"
+          >
+            <Save className="size-3.5" />
+          </Button>
 
-          {/* Tipo de Imóvel */}
-          <FilterSection
-            title="Tipo de Imóvel"
-            searchPlaceholder="Pesquisar tipo..."
-            searchValue={searchTipo}
-            onSearchChange={setSearchTipo}
-            items={filteredTipos}
-            selectedItems={selectedTipos}
-            idPrefix="tipo"
-            onToggle={(val, checked) =>
-              handleToggle(setSelectedTipos, val, checked)
-            }
-            emptyMessage="Nenhum tipo encontrado"
-          />
-
-          <Separator />
-
-          {/* Cidade */}
-          <FilterSection
-            title="Cidade"
-            searchPlaceholder="Pesquisar cidade..."
-            searchValue={searchCidade}
-            onSearchChange={setSearchCidade}
-            items={filteredCidades}
-            selectedItems={selectedCidades}
-            idPrefix="cidade"
-            onToggle={(val, checked) =>
-              handleToggle(setSelectedCidades, val, checked)
-            }
-            emptyMessage="Nenhuma cidade encontrada"
-          />
-
-          <Separator />
-
-          {/* Bairro */}
-          <FilterSection
-            title="Bairro"
-            searchPlaceholder="Pesquisar bairro..."
-            searchValue={searchBairro}
-            onSearchChange={setSearchBairro}
-            items={filteredBairros}
-            selectedItems={selectedBairros}
-            idPrefix="bairro"
-            onToggle={(val, checked) =>
-              handleToggle(setSelectedBairros, val, checked)
-            }
-            emptyMessage="Nenhum bairro encontrado"
-          />
-
-          <Separator />
-
-          {/* Imobiliária */}
-          <FilterSection
-            title="Imobiliária"
-            searchPlaceholder="Pesquisar imobiliária..."
-            searchValue={searchImobiliaria}
-            onSearchChange={setSearchImobiliaria}
-            items={filteredImobiliarias}
-            selectedItems={selectedImobiliarias}
-            idPrefix="imobiliaria"
-            onToggle={(val, checked) =>
-              handleToggle(setSelectedImobiliarias, val, checked)
-            }
-            emptyMessage="Nenhuma imobiliária encontrada"
-          />
-
-          <Separator />
-
-          {/* Quartos */}
-          <FixedRoomFilterSection
-            title="Quartos"
-            selectedItems={selectedQuartos}
-            selectedPlus={selectedQuartosPlus}
-            idPrefix="quartos"
-            labelSuffix="quarto"
-            onToggle={(val) => handleToggle(setSelectedQuartos, val, !selectedQuartos.includes(val))}
-            onPlusToggle={() => setSelectedQuartosPlus(!selectedQuartosPlus)}
-          />
-
-          {/* Suites */}
-          <FixedRoomFilterSection
-            title="Suítes"
-            selectedItems={selectedSuites}
-            selectedPlus={selectedSuitesPlus}
-            idPrefix="suites"
-            labelSuffix="suíte"
-            onToggle={(val) => handleToggle(setSelectedSuites, val, !selectedSuites.includes(val))}
-            onPlusToggle={() => setSelectedSuitesPlus(!selectedSuitesPlus)}
-          />
-
-          {/* Banheiros */}
-          <FixedRoomFilterSection
-            title="Banheiros"
-            selectedItems={selectedBanheiros}
-            selectedPlus={selectedBanheirosPlus}
-            idPrefix="banheiros"
-            labelSuffix="banheiro"
-            onToggle={(val) => handleToggle(setSelectedBanheiros, val, !selectedBanheiros.includes(val))}
-            onPlusToggle={() => setSelectedBanheirosPlus(!selectedBanheirosPlus)}
-          />
-
-          {/* Vagas */}
-          <FixedRoomFilterSection
-            title="Vagas"
-            selectedItems={selectedVagas}
-            selectedPlus={selectedVagasPlus}
-            idPrefix="vagas"
-            labelSuffix="vaga"
-            onToggle={(val) => handleToggle(setSelectedVagas, val, !selectedVagas.includes(val))}
-            onPlusToggle={() => setSelectedVagasPlus(!selectedVagasPlus)}
-          />
-
-          {COMODIDADE_GROUPS.some((g) => g.keys.length > 0) && (
+          {hasActiveFilter && (
             <>
-              <Separator />
-
-              {/* Comodidades */}
-              <div>
-                <h4 className="font-semibold text-foreground mb-3 text-sm">
-                  Características
-                </h4>
-                <Accordion type="multiple" className="border rounded-lg px-3">
-                  {COMODIDADE_GROUPS.map((group) => (
-                    <AccordionItem key={group.title} value={group.title}>
-                      <AccordionTrigger className="text-sm py-2 cursor-pointer">
-                        {group.title}
-                      </AccordionTrigger>
-                      <AccordionContent>
-                        <div className="space-y-2 pt-1">
-                          {group.keys.map((key) => (
-                            <div key={key} className="flex items-center space-x-2">
-                              <Checkbox
-                                id={`comodidade-${key}`}
-                                checked={selectedComodidades.includes(key)}
-                                onCheckedChange={(checked) =>
-                                  handleToggle(setSelectedComodidades, key, checked as boolean)
-                                }
-                              />
-                              <Label
-                                htmlFor={`comodidade-${key}`}
-                                className="text-sm text-muted-foreground cursor-pointer"
-                              >
-                                {COMODIDADE_LABELS[key]}
-                              </Label>
-                            </div>
-                          ))}
-                        </div>
-                      </AccordionContent>
-                    </AccordionItem>
-                  ))}
-                </Accordion>
-              </div>
+              <Button
+                variant="outline"
+                size="icon-xs"
+                onClick={handleUpdateFilter}
+                title="Atualizar filtro salvo"
+              >
+                <Pencil className="size-3.5" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon-xs"
+                onClick={handleDeleteFilter}
+                title="Excluir filtro salvo"
+              >
+                <Trash2 className="size-3.5" />
+              </Button>
             </>
           )}
         </div>
-        <div className="-mx-6 -mb-6 mt-4 border-t bg-card/95 px-6 py-4">
+
+        <Separator className="mb-3" />
+
+        {!collapsed && (
+          <div className="space-y-6 max-h-[calc(100vh-320px)] overflow-y-auto pr-2 pb-4">
+            {/* Preço */}
+            <div>
+              <h4 className="font-semibold text-foreground mb-3 text-sm">
+                Preço
+              </h4>
+              <div className="space-y-3">
+                <div>
+                  <Label
+                    htmlFor="minPrice"
+                    className="text-sm text-muted-foreground"
+                  >
+                    Valor Mínimo
+                  </Label>
+                  <Input
+                    id="minPrice"
+                    type="text"
+                    placeholder="R$ 0"
+                    value={formatToBRL(minPrice)}
+                    onChange={(e) => handlePriceChange(e.target.value, "minPrice")}
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label
+                    htmlFor="maxPrice"
+                    className="text-sm text-muted-foreground"
+                  >
+                    Valor Máximo
+                  </Label>
+                  <Input
+                    id="maxPrice"
+                    type="text"
+                    placeholder="R$ 999.999"
+                    value={formatToBRL(maxPrice)}
+                    onChange={(e) => handlePriceChange(e.target.value, "maxPrice")}
+                    className="mt-1"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Tipo de Imóvel */}
+            <FilterSection
+              title="Tipo de Imóvel"
+              searchPlaceholder="Pesquisar tipo..."
+              searchValue={searchTipo}
+              onSearchChange={setSearchTipo}
+              items={filteredTipos}
+              selectedItems={selectedTipos}
+              idPrefix="tipo"
+              onToggle={(val, checked) =>
+                handleToggle("selectedTipos", val, checked)
+              }
+              emptyMessage="Nenhum tipo encontrado"
+            />
+
+            <Separator />
+
+            {/* Cidade */}
+            <FilterSection
+              title="Cidade"
+              searchPlaceholder="Pesquisar cidade..."
+              searchValue={searchCidade}
+              onSearchChange={setSearchCidade}
+              items={filteredCidades}
+              selectedItems={selectedCidades}
+              idPrefix="cidade"
+              onToggle={(val, checked) =>
+                handleToggle("selectedCidades", val, checked)
+              }
+              emptyMessage="Nenhuma cidade encontrada"
+            />
+
+            <Separator />
+
+            {/* Bairro */}
+            <FilterSection
+              title="Bairro"
+              searchPlaceholder="Pesquisar bairro..."
+              searchValue={searchBairro}
+              onSearchChange={setSearchBairro}
+              items={filteredBairros}
+              selectedItems={selectedBairros}
+              idPrefix="bairro"
+              onToggle={(val, checked) =>
+                handleToggle("selectedBairros", val, checked)
+              }
+              emptyMessage="Nenhum bairro encontrado"
+            />
+
+            <Separator />
+
+            {/* Imobiliária */}
+            <FilterSection
+              title="Imobiliária"
+              searchPlaceholder="Pesquisar imobiliária..."
+              searchValue={searchImobiliaria}
+              onSearchChange={setSearchImobiliaria}
+              items={filteredImobiliarias}
+              selectedItems={selectedImobiliarias}
+              idPrefix="imobiliaria"
+              onToggle={(val, checked) =>
+                handleToggle("selectedImobiliarias", val, checked)
+              }
+              emptyMessage="Nenhuma imobiliária encontrada"
+            />
+
+            <Separator />
+
+            {/* Quartos */}
+            <FixedRoomFilterSection
+              title="Quartos"
+              selectedItems={selectedQuartos}
+              selectedPlus={selectedQuartosPlus}
+              idPrefix="quartos"
+              labelSuffix="quarto"
+              onToggle={(val) =>
+                handleToggle("selectedQuartos", val, !selectedQuartos.includes(val))
+              }
+              onPlusToggle={() => handleBoolToggle("selectedQuartosPlus")}
+            />
+
+            {/* Suites */}
+            <FixedRoomFilterSection
+              title="Suítes"
+              selectedItems={selectedSuites}
+              selectedPlus={selectedSuitesPlus}
+              idPrefix="suites"
+              labelSuffix="suíte"
+              onToggle={(val) =>
+                handleToggle("selectedSuites", val, !selectedSuites.includes(val))
+              }
+              onPlusToggle={() => handleBoolToggle("selectedSuitesPlus")}
+            />
+
+            {/* Banheiros */}
+            <FixedRoomFilterSection
+              title="Banheiros"
+              selectedItems={selectedBanheiros}
+              selectedPlus={selectedBanheirosPlus}
+              idPrefix="banheiros"
+              labelSuffix="banheiro"
+              onToggle={(val) =>
+                handleToggle("selectedBanheiros", val, !selectedBanheiros.includes(val))
+              }
+              onPlusToggle={() => handleBoolToggle("selectedBanheirosPlus")}
+            />
+
+            {/* Vagas */}
+            <FixedRoomFilterSection
+              title="Vagas"
+              selectedItems={selectedVagas}
+              selectedPlus={selectedVagasPlus}
+              idPrefix="vagas"
+              labelSuffix="vaga"
+              onToggle={(val) =>
+                handleToggle("selectedVagas", val, !selectedVagas.includes(val))
+              }
+              onPlusToggle={() => handleBoolToggle("selectedVagasPlus")}
+            />
+
+            {COMODIDADE_GROUPS.some((g) => g.keys.length > 0) && (
+              <>
+                <Separator />
+
+                {/* Comodidades */}
+                <div>
+                  <h4 className="font-semibold text-foreground mb-3 text-sm">
+                    Características
+                  </h4>
+                  <Accordion type="multiple" className="border rounded-lg px-3">
+                    {COMODIDADE_GROUPS.map((group) => (
+                      <AccordionItem key={group.title} value={group.title}>
+                        <AccordionTrigger className="text-sm py-2 cursor-pointer">
+                          {group.title}
+                        </AccordionTrigger>
+                        <AccordionContent>
+                          <div className="space-y-2 pt-1">
+                            {group.keys.map((key) => (
+                              <div key={key} className="flex items-center space-x-2">
+                                <Checkbox
+                                  id={`comodidade-${key}`}
+                                  checked={selectedComodidades.includes(key)}
+                                  onCheckedChange={(checked) =>
+                                    handleToggle(
+                                      "selectedComodidades",
+                                      key,
+                                      checked as boolean
+                                    )
+                                  }
+                                />
+                                <Label
+                                  htmlFor={`comodidade-${key}`}
+                                  className="text-sm text-muted-foreground cursor-pointer"
+                                >
+                                  {COMODIDADE_LABELS[key]}
+                                </Label>
+                              </div>
+                            ))}
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    ))}
+                  </Accordion>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+
+        {collapsed && activeFilterCount > 0 && (
+          <p className="text-xs text-muted-foreground mb-3">
+            {activeFilterCount} filtro{activeFilterCount !== 1 ? "s" : ""} ativo
+            {activeFilterCount !== 1 ? "s" : ""}
+          </p>
+        )}
+
+        <div className="-mx-4 -mb-4 mt-4 border-t bg-card/95 px-4 py-4">
           <Button
             type="button"
             onClick={applyFilters}
@@ -584,6 +695,46 @@ export function PropertyFilters({
           </Button>
         </div>
       </div>
+
+      {/* Save Filter Dialog */}
+      <Dialog open={saveDialogOpen} onOpenChange={setSaveDialogOpen}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Salvar filtro</DialogTitle>
+            <DialogDescription>
+              Dê um nome para identificar este conjunto de filtros.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Input
+              placeholder="Ex: Apartamentos Centro até R$500k"
+              value={newFilterName}
+              onChange={(e) => setNewFilterName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleSaveNewFilter();
+                }
+              }}
+              autoFocus
+            />
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setSaveDialogOpen(false);
+                setNewFilterName("");
+              }}
+            >
+              Cancelar
+            </Button>
+            <Button onClick={handleSaveNewFilter} disabled={!newFilterName.trim()}>
+              Salvar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 
@@ -610,9 +761,7 @@ function FixedRoomFilterSection({
 }: FixedRoomFilterSectionProps) {
   return (
     <div>
-      <h4 className="font-semibold text-foreground mb-3 text-sm">
-        {title}
-      </h4>
+      <h4 className="font-semibold text-foreground mb-3 text-sm">{title}</h4>
       <div className="space-y-2">
         {FIXED_ROOM_OPTIONS.map((num) => (
           <div key={num} className="flex items-center space-x-2">

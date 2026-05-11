@@ -61,3 +61,10 @@ export interface AiSearcherFiltersOptions {
   banheiros: number[];
   vagas: number[];
 }
+
+export interface SavedFilter {
+  id: string;
+  name: string;
+  filters: AiSearcherFiltersState;
+  createdAt: string;
+}
