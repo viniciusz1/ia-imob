@@ -36,6 +36,9 @@ Route::middleware('auth:sanctum')->group(function () {
     // Saved Filters (Authenticated, user-scoped)
     Route::apiResource('saved-filters', \App\Http\Controllers\Api\SavedFilterController::class);
 
+    // AI Search (Authenticated)
+    Route::post('scrapy-properties/ai-search', [\App\Http\Controllers\Api\AiSearchController::class, 'search']);
+
     // Subscriptions (Authenticated)
     Route::get('/subscriptions/current', [\App\Http\Controllers\Api\SubscriptionController::class, 'current']);
     Route::post('/subscriptions', [\App\Http\Controllers\Api\SubscriptionController::class, 'store']);

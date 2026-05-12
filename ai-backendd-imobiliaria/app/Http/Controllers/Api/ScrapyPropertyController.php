@@ -12,90 +12,39 @@ class ScrapyPropertyController extends Controller
     {
         $query = ScrapyProperty::query();
 
-        if ($request->filled('tipo')) {
-            $query->whereIn('tipo', (array) $request->input('tipo'));
-        }
-
-        if ($request->filled('bairro')) {
-            $query->whereIn('bairro', (array) $request->input('bairro'));
-        }
-
-        if ($request->filled('cidade')) {
-            $query->whereIn('cidade', (array) $request->input('cidade'));
-        }
-
-        if ($request->filled('imobiliaria')) {
-            $query->whereIn('imobiliaria', (array) $request->input('imobiliaria'));
-        }
-
-        if ($request->filled('quartos') || $request->filled('quartos_plus')) {
-            $query->where(function ($q) use ($request) {
-                if ($request->filled('quartos')) {
-                    $quartos = array_map('intval', (array) $request->input('quartos'));
-                    $q->whereIn('quartos', $quartos);
-                }
-                if ($request->filled('quartos_plus')) {
-                    $q->orWhere('quartos', '>=', 4);
-                }
-            });
-        }
-
-        if ($request->filled('suites') || $request->filled('suites_plus')) {
-            $query->where(function ($q) use ($request) {
-                if ($request->filled('suites')) {
-                    $suites = array_map('intval', (array) $request->input('suites'));
-                    $q->whereIn('suites', $suites);
-                }
-                if ($request->filled('suites_plus')) {
-                    $q->orWhere('suites', '>=', 4);
-                }
-            });
-        }
-
-        if ($request->filled('banheiros') || $request->filled('banheiros_plus')) {
-            $query->where(function ($q) use ($request) {
-                if ($request->filled('banheiros')) {
-                    $banheiros = array_map('intval', (array) $request->input('banheiros'));
-                    $q->whereIn('banheiros', $banheiros);
-                }
-                if ($request->filled('banheiros_plus')) {
-                    $q->orWhere('banheiros', '>=', 4);
-                }
-            });
-        }
-
-        if ($request->filled('vagas') || $request->filled('vagas_plus')) {
-            $query->where(function ($q) use ($request) {
-                if ($request->filled('vagas')) {
-                    $vagas = array_map('intval', (array) $request->input('vagas'));
-                    $q->whereIn('vagas', $vagas);
-                }
-                if ($request->filled('vagas_plus')) {
-                    $q->orWhere('vagas', '>=', 4);
-                }
-            });
-        }
-
-        $boolFilters = [
-            'piscina', 'churrasqueira', 'academia', 'salao_festas',
-            'playground', 'sacada', 'mobiliado', 'ar_condicionado',
-            'lavanderia', 'escritorio', 'closet', 'elevador',
-            'portaria_24h', 'aceita_permuta', 'financiamento',
+        $filters = [
+            'tipo' => $request->input('tipo'),
+            'bairro' => $request->input('bairro'),
+            'cidade' => $request->input('cidade'),
+            'imobiliaria' => $request->input('imobiliaria'),
+            'quartos' => $request->input('quartos'),
+            'quartos_plus' => $request->filled('quartos_plus'),
+            'suites' => $request->input('suites'),
+            'suites_plus' => $request->filled('suites_plus'),
+            'banheiros' => $request->input('banheiros'),
+            'banheiros_plus' => $request->filled('banheiros_plus'),
+            'vagas' => $request->input('vagas'),
+            'vagas_plus' => $request->filled('vagas_plus'),
+            'piscina' => $request->filled('piscina'),
+            'churrasqueira' => $request->filled('churrasqueira'),
+            'academia' => $request->filled('academia'),
+            'salao_festas' => $request->filled('salao_festas'),
+            'playground' => $request->filled('playground'),
+            'sacada' => $request->filled('sacada'),
+            'mobiliado' => $request->filled('mobiliado'),
+            'ar_condicionado' => $request->filled('ar_condicionado'),
+            'lavanderia' => $request->filled('lavanderia'),
+            'escritorio' => $request->filled('escritorio'),
+            'closet' => $request->filled('closet'),
+            'elevador' => $request->filled('elevador'),
+            'portaria_24h' => $request->filled('portaria_24h'),
+            'aceita_permuta' => $request->filled('aceita_permuta'),
+            'financiamento' => $request->filled('financiamento'),
+            'min' => $request->input('min'),
+            'max' => $request->input('max'),
         ];
 
-        foreach ($boolFilters as $field) {
-            if ($request->filled($field)) {
-                $query->where($field, true);
-            }
-        }
-
-        if ($request->filled('min')) {
-            $query->where('valor', '>=', $request->input('min'));
-        }
-
-        if ($request->filled('max')) {
-            $query->where('valor', '<=', $request->input('max'));
-        }
+        $query->applyFilters($filters);
 
         if ($request->filled('ordem')) {
             $direction = strtolower($request->input('ordem')) === 'desc' ? 'desc' : 'asc';

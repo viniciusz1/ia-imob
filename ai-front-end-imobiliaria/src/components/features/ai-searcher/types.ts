@@ -68,3 +68,22 @@ export interface SavedFilter {
   filters: AiSearcherFiltersState;
   createdAt: string;
 }
+
+export type SearchMode = "ai" | "conventional";
+
+export interface AiSearchResponse {
+  filters: Record<string, unknown>;
+  data: AiSearcherProperty[];
+  meta: {
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+  };
+}
+
+export interface AiParsedFilter {
+  key: string;
+  label: string;
+  value: string;
+}

@@ -44,4 +44,110 @@ class ScrapyProperty extends Model
         'posicao_solar',
         'ano_construcao',
     ];
+
+    public function scopeApplyFilters($query, array $filters): void
+    {
+        if (!empty($filters['tipo'])) {
+            $query->whereIn('tipo', (array) $filters['tipo']);
+        }
+
+        if (!empty($filters['bairro'])) {
+            $query->whereIn('bairro', (array) $filters['bairro']);
+        }
+
+        if (!empty($filters['cidade'])) {
+            $query->whereIn('cidade', (array) $filters['cidade']);
+        }
+
+        if (!empty($filters['imobiliaria'])) {
+            $query->whereIn('imobiliaria', (array) $filters['imobiliaria']);
+        }
+
+        if (!empty($filters['quartos']) || !empty($filters['quartos_plus'])) {
+            $query->where(function ($q) use ($filters) {
+                if (!empty($filters['quartos'])) {
+                    $quartos = array_map('intval', (array) $filters['quartos']);
+                    $q->whereIn('quartos', $quartos);
+                }
+                if (!empty($filters['quartos_plus'])) {
+                    $q->orWhere('quartos', '>=', 4);
+                }
+            });
+        }
+
+        if (!empty($filters['suites']) || !empty($filters['suites_plus'])) {
+            $query->where(function ($q) use ($filters) {
+                if (!empty($filters['suites'])) {
+                    $suites = array_map('intval', (array) $filters['suites']);
+                    $q->whereIn('suites', $suites);
+                }
+                if (!empty($filters['suites_plus'])) {
+                    $q->orWhere('suites', '>=', 4);
+                }
+            });
+        }
+
+        if (!empty($filters['banheiros']) || !empty($filters['banheiros_plus'])) {
+            $query->where(function ($q) use ($filters) {
+                if (!empty($filters['banheiros'])) {
+                    $banheiros = array_map('intval', (array) $filters['banheiros']);
+                    $q->whereIn('banheiros', $banheiros);
+                }
+                if (!empty($filters['banheiros_plus'])) {
+                    $q->orWhere('banheiros', '>=', 4);
+                }
+            });
+        }
+
+        if (!empty($filters['vagas']) || !empty($filters['vagas_plus'])) {
+            $query->where(function ($q) use ($filters) {
+                if (!empty($filters['vagas'])) {
+                    $vagas = array_map('intval', (array) $filters['vagas']);
+                    $q->whereIn('vagas', $vagas);
+                }
+                if (!empty($filters['vagas_plus'])) {
+                    $q->orWhere('vagas', '>=', 4);
+                }
+            });
+        }
+
+        $boolFilters = [
+            'piscina', 'churrasqueira', 'academia', 'salao_festas',
+            'playground', 'sacada', 'mobiliado', 'ar_condicionado',
+            'lavanderia', 'escritorio', 'closet', 'elevador',
+            'portaria_24h', 'aceita_permuta', 'financiamento',
+        ];
+
+        foreach ($boolFilters as $field) {
+            if (!empty($filters[$field])) {
+                $query->where($field, true);
+            }
+        }
+
+        if (!empty($filters['min'])) {
+            $query->where('valor', '>=', $filters['min']);
+        }
+
+        if (!empty($filters['max'])) {
+            $query->where('valor', '<=', $filters['max']);
+        }
+
+        if (!empty($filters['bairro_fuzzy'])) {
+            $bairros = (array) $filters['bairro_fuzzy'];
+            $query->where(function ($q) use ($bairros) {
+                foreach ($bairros as $bairro) {
+                    $q->orWhere('bairro', 'ILIKE', '%' . $bairro . '%');
+                }
+            });
+        }
+
+        if (!empty($filters['cidade_fuzzy'])) {
+            $cidades = (array) $filters['cidade_fuzzy'];
+            $query->where(function ($q) use ($cidades) {
+                foreach ($cidades as $cidade) {
+                    $q->orWhere('cidade', 'ILIKE', '%' . $cidade . '%');
+                }
+            });
+        }
+    }
 }

@@ -33,8 +33,6 @@ import {
   Save,
   Pencil,
   Trash2,
-  ChevronDown,
-  ChevronUp,
 } from "lucide-react";
 import type {
   AiSearcherProperty,
@@ -49,8 +47,6 @@ interface PropertyFiltersProps {
   onFilterChange: (filtered: AiSearcherProperty[]) => void;
   initialState: AiSearcherFiltersState;
   onFilterStateChange: (state: AiSearcherFiltersState) => void;
-  onCollapseChange?: (collapsed: boolean) => void;
-  collapsed?: boolean;
 }
 
 const FIXED_ROOM_OPTIONS = [1, 2, 3, 4];
@@ -116,8 +112,6 @@ export function PropertyFilters(
   const {
     initialState,
     onFilterStateChange,
-    onCollapseChange,
-    collapsed = false,
   } = props;
   const [filterState, setFilterState] = useState<AiSearcherFiltersState>(initialState);
   const [filterOptions, setFilterOptions] = useState<AiSearcherFiltersOptions>({
@@ -258,11 +252,6 @@ export function PropertyFilters(
     }).format(num);
   };
 
-  const handleToggleCollapse = useCallback(() => {
-    const next = !collapsed;
-    onCollapseChange?.(next);
-  }, [collapsed, onCollapseChange]);
-
   const handleSelectFilter = useCallback(
     (id: string) => {
       const saved = savedFilters.find((f) => f.id === id);
@@ -369,23 +358,6 @@ export function PropertyFilters(
   return (
     <>
       <div className="bg-card rounded-xl border shadow-sm p-4 sticky top-20">
-        {collapsed ? (
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleToggleCollapse}
-            title="Expandir filtros"
-            className="relative"
-          >
-            <Search className="size-5" />
-            {activeFilterCount > 0 && (
-              <span className="absolute -top-1 -right-1 inline-flex items-center justify-center size-4 rounded-full bg-primary text-[9px] font-bold text-primary-foreground">
-                {activeFilterCount}
-              </span>
-            )}
-          </Button>
-        ) : (
-          <>
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2 min-w-0">
                 <h3 className="text-lg font-semibold text-foreground whitespace-nowrap">
@@ -404,14 +376,6 @@ export function PropertyFilters(
                 >
                   Limpar
                 </button>
-                <Button
-                  variant="ghost"
-                  size="icon-xs"
-                  onClick={handleToggleCollapse}
-                  title="Recolher filtros"
-                >
-                  <ChevronUp className="size-4" />
-                </Button>
               </div>
             </div>
 
@@ -698,8 +662,6 @@ export function PropertyFilters(
                 Buscar imóveis
               </Button>
             </div>
-          </>
-        )}
       </div>
 
       {/* Save Filter Dialog */}
