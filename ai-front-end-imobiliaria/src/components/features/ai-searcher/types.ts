@@ -47,6 +47,7 @@ export interface AiSearcherFiltersState {
   selectedVagas: number[];
   selectedVagasPlus: boolean;
   selectedComodidades: string[];
+  descricao: string;
   minPrice: string;
   maxPrice: string;
 }

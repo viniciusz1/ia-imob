@@ -42,6 +42,7 @@ class ScrapyPropertyController extends Controller
             'financiamento' => $request->filled('financiamento'),
             'min' => $request->input('min'),
             'max' => $request->input('max'),
+            'descricao' => $request->input('descricao'),
         ];
 
         $query->applyFilters($filters);

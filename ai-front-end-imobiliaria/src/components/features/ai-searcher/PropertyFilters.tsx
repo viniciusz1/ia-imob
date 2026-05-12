@@ -102,6 +102,7 @@ const EMPTY_FILTER_STATE: AiSearcherFiltersState = {
   selectedVagas: [],
   selectedVagasPlus: false,
   selectedComodidades: [],
+  descricao: "",
   minPrice: "",
   maxPrice: "",
 };
@@ -337,6 +338,7 @@ export function PropertyFilters(
     selectedVagas,
     selectedVagasPlus,
     selectedComodidades,
+    descricao,
     minPrice,
     maxPrice,
   } = filterState;
@@ -351,6 +353,7 @@ export function PropertyFilters(
     selectedBanheiros.length + (selectedBanheirosPlus ? 1 : 0),
     selectedVagas.length + (selectedVagasPlus ? 1 : 0),
     selectedComodidades.length,
+    descricao ? 1 : 0,
     minPrice ? 1 : 0,
     maxPrice ? 1 : 0,
   ].reduce((a, b) => a + b, 0);
@@ -484,6 +487,20 @@ export function PropertyFilters(
 
               <Separator />
 
+              {/* Descrição */}
+              <div>
+                <h4 className="font-semibold text-foreground mb-3 text-sm">
+                  Descrição
+                </h4>
+                <Input
+                  placeholder="Buscar na descrição do imóvel..."
+                  value={descricao}
+                  onChange={(e) => setFilterState((prev) => ({ ...prev, descricao: e.target.value }))}
+                />
+              </div>
+
+              <Separator />
+
               {/* Tipo de Imóvel */}
               <FilterSection
                 title="Tipo de Imóvel"
@@ -496,6 +513,14 @@ export function PropertyFilters(
                 onToggle={(val, checked) =>
                   handleToggle("selectedTipos", val, checked)
                 }
+                onSelectAll={(items, select) => {
+                  setFilterState((prev) => ({
+                    ...prev,
+                    selectedTipos: select
+                      ? [...new Set([...prev.selectedTipos, ...items])]
+                      : prev.selectedTipos.filter((t) => !items.includes(t)),
+                  }));
+                }}
                 emptyMessage="Nenhum tipo encontrado"
               />
 
@@ -513,6 +538,14 @@ export function PropertyFilters(
                 onToggle={(val, checked) =>
                   handleToggle("selectedCidades", val, checked)
                 }
+                onSelectAll={(items, select) => {
+                  setFilterState((prev) => ({
+                    ...prev,
+                    selectedCidades: select
+                      ? [...new Set([...prev.selectedCidades, ...items])]
+                      : prev.selectedCidades.filter((c) => !items.includes(c)),
+                  }));
+                }}
                 emptyMessage="Nenhuma cidade encontrada"
               />
 
@@ -530,6 +563,14 @@ export function PropertyFilters(
                 onToggle={(val, checked) =>
                   handleToggle("selectedBairros", val, checked)
                 }
+                onSelectAll={(items, select) => {
+                  setFilterState((prev) => ({
+                    ...prev,
+                    selectedBairros: select
+                      ? [...new Set([...prev.selectedBairros, ...items])]
+                      : prev.selectedBairros.filter((b) => !items.includes(b)),
+                  }));
+                }}
                 emptyMessage="Nenhum bairro encontrado"
               />
 
@@ -547,6 +588,14 @@ export function PropertyFilters(
                 onToggle={(val, checked) =>
                   handleToggle("selectedImobiliarias", val, checked)
                 }
+                onSelectAll={(items, select) => {
+                  setFilterState((prev) => ({
+                    ...prev,
+                    selectedImobiliarias: select
+                      ? [...new Set([...prev.selectedImobiliarias, ...items])]
+                      : prev.selectedImobiliarias.filter((i) => !items.includes(i)),
+                  }));
+                }}
                 emptyMessage="Nenhuma imobiliária encontrada"
               />
 
@@ -614,38 +663,64 @@ export function PropertyFilters(
                       Características
                     </h4>
                     <Accordion type="multiple" className="border rounded-lg px-3">
-                      {COMODIDADE_GROUPS.map((group) => (
-                        <AccordionItem key={group.title} value={group.title}>
-                          <AccordionTrigger className="text-sm py-2 cursor-pointer">
-                            {group.title}
-                          </AccordionTrigger>
-                          <AccordionContent>
-                            <div className="space-y-2 pt-1">
-                              {group.keys.map((key) => (
-                                <div key={key} className="flex items-center space-x-2">
-                                  <Checkbox
-                                    id={`comodidade-${key}`}
-                                    checked={selectedComodidades.includes(key)}
-                                    onCheckedChange={(checked) =>
-                                      handleToggle(
-                                        "selectedComodidades",
-                                        key,
-                                        checked as boolean
-                                      )
+                      {COMODIDADE_GROUPS.map((group) => {
+                        const groupAllSelected = group.keys.every((key) =>
+                          selectedComodidades.includes(key)
+                        );
+                        return (
+                          <AccordionItem key={group.title} value={group.title}>
+                            <AccordionTrigger className="text-sm py-2 cursor-pointer">
+                              {group.title}
+                            </AccordionTrigger>
+                            <AccordionContent>
+                              <div className="space-y-2 pt-1">
+                                <button
+                                  type="button"
+                                  className="text-xs text-primary hover:underline cursor-pointer mb-1"
+                                  onClick={() => {
+                                    if (groupAllSelected) {
+                                      group.keys.forEach((key) => {
+                                        if (selectedComodidades.includes(key)) {
+                                          handleToggle("selectedComodidades", key, false);
+                                        }
+                                      });
+                                    } else {
+                                      group.keys.forEach((key) => {
+                                        if (!selectedComodidades.includes(key)) {
+                                          handleToggle("selectedComodidades", key, true);
+                                        }
+                                      });
                                     }
-                                  />
-                                  <Label
-                                    htmlFor={`comodidade-${key}`}
-                                    className="text-sm text-muted-foreground cursor-pointer"
-                                  >
-                                    {COMODIDADE_LABELS[key]}
-                                  </Label>
-                                </div>
-                              ))}
-                            </div>
-                          </AccordionContent>
-                        </AccordionItem>
-                      ))}
+                                  }}
+                                >
+                                  {groupAllSelected ? "Desmarcar tudo" : "Selecionar tudo"}
+                                </button>
+                                {group.keys.map((key) => (
+                                  <div key={key} className="flex items-center space-x-2">
+                                    <Checkbox
+                                      id={`comodidade-${key}`}
+                                      checked={selectedComodidades.includes(key)}
+                                      onCheckedChange={(checked) =>
+                                        handleToggle(
+                                          "selectedComodidades",
+                                          key,
+                                          checked as boolean
+                                        )
+                                      }
+                                    />
+                                    <Label
+                                      htmlFor={`comodidade-${key}`}
+                                      className="text-sm text-muted-foreground cursor-pointer"
+                                    >
+                                      {COMODIDADE_LABELS[key]}
+                                    </Label>
+                                  </div>
+                                ))}
+                              </div>
+                            </AccordionContent>
+                          </AccordionItem>
+                        );
+                      })}
                     </Accordion>
                   </div>
                 </>
@@ -727,9 +802,30 @@ function FixedRoomFilterSection({
   onToggle,
   onPlusToggle,
 }: FixedRoomFilterSectionProps) {
+  const allSelected = FIXED_ROOM_OPTIONS.every((num) => selectedItems.includes(num));
+
   return (
     <div>
-      <h4 className="font-semibold text-foreground mb-3 text-sm">{title}</h4>
+      <div className="flex items-center justify-between mb-3">
+        <h4 className="font-semibold text-foreground text-sm">{title}</h4>
+        <button
+          type="button"
+          className="text-xs text-primary hover:underline cursor-pointer"
+          onClick={() => {
+            if (allSelected) {
+              FIXED_ROOM_OPTIONS.forEach((num) => {
+                if (selectedItems.includes(num)) onToggle(num);
+              });
+            } else {
+              FIXED_ROOM_OPTIONS.forEach((num) => {
+                if (!selectedItems.includes(num)) onToggle(num);
+              });
+            }
+          }}
+        >
+          {allSelected ? "Desmarcar tudo" : "Selecionar tudo"}
+        </button>
+      </div>
       <div className="space-y-2">
         {FIXED_ROOM_OPTIONS.map((num) => (
           <div key={num} className="flex items-center space-x-2">
@@ -775,6 +871,7 @@ interface FilterSectionProps {
   selectedItems: string[];
   idPrefix: string;
   onToggle: (value: string, checked: boolean) => void;
+  onSelectAll?: (items: string[], select: boolean) => void;
   emptyMessage: string;
 }
 
@@ -787,11 +884,25 @@ function FilterSection({
   selectedItems,
   idPrefix,
   onToggle,
+  onSelectAll,
   emptyMessage,
 }: FilterSectionProps) {
+  const allSelected = items.length > 0 && items.every((item) => selectedItems.includes(item));
+
   return (
     <div>
-      <h4 className="font-semibold text-foreground mb-3 text-sm">{title}</h4>
+      <div className="flex items-center justify-between mb-3">
+        <h4 className="font-semibold text-foreground text-sm">{title}</h4>
+        {onSelectAll && items.length > 0 && (
+          <button
+            type="button"
+            className="text-xs text-primary hover:underline cursor-pointer"
+            onClick={() => onSelectAll(items, !allSelected)}
+          >
+            {allSelected ? "Desmarcar tudo" : "Selecionar tudo"}
+          </button>
+        )}
+      </div>
       <div className="relative mb-2">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
         <Input

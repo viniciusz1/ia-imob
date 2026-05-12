@@ -149,5 +149,9 @@ class ScrapyProperty extends Model
                 }
             });
         }
+
+        if (!empty($filters['descricao'])) {
+            $query->where('descricao', 'ILIKE', '%' . $filters['descricao'] . '%');
+        }
     }
 }

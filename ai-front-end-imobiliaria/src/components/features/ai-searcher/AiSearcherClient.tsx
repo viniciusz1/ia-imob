@@ -74,6 +74,7 @@ function didFilterParamsChange(
   if ((prev.get("vagas_plus") ?? "") !== (next.get("vagas_plus") ?? "")) return true;
   if ((prev.get("min") ?? "") !== (next.get("min") ?? "")) return true;
   if ((prev.get("max") ?? "") !== (next.get("max") ?? "")) return true;
+  if ((prev.get("descricao") ?? "") !== (next.get("descricao") ?? "")) return true;
   return false;
 }
 
@@ -94,6 +95,7 @@ function buildFilterStateFromUrl(
     selectedVagas: getNumberArrayParam(params, "vagas"),
     selectedVagasPlus: params.get("vagas_plus") === "1",
     selectedComodidades: getStringArrayParam(params, "comodidade"),
+    descricao: params.get("descricao") ?? "",
     minPrice: params.get("min") ?? "",
     maxPrice: params.get("max") ?? "",
   };
@@ -323,6 +325,12 @@ export function AiSearcherClient() {
           nextParams.set("max", state.maxPrice);
         } else {
           nextParams.delete("max");
+        }
+
+        if (state.descricao) {
+          nextParams.set("descricao", state.descricao);
+        } else {
+          nextParams.delete("descricao");
         }
 
         const ordem = prev.get("ordem");
