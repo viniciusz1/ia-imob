@@ -20,8 +20,37 @@ import {
   type AiSearcherFiltersState,
   type SearchMode,
   type AiSearchResponse,
+  type SortMode,
 } from "./types";
 import api, { API_PREFIX } from "@/services/api";
+
+const SORT_OPTIONS: { value: SortMode; label: string }[] = [
+  { value: "newest", label: "Mais recentes" },
+  { value: "price_asc", label: "Menor preço" },
+  { value: "price_desc", label: "Maior preço" },
+  { value: "area_desc", label: "Maior área" },
+  { value: "area_asc", label: "Menor área" },
+];
+
+const RELAXED_FILTER_LABELS: Record<string, string> = {
+  "comodidades.academia": "academia",
+  "comodidades.salao_festas": "salão de festas",
+  "comodidades.playground": "playground",
+  "comodidades.sacada": "sacada",
+  "comodidades.mobiliado": "mobiliado",
+  "comodidades.lavanderia": "lavanderia",
+  "comodidades.closet": "closet",
+  min: "valor mínimo",
+  max: "valor máximo",
+  quartos_plus: "quartos 4+",
+  suites_plus: "suítes 4+",
+  banheiros_plus: "banheiros 4+",
+  vagas_plus: "vagas 4+",
+  bairro: "bairro",
+  bairro_fuzzy: "bairro",
+  locations: "bairros próximos",
+  proximity: "proximidade",
+};
 
 function getStringArrayParam(params: URLSearchParams, key: string): string[] {
   return params.getAll(key + "[]").filter(Boolean);
@@ -116,7 +145,12 @@ export function AiSearcherClient() {
 
   const [aiLoading, setAiLoading] = useState(false);
   const [aiPage, setAiPage] = useState(1);
+  const [aiApproximate, setAiApproximate] = useState(false);
+  const [aiRelaxedFilters, setAiRelaxedFilters] = useState<string[]>([]);
   const aiPromptRef = useRef("");
+  const aiFiltersRef = useRef<Record<string, unknown> | null>(null);
+  const aiApproximateRef = useRef(false);
+  const aiRelaxedFiltersRef = useRef<string[]>([]);
   const isAiMode = searchMode === "ai";
 
   const pageParam = Number(searchParams.get("pagina") ?? "1");
@@ -124,25 +158,69 @@ export function AiSearcherClient() {
 
   const effectiveModePage = isAiMode ? aiPage : currentPage;
 
-  async function fetchAiResults(prompt: string, page: number, perPage: number) {
+  const sortOrderParam = searchParams.get("sort");
+  const legacySortOrderParam = searchParams.get("ordem");
+  const sortOrder: SortMode =
+    sortOrderParam === "price_asc" ||
+    sortOrderParam === "price_desc" ||
+    sortOrderParam === "area_asc" ||
+    sortOrderParam === "area_desc" ||
+    sortOrderParam === "newest"
+      ? sortOrderParam
+      : legacySortOrderParam === "asc"
+        ? "price_asc"
+        : legacySortOrderParam === "desc"
+          ? "price_desc"
+          : "newest";
+
+  const fetchAiResults = useCallback(async (prompt: string, page: number, perPage: number, sort: SortMode = sortOrder) => {
+    if (!prompt.trim()) return;
+
     setAiLoading(true);
     try {
-      const response = await api.post(`${API_PREFIX}/scrapy-properties/ai-search`, {
+      const payload: {
+        prompt: string;
+        page: number;
+        per_page: number;
+        sort: SortMode;
+        filters?: Record<string, unknown>;
+      } = {
         prompt,
         page,
         per_page: perPage,
-      });
+        sort,
+      };
+
+      if (aiFiltersRef.current) {
+        payload.filters = aiFiltersRef.current;
+      }
+
+      const response = await api.post(`${API_PREFIX}/scrapy-properties/ai-search`, payload);
 
       const data: AiSearchResponse = response.data;
+      const keepsApproximation = Boolean(payload.filters) && aiApproximateRef.current;
+      const approximate = Boolean(data.meta.approximate) || keepsApproximation;
+      const relaxedFilters =
+        data.meta.relaxed && data.meta.relaxed.length > 0
+          ? data.meta.relaxed
+          : keepsApproximation
+            ? aiRelaxedFiltersRef.current
+            : [];
+
       setProperties(data.data);
       setTotalPages(data.meta.last_page);
       setTotalItems(data.meta.total);
+      setAiApproximate(approximate);
+      setAiRelaxedFilters(relaxedFilters);
+      aiFiltersRef.current = data.filters;
+      aiApproximateRef.current = approximate;
+      aiRelaxedFiltersRef.current = relaxedFilters;
     } catch (error) {
       console.error("Erro ao buscar com IA:", error);
     } finally {
       setAiLoading(false);
     }
-  }
+  }, [sortOrder]);
 
   useEffect(() => {
     if (!isAiMode) {
@@ -214,12 +292,6 @@ export function AiSearcherClient() {
     [searchParams]
   );
 
-  const sortOrderParam = searchParams.get("ordem");
-  const sortOrder =
-    sortOrderParam === "asc" || sortOrderParam === "desc"
-      ? sortOrderParam
-      : "none";
-
   const perPageParam = Number(searchParams.get("per_page") ?? "20");
   const perPage = [20, 50, 100].includes(perPageParam) ? perPageParam : 20;
 
@@ -263,8 +335,13 @@ export function AiSearcherClient() {
     setProperties(response.data);
     setTotalPages(response.meta.last_page);
     setTotalItems(response.meta.total);
+    setAiApproximate(Boolean(response.meta.approximate));
+    setAiRelaxedFilters(response.meta.relaxed ?? []);
     setAiPage(1);
     aiPromptRef.current = prompt;
+    aiFiltersRef.current = response.filters;
+    aiApproximateRef.current = Boolean(response.meta.approximate);
+    aiRelaxedFiltersRef.current = response.meta.relaxed ?? [];
   }
 
   function handleAiLoadingChange(loading: boolean) {
@@ -333,8 +410,8 @@ export function AiSearcherClient() {
           nextParams.delete("descricao");
         }
 
-        const ordem = prev.get("ordem");
-        if (ordem) nextParams.set("ordem", ordem);
+        const sort = prev.get("sort");
+        if (sort) nextParams.set("sort", sort);
 
         if (didFilterParamsChange(prev, nextParams)) {
           nextParams.delete("pagina");
@@ -351,31 +428,38 @@ export function AiSearcherClient() {
 
   const handleSortChange = useCallback(
     (value: string) => {
-      if (isAiMode) return;
-      pushSearchParams((_nextParams) => {
+      const nextSort = value as SortMode;
+
+      pushSearchParams(() => {
         const current = new URLSearchParams(searchParams.toString());
         const result = new URLSearchParams(current.toString());
 
-        if (value === "asc" || value === "desc") {
-          result.set("ordem", value);
+        result.delete("ordem");
+        if (nextSort === "newest") {
+          result.delete("sort");
         } else {
-          result.delete("ordem");
+          result.set("sort", nextSort);
         }
         result.delete("pagina");
         return result;
       });
+
+      if (isAiMode && aiPromptRef.current) {
+        setAiPage(1);
+        fetchAiResults(aiPromptRef.current, 1, perPage, nextSort);
+      }
     },
-    [pushSearchParams, searchParams, isAiMode]
+    [fetchAiResults, pushSearchParams, searchParams, isAiMode, perPage]
   );
 
   const handlePerPageChange = useCallback(
     (value: string) => {
       if (isAiMode) {
         const newPerPage = Number(value);
-        fetchAiResults(aiPromptRef.current, 1, newPerPage);
+        fetchAiResults(aiPromptRef.current, 1, newPerPage, sortOrder);
         return;
       }
-      pushSearchParams((_nextParams) => {
+      pushSearchParams(() => {
         const current = new URLSearchParams(searchParams.toString());
         const result = new URLSearchParams(current.toString());
         result.set("per_page", value);
@@ -383,16 +467,16 @@ export function AiSearcherClient() {
         return result;
       });
     },
-    [pushSearchParams, searchParams, isAiMode]
+    [fetchAiResults, pushSearchParams, searchParams, isAiMode, sortOrder]
   );
 
   const handlePageChange = useCallback(
     (page: number) => {
       if (isAiMode) {
         setAiPage(page);
-        fetchAiResults(aiPromptRef.current, page, perPage);
+        fetchAiResults(aiPromptRef.current, page, perPage, sortOrder);
       } else {
-        pushSearchParams((_nextParams) => {
+        pushSearchParams(() => {
           const result = new URLSearchParams(searchParams.toString());
           if (page <= 1) {
             result.delete("pagina");
@@ -404,13 +488,13 @@ export function AiSearcherClient() {
       }
       window.scrollTo({ top: 0, behavior: "smooth" });
     },
-    [pushSearchParams, searchParams, isAiMode, perPage]
+    [fetchAiResults, pushSearchParams, searchParams, isAiMode, perPage, sortOrder]
   );
 
   useEffect(() => {
     if (!isAiMode) {
       if (totalPages === 0 && currentPage !== 1) {
-        pushSearchParams((_params) => {
+        pushSearchParams(() => {
           const result = new URLSearchParams(searchParams.toString());
           result.delete("pagina");
           return result;
@@ -419,7 +503,7 @@ export function AiSearcherClient() {
       }
 
       if (totalPages > 0 && currentPage !== effectivePage) {
-        pushSearchParams((_params) => {
+        pushSearchParams(() => {
           const result = new URLSearchParams(searchParams.toString());
           if (effectivePage <= 1) {
             result.delete("pagina");
@@ -488,6 +572,7 @@ export function AiSearcherClient() {
             onResults={handleAiResults}
             onLoadingChange={handleAiLoadingChange}
             isLoading={aiLoading}
+            sort={sortOrder}
             large
           />
         </div>
@@ -537,6 +622,7 @@ export function AiSearcherClient() {
                 onResults={handleAiResults}
                 onLoadingChange={handleAiLoadingChange}
                 isLoading={aiLoading}
+                sort={sortOrder}
               />
             </div>
           )}
@@ -569,9 +655,11 @@ export function AiSearcherClient() {
                       <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="none" className="cursor-pointer">Padrão</SelectItem>
-                      <SelectItem value="asc" className="cursor-pointer">Menor valor</SelectItem>
-                      <SelectItem value="desc" className="cursor-pointer">Maior valor</SelectItem>
+                      {SORT_OPTIONS.map((option) => (
+                        <SelectItem key={option.value} value={option.value} className="cursor-pointer">
+                          {option.label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -599,19 +687,58 @@ export function AiSearcherClient() {
           )}
 
           {isAiMode && (
-            <div className="mb-6">
-              <h2 className="text-2xl font-semibold text-foreground">
-                Imóveis Disponíveis
-              </h2>
-              {totalItems > 0 && (
-                <p className="text-muted-foreground mt-1">
-                  {totalItems}{" "}
-                  {totalItems === 1
-                    ? "imóvel encontrado"
-                    : "imóveis encontrados"}
-                  {totalPages > 1 &&
-                    ` — Página ${effectivePage} de ${totalPages}`}
-                </p>
+            <div className="mb-6 space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                  <h2 className="text-2xl font-semibold text-foreground">
+                    Imóveis Disponíveis
+                  </h2>
+                  {totalItems > 0 && (
+                    <p className="text-muted-foreground mt-1">
+                      {totalItems}{" "}
+                      {totalItems === 1
+                        ? "imóvel encontrado"
+                        : "imóveis encontrados"}
+                      {totalPages > 1 &&
+                        ` — Página ${effectivePage} de ${totalPages}`}
+                    </p>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <label
+                    htmlFor="ai-sort-select"
+                    className="text-sm text-muted-foreground whitespace-nowrap cursor-pointer"
+                  >
+                    Ordenar por:
+                  </label>
+                  <Select value={sortOrder} onValueChange={handleSortChange}>
+                    <SelectTrigger id="ai-sort-select" className="w-[200px] cursor-pointer">
+                      <SelectValue placeholder="Selecione" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {SORT_OPTIONS.map((option) => (
+                        <SelectItem key={option.value} value={option.value} className="cursor-pointer">
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {aiApproximate && (
+                <div className="rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                  Mostrando resultados aproximados
+                  {aiRelaxedFilters.length > 0 && (
+                    <>
+                      {" — filtros relaxados: "}
+                      {aiRelaxedFilters
+                        .map((filter) => RELAXED_FILTER_LABELS[filter] ?? filter)
+                        .join(", ")}
+                    </>
+                  )}
+                </div>
               )}
             </div>
           )}

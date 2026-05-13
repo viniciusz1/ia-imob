@@ -63,6 +63,36 @@ class ScrapyProperty extends Model
             $query->whereIn('imobiliaria', (array) $filters['imobiliaria']);
         }
 
+        if (!empty($filters['locations'])) {
+            $locations = array_values(array_filter((array) $filters['locations'], function ($location) {
+                return is_array($location)
+                    && (trim((string) ($location['bairro'] ?? '')) !== ''
+                        || trim((string) ($location['cidade'] ?? '')) !== '');
+            }));
+            if (!empty($locations)) {
+                $query->where(function ($q) use ($locations) {
+                    foreach ($locations as $pair) {
+                        $bairro = trim((string) ($pair['bairro'] ?? ''));
+                        $cidade = trim((string) ($pair['cidade'] ?? ''));
+
+                        if ($bairro === '' && $cidade === '') {
+                            continue;
+                        }
+
+                        $q->orWhere(function ($p) use ($bairro, $cidade) {
+                            if ($bairro !== '') {
+                                $p->whereRaw('unaccent(bairro) ILIKE unaccent(?)', ['%' . $bairro . '%']);
+                            }
+
+                            if ($cidade !== '') {
+                                $p->whereRaw('unaccent(cidade) ILIKE unaccent(?)', ['%' . $cidade . '%']);
+                            }
+                        });
+                    }
+                });
+            }
+        }
+
         if (!empty($filters['quartos']) || !empty($filters['quartos_plus'])) {
             $query->where(function ($q) use ($filters) {
                 if (!empty($filters['quartos'])) {
@@ -132,26 +162,33 @@ class ScrapyProperty extends Model
             $query->where('valor', '<=', $filters['max']);
         }
 
-        if (!empty($filters['bairro_fuzzy'])) {
-            $bairros = (array) $filters['bairro_fuzzy'];
+        if (!empty($filters['bairro_fuzzy']) || !empty($filters['proximity_bairros'])) {
+            $bairros = array_merge(
+                (array) ($filters['bairro_fuzzy'] ?? []),
+                (array) ($filters['proximity_bairros'] ?? [])
+            );
             $query->where(function ($q) use ($bairros) {
                 foreach ($bairros as $bairro) {
-                    $q->orWhere('bairro', 'ILIKE', '%' . $bairro . '%');
+                    $q->orWhereRaw('unaccent(bairro) ILIKE unaccent(?)', ['%' . $bairro . '%']);
                 }
             });
+        }
+
+        if (!empty($filters['proximity_cidade'])) {
+            $query->whereRaw('unaccent(cidade) ILIKE unaccent(?)', ['%' . $filters['proximity_cidade'] . '%']);
         }
 
         if (!empty($filters['cidade_fuzzy'])) {
             $cidades = (array) $filters['cidade_fuzzy'];
             $query->where(function ($q) use ($cidades) {
                 foreach ($cidades as $cidade) {
-                    $q->orWhere('cidade', 'ILIKE', '%' . $cidade . '%');
+                    $q->orWhereRaw('unaccent(cidade) ILIKE unaccent(?)', ['%' . $cidade . '%']);
                 }
             });
         }
 
         if (!empty($filters['descricao'])) {
-            $query->where('descricao', 'ILIKE', '%' . $filters['descricao'] . '%');
+            $query->whereRaw('unaccent(descricao) ILIKE unaccent(?)', ['%' . $filters['descricao'] . '%']);
         }
     }
 }

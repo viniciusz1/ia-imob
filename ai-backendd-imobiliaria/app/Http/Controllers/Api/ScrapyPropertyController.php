@@ -47,7 +47,15 @@ class ScrapyPropertyController extends Controller
 
         $query->applyFilters($filters);
 
-        if ($request->filled('ordem')) {
+        if ($request->filled('sort')) {
+            match ($request->input('sort')) {
+                'price_asc' => $query->orderBy('valor', 'asc')->orderBy('id', 'desc'),
+                'price_desc' => $query->orderBy('valor', 'desc')->orderBy('id', 'desc'),
+                'area_asc' => $query->orderBy('area', 'asc')->orderBy('id', 'desc'),
+                'area_desc' => $query->orderBy('area', 'desc')->orderBy('id', 'desc'),
+                default => $query->orderBy('id', 'desc'),
+            };
+        } elseif ($request->filled('ordem')) {
             $direction = strtolower($request->input('ordem')) === 'desc' ? 'desc' : 'asc';
             $query->orderBy('valor', $direction);
         } else {

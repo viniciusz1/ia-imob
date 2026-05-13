@@ -71,6 +71,7 @@ export interface SavedFilter {
 }
 
 export type SearchMode = "ai" | "conventional";
+export type SortMode = "newest" | "price_asc" | "price_desc" | "area_asc" | "area_desc";
 
 export interface AiSearchResponse {
   filters: Record<string, unknown>;
@@ -80,6 +81,9 @@ export interface AiSearchResponse {
     last_page: number;
     per_page: number;
     total: number;
+    approximate?: boolean;
+    relaxed?: string[];
+    sort?: SortMode;
   };
 }
 

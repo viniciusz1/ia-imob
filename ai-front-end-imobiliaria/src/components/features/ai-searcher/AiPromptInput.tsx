@@ -5,7 +5,7 @@ import { Search, Loader2, ArrowUp } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import type { AiSearchResponse, AiParsedFilter } from "./types";
+import type { AiSearchResponse, AiParsedFilter, SortMode } from "./types";
 import api, { API_PREFIX } from "@/services/api";
 
 function parseFiltersToLabels(filters: Record<string, unknown>): AiParsedFilter[] {
@@ -16,6 +16,8 @@ function parseFiltersToLabels(filters: Record<string, unknown>): AiParsedFilter[
     bairro_fuzzy: "Bairro",
     cidade: "Cidade",
     cidade_fuzzy: "Cidade",
+    locations: "Localização",
+    proximity: "Perto de",
     imobiliaria: "Imobiliária",
     quartos: "Quartos",
     quartos_plus: "Quartos",
@@ -42,9 +44,24 @@ function parseFiltersToLabels(filters: Record<string, unknown>): AiParsedFilter[
     portaria_24h: "Portaria 24h",
     aceita_permuta: "Aceita Permuta",
     financiamento: "Financiamento",
+    sort: "Ordenação",
   };
 
   const formatValue = (key: string, value: unknown): string => {
+    if (key === "locations" && Array.isArray(value)) {
+      return value
+        .map((item) => {
+          if (!item || typeof item !== "object") return "";
+          const location = item as { bairro?: string; cidade?: string };
+          return [location.bairro, location.cidade].filter(Boolean).join(" - ");
+        })
+        .filter(Boolean)
+        .join(" ou ");
+    }
+    if (key === "proximity" && value && typeof value === "object") {
+      const proximity = value as { reference?: string; city?: string };
+      return [proximity.reference, proximity.city].filter(Boolean).join(" - ");
+    }
     if (typeof value === "boolean") {
       return value ? "Sim" : "Não";
     }
@@ -82,10 +99,11 @@ interface AiPromptInputProps {
   onResults: (response: AiSearchResponse, prompt: string) => void;
   onLoadingChange: (loading: boolean) => void;
   isLoading: boolean;
+  sort: SortMode;
   large?: boolean;
 }
 
-export function AiPromptInput({ onResults, onLoadingChange, isLoading, large }: AiPromptInputProps) {
+export function AiPromptInput({ onResults, onLoadingChange, isLoading, sort, large }: AiPromptInputProps) {
   const [prompt, setPrompt] = useState("");
   const [activeFilters, setActiveFilters] = useState<AiParsedFilter[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -103,6 +121,7 @@ export function AiPromptInput({ onResults, onLoadingChange, isLoading, large }: 
       const response = await api.post(`${API_PREFIX}/scrapy-properties/ai-search`, {
         prompt: trimmed,
         per_page: 20,
+        sort,
       });
 
       const data: AiSearchResponse = response.data;
