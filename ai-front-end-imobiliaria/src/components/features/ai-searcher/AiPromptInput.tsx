@@ -120,7 +120,7 @@ export function AiPromptInput({ onResults, onLoadingChange, isLoading, sort, lar
     try {
       const response = await api.post(`${API_PREFIX}/scrapy-properties/ai-search`, {
         prompt: trimmed,
-        per_page: 20,
+        per_page: 21,
         sort,
       });
 

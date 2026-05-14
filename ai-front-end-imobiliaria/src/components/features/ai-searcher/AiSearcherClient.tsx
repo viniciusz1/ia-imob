@@ -233,7 +233,7 @@ export function AiSearcherClient() {
             queryParams.delete("pagina");
           }
           if (!queryParams.has("per_page")) {
-            const _perPage = queryParams.get("per_page") ?? "20";
+            const _perPage = queryParams.get("per_page") ?? "21";
             queryParams.set("per_page", _perPage);
           }
 
@@ -292,8 +292,8 @@ export function AiSearcherClient() {
     [searchParams]
   );
 
-  const perPageParam = Number(searchParams.get("per_page") ?? "20");
-  const perPage = [20, 50, 100].includes(perPageParam) ? perPageParam : 20;
+  const perPageParam = Number(searchParams.get("per_page") ?? "21");
+  const perPage = [21, 51, 99].includes(perPageParam) ? perPageParam : 21;
 
   const effectivePage = Math.min(Math.max(effectiveModePage, 1), Math.max(totalPages, 1));
 
@@ -673,12 +673,12 @@ export function AiSearcherClient() {
                   </label>
                   <Select value={String(perPage)} onValueChange={handlePerPageChange}>
                     <SelectTrigger id="per-page-select" className="w-[90px] cursor-pointer">
-                      <SelectValue placeholder="20" />
+                      <SelectValue placeholder="21" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="20" className="cursor-pointer">20</SelectItem>
-                      <SelectItem value="50" className="cursor-pointer">50</SelectItem>
-                      <SelectItem value="100" className="cursor-pointer">100</SelectItem>
+                      <SelectItem value="21" className="cursor-pointer">21</SelectItem>
+                      <SelectItem value="51" className="cursor-pointer">51</SelectItem>
+                      <SelectItem value="99" className="cursor-pointer">99</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
