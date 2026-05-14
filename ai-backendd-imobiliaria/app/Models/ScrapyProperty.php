@@ -81,11 +81,11 @@ class ScrapyProperty extends Model
 
                         $q->orWhere(function ($p) use ($bairro, $cidade) {
                             if ($bairro !== '') {
-                                $p->whereRaw('unaccent(bairro) ILIKE unaccent(?)', ['%' . $bairro . '%']);
+                                $p->whereRaw('f_unaccent(bairro) ILIKE f_unaccent(?)', ['%' . $bairro . '%']);
                             }
 
                             if ($cidade !== '') {
-                                $p->whereRaw('unaccent(cidade) ILIKE unaccent(?)', ['%' . $cidade . '%']);
+                                $p->whereRaw('f_unaccent(cidade) ILIKE f_unaccent(?)', ['%' . $cidade . '%']);
                             }
                         });
                     }
@@ -169,26 +169,26 @@ class ScrapyProperty extends Model
             );
             $query->where(function ($q) use ($bairros) {
                 foreach ($bairros as $bairro) {
-                    $q->orWhereRaw('unaccent(bairro) ILIKE unaccent(?)', ['%' . $bairro . '%']);
+                    $q->orWhereRaw('f_unaccent(bairro) ILIKE f_unaccent(?)', ['%' . $bairro . '%']);
                 }
             });
         }
 
         if (!empty($filters['proximity_cidade'])) {
-            $query->whereRaw('unaccent(cidade) ILIKE unaccent(?)', ['%' . $filters['proximity_cidade'] . '%']);
+            $query->whereRaw('f_unaccent(cidade) ILIKE f_unaccent(?)', ['%' . $filters['proximity_cidade'] . '%']);
         }
 
         if (!empty($filters['cidade_fuzzy'])) {
             $cidades = (array) $filters['cidade_fuzzy'];
             $query->where(function ($q) use ($cidades) {
                 foreach ($cidades as $cidade) {
-                    $q->orWhereRaw('unaccent(cidade) ILIKE unaccent(?)', ['%' . $cidade . '%']);
+                    $q->orWhereRaw('f_unaccent(cidade) ILIKE f_unaccent(?)', ['%' . $cidade . '%']);
                 }
             });
         }
 
         if (!empty($filters['descricao'])) {
-            $query->whereRaw('unaccent(descricao) ILIKE unaccent(?)', ['%' . $filters['descricao'] . '%']);
+            $query->whereRaw('f_unaccent(descricao) ILIKE f_unaccent(?)', ['%' . $filters['descricao'] . '%']);
         }
     }
 }

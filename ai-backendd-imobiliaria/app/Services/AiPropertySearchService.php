@@ -3,13 +3,31 @@
 namespace App\Services;
 
 use App\Models\ScrapyProperty;
-use Illuminate\Http\Client\ConnectionException;
-use Illuminate\Support\Facades\Http;
+use App\Models\AiParseCache;
+use App\Services\Ai\PromptFilterSchema;
+use App\Services\Ai\Providers\LlmProvider;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class AiPropertySearchService
 {
+    public const SCHEMA_VERSION = '1.0.0';
+
+    private const VALID_SORTS = ['price_asc', 'price_desc', 'area_asc', 'area_desc', 'newest'];
+
+    private const SECONDARY_AMENITIES = [
+        'academia',
+        'salao_festas',
+        'playground',
+        'sacada',
+        'mobiliado',
+        'lavanderia',
+        'closet',
+    ];
+
+    public function __construct(
+        private readonly LlmProvider $provider,
+    ) {}
     private const SYSTEM_PROMPT = <<<'PROMPT'
 You are a property search assistant for a Brazilian real estate platform. Extract structured search filters from the user's natural language query in Portuguese.
 
@@ -66,86 +84,98 @@ User: "casa perto da UDESC"
 Response: {"tipo":["Casa"],"proximity":{"reference":"udesc","radius_hint":"perto","resolved":true},"locations":[{"bairro":"Bom Retiro","cidade":"Joinville"},{"bairro":"América","cidade":"Joinville"}]}
 PROMPT;
 
-    private const VALID_SORTS = ['price_asc', 'price_desc', 'area_asc', 'area_desc', 'newest'];
-
-    private const SECONDARY_AMENITIES = [
-        'academia',
-        'salao_festas',
-        'playground',
-        'sacada',
-        'mobiliado',
-        'lavanderia',
-        'closet',
-    ];
-
     public function parsePrompt(string $prompt, ?string $contextCity = null): array
     {
-        $apiKey = config('deepseek.api_key');
-        $baseUrl = config('deepseek.base_url');
-        $model = config('deepseek.model');
-        $timeout = config('deepseek.timeout', 30);
         $contextCity = $contextCity ?: config('proximity.default_city');
 
-        if (empty($apiKey)) {
-            throw new \RuntimeException('DEEPSEEK_API_KEY not configured.');
+        if (!config('ai.cache.enabled')) {
+            return $this->parsePromptUncached($prompt, $contextCity);
+        }
+
+        $key = $this->cacheKey($prompt, $contextCity);
+        $userId = auth()->id();
+
+        $cached = AiParseCache::where('cache_key', $key)
+            ->latest()
+            ->first();
+
+        if ($cached) {
+            AiParseCache::create([
+                'cache_key' => $key,
+                'prompt' => $prompt,
+                'context_city' => $contextCity,
+                'filters' => $cached->filters,
+                'schema_version' => self::SCHEMA_VERSION,
+                'user_id' => $userId,
+                'cache_hit' => true,
+            ]);
+
+            return $cached->filters;
+        }
+
+        $filters = $this->parsePromptUncached($prompt, $contextCity);
+
+        AiParseCache::create([
+            'cache_key' => $key,
+            'prompt' => $prompt,
+            'context_city' => $contextCity,
+            'filters' => $filters,
+            'schema_version' => self::SCHEMA_VERSION,
+            'user_id' => $userId,
+            'cache_hit' => false,
+        ]);
+
+        return $filters;
+    }
+
+    private function parsePromptUncached(string $prompt, ?string $contextCity = null): array
+    {
+        $responseFormat = config('ai.structured_output')
+            ? ['type' => 'json_object']
+            : [];
+
+        $content = $this->provider->chat(
+            messages: [
+                ['role' => 'system', 'content' => $this->buildSystemPrompt($contextCity)],
+                ['role' => 'user', 'content' => $this->buildUserPrompt($prompt, $contextCity)],
+            ],
+            responseFormat: $responseFormat,
+        );
+
+        $content = trim($content);
+
+        if (str_starts_with($content, '```')) {
+            $content = trim(preg_replace('/^```(?:json)?\s*\n?/', '', $content));
+            $content = trim(preg_replace('/\n?```\s*$/', '', $content));
         }
 
         try {
-            $response = Http::timeout($timeout)
-                ->withHeaders([
-                    'Authorization' => 'Bearer ' . $apiKey,
-                    'Content-Type' => 'application/json',
-                ])
-                ->post($baseUrl . '/v1/chat/completions', [
-                    'model' => $model,
-                    'messages' => [
-                        ['role' => 'system', 'content' => $this->buildSystemPrompt($contextCity)],
-                        ['role' => 'user', 'content' => $this->buildUserPrompt($prompt, $contextCity)],
-                    ],
-                    'temperature' => 0.1,
-                    'max_tokens' => 1024,
-                ]);
-
-            if (!$response->successful()) {
-                Log::error('DeepSeek API error', [
-                    'status' => $response->status(),
-                    'body' => $response->body(),
-                ]);
-                throw new \RuntimeException('AI service returned error: ' . $response->status());
-            }
-
-            $data = $response->json();
-            $content = $data['choices'][0]['message']['content'] ?? '';
-
-            $content = trim($content);
-
-            if (str_starts_with($content, '```')) {
-                $content = trim(preg_replace('/^```(?:json)?\s*\n?/', '', $content));
-                $content = trim(preg_replace('/\n?```\s*$/', '', $content));
-            }
-
-            $filters = json_decode($content, true);
-
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                Log::error('Failed to parse DeepSeek response', [
-                    'content' => $content,
-                    'error' => json_last_error_msg(),
-                ]);
-                throw new \RuntimeException('Failed to parse AI response.');
-            }
-
-            if (!is_array($filters)) {
-                throw new \RuntimeException('AI response is not a valid filter object.');
-            }
-
-            return $this->normalizeFilters($filters, $contextCity);
-        } catch (ConnectionException $e) {
-            Log::error('DeepSeek connection error', ['message' => $e->getMessage()]);
-            throw new \RuntimeException('Could not connect to AI service.');
+            $filters = json_decode($content, true, flags: JSON_THROW_ON_ERROR);
+        } catch (\JsonException $e) {
+            Log::error('Failed to parse AI response', [
+                'content' => $content,
+                'error' => $e->getMessage(),
+            ]);
+            throw new \RuntimeException('Failed to parse AI response.');
         }
+
+        if (!is_array($filters)) {
+            throw new \RuntimeException('AI response is not a valid filter object.');
+        }
+
+        return $this->normalizeFilters($filters, $contextCity);
     }
 
-    public function search(array $filters, int $perPage = 20, ?string $sort = null, int $page = 1): array
+    private function cacheKey(string $prompt, ?string $contextCity): string
+    {
+        return 'ai:parse:' . hash('sha256', json_encode([
+            'prompt' => Str::of($prompt)->lower()->squish()->ascii()->toString(),
+            'city' => $contextCity,
+            'schema' => self::SCHEMA_VERSION,
+        ]));
+    }
+
+    public function search(array $filters, int $perPage = 21, ?string $sort = null, int $page = 1): array
     {
         $sort = $this->normalizeSort($sort ?: ($filters['sort'] ?? 'newest'));
         $attempts = $this->buildSearchAttempts($filters);
