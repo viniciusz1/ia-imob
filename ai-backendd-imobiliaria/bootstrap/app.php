@@ -12,6 +12,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
         apiPrefix: env('APP_API_PREFIX', 'api/v1'),
     )
+    ->withCommands([
+        App\Console\Commands\ImportPointsOfInterestCommand::class,
+    ])
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->statefulApi();
     })

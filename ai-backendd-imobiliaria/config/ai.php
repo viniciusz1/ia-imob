@@ -12,7 +12,7 @@ return [
         'ttl_days' => (int) env('AI_PARSE_CACHE_TTL_DAYS', 7),
     ],
 
-    'schema_version' => '1.0.0',
+    'schema_version' => '1.1.0',
 
     'providers' => [
         'deepseek' => [

@@ -4,14 +4,14 @@ namespace App\Services;
 
 use App\Models\ScrapyProperty;
 use App\Models\AiParseCache;
-use App\Services\Ai\PromptFilterSchema;
 use App\Services\Ai\Providers\LlmProvider;
+use App\Services\Overpass\ProximityResolver;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class AiPropertySearchService
 {
-    public const SCHEMA_VERSION = '1.0.0';
+    public const SCHEMA_VERSION = '1.1.0';
 
     private const VALID_SORTS = ['price_asc', 'price_desc', 'area_asc', 'area_desc', 'newest'];
 
@@ -27,6 +27,7 @@ class AiPropertySearchService
 
     public function __construct(
         private readonly LlmProvider $provider,
+        private readonly ProximityResolver $proximityResolver,
     ) {}
     private const SYSTEM_PROMPT = <<<'PROMPT'
 You are a property search assistant for a Brazilian real estate platform. Extract structured search filters from the user's natural language query in Portuguese.
@@ -36,8 +37,8 @@ Available filter fields — return ONLY the fields mentioned by the user. Use EX
 - tipo: array of property types. Valid values: "Apartamento", "Casa", "Cobertura", "Terreno", "Comercial", "Kitnet", "Studio", "Loft", "Sobrado", "Galpão", "Barracão", "Sala", "Sala Comercial", "Loja", "Ponto Comercial"
 - bairro: array of neighborhood names mentioned (can be partial)
 - cidade: array of city names mentioned (can be partial)
-- locations: array of objects {"bairro": string, "cidade": string}. Use this for paired bairro+city filters and for proximity already resolved into neighborhoods.
-- proximity: object {"reference": string, "city"?: string, "radius_hint"?: "muito_perto"|"perto"|"regiao", "resolved"?: boolean}. Keep this for explainability when the user asks for "perto", "próximo", "redondezas", "arredores" or "região".
+- locations: array of objects {"bairro": string, "cidade": string}. Use this only for explicit bairro+city filters mentioned by the user.
+- proximity: object {"reference": string, "city"?: string, "radius_hint"?: "muito_perto"|"perto"|"regiao"}. Use this when the user asks for "perto", "próximo", "redondezas", "arredores" or "região"; the backend resolves the reference using local Overpass POIs.
 - imobiliaria: array of real estate agency names (if mentioned)
 - quartos: array of exact number of bedrooms (integers). If user says "3 quartos" → [3]. If user says "3 ou 4 quartos" → [3,4]
 - quartos_plus: boolean true if user wants 4 or more bedrooms (e.g., "4 ou mais quartos", "4+ quartos")
@@ -59,9 +60,9 @@ Important rules:
 - Map synonyms: "ap" or "ape" → "Apartamento", "apto" → "Apartamento", "kit" → "Kitnet"
 - Map "área de lazer" to "piscina", "salão de festas" to "salao_festas", "ar" or "ar condicionado" to "ar_condicionado", "varanda" to "sacada", "portaria" or "porteiro" to "portaria_24h", "mobiliado" or "móveis" to "mobiliado", "elevador" to "elevador", "garagem" to "vagas"
 - Map sorting: "mais baratos primeiro", "menor preço" → "price_asc"; "mais caros primeiro", "maior preço" → "price_desc"; "maior área" → "area_desc"; "menor área" → "area_asc"; "mais recentes" → "newest"
-- When the user asks for proximity, use the proximity catalog below and generate final filters in locations. Do not invent neighborhoods outside the catalog. Keep proximity.resolved=true when you used the catalog.
+- When the user asks for proximity, return only proximity.reference, city when mentioned or from context, and radius_hint. Do not generate locations for proximity.
 - If the user asks for "perto do centro" and a context city is provided, use that context city.
-- If proximity is requested but there is no matching catalog entry, return proximity with resolved=false and do not invent locations.
+- If proximity is requested, do not decide whether it is resolved; the backend resolves it.
 - Use locations for "Centro de Joinville ou Atiradores em Curitiba" so the city is paired with the right neighborhood.
 
 Return ONLY a valid JSON object. Do not include any explanation, markdown, or code blocks. The response must be parseable by json_decode().
@@ -78,15 +79,15 @@ Response: {"tipo":["Apartamento"],"quartos":[2],"locations":[{"bairro":"Centro",
 
 User: "quero apartamento perto do centro"
 Context city: "Jaraguá do Sul"
-Response: {"tipo":["Apartamento"],"proximity":{"reference":"centro","city":"Jaraguá do Sul","radius_hint":"perto","resolved":true},"locations":[{"bairro":"Centro","cidade":"Jaraguá do Sul"},{"bairro":"Vila Lenzi","cidade":"Jaraguá do Sul"},{"bairro":"Nova Brasília","cidade":"Jaraguá do Sul"}]}
+Response: {"tipo":["Apartamento"],"proximity":{"reference":"centro","city":"Jaraguá do Sul","radius_hint":"perto"}}
 
 User: "casa perto da UDESC"
-Response: {"tipo":["Casa"],"proximity":{"reference":"udesc","radius_hint":"perto","resolved":true},"locations":[{"bairro":"Bom Retiro","cidade":"Joinville"},{"bairro":"América","cidade":"Joinville"}]}
+Response: {"tipo":["Casa"],"proximity":{"reference":"udesc","radius_hint":"perto"}}
 PROMPT;
 
     public function parsePrompt(string $prompt, ?string $contextCity = null): array
     {
-        $contextCity = $contextCity ?: config('proximity.default_city');
+        $contextCity = $contextCity ?: config('overpass.default_city');
 
         if (!config('ai.cache.enabled')) {
             return $this->parsePromptUncached($prompt, $contextCity);
@@ -166,6 +167,40 @@ PROMPT;
         return $this->normalizeFilters($filters, $contextCity);
     }
 
+    public function normalizeParsedFilters(array $filters, ?string $contextCity = null): array
+    {
+        if (empty($filters['proximity']) || !is_array($filters['proximity']) || !empty($filters['locations'])) {
+            return $filters;
+        }
+
+        $contextCity = $contextCity ?: config('overpass.default_city');
+        $proximity = $this->normalizeProximity($filters['proximity'], $contextCity);
+
+        if (empty($proximity)) {
+            return $filters;
+        }
+
+        $resolved = $this->proximityResolver->resolve($proximity, $contextCity);
+
+        if (!empty($resolved) && !empty($resolved['locations'])) {
+            $filters['locations'] = $this->normalizeLocations((array) $resolved['locations'], $contextCity);
+            $filters['proximity'] = array_merge($proximity, (array) ($resolved['proximity'] ?? []));
+
+            return $filters;
+        }
+
+        $filters['proximity'] = array_merge($proximity, [
+            'resolved' => false,
+            'approximate' => true,
+        ]);
+
+        if (empty($filters['cidade']) && empty($filters['cidade_fuzzy']) && $contextCity) {
+            $filters['cidade_fuzzy'] = [$contextCity];
+        }
+
+        return $filters;
+    }
+
     private function cacheKey(string $prompt, ?string $contextCity): string
     {
         return 'ai:parse:' . hash('sha256', json_encode([
@@ -188,7 +223,7 @@ PROMPT;
                     'filters' => $attempt['filters'],
                     'properties' => $properties,
                     'meta' => [
-                        'approximate' => $attempt['approximate'],
+                        'approximate' => $attempt['approximate'] || $this->hasApproximateProximity($attempt['filters']),
                         'relaxed' => $attempt['relaxed'],
                         'sort' => $sort,
                     ],
@@ -207,7 +242,7 @@ PROMPT;
             'filters' => $lastAttempt['filters'],
             'properties' => $properties,
             'meta' => [
-                'approximate' => $lastAttempt['approximate'],
+                'approximate' => $lastAttempt['approximate'] || $this->hasApproximateProximity($lastAttempt['filters']),
                 'relaxed' => $lastAttempt['relaxed'],
                 'sort' => $sort,
             ],
@@ -217,21 +252,27 @@ PROMPT;
     private function normalizeFilters(array $filters, ?string $contextCity = null): array
     {
         $normalized = [];
-        $contextCity = $contextCity ?: config('proximity.default_city');
+        $contextCity = $contextCity ?: config('overpass.default_city');
         $cities = $this->normalizeStringArray($filters['cidade'] ?? []);
         $primaryCity = $cities[0] ?? $contextCity;
 
         $locations = $this->normalizeLocations($filters['locations'] ?? [], $primaryCity);
         $proximity = $this->normalizeProximity($filters['proximity'] ?? null, $primaryCity);
 
-        if (!empty($proximity) && empty($locations)) {
-            $resolvedLocations = $this->resolveProximityLocations($proximity, $contextCity);
-            if (!empty($resolvedLocations)) {
-                $locations = $resolvedLocations;
-                $proximity['resolved'] = true;
-                $proximity['city'] = $proximity['city'] ?? ($resolvedLocations[0]['cidade'] ?? null);
+        if (!empty($proximity)) {
+            $resolved = $this->proximityResolver->resolve($proximity, $contextCity);
+            if (!empty($resolved) && !empty($resolved['locations'])) {
+                $locations = $this->normalizeLocations(
+                    array_merge($locations, (array) $resolved['locations']),
+                    $primaryCity
+                );
+                $proximity = array_merge($proximity, (array) ($resolved['proximity'] ?? []));
             } else {
                 $proximity['resolved'] = false;
+                $proximity['approximate'] = true;
+                if ($primaryCity !== '') {
+                    $cities[] = $primaryCity;
+                }
                 Log::info('Unresolved AI proximity filter', ['proximity' => $proximity]);
             }
         }
@@ -328,39 +369,12 @@ PROMPT;
     private function buildSystemPrompt(?string $contextCity): string
     {
         return self::SYSTEM_PROMPT
-            . "\n\nContext city: " . ($contextCity ?: 'none')
-            . "\n\n" . $this->renderProximityCatalog();
+            . "\n\nContext city: " . ($contextCity ?: 'none');
     }
 
     private function buildUserPrompt(string $prompt, ?string $contextCity): string
     {
         return "Context city: " . ($contextCity ?: 'none') . "\nUser: " . $prompt;
-    }
-
-    private function renderProximityCatalog(): string
-    {
-        $lines = ['PROXIMITY CATALOG AVAILABLE TO GENERATE locations:'];
-
-        foreach ((array) config('proximity.cities', []) as $city) {
-            $lines[] = ($city['name'] ?? 'Cidade') . ' neighborhoods: ' . implode(', ', (array) ($city['neighborhoods'] ?? []));
-
-            foreach ((array) ($city['aliases'] ?? []) as $correctName => $aliases) {
-                $lines[] = '- Normalize "' . implode('" or "', (array) $aliases) . '" to "' . $correctName . '"';
-            }
-        }
-
-        foreach ((array) config('proximity.references', []) as $cityReferences) {
-            foreach ($cityReferences as $reference => $data) {
-                $lines[] = sprintf(
-                    '- %s / %s: %s',
-                    $data['city'] ?? 'Cidade',
-                    str_replace('_', ' ', $reference),
-                    implode(', ', (array) ($data['bairros'] ?? []))
-                );
-            }
-        }
-
-        return implode("\n", $lines);
     }
 
     private function normalizeLocations(mixed $locations, ?string $fallbackCity): array
@@ -422,54 +436,9 @@ PROMPT;
         ], fn ($value) => $value !== null && $value !== '');
     }
 
-    private function resolveProximityLocations(array $proximity, ?string $contextCity): array
-    {
-        $cityKey = $this->slug($proximity['city'] ?? $contextCity ?? config('proximity.default_city'));
-        $referenceKey = $this->slug($proximity['reference'] ?? '');
-        $cityReferences = (array) config("proximity.references.$cityKey", []);
-        $reference = $cityReferences[$referenceKey] ?? null;
-
-        if (!$reference) {
-            foreach ($cityReferences as $candidate) {
-                $aliases = array_map(fn ($alias) => $this->slug((string) $alias), (array) ($candidate['aliases'] ?? []));
-                if (in_array($referenceKey, $aliases, true)) {
-                    $reference = $candidate;
-                    break;
-                }
-            }
-        }
-
-        if (!$reference) {
-            return [];
-        }
-
-        $city = $reference['city'] ?? ($proximity['city'] ?? $contextCity);
-
-        return array_map(
-            fn ($bairro) => ['bairro' => $bairro, 'cidade' => $city],
-            (array) ($reference['bairros'] ?? [])
-        );
-    }
-
     private function normalizeNeighborhoodName(string $bairro, ?string $city): string
     {
-        $cityKey = $this->slug($city ?: config('proximity.default_city'));
-        $aliases = (array) config("proximity.cities.$cityKey.aliases", []);
-        $bairroKey = $this->slug($bairro);
-
-        foreach ($aliases as $correctName => $aliasList) {
-            if ($bairroKey === $this->slug((string) $correctName)) {
-                return (string) $correctName;
-            }
-
-            foreach ((array) $aliasList as $alias) {
-                if ($bairroKey === $this->slug((string) $alias)) {
-                    return (string) $correctName;
-                }
-            }
-        }
-
-        return trim($bairro);
+        return $this->proximityResolver->normalizeNeighborhoodName($bairro, $city);
     }
 
     private function normalizeStringArray(mixed $value): array
@@ -568,6 +537,13 @@ PROMPT;
         ];
     }
 
+    private function hasApproximateProximity(array $filters): bool
+    {
+        return !empty($filters['proximity'])
+            && is_array($filters['proximity'])
+            && !empty($filters['proximity']['approximate']);
+    }
+
     private function relaxNeighborhoodFilters(array $filters, array &$relaxed): array
     {
         $cities = $this->normalizeStringArray($filters['cidade'] ?? []);
@@ -594,13 +570,4 @@ PROMPT;
         return $filters;
     }
 
-    private function slug(string $value): string
-    {
-        return Str::of($value)
-            ->ascii()
-            ->lower()
-            ->replaceMatches('/[^a-z0-9]+/', '_')
-            ->trim('_')
-            ->toString();
-    }
 }

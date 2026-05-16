@@ -29,7 +29,7 @@ class AiSearchController extends Controller
 
         try {
             $filters = $request->filled('filters')
-                ? $request->input('filters')
+                ? $service->normalizeParsedFilters($request->input('filters'), $contextCity)
                 : $service->parsePrompt($prompt, $contextCity);
         } catch (\RuntimeException $e) {
             return response()->json([
