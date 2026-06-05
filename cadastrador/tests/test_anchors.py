@@ -27,3 +27,24 @@ def test_non_anchored_field_has_no_anchor():
     html = '<html><body><span>Centro</span></body></html>'
 
     assert anchor_values("bairro", html) == set()
+
+
+def test_quartos_anchor_detects_feature_pair_value():
+    html = (
+        '<html><body><div class="d">'
+        '<span>2</span><span>Quarto(s)</span>'
+        '</div></body></html>'
+    )
+
+    assert "2" in anchor_values("quartos", html)
+
+
+def test_feature_anchor_is_field_specific():
+    html = (
+        '<html><body><div class="d">'
+        '<span>3</span><span>Banheiro(s)</span>'
+        '</div></body></html>'
+    )
+
+    assert "3" in anchor_values("banheiros", html)
+    assert anchor_values("quartos", html) == set()

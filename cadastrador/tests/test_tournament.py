@@ -4,11 +4,21 @@ import pytest
 
 from app.schemas import ExtractorProposal, OnboardingProposal
 from app.services.tournament import (
+    CandidateScore,
     ExtractorTournament,
+    TournamentResult,
     generate_candidates,
     select_extractors,
 )
 from app.services.verification import SelectorVerifier
+
+
+class _StubTournament:
+    def __init__(self, by_field):
+        self.by_field = by_field
+
+    def judge(self, field_name, candidates, htmls, anchors=None):
+        return self.by_field[field_name]
 
 
 def _candidate(field_name, source_type, selector_value, *, output_type="text", priority=1):
@@ -295,3 +305,39 @@ def test_select_extractors_anchors_link_imovel_to_page_url():
     )
 
     assert verified["link_imovel"][0].selector_value == "//link[@rel='canonical']/@href"
+
+
+def test_mandatory_field_dropped_when_acertividade_below_threshold():
+    html = '<html><body><span class="v">R$ 500.000</span></body></html>'
+    winner = _candidate("valor", "css", ".v::text", output_type="number")
+    result = TournamentResult(
+        "valor", winner, (winner,), (CandidateScore(winner, 0.5, 1.0),), acertividade=0.5
+    )
+
+    verified = select_extractors(
+        {"valor": [winner]},
+        [html, html],
+        verifier=SelectorVerifier(),
+        threshold=0.9,
+        tournament=_StubTournament({"valor": result}),
+    )
+
+    assert "valor" not in verified
+
+
+def test_best_effort_field_kept_on_coverage_despite_low_acertividade():
+    html = '<html><body><span class="v">2</span></body></html>'
+    winner = _candidate("quartos", "css", ".v::text", output_type="number")
+    result = TournamentResult(
+        "quartos", winner, (winner,), (CandidateScore(winner, 0.5, 1.0),), acertividade=0.5
+    )
+
+    verified = select_extractors(
+        {"quartos": [winner]},
+        [html, html],
+        verifier=SelectorVerifier(),
+        threshold=0.9,
+        tournament=_StubTournament({"quartos": result}),
+    )
+
+    assert "quartos" in verified

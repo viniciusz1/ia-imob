@@ -9,7 +9,12 @@ from app.schemas import ExtractorProposal
 from app.services.anchors import anchor_values
 from app.services.extraction import extract_field_value, loader_treatment
 
-from imobiliarias.config.field_catalog import synthesis_output_type  # noqa: E402
+from imobiliarias.config.field_catalog import (  # noqa: E402
+    MANDATORY_EXTRACTOR_FIELDS,
+    synthesis_output_type,
+)
+
+ACERTIVIDADE_THRESHOLD = 0.8
 
 CANDIDATE_STRATEGIES = ("dom", "structured", "text")
 ANCHOR_WEIGHT = 2
@@ -36,9 +41,17 @@ def select_extractors(
     threshold: float,
     tournament: "ExtractorTournament | None" = None,
     urls=None,
+    acertividade_threshold: float = ACERTIVIDADE_THRESHOLD,
+    mandatory_fields: "set[str] | None" = None,
 ) -> dict[str, list[ExtractorProposal]]:
-    """Judge each field's candidates and keep the winning chain when it clears the gate."""
+    """Judge each field's candidates and keep the winning chain when it clears the gate.
+
+    Two-axis gate: every field must clear ``threshold`` coverage; mandatory fields
+    additionally need winner Acertividade >= ``acertividade_threshold``. Best-effort
+    fields ride on coverage alone (their consensus signal is too weak to reject on).
+    """
     tournament = tournament or ExtractorTournament()
+    mandatory = set(MANDATORY_EXTRACTOR_FIELDS) if mandatory_fields is None else mandatory_fields
     htmls = list(htmls)
     page_urls = list(urls) if urls is not None else [None] * len(htmls)
     verified: dict[str, list[ExtractorProposal]] = {}
@@ -51,8 +64,11 @@ def select_extractors(
         if result.winner is None:
             continue
         report = verifier.verify_chain(field_name, result.chain, htmls)
-        if report.pass_rate >= threshold:
-            verified[field_name] = list(result.chain)
+        if report.pass_rate < threshold:
+            continue
+        if field_name in mandatory and result.acertividade < acertividade_threshold:
+            continue
+        verified[field_name] = list(result.chain)
     return verified
 
 
@@ -104,6 +120,7 @@ class TournamentResult:
     winner: ExtractorProposal | None
     chain: tuple[ExtractorProposal, ...]
     scores: tuple[CandidateScore, ...]
+    acertividade: float = 0.0
 
 
 def _normalize(value: object | None) -> str | None:
@@ -164,6 +181,7 @@ class ExtractorTournament:
             winner=candidates[winner_index],
             chain=chain,
             scores=tuple(scores),
+            acertividade=scores[winner_index].acertividade,
         )
 
     def _build_chain(
