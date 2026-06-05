@@ -3,7 +3,12 @@ from __future__ import annotations
 import pytest
 
 from app.schemas import ExtractorProposal, OnboardingProposal
-from app.services.tournament import ExtractorTournament, generate_candidates
+from app.services.tournament import (
+    ExtractorTournament,
+    generate_candidates,
+    select_extractors,
+)
+from app.services.verification import SelectorVerifier
 
 
 def _candidate(field_name, source_type, selector_value, *, output_type="text", priority=1):
@@ -170,3 +175,29 @@ async def test_generate_candidates_allows_abstention_per_field():
     )
 
     assert len(candidates["piscina"]) == 2
+
+
+_SELECT_HTML = (
+    '<html><body>'
+    '<span class="preco">R$ 500.000</span>'
+    '<h1>Casa</h1>'
+    '</body></html>'
+)
+
+
+def test_select_extractors_keeps_plausible_winners_and_drops_unfillable():
+    candidates = {
+        "valor": [_candidate("valor", "css", ".preco::text", output_type="number")],
+        "tipo": [_candidate("tipo", "css", "h1::text")],
+        "bairro": [_candidate("bairro", "css", ".missing::text")],
+    }
+
+    verified = select_extractors(
+        candidates,
+        [_SELECT_HTML, _SELECT_HTML],
+        verifier=SelectorVerifier(),
+        threshold=0.9,
+    )
+
+    assert set(verified) == {"valor", "tipo"}
+    assert [extractor.selector_value for extractor in verified["valor"]] == [".preco::text"]

@@ -29,6 +29,11 @@ from app.services.persistence import (
     record_attempt,
 )
 from app.services.sse import encode_event
+from app.services.tournament import (
+    CANDIDATE_STRATEGIES,
+    generate_candidates,
+    select_extractors,
+)
 from app.services.validation import ScrapyValidator
 from app.services.verification import SelectorVerifier
 
@@ -125,54 +130,88 @@ class OnboardingService:
                 {"step": "identity_resolved", "name": identity.name, "domain": identity.domain},
             )
 
-            yield encode_event(
-                "progress",
-                {"step": "synthesizing_selectors", "mode": "batch"},
-            )
-            initial = await self.llm.synthesize(
-                htmls=discovery.sample_htmls,
-                fields=list(MANDATORY_EXTRACTOR_FIELDS),
-                prior_failures={},
-                execution_model=discovery.execution_model,
-            )
-            llm_rounds += 1
-            if initial is None:
-                self._record_error(conn, url=url, domain=domain, started_at=started_at, llm_rounds=llm_rounds, outcome="error", reason="empty_initial_proposal")
-                yield encode_event("error", {"reason": "empty_initial_proposal"})
-                return
-
-            verified, prior_failures = await self._verify_and_retry(
-                discovery=discovery,
-                initial=initial,
-                request=request,
-            )
-            llm_rounds += prior_failures.pop("__llm_rounds__", [0])[0]
-
-            missing = [
-                field for field in MANDATORY_EXTRACTOR_FIELDS if field not in verified
-            ]
-            if len(verified) == 0 or missing:
-                self._record_error(
-                    conn,
-                    url=url,
-                    domain=domain,
-                    started_at=started_at,
-                    llm_rounds=llm_rounds,
-                    outcome="rejected",
-                    reason="no_verified_extractors" if len(verified) == 0 else "missing_mandatory_extractors",
-                )
+            if discovery.execution_model == "sitemap":
                 yield encode_event(
-                    "error",
-                    {
-                        "reason": "no_verified_extractors" if len(verified) == 0 else "missing_mandatory_extractors",
-                        "missing": missing,
-                    },
+                    "progress",
+                    {"step": "synthesizing_selectors", "mode": "tournament"},
                 )
-                return
+                proposal, verified_fields = await self._tournament_proposal(
+                    discovery, identity
+                )
+                llm_rounds += len(CANDIDATE_STRATEGIES)
+                missing = [
+                    field
+                    for field in MANDATORY_EXTRACTOR_FIELDS
+                    if field not in verified_fields
+                ]
+                if not verified_fields or missing:
+                    self._record_error(
+                        conn,
+                        url=url,
+                        domain=domain,
+                        started_at=started_at,
+                        llm_rounds=llm_rounds,
+                        outcome="rejected",
+                        reason="no_verified_extractors" if not verified_fields else "missing_mandatory_extractors",
+                    )
+                    yield encode_event(
+                        "error",
+                        {
+                            "reason": "no_verified_extractors" if not verified_fields else "missing_mandatory_extractors",
+                            "missing": missing,
+                        },
+                    )
+                    return
+            else:
+                yield encode_event(
+                    "progress",
+                    {"step": "synthesizing_selectors", "mode": "batch"},
+                )
+                initial = await self.llm.synthesize(
+                    htmls=discovery.sample_htmls,
+                    fields=list(MANDATORY_EXTRACTOR_FIELDS),
+                    prior_failures={},
+                    execution_model=discovery.execution_model,
+                )
+                llm_rounds += 1
+                if initial is None:
+                    self._record_error(conn, url=url, domain=domain, started_at=started_at, llm_rounds=llm_rounds, outcome="error", reason="empty_initial_proposal")
+                    yield encode_event("error", {"reason": "empty_initial_proposal"})
+                    return
 
-            llm_rounds += await self._best_effort_extractors(discovery, verified, request)
+                verified, prior_failures = await self._verify_and_retry(
+                    discovery=discovery,
+                    initial=initial,
+                    request=request,
+                )
+                llm_rounds += prior_failures.pop("__llm_rounds__", [0])[0]
 
-            proposal = self._final_proposal(initial, identity, verified, discovery)
+                missing = [
+                    field for field in MANDATORY_EXTRACTOR_FIELDS if field not in verified
+                ]
+                if len(verified) == 0 or missing:
+                    self._record_error(
+                        conn,
+                        url=url,
+                        domain=domain,
+                        started_at=started_at,
+                        llm_rounds=llm_rounds,
+                        outcome="rejected",
+                        reason="no_verified_extractors" if len(verified) == 0 else "missing_mandatory_extractors",
+                    )
+                    yield encode_event(
+                        "error",
+                        {
+                            "reason": "no_verified_extractors" if len(verified) == 0 else "missing_mandatory_extractors",
+                            "missing": missing,
+                        },
+                    )
+                    return
+
+                llm_rounds += await self._best_effort_extractors(discovery, verified, request)
+
+                proposal = self._final_proposal(initial, identity, verified, discovery)
+
             yield encode_event("progress", {"step": "persisting"})
             persisted = persist_agency(conn, proposal, identity)
             conn.commit()
@@ -327,6 +366,36 @@ class OnboardingService:
             if report.pass_rate >= PASS_THRESHOLD:
                 verified[optional.field_name] = optional
         return 1
+
+    async def _tournament_proposal(
+        self,
+        discovery: Discovery,
+        identity: Identity,
+    ) -> tuple[OnboardingProposal, set[str]]:
+        candidates = await generate_candidates(
+            self.llm,
+            htmls=discovery.sample_htmls,
+            fields=[*MANDATORY_EXTRACTOR_FIELDS, *BEST_EFFORT_EXTRACTOR_FIELDS],
+            prior_failures={},
+            execution_model=discovery.execution_model,
+        )
+        verified_chains = select_extractors(
+            candidates,
+            discovery.sample_htmls,
+            verifier=self.verifier,
+            threshold=PASS_THRESHOLD,
+        )
+        extractors = [
+            extractor for chain in verified_chains.values() for extractor in chain
+        ]
+        proposal = OnboardingProposal(
+            strategy="sitemap",
+            name=identity.name,
+            extractors=extractors,
+            sitemap_url=discovery.selected_sitemap_url,
+            allowed_url_patterns=["/imovel/"],
+        )
+        return proposal, set(verified_chains)
 
     def _final_proposal(
         self,

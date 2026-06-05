@@ -11,6 +11,27 @@ from app.services.extraction import extract_field_value, loader_treatment
 CANDIDATE_STRATEGIES = ("dom", "structured", "text")
 
 
+def select_extractors(
+    candidates_by_field: dict[str, list[ExtractorProposal]],
+    htmls,
+    *,
+    verifier,
+    threshold: float,
+    tournament: "ExtractorTournament | None" = None,
+) -> dict[str, list[ExtractorProposal]]:
+    """Judge each field's candidates and keep the winning chain when it clears the gate."""
+    tournament = tournament or ExtractorTournament()
+    verified: dict[str, list[ExtractorProposal]] = {}
+    for field_name, candidates in candidates_by_field.items():
+        result = tournament.judge(field_name, candidates, htmls)
+        if result.winner is None:
+            continue
+        report = verifier.verify_chain(field_name, result.chain, htmls)
+        if report.pass_rate >= threshold:
+            verified[field_name] = list(result.chain)
+    return verified
+
+
 async def generate_candidates(
     synthesizer,
     *,
