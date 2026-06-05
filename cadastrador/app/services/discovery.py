@@ -13,6 +13,30 @@ from lxml import etree
 DEFAULT_USER_AGENT = "Mozilla/5.0 (compatible; CadastradorBot/0.1)"
 MAX_SAMPLE_HTMLS = 5
 
+MIN_TOURNAMENT_SAMPLE = 20
+MAX_TOURNAMENT_SAMPLE = 60
+TOURNAMENT_SAMPLE_RATIO = 0.30
+
+
+def sample_urls(urls: list[str]) -> list[str]:
+    """Pick the Amostra de Torneio: ~30% of the sitemap, clamped to [20, 60], strided.
+
+    Strided selection spreads the sample across the whole list (layout/type
+    diversity) instead of taking a contiguous prefix.
+    """
+    total = len(urls)
+    if total == 0:
+        return []
+    target = min(
+        total,
+        max(
+            MIN_TOURNAMENT_SAMPLE,
+            min(MAX_TOURNAMENT_SAMPLE, round(total * TOURNAMENT_SAMPLE_RATIO)),
+        ),
+    )
+    step = total / target
+    return [urls[int(index * step)] for index in range(target)]
+
 PROPERTY_PATTERNS = re.compile(
     r"/(imovel|imoveis|propriedade|propriedades|comprar|alugar|"
     r"detalhe|detalhes|apartamento|apartamentos|casa|casas|"
@@ -68,6 +92,26 @@ class HttpFetcher:
             except httpx.HTTPError:
                 continue
         return htmls
+
+    async def fetch_pairs(
+        self,
+        urls: list[str],
+        *,
+        concurrency: int = 8,
+    ) -> list[tuple[str, str]]:
+        """Fetch URLs concurrently (bounded for politeness), returning aligned
+        (url, html) pairs in input order and skipping individual failures."""
+        semaphore = asyncio.Semaphore(concurrency)
+
+        async def fetch_one(url: str) -> tuple[str, str] | None:
+            async with semaphore:
+                try:
+                    return url, await self.fetch(url)
+                except Exception:
+                    return None
+
+        results = await asyncio.gather(*(fetch_one(url) for url in urls))
+        return [pair for pair in results if pair is not None]
 
 
 @dataclass

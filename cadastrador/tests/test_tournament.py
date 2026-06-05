@@ -270,3 +270,28 @@ def test_select_extractors_uses_anchor_to_pick_the_real_price():
     )
 
     assert verified["valor"][0].selector_value == ".y::text"
+
+
+_LINK_HTML = (
+    '<html><head><link rel="canonical" href="https://x.test/imovel/1"></head>'
+    '<body><a class="other" href="https://x.test/contato">x</a></body></html>'
+)
+
+
+def test_select_extractors_anchors_link_imovel_to_page_url():
+    candidates = {
+        "link_imovel": [
+            _candidate("link_imovel", "css", "a.other::attr(href)", output_type="link_url"),
+            _candidate("link_imovel", "xpath", "//link[@rel='canonical']/@href", output_type="link_url"),
+        ]
+    }
+
+    verified = select_extractors(
+        candidates,
+        [_LINK_HTML, _LINK_HTML],
+        verifier=SelectorVerifier(),
+        threshold=0.9,
+        urls=["https://x.test/imovel/1", "https://x.test/imovel/1"],
+    )
+
+    assert verified["link_imovel"][0].selector_value == "//link[@rel='canonical']/@href"

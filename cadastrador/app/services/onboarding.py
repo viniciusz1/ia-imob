@@ -19,6 +19,7 @@ from app.services.discovery import (
     HttpFetcher,
     SitemapProbe,
     decide_execution_model,
+    sample_urls,
 )
 from app.services.llm import LlmClient
 from app.services.persistence import (
@@ -55,6 +56,7 @@ class Discovery:
     execution_model: str
     selected_sitemap_url: str | None = None
     sitemap_urls: list[str] | None = None
+    sample_urls: list[str] | None = None
 
 
 class OnboardingService:
@@ -280,19 +282,23 @@ class OnboardingService:
         sitemap_result = await self.probe.probe(domain)
         sitemap_urls = sitemap_result.property_urls if sitemap_result else None
         execution_model = decide_execution_model(homepage, sitemap_urls)
-        sample_htmls = (
-            await self.fetcher.fetch_many(sitemap_urls)
-            if execution_model == "sitemap" and sitemap_urls
-            else [homepage]
-        )
+        if execution_model == "sitemap" and sitemap_urls:
+            pairs = await self.fetcher.fetch_pairs(sample_urls(sitemap_urls))
+            sample_htmls = [html for _, html in pairs]
+            sample_page_urls = [page_url for page_url, _ in pairs]
+        else:
+            sample_htmls = []
+            sample_page_urls = []
         if not sample_htmls:
             sample_htmls = [homepage]
+            sample_page_urls = [url]
         return Discovery(
             homepage_html=homepage,
             sample_htmls=sample_htmls,
             execution_model=execution_model,
             selected_sitemap_url=sitemap_result.selected_sitemap_url if sitemap_result else None,
             sitemap_urls=sitemap_urls,
+            sample_urls=sample_page_urls,
         )
 
     async def _verify_and_retry(
@@ -384,6 +390,7 @@ class OnboardingService:
             discovery.sample_htmls,
             verifier=self.verifier,
             threshold=PASS_THRESHOLD,
+            urls=discovery.sample_urls,
         )
         extractors = [
             extractor for chain in verified_chains.values() for extractor in chain
