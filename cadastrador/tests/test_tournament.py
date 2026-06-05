@@ -201,3 +201,72 @@ def test_select_extractors_keeps_plausible_winners_and_drops_unfillable():
 
     assert set(verified) == {"valor", "tipo"}
     assert [extractor.selector_value for extractor in verified["valor"]] == [".preco::text"]
+
+
+_TIE_HTML = (
+    '<html><body>'
+    '<span class="x">Joinville</span>'
+    '<span class="y">Jaragua</span>'
+    '</body></html>'
+)
+
+
+def test_anchor_breaks_candidate_tie_toward_the_anchored_value():
+    joinville = _candidate("cidade", "css", ".x::text")
+    jaragua = _candidate("cidade", "css", ".y::text")
+
+    without = ExtractorTournament().judge(
+        "cidade", [joinville, jaragua], [_TIE_HTML, _TIE_HTML]
+    )
+    with_anchor = ExtractorTournament().judge(
+        "cidade",
+        [joinville, jaragua],
+        [_TIE_HTML, _TIE_HTML],
+        anchors=[{"jaragua"}, {"jaragua"}],
+    )
+
+    assert without.winner.selector_value == ".x::text"
+    assert with_anchor.winner.selector_value == ".y::text"
+
+
+_SOURCE_HTML = (
+    '<html><head><meta property="og:title" content="Centro"></head>'
+    '<body><span class="x">Centro</span></body></html>'
+)
+
+
+def test_ties_prefer_structured_source_over_dom():
+    dom = _candidate("cidade", "css", ".x::text")
+    structured = _candidate("cidade", "og", "title")
+
+    result = ExtractorTournament().judge(
+        "cidade", [dom, structured], [_SOURCE_HTML, _SOURCE_HTML]
+    )
+
+    assert result.winner.source_type == "og"
+
+
+_VALOR_ANCHOR_HTML = (
+    '<html><body>'
+    '<span class="x">1234</span>'
+    '<span class="y">R$ 500.000</span>'
+    '</body></html>'
+)
+
+
+def test_select_extractors_uses_anchor_to_pick_the_real_price():
+    candidates = {
+        "valor": [
+            _candidate("valor", "css", ".x::text", output_type="number"),
+            _candidate("valor", "css", ".y::text", output_type="number"),
+        ]
+    }
+
+    verified = select_extractors(
+        candidates,
+        [_VALOR_ANCHOR_HTML, _VALOR_ANCHOR_HTML],
+        verifier=SelectorVerifier(),
+        threshold=0.9,
+    )
+
+    assert verified["valor"][0].selector_value == ".y::text"

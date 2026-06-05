@@ -6,9 +6,26 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 
 from app.schemas import ExtractorProposal
+from app.services.anchors import anchor_values
 from app.services.extraction import extract_field_value, loader_treatment
 
+from imobiliarias.config.field_catalog import synthesis_output_type  # noqa: E402
+
 CANDIDATE_STRATEGIES = ("dom", "structured", "text")
+ANCHOR_WEIGHT = 2
+_SOURCE_RANK = {"og": 0, "jsonld": 0, "xpath": 1, "css": 1, "literal": 2}
+
+
+def _source_rank(extractor: "ExtractorProposal") -> int:
+    return _SOURCE_RANK.get(extractor.source_type, 1)
+
+
+def _anchor_set(field_name: str, html: str, url: str | None) -> set[str]:
+    treated = {
+        _normalize(loader_treatment(field_name, synthesis_output_type(field_name), raw))
+        for raw in anchor_values(field_name, html, url=url)
+    }
+    return {value for value in treated if value is not None}
 
 
 def select_extractors(
@@ -18,12 +35,19 @@ def select_extractors(
     verifier,
     threshold: float,
     tournament: "ExtractorTournament | None" = None,
+    urls=None,
 ) -> dict[str, list[ExtractorProposal]]:
     """Judge each field's candidates and keep the winning chain when it clears the gate."""
     tournament = tournament or ExtractorTournament()
+    htmls = list(htmls)
+    page_urls = list(urls) if urls is not None else [None] * len(htmls)
     verified: dict[str, list[ExtractorProposal]] = {}
     for field_name, candidates in candidates_by_field.items():
-        result = tournament.judge(field_name, candidates, htmls)
+        anchors = [
+            _anchor_set(field_name, html, url)
+            for html, url in zip(htmls, page_urls)
+        ]
+        result = tournament.judge(field_name, candidates, htmls, anchors=anchors)
         if result.winner is None:
             continue
         report = verifier.verify_chain(field_name, result.chain, htmls)
@@ -95,6 +119,7 @@ class ExtractorTournament:
         field_name: str,
         candidates: Sequence[ExtractorProposal],
         htmls: Sequence[str],
+        anchors: Sequence[set[str]] | None = None,
     ) -> TournamentResult:
         candidates = list(candidates)
         if not candidates:
@@ -104,7 +129,10 @@ class ExtractorTournament:
             [_normalize(self._final_value(field_name, candidate, html)) for html in htmls]
             for candidate in candidates
         ]
-        truths = [self._page_truth(norm, page) for page in range(sample_size)]
+        truths = [
+            self._page_truth(norm, page, anchors[page] if anchors else None)
+            for page in range(sample_size)
+        ]
 
         judged = [page for page in range(sample_size) if truths[page] is not None]
         scores: list[CandidateScore] = []
@@ -121,7 +149,12 @@ class ExtractorTournament:
 
         winner_index = max(
             range(len(candidates)),
-            key=lambda index: (scores[index].acertividade, scores[index].coverage, -index),
+            key=lambda index: (
+                scores[index].acertividade,
+                scores[index].coverage,
+                -_source_rank(candidates[index]),
+                -index,
+            ),
         )
         if scores[winner_index].coverage == 0.0:
             return TournamentResult(field_name, None, (), tuple(scores))
@@ -164,12 +197,17 @@ class ExtractorTournament:
         self,
         norm: list[list[str | None]],
         page: int,
+        anchor_set: set[str] | None = None,
     ) -> str | None:
         votes = Counter(
             candidate_finals[page]
             for candidate_finals in norm
             if candidate_finals[page] is not None
         )
+        if anchor_set:
+            for value in list(votes):
+                if value in anchor_set:
+                    votes[value] += ANCHOR_WEIGHT
         return votes.most_common(1)[0][0] if votes else None
 
     def _final_value(
