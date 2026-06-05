@@ -113,6 +113,25 @@ IDENTITY_SYSTEM_PROMPT = """You name Brazilian real-estate websites concisely.
 Return a single short imobiliária display name, without JSON or explanation."""
 
 
+STRATEGY_DIRECTIVES = {
+    "dom": (
+        "\nSource strategy for this pass: use only DOM selectors (xpath or css) "
+        "anchored to visible page elements. Do not use og, jsonld, or meta sources. "
+        "If a field's value lives only in structured metadata, omit the field."
+    ),
+    "structured": (
+        "\nSource strategy for this pass: use only structured data sources "
+        "(og, jsonld, or meta). If a field is not present in structured data sources, "
+        "omit the field rather than guessing."
+    ),
+    "text": (
+        "\nSource strategy for this pass: derive each value from visible text "
+        "(title, h1, or description) using a DSL Pipeline to isolate it. "
+        "If a value cannot be isolated from text, omit the field."
+    ),
+}
+
+
 def _extract_title(html: str) -> str:
     match = re.search(r"<title[^>]*>(.*?)</title>", html, re.IGNORECASE | re.DOTALL)
     return re.sub(r"\s+", " ", match.group(1)).strip() if match else ""
@@ -443,6 +462,7 @@ def build_synthesis_messages(
     fields: list[str],
     prior_failures: dict[str, list[str]],
     execution_model: str,
+    strategy: str | None = None,
 ) -> list[dict[str, str]]:
     prior = json.dumps(prior_failures, ensure_ascii=False)
     user_prompt = (
@@ -461,8 +481,9 @@ def build_synthesis_messages(
         f"HTML evidence:\n{_html_evidence(htmls)}\n\n"
         f"HTML samples:\n{_html_context(htmls)}"
     )
+    system_content = SYSTEM_PROMPT + (STRATEGY_DIRECTIVES.get(strategy, "") if strategy else "")
     return [
-        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "system", "content": system_content},
         {"role": "user", "content": user_prompt},
     ]
 
@@ -520,6 +541,7 @@ class LlmClient:
         fields: list[str],
         prior_failures: dict[str, list[str]],
         execution_model: str,
+        strategy: str | None = None,
     ) -> OnboardingProposal | None:
         chat = self._chat()
         self.last_messages = build_synthesis_messages(
@@ -527,6 +549,7 @@ class LlmClient:
             fields=fields,
             prior_failures=prior_failures,
             execution_model=execution_model,
+            strategy=strategy,
         )
         try:
             response = await chat.ainvoke(self.last_messages)

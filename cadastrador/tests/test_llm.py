@@ -242,3 +242,32 @@ async def test_synthesis_prompt_includes_area_from_og_description():
 
     assert "area-like text: 0,00 m²" in user_prompt
     assert "area-like text: 152,51 m de área construída" in user_prompt
+
+
+@pytest.mark.asyncio
+async def test_synthesis_prompt_biases_toward_the_requested_source_strategy():
+    chat = _RecordingChat()
+    client = _PromptClient(chat)
+
+    await client.synthesize(
+        htmls=["<html></html>"],
+        fields=["valor"],
+        prior_failures={},
+        execution_model="sitemap",
+        strategy="structured",
+    )
+    structured_prompt = chat.messages[0]["content"]
+
+    await client.synthesize(
+        htmls=["<html></html>"],
+        fields=["valor"],
+        prior_failures={},
+        execution_model="sitemap",
+        strategy="dom",
+    )
+    dom_prompt = chat.messages[0]["content"]
+
+    assert "structured data sources" in structured_prompt
+    assert "omit the field" in structured_prompt
+    assert "DOM selectors" in dom_prompt
+    assert structured_prompt != dom_prompt

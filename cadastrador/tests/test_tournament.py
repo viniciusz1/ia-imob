@@ -1,7 +1,9 @@
 from __future__ import annotations
 
-from app.schemas import ExtractorProposal
-from app.services.tournament import ExtractorTournament
+import pytest
+
+from app.schemas import ExtractorProposal, OnboardingProposal
+from app.services.tournament import ExtractorTournament, generate_candidates
 
 
 def _candidate(field_name, source_type, selector_value, *, output_type="text", priority=1):
@@ -87,3 +89,84 @@ def test_no_candidate_fills_yields_no_winner():
 
     assert result.winner is None
     assert result.chain == ()
+
+
+class _StrategySynthesizer:
+    """Fake synthesizer that returns canned extractors per source strategy."""
+
+    def __init__(self, by_strategy):
+        self.by_strategy = by_strategy
+        self.calls = []
+
+    async def synthesize(self, *, htmls, fields, prior_failures, execution_model, strategy=None):
+        self.calls.append(strategy)
+        return OnboardingProposal(
+            strategy=execution_model,
+            name="x",
+            extractors=list(self.by_strategy.get(strategy, [])),
+        )
+
+
+@pytest.mark.asyncio
+async def test_generate_candidates_uses_three_distinct_source_strategies():
+    fake = _StrategySynthesizer(
+        {
+            "dom": [_candidate("valor", "xpath", "//h6/text()", output_type="number")],
+            "structured": [_candidate("valor", "og", "price", output_type="number")],
+            "text": [_candidate("valor", "css", ".t::text", output_type="number")],
+        }
+    )
+
+    candidates = await generate_candidates(
+        fake,
+        htmls=["<html></html>"],
+        fields=["valor"],
+        prior_failures={},
+        execution_model="sitemap",
+    )
+
+    assert len(fake.calls) == 3
+    assert len(set(fake.calls)) == 3
+    assert len(candidates["valor"]) == 3
+
+
+@pytest.mark.asyncio
+async def test_generate_candidates_dedupes_identical_selectors_across_strategies():
+    fake = _StrategySynthesizer(
+        {
+            "dom": [_candidate("cidade", "og", "title")],
+            "structured": [_candidate("cidade", "og", "title")],
+            "text": [],
+        }
+    )
+
+    candidates = await generate_candidates(
+        fake,
+        htmls=["<html></html>"],
+        fields=["cidade"],
+        prior_failures={},
+        execution_model="sitemap",
+    )
+
+    assert len(candidates["cidade"]) == 1
+
+
+@pytest.mark.asyncio
+async def test_generate_candidates_allows_abstention_per_field():
+    fake = _StrategySynthesizer(
+        {
+            "dom": [_candidate("piscina", "xpath", "//x", output_type="boolean")],
+            "structured": [],
+            "text": [_candidate("piscina", "css", ".t::text", output_type="boolean")],
+        }
+    )
+
+    candidates = await generate_candidates(
+        fake,
+        htmls=["<html></html>"],
+        fields=["piscina"],
+        prior_failures={},
+        execution_model="sitemap",
+    )
+
+    assert len(candidates["piscina"]) == 2

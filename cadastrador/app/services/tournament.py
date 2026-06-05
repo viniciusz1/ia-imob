@@ -8,6 +8,43 @@ from dataclasses import dataclass
 from app.schemas import ExtractorProposal
 from app.services.extraction import extract_field_value, loader_treatment
 
+CANDIDATE_STRATEGIES = ("dom", "structured", "text")
+
+
+async def generate_candidates(
+    synthesizer,
+    *,
+    htmls,
+    fields,
+    prior_failures,
+    execution_model,
+) -> dict[str, list[ExtractorProposal]]:
+    """Run one source-biased synthesis per strategy, grouping candidates per field."""
+    by_field: dict[str, list[ExtractorProposal]] = {}
+    seen: set[tuple[str, str, str, str | None]] = set()
+    for strategy in CANDIDATE_STRATEGIES:
+        proposal = await synthesizer.synthesize(
+            htmls=htmls,
+            fields=fields,
+            prior_failures=prior_failures,
+            execution_model=execution_model,
+            strategy=strategy,
+        )
+        if proposal is None:
+            continue
+        for extractor in proposal.extractors:
+            key = (
+                extractor.field_name,
+                extractor.source_type,
+                extractor.selector_value,
+                extractor.pipeline,
+            )
+            if key in seen:
+                continue
+            seen.add(key)
+            by_field.setdefault(extractor.field_name, []).append(extractor)
+    return by_field
+
 
 @dataclass(frozen=True)
 class CandidateScore:
