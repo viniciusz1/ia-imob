@@ -47,6 +47,7 @@ from imobiliarias.config.field_catalog import (  # noqa: E402
 
 PASS_THRESHOLD = 0.9
 MAX_RETRIES_PER_FIELD = 3
+TOURNAMENT_MAX_ROUNDS = 3
 
 
 @dataclass
@@ -378,20 +379,38 @@ class OnboardingService:
         discovery: Discovery,
         identity: Identity,
     ) -> tuple[OnboardingProposal, set[str]]:
-        candidates = await generate_candidates(
-            self.llm,
-            htmls=discovery.sample_htmls,
-            fields=[*MANDATORY_EXTRACTOR_FIELDS, *BEST_EFFORT_EXTRACTOR_FIELDS],
-            prior_failures={},
-            execution_model=discovery.execution_model,
-        )
-        verified_chains = select_extractors(
-            candidates,
-            discovery.sample_htmls,
-            verifier=self.verifier,
-            threshold=PASS_THRESHOLD,
-            urls=discovery.sample_urls,
-        )
+        verified_chains: dict[str, list[ExtractorProposal]] = {}
+        prior_failures: dict[str, list[str]] = {}
+        fields = [*MANDATORY_EXTRACTOR_FIELDS, *BEST_EFFORT_EXTRACTOR_FIELDS]
+        for _round in range(TOURNAMENT_MAX_ROUNDS):
+            candidates = await generate_candidates(
+                self.llm,
+                htmls=discovery.sample_htmls,
+                fields=fields,
+                prior_failures=prior_failures,
+                execution_model=discovery.execution_model,
+            )
+            verified_chains.update(
+                select_extractors(
+                    candidates,
+                    discovery.sample_htmls,
+                    verifier=self.verifier,
+                    threshold=PASS_THRESHOLD,
+                    urls=discovery.sample_urls,
+                )
+            )
+            missing = [
+                field
+                for field in MANDATORY_EXTRACTOR_FIELDS
+                if field not in verified_chains
+            ]
+            if not missing:
+                break
+            for field in missing:
+                failed = [c.selector_value for c in candidates.get(field, [])]
+                if failed:
+                    prior_failures.setdefault(field, []).extend(failed)
+            fields = missing
         extractors = [
             extractor for chain in verified_chains.values() for extractor in chain
         ]
