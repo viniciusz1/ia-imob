@@ -1,0 +1,2593 @@
+{
+  "run": {
+    "created_at": "2026-06-05T19:17:19.444656+00:00",
+    "run_dir": "/home/zonemax/apps/ia-imob/cadastrador/app/inspection/runs/itaivan-v1-20260605T191702498986Z"
+  },
+  "package": {
+    "key": "itaivan",
+    "version": "v1",
+    "agency": "Itaivan",
+    "execution_model": "sitemap",
+    "start_url": "https://itaivan.com/",
+    "root": "/home/zonemax/apps/ia-imob/cadastrador/app/inspection/packages/itaivan/v1",
+    "samples": [
+      {
+        "path": "samples/01.html",
+        "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-2-quartos-1-suite-2-vagas-vila-baependi-jaragua-do-sul-sc/4633"
+      },
+      {
+        "path": "samples/02.html",
+        "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4735"
+      },
+      {
+        "path": "samples/03.html",
+        "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-1-quarto-1-vaga-czerniewicz-jaragua-do-sul-sc/4865"
+      },
+      {
+        "path": "samples/04.html",
+        "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4938"
+      },
+      {
+        "path": "samples/05.html",
+        "url": "https://www.itaivan.com/imovel/terreno-para-aluguel-centro-jaragua-do-sul-sc/5101"
+      }
+    ]
+  },
+  "proposal": {
+    "strategy": "sitemap",
+    "name": "itaivan",
+    "extractors": [
+      {
+        "field_name": "tipo",
+        "source_type": "og",
+        "selector_value": "title",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": "split:,:0 | split: para :0 | strip",
+        "output_type": "text",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": false
+      },
+      {
+        "field_name": "valor",
+        "source_type": "xpath",
+        "selector_value": "//p[contains(@class,'preco-imovel-mobile')]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": "strip",
+        "output_type": "text",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": false
+      },
+      {
+        "field_name": "bairro",
+        "source_type": "og",
+        "selector_value": "title",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": "split:, :1 | split:- :0 | strip",
+        "output_type": "text",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": false
+      },
+      {
+        "field_name": "cidade",
+        "source_type": "og",
+        "selector_value": "title",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": "split:- :1 | split:/ :0 | strip",
+        "output_type": "text",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": false
+      },
+      {
+        "field_name": "link_imovel",
+        "source_type": "og",
+        "selector_value": "url",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "link_url",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": false
+      },
+      {
+        "field_name": "imagem",
+        "source_type": "og",
+        "selector_value": "image",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "image_url",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      {
+        "field_name": "descricao",
+        "source_type": "og",
+        "selector_value": "description",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "text",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      {
+        "field_name": "quartos",
+        "source_type": "xpath",
+        "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Quarto') or contains(text(),'quarto')]/text()",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": "strip | split:: :0",
+        "output_type": "number",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      {
+        "field_name": "suites",
+        "source_type": "xpath",
+        "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Suíte') or contains(text(),'suite') or contains(text(),'suíte')]/text()",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": "strip | split:: :0",
+        "output_type": "number",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      {
+        "field_name": "banheiros",
+        "source_type": "xpath",
+        "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Banheiro') or contains(text(),'banheiro')]/text()",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": "strip | split:: :0",
+        "output_type": "number",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      {
+        "field_name": "vagas",
+        "source_type": "xpath",
+        "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Vaga') or contains(text(),'vaga')]/text()",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": "strip | split:: :0",
+        "output_type": "number",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      {
+        "field_name": "area",
+        "source_type": "xpath",
+        "selector_value": "//span[contains(text(),'m²')]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": "strip",
+        "output_type": "text",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      {
+        "field_name": "aceita_permuta",
+        "source_type": "xpath",
+        "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Permuta') or contains(text(),'permuta')]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      {
+        "field_name": "financiamento",
+        "source_type": "xpath",
+        "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Financiamento') or contains(text(),'financiamento')]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      {
+        "field_name": "piscina",
+        "source_type": "xpath",
+        "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Piscina') or contains(text(),'piscina')]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      {
+        "field_name": "churrasqueira",
+        "source_type": "xpath",
+        "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Churrasqueira') or contains(text(),'churrasqueira')]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      {
+        "field_name": "academia",
+        "source_type": "xpath",
+        "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Academia') or contains(text(),'academia')]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      {
+        "field_name": "salao_festas",
+        "source_type": "xpath",
+        "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Salão') or contains(text(),'salão') or contains(text(),'salao')]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      {
+        "field_name": "playground",
+        "source_type": "xpath",
+        "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Playground') or contains(text(),'playground')]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      {
+        "field_name": "sacada",
+        "source_type": "xpath",
+        "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Sacada') or contains(text(),'sacada')]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      {
+        "field_name": "mobiliado",
+        "source_type": "xpath",
+        "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Mobiliado') or contains(text(),'mobiliado')]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      {
+        "field_name": "ar_condicionado",
+        "source_type": "xpath",
+        "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Ar Condicionado') or contains(text(),'ar condicionado') or contains(text(),'Ar-condicionado')]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      {
+        "field_name": "lavanderia",
+        "source_type": "xpath",
+        "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Lavanderia') or contains(text(),'lavanderia')]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      {
+        "field_name": "escritorio",
+        "source_type": "xpath",
+        "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Escritório') or contains(text(),'escritório') or contains(text(),'escritorio')]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      {
+        "field_name": "closet",
+        "source_type": "xpath",
+        "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Closet') or contains(text(),'closet')]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      {
+        "field_name": "elevador",
+        "source_type": "xpath",
+        "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Elevador') or contains(text(),'elevador')]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      {
+        "field_name": "portaria_24h",
+        "source_type": "xpath",
+        "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Portaria') or contains(text(),'portaria')]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      {
+        "field_name": "andar",
+        "source_type": "xpath",
+        "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Andar') or contains(text(),'andar')]/text()",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": "strip | split:: :0",
+        "output_type": "text",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      {
+        "field_name": "posicao_solar",
+        "source_type": "xpath",
+        "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Posição') or contains(text(),'posição') or contains(text(),'posicao') or contains(text(),'Solar') or contains(text(),'solar')]/text()",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": "strip | split:: :0",
+        "output_type": "text",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      {
+        "field_name": "ano_construcao",
+        "source_type": "xpath",
+        "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Ano') or contains(text(),'ano')]/text()",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": "strip | split:: :0",
+        "output_type": "text",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      }
+    ],
+    "sitemap_url": "https://www.itaivan.com/sitemap.xml",
+    "allowed_url_patterns": [
+      "/imovel/"
+    ],
+    "url": null,
+    "url_pagination_template": null,
+    "total_pages_selector_type": null,
+    "total_pages_selector_value": null,
+    "total_pages_formula": null,
+    "cards_to_iterate_selector_type": null,
+    "cards_to_iterate_selector_value": null
+  },
+  "fields": {
+    "tipo": {
+      "extractor": {
+        "field_name": "tipo",
+        "source_type": "og",
+        "selector_value": "title",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": "split:,:0 | split: para :0 | strip",
+        "output_type": "text",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": false
+      },
+      "extractors": [
+        {
+          "field_name": "tipo",
+          "source_type": "og",
+          "selector_value": "title",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": "split:,:0 | split: para :0 | strip",
+          "output_type": "text",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": false
+        }
+      ],
+      "verification": {
+        "field_name": "tipo",
+        "filled": 5,
+        "sample_size": 5,
+        "pass_rate": 1.0,
+        "sample_issues": []
+      },
+      "loader_output_type": "tipo",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-2-quartos-1-suite-2-vagas-vila-baependi-jaragua-do-sul-sc/4633",
+          "value": "Apartamento",
+          "final": "Apartamento"
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4735",
+          "value": "Sala Comercial",
+          "final": "Sala"
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-1-quarto-1-vaga-czerniewicz-jaragua-do-sul-sc/4865",
+          "value": "Apartamento",
+          "final": "Apartamento"
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4938",
+          "value": "Sala Comercial",
+          "final": "Sala"
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.itaivan.com/imovel/terreno-para-aluguel-centro-jaragua-do-sul-sc/5101",
+          "value": "Terreno",
+          "final": "Terreno"
+        }
+      ]
+    },
+    "valor": {
+      "extractor": {
+        "field_name": "valor",
+        "source_type": "xpath",
+        "selector_value": "//p[contains(@class,'preco-imovel-mobile')]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": "strip",
+        "output_type": "text",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": false
+      },
+      "extractors": [
+        {
+          "field_name": "valor",
+          "source_type": "xpath",
+          "selector_value": "//p[contains(@class,'preco-imovel-mobile')]",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": "strip",
+          "output_type": "text",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": false
+        }
+      ],
+      "verification": {
+        "field_name": "valor",
+        "filled": 5,
+        "sample_size": 5,
+        "pass_rate": 1.0,
+        "sample_issues": []
+      },
+      "loader_output_type": "float",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-2-quartos-1-suite-2-vagas-vila-baependi-jaragua-do-sul-sc/4633",
+          "value": "<p class=\"preco-imovel-mobile \">\n                                    R$ 2.400,00                                </p>",
+          "final": "2400.0"
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4735",
+          "value": "<p class=\"preco-imovel-mobile \">\n                                    R$ 8.000,00                                </p>",
+          "final": "8000.0"
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-1-quarto-1-vaga-czerniewicz-jaragua-do-sul-sc/4865",
+          "value": "<p class=\"preco-imovel-mobile \">\n                                    R$ 1.800,00                                </p>",
+          "final": "1800.0"
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4938",
+          "value": "<p class=\"preco-imovel-mobile \">\n                                    R$ 2.350,00                                </p>",
+          "final": "2350.0"
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.itaivan.com/imovel/terreno-para-aluguel-centro-jaragua-do-sul-sc/5101",
+          "value": "<p class=\"preco-imovel-mobile \">\n                                    R$ 1.380,00                                </p>",
+          "final": "1380.0"
+        }
+      ]
+    },
+    "bairro": {
+      "extractor": {
+        "field_name": "bairro",
+        "source_type": "og",
+        "selector_value": "title",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": "split:, :1 | split:- :0 | strip",
+        "output_type": "text",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": false
+      },
+      "extractors": [
+        {
+          "field_name": "bairro",
+          "source_type": "og",
+          "selector_value": "title",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": "split:, :1 | split:- :0 | strip",
+          "output_type": "text",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": false
+        }
+      ],
+      "verification": {
+        "field_name": "bairro",
+        "filled": 5,
+        "sample_size": 5,
+        "pass_rate": 1.0,
+        "sample_issues": []
+      },
+      "loader_output_type": "text",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-2-quartos-1-suite-2-vagas-vila-baependi-jaragua-do-sul-sc/4633",
+          "value": "Vila Baependi",
+          "final": "vila baependi"
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4735",
+          "value": "Centro",
+          "final": "centro"
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-1-quarto-1-vaga-czerniewicz-jaragua-do-sul-sc/4865",
+          "value": "Czerniewicz",
+          "final": "czerniewicz"
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4938",
+          "value": "Centro",
+          "final": "centro"
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.itaivan.com/imovel/terreno-para-aluguel-centro-jaragua-do-sul-sc/5101",
+          "value": "Centro",
+          "final": "centro"
+        }
+      ]
+    },
+    "cidade": {
+      "extractor": {
+        "field_name": "cidade",
+        "source_type": "og",
+        "selector_value": "title",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": "split:- :1 | split:/ :0 | strip",
+        "output_type": "text",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": false
+      },
+      "extractors": [
+        {
+          "field_name": "cidade",
+          "source_type": "og",
+          "selector_value": "title",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": "split:- :1 | split:/ :0 | strip",
+          "output_type": "text",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": false
+        }
+      ],
+      "verification": {
+        "field_name": "cidade",
+        "filled": 5,
+        "sample_size": 5,
+        "pass_rate": 1.0,
+        "sample_issues": []
+      },
+      "loader_output_type": "text",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-2-quartos-1-suite-2-vagas-vila-baependi-jaragua-do-sul-sc/4633",
+          "value": "Jaraguá do Sul/SC",
+          "final": "jaragua do sulsc"
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4735",
+          "value": "Jaraguá do Sul/SC",
+          "final": "jaragua do sulsc"
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-1-quarto-1-vaga-czerniewicz-jaragua-do-sul-sc/4865",
+          "value": "Jaraguá do Sul/SC",
+          "final": "jaragua do sulsc"
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4938",
+          "value": "Jaraguá do Sul/SC",
+          "final": "jaragua do sulsc"
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.itaivan.com/imovel/terreno-para-aluguel-centro-jaragua-do-sul-sc/5101",
+          "value": "Jaraguá do Sul/SC",
+          "final": "jaragua do sulsc"
+        }
+      ]
+    },
+    "link_imovel": {
+      "extractor": {
+        "field_name": "link_imovel",
+        "source_type": "og",
+        "selector_value": "url",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "link_url",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": false
+      },
+      "extractors": [
+        {
+          "field_name": "link_imovel",
+          "source_type": "og",
+          "selector_value": "url",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": null,
+          "output_type": "link_url",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": false
+        }
+      ],
+      "verification": {
+        "field_name": "link_imovel",
+        "filled": 5,
+        "sample_size": 5,
+        "pass_rate": 1.0,
+        "sample_issues": []
+      },
+      "loader_output_type": "url",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-2-quartos-1-suite-2-vagas-vila-baependi-jaragua-do-sul-sc/4633",
+          "value": "https://www.itaivan.com/imovel/apartamento-para-aluguel-2-quartos-1-suite-2-vagas-vila-baependi-jaragua-do-sul-sc/4633",
+          "final": "https://www.itaivan.com/imovel/apartamento-para-aluguel-2-quartos-1-suite-2-vagas-vila-baependi-jaragua-do-sul-sc/4633"
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4735",
+          "value": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4735",
+          "final": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4735"
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-1-quarto-1-vaga-czerniewicz-jaragua-do-sul-sc/4865",
+          "value": "https://www.itaivan.com/imovel/apartamento-para-aluguel-1-quarto-1-vaga-czerniewicz-jaragua-do-sul-sc/4865",
+          "final": "https://www.itaivan.com/imovel/apartamento-para-aluguel-1-quarto-1-vaga-czerniewicz-jaragua-do-sul-sc/4865"
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4938",
+          "value": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4938",
+          "final": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4938"
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.itaivan.com/imovel/terreno-para-aluguel-centro-jaragua-do-sul-sc/5101",
+          "value": "https://www.itaivan.com/imovel/terreno-para-aluguel-centro-jaragua-do-sul-sc/5101",
+          "final": "https://www.itaivan.com/imovel/terreno-para-aluguel-centro-jaragua-do-sul-sc/5101"
+        }
+      ]
+    },
+    "imagem": {
+      "extractor": {
+        "field_name": "imagem",
+        "source_type": "og",
+        "selector_value": "image",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "image_url",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      "extractors": [
+        {
+          "field_name": "imagem",
+          "source_type": "og",
+          "selector_value": "image",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": null,
+          "output_type": "image_url",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": true
+        }
+      ],
+      "verification": {
+        "field_name": "imagem",
+        "filled": 5,
+        "sample_size": 5,
+        "pass_rate": 1.0,
+        "sample_issues": []
+      },
+      "loader_output_type": "url",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-2-quartos-1-suite-2-vagas-vila-baependi-jaragua-do-sul-sc/4633",
+          "value": "https://cdn.imoview.com.br/itaivan/Imoveis/4633/jxl3xk-whatsapp-image-2026-05-27-at-094955-1779991135.jpeg?1779996468",
+          "final": "https://cdn.imoview.com.br/itaivan/Imoveis/4633/jxl3xk-whatsapp-image-2026-05-27-at-094955-1779991135.jpeg?1779996468"
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4735",
+          "value": "https://cdn.imoview.com.br/itaivan/Imoveis/4735/i6v36kh3e965_87635f7386c955e08.jpg?1751226836",
+          "final": "https://cdn.imoview.com.br/itaivan/Imoveis/4735/i6v36kh3e965_87635f7386c955e08.jpg?1751226836"
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-1-quarto-1-vaga-czerniewicz-jaragua-do-sul-sc/4865",
+          "value": "https://cdn.imoview.com.br/itaivan/Imoveis/4865/i35m42y_90375fc13ba5e668f.jpg?1746402778",
+          "final": "https://cdn.imoview.com.br/itaivan/Imoveis/4865/i35m42y_90375fc13ba5e668f.jpg?1746402778"
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4938",
+          "value": "https://cdn.imoview.com.br/itaivan/Imoveis/4938/nk8do-imagem-do-whatsapp-de-2025-09-19-as-160029-feed6f55-1758310956.jpg?1758310956",
+          "final": "https://cdn.imoview.com.br/itaivan/Imoveis/4938/nk8do-imagem-do-whatsapp-de-2025-09-19-as-160029-feed6f55-1758310956.jpg?1758310956"
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.itaivan.com/imovel/terreno-para-aluguel-centro-jaragua-do-sul-sc/5101",
+          "value": "https://cdn.imoview.com.br/itaivan/Imoveis/5101/iyyd335dyn24rcvl2_9505604fcce6587e5.jpg?1746406447",
+          "final": "https://cdn.imoview.com.br/itaivan/Imoveis/5101/iyyd335dyn24rcvl2_9505604fcce6587e5.jpg?1746406447"
+        }
+      ]
+    },
+    "descricao": {
+      "extractor": {
+        "field_name": "descricao",
+        "source_type": "og",
+        "selector_value": "description",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "text",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      "extractors": [
+        {
+          "field_name": "descricao",
+          "source_type": "og",
+          "selector_value": "description",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": null,
+          "output_type": "text",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": true
+        }
+      ],
+      "verification": {
+        "field_name": "descricao",
+        "filled": 5,
+        "sample_size": 5,
+        "pass_rate": 1.0,
+        "sample_issues": []
+      },
+      "loader_output_type": "text",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-2-quartos-1-suite-2-vagas-vila-baependi-jaragua-do-sul-sc/4633",
+          "value": "Aproveite esta oportunidade de aluguel no Bairro Vila Baependi, em Jaraguá do Sul (SC). Apartamento residencial com 85,00 m², 2 quartos, 1 suíte, 1 banheiro, sala de estar e jantar, cozinha, área de s",
+          "final": "aproveite esta oportunidade de aluguel no bairro vila baependi em jaragua do sul sc apartamento residencial com m quartos suite banheiro sala de estar e jantar cozinha area de s"
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4735",
+          "value": "Sua nova oportunidade comercial no coração de Jaraguá do Sul!\n\nSe você está em busca do espaço ideal para abrir ou expandir o seu negócio, esta sala comercial é a escolha perfeita. Com excelente vis",
+          "final": "sua nova oportunidade comercial no coracao de jaragua do sul se voce esta em busca do espaco ideal para abrir ou expandir o seu negocio esta sala comercial e a escolha perfeita com excelente vis"
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-1-quarto-1-vaga-czerniewicz-jaragua-do-sul-sc/4865",
+          "value": "Taxas adicionais:\n\nSeguro contra incêndio\nCondomínio\nTaxa de lixo\n\nE demais taxas a serem informadas pela administradora",
+          "final": "taxas adicionais seguro contra incendio condominio taxa de lixo e demais taxas a serem informadas pela administradora"
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4938",
+          "value": "Sala comercial interna com 30 m², contendo 01 banheiro. Localização central oferece fácil acesso e visibilidade. Ideal para uso comercial compacto ou escritório. Não perca a oportunidade de negociar e",
+          "final": "sala comercial interna com m contendo banheiro localizacao central oferece facil acesso e visibilidade ideal para uso comercial compacto ou escritorio nao perca a oportunidade de negociar e"
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.itaivan.com/imovel/terreno-para-aluguel-centro-jaragua-do-sul-sc/5101",
+          "value": "Este terreno de 514,00m² disponível para locação no Centro - Jaraguá do Sul oferece todo o potencial que seu empreendimento precisa\n\n- Seguro contra incêndio:\n- Taxa de lixo\n- IPTU",
+          "final": "este terreno de m disponivel para locacao no centro jaragua do sul oferece todo o potencial que seu empreendimento precisa seguro contra incendio taxa de lixo iptu"
+        }
+      ]
+    },
+    "quartos": {
+      "extractor": {
+        "field_name": "quartos",
+        "source_type": "xpath",
+        "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Quarto') or contains(text(),'quarto')]/text()",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": "strip | split:: :0",
+        "output_type": "number",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      "extractors": [
+        {
+          "field_name": "quartos",
+          "source_type": "xpath",
+          "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Quarto') or contains(text(),'quarto')]/text()",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": "strip | split:: :0",
+          "output_type": "number",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": true
+        }
+      ],
+      "verification": {
+        "field_name": "quartos",
+        "filled": 0,
+        "sample_size": 5,
+        "pass_rate": 0.0,
+        "sample_issues": [
+          "sample 0: empty or implausible result",
+          "sample 1: empty or implausible result",
+          "sample 2: empty or implausible result",
+          "sample 3: empty or implausible result",
+          "sample 4: empty or implausible result"
+        ]
+      },
+      "loader_output_type": "optional_float",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-2-quartos-1-suite-2-vagas-vila-baependi-jaragua-do-sul-sc/4633",
+          "value": "",
+          "final": null
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4735",
+          "value": "",
+          "final": null
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-1-quarto-1-vaga-czerniewicz-jaragua-do-sul-sc/4865",
+          "value": "",
+          "final": null
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4938",
+          "value": "",
+          "final": null
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.itaivan.com/imovel/terreno-para-aluguel-centro-jaragua-do-sul-sc/5101",
+          "value": "",
+          "final": null
+        }
+      ]
+    },
+    "suites": {
+      "extractor": {
+        "field_name": "suites",
+        "source_type": "xpath",
+        "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Suíte') or contains(text(),'suite') or contains(text(),'suíte')]/text()",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": "strip | split:: :0",
+        "output_type": "number",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      "extractors": [
+        {
+          "field_name": "suites",
+          "source_type": "xpath",
+          "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Suíte') or contains(text(),'suite') or contains(text(),'suíte')]/text()",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": "strip | split:: :0",
+          "output_type": "number",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": true
+        }
+      ],
+      "verification": {
+        "field_name": "suites",
+        "filled": 0,
+        "sample_size": 5,
+        "pass_rate": 0.0,
+        "sample_issues": [
+          "sample 0: empty or implausible result",
+          "sample 1: empty or implausible result",
+          "sample 2: empty or implausible result",
+          "sample 3: empty or implausible result",
+          "sample 4: empty or implausible result"
+        ]
+      },
+      "loader_output_type": "optional_float",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-2-quartos-1-suite-2-vagas-vila-baependi-jaragua-do-sul-sc/4633",
+          "value": "",
+          "final": null
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4735",
+          "value": "",
+          "final": null
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-1-quarto-1-vaga-czerniewicz-jaragua-do-sul-sc/4865",
+          "value": "",
+          "final": null
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4938",
+          "value": "",
+          "final": null
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.itaivan.com/imovel/terreno-para-aluguel-centro-jaragua-do-sul-sc/5101",
+          "value": "",
+          "final": null
+        }
+      ]
+    },
+    "banheiros": {
+      "extractor": {
+        "field_name": "banheiros",
+        "source_type": "xpath",
+        "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Banheiro') or contains(text(),'banheiro')]/text()",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": "strip | split:: :0",
+        "output_type": "number",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      "extractors": [
+        {
+          "field_name": "banheiros",
+          "source_type": "xpath",
+          "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Banheiro') or contains(text(),'banheiro')]/text()",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": "strip | split:: :0",
+          "output_type": "number",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": true
+        }
+      ],
+      "verification": {
+        "field_name": "banheiros",
+        "filled": 0,
+        "sample_size": 5,
+        "pass_rate": 0.0,
+        "sample_issues": [
+          "sample 0: empty or implausible result",
+          "sample 1: empty or implausible result",
+          "sample 2: empty or implausible result",
+          "sample 3: empty or implausible result",
+          "sample 4: empty or implausible result"
+        ]
+      },
+      "loader_output_type": "optional_float",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-2-quartos-1-suite-2-vagas-vila-baependi-jaragua-do-sul-sc/4633",
+          "value": "",
+          "final": null
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4735",
+          "value": "",
+          "final": null
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-1-quarto-1-vaga-czerniewicz-jaragua-do-sul-sc/4865",
+          "value": "",
+          "final": null
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4938",
+          "value": "",
+          "final": null
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.itaivan.com/imovel/terreno-para-aluguel-centro-jaragua-do-sul-sc/5101",
+          "value": "",
+          "final": null
+        }
+      ]
+    },
+    "vagas": {
+      "extractor": {
+        "field_name": "vagas",
+        "source_type": "xpath",
+        "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Vaga') or contains(text(),'vaga')]/text()",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": "strip | split:: :0",
+        "output_type": "number",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      "extractors": [
+        {
+          "field_name": "vagas",
+          "source_type": "xpath",
+          "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Vaga') or contains(text(),'vaga')]/text()",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": "strip | split:: :0",
+          "output_type": "number",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": true
+        }
+      ],
+      "verification": {
+        "field_name": "vagas",
+        "filled": 0,
+        "sample_size": 5,
+        "pass_rate": 0.0,
+        "sample_issues": [
+          "sample 0: empty or implausible result",
+          "sample 1: empty or implausible result",
+          "sample 2: empty or implausible result",
+          "sample 3: empty or implausible result",
+          "sample 4: empty or implausible result"
+        ]
+      },
+      "loader_output_type": "optional_float",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-2-quartos-1-suite-2-vagas-vila-baependi-jaragua-do-sul-sc/4633",
+          "value": "",
+          "final": null
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4735",
+          "value": "",
+          "final": null
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-1-quarto-1-vaga-czerniewicz-jaragua-do-sul-sc/4865",
+          "value": "",
+          "final": null
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4938",
+          "value": "",
+          "final": null
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.itaivan.com/imovel/terreno-para-aluguel-centro-jaragua-do-sul-sc/5101",
+          "value": "",
+          "final": null
+        }
+      ]
+    },
+    "area": {
+      "extractor": {
+        "field_name": "area",
+        "source_type": "xpath",
+        "selector_value": "//span[contains(text(),'m²')]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": "strip",
+        "output_type": "text",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      "extractors": [
+        {
+          "field_name": "area",
+          "source_type": "xpath",
+          "selector_value": "//span[contains(text(),'m²')]",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": "strip",
+          "output_type": "text",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": true
+        }
+      ],
+      "verification": {
+        "field_name": "area",
+        "filled": 5,
+        "sample_size": 5,
+        "pass_rate": 1.0,
+        "sample_issues": []
+      },
+      "loader_output_type": "optional_float",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-2-quartos-1-suite-2-vagas-vila-baependi-jaragua-do-sul-sc/4633",
+          "value": "<span>85,00 m²</span>",
+          "final": "85.0"
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4735",
+          "value": "<span>200,00 m²</span>",
+          "final": "200.0"
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-1-quarto-1-vaga-czerniewicz-jaragua-do-sul-sc/4865",
+          "value": "<span>39,32 m²</span>",
+          "final": "39.32"
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4938",
+          "value": "<span>30,00 m²</span>",
+          "final": "30.0"
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.itaivan.com/imovel/terreno-para-aluguel-centro-jaragua-do-sul-sc/5101",
+          "value": "<span>514,00 m²</span>",
+          "final": "514.0"
+        }
+      ]
+    },
+    "aceita_permuta": {
+      "extractor": {
+        "field_name": "aceita_permuta",
+        "source_type": "xpath",
+        "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Permuta') or contains(text(),'permuta')]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      "extractors": [
+        {
+          "field_name": "aceita_permuta",
+          "source_type": "xpath",
+          "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Permuta') or contains(text(),'permuta')]",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": null,
+          "output_type": "boolean",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": true
+        }
+      ],
+      "verification": {
+        "field_name": "aceita_permuta",
+        "filled": 0,
+        "sample_size": 5,
+        "pass_rate": 0.0,
+        "sample_issues": [
+          "sample 0: empty or implausible result",
+          "sample 1: empty or implausible result",
+          "sample 2: empty or implausible result",
+          "sample 3: empty or implausible result",
+          "sample 4: empty or implausible result"
+        ]
+      },
+      "loader_output_type": "bool",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-2-quartos-1-suite-2-vagas-vila-baependi-jaragua-do-sul-sc/4633",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4735",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-1-quarto-1-vaga-czerniewicz-jaragua-do-sul-sc/4865",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4938",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.itaivan.com/imovel/terreno-para-aluguel-centro-jaragua-do-sul-sc/5101",
+          "value": "",
+          "final": ""
+        }
+      ]
+    },
+    "financiamento": {
+      "extractor": {
+        "field_name": "financiamento",
+        "source_type": "xpath",
+        "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Financiamento') or contains(text(),'financiamento')]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      "extractors": [
+        {
+          "field_name": "financiamento",
+          "source_type": "xpath",
+          "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Financiamento') or contains(text(),'financiamento')]",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": null,
+          "output_type": "boolean",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": true
+        }
+      ],
+      "verification": {
+        "field_name": "financiamento",
+        "filled": 0,
+        "sample_size": 5,
+        "pass_rate": 0.0,
+        "sample_issues": [
+          "sample 0: empty or implausible result",
+          "sample 1: empty or implausible result",
+          "sample 2: empty or implausible result",
+          "sample 3: empty or implausible result",
+          "sample 4: empty or implausible result"
+        ]
+      },
+      "loader_output_type": "bool",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-2-quartos-1-suite-2-vagas-vila-baependi-jaragua-do-sul-sc/4633",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4735",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-1-quarto-1-vaga-czerniewicz-jaragua-do-sul-sc/4865",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4938",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.itaivan.com/imovel/terreno-para-aluguel-centro-jaragua-do-sul-sc/5101",
+          "value": "",
+          "final": ""
+        }
+      ]
+    },
+    "piscina": {
+      "extractor": {
+        "field_name": "piscina",
+        "source_type": "xpath",
+        "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Piscina') or contains(text(),'piscina')]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      "extractors": [
+        {
+          "field_name": "piscina",
+          "source_type": "xpath",
+          "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Piscina') or contains(text(),'piscina')]",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": null,
+          "output_type": "boolean",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": true
+        }
+      ],
+      "verification": {
+        "field_name": "piscina",
+        "filled": 0,
+        "sample_size": 5,
+        "pass_rate": 0.0,
+        "sample_issues": [
+          "sample 0: empty or implausible result",
+          "sample 1: empty or implausible result",
+          "sample 2: empty or implausible result",
+          "sample 3: empty or implausible result",
+          "sample 4: empty or implausible result"
+        ]
+      },
+      "loader_output_type": "bool",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-2-quartos-1-suite-2-vagas-vila-baependi-jaragua-do-sul-sc/4633",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4735",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-1-quarto-1-vaga-czerniewicz-jaragua-do-sul-sc/4865",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4938",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.itaivan.com/imovel/terreno-para-aluguel-centro-jaragua-do-sul-sc/5101",
+          "value": "",
+          "final": ""
+        }
+      ]
+    },
+    "churrasqueira": {
+      "extractor": {
+        "field_name": "churrasqueira",
+        "source_type": "xpath",
+        "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Churrasqueira') or contains(text(),'churrasqueira')]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      "extractors": [
+        {
+          "field_name": "churrasqueira",
+          "source_type": "xpath",
+          "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Churrasqueira') or contains(text(),'churrasqueira')]",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": null,
+          "output_type": "boolean",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": true
+        }
+      ],
+      "verification": {
+        "field_name": "churrasqueira",
+        "filled": 0,
+        "sample_size": 5,
+        "pass_rate": 0.0,
+        "sample_issues": [
+          "sample 0: empty or implausible result",
+          "sample 1: empty or implausible result",
+          "sample 2: empty or implausible result",
+          "sample 3: empty or implausible result",
+          "sample 4: empty or implausible result"
+        ]
+      },
+      "loader_output_type": "bool",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-2-quartos-1-suite-2-vagas-vila-baependi-jaragua-do-sul-sc/4633",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4735",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-1-quarto-1-vaga-czerniewicz-jaragua-do-sul-sc/4865",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4938",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.itaivan.com/imovel/terreno-para-aluguel-centro-jaragua-do-sul-sc/5101",
+          "value": "",
+          "final": ""
+        }
+      ]
+    },
+    "academia": {
+      "extractor": {
+        "field_name": "academia",
+        "source_type": "xpath",
+        "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Academia') or contains(text(),'academia')]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      "extractors": [
+        {
+          "field_name": "academia",
+          "source_type": "xpath",
+          "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Academia') or contains(text(),'academia')]",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": null,
+          "output_type": "boolean",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": true
+        }
+      ],
+      "verification": {
+        "field_name": "academia",
+        "filled": 0,
+        "sample_size": 5,
+        "pass_rate": 0.0,
+        "sample_issues": [
+          "sample 0: empty or implausible result",
+          "sample 1: empty or implausible result",
+          "sample 2: empty or implausible result",
+          "sample 3: empty or implausible result",
+          "sample 4: empty or implausible result"
+        ]
+      },
+      "loader_output_type": "bool",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-2-quartos-1-suite-2-vagas-vila-baependi-jaragua-do-sul-sc/4633",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4735",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-1-quarto-1-vaga-czerniewicz-jaragua-do-sul-sc/4865",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4938",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.itaivan.com/imovel/terreno-para-aluguel-centro-jaragua-do-sul-sc/5101",
+          "value": "",
+          "final": ""
+        }
+      ]
+    },
+    "salao_festas": {
+      "extractor": {
+        "field_name": "salao_festas",
+        "source_type": "xpath",
+        "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Salão') or contains(text(),'salão') or contains(text(),'salao')]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      "extractors": [
+        {
+          "field_name": "salao_festas",
+          "source_type": "xpath",
+          "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Salão') or contains(text(),'salão') or contains(text(),'salao')]",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": null,
+          "output_type": "boolean",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": true
+        }
+      ],
+      "verification": {
+        "field_name": "salao_festas",
+        "filled": 0,
+        "sample_size": 5,
+        "pass_rate": 0.0,
+        "sample_issues": [
+          "sample 0: empty or implausible result",
+          "sample 1: empty or implausible result",
+          "sample 2: empty or implausible result",
+          "sample 3: empty or implausible result",
+          "sample 4: empty or implausible result"
+        ]
+      },
+      "loader_output_type": "bool",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-2-quartos-1-suite-2-vagas-vila-baependi-jaragua-do-sul-sc/4633",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4735",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-1-quarto-1-vaga-czerniewicz-jaragua-do-sul-sc/4865",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4938",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.itaivan.com/imovel/terreno-para-aluguel-centro-jaragua-do-sul-sc/5101",
+          "value": "",
+          "final": ""
+        }
+      ]
+    },
+    "playground": {
+      "extractor": {
+        "field_name": "playground",
+        "source_type": "xpath",
+        "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Playground') or contains(text(),'playground')]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      "extractors": [
+        {
+          "field_name": "playground",
+          "source_type": "xpath",
+          "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Playground') or contains(text(),'playground')]",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": null,
+          "output_type": "boolean",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": true
+        }
+      ],
+      "verification": {
+        "field_name": "playground",
+        "filled": 0,
+        "sample_size": 5,
+        "pass_rate": 0.0,
+        "sample_issues": [
+          "sample 0: empty or implausible result",
+          "sample 1: empty or implausible result",
+          "sample 2: empty or implausible result",
+          "sample 3: empty or implausible result",
+          "sample 4: empty or implausible result"
+        ]
+      },
+      "loader_output_type": "bool",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-2-quartos-1-suite-2-vagas-vila-baependi-jaragua-do-sul-sc/4633",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4735",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-1-quarto-1-vaga-czerniewicz-jaragua-do-sul-sc/4865",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4938",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.itaivan.com/imovel/terreno-para-aluguel-centro-jaragua-do-sul-sc/5101",
+          "value": "",
+          "final": ""
+        }
+      ]
+    },
+    "sacada": {
+      "extractor": {
+        "field_name": "sacada",
+        "source_type": "xpath",
+        "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Sacada') or contains(text(),'sacada')]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      "extractors": [
+        {
+          "field_name": "sacada",
+          "source_type": "xpath",
+          "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Sacada') or contains(text(),'sacada')]",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": null,
+          "output_type": "boolean",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": true
+        }
+      ],
+      "verification": {
+        "field_name": "sacada",
+        "filled": 0,
+        "sample_size": 5,
+        "pass_rate": 0.0,
+        "sample_issues": [
+          "sample 0: empty or implausible result",
+          "sample 1: empty or implausible result",
+          "sample 2: empty or implausible result",
+          "sample 3: empty or implausible result",
+          "sample 4: empty or implausible result"
+        ]
+      },
+      "loader_output_type": "bool",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-2-quartos-1-suite-2-vagas-vila-baependi-jaragua-do-sul-sc/4633",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4735",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-1-quarto-1-vaga-czerniewicz-jaragua-do-sul-sc/4865",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4938",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.itaivan.com/imovel/terreno-para-aluguel-centro-jaragua-do-sul-sc/5101",
+          "value": "",
+          "final": ""
+        }
+      ]
+    },
+    "mobiliado": {
+      "extractor": {
+        "field_name": "mobiliado",
+        "source_type": "xpath",
+        "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Mobiliado') or contains(text(),'mobiliado')]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      "extractors": [
+        {
+          "field_name": "mobiliado",
+          "source_type": "xpath",
+          "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Mobiliado') or contains(text(),'mobiliado')]",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": null,
+          "output_type": "boolean",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": true
+        }
+      ],
+      "verification": {
+        "field_name": "mobiliado",
+        "filled": 0,
+        "sample_size": 5,
+        "pass_rate": 0.0,
+        "sample_issues": [
+          "sample 0: empty or implausible result",
+          "sample 1: empty or implausible result",
+          "sample 2: empty or implausible result",
+          "sample 3: empty or implausible result",
+          "sample 4: empty or implausible result"
+        ]
+      },
+      "loader_output_type": "bool",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-2-quartos-1-suite-2-vagas-vila-baependi-jaragua-do-sul-sc/4633",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4735",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-1-quarto-1-vaga-czerniewicz-jaragua-do-sul-sc/4865",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4938",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.itaivan.com/imovel/terreno-para-aluguel-centro-jaragua-do-sul-sc/5101",
+          "value": "",
+          "final": ""
+        }
+      ]
+    },
+    "ar_condicionado": {
+      "extractor": {
+        "field_name": "ar_condicionado",
+        "source_type": "xpath",
+        "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Ar Condicionado') or contains(text(),'ar condicionado') or contains(text(),'Ar-condicionado')]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      "extractors": [
+        {
+          "field_name": "ar_condicionado",
+          "source_type": "xpath",
+          "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Ar Condicionado') or contains(text(),'ar condicionado') or contains(text(),'Ar-condicionado')]",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": null,
+          "output_type": "boolean",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": true
+        }
+      ],
+      "verification": {
+        "field_name": "ar_condicionado",
+        "filled": 0,
+        "sample_size": 5,
+        "pass_rate": 0.0,
+        "sample_issues": [
+          "sample 0: empty or implausible result",
+          "sample 1: empty or implausible result",
+          "sample 2: empty or implausible result",
+          "sample 3: empty or implausible result",
+          "sample 4: empty or implausible result"
+        ]
+      },
+      "loader_output_type": "bool",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-2-quartos-1-suite-2-vagas-vila-baependi-jaragua-do-sul-sc/4633",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4735",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-1-quarto-1-vaga-czerniewicz-jaragua-do-sul-sc/4865",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4938",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.itaivan.com/imovel/terreno-para-aluguel-centro-jaragua-do-sul-sc/5101",
+          "value": "",
+          "final": ""
+        }
+      ]
+    },
+    "lavanderia": {
+      "extractor": {
+        "field_name": "lavanderia",
+        "source_type": "xpath",
+        "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Lavanderia') or contains(text(),'lavanderia')]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      "extractors": [
+        {
+          "field_name": "lavanderia",
+          "source_type": "xpath",
+          "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Lavanderia') or contains(text(),'lavanderia')]",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": null,
+          "output_type": "boolean",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": true
+        }
+      ],
+      "verification": {
+        "field_name": "lavanderia",
+        "filled": 0,
+        "sample_size": 5,
+        "pass_rate": 0.0,
+        "sample_issues": [
+          "sample 0: empty or implausible result",
+          "sample 1: empty or implausible result",
+          "sample 2: empty or implausible result",
+          "sample 3: empty or implausible result",
+          "sample 4: empty or implausible result"
+        ]
+      },
+      "loader_output_type": "bool",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-2-quartos-1-suite-2-vagas-vila-baependi-jaragua-do-sul-sc/4633",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4735",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-1-quarto-1-vaga-czerniewicz-jaragua-do-sul-sc/4865",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4938",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.itaivan.com/imovel/terreno-para-aluguel-centro-jaragua-do-sul-sc/5101",
+          "value": "",
+          "final": ""
+        }
+      ]
+    },
+    "escritorio": {
+      "extractor": {
+        "field_name": "escritorio",
+        "source_type": "xpath",
+        "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Escritório') or contains(text(),'escritório') or contains(text(),'escritorio')]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      "extractors": [
+        {
+          "field_name": "escritorio",
+          "source_type": "xpath",
+          "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Escritório') or contains(text(),'escritório') or contains(text(),'escritorio')]",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": null,
+          "output_type": "boolean",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": true
+        }
+      ],
+      "verification": {
+        "field_name": "escritorio",
+        "filled": 0,
+        "sample_size": 5,
+        "pass_rate": 0.0,
+        "sample_issues": [
+          "sample 0: empty or implausible result",
+          "sample 1: empty or implausible result",
+          "sample 2: empty or implausible result",
+          "sample 3: empty or implausible result",
+          "sample 4: empty or implausible result"
+        ]
+      },
+      "loader_output_type": "bool",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-2-quartos-1-suite-2-vagas-vila-baependi-jaragua-do-sul-sc/4633",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4735",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-1-quarto-1-vaga-czerniewicz-jaragua-do-sul-sc/4865",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4938",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.itaivan.com/imovel/terreno-para-aluguel-centro-jaragua-do-sul-sc/5101",
+          "value": "",
+          "final": ""
+        }
+      ]
+    },
+    "closet": {
+      "extractor": {
+        "field_name": "closet",
+        "source_type": "xpath",
+        "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Closet') or contains(text(),'closet')]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      "extractors": [
+        {
+          "field_name": "closet",
+          "source_type": "xpath",
+          "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Closet') or contains(text(),'closet')]",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": null,
+          "output_type": "boolean",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": true
+        }
+      ],
+      "verification": {
+        "field_name": "closet",
+        "filled": 0,
+        "sample_size": 5,
+        "pass_rate": 0.0,
+        "sample_issues": [
+          "sample 0: empty or implausible result",
+          "sample 1: empty or implausible result",
+          "sample 2: empty or implausible result",
+          "sample 3: empty or implausible result",
+          "sample 4: empty or implausible result"
+        ]
+      },
+      "loader_output_type": "bool",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-2-quartos-1-suite-2-vagas-vila-baependi-jaragua-do-sul-sc/4633",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4735",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-1-quarto-1-vaga-czerniewicz-jaragua-do-sul-sc/4865",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4938",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.itaivan.com/imovel/terreno-para-aluguel-centro-jaragua-do-sul-sc/5101",
+          "value": "",
+          "final": ""
+        }
+      ]
+    },
+    "elevador": {
+      "extractor": {
+        "field_name": "elevador",
+        "source_type": "xpath",
+        "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Elevador') or contains(text(),'elevador')]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      "extractors": [
+        {
+          "field_name": "elevador",
+          "source_type": "xpath",
+          "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Elevador') or contains(text(),'elevador')]",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": null,
+          "output_type": "boolean",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": true
+        }
+      ],
+      "verification": {
+        "field_name": "elevador",
+        "filled": 0,
+        "sample_size": 5,
+        "pass_rate": 0.0,
+        "sample_issues": [
+          "sample 0: empty or implausible result",
+          "sample 1: empty or implausible result",
+          "sample 2: empty or implausible result",
+          "sample 3: empty or implausible result",
+          "sample 4: empty or implausible result"
+        ]
+      },
+      "loader_output_type": "bool",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-2-quartos-1-suite-2-vagas-vila-baependi-jaragua-do-sul-sc/4633",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4735",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-1-quarto-1-vaga-czerniewicz-jaragua-do-sul-sc/4865",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4938",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.itaivan.com/imovel/terreno-para-aluguel-centro-jaragua-do-sul-sc/5101",
+          "value": "",
+          "final": ""
+        }
+      ]
+    },
+    "portaria_24h": {
+      "extractor": {
+        "field_name": "portaria_24h",
+        "source_type": "xpath",
+        "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Portaria') or contains(text(),'portaria')]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      "extractors": [
+        {
+          "field_name": "portaria_24h",
+          "source_type": "xpath",
+          "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Portaria') or contains(text(),'portaria')]",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": null,
+          "output_type": "boolean",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": true
+        }
+      ],
+      "verification": {
+        "field_name": "portaria_24h",
+        "filled": 0,
+        "sample_size": 5,
+        "pass_rate": 0.0,
+        "sample_issues": [
+          "sample 0: empty or implausible result",
+          "sample 1: empty or implausible result",
+          "sample 2: empty or implausible result",
+          "sample 3: empty or implausible result",
+          "sample 4: empty or implausible result"
+        ]
+      },
+      "loader_output_type": "bool",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-2-quartos-1-suite-2-vagas-vila-baependi-jaragua-do-sul-sc/4633",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4735",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-1-quarto-1-vaga-czerniewicz-jaragua-do-sul-sc/4865",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4938",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.itaivan.com/imovel/terreno-para-aluguel-centro-jaragua-do-sul-sc/5101",
+          "value": "",
+          "final": ""
+        }
+      ]
+    },
+    "andar": {
+      "extractor": {
+        "field_name": "andar",
+        "source_type": "xpath",
+        "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Andar') or contains(text(),'andar')]/text()",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": "strip | split:: :0",
+        "output_type": "text",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      "extractors": [
+        {
+          "field_name": "andar",
+          "source_type": "xpath",
+          "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Andar') or contains(text(),'andar')]/text()",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": "strip | split:: :0",
+          "output_type": "text",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": true
+        }
+      ],
+      "verification": {
+        "field_name": "andar",
+        "filled": 0,
+        "sample_size": 5,
+        "pass_rate": 0.0,
+        "sample_issues": [
+          "sample 0: empty or implausible result",
+          "sample 1: empty or implausible result",
+          "sample 2: empty or implausible result",
+          "sample 3: empty or implausible result",
+          "sample 4: empty or implausible result"
+        ]
+      },
+      "loader_output_type": "optional_float",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-2-quartos-1-suite-2-vagas-vila-baependi-jaragua-do-sul-sc/4633",
+          "value": "",
+          "final": null
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4735",
+          "value": "",
+          "final": null
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-1-quarto-1-vaga-czerniewicz-jaragua-do-sul-sc/4865",
+          "value": "",
+          "final": null
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4938",
+          "value": "",
+          "final": null
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.itaivan.com/imovel/terreno-para-aluguel-centro-jaragua-do-sul-sc/5101",
+          "value": "",
+          "final": null
+        }
+      ]
+    },
+    "posicao_solar": {
+      "extractor": {
+        "field_name": "posicao_solar",
+        "source_type": "xpath",
+        "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Posição') or contains(text(),'posição') or contains(text(),'posicao') or contains(text(),'Solar') or contains(text(),'solar')]/text()",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": "strip | split:: :0",
+        "output_type": "text",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      "extractors": [
+        {
+          "field_name": "posicao_solar",
+          "source_type": "xpath",
+          "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Posição') or contains(text(),'posição') or contains(text(),'posicao') or contains(text(),'Solar') or contains(text(),'solar')]/text()",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": "strip | split:: :0",
+          "output_type": "text",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": true
+        }
+      ],
+      "verification": {
+        "field_name": "posicao_solar",
+        "filled": 0,
+        "sample_size": 5,
+        "pass_rate": 0.0,
+        "sample_issues": [
+          "sample 0: empty or implausible result",
+          "sample 1: empty or implausible result",
+          "sample 2: empty or implausible result",
+          "sample 3: empty or implausible result",
+          "sample 4: empty or implausible result"
+        ]
+      },
+      "loader_output_type": "text",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-2-quartos-1-suite-2-vagas-vila-baependi-jaragua-do-sul-sc/4633",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4735",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-1-quarto-1-vaga-czerniewicz-jaragua-do-sul-sc/4865",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4938",
+          "value": "",
+          "final": ""
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.itaivan.com/imovel/terreno-para-aluguel-centro-jaragua-do-sul-sc/5101",
+          "value": "",
+          "final": ""
+        }
+      ]
+    },
+    "ano_construcao": {
+      "extractor": {
+        "field_name": "ano_construcao",
+        "source_type": "xpath",
+        "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Ano') or contains(text(),'ano')]/text()",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": "strip | split:: :0",
+        "output_type": "text",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      "extractors": [
+        {
+          "field_name": "ano_construcao",
+          "source_type": "xpath",
+          "selector_value": "//div[contains(@class,'icon_detalhes')][contains(text(),'Ano') or contains(text(),'ano')]/text()",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": "strip | split:: :0",
+          "output_type": "text",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": true
+        }
+      ],
+      "verification": {
+        "field_name": "ano_construcao",
+        "filled": 0,
+        "sample_size": 5,
+        "pass_rate": 0.0,
+        "sample_issues": [
+          "sample 0: empty or implausible result",
+          "sample 1: empty or implausible result",
+          "sample 2: empty or implausible result",
+          "sample 3: empty or implausible result",
+          "sample 4: empty or implausible result"
+        ]
+      },
+      "loader_output_type": "optional_float",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-2-quartos-1-suite-2-vagas-vila-baependi-jaragua-do-sul-sc/4633",
+          "value": "",
+          "final": null
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4735",
+          "value": "",
+          "final": null
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.itaivan.com/imovel/apartamento-para-aluguel-1-quarto-1-vaga-czerniewicz-jaragua-do-sul-sc/4865",
+          "value": "",
+          "final": null
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4938",
+          "value": "",
+          "final": null
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.itaivan.com/imovel/terreno-para-aluguel-centro-jaragua-do-sul-sc/5101",
+          "value": "",
+          "final": null
+        }
+      ]
+    }
+  },
+  "artifacts": {
+    "result_json": "result.json",
+    "report_html": "report.html",
+    "prompt_system": "prompt-system.txt",
+    "prompt_user": "prompt-user.txt"
+  }
+}

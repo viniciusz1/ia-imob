@@ -46,6 +46,8 @@ Use PHP 8.2+ and Laravel conventions in the backend: PSR-4 classes, singular Elo
 
 Use TypeScript and React conventions in the frontend: PascalCase components, camelCase hooks/services, and `use*` hook names. Prefer the `@/` alias for imports from `src`. Shared primitives belong in `src/components/ui`; domain workflows belong in `src/components/features`.
 
+Never use the TypeScript `any` type in frontend code, including tests, mocks, API clients, component props, and form handlers. Prefer precise domain types, generated/inferred schema types, generics, `unknown` with narrowing, or small local interfaces for test doubles and external payloads.
+
 ## Testing Guidelines
 
 Backend tests use PHPUnit through Laravel: place API and workflow tests in `tests/Feature`, isolated logic tests in `tests/Unit`, and run `composer test`.

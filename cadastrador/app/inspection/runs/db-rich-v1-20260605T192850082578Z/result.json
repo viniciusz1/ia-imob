@@ -1,0 +1,3025 @@
+{
+  "run": {
+    "created_at": "2026-06-05T19:29:15.255375+00:00",
+    "run_dir": "/home/zonemax/apps/ia-imob/cadastrador/app/inspection/runs/db-rich-v1-20260605T192850082578Z"
+  },
+  "package": {
+    "key": "db-rich",
+    "version": "v1",
+    "agency": "Conexao Imoveis",
+    "execution_model": "sitemap",
+    "start_url": "https://www.imobiliariaconexaoimoveis.com.br/",
+    "root": "/home/zonemax/apps/ia-imob/cadastrador/app/inspection/packages/db-rich/v1",
+    "samples": [
+      {
+        "path": "samples/01.html",
+        "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-lalau/327"
+      },
+      {
+        "path": "samples/02.html",
+        "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-nova/350"
+      },
+      {
+        "path": "samples/03.html",
+        "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-amizade/365"
+      },
+      {
+        "path": "samples/04.html",
+        "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-chico-de-paula/362"
+      },
+      {
+        "path": "samples/05.html",
+        "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-barra-do-rio-cerro/254"
+      }
+    ]
+  },
+  "proposal": {
+    "strategy": "sitemap",
+    "name": "Conexão Imóveis - Detalhe do Imóvel",
+    "extractors": [
+      {
+        "field_name": "tipo",
+        "source_type": "og",
+        "selector_value": "title",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": "split:,:0 | split: para :0 | strip",
+        "output_type": "text",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": false
+      },
+      {
+        "field_name": "valor",
+        "source_type": "xpath",
+        "selector_value": "//p[@class='preco-imovel-mobile']",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": "strip | clean_text",
+        "output_type": "text",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": false
+      },
+      {
+        "field_name": "bairro",
+        "source_type": "xpath",
+        "selector_value": "//h1",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": "regex:no bairro\\s+([^\\n]+?)(?:/|$)",
+        "output_type": "text",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": false
+      },
+      {
+        "field_name": "cidade",
+        "source_type": "xpath",
+        "selector_value": "//h1",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": "regex:em\\s+([^/]+?)\\s*/\\s*SC",
+        "output_type": "text",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": false
+      },
+      {
+        "field_name": "link_imovel",
+        "source_type": "og",
+        "selector_value": "url",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "link_url",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": false
+      },
+      {
+        "field_name": "imagem",
+        "source_type": "og",
+        "selector_value": "image",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "image_url",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      {
+        "field_name": "descricao",
+        "source_type": "og",
+        "selector_value": "description",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "text",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      {
+        "field_name": "quartos",
+        "source_type": "xpath",
+        "selector_value": "//div[contains(@class,'d-flex')][.//p[contains(normalize-space(.),'quarto')]]/p[1]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "number",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      {
+        "field_name": "suites",
+        "source_type": "xpath",
+        "selector_value": "//div[contains(@class,'d-flex')][.//p[contains(normalize-space(.),'Suíte')]]/p[1]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "number",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      {
+        "field_name": "banheiros",
+        "source_type": "xpath",
+        "selector_value": "//div[contains(@class,'d-flex')][.//p[contains(normalize-space(.),'banheiro')]]/p[1]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "number",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      {
+        "field_name": "vagas",
+        "source_type": "xpath",
+        "selector_value": "//div[contains(@class,'d-flex')][.//p[contains(normalize-space(.),'Vaga')]]/p[1]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "number",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      {
+        "field_name": "area",
+        "source_type": "xpath",
+        "selector_value": "//p[contains(normalize-space(.),'m²')][1]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": "strip | clean_text",
+        "output_type": "text",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      {
+        "field_name": "aceita_permuta",
+        "source_type": "xpath",
+        "selector_value": "//p[contains(normalize-space(.),'Permuta')]/following-sibling::p[1]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      {
+        "field_name": "financiamento",
+        "source_type": "xpath",
+        "selector_value": "//p[contains(normalize-space(.),'Financiamento')]/following-sibling::p[1]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      {
+        "field_name": "piscina",
+        "source_type": "xpath",
+        "selector_value": "//p[contains(normalize-space(.),'Piscina')]/following-sibling::p[1]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      {
+        "field_name": "churrasqueira",
+        "source_type": "xpath",
+        "selector_value": "//p[contains(normalize-space(.),'Churrasqueira')]/following-sibling::p[1]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      {
+        "field_name": "academia",
+        "source_type": "xpath",
+        "selector_value": "//p[contains(normalize-space(.),'Academia')]/following-sibling::p[1]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      {
+        "field_name": "salao_festas",
+        "source_type": "xpath",
+        "selector_value": "//p[contains(normalize-space(.),'Salão de Festas')]/following-sibling::p[1]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      {
+        "field_name": "playground",
+        "source_type": "xpath",
+        "selector_value": "//p[contains(normalize-space(.),'Playground')]/following-sibling::p[1]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      {
+        "field_name": "sacada",
+        "source_type": "xpath",
+        "selector_value": "//p[contains(normalize-space(.),'Sacada')]/following-sibling::p[1]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      {
+        "field_name": "mobiliado",
+        "source_type": "xpath",
+        "selector_value": "//p[contains(normalize-space(.),'Mobiliado')]/following-sibling::p[1]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      {
+        "field_name": "ar_condicionado",
+        "source_type": "xpath",
+        "selector_value": "//p[contains(normalize-space(.),'Ar Condicionado')]/following-sibling::p[1]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      {
+        "field_name": "lavanderia",
+        "source_type": "xpath",
+        "selector_value": "//p[contains(normalize-space(.),'Lavanderia')]/following-sibling::p[1]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      {
+        "field_name": "escritorio",
+        "source_type": "xpath",
+        "selector_value": "//p[contains(normalize-space(.),'Escritório')]/following-sibling::p[1]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      {
+        "field_name": "closet",
+        "source_type": "xpath",
+        "selector_value": "//p[contains(normalize-space(.),'Closet')]/following-sibling::p[1]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      {
+        "field_name": "elevador",
+        "source_type": "xpath",
+        "selector_value": "//p[contains(normalize-space(.),'Elevador')]/following-sibling::p[1]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      {
+        "field_name": "portaria_24h",
+        "source_type": "xpath",
+        "selector_value": "//p[contains(normalize-space(.),'Portaria')]/following-sibling::p[1]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      {
+        "field_name": "andar",
+        "source_type": "xpath",
+        "selector_value": "//div[contains(@class,'d-flex')][.//p[contains(normalize-space(.),'Andar')]]/p[1]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "number",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      {
+        "field_name": "posicao_solar",
+        "source_type": "xpath",
+        "selector_value": "//p[contains(normalize-space(.),'Posição Solar')]/following-sibling::p[1]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "text",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      {
+        "field_name": "ano_construcao",
+        "source_type": "xpath",
+        "selector_value": "//p[contains(normalize-space(.),'Ano de Construção')]/following-sibling::p[1]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "number",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      }
+    ],
+    "sitemap_url": "https://www.imobiliariaconexaoimoveis.com.br/sitemap.xml",
+    "allowed_url_patterns": [
+      "/imovel/"
+    ],
+    "url": null,
+    "url_pagination_template": null,
+    "total_pages_selector_type": null,
+    "total_pages_selector_value": null,
+    "total_pages_formula": null,
+    "cards_to_iterate_selector_type": null,
+    "cards_to_iterate_selector_value": null
+  },
+  "fields": {
+    "tipo": {
+      "extractor": {
+        "field_name": "tipo",
+        "source_type": "og",
+        "selector_value": "title",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": "split:,:0 | split: para :0 | strip",
+        "output_type": "text",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": false
+      },
+      "extractors": [
+        {
+          "field_name": "tipo",
+          "source_type": "og",
+          "selector_value": "title",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": "split:,:0 | split: para :0 | strip",
+          "output_type": "text",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": false
+        }
+      ],
+      "verification": {
+        "field_name": "tipo",
+        "filled": 5,
+        "sample_size": 5,
+        "pass_rate": 1.0,
+        "sample_issues": []
+      },
+      "loader_output_type": "tipo",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-lalau/327",
+          "value": "Casa",
+          "final": "Casa",
+          "expected": "Casa",
+          "matches_expected": true
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-nova/350",
+          "value": "Casa Alto Padrão",
+          "final": "Casa",
+          "expected": "Casa",
+          "matches_expected": true
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-amizade/365",
+          "value": "Casa Alto Padrão",
+          "final": "Casa",
+          "expected": "Casa",
+          "matches_expected": true
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-chico-de-paula/362",
+          "value": "Casa",
+          "final": "Casa",
+          "expected": "Casa",
+          "matches_expected": true
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-barra-do-rio-cerro/254",
+          "value": "Casa",
+          "final": "Casa",
+          "expected": "Casa",
+          "matches_expected": true
+        }
+      ],
+      "expected": {
+        "matched": 5,
+        "sample_size": 5,
+        "match_rate": 1.0
+      }
+    },
+    "valor": {
+      "extractor": {
+        "field_name": "valor",
+        "source_type": "xpath",
+        "selector_value": "//p[@class='preco-imovel-mobile']",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": "strip | clean_text",
+        "output_type": "text",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": false
+      },
+      "extractors": [
+        {
+          "field_name": "valor",
+          "source_type": "xpath",
+          "selector_value": "//p[@class='preco-imovel-mobile']",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": "strip | clean_text",
+          "output_type": "text",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": false
+        }
+      ],
+      "verification": {
+        "field_name": "valor",
+        "filled": 5,
+        "sample_size": 5,
+        "pass_rate": 1.0,
+        "sample_issues": []
+      },
+      "loader_output_type": "float",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-lalau/327",
+          "value": "<p class=\"preco-imovel-mobile\"> R$ 1.805.000,00 </p>",
+          "final": "1805000.0",
+          "expected": "1805000.00",
+          "matches_expected": true
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-nova/350",
+          "value": "<p class=\"preco-imovel-mobile\"> R$ 1.500.000,00 </p>",
+          "final": "1500000.0",
+          "expected": "1500000.00",
+          "matches_expected": true
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-amizade/365",
+          "value": "<p class=\"preco-imovel-mobile\"> R$ 1.270.000,00 </p>",
+          "final": "1270000.0",
+          "expected": "1270000.00",
+          "matches_expected": true
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-chico-de-paula/362",
+          "value": "<p class=\"preco-imovel-mobile\"> R$ 1.200.000,00 </p>",
+          "final": "1200000.0",
+          "expected": "1200000.00",
+          "matches_expected": true
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-barra-do-rio-cerro/254",
+          "value": "<p class=\"preco-imovel-mobile\"> R$ 1.100.000,00 </p>",
+          "final": "1100000.0",
+          "expected": "1100000.00",
+          "matches_expected": true
+        }
+      ],
+      "expected": {
+        "matched": 5,
+        "sample_size": 5,
+        "match_rate": 1.0
+      }
+    },
+    "bairro": {
+      "extractor": {
+        "field_name": "bairro",
+        "source_type": "xpath",
+        "selector_value": "//h1",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": "regex:no bairro\\s+([^\\n]+?)(?:/|$)",
+        "output_type": "text",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": false
+      },
+      "extractors": [
+        {
+          "field_name": "bairro",
+          "source_type": "xpath",
+          "selector_value": "//h1",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": "regex:no bairro\\s+([^\\n]+?)(?:/|$)",
+          "output_type": "text",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": false
+        }
+      ],
+      "verification": {
+        "field_name": "bairro",
+        "filled": 0,
+        "sample_size": 5,
+        "pass_rate": 0.0,
+        "sample_issues": [
+          "sample 0: PatternError: missing ), unterminated subpattern at position 21",
+          "sample 1: PatternError: missing ), unterminated subpattern at position 21",
+          "sample 2: PatternError: missing ), unterminated subpattern at position 21",
+          "sample 3: PatternError: missing ), unterminated subpattern at position 21",
+          "sample 4: PatternError: missing ), unterminated subpattern at position 21"
+        ]
+      },
+      "loader_output_type": "text",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-lalau/327",
+          "value": null,
+          "final": null,
+          "expected": "vila lalau",
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-nova/350",
+          "value": null,
+          "final": null,
+          "expected": "vila nova",
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-amizade/365",
+          "value": null,
+          "final": null,
+          "expected": "amizade",
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-chico-de-paula/362",
+          "value": null,
+          "final": null,
+          "expected": "chico de paula",
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-barra-do-rio-cerro/254",
+          "value": null,
+          "final": null,
+          "expected": "barra do rio cerro",
+          "matches_expected": false
+        }
+      ],
+      "expected": {
+        "matched": 0,
+        "sample_size": 5,
+        "match_rate": 0.0
+      }
+    },
+    "cidade": {
+      "extractor": {
+        "field_name": "cidade",
+        "source_type": "xpath",
+        "selector_value": "//h1",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": "regex:em\\s+([^/]+?)\\s*/\\s*SC",
+        "output_type": "text",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": false
+      },
+      "extractors": [
+        {
+          "field_name": "cidade",
+          "source_type": "xpath",
+          "selector_value": "//h1",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": "regex:em\\s+([^/]+?)\\s*/\\s*SC",
+          "output_type": "text",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": false
+        }
+      ],
+      "verification": {
+        "field_name": "cidade",
+        "filled": 5,
+        "sample_size": 5,
+        "pass_rate": 1.0,
+        "sample_issues": []
+      },
+      "loader_output_type": "text",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-lalau/327",
+          "value": "em Jaraguá do Sul / SC",
+          "final": "em jaragua do sul sc",
+          "expected": "jaragua do sul",
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-nova/350",
+          "value": "em Jaraguá do Sul / SC",
+          "final": "em jaragua do sul sc",
+          "expected": "jaragua do sul",
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-amizade/365",
+          "value": "em Jaraguá do Sul / SC",
+          "final": "em jaragua do sul sc",
+          "expected": "jaragua do sul",
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-chico-de-paula/362",
+          "value": "em Jaraguá do Sul / SC",
+          "final": "em jaragua do sul sc",
+          "expected": "jaragua do sul",
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-barra-do-rio-cerro/254",
+          "value": "em Jaraguá do Sul / SC",
+          "final": "em jaragua do sul sc",
+          "expected": "jaragua do sul",
+          "matches_expected": false
+        }
+      ],
+      "expected": {
+        "matched": 0,
+        "sample_size": 5,
+        "match_rate": 0.0
+      }
+    },
+    "link_imovel": {
+      "extractor": {
+        "field_name": "link_imovel",
+        "source_type": "og",
+        "selector_value": "url",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "link_url",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": false
+      },
+      "extractors": [
+        {
+          "field_name": "link_imovel",
+          "source_type": "og",
+          "selector_value": "url",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": null,
+          "output_type": "link_url",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": false
+        }
+      ],
+      "verification": {
+        "field_name": "link_imovel",
+        "filled": 5,
+        "sample_size": 5,
+        "pass_rate": 1.0,
+        "sample_issues": []
+      },
+      "loader_output_type": "url",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-lalau/327",
+          "value": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-lalau/327",
+          "final": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-lalau/327",
+          "expected": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-lalau/327",
+          "matches_expected": true
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-nova/350",
+          "value": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-nova/350",
+          "final": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-nova/350",
+          "expected": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-nova/350",
+          "matches_expected": true
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-amizade/365",
+          "value": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-amizade/365",
+          "final": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-amizade/365",
+          "expected": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-amizade/365",
+          "matches_expected": true
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-chico-de-paula/362",
+          "value": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-chico-de-paula/362",
+          "final": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-chico-de-paula/362",
+          "expected": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-chico-de-paula/362",
+          "matches_expected": true
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-barra-do-rio-cerro/254",
+          "value": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-barra-do-rio-cerro/254",
+          "final": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-barra-do-rio-cerro/254",
+          "expected": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-barra-do-rio-cerro/254",
+          "matches_expected": true
+        }
+      ],
+      "expected": {
+        "matched": 5,
+        "sample_size": 5,
+        "match_rate": 1.0
+      }
+    },
+    "imagem": {
+      "extractor": {
+        "field_name": "imagem",
+        "source_type": "og",
+        "selector_value": "image",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "image_url",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      "extractors": [
+        {
+          "field_name": "imagem",
+          "source_type": "og",
+          "selector_value": "image",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": null,
+          "output_type": "image_url",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": true
+        }
+      ],
+      "verification": {
+        "field_name": "imagem",
+        "filled": 5,
+        "sample_size": 5,
+        "pass_rate": 1.0,
+        "sample_issues": []
+      },
+      "loader_output_type": "url",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-lalau/327",
+          "value": "https://cdn.imoview.com.br/conexaocorretora/Imoveis/327/202511211428291673.jpg?1769461923",
+          "final": "https://cdn.imoview.com.br/conexaocorretora/Imoveis/327/202511211428291673.jpg?1769461923",
+          "expected": "https://cdn.imoview.com.br/conexaocorretora/Imoveis/327/202511211428291673.jpg?1769461923",
+          "matches_expected": true
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-nova/350",
+          "value": "https://cdn.imoview.com.br/conexaocorretora/Imoveis/350/202512100930303580.jpeg?1769462295",
+          "final": "https://cdn.imoview.com.br/conexaocorretora/Imoveis/350/202512100930303580.jpeg?1769462295",
+          "expected": "https://cdn.imoview.com.br/conexaocorretora/Imoveis/350/202512100930303580.jpeg?1769462295",
+          "matches_expected": true
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-amizade/365",
+          "value": "https://cdn.imoview.com.br/conexaocorretora/Imoveis/365/202512180847554449.jpeg?1769462511",
+          "final": "https://cdn.imoview.com.br/conexaocorretora/Imoveis/365/202512180847554449.jpeg?1769462511",
+          "expected": "https://cdn.imoview.com.br/conexaocorretora/Imoveis/365/202512180847554449.jpeg?1769462511",
+          "matches_expected": true
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-chico-de-paula/362",
+          "value": "https://cdn.imoview.com.br/conexaocorretora/Imoveis/362/202512181638124603.jpeg?1769462451",
+          "final": "https://cdn.imoview.com.br/conexaocorretora/Imoveis/362/202512181638124603.jpeg?1769462451",
+          "expected": "https://cdn.imoview.com.br/conexaocorretora/Imoveis/362/202512181638124603.jpeg?1769462451",
+          "matches_expected": true
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-barra-do-rio-cerro/254",
+          "value": "https://cdn.imoview.com.br/conexaocorretora/Imoveis/254/202510302151313180.jpeg?1769460917",
+          "final": "https://cdn.imoview.com.br/conexaocorretora/Imoveis/254/202510302151313180.jpeg?1769460917",
+          "expected": "https://cdn.imoview.com.br/conexaocorretora/Imoveis/254/202510302151313180.jpeg?1769460917",
+          "matches_expected": true
+        }
+      ],
+      "expected": {
+        "matched": 5,
+        "sample_size": 5,
+        "match_rate": 1.0
+      }
+    },
+    "descricao": {
+      "extractor": {
+        "field_name": "descricao",
+        "source_type": "og",
+        "selector_value": "description",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "text",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      "extractors": [
+        {
+          "field_name": "descricao",
+          "source_type": "og",
+          "selector_value": "description",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": null,
+          "output_type": "text",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": true
+        }
+      ],
+      "verification": {
+        "field_name": "descricao",
+        "filled": 5,
+        "sample_size": 5,
+        "pass_rate": 1.0,
+        "sample_issues": []
+      },
+      "loader_output_type": "text",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-lalau/327",
+          "value": "Casa Alto Padrão à Venda  Bairro Vila Lalau, Jaraguá do Sul\n  \n  Descubra o conforto e a elegância desta belíssima residência com 295,98 m de área tot...",
+          "final": "casa alto padrao a venda bairro vila lalau jaragua do sul descubra o conforto e a elegancia desta belissima residencia com m de area tot",
+          "expected": "casa alto padrao a venda bairro vila lalau jaragua do sul descubra o conforto e a elegancia desta belissima residencia com m de area total projetada para oferecer praticidade bemestar e momentos inesqueciveis em familia caracteristicas do imovel andar superior suite ampla com sacada dormitorios banheiro sala de estar aconchegante e bem iluminada terreo cozinha planejada funcional e moderna com excelente aproveitamento de espaco lavanderia escritorio ideal para home office quarto banheiro vagas de garagem cobertas area externa completa espaco gourmet com churrasqueira perfeito para confraternizacoes banheiro piscina oferecendo lazer e diversao nos dias mais quentes localizada em um dos bairros mais valorizados de jaragua do sul esta casa oferece qualidade de vida seguranca e facil acesso a comercios escolas e servicos proximidades bares e restaurantes escola farmacia supermercado agora so faltam os seus dados para receber a confirmacao da visita saiba mais sobre este imovel",
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-nova/350",
+          "value": "Linda casa clássica à venda no Vila Nova  Jaraguá do Sul\n  \n  Charmosa, elegante e em localização estratégica! Esta residência oferece o equilíbrio ...",
+          "final": "linda casa classica a venda no vila nova jaragua do sul charmosa elegante e em localizacao estrategica esta residencia oferece o equilibrio",
+          "expected": "linda casa classica a venda no vila nova jaragua do sul charmosa elegante e em localizacao estrategica esta residencia oferece o equilibrio perfeito entre conforto estilo e praticidade proxima a todas as comodidades do bairro e do centro da cidade destaques do imovel quartos suites sala de estar e jantar com pedireito alto cozinha integrada area de festas com vista livre para o bairro banheiro social lavabo garagem para carros lado a lado jardim e paisagismo pronto dados principais m de area construida m de terreno r vila nova jaragua do sul possibilidade de aceitar imovel de menor valor em jaragua ou litoral agora so faltam os seus dados para receber a confirmacao da visita saiba mais sobre este imovel",
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-amizade/365",
+          "value": "Linda casa clássica à venda no Amizade  Jaraguá do Sul\n  \n  Destaques do imóvel:\n   2 quartos\n   1 suíte\n   Sala de estar e jantar com pé-direito alto...",
+          "final": "linda casa classica a venda no amizade jaragua do sul destaques do imovel quartos suite sala de estar e jantar com pedireito alto",
+          "expected": "linda casa classica a venda no amizade jaragua do sul destaques do imovel quartos suite sala de estar e jantar com pedireito alto cozinha integrada area de festa banheiro social lavabo garagem para carros lado a lado jardim e paisagismo pronto dados principais m de area construida m de terreno r amizade jaragua do sul possibilidade de aceitar imovel de menor valor em jaragua comodos area de servico copa cozinha despensa proximidades bares e restaurantes escola farmacia supermercado agora so faltam os seus dados para receber a confirmacao da visita saiba mais sobre este imovel",
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-chico-de-paula/362",
+          "value": "Casa localizada no bairro Chico de Paula, Jaraguá do SulSC.\n  \n  R$ 1.200.000,00 - Aceita financiamento\n  \n   200m de área privativa\n   03 quartos (se...",
+          "final": "casa localizada no bairro chico de paula jaragua do sulsc r aceita financiamento m de area privativa quartos se",
+          "expected": "casa localizada no bairro chico de paula jaragua do sulsc r aceita financiamento m de area privativa quartos sendo suites banheiro vagas de garagem area de festas gourmet edicula com deposito amplo jardim horta energia solar casa semimobiliada permanece os moveis sob medida cozinha completa com fogao cooktop coifa bancada em marmore e moveis sob medida banheiros completos com box e moveis planejados aparelhos de arcondicionado detalhes da localizacao rua asfaltada proximo a avenida principal varios comercios em geral aos arredores caracteristicas ar condicionado portao eletronico comodos area de servico copa cozinha despensa proximidades bares e restaurantes escola farmacia shopping center supermercado agora so faltam os seus dados para receber a confirmacao da visita saiba mais sobre este imovel",
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-barra-do-rio-cerro/254",
+          "value": "Casa localizada no bairro Barra do Rio Cerro, Jaraguá do Sul.\n  \n  R$ 1.100.000,00 - Aceita financiamento\n  \n   287m de área privativa\n   01 suít...",
+          "final": "casa localizada no bairro barra do rio cerro jaragua do sul r aceita financiamento m de area privativa suit",
+          "expected": "casa localizada no bairro barra do rio cerro jaragua do sul r aceita financiamento m de area privativa suite quartos banheiros vagas de garagem area de festas com churrasqueira detalhes da localizacao rua asfaltada proximo a avenida principal varios comercios em geral aos arredores proximo parque malwee caracteristicas moveis planejados comodos area de servico copa cozinha despensa proximidades bares e restaurantes escola farmacia supermercado agora so faltam os seus dados para receber a confirmacao da visita saiba mais sobre este imovel",
+          "matches_expected": false
+        }
+      ],
+      "expected": {
+        "matched": 0,
+        "sample_size": 5,
+        "match_rate": 0.0
+      }
+    },
+    "quartos": {
+      "extractor": {
+        "field_name": "quartos",
+        "source_type": "xpath",
+        "selector_value": "//div[contains(@class,'d-flex')][.//p[contains(normalize-space(.),'quarto')]]/p[1]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "number",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      "extractors": [
+        {
+          "field_name": "quartos",
+          "source_type": "xpath",
+          "selector_value": "//div[contains(@class,'d-flex')][.//p[contains(normalize-space(.),'quarto')]]/p[1]",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": null,
+          "output_type": "number",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": true
+        }
+      ],
+      "verification": {
+        "field_name": "quartos",
+        "filled": 5,
+        "sample_size": 5,
+        "pass_rate": 1.0,
+        "sample_issues": []
+      },
+      "loader_output_type": "optional_float",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-lalau/327",
+          "value": "<p>4 quarto(s)</p>",
+          "final": "4.0",
+          "expected": 4,
+          "matches_expected": true
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-nova/350",
+          "value": "<p>3 quarto(s)</p>",
+          "final": "3.0",
+          "expected": 3,
+          "matches_expected": true
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-amizade/365",
+          "value": "<p>2 quarto(s)</p>",
+          "final": "2.0",
+          "expected": 2,
+          "matches_expected": true
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-chico-de-paula/362",
+          "value": "<p>3 quarto(s)</p>",
+          "final": "3.0",
+          "expected": 3,
+          "matches_expected": true
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-barra-do-rio-cerro/254",
+          "value": "<p>3 quarto(s)</p>",
+          "final": "3.0",
+          "expected": 3,
+          "matches_expected": true
+        }
+      ],
+      "expected": {
+        "matched": 5,
+        "sample_size": 5,
+        "match_rate": 1.0
+      }
+    },
+    "suites": {
+      "extractor": {
+        "field_name": "suites",
+        "source_type": "xpath",
+        "selector_value": "//div[contains(@class,'d-flex')][.//p[contains(normalize-space(.),'Suíte')]]/p[1]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "number",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      "extractors": [
+        {
+          "field_name": "suites",
+          "source_type": "xpath",
+          "selector_value": "//div[contains(@class,'d-flex')][.//p[contains(normalize-space(.),'Suíte')]]/p[1]",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": null,
+          "output_type": "number",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": true
+        }
+      ],
+      "verification": {
+        "field_name": "suites",
+        "filled": 5,
+        "sample_size": 5,
+        "pass_rate": 1.0,
+        "sample_issues": []
+      },
+      "loader_output_type": "optional_float",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-lalau/327",
+          "value": "<p>1 Suíte(s)</p>",
+          "final": "1.0",
+          "expected": 1,
+          "matches_expected": true
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-nova/350",
+          "value": "<p>2 Suíte(s)</p>",
+          "final": "2.0",
+          "expected": 2,
+          "matches_expected": true
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-amizade/365",
+          "value": "<p>1 Suíte(s)</p>",
+          "final": "1.0",
+          "expected": 1,
+          "matches_expected": true
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-chico-de-paula/362",
+          "value": "<p>2 Suíte(s)</p>",
+          "final": "2.0",
+          "expected": 2,
+          "matches_expected": true
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-barra-do-rio-cerro/254",
+          "value": "<p>1 Suíte(s)</p>",
+          "final": "1.0",
+          "expected": 1,
+          "matches_expected": true
+        }
+      ],
+      "expected": {
+        "matched": 5,
+        "sample_size": 5,
+        "match_rate": 1.0
+      }
+    },
+    "banheiros": {
+      "extractor": {
+        "field_name": "banheiros",
+        "source_type": "xpath",
+        "selector_value": "//div[contains(@class,'d-flex')][.//p[contains(normalize-space(.),'banheiro')]]/p[1]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "number",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      "extractors": [
+        {
+          "field_name": "banheiros",
+          "source_type": "xpath",
+          "selector_value": "//div[contains(@class,'d-flex')][.//p[contains(normalize-space(.),'banheiro')]]/p[1]",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": null,
+          "output_type": "number",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": true
+        }
+      ],
+      "verification": {
+        "field_name": "banheiros",
+        "filled": 5,
+        "sample_size": 5,
+        "pass_rate": 1.0,
+        "sample_issues": []
+      },
+      "loader_output_type": "optional_float",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-lalau/327",
+          "value": "<p>3 banheiro(s)\n                            </p>",
+          "final": "3.0",
+          "expected": 3,
+          "matches_expected": true
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-nova/350",
+          "value": "<p>3 banheiro(s)\n                            </p>",
+          "final": "3.0",
+          "expected": 3,
+          "matches_expected": true
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-amizade/365",
+          "value": "<p>2 banheiro(s)\n                            </p>",
+          "final": "2.0",
+          "expected": 2,
+          "matches_expected": true
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-chico-de-paula/362",
+          "value": "<p>1 banheiro(s)\n                            </p>",
+          "final": "1.0",
+          "expected": 1,
+          "matches_expected": true
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-barra-do-rio-cerro/254",
+          "value": "<p>2 banheiro(s)\n                            </p>",
+          "final": "2.0",
+          "expected": 2,
+          "matches_expected": true
+        }
+      ],
+      "expected": {
+        "matched": 5,
+        "sample_size": 5,
+        "match_rate": 1.0
+      }
+    },
+    "vagas": {
+      "extractor": {
+        "field_name": "vagas",
+        "source_type": "xpath",
+        "selector_value": "//div[contains(@class,'d-flex')][.//p[contains(normalize-space(.),'Vaga')]]/p[1]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "number",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      "extractors": [
+        {
+          "field_name": "vagas",
+          "source_type": "xpath",
+          "selector_value": "//div[contains(@class,'d-flex')][.//p[contains(normalize-space(.),'Vaga')]]/p[1]",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": null,
+          "output_type": "number",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": true
+        }
+      ],
+      "verification": {
+        "field_name": "vagas",
+        "filled": 5,
+        "sample_size": 5,
+        "pass_rate": 1.0,
+        "sample_issues": []
+      },
+      "loader_output_type": "optional_float",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-lalau/327",
+          "value": "<p>2 Vaga(s) </p>",
+          "final": "2.0",
+          "expected": 2,
+          "matches_expected": true
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-nova/350",
+          "value": "<p>2 Vaga(s) </p>",
+          "final": "2.0",
+          "expected": 2,
+          "matches_expected": true
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-amizade/365",
+          "value": "<p>2 Vaga(s) </p>",
+          "final": "2.0",
+          "expected": 2,
+          "matches_expected": true
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-chico-de-paula/362",
+          "value": "<p>2 Vaga(s) </p>",
+          "final": "2.0",
+          "expected": 2,
+          "matches_expected": true
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-barra-do-rio-cerro/254",
+          "value": "<p>3 Vaga(s) </p>",
+          "final": "3.0",
+          "expected": 3,
+          "matches_expected": true
+        }
+      ],
+      "expected": {
+        "matched": 5,
+        "sample_size": 5,
+        "match_rate": 1.0
+      }
+    },
+    "area": {
+      "extractor": {
+        "field_name": "area",
+        "source_type": "xpath",
+        "selector_value": "//p[contains(normalize-space(.),'m²')][1]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": "strip | clean_text",
+        "output_type": "text",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      "extractors": [
+        {
+          "field_name": "area",
+          "source_type": "xpath",
+          "selector_value": "//p[contains(normalize-space(.),'m²')][1]",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": "strip | clean_text",
+          "output_type": "text",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": true
+        }
+      ],
+      "verification": {
+        "field_name": "area",
+        "filled": 5,
+        "sample_size": 5,
+        "pass_rate": 1.0,
+        "sample_issues": []
+      },
+      "loader_output_type": "optional_float",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-lalau/327",
+          "value": "<p>295,00 m²</p>",
+          "final": "295.0",
+          "expected": "295.00",
+          "matches_expected": true
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-nova/350",
+          "value": "<p>175,00 m²</p>",
+          "final": "175.0",
+          "expected": "175.00",
+          "matches_expected": true
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-amizade/365",
+          "value": "<p>0,00 m²</p>",
+          "final": "0.0",
+          "expected": "15251.00",
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-chico-de-paula/362",
+          "value": "<p>0,00 m²</p>",
+          "final": "0.0",
+          "expected": "200.00",
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-barra-do-rio-cerro/254",
+          "value": "<p>287,00 m²</p>",
+          "final": "287.0",
+          "expected": "287.00",
+          "matches_expected": true
+        }
+      ],
+      "expected": {
+        "matched": 3,
+        "sample_size": 5,
+        "match_rate": 0.6
+      }
+    },
+    "aceita_permuta": {
+      "extractor": {
+        "field_name": "aceita_permuta",
+        "source_type": "xpath",
+        "selector_value": "//p[contains(normalize-space(.),'Permuta')]/following-sibling::p[1]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      "extractors": [
+        {
+          "field_name": "aceita_permuta",
+          "source_type": "xpath",
+          "selector_value": "//p[contains(normalize-space(.),'Permuta')]/following-sibling::p[1]",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": null,
+          "output_type": "boolean",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": true
+        }
+      ],
+      "verification": {
+        "field_name": "aceita_permuta",
+        "filled": 0,
+        "sample_size": 5,
+        "pass_rate": 0.0,
+        "sample_issues": [
+          "sample 0: empty or implausible result",
+          "sample 1: empty or implausible result",
+          "sample 2: empty or implausible result",
+          "sample 3: empty or implausible result",
+          "sample 4: empty or implausible result"
+        ]
+      },
+      "loader_output_type": "bool",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-lalau/327",
+          "value": "",
+          "final": "",
+          "expected": null,
+          "matches_expected": null
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-nova/350",
+          "value": "",
+          "final": "",
+          "expected": null,
+          "matches_expected": null
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-amizade/365",
+          "value": "",
+          "final": "",
+          "expected": null,
+          "matches_expected": null
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-chico-de-paula/362",
+          "value": "",
+          "final": "",
+          "expected": null,
+          "matches_expected": null
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-barra-do-rio-cerro/254",
+          "value": "",
+          "final": "",
+          "expected": null,
+          "matches_expected": null
+        }
+      ],
+      "expected": {
+        "matched": 0,
+        "sample_size": 0,
+        "match_rate": null
+      }
+    },
+    "financiamento": {
+      "extractor": {
+        "field_name": "financiamento",
+        "source_type": "xpath",
+        "selector_value": "//p[contains(normalize-space(.),'Financiamento')]/following-sibling::p[1]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      "extractors": [
+        {
+          "field_name": "financiamento",
+          "source_type": "xpath",
+          "selector_value": "//p[contains(normalize-space(.),'Financiamento')]/following-sibling::p[1]",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": null,
+          "output_type": "boolean",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": true
+        }
+      ],
+      "verification": {
+        "field_name": "financiamento",
+        "filled": 0,
+        "sample_size": 5,
+        "pass_rate": 0.0,
+        "sample_issues": [
+          "sample 0: empty or implausible result",
+          "sample 1: empty or implausible result",
+          "sample 2: empty or implausible result",
+          "sample 3: empty or implausible result",
+          "sample 4: empty or implausible result"
+        ]
+      },
+      "loader_output_type": "bool",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-lalau/327",
+          "value": "",
+          "final": "",
+          "expected": null,
+          "matches_expected": null
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-nova/350",
+          "value": "",
+          "final": "",
+          "expected": null,
+          "matches_expected": null
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-amizade/365",
+          "value": "",
+          "final": "",
+          "expected": null,
+          "matches_expected": null
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-chico-de-paula/362",
+          "value": "",
+          "final": "",
+          "expected": null,
+          "matches_expected": null
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-barra-do-rio-cerro/254",
+          "value": "",
+          "final": "",
+          "expected": null,
+          "matches_expected": null
+        }
+      ],
+      "expected": {
+        "matched": 0,
+        "sample_size": 0,
+        "match_rate": null
+      }
+    },
+    "piscina": {
+      "extractor": {
+        "field_name": "piscina",
+        "source_type": "xpath",
+        "selector_value": "//p[contains(normalize-space(.),'Piscina')]/following-sibling::p[1]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      "extractors": [
+        {
+          "field_name": "piscina",
+          "source_type": "xpath",
+          "selector_value": "//p[contains(normalize-space(.),'Piscina')]/following-sibling::p[1]",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": null,
+          "output_type": "boolean",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": true
+        }
+      ],
+      "verification": {
+        "field_name": "piscina",
+        "filled": 0,
+        "sample_size": 5,
+        "pass_rate": 0.0,
+        "sample_issues": [
+          "sample 0: empty or implausible result",
+          "sample 1: empty or implausible result",
+          "sample 2: empty or implausible result",
+          "sample 3: empty or implausible result",
+          "sample 4: empty or implausible result"
+        ]
+      },
+      "loader_output_type": "bool",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-lalau/327",
+          "value": "",
+          "final": "",
+          "expected": false,
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-nova/350",
+          "value": "",
+          "final": "",
+          "expected": false,
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-amizade/365",
+          "value": "",
+          "final": "",
+          "expected": false,
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-chico-de-paula/362",
+          "value": "",
+          "final": "",
+          "expected": false,
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-barra-do-rio-cerro/254",
+          "value": "",
+          "final": "",
+          "expected": false,
+          "matches_expected": false
+        }
+      ],
+      "expected": {
+        "matched": 0,
+        "sample_size": 5,
+        "match_rate": 0.0
+      }
+    },
+    "churrasqueira": {
+      "extractor": {
+        "field_name": "churrasqueira",
+        "source_type": "xpath",
+        "selector_value": "//p[contains(normalize-space(.),'Churrasqueira')]/following-sibling::p[1]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      "extractors": [
+        {
+          "field_name": "churrasqueira",
+          "source_type": "xpath",
+          "selector_value": "//p[contains(normalize-space(.),'Churrasqueira')]/following-sibling::p[1]",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": null,
+          "output_type": "boolean",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": true
+        }
+      ],
+      "verification": {
+        "field_name": "churrasqueira",
+        "filled": 0,
+        "sample_size": 5,
+        "pass_rate": 0.0,
+        "sample_issues": [
+          "sample 0: empty or implausible result",
+          "sample 1: empty or implausible result",
+          "sample 2: empty or implausible result",
+          "sample 3: empty or implausible result",
+          "sample 4: empty or implausible result"
+        ]
+      },
+      "loader_output_type": "bool",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-lalau/327",
+          "value": "",
+          "final": "",
+          "expected": false,
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-nova/350",
+          "value": "",
+          "final": "",
+          "expected": false,
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-amizade/365",
+          "value": "",
+          "final": "",
+          "expected": false,
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-chico-de-paula/362",
+          "value": "",
+          "final": "",
+          "expected": false,
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-barra-do-rio-cerro/254",
+          "value": "",
+          "final": "",
+          "expected": false,
+          "matches_expected": false
+        }
+      ],
+      "expected": {
+        "matched": 0,
+        "sample_size": 5,
+        "match_rate": 0.0
+      }
+    },
+    "academia": {
+      "extractor": {
+        "field_name": "academia",
+        "source_type": "xpath",
+        "selector_value": "//p[contains(normalize-space(.),'Academia')]/following-sibling::p[1]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      "extractors": [
+        {
+          "field_name": "academia",
+          "source_type": "xpath",
+          "selector_value": "//p[contains(normalize-space(.),'Academia')]/following-sibling::p[1]",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": null,
+          "output_type": "boolean",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": true
+        }
+      ],
+      "verification": {
+        "field_name": "academia",
+        "filled": 0,
+        "sample_size": 5,
+        "pass_rate": 0.0,
+        "sample_issues": [
+          "sample 0: empty or implausible result",
+          "sample 1: empty or implausible result",
+          "sample 2: empty or implausible result",
+          "sample 3: empty or implausible result",
+          "sample 4: empty or implausible result"
+        ]
+      },
+      "loader_output_type": "bool",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-lalau/327",
+          "value": "",
+          "final": "",
+          "expected": false,
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-nova/350",
+          "value": "",
+          "final": "",
+          "expected": false,
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-amizade/365",
+          "value": "",
+          "final": "",
+          "expected": false,
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-chico-de-paula/362",
+          "value": "",
+          "final": "",
+          "expected": false,
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-barra-do-rio-cerro/254",
+          "value": "",
+          "final": "",
+          "expected": false,
+          "matches_expected": false
+        }
+      ],
+      "expected": {
+        "matched": 0,
+        "sample_size": 5,
+        "match_rate": 0.0
+      }
+    },
+    "salao_festas": {
+      "extractor": {
+        "field_name": "salao_festas",
+        "source_type": "xpath",
+        "selector_value": "//p[contains(normalize-space(.),'Salão de Festas')]/following-sibling::p[1]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      "extractors": [
+        {
+          "field_name": "salao_festas",
+          "source_type": "xpath",
+          "selector_value": "//p[contains(normalize-space(.),'Salão de Festas')]/following-sibling::p[1]",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": null,
+          "output_type": "boolean",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": true
+        }
+      ],
+      "verification": {
+        "field_name": "salao_festas",
+        "filled": 0,
+        "sample_size": 5,
+        "pass_rate": 0.0,
+        "sample_issues": [
+          "sample 0: empty or implausible result",
+          "sample 1: empty or implausible result",
+          "sample 2: empty or implausible result",
+          "sample 3: empty or implausible result",
+          "sample 4: empty or implausible result"
+        ]
+      },
+      "loader_output_type": "bool",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-lalau/327",
+          "value": "",
+          "final": "",
+          "expected": false,
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-nova/350",
+          "value": "",
+          "final": "",
+          "expected": false,
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-amizade/365",
+          "value": "",
+          "final": "",
+          "expected": false,
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-chico-de-paula/362",
+          "value": "",
+          "final": "",
+          "expected": false,
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-barra-do-rio-cerro/254",
+          "value": "",
+          "final": "",
+          "expected": false,
+          "matches_expected": false
+        }
+      ],
+      "expected": {
+        "matched": 0,
+        "sample_size": 5,
+        "match_rate": 0.0
+      }
+    },
+    "playground": {
+      "extractor": {
+        "field_name": "playground",
+        "source_type": "xpath",
+        "selector_value": "//p[contains(normalize-space(.),'Playground')]/following-sibling::p[1]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      "extractors": [
+        {
+          "field_name": "playground",
+          "source_type": "xpath",
+          "selector_value": "//p[contains(normalize-space(.),'Playground')]/following-sibling::p[1]",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": null,
+          "output_type": "boolean",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": true
+        }
+      ],
+      "verification": {
+        "field_name": "playground",
+        "filled": 0,
+        "sample_size": 5,
+        "pass_rate": 0.0,
+        "sample_issues": [
+          "sample 0: empty or implausible result",
+          "sample 1: empty or implausible result",
+          "sample 2: empty or implausible result",
+          "sample 3: empty or implausible result",
+          "sample 4: empty or implausible result"
+        ]
+      },
+      "loader_output_type": "bool",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-lalau/327",
+          "value": "",
+          "final": "",
+          "expected": false,
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-nova/350",
+          "value": "",
+          "final": "",
+          "expected": false,
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-amizade/365",
+          "value": "",
+          "final": "",
+          "expected": false,
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-chico-de-paula/362",
+          "value": "",
+          "final": "",
+          "expected": false,
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-barra-do-rio-cerro/254",
+          "value": "",
+          "final": "",
+          "expected": false,
+          "matches_expected": false
+        }
+      ],
+      "expected": {
+        "matched": 0,
+        "sample_size": 5,
+        "match_rate": 0.0
+      }
+    },
+    "sacada": {
+      "extractor": {
+        "field_name": "sacada",
+        "source_type": "xpath",
+        "selector_value": "//p[contains(normalize-space(.),'Sacada')]/following-sibling::p[1]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      "extractors": [
+        {
+          "field_name": "sacada",
+          "source_type": "xpath",
+          "selector_value": "//p[contains(normalize-space(.),'Sacada')]/following-sibling::p[1]",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": null,
+          "output_type": "boolean",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": true
+        }
+      ],
+      "verification": {
+        "field_name": "sacada",
+        "filled": 0,
+        "sample_size": 5,
+        "pass_rate": 0.0,
+        "sample_issues": [
+          "sample 0: empty or implausible result",
+          "sample 1: empty or implausible result",
+          "sample 2: empty or implausible result",
+          "sample 3: empty or implausible result",
+          "sample 4: empty or implausible result"
+        ]
+      },
+      "loader_output_type": "bool",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-lalau/327",
+          "value": "",
+          "final": "",
+          "expected": false,
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-nova/350",
+          "value": "",
+          "final": "",
+          "expected": false,
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-amizade/365",
+          "value": "",
+          "final": "",
+          "expected": false,
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-chico-de-paula/362",
+          "value": "",
+          "final": "",
+          "expected": false,
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-barra-do-rio-cerro/254",
+          "value": "",
+          "final": "",
+          "expected": false,
+          "matches_expected": false
+        }
+      ],
+      "expected": {
+        "matched": 0,
+        "sample_size": 5,
+        "match_rate": 0.0
+      }
+    },
+    "mobiliado": {
+      "extractor": {
+        "field_name": "mobiliado",
+        "source_type": "xpath",
+        "selector_value": "//p[contains(normalize-space(.),'Mobiliado')]/following-sibling::p[1]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      "extractors": [
+        {
+          "field_name": "mobiliado",
+          "source_type": "xpath",
+          "selector_value": "//p[contains(normalize-space(.),'Mobiliado')]/following-sibling::p[1]",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": null,
+          "output_type": "boolean",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": true
+        }
+      ],
+      "verification": {
+        "field_name": "mobiliado",
+        "filled": 0,
+        "sample_size": 5,
+        "pass_rate": 0.0,
+        "sample_issues": [
+          "sample 0: empty or implausible result",
+          "sample 1: empty or implausible result",
+          "sample 2: empty or implausible result",
+          "sample 3: empty or implausible result",
+          "sample 4: empty or implausible result"
+        ]
+      },
+      "loader_output_type": "bool",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-lalau/327",
+          "value": "",
+          "final": "",
+          "expected": null,
+          "matches_expected": null
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-nova/350",
+          "value": "",
+          "final": "",
+          "expected": null,
+          "matches_expected": null
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-amizade/365",
+          "value": "",
+          "final": "",
+          "expected": null,
+          "matches_expected": null
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-chico-de-paula/362",
+          "value": "",
+          "final": "",
+          "expected": null,
+          "matches_expected": null
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-barra-do-rio-cerro/254",
+          "value": "",
+          "final": "",
+          "expected": null,
+          "matches_expected": null
+        }
+      ],
+      "expected": {
+        "matched": 0,
+        "sample_size": 0,
+        "match_rate": null
+      }
+    },
+    "ar_condicionado": {
+      "extractor": {
+        "field_name": "ar_condicionado",
+        "source_type": "xpath",
+        "selector_value": "//p[contains(normalize-space(.),'Ar Condicionado')]/following-sibling::p[1]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      "extractors": [
+        {
+          "field_name": "ar_condicionado",
+          "source_type": "xpath",
+          "selector_value": "//p[contains(normalize-space(.),'Ar Condicionado')]/following-sibling::p[1]",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": null,
+          "output_type": "boolean",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": true
+        }
+      ],
+      "verification": {
+        "field_name": "ar_condicionado",
+        "filled": 0,
+        "sample_size": 5,
+        "pass_rate": 0.0,
+        "sample_issues": [
+          "sample 0: empty or implausible result",
+          "sample 1: empty or implausible result",
+          "sample 2: empty or implausible result",
+          "sample 3: empty or implausible result",
+          "sample 4: empty or implausible result"
+        ]
+      },
+      "loader_output_type": "bool",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-lalau/327",
+          "value": "",
+          "final": "",
+          "expected": false,
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-nova/350",
+          "value": "",
+          "final": "",
+          "expected": false,
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-amizade/365",
+          "value": "",
+          "final": "",
+          "expected": false,
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-chico-de-paula/362",
+          "value": "",
+          "final": "",
+          "expected": false,
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-barra-do-rio-cerro/254",
+          "value": "",
+          "final": "",
+          "expected": false,
+          "matches_expected": false
+        }
+      ],
+      "expected": {
+        "matched": 0,
+        "sample_size": 5,
+        "match_rate": 0.0
+      }
+    },
+    "lavanderia": {
+      "extractor": {
+        "field_name": "lavanderia",
+        "source_type": "xpath",
+        "selector_value": "//p[contains(normalize-space(.),'Lavanderia')]/following-sibling::p[1]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      "extractors": [
+        {
+          "field_name": "lavanderia",
+          "source_type": "xpath",
+          "selector_value": "//p[contains(normalize-space(.),'Lavanderia')]/following-sibling::p[1]",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": null,
+          "output_type": "boolean",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": true
+        }
+      ],
+      "verification": {
+        "field_name": "lavanderia",
+        "filled": 0,
+        "sample_size": 5,
+        "pass_rate": 0.0,
+        "sample_issues": [
+          "sample 0: empty or implausible result",
+          "sample 1: empty or implausible result",
+          "sample 2: empty or implausible result",
+          "sample 3: empty or implausible result",
+          "sample 4: empty or implausible result"
+        ]
+      },
+      "loader_output_type": "bool",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-lalau/327",
+          "value": "",
+          "final": "",
+          "expected": false,
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-nova/350",
+          "value": "",
+          "final": "",
+          "expected": false,
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-amizade/365",
+          "value": "",
+          "final": "",
+          "expected": false,
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-chico-de-paula/362",
+          "value": "",
+          "final": "",
+          "expected": false,
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-barra-do-rio-cerro/254",
+          "value": "",
+          "final": "",
+          "expected": false,
+          "matches_expected": false
+        }
+      ],
+      "expected": {
+        "matched": 0,
+        "sample_size": 5,
+        "match_rate": 0.0
+      }
+    },
+    "escritorio": {
+      "extractor": {
+        "field_name": "escritorio",
+        "source_type": "xpath",
+        "selector_value": "//p[contains(normalize-space(.),'Escritório')]/following-sibling::p[1]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      "extractors": [
+        {
+          "field_name": "escritorio",
+          "source_type": "xpath",
+          "selector_value": "//p[contains(normalize-space(.),'Escritório')]/following-sibling::p[1]",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": null,
+          "output_type": "boolean",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": true
+        }
+      ],
+      "verification": {
+        "field_name": "escritorio",
+        "filled": 0,
+        "sample_size": 5,
+        "pass_rate": 0.0,
+        "sample_issues": [
+          "sample 0: empty or implausible result",
+          "sample 1: empty or implausible result",
+          "sample 2: empty or implausible result",
+          "sample 3: empty or implausible result",
+          "sample 4: empty or implausible result"
+        ]
+      },
+      "loader_output_type": "bool",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-lalau/327",
+          "value": "",
+          "final": "",
+          "expected": false,
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-nova/350",
+          "value": "",
+          "final": "",
+          "expected": false,
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-amizade/365",
+          "value": "",
+          "final": "",
+          "expected": false,
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-chico-de-paula/362",
+          "value": "",
+          "final": "",
+          "expected": false,
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-barra-do-rio-cerro/254",
+          "value": "",
+          "final": "",
+          "expected": false,
+          "matches_expected": false
+        }
+      ],
+      "expected": {
+        "matched": 0,
+        "sample_size": 5,
+        "match_rate": 0.0
+      }
+    },
+    "closet": {
+      "extractor": {
+        "field_name": "closet",
+        "source_type": "xpath",
+        "selector_value": "//p[contains(normalize-space(.),'Closet')]/following-sibling::p[1]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      "extractors": [
+        {
+          "field_name": "closet",
+          "source_type": "xpath",
+          "selector_value": "//p[contains(normalize-space(.),'Closet')]/following-sibling::p[1]",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": null,
+          "output_type": "boolean",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": true
+        }
+      ],
+      "verification": {
+        "field_name": "closet",
+        "filled": 0,
+        "sample_size": 5,
+        "pass_rate": 0.0,
+        "sample_issues": [
+          "sample 0: empty or implausible result",
+          "sample 1: empty or implausible result",
+          "sample 2: empty or implausible result",
+          "sample 3: empty or implausible result",
+          "sample 4: empty or implausible result"
+        ]
+      },
+      "loader_output_type": "bool",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-lalau/327",
+          "value": "",
+          "final": "",
+          "expected": false,
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-nova/350",
+          "value": "",
+          "final": "",
+          "expected": false,
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-amizade/365",
+          "value": "",
+          "final": "",
+          "expected": false,
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-chico-de-paula/362",
+          "value": "",
+          "final": "",
+          "expected": false,
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-barra-do-rio-cerro/254",
+          "value": "",
+          "final": "",
+          "expected": false,
+          "matches_expected": false
+        }
+      ],
+      "expected": {
+        "matched": 0,
+        "sample_size": 5,
+        "match_rate": 0.0
+      }
+    },
+    "elevador": {
+      "extractor": {
+        "field_name": "elevador",
+        "source_type": "xpath",
+        "selector_value": "//p[contains(normalize-space(.),'Elevador')]/following-sibling::p[1]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      "extractors": [
+        {
+          "field_name": "elevador",
+          "source_type": "xpath",
+          "selector_value": "//p[contains(normalize-space(.),'Elevador')]/following-sibling::p[1]",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": null,
+          "output_type": "boolean",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": true
+        }
+      ],
+      "verification": {
+        "field_name": "elevador",
+        "filled": 0,
+        "sample_size": 5,
+        "pass_rate": 0.0,
+        "sample_issues": [
+          "sample 0: empty or implausible result",
+          "sample 1: empty or implausible result",
+          "sample 2: empty or implausible result",
+          "sample 3: empty or implausible result",
+          "sample 4: empty or implausible result"
+        ]
+      },
+      "loader_output_type": "bool",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-lalau/327",
+          "value": "",
+          "final": "",
+          "expected": null,
+          "matches_expected": null
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-nova/350",
+          "value": "",
+          "final": "",
+          "expected": null,
+          "matches_expected": null
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-amizade/365",
+          "value": "",
+          "final": "",
+          "expected": null,
+          "matches_expected": null
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-chico-de-paula/362",
+          "value": "",
+          "final": "",
+          "expected": null,
+          "matches_expected": null
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-barra-do-rio-cerro/254",
+          "value": "",
+          "final": "",
+          "expected": null,
+          "matches_expected": null
+        }
+      ],
+      "expected": {
+        "matched": 0,
+        "sample_size": 0,
+        "match_rate": null
+      }
+    },
+    "portaria_24h": {
+      "extractor": {
+        "field_name": "portaria_24h",
+        "source_type": "xpath",
+        "selector_value": "//p[contains(normalize-space(.),'Portaria')]/following-sibling::p[1]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "boolean",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      "extractors": [
+        {
+          "field_name": "portaria_24h",
+          "source_type": "xpath",
+          "selector_value": "//p[contains(normalize-space(.),'Portaria')]/following-sibling::p[1]",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": null,
+          "output_type": "boolean",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": true
+        }
+      ],
+      "verification": {
+        "field_name": "portaria_24h",
+        "filled": 0,
+        "sample_size": 5,
+        "pass_rate": 0.0,
+        "sample_issues": [
+          "sample 0: empty or implausible result",
+          "sample 1: empty or implausible result",
+          "sample 2: empty or implausible result",
+          "sample 3: empty or implausible result",
+          "sample 4: empty or implausible result"
+        ]
+      },
+      "loader_output_type": "bool",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-lalau/327",
+          "value": "",
+          "final": "",
+          "expected": false,
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-nova/350",
+          "value": "",
+          "final": "",
+          "expected": false,
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-amizade/365",
+          "value": "",
+          "final": "",
+          "expected": false,
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-chico-de-paula/362",
+          "value": "",
+          "final": "",
+          "expected": false,
+          "matches_expected": false
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-barra-do-rio-cerro/254",
+          "value": "",
+          "final": "",
+          "expected": false,
+          "matches_expected": false
+        }
+      ],
+      "expected": {
+        "matched": 0,
+        "sample_size": 5,
+        "match_rate": 0.0
+      }
+    },
+    "andar": {
+      "extractor": {
+        "field_name": "andar",
+        "source_type": "xpath",
+        "selector_value": "//div[contains(@class,'d-flex')][.//p[contains(normalize-space(.),'Andar')]]/p[1]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "number",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      "extractors": [
+        {
+          "field_name": "andar",
+          "source_type": "xpath",
+          "selector_value": "//div[contains(@class,'d-flex')][.//p[contains(normalize-space(.),'Andar')]]/p[1]",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": null,
+          "output_type": "number",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": true
+        }
+      ],
+      "verification": {
+        "field_name": "andar",
+        "filled": 0,
+        "sample_size": 5,
+        "pass_rate": 0.0,
+        "sample_issues": [
+          "sample 0: empty or implausible result",
+          "sample 1: empty or implausible result",
+          "sample 2: empty or implausible result",
+          "sample 3: empty or implausible result",
+          "sample 4: empty or implausible result"
+        ]
+      },
+      "loader_output_type": "optional_float",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-lalau/327",
+          "value": "",
+          "final": null,
+          "expected": null,
+          "matches_expected": null
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-nova/350",
+          "value": "",
+          "final": null,
+          "expected": null,
+          "matches_expected": null
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-amizade/365",
+          "value": "",
+          "final": null,
+          "expected": null,
+          "matches_expected": null
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-chico-de-paula/362",
+          "value": "",
+          "final": null,
+          "expected": null,
+          "matches_expected": null
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-barra-do-rio-cerro/254",
+          "value": "",
+          "final": null,
+          "expected": null,
+          "matches_expected": null
+        }
+      ],
+      "expected": {
+        "matched": 0,
+        "sample_size": 0,
+        "match_rate": null
+      }
+    },
+    "posicao_solar": {
+      "extractor": {
+        "field_name": "posicao_solar",
+        "source_type": "xpath",
+        "selector_value": "//p[contains(normalize-space(.),'Posição Solar')]/following-sibling::p[1]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "text",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      "extractors": [
+        {
+          "field_name": "posicao_solar",
+          "source_type": "xpath",
+          "selector_value": "//p[contains(normalize-space(.),'Posição Solar')]/following-sibling::p[1]",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": null,
+          "output_type": "text",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": true
+        }
+      ],
+      "verification": {
+        "field_name": "posicao_solar",
+        "filled": 0,
+        "sample_size": 5,
+        "pass_rate": 0.0,
+        "sample_issues": [
+          "sample 0: empty or implausible result",
+          "sample 1: empty or implausible result",
+          "sample 2: empty or implausible result",
+          "sample 3: empty or implausible result",
+          "sample 4: empty or implausible result"
+        ]
+      },
+      "loader_output_type": "text",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-lalau/327",
+          "value": "",
+          "final": "",
+          "expected": null,
+          "matches_expected": null
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-nova/350",
+          "value": "",
+          "final": "",
+          "expected": null,
+          "matches_expected": null
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-amizade/365",
+          "value": "",
+          "final": "",
+          "expected": null,
+          "matches_expected": null
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-chico-de-paula/362",
+          "value": "",
+          "final": "",
+          "expected": null,
+          "matches_expected": null
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-barra-do-rio-cerro/254",
+          "value": "",
+          "final": "",
+          "expected": null,
+          "matches_expected": null
+        }
+      ],
+      "expected": {
+        "matched": 0,
+        "sample_size": 0,
+        "match_rate": null
+      }
+    },
+    "ano_construcao": {
+      "extractor": {
+        "field_name": "ano_construcao",
+        "source_type": "xpath",
+        "selector_value": "//p[contains(normalize-space(.),'Ano de Construção')]/following-sibling::p[1]",
+        "selector_index": null,
+        "selector_join": false,
+        "pipeline": null,
+        "output_type": "number",
+        "rationale": null,
+        "priority": 1,
+        "is_optional": true
+      },
+      "extractors": [
+        {
+          "field_name": "ano_construcao",
+          "source_type": "xpath",
+          "selector_value": "//p[contains(normalize-space(.),'Ano de Construção')]/following-sibling::p[1]",
+          "selector_index": null,
+          "selector_join": false,
+          "pipeline": null,
+          "output_type": "number",
+          "rationale": null,
+          "priority": 1,
+          "is_optional": true
+        }
+      ],
+      "verification": {
+        "field_name": "ano_construcao",
+        "filled": 0,
+        "sample_size": 5,
+        "pass_rate": 0.0,
+        "sample_issues": [
+          "sample 0: empty or implausible result",
+          "sample 1: empty or implausible result",
+          "sample 2: empty or implausible result",
+          "sample 3: empty or implausible result",
+          "sample 4: empty or implausible result"
+        ]
+      },
+      "loader_output_type": "optional_float",
+      "values": [
+        {
+          "sample": "samples/01.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-lalau/327",
+          "value": "",
+          "final": null,
+          "expected": null,
+          "matches_expected": null
+        },
+        {
+          "sample": "samples/02.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-nova/350",
+          "value": "",
+          "final": null,
+          "expected": null,
+          "matches_expected": null
+        },
+        {
+          "sample": "samples/03.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-amizade/365",
+          "value": "",
+          "final": null,
+          "expected": null,
+          "matches_expected": null
+        },
+        {
+          "sample": "samples/04.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-chico-de-paula/362",
+          "value": "",
+          "final": null,
+          "expected": null,
+          "matches_expected": null
+        },
+        {
+          "sample": "samples/05.html",
+          "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-barra-do-rio-cerro/254",
+          "value": "",
+          "final": null,
+          "expected": null,
+          "matches_expected": null
+        }
+      ],
+      "expected": {
+        "matched": 0,
+        "sample_size": 0,
+        "match_rate": null
+      }
+    }
+  },
+  "artifacts": {
+    "result_json": "result.json",
+    "report_html": "report.html",
+    "prompt_system": "prompt-system.txt",
+    "prompt_user": "prompt-user.txt"
+  }
+}

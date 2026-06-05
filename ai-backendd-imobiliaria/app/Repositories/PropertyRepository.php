@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 class PropertyRepository implements PropertyRepositoryInterface
 {
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function paginate(array $filters = []): LengthAwarePaginator
     {
@@ -20,51 +20,51 @@ class PropertyRepository implements PropertyRepositoryInterface
             }, 'broker:id,name', 'features:id,name']);
 
         // Filter by reference code (partial search)
-        if (!empty($filters['reference_code'])) {
-            $query->where('reference_code', 'like', '%' . $filters['reference_code'] . '%');
+        if (! empty($filters['reference_code'])) {
+            $query->where('reference_code', 'like', '%'.$filters['reference_code'].'%');
         }
 
         // Filter by text (title or description)
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $query->where(function ($q) use ($filters) {
-                $q->where('title', 'like', '%' . $filters['search'] . '%')
-                    ->orWhere('description', 'like', '%' . $filters['search'] . '%');
+                $q->where('title', 'like', '%'.$filters['search'].'%')
+                    ->orWhere('description', 'like', '%'.$filters['search'].'%');
             });
         }
 
         // Filter by property type
-        if (!empty($filters['property_type'])) {
+        if (! empty($filters['property_type'])) {
             $query->where('property_type', $filters['property_type']);
         }
 
         // Filter by purpose
-        if (!empty($filters['purpose'])) {
+        if (! empty($filters['purpose'])) {
             $query->where('purpose', $filters['purpose']);
         }
 
         // Filter by status
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);
         }
 
         // Filter by city
-        if (!empty($filters['city'])) {
+        if (! empty($filters['city'])) {
             $query->where('city', $filters['city']);
         }
 
         // Filter by neighborhood
-        if (!empty($filters['neighborhood'])) {
-            $query->where('neighborhood', 'like', '%' . $filters['neighborhood'] . '%');
+        if (! empty($filters['neighborhood'])) {
+            $query->where('neighborhood', 'like', '%'.$filters['neighborhood'].'%');
         }
 
         // Pricing filters
-        if (!empty($filters['min_price'])) {
+        if (! empty($filters['min_price'])) {
             $query->where(function ($q) use ($filters) {
                 $q->where('sale_price', '>=', $filters['min_price'])
                     ->orWhere('rent_price', '>=', $filters['min_price']);
             });
         }
-        if (!empty($filters['max_price'])) {
+        if (! empty($filters['max_price'])) {
             $query->where(function ($q) use ($filters) {
                 $q->where('sale_price', '<=', $filters['max_price'])
                     ->orWhere('rent_price', '<=', $filters['max_price']);
@@ -72,29 +72,29 @@ class PropertyRepository implements PropertyRepositoryInterface
         }
 
         // Area filters
-        if (!empty($filters['min_area'])) {
+        if (! empty($filters['min_area'])) {
             $query->where('usable_area', '>=', $filters['min_area']);
         }
-        if (!empty($filters['max_area'])) {
+        if (! empty($filters['max_area'])) {
             $query->where('usable_area', '<=', $filters['max_area']);
         }
 
         // Room filters
-        if (!empty($filters['bedrooms'])) {
+        if (! empty($filters['bedrooms'])) {
             $query->where('bedrooms', '>=', $filters['bedrooms']);
         }
-        if (!empty($filters['suites'])) {
+        if (! empty($filters['suites'])) {
             $query->where('suites', '>=', $filters['suites']);
         }
-        if (!empty($filters['bathrooms'])) {
+        if (! empty($filters['bathrooms'])) {
             $query->where('bathrooms', '>=', $filters['bathrooms']);
         }
-        if (!empty($filters['garage_spaces'])) {
+        if (! empty($filters['garage_spaces'])) {
             $query->where('garage_spaces', '>=', $filters['garage_spaces']);
         }
 
         // Filter by features (Many to Many)
-        if (!empty($filters['features']) && is_array($filters['features'])) {
+        if (! empty($filters['features']) && is_array($filters['features'])) {
             foreach ($filters['features'] as $featureId) {
                 $query->whereHas('features', function ($q) use ($featureId) {
                     $q->where('features.id', $featureId);
@@ -119,7 +119,7 @@ class PropertyRepository implements PropertyRepositoryInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function find(int $id): ?Property
     {
@@ -127,7 +127,7 @@ class PropertyRepository implements PropertyRepositoryInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function findByReferenceCode(string $code): ?Property
     {
@@ -135,7 +135,7 @@ class PropertyRepository implements PropertyRepositoryInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function create(array $data): Property
     {
@@ -151,7 +151,7 @@ class PropertyRepository implements PropertyRepositoryInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function update(Property $property, array $data): Property
     {
@@ -167,7 +167,7 @@ class PropertyRepository implements PropertyRepositoryInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function delete(Property $property): bool
     {

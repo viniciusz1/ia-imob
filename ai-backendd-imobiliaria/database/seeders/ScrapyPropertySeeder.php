@@ -64,10 +64,20 @@ class ScrapyPropertySeeder extends Seeder
                 'financiamento' => $seed % 4 === 0,
             ];
 
+            // Sanitize values from scraper — clamp absurdly large numbers
+            $valor = $item['valor'] ?? null;
+            if ($valor !== null) {
+                $valor = (float) $valor;
+                // Clamp unrealistically large values (> 1 trilhão = 1e12)
+                if ($valor > 1_000_000_000_000) {
+                    $valor = 0;
+                }
+            }
+
             ScrapyProperty::create([
                 'tipo' => $item['tipo'] ?? null,
                 'imobiliaria' => $item['imobiliaria'] ?? null,
-                'valor' => $item['valor'] ?? null,
+                'valor' => $valor,
                 'bairro' => $item['bairro'] ?? null,
                 'cidade' => $item['cidade'] ?? null,
                 'imagem' => $item['imagem'] ?? null,

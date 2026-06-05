@@ -1,0 +1,704 @@
+<!doctype html>
+<html lang="pt-br">
+
+<head>
+    <!-- Required meta tags -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+
+<title>
+    Política de Privacidade da Imobiliária Itaivan Imobiliária</title>
+<meta name="description" content="Política de Privacidade da Imobiliária Itaivan Imobiliária" />
+<meta name="robots" content="index" />
+
+
+<!-- CONFIGURAÇÕES DE COMPARTILHAMENTO DE LINK -->
+<meta property="og:title" content="Política de Privacidade da Imobiliária Itaivan Imobiliária" />
+<meta property="og:type" content="website" />
+<meta property="og:description" content="Política de Privacidade da Imobiliária Itaivan Imobiliária" />
+<meta property="og:url" content="https://www.itaivan.com/politica-privacidade" />
+<meta property="og:image" content="https://www.itaivan.com/assets/images/logo-link.png" />
+<meta property="og:image:width" content="135">
+<meta property="og:image:height" content="135">
+
+<!-- Twitter -->
+<meta property="twitter:card" content="summary_large_image">
+<meta property="twitter:url" content="https://www.itaivan.com/politica-privacidade">
+<meta property="twitter:title" content="Política de Privacidade da Imobiliária Itaivan Imobiliária">
+<meta property="twitter:description" content="Política de Privacidade da Imobiliária Itaivan Imobiliária">
+<meta property="twitter:image" content="https://www.itaivan.com/assets/images/logo-link.png">
+<link rel="canonical" href="https://www.itaivan.com/politica-privacidade" />
+
+
+<!-- Favicon icon -->
+<link rel="shortcut icon" href="https://cdn.imoview.com.br/itaivan/Site/imagens/dnh3qw1.ico" type="image/x-icon?v=1.0">
+            <!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-TS8QK9QZ');</script>
+<!-- End Google Tag Manager -->
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=AW-10891839447"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'AW-10891839447');
+</script>
+        <!--IMPORT COMUM-->
+<link rel="stylesheet" href="https://www.itaivan.com/assets/lib/bootstrap450/css/bootstrap.min.css?v=1.17" />
+<link rel="stylesheet" href="https://www.itaivan.com/assets/css/style.css?v=1.17" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.css?v=1.17" type="text/css" />
+<link rel="stylesheet" href="https://www.itaivan.com/assets/css/temas/theme-clean.css?v=1.17" />
+<link rel="stylesheet" href="https://www.itaivan.com/assets/lib/font_awesome/all.min.css?v=1.17">
+ <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+        <!-- IMPORTACAO DE PARTIALS -->
+        <!-- IMPORTAÇÃO DA PAGINA -->
+        <link rel="stylesheet" href="https://www.itaivan.com/assets/css/politica/politica.css?v=1.17" />
+
+        <!-- LeadFlow Capture Script -->
+<script>
+(function(){
+  var ENDPOINT = "https://jstbpvafulwvgmxtvxzw.supabase.co/functions/v1/lead-intake";
+  var SOURCE   = "website_form";
+  function extractPropertyCode() {
+    var path = window.location.pathname;
+    var match = path.match(/\/imovel[^\/]*\/([^\/\?#]+)/i);
+    if (match) return match[1];
+    var params = new URLSearchParams(window.location.search);
+    return params.get("codigo") || params.get("imovel") || params.get("ref") || "";
+  }
+  function extractPropertyName() {
+    var h1 = document.querySelector("h1");
+    if (h1 && h1.textContent.trim()) return h1.textContent.trim().substring(0, 200);
+    var title = document.title || "";
+    return title.replace(/\s*[\|\-\u2013]\s*(itaivan|imobili[a\u00e1]ria).*$/i, "").trim().substring(0, 200);
+  }
+  function extractFields(form) {
+    var data = {};
+    form.querySelectorAll("input,select,textarea").forEach(function(f) {
+      var k = (f.name || f.id || "").toLowerCase().trim();
+      var v = f.value ? f.value.trim() : "";
+      if (!k || !v) return;
+      if (/nome|name/i.test(k))    data.name  = data.name  || v;
+      if (/fone|phone|celular|whats/i.test(k)) data.phone = data.phone || v;
+      if (/email/i.test(k))        data.email = data.email || v;
+      if (/imovel|codigo|property/i.test(k)) data.property_code = v;
+      if (/cidade|region|regiao/i.test(k))  data.region = v;
+      if (/invest|preco|faixa/i.test(k))    data.price_range = v;
+    });
+    return data;
+  }
+  function send(data) {
+    if (!data.name) return;
+    data.source = SOURCE;
+    data.page_url = window.location.href;
+    data.referrer = document.referrer || "";
+    if (!data.property_code) { var code = extractPropertyCode(); if (code) data.property_code = code; }
+    data.property_name = extractPropertyName();
+    var params = new URLSearchParams(window.location.search);
+    ["utm_source","utm_medium","utm_campaign","utm_content","utm_term"].forEach(function(k){ if (params.get(k)) data[k] = params.get(k); });
+    fetch(ENDPOINT, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) }).catch(function(){});
+  }
+  document.addEventListener("submit", function(e) { var f = e.target; if (f && f.tagName === "FORM") send(extractFields(f)); }, true);
+})();
+</script>
+        </head>
+
+<body>
+    <!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TS8QK9QZ"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) --><input type="hidden" id="REGIAO_LOCALIZACAO_BASE" value="Jaraguá do Sul e Região" /><input type="hidden" id="STR_REGIAO_LOCALIZACAO_BASE" value="em Jaraguá do Sul e Região" /><input type="hidden" id="REGIAO_LOCALIZACAO_BASE_URL" value="jaragua-do-sul-e-regiao" /><input type="hidden" id="EXIBIR_LACAMENTO_EM_MODAL" value="0" /><input type="hidden" id="LATITUDE" value="-26.4749675" /><input type="hidden" id="LONGITUDE" value="-49.0900998" />
+
+    <div class="modal-desktop">
+    <div class="header">
+        <button id="close-menu-modal">
+            <span class="botao_fechar_modal" style="color: #fff !important;">&times;</span>
+        </button>
+    </div>
+    <div class="container-lista-menu">
+        <ul>
+            <li class="list-titulo"><strong>IMÓVEIS</strong></li>
+            <li><a href="https://www.itaivan.com/venda">Imóveis à Venda</a></li>
+            <li><a href="https://www.itaivan.com/aluguel">Imóveis para Alugar</a></li>
+            <!-- <li><a href="https://www.itaivan.com/venda/imovel/miami">Imóveis na Flórida</a></li> -->
+            <li><a
+                    href="https://www.itaivan.com/venda/imovel/jaragua-do-sul-e-regiao/todos-os-bairros/todos-os-condominios/todas-as-opcoes/na-planta?&pagina=1&ordenacao=dataatualizacaodesc">Imóveis
+                    na Planta</a></li>
+            <li><a href="https://www.itaivan.com/venda/terreno+area/?&pagina=1&ordenacao=dataatualizacaodesc">Para Construir</a></li>
+            <li><a
+                    href="https://www.itaivan.com/venda/comercial+galpao+predio-comercial+casa-comercial+sala-comercial/jaragua-do-sul-e-regiao/todos-os-bairros/todos-os-condominios/&pagina=1&ordenacao=dataatualizacaodesc">Para
+                    seu Negócio</a></li>
+            <li><a
+                    href="https://www.itaivan.com/venda/imovel/jaragua-do-sul-e-regiao/todos-os-bairros/todos-os-condominios/todas-as-opcoes/?&pagina=1&ordenacao=dataatualizacaodesc&extras=71">Litoral</a>
+            </li>
+            <li><a
+                    href="https://www.itaivan.com/venda/imovel/jaragua-do-sul-e-regiao/todos-os-bairros/todos-os-condominios/todas-as-opcoes/?&pagina=1&ordenacao=dataatualizacaodesc&extras=72">Serra</a>
+            </li>
+            <li><a href="https://www.itaivan.com/condominios">Condomínios</a></li>
+            <li><a href="https://www.itaivan.com/anuncie-seu-imovel">Anunciar seu imóvel</a></li>
+            <li><a href="https://www.itaivan.com/imoveis-favoritos">Favoritos</a></li>
+        </ul>
+
+        <ul>
+            <li class="list-titulo"><strong>CLIENTE</strong></li>
+            <li><a target="_blank" class="btnAreaCliente" id="btnAreaCliente" >Área do Cliente</a></li>
+            <!-- <li><a target="_blank" href="https://cliente.portalunsoft.com.br/login/itaivan">Área do proprietário</a></li>
+            <li><a href="https://www.itaivan.com/ouvidoria">Ouvidoria</a></li> -->
+        </ul>
+        <ul>
+            <li class="list-titulo"><strong>INSTITUCIONAL</strong></li>
+            <li><a href="https://www.itaivan.com/sobre">Nossa História</a></li>
+            <li><a href="https://www.itaivan.com/contato">Fale Conosco</a></li>
+            <li><a href="trabalhe-conosco">Trabalhe Conosco</a></li>
+            <li><a href="https://www.itaivan.com/nossa-equipe">Equipe</a></li>
+            <!-- <li><a href="https://www.itaivan.com/projetos-missionarios">Projetos missionários</a></li> -->
+            <li><a href="https://www.itaivan.com/documentos">Documentos</a></li>
+                        <li><a href="https://www.itaivan.com/politica-privacidade">Política de Privacidade</a></li>
+        </ul>
+
+        <ul>
+            <li class="list-titulo"><strong>Contatos</strong></li>
+                        <li>
+                <a target="_blank" href="tel:4730553412">
+                    <img class="" target="_blank" loading="lazy" src="https://www.itaivan.com/assets/icons/icon-phone.svg"
+                        width="34" height="35" alt="WhatsApp" />
+                    <span>(47) 3055-3412 - Telefone</span>
+                </a>
+            </li>
+                                                                        <li>
+                <a target="_blank"
+                    href="https://api.whatsapp.com/send?phone=554731803334&text=Olá.">
+                    <img class="" target="_blank" loading="lazy"
+                        src="https://www.itaivan.com/assets/icons/redes-sociais/icon-whatsapp-dark.svg" width="34" height="35"
+                        alt="WhatsApp" />
+                    <span>(47) 3180-3334 - Central de Locação</span>
+                </a>
+            </li>
+                                    <li>
+                <a target="_blank"
+                    href="https://api.whatsapp.com/send?phone=5547991847574&text=Olá.">
+                    <img class="" target="_blank" loading="lazy"
+                        src="https://www.itaivan.com/assets/icons/redes-sociais/icon-whatsapp-dark.svg" width="34" height="35"
+                        alt="WhatsApp" />
+                    <span>(47) 9 9184-7574 - Plantão de Vendas</span>
+                </a>
+            </li>
+                        <li>
+                <a target="_blank" href="mailto:itaivan@itaivan.com">
+                    <img class="img-email" target="_blank" loading="lazy"
+                        src="https://www.itaivan.com/assets/icons/icon-email-preto.png" alt="E-mail" />
+                    <span>itaivan@itaivan.com</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+</div>
+    <div class="container-contato-top-header" hidden>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12 col-sm-6 col-md-6 col-lg-6 col-xl-6 info-contatos">
+                <span class="header_barra_topo_color">CRECI: 1749 J e 6764 J</span>
+                                    <a target="_blank" href="tel:4730553412"
+                        class="card-inf header_barra_topo_color">
+                        <i class="fa-solid fa-phone" style="height: 15px !important;"></i>
+                        <span>(47) 3055-3412</span>
+                    </a>
+                                            </div>
+            <div class="col-12 col-sm-6 col-md-6 col-lg-6 col-xl-6 d-flex justify-content-end align-itens-center">
+                <div class="container-social-top-header">
+                                            <a target="_blank" href="https://www.instagram.com/itaivanimobiliaria/">
+                            <img class="lazyload" loading="lazy" src="https://cdn.imoview.com.br/itaivan/Site/imagens/er1bk3z5.png" width="39"
+                                height="39"
+                                alt="https://cdn.imoview.com.br/itaivan/Site/imagens/er1bk3z5.png" />
+                        </a>
+                                            <a target="_blank" href="https://www.youtube.com/@itaivanimobiliaria8057">
+                            <img class="lazyload" loading="lazy" src="https://cdn.imoview.com.br/itaivan/Site/imagens/6plyyx15.png" width="39"
+                                height="39"
+                                alt="https://cdn.imoview.com.br/itaivan/Site/imagens/6plyyx15.png" />
+                        </a>
+                                            <a target="_blank" href="https://www.facebook.com/itaivan/?locale=pt_BR">
+                            <img class="lazyload" loading="lazy" src="https://cdn.imoview.com.br/itaivan/Site/imagens/khhyvpd3.png" width="39"
+                                height="39"
+                                alt="https://cdn.imoview.com.br/itaivan/Site/imagens/khhyvpd3.png" />
+                        </a>
+                                    </div>
+            </div>
+        </div>
+    </div>
+</div>    
+    <nav id="header">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex justify-content-between">
+
+                    <a class="navbar-brand" href="https://www.itaivan.com/">
+                        <img class="logo-principal float-left lazyload" src="https://cdn.imoview.com.br/itaivan/Site/imagens/9i5g0kr8.png?v=1753798417"
+                            alt="Itaivan - Sua imobiliária em Jaraguá do Sul e Região"  border="0" />
+                    </a>
+
+                    <div  id="navbarSupportedContent">
+                        <ul class="nav p-2 ">
+                            <!-- <li class="nav-item bandeira-eua">
+                                <a class="nav-link links-header" href="https://www.itaivan.com/venda/"><img src="https://www.itaivan.com/assets/icons/estados-unidos.png" width="30px" alt=""> IMÓVEIS NA FLÓRIDA</a>
+                            </li> -->
+                            <li class="nav-item">
+                                <a class="nav-link links-header" href="https://www.itaivan.com/venda/imovel/jaragua-do-sul-e-regiao/todos-os-bairros/todos-os-condominios/todas-as-opcoes/?&pagina=1&ordenacao=dataatualizacaodesc&extras=71">LITORAL</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link links-header" href="https://www.itaivan.com/venda/">COMPRAR</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link links-header" href="https://www.itaivan.com/aluguel/">ALUGAR</a>
+                            </li>
+                            <!-- <li class="nav-item">
+                                <a class="nav-link links-header" href="https://www.itaivan.com/anuncie-seu-imovel">
+                                    ANUNCIAR MEU IMÓVEL
+                                </a>
+                            </li> -->
+                            <li class="nav-item">
+                                <span class="nav-link links-header btnAreaCliente" id="btnAreaCliente">
+                                ÁREA DO CLIENTE
+</span>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link links-header" href="https://www.itaivan.com/imoveis-favoritos">FAVORITOS <span class="cont-fav"></span>
+                                    <span class="span-favoritos">
+                                        <img id="icon-favoritos" class="lazyload" src="https://www.itaivan.com/assets/icons/icon-favorito-ativo.svg" alt="" />
+                                    </span>
+                                </a>
+                            </li>
+                        </ul>
+                        <button class="btn-menu-m" type="button" title="Menu">
+                            <img src="https://www.itaivan.com/assets/icons/icons-tema-clean/menu.svg" width="24" height="24" border="0" alt="Menu" />
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+
+<!-- MENU PARA MOBILE -->
+<div id="header_mobile" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            
+            <div class="modal-header">
+                                <a target="_blank" class="btn btn-primario-light btnAreaCliente" id="btnAreaCliente">ÁREA DO CLIENTE</a>
+                                <button id="header_mobile_close" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" class="xis-button">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <div class="row body-1">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item"><a class="link-menu-m" href="https://www.itaivan.com/">Home</a></li>
+                            <li class="list-group-item"><a class="link-menu-m" href="https://www.itaivan.com/venda">Comprar</a></li>
+                            <li class="list-group-item"><a class="link-menu-m" href="https://www.itaivan.com/aluguel">Alugar</a>
+                            </li>
+                            <li class="list-group-item"><a class="link-menu-m"
+                                    href="https://www.itaivan.com/anuncie-seu-imovel">Anunciar seu imóvel</a></li>
+                            <li class="list-group-item"><a class="link-menu-m" href="https://www.itaivan.com/anuncie-seu-imovel">Cadastrar seu
+                                    imóvel</a></li>
+                            <li class="list-group-item"><a class="link-menu-m"
+                                    href="https://www.itaivan.com/condominios">Condomínios</a></li>
+                            <li class="list-group-item"><a class="link-menu-m"
+                                    href="https://www.itaivan.com/ouvidoria">Ouvidoria</a></li>
+                            <li class="list-group-item">
+                                <a href="https://www.itaivan.com/imoveis-favoritos">Favoritos <span class="cont-fav">0</span>
+                                    <img src="https://www.itaivan.com/assets/icons/icon-favorito-ativo.svg" id="icon-favoritos" class="lazyload" loading="lazy" alt="Favoritos" width="17" height="16" border="0" />
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="row body-2">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item"><a class="link-menu-m" href="https://www.itaivan.com/sobre">Quem somos</a>
+                            </li>
+                            <!--<li class="list-group-item"><a class="link-menu-m" href="https://www.itaivan.com/nossa-equipe">Corretores</a></li>-->
+                                                        <li class="list-group-item"><a class="link-menu-m btnAreaCliente" id="btnAreaCliente">Área do cliente</a></li>
+                                                        <li class="list-group-item"><a target="_blank" class="link-menu-m" href="#">Área do
+                                    locatário</a></li>
+                            <li class="list-group-item"><a target="_blank" class="link-menu-m" href="#">Área do
+                                    proprietário</a></li>
+                                                        <li class="list-group-item"><a class="link-menu-m" href="https://www.itaivan.com/contato">Contato</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="container-fluid">
+                    <div class="row">
+                                                <div class="col-12 padding">
+                            <a href="mailto:itaivan@itaivan.com">
+                                <img class="lazyload img-menu" src="https://www.itaivan.com/assets/icons/icon-email-preto.png" loading="lazy" width="70" height="70" border="0" />
+                                <span class='s-ddd'></span> <span class="s-tell">itaivan@itaivan.com</span>
+                            </a>
+                        </div>
+                                                                        <div class="col-12  padding">
+                            <a href="tel:4730553412">
+                                <img class="lazyload img-menu" src="https://www.itaivan.com/assets/icons/icon-phone.svg" loading="lazy" width="52" height="52" border="0" />
+                                <span class='s-ddd'></span> <span class="s-tell">(47) 3055-3412</span>
+                            </a>
+                        </div>
+                        
+                        
+                                            </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    
+
+    <!-- SOBRE EMPRESA -->
+    <section id="texto_sobre_empresa" class="back_primario">
+        <div class="container-fluid">
+            <div class="row">
+                                    <div class="col-12 margin-top-40 margin-bottom-30">
+                        <h1 class=" text-center color_titulo">Política de privacidade</h1>
+                    </div>
+                    <div class="col-12 margin-bottom-30 color_texto">
+                        <p dir="ltr" style="line-height:1.44;background-color:#ffffff;margin-top:13pt;margin-bottom:0pt;"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Política de Privacidade Itaivan.</span></p><p dir="ltr" style="line-height:1.44;background-color:#ffffff;margin-top:0pt;margin-bottom:0pt;padding:13pt 0pt 0pt 0pt;"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Atualizada em 01/04/2021</span></p><p dir="ltr" style="line-height:1.44;background-color:#ffffff;margin-top:0pt;margin-bottom:0pt;padding:13pt 0pt 0pt 0pt;"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Temos o compromisso de entregar o melhor aos nossos clientes, sempre resguardando o que a legislação prevê. Desta forma, segue nossa Política de Privacidade para lhe proporcionar maior segurança em permanecer navegando em nosso site.</span></p><p dir="ltr" style="line-height:1.44;background-color:#ffffff;margin-top:0pt;margin-bottom:0pt;padding:13pt 0pt 0pt 0pt;"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Nós coletamos e utilizamos alguns dados pessoais quando você acessa e/ou navega em nosso site. Ao fazê-lo, agimos na qualidade de controladores desses dados, de acordo com as disposições da Lei nº 13.709/2018 – Lei Geral de Proteção de Dados.</span></p><p dir="ltr" style="line-height:1.44;background-color:#ffffff;margin-top:0pt;margin-bottom:0pt;padding:13pt 0pt 0pt 0pt;"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Ao dar continuidade na navegação em nosso Portal, você concorda com os termos e política de tratamentos dos seus dados. Da mesma forma, você declara estar ciente da responsabilização civil e criminal pelo fornecimento de dados falsos ou de terceiros, sendo passível por danos diretos ou indiretos causados à Itaivan ou a terceiros que tenham acesso.</span></p><p dir="ltr" style="line-height:1.44;margin-left: 1pt;background-color:#ffffff;margin-top:0pt;margin-bottom:0pt;"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Esta política se destina a todos que utilizam o portal da Itaivan Imobiliária.</span></p><p dir="ltr" style="line-height:1.44;margin-left: 1pt;background-color:#ffffff;margin-top:0pt;margin-bottom:0pt;padding:13pt 0pt 0pt 0pt;"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Caso fique alguma dúvida, você poderá entrar em contato através do e-mail privacidade@itaivan.com</span></p><ol style="margin-top:0;margin-bottom:0;padding-inline-start:48px;"><li dir="ltr" style="list-style-type:decimal;font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;margin-left: 1pt;" aria-level="1"><p dir="ltr" style="line-height:1.38;background-color:#ffffff;margin-top:0pt;margin-bottom:0pt;" role="presentation"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:700;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Quais são os dados pessoais e de que forma coletamos:</span></p></li></ol><p dir="ltr" style="line-height:1.44;margin-left: 1pt;background-color:#ffffff;margin-top:0pt;margin-bottom:0pt;"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Nos termos do artigo 5º da LGPD, consideram-se:</span></p><ol style="margin-top:0;margin-bottom:0;padding-inline-start:48px;"><li dir="ltr" style="list-style-type:upper-roman;font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;margin-left: -17pt;" aria-level="1"><p dir="ltr" style="line-height:1.38;background-color:#ffffff;margin-top:0pt;margin-bottom:0pt;" role="presentation"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">- Dado pessoal: informação relacionada a pessoa natural identificada ou identificável;</span></p></li><li dir="ltr" style="list-style-type:upper-roman;font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;margin-left: -17pt;" aria-level="1"><p dir="ltr" style="line-height:1.38;background-color:#ffffff;margin-top:0pt;margin-bottom:0pt;" role="presentation"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">- Dado pessoal sensível: dado pessoal sobre origem racial ou étnica, convicção religiosa, opinião política, filiação a sindicato ou a organização de caráter religioso, filosófico ou político, dado referente à saúde ou à vida sexual, dado genético ou biométrico, quando vinculado a uma pessoa natural;</span></p></li><li dir="ltr" style="list-style-type:upper-roman;font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;margin-left: -17pt;" aria-level="1"><p dir="ltr" style="line-height:1.38;background-color:#ffffff;margin-top:0pt;margin-bottom:0pt;" role="presentation"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">- Dado anonimizado: dado relativo a titular que não possa ser identificado, considerando a utilização de meios técnicos razoáveis e disponíveis na ocasião de seu tratamento;</span></p></li><li dir="ltr" style="list-style-type:upper-roman;font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;margin-left: -17pt;" aria-level="1"><p dir="ltr" style="line-height:1.38;background-color:#ffffff;margin-top:0pt;margin-bottom:0pt;" role="presentation"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">- Banco de dados: conjunto estruturado de dados pessoais, estabelecido em um ou em vários locais, em suporte eletrônico ou físico;</span></p></li></ol><p dir="ltr" style="line-height:1.44;margin-left: 1pt;background-color:#ffffff;margin-top:0pt;margin-bottom:0pt;padding:13pt 0pt 0pt 0pt;"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Para que você tenha uma ótima experiência em nosso site, coletamos dados de duas maneiras, inicialmente os fornecidos pelo próprio usuário, em seguida o simples acesso ao portal resulta na coleta automática.</span></p><p dir="ltr" style="line-height:1.44;margin-left: 1pt;background-color:#ffffff;margin-top:0pt;margin-bottom:0pt;"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Os dados pessoais correspondem a toda e qualquer informação relacionada a pessoa natural, identificada ou identificável, como por exemplo nome, telefone, data de nascimento, foto, e-mail.</span></p><p dir="ltr" style="line-height:1.44;margin-left: 1pt;background-color:#ffffff;margin-top:0pt;margin-bottom:0pt;"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Já os dados coletados automaticamente, correspondem aos dados como IP com data e hora da conexão, navegador, características da navegação, bem como suas preferências de pesquisas. Estes dados são coletados por meio de tecnologia de cookies, visando melhorar sua experiência e apresentá-lo melhores opções, de acordo com sua preferência.</span></p><p dir="ltr" style="line-height:1.452;margin-left: 1pt;background-color:#ffffff;margin-top:0pt;margin-bottom:0pt;"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Caso deseje desativar este recurso, você poderá fazê-lo de maneira automática, diretamente em seu navegador. Porém, a partir do momento que esta ferramenta for desabilitada, algumas das funcionalidades deste portal podem deixar de funcionar.</span></p><p dir="ltr" style="line-height:1.464;margin-left: 1pt;margin-right: 17pt;background-color:#ffffff;margin-top:0pt;margin-bottom:0pt;"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Em caso de dúvidas a respeito dos dados coletados ou requerendo auxílio para melhor entendimento, entre em contato conosco através do e-mail </span><span style="font-size:11pt;font-family:Arial,sans-serif;color:#0462c1;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:underline;-webkit-text-decoration-skip:none;text-decoration-skip-ink:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;"><a href="mailto:privacidade@itaivan.com" target="_blank">privacidade@itaivan.com</a></span></p><ol style="margin-top:0;margin-bottom:0;padding-inline-start:48px;" start="2"><li dir="ltr" style="list-style-type:decimal;font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:700;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;margin-left: 1pt;" aria-level="1"><p dir="ltr" style="line-height:1.38;background-color:#ffffff;margin-top:0pt;margin-bottom:0pt;" role="presentation"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:700;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Como utilizamos as informações coletadas</span></p></li></ol><p dir="ltr" style="line-height:1.452;margin-left: 1pt;background-color:#ffffff;margin-top:0pt;margin-bottom:0pt;"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Para estarmos em conformidade com a Lei Geral de Proteção de Dados (Lei 13.709), bem como prestarmos o melhor serviço para nossos usuários, utilizamos seus dados pessoais para melhorar sua experiência em nosso portal, porém sempre mantendo os padrões de segurança exigidos por lei.</span></p><p dir="ltr" style="line-height:1.452;margin-left: 1pt;background-color:#ffffff;margin-top:0pt;margin-bottom:0pt;padding:4pt 0pt 0pt 0pt;"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Desta forma utilizamos seus dados para aprimorar seu interesse dentro de nosso portal, para fins publicitários, com o intuito de lhe oferecer produtos que se conectem com seus gostos pessoais, de acordo com seu histórico de pesquisa, mantendo você sempre atualizado com as novidades da Itaivan.</span></p><p dir="ltr" style="line-height:1.464;margin-left: 1pt;background-color:#ffffff;margin-top:0pt;margin-bottom:0pt;"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Ao acessar nosso site, você poderá ser automaticamente identificado, por meio do tratamento de seus dados.</span></p><p dir="ltr" style="line-height:1.44;margin-left: 1pt;background-color:#ffffff;margin-top:0pt;margin-bottom:0pt;"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Além disto, para que você seja mais facilmente contatado, manteremos o seu cadastro atualizado.</span></p><p dir="ltr" style="line-height:1.464;margin-left: 1pt;background-color:#ffffff;margin-top:0pt;margin-bottom:0pt;"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Da mesma forma, tratamos seus dados para garantir a sua segurança, ao impedirmos fraudes e assegurarmos a execução plena de nossos contratos.</span></p><p dir="ltr" style="line-height:1.464;margin-left: 1pt;background-color:#ffffff;margin-top:0pt;margin-bottom:0pt;"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Caso você não tenha mais interesse em permanecer recebendo este tratamento de dados, você poderá entrar em contato conosco através do e-mail </span><span style="font-size:11pt;font-family:Arial,sans-serif;color:#0462c1;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:underline;-webkit-text-decoration-skip:none;text-decoration-skip-ink:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;"><a href="mailto:privacidade@itaivan.com" target="_blank">privacidade@itaivan.com</a></span></p><ol style="margin-top:0;margin-bottom:0;padding-inline-start:48px;" start="3"><li dir="ltr" style="list-style-type:decimal;font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:700;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;margin-left: 1pt;" aria-level="1"><p dir="ltr" style="line-height:1.38;background-color:#ffffff;margin-top:0pt;margin-bottom:0pt;" role="presentation"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:700;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Com quem compartilhamos seus dados pessoais</span></p></li></ol><p dir="ltr" style="line-height:1.44;margin-left: 1pt;background-color:#ffffff;margin-top:0pt;margin-bottom:0pt;"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Suas informações coletadas por nós, a fim de melhorar nossos serviços, poderão ser compartilhadas com empresas parceiras, sempre que houver necessidade, para fins de análise cadastral, mediante buscas através de empresas de crédito, empresa de seguros, entre outras empresas que integrem o processo de garantia de fraude e asseguram o que prevê em contrato.</span></p><p dir="ltr" style="line-height:1.44;margin-left: 1pt;background-color:#ffffff;margin-top:0pt;margin-bottom:0pt;"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">E ainda poderão ser compartilhadas com empresas de marketing, empresas provedoras de infraestrutura tecnológicas e operacionais necessárias para as atividades da organização.</span></p><p dir="ltr" style="line-height:1.44;margin-left: 1pt;margin-right: 17pt;background-color:#ffffff;margin-top:0pt;margin-bottom:0pt;"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Podendo ainda, de forma obrigatória compartilhar seus dados sempre que houver solicitação de autoridades governamentais, diante de lei ou ordem judicial.</span></p><ol style="margin-top:0;margin-bottom:0;padding-inline-start:48px;" start="4"><li dir="ltr" style="list-style-type:decimal;font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:700;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;margin-left: 1pt;" aria-level="1"><p dir="ltr" style="line-height:1.38;background-color:#ffffff;margin-top:0pt;margin-bottom:0pt;" role="presentation"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:700;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Como protegemos seus dados</span></p></li></ol><p dir="ltr" style="line-height:1.44;margin-left: 1pt;margin-right: 17pt;background-color:#ffffff;margin-top:0pt;margin-bottom:0pt;"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Nós nos cercamos de medidas técnicas para que você desfrute de nossos serviços com a maior segurança, além disso contamos com o sigilo e descrição de nosso time de colaboradores.</span></p><p dir="ltr" style="line-height:1.44;margin-left: 1pt;background-color:#ffffff;margin-top:0pt;margin-bottom:0pt;"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">A transação da informação inserida em nossa plataforma é criptografada e controlada por usuário e senha destinado a tal fim.</span></p><p dir="ltr" style="line-height:1.44;margin-left: 1pt;background-color:#ffffff;margin-top:0pt;margin-bottom:0pt;"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Ressaltamos, ainda, que caso haja acesso por pessoas não autorizadas, adotaremos as medidas técnicas para proteger seus dados.</span></p><p dir="ltr" style="line-height:1.44;margin-left: 1pt;margin-right: 3pt;background-color:#ffffff;margin-top:0pt;margin-bottom:0pt;"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Por fim, informamos que sempre que se fizer necessário utilizaremos seus dados de maneira anônima a fim de preservar sua identidade.</span></p><ol style="margin-top:0;margin-bottom:0;padding-inline-start:48px;" start="5"><li dir="ltr" style="list-style-type:decimal;font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:700;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;margin-left: 1pt;" aria-level="1"><p dir="ltr" style="line-height:1.38;background-color:#ffffff;margin-top:0pt;margin-bottom:0pt;" role="presentation"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:700;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Quanto tempo seus dados permanecem em nossa base:</span></p></li></ol><p dir="ltr" style="line-height:1.44;margin-left: 1pt;background-color:#ffffff;margin-top:0pt;margin-bottom:0pt;"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Seus dados permanecerão armazenados em nossa base, até que os motivos pelos quais fomos adicionados sejam prestados. Ou ainda, até a prescrição material e processual, em eventuais processos judiciais. Podemos ainda permanecer com suas informações até que a lei determine, ordem judicial, proteção ao crédito ou mesmo por alguma hipótese prevista no artigo 10 da Lei Geral de Proteção de Dados.</span></p><p dir="ltr" style="line-height:1.44;margin-left: 1pt;background-color:#ffffff;margin-top:0pt;margin-bottom:0pt;"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Os dados são de propriedade do titular, desta forma, você poderá entrar em contato através do e-mail </span><span style="font-size:11pt;font-family:Arial,sans-serif;color:#0462c1;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:underline;-webkit-text-decoration-skip:none;text-decoration-skip-ink:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;"><a href="mailto:privacidade@itaivan.com" target="_blank">privacidade@itaivan.com</a></span><span style="font-size:11pt;font-family:Arial,sans-serif;color:#0462c1;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;"> </span><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">e solicitar sua exclusão ou anonimização.</span></p><ol style="margin-top:0;margin-bottom:0;padding-inline-start:48px;" start="6"><li dir="ltr" style="list-style-type:decimal;font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:700;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;margin-left: 1pt;" aria-level="1"><p dir="ltr" style="line-height:1.38;background-color:#ffffff;margin-top:0pt;margin-bottom:0pt;" role="presentation"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:700;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Quais seus direitos</span></p></li></ol><p dir="ltr" style="line-height:1.44;margin-left: 1pt;background-color:#ffffff;margin-top:0pt;margin-bottom:0pt;"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Em cumprimento ao artigo 18º da Lei Geral de Proteção de Dados, descrevemos a seguir os direitos que o titular dos dados tem junto a Itaivan.</span></p><p dir="ltr" style="line-height:1.44;margin-left: 1pt;margin-right: 328pt;background-color:#ffffff;margin-top:4pt;margin-bottom:0pt;"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;"><br><br></span></p><ul style="margin-top:0;margin-bottom:0;padding-inline-start:48px;"><li dir="ltr" style="list-style-type:disc;font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;margin-left: 1pt;" aria-level="1"><p dir="ltr" style="line-height:1.38;background-color:#ffffff;margin-top:0pt;margin-bottom:0pt;" role="presentation"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Confirmação dos dados tratados, em qualquer momento você poderá fazer contato para obter essa confirmação;</span></p></li></ul><ul style="margin-top:0;margin-bottom:0;padding-inline-start:48px;"><li dir="ltr" style="list-style-type:disc;font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;margin-left: 1pt;" aria-level="1"><p dir="ltr" style="line-height:1.38;background-color:#ffffff;margin-top:0pt;margin-bottom:0pt;" role="presentation"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Acesso aos dados, você poderá nos contatar e questionar quais de seus dados temos armazenados;</span></p></li></ul><ul style="margin-top:0;margin-bottom:0;padding-inline-start:48px;"><li dir="ltr" style="list-style-type:disc;font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;margin-left: 1pt;" aria-level="1"><p dir="ltr" style="line-height:1.38;background-color:#ffffff;margin-top:0pt;margin-bottom:0pt;" role="presentation"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Correção dos dados que por algum motivo estejam incompletos, inexatos ou ainda desatualizados;</span></p></li></ul><ul style="margin-top:0;margin-bottom:0;padding-inline-start:48px;"><li dir="ltr" style="list-style-type:disc;font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;margin-left: 1pt;" aria-level="1"><p dir="ltr" style="line-height:1.38;background-color:#ffffff;margin-top:0pt;margin-bottom:0pt;" role="presentation"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Anonimização, bloqueio ou eliminação de dados que porventura estejam sendo tratados de forma desnecessária;</span></p></li></ul><ul style="margin-top:0;margin-bottom:0;padding-inline-start:48px;"><li dir="ltr" style="list-style-type:disc;font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;margin-left: 1pt;" aria-level="1"><p dir="ltr" style="line-height:1.38;background-color:#ffffff;margin-top:0pt;margin-bottom:0pt;" role="presentation"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Portabilidade de seus dados, sempre em conformidade com a Lei, você poderá solicitar a portabilidade de seus dados pessoais a outro prestador de serviços;</span></p></li></ul><ul style="margin-top:0;margin-bottom:0;padding-inline-start:48px;"><li dir="ltr" style="list-style-type:disc;font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;margin-left: 1pt;" aria-level="1"><p dir="ltr" style="line-height:1.38;background-color:#ffffff;margin-top:0pt;margin-bottom:0pt;" role="presentation"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Solicitar que a Itaivan informe com quais parceiros, empresas públicas e privadas seus dados foram compartilhados;</span></p></li></ul><ul style="margin-top:0;margin-bottom:0;padding-inline-start:48px;"><li dir="ltr" style="list-style-type:disc;font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;margin-left: 1pt;" aria-level="1"><p dir="ltr" style="line-height:1.38;background-color:#ffffff;margin-top:0pt;margin-bottom:0pt;" role="presentation"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Revogação do consentimento, você pode revogar em qualquer momento o consentimento previamente concedido, porém ressaltamos que ainda poderemos tratar seus dados de maneira anonimizada ou de acordo com hipótese legal que autorize este procedimento;</span></p></li></ul><ul style="margin-top:0;margin-bottom:0;padding-inline-start:48px;"><li dir="ltr" style="list-style-type:disc;font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;margin-left: 1pt;" aria-level="1"><p dir="ltr" style="line-height:1.38;background-color:#ffffff;margin-top:0pt;margin-bottom:0pt;" role="presentation"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Reclamação a Autoridade Nacional, caso julgue que por algum motivo seus dados estejam sendo tratados de maneira indevida, você poderá se reportar diretamente à Autoridade Nacional;</span></p></li></ul><ul style="margin-top:0;margin-bottom:0;padding-inline-start:48px;"><li dir="ltr" style="list-style-type:disc;font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;margin-left: 1pt;" aria-level="1"><p dir="ltr" style="line-height:1.38;background-color:#ffffff;margin-top:0pt;margin-bottom:0pt;" role="presentation"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Oposição ao tratamento de seus dados, desde que apresente uma justificativa legal, você pode se opor à maneira que seus dados estão sendo tratados.</span></p></li></ul><p dir="ltr" style="line-height:1.44;margin-left: 1pt;margin-right: 328pt;background-color:#ffffff;margin-top:4pt;margin-bottom:0pt;"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;"><br><br></span></p><ol style="margin-top:0;margin-bottom:0;padding-inline-start:48px;" start="7"><li dir="ltr" style="list-style-type:decimal;font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;margin-left: 1pt;" aria-level="1"><p dir="ltr" style="line-height:1.38;background-color:#ffffff;margin-top:0pt;margin-bottom:0pt;" role="presentation"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Atualização e melhorias nesta política de privacidade</span></p></li></ol><p dir="ltr" style="line-height:1.44;margin-left: 1pt;background-color:#ffffff;margin-top:0pt;margin-bottom:0pt;"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">A Itaivan Imobiliária, visando sempre o melhorar a qualidade de nosso portal e prestar um melhor serviço a você consumidor, nos resguardamos o direito de atualizar esta política de privacidade, sempre que julgarmos necessário, ou haja atualização correspondentes com a Lei. Para conferir essa atualização deixaremos descrito no início deste documento a data de sua última atualização.</span></p><ol style="margin-top:0;margin-bottom:0;padding-inline-start:48px;" start="8"><li dir="ltr" style="list-style-type:decimal;font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;margin-left: 1pt;" aria-level="1"><p dir="ltr" style="line-height:1.38;background-color:#ffffff;margin-top:0pt;margin-bottom:0pt;" role="presentation"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Foro de eleição</span></p></li></ol><p dir="ltr" style="line-height:1.2;margin-left: 0.6pt;margin-right: 328.1pt;margin-top:4.05pt;margin-bottom:0pt;"><span id="docs-internal-guid-f7c61651-7fff-58af-55cf-5c75567a6f5b"></span></p><p dir="ltr" style="line-height:1.44;margin-left: 1pt;background-color:#ffffff;margin-top:0pt;margin-bottom:0pt;"><span style="font-size:11pt;font-family:Arial,sans-serif;color:#000000;background-color:transparent;font-weight:400;font-style:normal;font-variant:normal;text-decoration:none;vertical-align:baseline;white-space:pre;white-space:pre-wrap;">Para resolução de eventuais conflitos e ou ingressar com ação judicial, elege-se o Foro da Comarca de Jaraguá do Sul/SC.</span></p>                    </div>
+                            </div>
+
+        </div>
+    </section>
+    <!-- END SOBRE EMPRESA -->
+
+
+    <footer id="footer"
+    class="back_footer_imovel footer_color ">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-sm-12 col-md-2 col-lg-2 col-xl-2">
+                <img class="logo-footer lazyload" loading="lazy" src="https://cdn.imoview.com.br/itaivan/Site/imagens/b4ji3fk4.png"
+                    alt="Itaivan Imobiliária - Sua imobiliária Itaivan Imobiliária" />
+                <p></p>
+            </div>
+            <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                <div class="row">
+                    <div class="col-12">
+                        <span class="titulo_footer">INSTITUCIONAL</span>
+                    </div>
+                    <div class="col-12">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item"><a href="https://www.itaivan.com/sobre">Nossa História</a></li>
+                            <li class="list-group-item"><a href="https://www.itaivan.com/contato">Fale Conosco</a></li>
+                            <li class="list-group-item"><a href="https://www.itaivan.com/nossa-equipe">Equipe</a></li>
+                            <!-- <li class="list-group-item"><a href="https://www.itaivan.com/projetos-missionarios">Projetosmissionários</a></li> -->
+                            <li class="list-group-item"><a href="https://www.itaivan.com/documentos">Documentos</a></li>
+                            <li class="list-group-item"><a href="https://www.itaivan.com/politica-privacidade">Política de
+                                    Privacidade</a></li>
+                            <li class="list-group-item">CRECI: 1749 J e 6764 J</li>
+
+
+                                                    </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-12 col-md-4 col-lg-3 col-xl-3">
+                <div class="row">
+                    <div class="col-12">
+                        <span class="titulo_footer">IMÓVEIS</span>
+                    </div>
+                    <div class="col-12">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">
+                                <a href="https://www.itaivan.com/venda">Imóveis para Comprar</a>
+                            </li>
+                            <li class="list-group-item">
+                                <a href="https://www.itaivan.com/aluguel">Imóveis para Alugar</a>
+                            </li>
+                            <!-- <li class="list-group-item">
+                                <a href="https://www.itaivan.com/venda/imovel/miami">Imóveis na Flórida</a>
+                            </li> -->
+                            <li class="list-group-item">
+                                <a
+                                    href="https://www.itaivan.com/venda/imovel/jaragua-do-sul-e-regiao/todos-os-bairros/todos-os-condominios/todas-as-opcoes/na-planta?&pagina=1&ordenacao=dataatualizacaodesc">Imóveis
+                                    na Planta</a>
+                            </li>
+                            <li class="list-group-item">
+                                <a
+                                    href="https://www.itaivan.com/venda/imovel/jaragua-do-sul-e-regiao/todos-os-bairros/todos-os-condominios/todas-as-opcoes/na-planta?&pagina=1&ordenacao=dataatualizacaodesc">Para
+                                    Construir</a>
+                            </li>
+                            <li class="list-group-item">
+                                <a
+                                    href="https://www.itaivan.com/venda/comercial+galpao+predio-comercial+casa-comercial+sala-comercial/jaragua-do-sul-e-regiao/todos-os-bairros/todos-os-condominios/&pagina=1&ordenacao=dataatualizacaodesc">Para
+                                    seu Negócio</a>
+                            </li>
+                            <li class="list-group-item">
+                                <a
+                                    href="https://www.itaivan.com/venda/imovel/jaragua-do-sul-e-regiao/todos-os-bairros/todos-os-condominios/todas-as-opcoes/?&pagina=1&ordenacao=dataatualizacaodesc&extras=71">Litoral</a>
+                            </li>
+                            <li class="list-group-item">
+                                <a
+                                    href="https://www.itaivan.com/venda/imovel/jaragua-do-sul-e-regiao/todos-os-bairros/todos-os-condominios/todas-as-opcoes/?&pagina=1&ordenacao=dataatualizacaodesc&extras=72">Serra</a>
+                            </li>
+                            <!-- <li class="list-group-item">
+                                <a href="https://www.itaivan.com/venda/imovel/jaragua-do-sul-e-regiao/todos-os-bairros/todos-os-condominios/apenas-lancamentos/">Lançamentos</a>
+                            </li> -->
+                            <li class="list-group-item"><a href="https://www.itaivan.com/condominios">Condomínios</a></li>
+                            <li class="list-group-item"><a href="https://www.itaivan.com/anuncie-seu-imovel">Anunciar seu imóvel</a>
+                            </li>
+                            <!-- <li class="list-group-item"><a href="https://www.itaivan.com/imoveis-favoritos">Favoritos</a></li> -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-12 col-md-3 col-lg-2 col-xl-2" hidden>
+                <div class="row">
+                    <div class="col-12">
+                        <span class="titulo_footer">Cliente</span>
+                    </div>
+                    <div class="col-12">
+                        <ul class="list-group list-group-flush">
+
+                                                        <li class="list-group-item"><a target="_blank" href="https://cliente.portalunsoft.com.br/login/itaivan">Área do
+                                    cliente</a></li>
+                            
+                            <!--<li class="list-group-item"><a href="https://www.itaivan.com/documentos">Documentos</a></li>-->
+                            <li class="list-group-item"><a href="https://www.itaivan.com/ouvidoria">Ouvidoria</a></li>
+                            <li class="list-group-item"><a href="https://www.itaivan.com/trabalhe-conosco">Trabalhe conosco</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-12 col-md-3 col-lg-4 col-xl-4">
+                <div class="row d-flex junstify-content-center align-item-center">
+                    <div class="col-12">
+                        <span class="titulo_footer">ATENDIMENTO</span>
+                    </div>
+                    <div class="col-12">
+                        <a class="links-footer" href="mailto:itaivan@itaivan.com">
+                            <p>itaivan@itaivan.com</p>
+                        </a>
+                        <p>Rua Presidente Epitácio Pessoa, 1048 Centro • Jaraguá do Sul / SC • CEP: 89251-100</p>
+                    </div>
+                                        <div class="col-12" style="padding: 0px">
+                        <a class="links-footer" target="_blank"
+                            href="tel:4730553412">
+                            <img class="lazyload mini_icon_rodape" loading="lazy"
+                                src="https://www.itaivan.com/assets/icons/icon-phone.svg" width="39" height="39" border="0"
+                                alt="Telefone" />
+                            <span>(47) 3055-3412 - Telefone</span>
+                        </a>
+                    </div>
+                                                                                                                        <div class="col-12" style="padding: 0px">
+                        <a class="links-footer" target="_blank"
+                            href="https://api.whatsapp.com/send?phone=554731803334&text=Olá.">
+                            <img class="lazyload mini_icon_rodape" loading="lazy"
+                                src="https://www.itaivan.com/assets/icons/redes-sociais/icon-whatsapp-dark.svg" width="34"
+                                height="35" alt="WhatsApp" border="0" />
+                            <span> (47) 3180-3334 - Central de Locação</span>
+                        </a>
+                    </div>
+                                                            <div class="col-12" style="padding: 0px">
+                        <a class="links-footer" target="_blank"
+                            href="https://api.whatsapp.com/send?phone=5547991847574&text=Olá.">
+                            <img class="lazyload mini_icon_rodape" loading="lazy"
+                                src="https://www.itaivan.com/assets/icons/redes-sociais/icon-whatsapp-dark.svg" width="34"
+                                height="35" alt="WhatsApp" border="0" />
+                            <span> (47) 9 9184-7574 - Plantão de Vendas</span>
+                        </a>
+                    </div>
+                    
+                </div>
+                <div class="row">
+                    <div class="col-12 margin-top-10 margin-bottom-10">
+                        <span class="titulo_footer">redes sociais</span>
+                    </div>
+                    <div class="col-12">
+                                                <a target="_blank"                            href="https://www.instagram.com/itaivanimobiliaria/">
+                            <img class="lazyload" loading="lazy" src="https://cdn.imoview.com.br/itaivan/Site/imagens/er1bk3z5.png"
+                                width="39" height="39" border="0"
+                                alt="https://cdn.imoview.com.br/itaivan/Site/imagens/er1bk3z5.png" />
+                        </a>
+                                                <a target="_blank"                            href="https://www.youtube.com/@itaivanimobiliaria8057">
+                            <img class="lazyload" loading="lazy" src="https://cdn.imoview.com.br/itaivan/Site/imagens/6plyyx15.png"
+                                width="39" height="39" border="0"
+                                alt="https://cdn.imoview.com.br/itaivan/Site/imagens/6plyyx15.png" />
+                        </a>
+                                                <a target="_blank"                            href="https://www.facebook.com/itaivan/?locale=pt_BR">
+                            <img class="lazyload" loading="lazy" src="https://cdn.imoview.com.br/itaivan/Site/imagens/khhyvpd3.png"
+                                width="39" height="39" border="0"
+                                alt="https://cdn.imoview.com.br/itaivan/Site/imagens/khhyvpd3.png" />
+                        </a>
+                                            </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- <div id="text-copyright" class="row justify-content-between align-items-center">
+            <p>© 2026 | Itaivan Imobiliária | CRECI: 1749 J e 6764 J | Desenvolvido por <a href="https://www.universalsoftware.com.br/" target="_blank"><b>Universal Software.</b></a></p>
+             <span>Dev. responstavel: Carlos Meints</span>
+        </div> -->
+        <div id="text-copyright" class="row justify-content-between align-items-center">
+            <p>© 2026 | Itaivan Imobiliária | Desenvolvido por <a
+                    href="https://www.universalsoftware.com.br/" target="_blank"><b>Universal Software.</b></a></p>
+            <!-- <span>Dev. responstavel: Carlos Meints</span> -->
+        </div>
+    </div>
+
+</footer>
+
+<div class="container-mansagem">
+    <span class="mensagem-alert">
+        <!-- Mensagem de alerta -->
+    </span>
+</div>
+
+<div class="container-mensagem-error">
+    <span class="mensagem-alert-error">
+        <!-- Mensagem de alerta -->
+    </span>
+</div>
+
+<input type="hidden" name="captchaAtivo" id="captchaAtivo" value="1">
+
+<div id="modal-area-cliente" class="container-modal-areacliente">
+    <div class="header">
+        <div class="btn-close-modal-cliente">
+            <span class="material-symbols-outlined">close</span>
+        </div>
+    </div>
+    <div class="body">
+        <div class="container-form">
+            <a target="_blank" href="https://cliente.portalunsoft.com.br/login/itaivan">
+                <img src="https://www.itaivan.com/public/assets/images/avisoAreaCliente.png" />
+            </a>            
+        </div>
+    </div>
+</div>    
+<a id="btn-whats"  target="_blank" class="float">
+    <img class="my-float img-whats" src="https://www.itaivan.com/assets/icons/redes-sociais/icon-whatsapp-branco.svg" width="34" height="35" alt="WhatsApp" >
+</a>
+
+    <div class="container-whatsapp">
+        <div class="header">
+            <span>WhatsApp</span>
+            <button class="close-modal-whats">
+                <img src="https://www.itaivan.com/assets/images/mapa/close.svg" alt="botão close" />
+            </button>
+        </div>
+        <div class="container-modal">
+            <a target="_blank"
+                href="https://api.whatsapp.com/send?phone=5547991847574&text=Olá, estive no site e gostaria de mais informações.">
+                <button class="btn-modal-whats">
+                    <span>(47) 99184-7574 - <strong>Venda</strong></span>
+                </button>
+            </a>
+            <a target="_blank"
+                href="https://api.whatsapp.com/send?phone=554731803334&text=Olá, estive no site e gostaria de mais informações.">
+                <button class="btn-modal-whats">
+                    <span>(47) 3180-3334 - <strong>Locação</strong></span>
+                </button>
+            </a>
+        </div>
+    </div>
+
+<div class="container-mansagem">
+    <span class="mensagem-alert"></span>
+</div>    <script>
+    window.addEventListener("load", function() {
+        window.cookieconsent.initialise({
+            palette: {
+                popup: {
+                    background: "#eaf7f7",
+                    text: "#5c7291"
+                },
+                button: {
+                    background: "#ad1b28",
+                    text: "#fff !important"
+                }
+            },
+            theme: "classic",
+            position: "bottom",
+            content: {
+                message: "Usamos cookies para personalizar conteúdos e melhorar a sua experiência. Para ver nossa Política de Privacidade.",
+                dismiss: "Aceito",
+                link: "Clique aqui",
+                href: "https://www.itaivan.com/politica-privacidade"
+            }
+        });
+    });
+
+</script>
+
+
+
+            <!-- 40 -->
+<!-- inputs globais -->
+<input type="hidden" id="DISPOSITIVO_MOBILE" value="0" />
+
+<!-- OS VALORES DAS VARIAVEIS ESTÃO NA CONFIG -->
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Itaivan",
+    "description": "Compre, venda e Alugue imóveis em Jaraguá do Sul e Região",
+    "address": {
+      "@type": "PostalAddress",
+      "addressCountry": {
+        "@type": "Country",
+        "name": "BR"
+      },
+      "addressLocality": "Jaraguá do Sul e Região",
+      "addressRegion": "sc"
+    },
+    "brand": {
+      "@type": "Brand",
+      "logo": "https://www.itaivan.com/assets/img/logo-link.png"
+    },
+    "URL": "https://www.itaivan.com/politica-privacidade"
+  }
+</script>
+
+
+
+
+
+
+        
+
+
+
+
+<!-- ARQUIVOS PADROES DO PROJETO -->
+<script src="https://www.itaivan.com/assets/lib/jquery.js?v=1.17"></script>
+
+<!-- <script src="https://www.itaivan.com/assets/lib/bootstrap450/js/bootstrap.bundle.js?v=1.17"></script> -->
+<script src="https://www.itaivan.com/assets/lib/bootstrap-notify-master/bootstrap-notify.min.js?v=1.17"></script>
+<script src="https://www.itaivan.com/assets/lib/bootstrap450/js/bootstrap.min.js?v=1.17"></script>
+
+<script src="https://www.itaivan.com/assets/js/utils.js?v=1.17"></script>
+<script src="https://www.itaivan.com/assets/lib/lazysizes.js?v=1.17"></script>
+<script src="https://www.itaivan.com/assets/lib/jquery.mask.min.js?v=1.17"></script>
+<script src="https://www.itaivan.com/assets/js/menu.js?v=1.17"></script>
+<script src="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.js"></script>
+<script src="https://www.itaivan.com/assets/lib/font_awesome/all.min.js?v=1.17"></script>
+
+<script src="https://www.itaivan.com/assets/js/popUp.js?v=1.17"></script>
+
+<input type="hidden" name="TEMA_STRING" id="TEMA_STRING" value="clean" />
+
+
+<script src="https://www.itaivan.com/assets/js/favoritos/index.js?v=1.17"></script>
+        </body>
+
+</html>

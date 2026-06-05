@@ -1,20 +1,30 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import {
     Bot,
     Building2,
     CreditCard,
     Database,
+    Globe,
     LayoutDashboard,
+    Loader2,
+    LogOut,
     ShieldCheck,
     Users,
 } from "lucide-react";
 
+import { authService } from "@/services/authService";
+import { clearAuthenticatedSession } from "@/services/authSessionCookie";
+import { useAuthStore } from "@/store/useAuthStore";
 import {
     Sidebar,
     SidebarContent,
+    SidebarFooter,
     SidebarGroup,
     SidebarGroupContent,
     SidebarGroupLabel,
@@ -65,6 +75,11 @@ const navItems = [
         href: "/billing",
         icon: CreditCard,
     },
+    {
+        title: "Configurações do site",
+        href: "/configuracoes-do-site",
+        icon: Globe,
+    },
 ];
 
 // ---------------------------------------------------------------------------
@@ -73,6 +88,28 @@ const navItems = [
 
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
     const pathname = usePathname();
+    const router = useRouter();
+    const queryClient = useQueryClient();
+    const clearAuth = useAuthStore((state) => state.clearAuth);
+    const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+    const handleLogout = async () => {
+        if (isLoggingOut) return;
+
+        setIsLoggingOut(true);
+        try {
+            await authService.logout();
+        } catch (error) {
+            console.error("Erro no logout via backend", error);
+        } finally {
+            clearAuthenticatedSession();
+            clearAuth();
+            queryClient.clear();
+            router.push("/login");
+            toast.success("Desconectado com sucesso.");
+            setIsLoggingOut(false);
+        }
+    };
 
     return (
         <Sidebar collapsible="icon" {...props}>
@@ -128,6 +165,27 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                     </SidebarGroupContent>
                 </SidebarGroup>
             </SidebarContent>
+
+            <SidebarFooter className="border-t border-sidebar-border">
+                <SidebarMenu>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton
+                            type="button"
+                            tooltip="Sair da conta"
+                            disabled={isLoggingOut}
+                            onClick={handleLogout}
+                            className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                        >
+                            {isLoggingOut ? (
+                                <Loader2 className="animate-spin" />
+                            ) : (
+                                <LogOut />
+                            )}
+                            <span>{isLoggingOut ? "Saindo..." : "Sair da conta"}</span>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                </SidebarMenu>
+            </SidebarFooter>
 
             <SidebarRail />
         </Sidebar>

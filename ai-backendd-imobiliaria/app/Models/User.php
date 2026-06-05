@@ -18,6 +18,7 @@ class User extends Authenticatable
 
 
     protected $fillable = [
+        'tenant_id',
         'name', 'email', 'phone', 'creci', 'order', 'person_type',
         'group_id', 'team_id', 'username', 'password', 'avatar_path',
         'is_active', 'show_on_website', 'has_broker_page',
@@ -52,6 +53,11 @@ class User extends Authenticatable
     public function scopeOnline(Builder $query): Builder
     {
         return $query->where('last_seen_at', '>=', now()->subMinutes(5));
+    }
+
+    public function tenant(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Tenant::class);
     }
 
     public function subscriptions(): \Illuminate\Database\Eloquent\Relations\HasMany

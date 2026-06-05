@@ -2,6 +2,7 @@
 
 import { useAuthStore } from "../../../store/useAuthStore";
 import { authService } from "../../../services/authService";
+import { clearAuthenticatedSession } from "../../../services/authSessionCookie";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -28,6 +29,7 @@ export function UserNav() {
         } catch (error) {
             console.error("Erro no logout via backend", error);
         } finally {
+            clearAuthenticatedSession();
             clearAuth(); // Limpa Zustand store
             queryClient.clear(); // Limpa cache do React Query
             router.push("/login");

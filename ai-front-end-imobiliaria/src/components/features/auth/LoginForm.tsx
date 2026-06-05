@@ -10,6 +10,7 @@ import { AxiosError } from "axios";
 
 import { loginSchema, type LoginFormData } from "../../../schemas/authSchemas";
 import { authService } from "../../../services/authService";
+import { markAuthenticatedSession } from "../../../services/authSessionCookie";
 import { useAuthStore } from "../../../store/useAuthStore";
 
 import { Button } from "../../ui/button";
@@ -46,6 +47,7 @@ export function LoginForm() {
             // Após o login, buscamos o usuário
             const response = await authService.getUser();
             setUser(response.data);
+            markAuthenticatedSession(data.remember);
 
             toast.success("Login efetuado com sucesso!");
             router.push("/usuarios"); // ou para onde a spec determinar (raiz ou dashboard protegida)

@@ -1,0 +1,3 @@
+[submodule "imobscrapy"]
+	path = imobscrapy
+	url = git@github.com:viniciusz1/imobscrapy.git

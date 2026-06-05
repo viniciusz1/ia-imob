@@ -36,6 +36,10 @@ Route::middleware('auth:sanctum')->group(function () {
     // Saved Filters (Authenticated, user-scoped)
     Route::apiResource('saved-filters', \App\Http\Controllers\Api\SavedFilterController::class);
 
+    // White-Label Site settings (Branding, tenant-scoped to the current user)
+    Route::get('site-settings', [\App\Http\Controllers\Api\SiteSettingsController::class, 'show']);
+    Route::put('site-settings', [\App\Http\Controllers\Api\SiteSettingsController::class, 'update']);
+
     // AI Search (Authenticated)
     Route::post('scrapy-properties/ai-search', [\App\Http\Controllers\Api\AiSearchController::class, 'search']);
 
@@ -56,6 +60,17 @@ Route::middleware('auth:sanctum')->group(function () {
 
     require __DIR__ . '/api/user_routes.php';
 });
+
+// White-Label Public Site API (unauthenticated, tenant resolved from host)
+Route::middleware(\App\Http\Middleware\ResolvePublicTenant::class)
+    ->prefix('public')
+    ->group(function () {
+        Route::get('properties', [\App\Http\Controllers\Api\PublicPropertyController::class, 'index']);
+        Route::get('properties/{slug}', [\App\Http\Controllers\Api\PublicPropertyController::class, 'show']);
+        Route::post('leads', [\App\Http\Controllers\Api\PublicLeadController::class, 'store'])
+            ->middleware('throttle:10,1');
+        Route::get('site', [\App\Http\Controllers\Api\PublicSiteController::class, 'show']);
+    });
 
 // Plans (Public)
 Route::get('/plans', [\App\Http\Controllers\Api\PlanController::class, 'index']);

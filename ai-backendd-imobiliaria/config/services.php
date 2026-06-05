@@ -41,4 +41,9 @@ return [
         'base_url'      => env('ASAAS_BASE_URL', 'https://api-sandbox.asaas.com'),
     ],
 
+    'next' => [
+        'revalidate_url'     => env('NEXT_REVALIDATE_URL'),
+        'revalidation_secret' => env('REVALIDATION_SECRET'),
+    ],
+
 ];

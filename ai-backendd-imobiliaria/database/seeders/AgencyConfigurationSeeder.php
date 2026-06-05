@@ -205,7 +205,7 @@ class AgencyConfigurationSeeder extends Seeder
             ['agency_type'=>'wsm','agency_id'=>$id,'field_name'=>'bairro','priority'=>'1','source_type'=>'xpath','selector_value'=>'.//h4/text()','selector_join'=>false,'pipeline'=>'split:,:0|strip','output_type'=>'text','is_optional'=>false],
             ['agency_type'=>'wsm','agency_id'=>$id,'field_name'=>'descricao','priority'=>'1','source_type'=>'literal','selector_value'=>'-','selector_join'=>false,'output_type'=>'text','is_optional'=>false],
             ['agency_type'=>'wsm','agency_id'=>$id,'field_name'=>'cidade','priority'=>'1','source_type'=>'xpath','selector_value'=>'.//h4/text()','selector_join'=>false,'pipeline'=>'split:,:1|strip','output_type'=>'text','is_optional'=>false],
-            ['agency_type'=>'wsm','agency_id'=>$id,'field_name'=>'imagem','priority'=>'1','source_type'=>'xpath','selector_value'=>'.//div[@class="foto-imovel"]/@style','selector_join'=>false,'pipeline'=>'replace:background-image:url(\'>|replace:'],
+            ['agency_type'=>'wsm','agency_id'=>$id,'field_name'=>'imagem','priority'=>'1','source_type'=>'xpath','selector_value'=>'.//div[@class="foto-imovel"]/@style','selector_join'=>false,'pipeline'=>'replace:background-image:url(\'>|replace:','output_type'=>'url','is_optional'=>false],
         ];
         foreach ($f as $x) $this->insertField($x);
     }
@@ -259,7 +259,7 @@ class AgencyConfigurationSeeder extends Seeder
             ['agency_type'=>'wsm','agency_id'=>$id,'field_name'=>'bairro','priority'=>'1','source_type'=>'xpath','selector_value'=>'.//div[@class="imo_info_box"]/text()','selector_join'=>false,'pipeline'=>'split:-:1|split:–:1|strip','output_type'=>'text','is_optional'=>false],
             ['agency_type'=>'wsm','agency_id'=>$id,'field_name'=>'descricao','priority'=>'1','source_type'=>'xpath','selector_value'=>'.//div[@class="title"]/text()','selector_join'=>false,'pipeline'=>'strip','output_type'=>'text','is_optional'=>false],
             ['agency_type'=>'wsm','agency_id'=>$id,'field_name'=>'cidade','priority'=>'1','source_type'=>'xpath','selector_value'=>'.//div[@class="imo_info_box"]/text()','selector_join'=>false,'pipeline'=>'split:-:1|split:–:0|strip','output_type'=>'text','is_optional'=>false],
-            ['agency_type'=>'wsm','agency_id'=>$id,'field_name'=>'imagem','priority'=>'1','source_type'=>'xpath','selector_value'=>'.//div[@class="image"]/div/@style','selector_join'=>false,'pipeline'=>'\'replace:background:url(>|replace:) center no-repeat>|replace:background-size:cover'],
+            ['agency_type'=>'wsm','agency_id'=>$id,'field_name'=>'imagem','priority'=>'1','source_type'=>'xpath','selector_value'=>'.//div[@class="image"]/div/@style','selector_join'=>false,'pipeline'=>'\'replace:background:url(>|replace:) center no-repeat>|replace:background-size:cover','output_type'=>'url','is_optional'=>false],
         ];
         foreach ($f as $x) $this->insertField($x);
     }

@@ -1,0 +1,411 @@
+Execution model: sitemap
+Fields: tipo, valor, bairro, cidade, link_imovel, imagem, descricao, quartos, suites, banheiros, vagas, area, aceita_permuta, financiamento, piscina, churrasqueira, academia, salao_festas, playground, sacada, mobiliado, ar_condicionado, lavanderia, escritorio, closet, elevador, portaria_24h, andar, posicao_solar, ano_construcao
+Previously failed selectors by field: {"valor": ["sample 0: empty or implausible result", "sample 1: empty or implausible result", "sample 2: empty or implausible result", "sample 3: empty or implausible result", "sample 4: empty or implausible result"], "bairro": ["sample 0: empty or implausible result", "sample 1: empty or implausible result", "sample 2: empty or implausible result", "sample 3: empty or implausible result", "sample 4: empty or implausible result"], "cidade": ["sample 0: empty or implausible result", "sample 1: empty or implausible result", "sample 2: empty or implausible result", "sample 3: empty or implausible result", "sample 4: empty or implausible result"]}
+
+HTML samples:
+--- SAMPLE 1 ---
+<!doctype html>
+<html lang="pt-br">
+
+<head>
+    <!-- Required meta tags -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+
+<title>
+    Apartamento para alugar, Vila Baependi - Jaraguá do Sul/SC</title>
+<meta name="description" content="Aproveite esta oportunidade de aluguel no Bairro Vila Baependi, em Jaraguá do Sul (SC). Apartamento residencial com 85,00 m², 2 quartos, 1 suíte, 1 banheiro, sala de estar e jantar, cozinha, área de s" />
+<meta name="robots" content="index" />
+
+
+<!-- CONFIGURAÇÕES DE COMPARTILHAMENTO DE LINK -->
+<meta property="og:title" content="Apartamento para alugar, Vila Baependi - Jaraguá do Sul/SC" />
+<meta property="og:type" content="website" />
+<meta property="og:description" content="Aproveite esta oportunidade de aluguel no Bairro Vila Baependi, em Jaraguá do Sul (SC). Apartamento residencial com 85,00 m², 2 quartos, 1 suíte, 1 banheiro, sala de estar e jantar, cozinha, área de s" />
+<meta property="og:url" content="https://www.itaivan.com/imovel/apartamento-para-aluguel-2-quartos-1-suite-2-vagas-vila-baependi-jaragua-do-sul-sc/4633" />
+<meta property="og:image" content="https://cdn.imoview.com.br/itaivan/Imoveis/4633/jxl3xk-whatsapp-image-2026-05-27-at-094955-1779991135.jpeg?1779996468" />
+<meta property="og:image:width" content="135">
+<meta property="og:image:height" content="135">
+
+<!-- Twitter -->
+<meta property="twitter:card" content="summary_large_image">
+<meta property="twitter:url" content="https://www.itaivan.com/imovel/apartamento-para-aluguel-2-quartos-1-suite-2-vagas-vila-baependi-jaragua-do-sul-sc/4633">
+<meta property="twitter:title" content="Apartamento para alugar, Vila Baependi - Jaraguá do Sul/SC">
+<meta property="twitter:description" content="Aproveite esta oportunidade de aluguel no Bairro Vila Baependi, em Jaraguá do Sul (SC). Apartamento residencial com 85,00 m², 2 quartos, 1 suíte, 1 banheiro, sala de estar e jantar, cozinha, área de s">
+<meta property="twitter:image" content="https://cdn.imoview.com.br/itaivan/Imoveis/4633/jxl3xk-whatsapp-image-2026-05-27-at-094955-1779991135.jpeg?1779996468">
+<link rel="canonical" href="https://www.itaivan.com/imovel/apartamento-para-aluguel-2-quartos-1-suite-2-vagas-vila-baependi-jaragua-do-sul-sc/4633" />
+
+
+<!-- Favicon icon -->
+<link rel="shortcut icon" href="https://cdn.imoview.com.br/itaivan/Site/imagens/dnh3qw1.ico" type="image/x-icon?v=1.0">
+        <!-- Google Tag Manager -->
+
+<!-- End Google Tag Manager -->
+
+<!-- Google tag (gtag.js) -->
+
+
+    <!--IMPORT COMUM-->
+<link rel="stylesheet" href="https://www.itaivan.com/assets/lib/bootstrap450/css/bootstrap.min.css?v=1.17" />
+<link rel="stylesheet" href="https://www.itaivan.com/assets/css/style.css?v=1.17" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.css?v=1.17" type="text/css" />
+<link rel="stylesheet" href="https://www.itaivan.com/assets/css/temas/theme-clean.css?v=1.17" />
+<link rel="stylesheet" href="https://www.itaivan.com/assets/lib/font_awesome/all.min.css?v=1.17">
+ <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+        <!-- IMPORTACAO DE PARTIALS -->
+    <!-- IMPORTAÇÃO DA PAGINA -->
+    <link rel="stylesheet" href="https://www.itaivan.com/assets/css/slick-theme.css?v=1.17" />
+    <link rel="stylesheet" href="https://www.itaivan.com/assets/css/slick.css?v=1.17" />
+    <link rel="stylesheet" href="https://www.itaivan.com/assets/lib/fancybox/jquery.fancybox.min.css?v=1.17" />
+    <link rel="stylesheet" href="https://www.itaivan.com/assets/css/detalhe-imovel/detalhe-imovel.css?v=1.17" />
+
+
+    <!-- IMPORT BOOSTRAP -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Icons" rel="stylesheet">
+    
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+        rel="stylesheet" />
+    
+
+    <!-- LeadFlow Capture Script -->
+
+    </head>
+
+<input type="hidden" id="EXIBIR_LACAMENTO_EM_MODAL" value="0" />
+
+<body class="back_primario">
+
+    <!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TS8QK9QZ"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) --><input type="hidden" id="REGIAO_LOCALIZACAO_BASE" value="Jaraguá do Sul e Região" /><input type="hidden" id="STR_REGIAO_LOCALIZACAO_BASE" value="em Jaraguá do Sul e Região" /><input type="hidden" id="REGIAO_LOCALIZACAO_BASE_URL" value="jaragua-do-sul-e-regiao" /><input type="hidden" id="EXIBIR_LACAMENTO_EM_MODAL" value="0" /><input type="hidden" id="LATITUDE" value="-26.4749675" /><input type="hidden" id="LONGITUDE" value="-49.0900998" />
+    <div class="modal-desktop">
+    <div class="header">
+        <button id="close-menu-modal">
+            <span class="botao_fechar_modal" style="color: #fff !important;">&times;</span>
+        </button>
+    </div>
+    <div class="container-lista-menu">
+        <ul>
+            <li class="list-titulo"><strong>IMÓVEIS</strong></li>
+            <li><a href="https://www.itaivan.com/venda">Imóveis à Venda</a></li>
+            <li><a href="https://www.itaivan.com/aluguel">Imóveis para Alugar</a></li>
+            <!-- <li><a href="https://www.itaivan.com/venda/imovel/miami">Imóveis na Flórida</a></li> -->
+            <li><a
+                    href="https://www.itaivan.com/venda/imovel/jaragua-do-sul-e-regiao/todos-os-bairros/todos-os-condominios/todas-as-opcoes/na-planta?&pagina=1&ordenacao=dataatualizacaodesc">Imóveis
+                    na Planta</a></li>
+            <li><a href="https://www.itaivan.com/venda/terreno+area/?&pagina=1&ordenacao=dataatualizacaodesc">Para Construir</a></li>
+            <li><a
+                    href="https://www.itaivan.com/venda/comercial+galpao+predio-comercial+casa-comercial+sala-comercial/jaragua-do-sul-e-regiao/todos-os-bairros/todos-os-condominios/&pagina=1&ordenacao=dataatualizacaodesc">Para
+                    seu Negócio</a></li>
+            <li><a
+                    href="https://www.itaivan.com/venda/imovel/jaragua-do-sul-e-regiao/todos-os-bairros/todos-os-condominios/todas-as-opcoes/?&pagina=1&ordenacao=dataatualizacaodesc&extras=71">Litoral</a>
+            </li>
+            <li><a
+                    href="https://www.itaivan.com/venda/imovel/jaragua-do-sul-e-regiao/todos-os-bairros/todos-os-condominios/todas-as-opcoes/?&pagina=1&ordenacao=dataatualizacaodesc&extras=72">Serra</a>
+            </li>
+            <li><a href="https://www.itaivan.com/condominios">Condomínios</a></li>
+            <li><a href="https://www.itaivan.com/anuncie-seu-imovel">Anunciar seu imóvel</a></li>
+            <li><a href="https://www.itaivan.com/imoveis-favoritos">Favoritos</a></li>
+        </ul>
+
+        <ul>
+            <li class="list-titulo"><strong>CLIENTE</strong></li>
+            <li><a target="_blank" class="btnAreaCliente" id="btnAreaCliente" >Área do Cliente</a></li>
+            <!-- <li><a target="_blank" href="https://cliente.portalunsoft.com.br/login/itaivan">Área do proprietário</a></li>
+            <li><a href="https://www.itaivan.com/ouvidoria">Ouvidoria</a></li> -->
+        </ul>
+        <ul>
+            <li class="list-titulo"><strong>INSTITUCIONAL</strong></li>
+            <li><a href="https://www.itaivan.com/sobre">Nossa História</a></li>
+            <li><a href="https://www.itaivan.com/contato">Fale Conosco</a></li>
+            <li><a href="trabalhe-conosco">Trabalhe Conosco</a></li>
+            <li><a href="https://www.itaivan.com/nossa-equipe">Equipe</a></li>
+            <!-- <li><a href="https://www.itaivan.com/projetos-missionarios">Projetos missionários</a></li> -->
+            <li><a href="https://www.itaivan.com/documentos">Documentos</a></li>
+                        <li><a href="https://www.itaivan.com/politica-privacidade">Política de
+
+--- SAMPLE 2 ---
+<!doctype html>
+<html lang="pt-br">
+
+<head>
+    <!-- Required meta tags -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+
+<title>
+    Sala Comercial para alugar, Centro - Jaraguá do Sul/SC</title>
+<meta name="description" content="Sua nova oportunidade comercial no coração de Jaraguá do Sul!
+
+Se você está em busca do espaço ideal para abrir ou expandir o seu negócio, esta sala comercial é a escolha perfeita. Com excelente vis" />
+<meta name="robots" content="index" />
+
+
+<!-- CONFIGURAÇÕES DE COMPARTILHAMENTO DE LINK -->
+<meta property="og:title" content="Sala Comercial para alugar, Centro - Jaraguá do Sul/SC" />
+<meta property="og:type" content="website" />
+<meta property="og:description" content="Sua nova oportunidade comercial no coração de Jaraguá do Sul!
+
+Se você está em busca do espaço ideal para abrir ou expandir o seu negócio, esta sala comercial é a escolha perfeita. Com excelente vis" />
+<meta property="og:url" content="https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4735" />
+<meta property="og:image" content="https://cdn.imoview.com.br/itaivan/Imoveis/4735/i6v36kh3e965_87635f7386c955e08.jpg?1751226836" />
+<meta property="og:image:width" content="135">
+<meta property="og:image:height" content="135">
+
+<!-- Twitter -->
+<meta property="twitter:card" content="summary_large_image">
+<meta property="twitter:url" content="https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4735">
+<meta property="twitter:title" content="Sala Comercial para alugar, Centro - Jaraguá do Sul/SC">
+<meta property="twitter:description" content="Sua nova oportunidade comercial no coração de Jaraguá do Sul!
+
+Se você está em busca do espaço ideal para abrir ou expandir o seu negócio, esta sala comercial é a escolha perfeita. Com excelente vis">
+<meta property="twitter:image" content="https://cdn.imoview.com.br/itaivan/Imoveis/4735/i6v36kh3e965_87635f7386c955e08.jpg?1751226836">
+<link rel="canonical" href="https://www.itaivan.com/imovel/sala-comercial-para-aluguel-centro-jaragua-do-sul-sc/4735" />
+
+
+<!-- Favicon icon -->
+<link rel="shortcut icon" href="https://cdn.imoview.com.br/itaivan/Site/imagens/dnh3qw1.ico" type="image/x-icon?v=1.0">
+        <!-- Google Tag Manager -->
+
+<!-- End Google Tag Manager -->
+
+<!-- Google tag (gtag.js) -->
+
+
+    <!--IMPORT COMUM-->
+<link rel="stylesheet" href="https://www.itaivan.com/assets/lib/bootstrap450/css/bootstrap.min.css?v=1.17" />
+<link rel="stylesheet" href="https://www.itaivan.com/assets/css/style.css?v=1.17" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.css?v=1.17" type="text/css" />
+<link rel="stylesheet" href="https://www.itaivan.com/assets/css/temas/theme-clean.css?v=1.17" />
+<link rel="stylesheet" href="https://www.itaivan.com/assets/lib/font_awesome/all.min.css?v=1.17">
+ <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+        <!-- IMPORTACAO DE PARTIALS -->
+    <!-- IMPORTAÇÃO DA PAGINA -->
+    <link rel="stylesheet" href="https://www.itaivan.com/assets/css/slick-theme.css?v=1.17" />
+    <link rel="stylesheet" href="https://www.itaivan.com/assets/css/slick.css?v=1.17" />
+    <link rel="stylesheet" href="https://www.itaivan.com/assets/lib/fancybox/jquery.fancybox.min.css?v=1.17" />
+    <link rel="stylesheet" href="https://www.itaivan.com/assets/css/detalhe-imovel/detalhe-imovel.css?v=1.17" />
+
+
+    <!-- IMPORT BOOSTRAP -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Icons" rel="stylesheet">
+    
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+        rel="stylesheet" />
+    
+
+    <!-- LeadFlow Capture Script -->
+
+    </head>
+
+<input type="hidden" id="EXIBIR_LACAMENTO_EM_MODAL" value="0" />
+
+<body class="back_primario">
+
+    <!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TS8QK9QZ"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) --><input type="hidden" id="REGIAO_LOCALIZACAO_BASE" value="Jaraguá do Sul e Região" /><input type="hidden" id="STR_REGIAO_LOCALIZACAO_BASE" value="em Jaraguá do Sul e Região" /><input type="hidden" id="REGIAO_LOCALIZACAO_BASE_URL" value="jaragua-do-sul-e-regiao" /><input type="hidden" id="EXIBIR_LACAMENTO_EM_MODAL" value="0" /><input type="hidden" id="LATITUDE" value="-26.4749675" /><input type="hidden" id="LONGITUDE" value="-49.0900998" />
+    <div class="modal-desktop">
+    <div class="header">
+        <button id="close-menu-modal">
+            <span class="botao_fechar_modal" style="color: #fff !important;">&times;</span>
+        </button>
+    </div>
+    <div class="container-lista-menu">
+        <ul>
+            <li class="list-titulo"><strong>IMÓVEIS</strong></li>
+            <li><a href="https://www.itaivan.com/venda">Imóveis à Venda</a></li>
+            <li><a href="https://www.itaivan.com/aluguel">Imóveis para Alugar</a></li>
+            <!-- <li><a href="https://www.itaivan.com/venda/imovel/miami">Imóveis na Flórida</a></li> -->
+            <li><a
+                    href="https://www.itaivan.com/venda/imovel/jaragua-do-sul-e-regiao/todos-os-bairros/todos-os-condominios/todas-as-opcoes/na-planta?&pagina=1&ordenacao=dataatualizacaodesc">Imóveis
+                    na Planta</a></li>
+            <li><a href="https://www.itaivan.com/venda/terreno+area/?&pagina=1&ordenacao=dataatualizacaodesc">Para Construir</a></li>
+            <li><a
+                    href="https://www.itaivan.com/venda/comercial+galpao+predio-comercial+casa-comercial+sala-comercial/jaragua-do-sul-e-regiao/todos-os-bairros/todos-os-condominios/&pagina=1&ordenacao=dataatualizacaodesc">Para
+                    seu Negócio</a></li>
+            <li><a
+                    href="https://www.itaivan.com/venda/imovel/jaragua-do-sul-e-regiao/todos-os-bairros/todos-os-condominios/todas-as-opcoes/?&pagina=1&ordenacao=dataatualizacaodesc&extras=71">Litoral</a>
+            </li>
+            <li><a
+                    href="https://www.itaivan.com/venda/imovel/jaragua-do-sul-e-regiao/todos-os-bairros/todos-os-condominios/todas-as-opcoes/?&pagina=1&ordenacao=dataatualizacaodesc&extras=72">Serra</a>
+            </li>
+            <li><a href="https://www.itaivan.com/condominios">Condomínios</a></li>
+            <li><a href="https://www.itaivan.com/anuncie-seu-imovel">Anunciar seu imóvel</a></li>
+            <li><a href="https://www.itaivan.com/imoveis-favoritos">Favoritos</a></li>
+        </ul>
+
+        <ul>
+            <li class="list-titulo"><strong>CLIENTE</strong></li>
+            <li><a target="_blank" class="btnAreaCliente" id="btnAreaCliente" >Área do Cliente</a></li>
+            <!-- <li><a target="_blank" href="https://cliente.portalunsoft.com.br/login/itaivan">Área do proprietário</a></li>
+            <li><a href="https://www.itaivan.com/ouvidoria">Ouvidoria</a></li> -->
+        </ul>
+        <ul>
+            <li class="list-titulo"><strong>INSTITUCIONAL</strong></li>
+            <li><a href="https://www.itaivan.com/sobre">Nossa História</a></li>
+            <li><a href="https://www.itaivan.com/contato">Fale Conosco</a></li>
+            <li><a href="trabalhe-conosco">Trabalhe Conosco</a></li>
+            <li><a href="https://www.itaivan.com/nossa-equipe">Equipe</a></li>
+            <!-- <li><a href="https://www.itaivan.com/projetos-missionarios">Projetos missionários</a></li> -->
+            <li><a href="https://www.itaivan.com/documentos">Documentos</a></li>
+                        <li><a href="https://www.itaivan.com/politica-privacidade">Política de Privacidade</a></li>
+        </ul>
+
+        <ul>
+            <li class="list-titulo"><strong>Contatos</strong></li>
+                        <li>
+          
+
+--- SAMPLE 3 ---
+<!doctype html>
+<html lang="pt-br">
+
+<head>
+    <!-- Required meta tags -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+
+<title>
+    Apartamento para alugar, Czerniewicz - Jaraguá do Sul/SC</title>
+<meta name="description" content="Taxas adicionais:
+
+Seguro contra incêndio
+Condomínio
+Taxa de lixo
+
+E demais taxas a serem informadas pela administradora" />
+<meta name="robots" content="index" />
+
+
+<!-- CONFIGURAÇÕES DE COMPARTILHAMENTO DE LINK -->
+<meta property="og:title" content="Apartamento para alugar, Czerniewicz - Jaraguá do Sul/SC" />
+<meta property="og:type" content="website" />
+<meta property="og:description" content="Taxas adicionais:
+
+Seguro contra incêndio
+Condomínio
+Taxa de lixo
+
+E demais taxas a serem informadas pela administradora" />
+<meta property="og:url" content="https://www.itaivan.com/imovel/apartamento-para-aluguel-1-quarto-1-vaga-czerniewicz-jaragua-do-sul-sc/4865" />
+<meta property="og:image" content="https://cdn.imoview.com.br/itaivan/Imoveis/4865/i35m42y_90375fc13ba5e668f.jpg?1746402778" />
+<meta property="og:image:width" content="135">
+<meta property="og:image:height" content="135">
+
+<!-- Twitter -->
+<meta property="twitter:card" content="summary_large_image">
+<meta property="twitter:url" content="https://www.itaivan.com/imovel/apartamento-para-aluguel-1-quarto-1-vaga-czerniewicz-jaragua-do-sul-sc/4865">
+<meta property="twitter:title" content="Apartamento para alugar, Czerniewicz - Jaraguá do Sul/SC">
+<meta property="twitter:description" content="Taxas adicionais:
+
+Seguro contra incêndio
+Condomínio
+Taxa de lixo
+
+E demais taxas a serem informadas pela administradora">
+<meta property="twitter:image" content="https://cdn.imoview.com.br/itaivan/Imoveis/4865/i35m42y_90375fc13ba5e668f.jpg?1746402778">
+<link rel="canonical" href="https://www.itaivan.com/imovel/apartamento-para-aluguel-1-quarto-1-vaga-czerniewicz-jaragua-do-sul-sc/4865" />
+
+
+<!-- Favicon icon -->
+<link rel="shortcut icon" href="https://cdn.imoview.com.br/itaivan/Site/imagens/dnh3qw1.ico" type="image/x-icon?v=1.0">
+        <!-- Google Tag Manager -->
+
+<!-- End Google Tag Manager -->
+
+<!-- Google tag (gtag.js) -->
+
+
+    <!--IMPORT COMUM-->
+<link rel="stylesheet" href="https://www.itaivan.com/assets/lib/bootstrap450/css/bootstrap.min.css?v=1.17" />
+<link rel="stylesheet" href="https://www.itaivan.com/assets/css/style.css?v=1.17" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.css?v=1.17" type="text/css" />
+<link rel="stylesheet" href="https://www.itaivan.com/assets/css/temas/theme-clean.css?v=1.17" />
+<link rel="stylesheet" href="https://www.itaivan.com/assets/lib/font_awesome/all.min.css?v=1.17">
+ <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+        <!-- IMPORTACAO DE PARTIALS -->
+    <!-- IMPORTAÇÃO DA PAGINA -->
+    <link rel="stylesheet" href="https://www.itaivan.com/assets/css/slick-theme.css?v=1.17" />
+    <link rel="stylesheet" href="https://www.itaivan.com/assets/css/slick.css?v=1.17" />
+    <link rel="stylesheet" href="https://www.itaivan.com/assets/lib/fancybox/jquery.fancybox.min.css?v=1.17" />
+    <link rel="stylesheet" href="https://www.itaivan.com/assets/css/detalhe-imovel/detalhe-imovel.css?v=1.17" />
+
+
+    <!-- IMPORT BOOSTRAP -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Icons" rel="stylesheet">
+    
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+        rel="stylesheet" />
+    
+
+    <!-- LeadFlow Capture Script -->
+
+    </head>
+
+<input type="hidden" id="EXIBIR_LACAMENTO_EM_MODAL" value="0" />
+
+<body class="back_primario">
+
+    <!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TS8QK9QZ"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) --><input type="hidden" id="REGIAO_LOCALIZACAO_BASE" value="Jaraguá do Sul e Região" /><input type="hidden" id="STR_REGIAO_LOCALIZACAO_BASE" value="em Jaraguá do Sul e Região" /><input type="hidden" id="REGIAO_LOCALIZACAO_BASE_URL" value="jaragua-do-sul-e-regiao" /><input type="hidden" id="EXIBIR_LACAMENTO_EM_MODAL" value="0" /><input type="hidden" id="LATITUDE" value="-26.4749675" /><input type="hidden" id="LONGITUDE" value="-49.0900998" />
+    <div class="modal-desktop">
+    <div class="header">
+        <button id="close-menu-modal">
+            <span class="botao_fechar_modal" style="color: #fff !important;">&times;</span>
+        </button>
+    </div>
+    <div class="container-lista-menu">
+        <ul>
+            <li class="list-titulo"><strong>IMÓVEIS</strong></li>
+            <li><a href="https://www.itaivan.com/venda">Imóveis à Venda</a></li>
+            <li><a href="https://www.itaivan.com/aluguel">Imóveis para Alugar</a></li>
+            <!-- <li><a href="https://www.itaivan.com/venda/imovel/miami">Imóveis na Flórida</a></li> -->
+            <li><a
+                    href="https://www.itaivan.com/venda/imovel/jaragua-do-sul-e-regiao/todos-os-bairros/todos-os-condominios/todas-as-opcoes/na-planta?&pagina=1&ordenacao=dataatualizacaodesc">Imóveis
+                    na Planta</a></li>
+            <li><a href="https://www.itaivan.com/venda/terreno+area/?&pagina=1&ordenacao=dataatualizacaodesc">Para Construir</a></li>
+            <li><a
+                    href="https://www.itaivan.com/venda/comercial+galpao+predio-comercial+casa-comercial+sala-comercial/jaragua-do-sul-e-regiao/todos-os-bairros/todos-os-condominios/&pagina=1&ordenacao=dataatualizacaodesc">Para
+                    seu Negócio</a></li>
+            <li><a
+                    href="https://www.itaivan.com/venda/imovel/jaragua-do-sul-e-regiao/todos-os-bairros/todos-os-condominios/todas-as-opcoes/?&pagina=1&ordenacao=dataatualizacaodesc&extras=71">Litoral</a>
+            </li>
+            <li><a
+                    href="https://www.itaivan.com/venda/imovel/jaragua-do-sul-e-regiao/todos-os-bairros/todos-os-condominios/todas-as-opcoes/?&pagina=1&ordenacao=dataatualizacaodesc&extras=72">Serra</a>
+            </li>
+            <li><a href="https://www.itaivan.com/condominios">Condomínios</a></li>
+            <li><a href="https://www.itaivan.com/anuncie-seu-imovel">Anunciar seu imóvel</a></li>
+            <li><a href="https://www.itaivan.com/imoveis-favoritos">Favoritos</a></li>
+        </ul>
+
+        <ul>
+            <li class="list-titulo"><strong>CLIENTE</strong></li>
+            <li><a target="_blank" class="btnAreaCliente" id="btnAreaCliente" >Área do Cliente</a></li>
+            <!-- <li><a target="_blank" href="https://cliente.portalunsoft.com.br/login/itaivan">Área do proprietário</a></li>
+            <li><a href="https://www.itaivan.com/ouvidoria">Ouvidoria</a></li> -->
+        </ul>
+        <ul>
+            <li class="list-titulo"><strong>INSTITUCIONAL</strong></li>
+            <li><a href="https://www.itaivan.com/sobre">Nossa História</a></li>
+            <li><a href="https://www.itaivan.com/contato">Fale Conosco</a></li>
+            <li><a href="trabalhe-conosco">Trabalhe Conosco</a></li>
+            <li><a href="https://www.itaivan.com/nossa-equipe">Equipe</a></li>
+            <!-- <li><a href="https://www.itaivan.com/projetos-missionarios">Projetos missionários</a></li> -->
+            <li><a href="https://www.itaivan.com/documentos">Documentos</a></li>
+                        <li><a href="https://www.itaivan.com/politica-privacidade">Política de Privacidade</a></li>
+        </ul>
+
+        <ul>
+            <li class="list-titulo"><strong>Contatos</strong></li>
+                        <li>
+                <a target="_blank" href="tel:4730553412">
+                    <img class="" target="_blank" loading="lazy" src="https://www.itaivan.com/assets/icons/icon-phone.svg"
+             

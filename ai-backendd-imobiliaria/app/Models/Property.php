@@ -2,15 +2,19 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToTenant;
+use App\Models\Concerns\GeneratesPropertySlug;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Property extends Model
 {
-    use HasFactory, SoftDeletes;
+    use BelongsToTenant, GeneratesPropertySlug, HasFactory, SoftDeletes;
 
     protected $fillable = [
+        'tenant_id',
+        'slug',
         'reference_code',
         'title',
         'description',

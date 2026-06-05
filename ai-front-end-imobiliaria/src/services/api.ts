@@ -1,5 +1,6 @@
 import axios from "axios";
 import { toast } from "sonner";
+import { clearAuthenticatedSession } from "./authSessionCookie";
 
 export const API_PREFIX = "/api/v1";
 
@@ -64,6 +65,7 @@ api.interceptors.response.use(
             const status = error.response?.status;
 
             if (status === 401 || status === 419) {
+                clearAuthenticatedSession();
                 toast.error("Sua sessão expirou ou você não está autenticado. Por favor, faça login novamente.");
                 // Removemos o 'window.location.href = /login' para evitar que a página seja
                 // recarregada forçadamente (refresh). O Front-End lidará visualmente sem sumir do ar.

@@ -35,7 +35,7 @@ import {
 import { Progress } from "@/components/ui/progress";
 
 // ── Step → percentage mapping ─────────────────────────────────────────
-// Based on the 11-step pipeline described in docs/cadastrador.md §5.2
+// Based on the Cadastrador onboarding pipeline.
 
 const STEP_ORDER: Record<string, number> = {
     fetching: 0,

@@ -1,32 +1,61 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
+const AUTH_SESSION_COOKIE = "ia_imob_authenticated";
+
+// The CRM host serves the authenticated dashboard; every other host is a
+// Tenant's White-Label public site.
+const CRM_HOST = process.env.NEXT_PUBLIC_CRM_HOST ?? "localhost";
+
+function isCrmHost(hostname: string): boolean {
+    return hostname === CRM_HOST || hostname === "127.0.0.1";
+}
+
 export function middleware(request: NextRequest) {
+    const hostname = (request.headers.get("host") ?? "").split(":")[0];
     const path = request.nextUrl.pathname;
 
-    // Define rotas não protegidas
-    const isPublicPath = path === "/login" || path.startsWith("/api") || path.startsWith("/sanctum") || path.startsWith("/_next") || path === "/favicon.ico";
+    if (!isCrmHost(hostname)) {
+        // Tenant public host: no auth. Frameworks/metadata routes are
+        // host-aware on their own and must not be rewritten.
+        if (
+            path.startsWith("/_next") ||
+            path.startsWith("/api") ||
+            path === "/sitemap.xml" ||
+            path === "/robots.txt" ||
+            path === "/favicon.ico"
+        ) {
+            return NextResponse.next();
+        }
 
-    // Em uma aplicação Sanctum SPA, o cookie XSRF-TOKEN ou laravel_session confirmam a presença de estado autenticado no browser.
-    // Algumas configurações variam. Usaremos laravel_session como fallback padrão, mas checamos ambos.
-    const sessionCookie = request.cookies.get("laravel_session")?.value || request.cookies.get("XSRF-TOKEN")?.value;
+        // Rewrite the tenant host into the path so per-tenant route/fetch
+        // caches stay isolated (Next keys caches by path, not host).
+        if (!path.startsWith("/site/")) {
+            const url = request.nextUrl.clone();
+            url.pathname = `/site/${hostname}${path === "/" ? "" : path}`;
+            return NextResponse.rewrite(url);
+        }
 
-    if (!isPublicPath && !sessionCookie) {
-        // Redireciona o visitante anônimo para o Login
-        return NextResponse.redirect(new URL("/login", request.url));
+        return NextResponse.next();
     }
 
-    if (path === "/login" && sessionCookie) {
-        // Se já está logado e tentando ver telinha de login, vai pra área restrita
-        return NextResponse.redirect(new URL("/usuarios", request.url));
+    // CRM host: existing authentication behavior.
+    const isPublicPath =
+        path === "/login" ||
+        path.startsWith("/api") ||
+        path.startsWith("/sanctum") ||
+        path.startsWith("/_next") ||
+        path === "/favicon.ico";
+
+    const isAuthenticated = request.cookies.get(AUTH_SESSION_COOKIE)?.value === "1";
+
+    if (!isPublicPath && !isAuthenticated) {
+        return NextResponse.redirect(new URL("/login", request.url));
     }
 
     return NextResponse.next();
 }
 
 export const config = {
-    // Configura o matcher para não interferir nos estáticos do Next.js
-    matcher: [
-        "/((?!api|sanctum|_next/static|_next/image|favicon.ico).*)",
-    ],
+    matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 };
