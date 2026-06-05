@@ -33,7 +33,7 @@ def _anchor_set(field_name: str, html: str, url: str | None) -> set[str]:
     return {value for value in treated if value is not None}
 
 
-def select_extractors(
+def run_tournament(
     candidates_by_field: dict[str, list[ExtractorProposal]],
     htmls,
     *,
@@ -43,8 +43,9 @@ def select_extractors(
     urls=None,
     acertividade_threshold: float = ACERTIVIDADE_THRESHOLD,
     mandatory_fields: "set[str] | None" = None,
-) -> dict[str, list[ExtractorProposal]]:
-    """Judge each field's candidates and keep the winning chain when it clears the gate.
+) -> tuple[dict[str, list[ExtractorProposal]], dict[str, TournamentResult]]:
+    """Judge each field's candidates, returning the verified chains plus every
+    field's TournamentResult (for observability, including gated-out fields).
 
     Two-axis gate: every field must clear ``threshold`` coverage; mandatory fields
     additionally need winner Acertividade >= ``acertividade_threshold``. Best-effort
@@ -55,12 +56,14 @@ def select_extractors(
     htmls = list(htmls)
     page_urls = list(urls) if urls is not None else [None] * len(htmls)
     verified: dict[str, list[ExtractorProposal]] = {}
+    results: dict[str, TournamentResult] = {}
     for field_name, candidates in candidates_by_field.items():
         anchors = [
             _anchor_set(field_name, html, url)
             for html, url in zip(htmls, page_urls)
         ]
         result = tournament.judge(field_name, candidates, htmls, anchors=anchors)
+        results[field_name] = result
         if result.winner is None:
             continue
         report = verifier.verify_chain(field_name, result.chain, htmls)
@@ -69,7 +72,36 @@ def select_extractors(
         if field_name in mandatory and result.acertividade < acertividade_threshold:
             continue
         verified[field_name] = list(result.chain)
-    return verified
+    return verified, results
+
+
+def select_extractors(candidates_by_field, htmls, **kwargs) -> dict[str, list[ExtractorProposal]]:
+    """Verified chains only — thin wrapper over :func:`run_tournament`."""
+    return run_tournament(candidates_by_field, htmls, **kwargs)[0]
+
+
+def summarize_result(result: TournamentResult) -> dict:
+    """JSON-able summary of a TournamentResult for the attempt report."""
+    return {
+        "winner": (
+            {
+                "source_type": result.winner.source_type,
+                "selector_value": result.winner.selector_value,
+            }
+            if result.winner
+            else None
+        ),
+        "acertividade": round(result.acertividade, 3),
+        "candidates": [
+            {
+                "source_type": score.extractor.source_type,
+                "selector_value": score.extractor.selector_value,
+                "acertividade": round(score.acertividade, 3),
+                "coverage": round(score.coverage, 3),
+            }
+            for score in result.scores
+        ],
+    }
 
 
 async def generate_candidates(

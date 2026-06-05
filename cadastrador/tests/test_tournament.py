@@ -8,7 +8,9 @@ from app.services.tournament import (
     ExtractorTournament,
     TournamentResult,
     generate_candidates,
+    run_tournament,
     select_extractors,
+    summarize_result,
 )
 from app.services.verification import SelectorVerifier
 
@@ -341,3 +343,35 @@ def test_best_effort_field_kept_on_coverage_despite_low_acertividade():
     )
 
     assert "quartos" in verified
+
+
+def test_run_tournament_returns_verified_chains_and_results():
+    html = '<html><body><span class="v">R$ 500.000</span></body></html>'
+    candidates = {"valor": [_candidate("valor", "css", ".v::text", output_type="number")]}
+
+    verified, results = run_tournament(
+        candidates, [html, html], verifier=SelectorVerifier(), threshold=0.9
+    )
+
+    assert "valor" in verified
+    assert results["valor"].winner.selector_value == ".v::text"
+    assert results["valor"].acertividade == 1.0
+
+
+def test_summarize_result_reports_winner_and_candidate_scores():
+    winner = _candidate("valor", "og", "price", output_type="number")
+    loser = _candidate("valor", "css", ".x::text", output_type="number")
+    result = TournamentResult(
+        "valor",
+        winner,
+        (winner,),
+        (CandidateScore(winner, 1.0, 1.0), CandidateScore(loser, 0.4, 1.0)),
+        acertividade=1.0,
+    )
+
+    summary = summarize_result(result)
+
+    assert summary["winner"]["selector_value"] == "price"
+    assert summary["acertividade"] == 1.0
+    assert len(summary["candidates"]) == 2
+    assert {c["selector_value"] for c in summary["candidates"]} == {"price", ".x::text"}

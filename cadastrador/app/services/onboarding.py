@@ -33,7 +33,8 @@ from app.services.sse import encode_event
 from app.services.tournament import (
     CANDIDATE_STRATEGIES,
     generate_candidates,
-    select_extractors,
+    run_tournament,
+    summarize_result,
 )
 from app.services.validation import ScrapyValidator
 from app.services.verification import SelectorVerifier
@@ -133,15 +134,27 @@ class OnboardingService:
                 {"step": "identity_resolved", "name": identity.name, "domain": identity.domain},
             )
 
+            tournament_report: dict = {}
             if discovery.execution_model == "sitemap":
                 yield encode_event(
                     "progress",
                     {"step": "synthesizing_selectors", "mode": "tournament"},
                 )
-                proposal, verified_fields = await self._tournament_proposal(
+                proposal, verified_fields, tournament_report = await self._tournament_proposal(
                     discovery, identity
                 )
                 llm_rounds += len(CANDIDATE_STRATEGIES)
+                yield encode_event(
+                    "progress",
+                    {
+                        "step": "tournament_decided",
+                        "winners": {
+                            field: summary["winner"]
+                            for field, summary in tournament_report.items()
+                            if summary["winner"]
+                        },
+                    },
+                )
                 missing = [
                     field
                     for field in MANDATORY_EXTRACTOR_FIELDS
@@ -239,6 +252,7 @@ class OnboardingService:
                 "strategy": discovery.execution_model,
                 "extractors_inserted": persisted.extractors_inserted,
                 "llm_rounds": llm_rounds,
+                "tournament": tournament_report,
             }
             record_attempt(
                 conn,
@@ -378,9 +392,10 @@ class OnboardingService:
         self,
         discovery: Discovery,
         identity: Identity,
-    ) -> tuple[OnboardingProposal, set[str]]:
+    ) -> tuple[OnboardingProposal, set[str], dict]:
         verified_chains: dict[str, list[ExtractorProposal]] = {}
         prior_failures: dict[str, list[str]] = {}
+        results_by_field = {}
         fields = [*MANDATORY_EXTRACTOR_FIELDS, *BEST_EFFORT_EXTRACTOR_FIELDS]
         for _round in range(TOURNAMENT_MAX_ROUNDS):
             candidates = await generate_candidates(
@@ -390,15 +405,15 @@ class OnboardingService:
                 prior_failures=prior_failures,
                 execution_model=discovery.execution_model,
             )
-            verified_chains.update(
-                select_extractors(
-                    candidates,
-                    discovery.sample_htmls,
-                    verifier=self.verifier,
-                    threshold=PASS_THRESHOLD,
-                    urls=discovery.sample_urls,
-                )
+            round_verified, round_results = run_tournament(
+                candidates,
+                discovery.sample_htmls,
+                verifier=self.verifier,
+                threshold=PASS_THRESHOLD,
+                urls=discovery.sample_urls,
             )
+            verified_chains.update(round_verified)
+            results_by_field.update(round_results)
             missing = [
                 field
                 for field in MANDATORY_EXTRACTOR_FIELDS
@@ -421,7 +436,12 @@ class OnboardingService:
             sitemap_url=discovery.selected_sitemap_url,
             allowed_url_patterns=["/imovel/"],
         )
-        return proposal, set(verified_chains)
+        report = {
+            field: summarize_result(results_by_field[field])
+            for field in MANDATORY_EXTRACTOR_FIELDS
+            if field in results_by_field
+        }
+        return proposal, set(verified_chains), report
 
     def _final_proposal(
         self,

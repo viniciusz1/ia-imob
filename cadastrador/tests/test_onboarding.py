@@ -55,7 +55,7 @@ async def test_tournament_proposal_builds_sitemap_proposal_from_verified_chains(
         selected_sitemap_url="https://x.test/sitemap.xml",
     )
 
-    proposal, verified_fields = await _service(llm)._tournament_proposal(
+    proposal, verified_fields, _ = await _service(llm)._tournament_proposal(
         discovery, Identity(domain="x.test", name="Imob X")
     )
 
@@ -103,9 +103,32 @@ async def test_tournament_retries_failed_mandatory_field_with_prior_failures():
         sample_urls=["https://x.test/1", "https://x.test/2"],
     )
 
-    _, verified = await _service(synth)._tournament_proposal(
+    _, verified, _ = await _service(synth)._tournament_proposal(
         discovery, Identity(domain="x.test", name="X")
     )
 
     assert "valor" in verified
     assert any("valor" in failures for failures in synth.seen_failures)
+
+
+@pytest.mark.asyncio
+async def test_tournament_proposal_reports_mandatory_field_outcomes():
+    llm = _FixedSynthesizer(
+        [
+            ExtractorProposal(field_name="valor", source_type="css", selector_value=".preco::text", output_type="number"),
+        ]
+    )
+    discovery = Discovery(
+        homepage_html=_HTML,
+        sample_htmls=[_HTML, _HTML],
+        execution_model="sitemap",
+        selected_sitemap_url="https://x.test/sitemap.xml",
+        sample_urls=["https://x.test/1", "https://x.test/2"],
+    )
+
+    _, _, report = await _service(llm)._tournament_proposal(
+        discovery, Identity(domain="x.test", name="X")
+    )
+
+    assert report["valor"]["winner"]["selector_value"] == ".preco::text"
+    assert report["valor"]["acertividade"] == 1.0
