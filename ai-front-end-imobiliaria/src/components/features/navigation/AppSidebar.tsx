@@ -6,6 +6,7 @@ import {
     Bot,
     Building2,
     CreditCard,
+    Database,
     LayoutDashboard,
     ShieldCheck,
     Users,
@@ -53,6 +54,11 @@ const navItems = [
         title: "Buscador com IA",
         href: "/ai-searcher",
         icon: Bot,
+    },
+    {
+        title: "Agências importadas",
+        href: "/agencias-importadas",
+        icon: Database,
     },
     {
         title: "Plano & Assinatura",

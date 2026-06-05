@@ -39,6 +39,16 @@ Route::middleware('auth:sanctum')->group(function () {
     // AI Search (Authenticated)
     Route::post('scrapy-properties/ai-search', [\App\Http\Controllers\Api\AiSearchController::class, 'search']);
 
+    // Imported agency configuration (DB-driven scraper configs)
+    Route::get('agency-configs', [\App\Http\Controllers\Api\AgencyConfigController::class, 'index']);
+    Route::post('agency-configs/{agencyType}', [\App\Http\Controllers\Api\AgencyConfigController::class, 'storeAgency']);
+    Route::get('agency-configs/{agencyType}/{agencyId}', [\App\Http\Controllers\Api\AgencyConfigController::class, 'show']);
+    Route::put('agency-configs/{agencyType}/{agencyId}', [\App\Http\Controllers\Api\AgencyConfigController::class, 'updateAgency']);
+    Route::delete('agency-configs/{agencyType}/{agencyId}', [\App\Http\Controllers\Api\AgencyConfigController::class, 'destroyAgency']);
+    Route::post('agency-configs/{agencyType}/{agencyId}/extractors', [\App\Http\Controllers\Api\AgencyConfigController::class, 'storeExtractor']);
+    Route::put('agency-configs/extractors/{extractor}', [\App\Http\Controllers\Api\AgencyConfigController::class, 'updateExtractor']);
+    Route::delete('agency-configs/extractors/{extractor}', [\App\Http\Controllers\Api\AgencyConfigController::class, 'destroyExtractor']);
+
     // Subscriptions (Authenticated)
     Route::get('/subscriptions/current', [\App\Http\Controllers\Api\SubscriptionController::class, 'current']);
     Route::post('/subscriptions', [\App\Http\Controllers\Api\SubscriptionController::class, 'store']);

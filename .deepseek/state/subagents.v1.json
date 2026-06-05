@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "agents": [
+    {
+      "id": "agent_0d1bca66",
+      "session_name": "doc-synthesis",
+      "fork_context": false,
+      "agent_type": "implementer",
+      "prompt": "You are documenting 4 files in cadastrador/synthesis/. Read each file, then write a new version at the same path that adds comprehensive NumPy-style docstrings to every class, method, and function. Each docstring must include: Parameters, Returns/Yields, functionality description, and an Examples section. Keep all existing behavior and imports identical. Only add docstrings — do not change any logic.\n\nFiles to document:\n1. /home/vinicius/apps/ia-imob/imobscrapy/cadastrador/synthesis/prompts.py — Functions: _compact_json, _sample_context, batch_user_prompt, per_field_user_prompt, system_prompt, identity_user_prompt, identity_system_prompt\n2. /home/vinicius/apps/ia-imob/imobscrapy/cadastrador/synthesis/html_evidence.py — Classes: ExtractorEvidence, _Candidate, HtmlExtractorEvidenceBuilder. Functions: _structured_candidates, _dom_candidates, _attr_text_xpath, _text_contains_xpath, _extract_candidate_value, _clean_value, _looks_plausible, _looks_like_url, _source_priority, _selector_specificity, _unique_values, _dedupe_candidates\n3. /home/vinicius/apps/ia-imob/imobscrapy/cadastrador/synthesis/identity_resolver.py — Classes: _PlainLLM, LLMIdentityResolver. Functions: _extract_title, _extract_h1, _extract_og_site_name, build_default_identity_llm\n4. /home/vinicius/apps/ia-imob/imobscrapy/cadastrador/synthesis/llm_synthesizer.py — Classes: _StructuredLLM, LLMSelectorSynthesizer. Functions: _recover_proposal_from_parser_exception, _extract_arguments_from_exception, _first_balanced_json_object, build_default_llm\n\nRead all four files first, then write the documented versions one by one.",
+      "assignment": {
+        "objective": "You are documenting 4 files in cadastrador/synthesis/. Read each file, then write a new version at the same path that adds comprehensive NumPy-style docstrings to every class, method, and function. Each docstring must include: Parameters, Returns/Yields, functionality description, and an Examples section. Keep all existing behavior and imports identical. Only add docstrings — do not change any logic.\n\nFiles to document:\n1. /home/vinicius/apps/ia-imob/imobscrapy/cadastrador/synthesis/prompts.py — Functions: _compact_json, _sample_context, batch_user_prompt, per_field_user_prompt, system_prompt, identity_user_prompt, identity_system_prompt\n2. /home/vinicius/apps/ia-imob/imobscrapy/cadastrador/synthesis/html_evidence.py — Classes: ExtractorEvidence, _Candidate, HtmlExtractorEvidenceBuilder. Functions: _structured_candidates, _dom_candidates, _attr_text_xpath, _text_contains_xpath, _extract_candidate_value, _clean_value, _looks_plausible, _looks_like_url, _source_priority, _selector_specificity, _unique_values, _dedupe_candidates\n3. /home/vinicius/apps/ia-imob/imobscrapy/cadastrador/synthesis/identity_resolver.py — Classes: _PlainLLM, LLMIdentityResolver. Functions: _extract_title, _extract_h1, _extract_og_site_name, build_default_identity_llm\n4. /home/vinicius/apps/ia-imob/imobscrapy/cadastrador/synthesis/llm_synthesizer.py — Classes: _StructuredLLM, LLMSelectorSynthesizer. Functions: _recover_proposal_from_parser_exception, _extract_arguments_from_exception, _first_balanced_json_object, build_default_llm\n\nRead all four files first, then write the documented versions one by one."
+      },
+      "model": "deepseek-v4-pro",
+      "nickname": "Sperm",
+      "status": {
+        "Failed": "API call timed out after 120s"
+      },
+      "result": null,
+      "steps_taken": 0,
+      "duration_ms": 238119,
+      "allowed_tools": [],
+      "updated_at_ms": 1779072741017,
+      "session_boot_id": "boot_c37f28d9-217"
+    },
+    {
+      "id": "agent_466d9a91",
+      "session_name": "doc-orchestrator",
+      "fork_context": false,
+      "agent_type": "implementer",
+      "prompt": "You are documenting cadastrador/orchestrator.py. Read the file at /home/vinicius/apps/ia-imob/imobscrapy/cadastrador/orchestrator.py, then write a new version at the same path that adds comprehensive NumPy-style docstrings to the class and its methods. Each docstring must include: Parameters, Returns/Yields, functionality description, and an Examples section. Keep all existing behavior and imports identical. Only add docstrings — do not change any logic.\n\nThe file contains:\n- OnboardingOrchestrator dataclass with __post_init__ and orchestrate() method\n\nRead the file first, then write the documented version.",
+      "assignment": {
+        "objective": "You are documenting cadastrador/orchestrator.py. Read the file at /home/vinicius/apps/ia-imob/imobscrapy/cadastrador/orchestrator.py, then write a new version at the same path that adds comprehensive NumPy-style docstrings to the class and its methods. Each docstring must include: Parameters, Returns/Yields, functionality description, and an Examples section. Keep all existing behavior and imports identical. Only add docstrings — do not change any logic.\n\nThe file contains:\n- OnboardingOrchestrator dataclass with __post_init__ and orchestrate() method\n\nRead the file first, then write the documented version."
+      },
+      "model": "deepseek-v4-pro",
+      "nickname": "蓝鲸",
+      "status": "Completed",
+      "result": "### SUMMARY\n\nAdded comprehensive NumPy-style docstrings to the `OnboardingOrchestrator` dataclass and its two methods (`__post_init__` and `orchestrate`) in `cadastrador/orchestrator.py`. Every docstring includes a functionality description, Parameters/Returns/Yields/Raises sections, and an Examples section. All existing behavior, imports, and logic remain unchanged — only docstring additions were made.\n\n### EVIDENCE\n\n- `cadastrador/orchestrator.py:1-207` — read the original file completely (207 lines)\n- `cadastrador/orchestrator.py:52-126` — new class docstring inserted between the `@dataclass` line and the first field declaration\n- `cadastrador/orchestrator.py:139-173` — new `__post_init__` docstring inserted between the method signature and its body\n- `cadastrador/orchestrator.py:188-260` — new `orchestrate` docstring inserted between the method signature and its body\n- `git diff -- cadastrador/orchestrator.py` — confirmed only additions, zero deletions, zero modifications to existing code\n- `python -c \"import ast; ast.parse(...)\"` — exit code 0, `AST OK`, confirming the file is syntactically valid\n\n### CHANGES\n\n- `cadastrador/orchestrator.py` — added NumPy-style docstrings to `OnboardingOrchestrator` class, `__post_init__`, and `orchestrate` methods; no logic or import changes\n\n### RISKS\n\n- None observed.\n\n### BLOCKERS\n\n- None.",
+      "steps_taken": 8,
+      "duration_ms": 973591,
+      "allowed_tools": [],
+      "updated_at_ms": 1779072741017,
+      "session_boot_id": "boot_c37f28d9-217"
+    },
+    {
+      "id": "agent_7dfb521d",
+      "session_name": "doc-recorder-verifier-stubs",
+      "fork_context": false,
+      "agent_type": "implementer",
+      "prompt": "You are documenting 3 files in cadastrador/. Read each file, then write a new version at the same path that adds comprehensive NumPy-style docstrings to every class, method, and function. Each docstring must include: Parameters, Returns, functionality description, and an Examples section. Keep all existing behavior and imports identical. Only add docstrings — do not change any logic.\n\nFiles to document:\n1. /home/vinicius/apps/ia-imob/imobscrapy/cadastrador/recorder.py - DefaultAttemptRecorder with record(), record_error()\n2. /home/vinicius/apps/ia-imob/imobscrapy/cadastrador/verifier.py - SelectorVerifierImpl with verify(), plus helper functions _extract_value, _looks_plausible, _looks_like_url\n3. /home/vinicius/apps/ia-imob/imobscrapy/cadastrador/stubs.py - StubHttpFetcher, StubSitemapProbe, StubStrategyRouter, StubStructuredDataExtractor, StubIdentityResolver, StubSelectorSynthesizer, StubSelectorVerifier, StubValidationRunner\n\nRead all three files first, then write the documented versions.",
+      "assignment": {
+        "objective": "You are documenting 3 files in cadastrador/. Read each file, then write a new version at the same path that adds comprehensive NumPy-style docstrings to every class, method, and function. Each docstring must include: Parameters, Returns, functionality description, and an Examples section. Keep all existing behavior and imports identical. Only add docstrings — do not change any logic.\n\nFiles to document:\n1. /home/vinicius/apps/ia-imob/imobscrapy/cadastrador/recorder.py - DefaultAttemptRecorder with record(), record_error()\n2. /home/vinicius/apps/ia-imob/imobscrapy/cadastrador/verifier.py - SelectorVerifierImpl with verify(), plus helper functions _extract_value, _looks_plausible, _looks_like_url\n3. /home/vinicius/apps/ia-imob/imobscrapy/cadastrador/stubs.py - StubHttpFetcher, StubSitemapProbe, StubStrategyRouter, StubStructuredDataExtractor, StubIdentityResolver, StubSelectorSynthesizer, StubSelectorVerifier, StubValidationRunner\n\nRead all three files first, then write the documented versions."
+      },
+      "model": "deepseek-v4-pro",
+      "nickname": "座头鲸",
+      "status": "Completed",
+      "result": "All three files pass AST parsing and the diffs confirm **only docstrings were added** — no logic, imports, or inline comments were touched.\n\n---\n\n### SUMMARY\nAdded comprehensive NumPy-style docstrings to all classes, methods, and helper functions across `recorder.py`, `verifier.py`, and `stubs.py`. Every docstring includes a functionality description, Parameters, Returns, and an Examples section. Zero logic or imports were changed; verification via `ast.parse` and `git diff` confirms purity.\n\n### EVIDENCE\n- `cadastrador/recorder.py` — diff shows only docstring blocks added for `DefaultAttemptRecorder`, `record()`, and `record_error()`; AST parses OK.\n- `cadastrador/verifier.py` — diff shows only docstring blocks added for `_extract_value`, `SelectorVerifierImpl`, `verify()`, `_looks_plausible`, `_looks_like_url`; AST parses OK.\n- `cadastrador/stubs.py` — diff shows only docstring blocks added for all 8 stub classes and their methods (`StubHttpFetcher`, `StubSitemapProbe`, `StubStrategyRouter`, `StubStructuredDataExtractor`, `StubIdentityResolver`, `StubSelectorSynthesizer`, `StubSelectorVerifier`, `StubValidationRunner`); AST parses OK.\n- `python -c \"import ast; ast.parse(...)\"` exit code 0 for all three files.\n\n### CHANGES\n- `/home/vinicius/apps/ia-imob/imobscrapy/cadastrador/recorder.py` — added NumPy-style docstrings to `DefaultAttemptRecorder` class and its `record()` and `record_error()` methods.\n- `/home/vinicius/apps/ia-imob/imobscrapy/cadastrador/verifier.py` — added NumPy-style docstrings to `_extract_value`, `SelectorVerifierImpl`, `verify()`, `_looks_plausible`, and `_looks_like_url`.\n- `/home/vinicius/apps/ia-imob/imobscrapy/cadastrador/stubs.py` — added NumPy-style docstrings to all 8 stub classes and each of their methods (13 methods total).\n\n### RISKS\nNone observed.\n\n### BLOCKERS\nNone.",
+      "steps_taken": 7,
+      "duration_ms": 973520,
+      "allowed_tools": [],
+      "updated_at_ms": 1779072741017,
+      "session_boot_id": "boot_c37f28d9-217"
+    },
+    {
+      "id": "agent_956433d6",
+      "session_name": "doc-app-py",
+      "fork_context": false,
+      "agent_type": "implementer",
+      "prompt": "You are documenting cadastrador/app.py. Read the file at /home/vinicius/apps/ia-imob/imobscrapy/cadastrador/app.py, then write a new version at the same path that adds comprehensive NumPy-style docstrings to every class and method/function. Each docstring must include: Parameters, Returns (or Yields), functionality description, and an Examples section. Keep all existing behavior and imports identical. Only add docstrings — do not change any logic.\n\nThe file contains:\n- OnboardRequest(BaseModel)\n- DebugSynthesizeRequest(BaseModel)  \n- DebugIdentityRequest(BaseModel)\n- build_orchestrator(*, use_stubs=False) -> OnboardingOrchestrator\n- get_orchestrator() -> OnboardingOrchestrator\n- require_token(x_cadastrador_token)\n- health() endpoint\n- onboard() endpoint\n- reonboard() endpoint\n- latest_attempt() endpoint\n- debug_synthesize() endpoint\n- debug_identity() endpoint\n\nRead the file first, then write the documented version.",
+      "assignment": {
+        "objective": "You are documenting cadastrador/app.py. Read the file at /home/vinicius/apps/ia-imob/imobscrapy/cadastrador/app.py, then write a new version at the same path that adds comprehensive NumPy-style docstrings to every class and method/function. Each docstring must include: Parameters, Returns (or Yields), functionality description, and an Examples section. Keep all existing behavior and imports identical. Only add docstrings — do not change any logic.\n\nThe file contains:\n- OnboardRequest(BaseModel)\n- DebugSynthesizeRequest(BaseModel)  \n- DebugIdentityRequest(BaseModel)\n- build_orchestrator(*, use_stubs=False) -> OnboardingOrchestrator\n- get_orchestrator() -> OnboardingOrchestrator\n- require_token(x_cadastrador_token)\n- health() endpoint\n- onboard() endpoint\n- reonboard() endpoint\n- latest_attempt() endpoint\n- debug_synthesize() endpoint\n- debug_identity() endpoint\n\nRead the file first, then write the documented version."
+      },
+      "model": "deepseek-v4-pro",
+      "nickname": "Blue",
+      "status": {
+        "Failed": "API call timed out after 120s"
+      },
+      "result": null,
+      "steps_taken": 0,
+      "duration_ms": 973627,
+      "allowed_tools": [],
+      "updated_at_ms": 1779072741017,
+      "session_boot_id": "boot_c37f28d9-217"
+    },
+    {
+      "id": "agent_a5b9ad90",
+      "session_name": "doc-validation-runner",
+      "fork_context": false,
+      "agent_type": "implementer",
+      "prompt": "You are documenting cadastrador/validation/runner.py. Read the file at /home/vinicius/apps/ia-imob/imobscrapy/cadastrador/validation/runner.py, then write a new version at the same path that adds comprehensive NumPy-style docstrings to every class, method, and function. Each docstring must include: Parameters, Returns, functionality description, and an Examples section. Keep all existing behavior and imports identical. Only add docstrings — do not change any logic.\n\nThe file contains:\n- SubprocessResult dataclass\n- SubprocessRunner Protocol\n- AsyncSubprocessRunner with __init__, cancel_current(), run()\n- _parse_items(output_text)\n- _field_report(field, items, *, optional)\n- _has_optional_signal(field, items)\n- _decide_outcome(items)\n- ScrapyValidationRunner with __init__, cancel(), run()\n\nRead the file first, then write the documented version.",
+      "assignment": {
+        "objective": "You are documenting cadastrador/validation/runner.py. Read the file at /home/vinicius/apps/ia-imob/imobscrapy/cadastrador/validation/runner.py, then write a new version at the same path that adds comprehensive NumPy-style docstrings to every class, method, and function. Each docstring must include: Parameters, Returns, functionality description, and an Examples section. Keep all existing behavior and imports identical. Only add docstrings — do not change any logic.\n\nThe file contains:\n- SubprocessResult dataclass\n- SubprocessRunner Protocol\n- AsyncSubprocessRunner with __init__, cancel_current(), run()\n- _parse_items(output_text)\n- _field_report(field, items, *, optional)\n- _has_optional_signal(field, items)\n- _decide_outcome(items)\n- ScrapyValidationRunner with __init__, cancel(), run()\n\nRead the file first, then write the documented version."
+      },
+      "model": "deepseek-v4-pro",
+      "nickname": "抹香鲸",
+      "status": {
+        "Failed": "API call timed out after 120s"
+      },
+      "result": null,
+      "steps_taken": 0,
+      "duration_ms": 238083,
+      "allowed_tools": [],
+      "updated_at_ms": 1779072741017,
+      "session_boot_id": "boot_c37f28d9-217"
+    },
+    {
+      "id": "agent_c58e6e0d",
+      "session_name": "doc-persister",
+      "fork_context": false,
+      "agent_type": "implementer",
+      "prompt": "You are documenting cadastrador/persister.py. Read the file at /home/vinicius/apps/ia-imob/imobscrapy/cadastrador/persister.py, then write a new version at the same path that adds comprehensive NumPy-style docstrings to every class, method, and function. Each docstring must include: Parameters, Returns, functionality description, and an Examples section. Keep all existing behavior and imports identical. Only add docstrings — do not change any logic.\n\nThe file contains:\n- ActiveAgencyConflict(Exception)\n- _lookup_by_domain(cur, domain)\n- _delete_agency_and_extractors(cur, agency_type, agency_id)\n- _name_is_taken(cur, name, agency_type)\n- _insert_agency(cur, proposal, name, domain)\n- _normalize_allowed_url_patterns(domain, patterns)\n- _insert_extractors(cur, proposal, agency_id)\n- DefaultAgencyPersister with lookup(), deactivate(), delete(), persist()\n\nRead the file first, then write the documented version.",
+      "assignment": {
+        "objective": "You are documenting cadastrador/persister.py. Read the file at /home/vinicius/apps/ia-imob/imobscrapy/cadastrador/persister.py, then write a new version at the same path that adds comprehensive NumPy-style docstrings to every class, method, and function. Each docstring must include: Parameters, Returns, functionality description, and an Examples section. Keep all existing behavior and imports identical. Only add docstrings — do not change any logic.\n\nThe file contains:\n- ActiveAgencyConflict(Exception)\n- _lookup_by_domain(cur, domain)\n- _delete_agency_and_extractors(cur, agency_type, agency_id)\n- _name_is_taken(cur, name, agency_type)\n- _insert_agency(cur, proposal, name, domain)\n- _normalize_allowed_url_patterns(domain, patterns)\n- _insert_extractors(cur, proposal, agency_id)\n- DefaultAgencyPersister with lookup(), deactivate(), delete(), persist()\n\nRead the file first, then write the documented version."
+      },
+      "model": "deepseek-v4-pro",
+      "nickname": "Humpback",
+      "status": {
+        "Failed": "API call timed out after 120s"
+      },
+      "result": null,
+      "steps_taken": 0,
+      "duration_ms": 973557,
+      "allowed_tools": [],
+      "updated_at_ms": 1779072741017,
+      "session_boot_id": "boot_c37f28d9-217"
+    }
+  ]
+}

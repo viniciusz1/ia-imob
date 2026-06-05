@@ -1,0 +1,2 @@
+"""Simplified Cadastrador FastAPI application."""
+

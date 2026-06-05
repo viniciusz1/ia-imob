@@ -1,5 +1,6 @@
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/features/navigation/AppSidebar";
+import { UserNav } from "@/components/features/auth/UserNav";
 import { Separator } from "@/components/ui/separator";
 
 export default function DashboardLayout({
@@ -18,6 +19,9 @@ export default function DashboardLayout({
                             orientation="vertical"
                             className="mr-2 data-[orientation=vertical]:h-4"
                         />
+                    </div>
+                    <div className="ml-auto flex items-center gap-2">
+                        <UserNav />
                     </div>
                 </header>
                 <main className="flex-1 p-4 md:p-6">{children}</main>
