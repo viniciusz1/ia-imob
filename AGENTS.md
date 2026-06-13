@@ -50,6 +50,8 @@ Never use the TypeScript `any` type in frontend code, including tests, mocks, AP
 
 When changing permissions or access control, update the Laravel permission seeders/migrations, verify the backend authorization and serialized user permission contract, and verify the frontend permission checks that consume it.
 
+When finishing work in a Git worktree, verify the worktree is clean and the work is preserved or integrated, then remove the worktree directory before handing off.
+
 ## Testing Guidelines
 
 Backend tests use PHPUnit through Laravel: place API and workflow tests in `tests/Feature`, isolated logic tests in `tests/Unit`, and run `composer test`.
