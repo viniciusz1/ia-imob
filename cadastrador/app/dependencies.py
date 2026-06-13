@@ -59,8 +59,14 @@ class Settings:
     def resolved_scrapy_executable(self) -> str:
         if self.scrapy_executable:
             return self.scrapy_executable
-        venv_scrapy = Path(self.scrapy_cwd) / ".venv" / "bin" / "scrapy"
-        return str(venv_scrapy) if venv_scrapy.exists() else "scrapy"
+        candidates = [
+            Path(self.scrapy_cwd) / ".venv" / "bin" / "scrapy",
+            IMOBSCRAPY_ROOT.parent / ".venv" / "bin" / "scrapy",
+        ]
+        for candidate in candidates:
+            if candidate.exists():
+                return str(candidate)
+        return "scrapy"
 
 
 def get_settings() -> Settings:

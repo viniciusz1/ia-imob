@@ -1,9 +1,8 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\PermissionController;
-use Illuminate\Http\Request;
+use App\Http\Controllers\Api\RoleController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['throttle:5,1'])->group(function () {
@@ -20,6 +19,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Properties Module
     Route::apiResource('properties', \App\Http\Controllers\Api\PropertyController::class);
+    Route::get('valuations/{valuation}/report.pdf', [\App\Http\Controllers\Api\ValuationController::class, 'report']);
+    Route::get('valuations/{valuation}/report.docx', [\App\Http\Controllers\Api\ValuationController::class, 'wordReport']);
+    Route::get('valuations/{valuation}/comparables.xlsx', [\App\Http\Controllers\Api\ValuationController::class, 'comparableEvidence']);
+    Route::post('valuations/candidates', [\App\Http\Controllers\Api\ValuationController::class, 'candidates']);
+    Route::apiResource('valuations', \App\Http\Controllers\Api\ValuationController::class)->only(['index', 'store', 'show']);
     Route::get('scrapy-properties/filters', [\App\Http\Controllers\Api\ScrapyPropertyController::class, 'filters']);
     Route::apiResource('scrapy-properties', \App\Http\Controllers\Api\ScrapyPropertyController::class);
 
@@ -58,7 +62,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/subscriptions', [\App\Http\Controllers\Api\SubscriptionController::class, 'store']);
     Route::delete('/subscriptions/{id}', [\App\Http\Controllers\Api\SubscriptionController::class, 'destroy']);
 
-    require __DIR__ . '/api/user_routes.php';
+    require __DIR__.'/api/user_routes.php';
 });
 
 // White-Label Public Site API (unauthenticated, tenant resolved from host)

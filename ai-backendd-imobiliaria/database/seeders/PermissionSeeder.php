@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
 
@@ -30,6 +29,8 @@ class PermissionSeeder extends Seeder
             'roles.manage',
             'subscriptions.view',
             'subscriptions.manage',
+            'valuations.create',
+            'valuations.view',
         ];
 
         foreach ($permissions as $permissionName) {

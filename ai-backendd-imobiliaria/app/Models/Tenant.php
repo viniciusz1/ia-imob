@@ -17,6 +17,7 @@ class Tenant extends Model
         'name',
         'slug',
         'owner_user_id',
+        'asaas_customer_id',
     ];
 
     public function users(): HasMany
@@ -44,14 +45,23 @@ class Tenant extends Model
         return $this->hasMany(TenantDomain::class);
     }
 
+    public function subscriptions(): HasMany
+    {
+        return $this->hasMany(TenantSubscription::class);
+    }
+
     /**
-     * The Tenant's current subscription. Interim: subscriptions are still
-     * user-keyed (tenant-keying is deferred — see GitHub #9), so we read the
-     * owner's latest subscription. When #9 lands, only this method changes.
+     * The Tenant's latest subscription. Billing is keyed to the agency, not to
+     * the individual Broker who initiated the checkout.
      */
     public function currentSubscription(): ?TenantSubscription
     {
-        return $this->owner?->subscriptions()->latest('id')->first();
+        return $this->subscriptions()->latest('id')->first();
+    }
+
+    public function hasActiveSubscription(): bool
+    {
+        return $this->currentSubscription()?->status === SubscriptionStatus::Active;
     }
 
     /**

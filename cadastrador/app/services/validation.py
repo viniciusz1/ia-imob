@@ -26,6 +26,13 @@ class SubprocessResult:
     output_text: str
 
 
+def _read_output(path: str) -> str:
+    try:
+        return Path(path).read_text(encoding="utf-8")
+    except OSError:
+        return ""
+
+
 def _parse_items(text: str) -> list[dict]:
     if not text.strip():
         return []
@@ -68,7 +75,7 @@ def _field_report(field: str, items: list[dict], *, optional: bool) -> dict:
 
 def _decide(items: list[dict]) -> ValidationReport:
     if not items:
-        return ValidationReport(outcome="rejected", issues=["no_items_extracted"])
+        return ValidationReport(outcome="saved_inactive", issues=["no_items_extracted"])
     fields = {
         field: _field_report(field, items, optional=False) for field in REQUIRED_ITEM_FIELDS
     }
@@ -133,7 +140,10 @@ class ScrapyValidator:
             Path(output_path).unlink(missing_ok=True)
 
         if result.returncode == -1 and "watchdog_timeout" in result.stderr:
-            return ValidationReport(outcome="rejected", issues=["scrapy_crawl_timeout"])
+            report = _decide(_parse_items(result.output_text))
+            report.outcome = "saved_inactive"
+            report.issues.append("scrapy_crawl_timeout")
+            return report
         report = _decide(_parse_items(result.output_text))
         if result.returncode not in {0, None}:
             report.issues.append(f"scrapy_exit_code_{result.returncode}")
@@ -159,13 +169,10 @@ class ScrapyValidator:
             except asyncio.TimeoutError:
                 proc.kill()
                 await proc.wait()
-            return SubprocessResult(-1, "", "watchdog_timeout", "")
+            return SubprocessResult(-1, "", "watchdog_timeout", _read_output(output_path))
         finally:
             self._current_proc = None
-        try:
-            output_text = Path(output_path).read_text(encoding="utf-8")
-        except OSError:
-            output_text = ""
+        output_text = _read_output(output_path)
         return SubprocessResult(
             returncode,
             stdout.decode("utf-8", errors="replace"),

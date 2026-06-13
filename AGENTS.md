@@ -48,6 +48,8 @@ Use TypeScript and React conventions in the frontend: PascalCase components, cam
 
 Never use the TypeScript `any` type in frontend code, including tests, mocks, API clients, component props, and form handlers. Prefer precise domain types, generated/inferred schema types, generics, `unknown` with narrowing, or small local interfaces for test doubles and external payloads.
 
+When changing permissions or access control, update the Laravel permission seeders/migrations, verify the backend authorization and serialized user permission contract, and verify the frontend permission checks that consume it.
+
 ## Testing Guidelines
 
 Backend tests use PHPUnit through Laravel: place API and workflow tests in `tests/Feature`, isolated logic tests in `tests/Unit`, and run `composer test`.

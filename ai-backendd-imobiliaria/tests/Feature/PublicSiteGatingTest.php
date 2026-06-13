@@ -28,7 +28,7 @@ class PublicSiteGatingTest extends TestCase
 
         if ($status !== null) {
             TenantSubscription::create([
-                'user_id' => $owner->id,
+                'tenant_id' => $tenant->id,
                 'plan_id' => SubscriptionPlan::first()->id,
                 'billing_type' => 'PIX',
                 'status' => $status,

@@ -21,8 +21,12 @@ The selection process where several Extratores Candidatos for one field compete 
 _Avoid_: Competition, disputa, A/B test, beauty contest
 
 **Extrator Candidato**:
-One of the Extractors proposed for the same field during a Torneio, each derived from a distinct source strategy (DOM/XPath, structured data, or text) so it acts as an independent witness.
+One of the Extractors proposed for the same field during a Torneio, each derived from a distinct source strategy (DOM/XPath, structured data, or text) so it acts as an independent witness. Candidates sharing the same selector (differing only in pipeline) are one witness, not two.
 _Avoid_: Variant, option, attempt, alternativa
+
+**Presenca**:
+Whether a field exists on a given page, established only by evidence independent of the candidate under judgment: an Ancora de Evidencia detected it, or two witnesses with distinct selectors agreed on a value. Pages with unknown Presenca leave both numerator and denominator when judging optional fields. A property of the site, not of any Extractor.
+_Avoid_: Coverage, fill rate, pass rate
 
 **Ancora de Evidencia**:
 A value detected heuristically straight from the page (price, area, label-number pairs) used as a reinforced vote when judging a Torneio. It is the best proxy for truth available during live onboarding, where no ground truth exists.
@@ -35,3 +39,11 @@ _Avoid_: Pass rate, taxa de preenchimento, coverage, plausibility
 **Amostra de Torneio**:
 The set of pages (about 30% of the client's sitemap, with a floor and ceiling) the Extratores Candidatos are tested on during live onboarding. Distinct from a Pacote de Amostras, which is fixed and offline.
 _Avoid_: Pacote de Amostras, synthesis sample, evidence
+
+**Validacao de Fumaca**:
+The end-to-end Spider run executed after an Agency is persisted, checking only that the integration works and produces items. It can confirm an Agency as active or downgrade it to saved_inactive; it never rejects. An inconclusive run (timeout, infrastructure failure) means "could not verify", not "failed".
+_Avoid_: Quality gate, veto, validation verdict, prova de qualidade
+
+**Rejeitada**:
+The outcome reserved for positive evidence that extraction is wrong or impossible — the Torneio failed to produce verified mandatory Extractors. Never used for infrastructure failures or inconclusive checks.
+_Avoid_: Timeout, erro, inconclusivo, falha de infra

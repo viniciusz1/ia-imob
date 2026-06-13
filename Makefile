@@ -30,6 +30,7 @@ CADASTRADOR_UVICORN := $(abspath $(CADASTRADOR_VENV))/bin/uvicorn
 # Cadastrador onboarding service host/port
 CADASTRADOR_HOST ?= 0.0.0.0
 CADASTRADOR_PORT ?= 8000
+VERBOSE ?= 0
 INSPECTION_PACKAGE ?= millar:v1
 CREATE_INSPECTION_PACKAGE ?=
 INSPECTION_SAMPLE_SIZE ?= 5
@@ -205,7 +206,7 @@ install-cadastrador: ## Create the Cadastrador venv and install dependencies
 	$(CADASTRADOR_PIP) install -e '$(CADASTRADOR_DIR)[test]'
 
 cadastrador: ## Start the Cadastrador FastAPI service
-	cd $(CADASTRADOR_DIR) && $(CADASTRADOR_UVICORN) app.main:app --host $(CADASTRADOR_HOST) --port $(CADASTRADOR_PORT)
+	cd $(CADASTRADOR_DIR) && $(CADASTRADOR_UVICORN) app.main:app --host $(CADASTRADOR_HOST) --port $(CADASTRADOR_PORT) $(if $(filter 1,$(VERBOSE)),--log-level debug --reload,)
 
 test-cadastrador: ## Run the Cadastrador test suite
 	cd $(CADASTRADOR_DIR) && $(CADASTRADOR_PYTHON) -m pytest tests/

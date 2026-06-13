@@ -4,6 +4,10 @@ status: accepted
 
 # Onboarding accuracy via consensus + anchor tournament
 
+> Amended by [0002](0002-presenca-gate-and-smoke-validation.md): best-effort fields are
+> now gated by Presença instead of coverage alone, and the post-persist Scrapy run no
+> longer rejects.
+
 At live onboarding there is no ground truth for a new Imobiliaria's pages, so the
 pipeline's only signal was `pass_rate` (did a selector return a *plausible* non-empty
 value), which cannot tell a correct extractor from a confidently-wrong one (e.g. the

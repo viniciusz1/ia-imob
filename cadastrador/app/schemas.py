@@ -160,7 +160,9 @@ class VerificationReport(BaseModel):
 
 
 class ValidationReport(BaseModel):
-    outcome: Outcome
+    # Validacao de Fumaca: it confirms active or downgrades to saved_inactive,
+    # never rejects — an inconclusive run is not evidence of bad extraction.
+    outcome: Literal["active", "saved_inactive"]
     sample_size: int = 0
     fields: dict[str, dict] = Field(default_factory=dict)
     issues: list[str] = Field(default_factory=list)

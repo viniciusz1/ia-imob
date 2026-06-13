@@ -17,7 +17,7 @@ from pathlib import Path
 from typing import Any, Protocol
 from urllib.parse import urljoin, urlparse
 
-from app.compat import SERVICE_ROOT, ensure_imobscrapy_imports
+from app.compat import IMOBSCRAPY_ROOT, SERVICE_ROOT, ensure_imobscrapy_imports
 from app.dependencies import get_settings
 from app.schemas import ExtractorProposal, OnboardingProposal
 from app.services.extraction import extract_field_value, loader_treatment
@@ -896,11 +896,12 @@ def _select_database_samples(
 
 def _load_db_env(env_paths: Sequence[Path] | None) -> None:
     paths = list(env_paths or [])
+    repo_root = IMOBSCRAPY_ROOT.parent
     paths.extend(
         [
             Path(".envb"),
-            Path("imobscrapy/.env"),
-            Path("ai-backendd-imobiliaria/.env"),
+            IMOBSCRAPY_ROOT / ".env",
+            repo_root / "ai-backendd-imobiliaria" / ".env",
         ]
     )
     for path in paths:

@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from collections import Counter
 from collections.abc import Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 from app.schemas import ExtractorProposal
 from app.services.anchors import anchor_values
@@ -15,6 +15,7 @@ from imobiliarias.config.field_catalog import (  # noqa: E402
 )
 
 ACERTIVIDADE_THRESHOLD = 0.8
+PRESENCA_FLOOR = 5
 
 CANDIDATE_STRATEGIES = ("dom", "structured", "text")
 ANCHOR_WEIGHT = 2
@@ -47,9 +48,11 @@ def run_tournament(
     """Judge each field's candidates, returning the verified chains plus every
     field's TournamentResult (for observability, including gated-out fields).
 
-    Two-axis gate: every field must clear ``threshold`` coverage; mandatory fields
-    additionally need winner Acertividade >= ``acertividade_threshold``. Best-effort
-    fields ride on coverage alone (their consensus signal is too weak to reject on).
+    Mandatory fields keep the two-axis gate: chain coverage >= ``threshold`` and
+    winner Acertividade >= ``acertividade_threshold``. Best-effort fields are judged
+    only where the field provably exists (Presenca): winner acertividade over
+    present pages >= ``threshold``, with at least ``PRESENCA_FLOOR`` present pages —
+    a field absent from part of the site is not an extraction failure.
     """
     tournament = tournament or ExtractorTournament()
     mandatory = set(MANDATORY_EXTRACTOR_FIELDS) if mandatory_fields is None else mandatory_fields
@@ -63,15 +66,28 @@ def run_tournament(
             for html, url in zip(htmls, page_urls)
         ]
         result = tournament.judge(field_name, candidates, htmls, anchors=anchors)
-        results[field_name] = result
+        gated_reason: str | None = None
         if result.winner is None:
-            continue
-        report = verifier.verify_chain(field_name, result.chain, htmls)
-        if report.pass_rate < threshold:
-            continue
-        if field_name in mandatory and result.acertividade < acertividade_threshold:
-            continue
-        verified[field_name] = list(result.chain)
+            gated_reason = "no_winner"
+        elif field_name in mandatory:
+            report = verifier.verify_chain(field_name, result.chain, htmls)
+            if report.pass_rate < threshold:
+                gated_reason = f"chain_coverage {report.pass_rate:.2f} < {threshold}"
+            elif result.acertividade < acertividade_threshold:
+                gated_reason = (
+                    f"acertividade {result.acertividade:.2f} < {acertividade_threshold}"
+                )
+        else:
+            if result.presenca < PRESENCA_FLOOR:
+                gated_reason = f"presenca {result.presenca} < {PRESENCA_FLOOR}"
+            elif result.acertividade_presenca < threshold:
+                gated_reason = (
+                    f"acertividade_presenca {result.acertividade_presenca:.2f} < {threshold}"
+                )
+        result = replace(result, verified=gated_reason is None, gated_reason=gated_reason)
+        results[field_name] = result
+        if result.verified:
+            verified[field_name] = list(result.chain)
     return verified, results
 
 
@@ -92,6 +108,17 @@ def summarize_result(result: TournamentResult) -> dict:
             else None
         ),
         "acertividade": round(result.acertividade, 3),
+        "presenca": result.presenca,
+        "acertividade_presenca": round(result.acertividade_presenca, 3),
+        "anchor_agreement": {
+            "pages": result.anchor_pages,
+            "matches": result.anchor_matches,
+            "rate": round(result.anchor_matches / result.anchor_pages, 3)
+            if result.anchor_pages
+            else 0.0,
+        },
+        "verified": result.verified,
+        "gated_reason": result.gated_reason,
         "candidates": [
             {
                 "source_type": score.extractor.source_type,
@@ -153,6 +180,14 @@ class TournamentResult:
     chain: tuple[ExtractorProposal, ...]
     scores: tuple[CandidateScore, ...]
     acertividade: float = 0.0
+    # Presenca: pages where the field provably exists (anchor, or two witnesses
+    # with distinct selectors agreeing) — evidence independent of the winner.
+    presenca: int = 0
+    acertividade_presenca: float = 0.0
+    anchor_pages: int = 0
+    anchor_matches: int = 0
+    verified: bool = False
+    gated_reason: str | None = None
 
 
 def _normalize(value: object | None) -> str | None:
@@ -178,8 +213,9 @@ class ExtractorTournament:
             [_normalize(self._final_value(field_name, candidate, html)) for html in htmls]
             for candidate in candidates
         ]
+        selectors = [candidate.selector_value for candidate in candidates]
         truths = [
-            self._page_truth(norm, page, anchors[page] if anchors else None)
+            self._page_truth(norm, page, anchors[page] if anchors else None, selectors)
             for page in range(sample_size)
         ]
 
@@ -208,13 +244,70 @@ class ExtractorTournament:
         if scores[winner_index].coverage == 0.0:
             return TournamentResult(field_name, None, (), tuple(scores))
         chain = self._build_chain(candidates, scores, norm, winner_index)
+        presenca, presenca_matches = self._presenca(norm, candidates, winner_index, anchors)
+        anchor_pages, anchor_matches = self._anchor_agreement(norm, winner_index, anchors)
         return TournamentResult(
             field_name=field_name,
             winner=candidates[winner_index],
             chain=chain,
             scores=tuple(scores),
             acertividade=scores[winner_index].acertividade,
+            presenca=presenca,
+            acertividade_presenca=presenca_matches / presenca if presenca else 0.0,
+            anchor_pages=anchor_pages,
+            anchor_matches=anchor_matches,
         )
+
+    @staticmethod
+    def _anchor_agreement(
+        norm: list[list[str | None]],
+        winner_index: int,
+        anchors: Sequence[set[str]] | None,
+    ) -> tuple[int, int]:
+        if not anchors:
+            return 0, 0
+        anchor_pages = 0
+        anchor_matches = 0
+        for page, anchor_set in enumerate(anchors):
+            if not anchor_set:
+                continue
+            anchor_pages += 1
+            if norm[winner_index][page] in anchor_set:
+                anchor_matches += 1
+        return anchor_pages, anchor_matches
+
+    @staticmethod
+    def _presenca(
+        norm: list[list[str | None]],
+        candidates: list[ExtractorProposal],
+        winner_index: int,
+        anchors: Sequence[set[str]] | None,
+    ) -> tuple[int, int]:
+        """Count pages where the field provably exists and, of those, where the
+        winner's value is corroborated by evidence independent of itself."""
+        selectors = [candidate.selector_value for candidate in candidates]
+        present_pages = 0
+        winner_matches = 0
+        for page in range(len(norm[0]) if norm else 0):
+            anchor_set = anchors[page] if anchors else set()
+            witnesses: dict[str, set[str]] = {}
+            for index, values in enumerate(norm):
+                if values[page] is not None:
+                    witnesses.setdefault(values[page], set()).add(selectors[index])
+            agreed = any(len(sels) >= 2 for sels in witnesses.values())
+            if not anchor_set and not agreed:
+                continue
+            present_pages += 1
+            winner_value = norm[winner_index][page]
+            if winner_value is None:
+                continue
+            corroborated = winner_value in anchor_set or any(
+                selector != selectors[winner_index]
+                for selector in witnesses.get(winner_value, set())
+            )
+            if corroborated:
+                winner_matches += 1
+        return present_pages, winner_matches
 
     def _build_chain(
         self,
@@ -248,12 +341,21 @@ class ExtractorTournament:
         norm: list[list[str | None]],
         page: int,
         anchor_set: set[str] | None = None,
+        selectors: list[str] | None = None,
     ) -> str | None:
-        votes = Counter(
-            candidate_finals[page]
-            for candidate_finals in norm
-            if candidate_finals[page] is not None
-        )
+        # One vote per distinct selector: the same selector re-proposed with a
+        # different pipeline is the same witness, not extra consensus.
+        votes: Counter[str] = Counter()
+        seen: set[tuple[object, str]] = set()
+        for index, candidate_finals in enumerate(norm):
+            value = candidate_finals[page]
+            if value is None:
+                continue
+            key = (selectors[index] if selectors else index, value)
+            if key in seen:
+                continue
+            seen.add(key)
+            votes[value] += 1
         if anchor_set:
             for value in list(votes):
                 if value in anchor_set:

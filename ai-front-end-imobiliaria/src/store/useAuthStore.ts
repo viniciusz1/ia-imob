@@ -4,8 +4,8 @@ export interface User {
     id: number;
     name: string;
     email: string;
-    // Outros campos customizados retornados pela API podem ser mapeados aqui
-    [key: string]: any;
+    permissions?: string[];
+    [key: string]: unknown;
 }
 
 interface AuthState {

@@ -37,6 +37,10 @@ class UserService
         $roleId = $data['role_id'] ?? null;
         unset($data['role_id']);
 
+        if (!array_key_exists('tenant_id', $data) && auth()->user()?->tenant_id) {
+            $data['tenant_id'] = auth()->user()->tenant_id;
+        }
+
         $data['password'] = Hash::make($data['password']);
         if ($avatar)
             $data['avatar_path'] = $avatar->storeAs('avatars', Str::uuid() . '.' . $avatar->extension(), 'public');

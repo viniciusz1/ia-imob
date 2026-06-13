@@ -23,13 +23,16 @@ class _StubTournament:
         return self.by_field[field_name]
 
 
-def _candidate(field_name, source_type, selector_value, *, output_type="text", priority=1):
+def _candidate(
+    field_name, source_type, selector_value, *, output_type="text", priority=1, pipeline=None
+):
     return ExtractorProposal(
         field_name=field_name,
         source_type=source_type,
         selector_value=selector_value,
         output_type=output_type,
         priority=priority,
+        pipeline=pipeline,
     )
 
 
@@ -189,6 +192,30 @@ async def test_generate_candidates_allows_abstention_per_field():
     assert len(candidates["piscina"]) == 2
 
 
+_STUFFED_HTML = (
+    '<html><body>'
+    '<span class="x">Vila</span>'
+    '<span class="y">Centro</span>'
+    '<span class="z">Centro</span>'
+    '</body></html>'
+)
+
+
+def test_same_selector_with_different_pipeline_votes_once():
+    stuffed = _candidate("bairro", "css", ".x::text")
+    stuffed_again = _candidate("bairro", "css", ".x::text", pipeline="strip")
+    honest_y = _candidate("bairro", "css", ".y::text")
+    honest_z = _candidate("bairro", "css", ".z::text")
+
+    result = ExtractorTournament().judge(
+        "bairro",
+        [stuffed, stuffed_again, honest_y, honest_z],
+        [_STUFFED_HTML, _STUFFED_HTML],
+    )
+
+    assert result.winner.selector_value in {".y::text", ".z::text"}
+
+
 _SELECT_HTML = (
     '<html><body>'
     '<span class="preco">R$ 500.000</span>'
@@ -327,7 +354,7 @@ def test_mandatory_field_dropped_when_acertividade_below_threshold():
     assert "valor" not in verified
 
 
-def test_best_effort_field_kept_on_coverage_despite_low_acertividade():
+def test_best_effort_field_dropped_without_presenca():
     html = '<html><body><span class="v">2</span></body></html>'
     winner = _candidate("quartos", "css", ".v::text", output_type="number")
     result = TournamentResult(
@@ -342,7 +369,113 @@ def test_best_effort_field_kept_on_coverage_despite_low_acertividade():
         tournament=_StubTournament({"quartos": result}),
     )
 
+    assert "quartos" not in verified
+
+
+_QUARTOS_PRESENT_HTML = (
+    '<html><body><div class="d">'
+    '<span>2</span><span>Quarto(s)</span>'
+    '</div></body></html>'
+)
+_QUARTOS_ABSENT_HTML = '<html><body><p>Terreno comercial</p></body></html>'
+
+
+def test_optional_field_verified_by_acertividade_where_present():
+    candidates = {
+        "quartos": [
+            _candidate(
+                "quartos",
+                "xpath",
+                '//div[@class="d"]/span[1]/text()',
+                output_type="number",
+            )
+        ]
+    }
+    htmls = [_QUARTOS_PRESENT_HTML] * 5 + [_QUARTOS_ABSENT_HTML] * 2
+
+    verified, _ = run_tournament(
+        candidates, htmls, verifier=SelectorVerifier(), threshold=0.9
+    )
+
     assert "quartos" in verified
+
+
+def test_optional_field_dropped_below_presenca_floor():
+    candidates = {
+        "quartos": [
+            _candidate(
+                "quartos",
+                "xpath",
+                '//div[@class="d"]/span[1]/text()',
+                output_type="number",
+            )
+        ]
+    }
+    htmls = [_QUARTOS_PRESENT_HTML] * 3 + [_QUARTOS_ABSENT_HTML] * 4
+
+    verified, _ = run_tournament(
+        candidates, htmls, verifier=SelectorVerifier(), threshold=0.9
+    )
+
+    assert "quartos" not in verified
+
+
+_QUARTOS_GARBAGE_HTML = (
+    '<html><body><div class="d">'
+    '<span>2</span><span>Quarto(s)</span>'
+    '</div><span class="x">3</span></body></html>'
+)
+
+
+def test_optional_field_dropped_when_winner_contradicts_the_anchor():
+    candidates = {
+        "quartos": [_candidate("quartos", "css", ".x::text", output_type="number")]
+    }
+    htmls = [_QUARTOS_GARBAGE_HTML] * 7
+
+    verified, _ = run_tournament(
+        candidates, htmls, verifier=SelectorVerifier(), threshold=0.9
+    )
+
+    assert "quartos" not in verified
+
+
+_SOLAR_PRESENT_HTML = (
+    '<html><body>'
+    '<span class="a">Norte</span>'
+    '<span class="b">Norte</span>'
+    '</body></html>'
+)
+_SOLAR_ABSENT_HTML = '<html><body><p>sem orientacao</p></body></html>'
+
+
+def test_unanchored_optional_field_verified_by_two_agreeing_witnesses():
+    candidates = {
+        "posicao_solar": [
+            _candidate("posicao_solar", "css", ".a::text"),
+            _candidate("posicao_solar", "css", ".b::text"),
+        ]
+    }
+    htmls = [_SOLAR_PRESENT_HTML] * 6 + [_SOLAR_ABSENT_HTML] * 2
+
+    verified, _ = run_tournament(
+        candidates, htmls, verifier=SelectorVerifier(), threshold=0.9
+    )
+
+    assert "posicao_solar" in verified
+
+
+def test_unanchored_optional_field_with_single_witness_abstains():
+    candidates = {
+        "posicao_solar": [_candidate("posicao_solar", "css", ".a::text")]
+    }
+    htmls = [_SOLAR_PRESENT_HTML] * 8
+
+    verified, _ = run_tournament(
+        candidates, htmls, verifier=SelectorVerifier(), threshold=0.9
+    )
+
+    assert "posicao_solar" not in verified
 
 
 def test_run_tournament_returns_verified_chains_and_results():
@@ -356,6 +489,29 @@ def test_run_tournament_returns_verified_chains_and_results():
     assert "valor" in verified
     assert results["valor"].winner.selector_value == ".v::text"
     assert results["valor"].acertividade == 1.0
+
+
+def test_gated_out_field_is_reported_with_the_reason():
+    candidates = {
+        "quartos": [
+            _candidate(
+                "quartos",
+                "xpath",
+                '//div[@class="d"]/span[1]/text()',
+                output_type="number",
+            )
+        ]
+    }
+    htmls = [_QUARTOS_PRESENT_HTML] * 3 + [_QUARTOS_ABSENT_HTML] * 4
+
+    verified, results = run_tournament(
+        candidates, htmls, verifier=SelectorVerifier(), threshold=0.9
+    )
+    summary = summarize_result(results["quartos"])
+
+    assert "quartos" not in verified
+    assert summary["verified"] is False
+    assert "presenca" in summary["gated_reason"]
 
 
 def test_summarize_result_reports_winner_and_candidate_scores():

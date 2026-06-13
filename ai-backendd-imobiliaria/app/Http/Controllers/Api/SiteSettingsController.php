@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\SiteSettingsResource;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
@@ -13,17 +14,17 @@ class SiteSettingsController extends Controller
 {
     private const COLOR_RULE = ['sometimes', 'string', 'regex:/^#([0-9a-fA-F]{3,8})$/'];
 
-    public function show(Request $request): SiteSettingsResource
+    public function show(Request $request): JsonResponse
     {
         $tenant = $request->user()->tenant;
         abort_if($tenant === null, 422, 'User is not associated with a tenant.');
 
         $settings = $tenant->siteSettings ?? $tenant->siteSettings()->create([]);
 
-        return new SiteSettingsResource($settings);
+        return (new SiteSettingsResource($settings))->response()->setStatusCode(200);
     }
 
-    public function update(Request $request): SiteSettingsResource
+    public function update(Request $request): JsonResponse
     {
         $tenant = $request->user()->tenant;
         abort_if($tenant === null, 422, 'User is not associated with a tenant.');
@@ -51,6 +52,6 @@ class SiteSettingsController extends Controller
 
         $settings = $tenant->siteSettings()->updateOrCreate([], $validated);
 
-        return new SiteSettingsResource($settings);
+        return (new SiteSettingsResource($settings))->response()->setStatusCode(200);
     }
 }

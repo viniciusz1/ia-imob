@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import {
     Bot,
     Building2,
+    Calculator,
     CreditCard,
     Database,
     Globe,
@@ -66,6 +67,12 @@ const navItems = [
         icon: Bot,
     },
     {
+        title: "Avaliar imóvel",
+        href: "/avaliacoes",
+        icon: Calculator,
+        permissions: ["valuations.create", "valuations.view"],
+    },
+    {
         title: "Agências importadas",
         href: "/agencias-importadas",
         icon: Database,
@@ -91,7 +98,20 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
     const router = useRouter();
     const queryClient = useQueryClient();
     const clearAuth = useAuthStore((state) => state.clearAuth);
+    const user = useAuthStore((state) => state.user);
     const [isLoggingOut, setIsLoggingOut] = useState(false);
+    const userPermissions = Array.isArray(user?.permissions) ? user.permissions : null;
+    const visibleNavItems = navItems.filter((item) => {
+        if (!("permissions" in item) || !item.permissions) {
+            return true;
+        }
+
+        if (userPermissions === null) {
+            return true;
+        }
+
+        return item.permissions.some((permission) => userPermissions.includes(permission));
+    });
 
     const handleLogout = async () => {
         if (isLoggingOut) return;
@@ -140,7 +160,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                     <SidebarGroupLabel>Navegação</SidebarGroupLabel>
                     <SidebarGroupContent>
                         <SidebarMenu>
-                            {navItems.map((item) => {
+                            {visibleNavItems.map((item) => {
                                 const isActive =
                                     pathname === item.href ||
                                     (item.href !== "/" &&

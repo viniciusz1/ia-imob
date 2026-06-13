@@ -4,6 +4,7 @@ import time
 from dataclasses import dataclass
 from typing import AsyncIterator
 
+import httpx
 from starlette.requests import Request
 
 from app.compat import ensure_imobscrapy_imports
@@ -24,7 +25,6 @@ from app.services.discovery import (
 from app.services.llm import LlmClient
 from app.services.persistence import (
     deactivate_agency,
-    delete_agency,
     duration_ms,
     persist_agency,
     record_attempt,
@@ -49,6 +49,13 @@ from imobiliarias.config.field_catalog import (  # noqa: E402
 PASS_THRESHOLD = 0.9
 MAX_RETRIES_PER_FIELD = 3
 TOURNAMENT_MAX_ROUNDS = 3
+MAX_LLM_EVIDENCE_HTMLS = 3
+DNS_ERROR_MARKERS = (
+    "temporary failure in name resolution",
+    "name or service not known",
+    "nodename nor servname provided",
+    "getaddrinfo failed",
+)
 
 
 @dataclass
@@ -56,9 +63,84 @@ class Discovery:
     homepage_html: str
     sample_htmls: list[str]
     execution_model: str
+    llm_htmls: list[str] | None = None
     selected_sitemap_url: str | None = None
     sitemap_urls: list[str] | None = None
     sample_urls: list[str] | None = None
+
+
+@dataclass
+class TournamentProposalRun:
+    proposal: OnboardingProposal
+    verified_fields: set[str]
+    report: dict
+    progress_events: list[dict]
+
+
+@dataclass(frozen=True)
+class ErrorEvent:
+    reason: str
+    message: str
+    detail: str | None = None
+
+    def payload(self) -> dict[str, str]:
+        payload = {"reason": self.reason, "message": self.message}
+        if self.detail:
+            payload["detail"] = self.detail
+        return payload
+
+
+def _exception_text(exc: BaseException) -> str:
+    parts = [str(exc)]
+    cause = exc.__cause__
+    while cause is not None:
+        parts.append(str(cause))
+        cause = cause.__cause__
+    return " ".join(parts)
+
+
+def _is_dns_error(exc: BaseException) -> bool:
+    text = _exception_text(exc).lower()
+    return any(marker in text for marker in DNS_ERROR_MARKERS)
+
+
+def _classify_error(exc: Exception, domain: str) -> ErrorEvent:
+    detail = str(exc)
+    if isinstance(exc, httpx.ConnectError):
+        if _is_dns_error(exc):
+            return ErrorEvent(
+                reason="name_resolution_failed",
+                message=(
+                    f"Não foi possível resolver o domínio {domain!r}. "
+                    "Verifique se a URL está correta e se o ambiente do Cadastrador tem DNS/internet."
+                ),
+                detail=detail,
+            )
+        return ErrorEvent(
+            reason="connection_failed",
+            message=(
+                f"Não foi possível conectar ao domínio {domain!r}. "
+                "Verifique se o site está online e acessível a partir do Cadastrador."
+            ),
+            detail=detail,
+        )
+    if isinstance(exc, httpx.TimeoutException):
+        return ErrorEvent(
+            reason="request_timeout",
+            message=(
+                f"O domínio {domain!r} não respondeu dentro do tempo limite. "
+                "Tente novamente ou confirme se o site está respondendo normalmente."
+            ),
+            detail=detail,
+        )
+    if isinstance(exc, httpx.HTTPStatusError):
+        status = exc.response.status_code
+        return ErrorEvent(
+            reason="http_status_error",
+            message=f"O site {domain!r} respondeu HTTP {status} ao baixar a página.",
+            detail=detail,
+        )
+    return ErrorEvent(reason=type(exc).__name__, message=detail)
 
 
 class OnboardingService:
@@ -140,10 +222,15 @@ class OnboardingService:
                     "progress",
                     {"step": "synthesizing_selectors", "mode": "tournament"},
                 )
-                proposal, verified_fields, tournament_report = await self._tournament_proposal(
+                tournament_run = await self._tournament_proposal(
                     discovery, identity
                 )
+                proposal = tournament_run.proposal
+                verified_fields = tournament_run.verified_fields
+                tournament_report = tournament_run.report
                 llm_rounds += len(CANDIDATE_STRATEGIES)
+                for event in tournament_run.progress_events:
+                    yield encode_event("progress", event)
                 yield encode_event(
                     "progress",
                     {
@@ -238,11 +325,7 @@ class OnboardingService:
                 persisted.agency_type,
                 persisted.name,
             )
-            final_agency_id: int | None = persisted.agency_id
-            if validation.outcome == "rejected":
-                delete_agency(conn, persisted.agency_type, persisted.agency_id)
-                final_agency_id = None
-            elif validation.outcome == "saved_inactive":
+            if validation.outcome == "saved_inactive":
                 deactivate_agency(conn, persisted.agency_type, persisted.agency_id)
 
             report = {
@@ -258,7 +341,7 @@ class OnboardingService:
                 conn,
                 AttemptRecord(
                     agency_type=persisted.agency_type,
-                    agency_id=final_agency_id,
+                    agency_id=persisted.agency_id,
                     submitted_url=url,
                     derived_domain=domain,
                     outcome=validation.outcome,
@@ -271,7 +354,7 @@ class OnboardingService:
                 "result",
                 {
                     "outcome": validation.outcome,
-                    "agency_id": final_agency_id,
+                    "agency_id": persisted.agency_id,
                     "agency_type": persisted.agency_type,
                     "name": persisted.name,
                     "domain": persisted.domain,
@@ -281,6 +364,7 @@ class OnboardingService:
                 },
             )
         except Exception as exc:
+            error = _classify_error(exc, domain)
             self._record_error(
                 conn,
                 url=url,
@@ -288,9 +372,9 @@ class OnboardingService:
                 started_at=started_at,
                 llm_rounds=llm_rounds,
                 outcome="error",
-                reason=f"{type(exc).__name__}: {exc}",
+                reason=f"{error.reason}: {error.detail or error.message}",
             )
-            yield encode_event("error", {"reason": type(exc).__name__, "message": str(exc)})
+            yield encode_event("error", error.payload())
 
     async def _discover(self, url: str, domain: str) -> Discovery:
         homepage = await self.fetcher.fetch(url)
@@ -307,9 +391,11 @@ class OnboardingService:
         if not sample_htmls:
             sample_htmls = [homepage]
             sample_page_urls = [url]
+        llm_htmls = sample_htmls[:MAX_LLM_EVIDENCE_HTMLS] or [homepage]
         return Discovery(
             homepage_html=homepage,
             sample_htmls=sample_htmls,
+            llm_htmls=llm_htmls,
             execution_model=execution_model,
             selected_sitemap_url=sitemap_result.selected_sitemap_url if sitemap_result else None,
             sitemap_urls=sitemap_urls,
@@ -392,15 +478,18 @@ class OnboardingService:
         self,
         discovery: Discovery,
         identity: Identity,
-    ) -> tuple[OnboardingProposal, set[str], dict]:
+    ) -> TournamentProposalRun:
         verified_chains: dict[str, list[ExtractorProposal]] = {}
         prior_failures: dict[str, list[str]] = {}
         results_by_field = {}
+        progress_events: list[dict] = []
         fields = [*MANDATORY_EXTRACTOR_FIELDS, *BEST_EFFORT_EXTRACTOR_FIELDS]
-        for _round in range(TOURNAMENT_MAX_ROUNDS):
+        for round_index in range(TOURNAMENT_MAX_ROUNDS):
+            round_number = round_index + 1
+            progress_events.append({"step": "tournament_round", "round": round_number})
             candidates = await generate_candidates(
                 self.llm,
-                htmls=discovery.sample_htmls,
+                htmls=discovery.llm_htmls or discovery.sample_htmls[:MAX_LLM_EVIDENCE_HTMLS],
                 fields=fields,
                 prior_failures=prior_failures,
                 execution_model=discovery.execution_model,
@@ -414,6 +503,20 @@ class OnboardingService:
             )
             verified_chains.update(round_verified)
             results_by_field.update(round_results)
+            for field, result in round_results.items():
+                if result.winner is None:
+                    continue
+                summary = summarize_result(result)
+                progress_events.append(
+                    {
+                        "step": "tournament_field_winner",
+                        "round": round_number,
+                        "field": field,
+                        "winner": summary["winner"],
+                        "acertividade": summary["acertividade"],
+                        "verified": summary["verified"],
+                    }
+                )
             missing = [
                 field
                 for field in MANDATORY_EXTRACTOR_FIELDS
@@ -436,12 +539,17 @@ class OnboardingService:
             sitemap_url=discovery.selected_sitemap_url,
             allowed_url_patterns=["/imovel/"],
         )
-        report = {
-            field: summarize_result(results_by_field[field])
-            for field in MANDATORY_EXTRACTOR_FIELDS
-            if field in results_by_field
-        }
-        return proposal, set(verified_chains), report
+        ordered_fields = [
+            *(field for field in MANDATORY_EXTRACTOR_FIELDS if field in results_by_field),
+            *(field for field in results_by_field if field not in MANDATORY_EXTRACTOR_FIELDS),
+        ]
+        report = {field: summarize_result(results_by_field[field]) for field in ordered_fields}
+        return TournamentProposalRun(
+            proposal=proposal,
+            verified_fields=set(verified_chains),
+            report=report,
+            progress_events=progress_events,
+        )
 
     def _final_proposal(
         self,
@@ -485,4 +593,3 @@ class OnboardingService:
                 llm_rounds=llm_rounds,
             ),
         )
-
