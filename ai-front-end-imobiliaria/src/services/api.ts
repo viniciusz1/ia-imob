@@ -18,6 +18,10 @@ const api = axios.create({
         "Content-Type": "application/json",
     },
     withCredentials: true,
+    // No servidor, força o adapter fetch do axios para evitar o adapter http
+    // legado do Node.js (follow-redirects), que dispara o DEP0169 por usar
+    // url.parse(). No cliente mantemos o adapter padrão (XHR).
+    adapter: typeof window === "undefined" ? "fetch" : undefined,
 });
 
 // Helper para ler cookies no client-side

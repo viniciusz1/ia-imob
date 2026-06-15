@@ -8,6 +8,22 @@ Cadastrador turns an Imobiliaria URL and HTML evidence into database-backed extr
 An offline review workflow that runs extractor synthesis against fixed HTML evidence without persisting an Agency, activating a Spider, or touching production data.
 _Avoid_: Test runner, validator, crawler
 
+**Bancada de Refinamento de Extractors**:
+A post-onboarding review workflow where a user checks and corrects persisted Extractors against the HTML evidence that justified them.
+_Avoid_: Selector editor, debug tool, reonboard
+
+**Refinamento de Extractor**:
+A user-confirmed correction to a persisted Extractor after onboarding, made while reviewing it against Evidencia HTML.
+_Avoid_: Reonboard, tournament rerun, smoke validation
+
+**Evidencia HTML**:
+The captured property-page HTML used as evidence when judging and later refining Extractors. It is a historical snapshot from the full Amostra de Torneio, not only the subset shown to the LLM or a fresh fetch from the live site.
+_Avoid_: Cache, fixture, screenshot, LLM prompt
+
+**Evidencia Selecionada**:
+The raw evidence matched by an Extractor before normalization, used to explain where a final extracted value came from.
+_Avoid_: Final value, normalized value, rendered answer
+
 **Pacote de Amostras**:
 A stable group of HTML examples used by the Bancada de Inspecao to judge extractor synthesis for one Imobiliaria slice. A general package validates mandatory Imovel fields, while scenario packages validate Optional Property Fields.
 _Avoid_: Random examples, scrape result, fixture dump

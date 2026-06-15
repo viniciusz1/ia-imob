@@ -7,8 +7,8 @@ export type ComparableReviewStatus = "pending" | "approved" | "rejected";
 export type ComparableReviewDecision = Exclude<ComparableReviewStatus, "pending">;
 
 export interface ValuationInput {
-  city: string;
-  neighborhood: string;
+  city: string[];
+  neighborhood: string[];
   residential_type: ResidentialType;
   area: number;
   bedrooms: number;

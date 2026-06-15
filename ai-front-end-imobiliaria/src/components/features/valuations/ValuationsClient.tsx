@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
-import { Calculator, Check, Download, ExternalLink, FileSpreadsheet, FileText, Loader2, Search, X } from "lucide-react";
+import { Calculator, Check, Download, ExternalLink, FileSpreadsheet, FileText, Loader2, Plus, Search, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
@@ -41,6 +41,7 @@ import {
   getValuation,
   getValuations,
 } from "@/services/valuationService";
+import { getScrapyPropertyFilters } from "@/services/scrapyPropertyService";
 import { authService } from "@/services/authService";
 import { useAuthStore } from "@/store/useAuthStore";
 import type {
@@ -60,8 +61,8 @@ const residentialTypes: Array<{ value: ResidentialType; label: string }> = [
 ];
 
 const initialInput: ValuationInput = {
-  city: "",
-  neighborhood: "",
+  city: [],
+  neighborhood: [],
   residential_type: "house",
   area: 100,
   bedrooms: 3,
@@ -140,6 +141,9 @@ export function ValuationsClient() {
   const [isLoadingHistory, setIsLoadingHistory] = useState(true);
   const [isLoadingAccess, setIsLoadingAccess] = useState(true);
   const [downloadingFormat, setDownloadingFormat] = useState<DownloadFormat | null>(null);
+  const [availableCities, setAvailableCities] = useState<string[]>([]);
+  const [availableNeighborhoods, setAvailableNeighborhoods] = useState<string[]>([]);
+  const [isLoadingFilters, setIsLoadingFilters] = useState(true);
   const permissions = Array.isArray(user?.permissions) ? user.permissions : null;
   const canCreate = permissions?.includes("valuations.create") ?? false;
   const canView = permissions?.includes("valuations.view") ?? false;
@@ -194,6 +198,24 @@ export function ValuationsClient() {
     setIsLoadingHistory(false);
   }, [canView, isLoadingAccess]);
 
+  useEffect(() => {
+    async function loadFilters() {
+      setIsLoadingFilters(true);
+      try {
+        const filters = await getScrapyPropertyFilters();
+        setAvailableCities(filters.cidades);
+        setAvailableNeighborhoods(filters.bairros);
+      } catch (error) {
+        console.error("Erro ao carregar filtros de localidade", error);
+        toast.error("Não foi possível carregar as cidades e bairros disponíveis.");
+      } finally {
+        setIsLoadingFilters(false);
+      }
+    }
+
+    void loadFilters();
+  }, []);
+
   async function loadHistory() {
     setIsLoadingHistory(true);
     try {
@@ -214,9 +236,20 @@ export function ValuationsClient() {
     }));
   }
 
+  function updateMultiSelect(field: "city" | "neighborhood", select: HTMLSelectElement) {
+    const selected: string[] = Array.from(select.selectedOptions).map((option) => option.value);
+
+    setForm((current) => ({ ...current, [field]: selected }));
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!canCreate) return;
+
+    if (form.city.length === 0 || form.neighborhood.length === 0) {
+      toast.error("Selecione pelo menos uma cidade e um bairro.");
+      return;
+    }
 
     setIsLoadingCandidates(true);
     try {
@@ -282,6 +315,14 @@ export function ValuationsClient() {
     });
   }
 
+  function selectAllCandidates() {
+    setSelectedCandidateIds(new Set(candidates.map((candidate) => candidate.scrapy_property_id)));
+  }
+
+  function clearCandidateSelection() {
+    setSelectedCandidateIds(new Set());
+  }
+
   function markSelectedCandidates(status: ComparableReviewDecision) {
     setCandidates((current) =>
       current.map((candidate) =>
@@ -335,6 +376,13 @@ export function ValuationsClient() {
     }
   }
 
+  function handleNewValuation() {
+    setForm(initialInput);
+    setCandidates([]);
+    setSelectedCandidateIds(new Set());
+    setSelected(null);
+  }
+
   if (isLoadingAccess) {
     return (
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -357,11 +405,24 @@ export function ValuationsClient() {
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-6">
-      <div className="flex flex-col gap-2">
-        <h1 className="text-3xl font-bold tracking-tight">Avaliar imóvel</h1>
-        <p className="text-muted-foreground">
-          Calcule uma avaliação de mercado com base em imóveis comparáveis da base.
-        </p>
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex flex-col gap-2">
+          <h1 className="text-3xl font-bold tracking-tight">Avaliar imóvel</h1>
+          <p className="text-muted-foreground">
+            Calcule uma avaliação de mercado com base em imóveis comparáveis da base.
+          </p>
+        </div>
+        {canCreate && (
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleNewValuation}
+            className="mt-1 shrink-0"
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Nova avaliação
+          </Button>
+        )}
       </div>
 
       <div className={canCreate ? "grid gap-6 lg:grid-cols-[360px_minmax(0,1fr)]" : "grid gap-6"}>
@@ -379,22 +440,44 @@ export function ValuationsClient() {
             <form className="space-y-4" onSubmit={handleSubmit}>
               <div className="space-y-2">
                 <Label htmlFor="city">Cidade</Label>
-                <Input
+                <select
                   id="city"
+                  multiple
                   value={form.city}
-                  onChange={(event) => setForm((current) => ({ ...current, city: event.target.value }))}
+                  onChange={(event) => updateMultiSelect("city", event.target as HTMLSelectElement)}
+                  disabled={isLoadingFilters}
+                  className="border-input bg-background focus-visible:ring-ring aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive w-full rounded-md border px-3 py-2 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50"
+                  size={5}
                   required
-                />
+                >
+                  {availableCities.map((city) => (
+                    <option key={city} value={city}>
+                      {city}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-xs text-muted-foreground">Segure Ctrl (ou Cmd) para selecionar várias cidades.</p>
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="neighborhood">Bairro</Label>
-                <Input
+                <select
                   id="neighborhood"
+                  multiple
                   value={form.neighborhood}
-                  onChange={(event) => setForm((current) => ({ ...current, neighborhood: event.target.value }))}
+                  onChange={(event) => updateMultiSelect("neighborhood", event.target as HTMLSelectElement)}
+                  disabled={isLoadingFilters}
+                  className="border-input bg-background focus-visible:ring-ring aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive w-full rounded-md border px-3 py-2 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50"
+                  size={5}
                   required
-                />
+                >
+                  {availableNeighborhoods.map((neighborhood) => (
+                    <option key={neighborhood} value={neighborhood}>
+                      {neighborhood}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-xs text-muted-foreground">Segure Ctrl (ou Cmd) para selecionar vários bairros.</p>
               </div>
 
               <div className="space-y-2">
@@ -405,7 +488,7 @@ export function ValuationsClient() {
                     setForm((current) => ({ ...current, residential_type: value as ResidentialType }))
                   }
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -478,7 +561,7 @@ export function ValuationsClient() {
                 />
               </div>
 
-              <Button type="submit" className="w-full" disabled={isLoadingCandidates}>
+              <Button type="submit" className="w-full" disabled={isLoadingCandidates || isLoadingFilters}>
                 {isLoadingCandidates ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Search className="mr-2 h-4 w-4" />}
                 Buscar comparáveis
               </Button>
@@ -498,6 +581,8 @@ export function ValuationsClient() {
               canCalculate={canCalculateReviewedValuation}
               onToggleSelected={toggleCandidateSelection}
               onMarkSelected={markSelectedCandidates}
+              onSelectAll={selectAllCandidates}
+              onClearSelection={clearCandidateSelection}
               onCycleStatus={cycleCandidateStatus}
               onCalculate={() => void handleCreateReviewedValuation()}
             />
@@ -674,6 +759,8 @@ interface ComparableReviewPanelProps {
   canCalculate: boolean;
   onToggleSelected: (candidateId: number, checked: boolean) => void;
   onMarkSelected: (status: ComparableReviewDecision) => void;
+  onSelectAll: () => void;
+  onClearSelection: () => void;
   onCycleStatus: (candidateId: number) => void;
   onCalculate: () => void;
 }
@@ -688,6 +775,8 @@ function ComparableReviewPanel({
   canCalculate,
   onToggleSelected,
   onMarkSelected,
+  onSelectAll,
+  onClearSelection,
   onCycleStatus,
   onCalculate,
 }: ComparableReviewPanelProps) {
@@ -736,6 +825,24 @@ function ComparableReviewPanel({
           >
             <X className="mr-2 h-4 w-4" />
             Marcar como inválido
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={onSelectAll}
+            disabled={candidates.length === 0}
+          >
+            Selecionar todos
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={onClearSelection}
+            disabled={selectedCount === 0}
+          >
+            Limpar seleção
           </Button>
           <span className="text-sm text-muted-foreground">
             {selectedCount} selecionados

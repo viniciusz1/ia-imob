@@ -4,9 +4,13 @@ namespace App\Domain\Valuation;
 
 final readonly class ValuationInput
 {
+    /**
+     * @param  array<int, string>  $city
+     * @param  array<int, string>  $neighborhood
+     */
     public function __construct(
-        public string $city,
-        public string $neighborhood,
+        public array $city,
+        public array $neighborhood,
         public string $residentialType,
         public float $area,
         public int $bedrooms,

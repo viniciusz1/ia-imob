@@ -22,8 +22,8 @@ class ValuationResource extends JsonResource
                 ? 'Calculada'
                 : 'Amostra insuficiente',
             'subject_property' => [
-                'city' => $valuation->city,
-                'neighborhood' => $valuation->neighborhood,
+                'city' => $this->locationLabel($valuation->city),
+                'neighborhood' => $this->locationLabel($valuation->neighborhood),
                 'residential_type' => $valuation->residential_type,
                 'residential_type_label' => ResidentialType::label($valuation->residential_type),
                 'area' => (float) $valuation->area,
@@ -46,6 +46,15 @@ class ValuationResource extends JsonResource
             ]),
             'created_at' => $valuation->created_at?->toISOString(),
         ];
+    }
+
+    private function locationLabel(?array $values): string
+    {
+        if (empty($values)) {
+            return '-';
+        }
+
+        return implode(', ', array_slice($values, 0, 3)).(count($values) > 3 ? '...' : '');
     }
 
     private function range(PropertyValuation $valuation, string $prefix): ?array

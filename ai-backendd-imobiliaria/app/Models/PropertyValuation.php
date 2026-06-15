@@ -45,6 +45,8 @@ class PropertyValuation extends Model
         'bathrooms' => 'integer',
         'garage_spaces' => 'integer',
         'flood_risk' => 'boolean',
+        'city' => 'array',
+        'neighborhood' => 'array',
         'base_min_value' => 'decimal:2',
         'base_central_value' => 'decimal:2',
         'base_max_value' => 'decimal:2',

@@ -197,20 +197,27 @@ final class MarketValuationCalculator
 
     private function collectComparableCandidates(ValuationInput $input, bool $relaxBathrooms): array
     {
-        $city = TextNormalizer::normalize($input->city);
-        $neighborhood = TextNormalizer::normalize($input->neighborhood);
+        $cities = array_map(
+            static fn (string $city): string => TextNormalizer::normalize($city),
+            $input->city
+        );
+
+        $neighborhoods = array_map(
+            static fn (string $neighborhood): string => TextNormalizer::normalize($neighborhood),
+            $input->neighborhood
+        );
 
         $properties = ScrapyProperty::query()
             ->where('quartos', $input->bedrooms)
             ->where('vagas', $input->garageSpaces)
             ->get();
 
-        $matched = $properties->filter(function (ScrapyProperty $property) use ($input, $city, $neighborhood, $relaxBathrooms): bool {
-            if (TextNormalizer::normalize((string) $property->cidade) !== $city) {
+        $matched = $properties->filter(function (ScrapyProperty $property) use ($input, $cities, $neighborhoods, $relaxBathrooms): bool {
+            if (! in_array(TextNormalizer::normalize((string) $property->cidade), $cities, true)) {
                 return false;
             }
 
-            if (TextNormalizer::normalize((string) $property->bairro) !== $neighborhood) {
+            if (! in_array(TextNormalizer::normalize((string) $property->bairro), $neighborhoods, true)) {
                 return false;
             }
 

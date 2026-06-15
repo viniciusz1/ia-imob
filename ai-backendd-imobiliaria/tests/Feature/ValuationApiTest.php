@@ -36,8 +36,8 @@ class ValuationApiTest extends TestCase
         Sanctum::actingAs($user);
 
         $response = $this->postJson('/api/v1/valuations', [
-            'city' => 'Jaraguá do Sul',
-            'neighborhood' => 'Centro',
+            'city' => ['Jaraguá do Sul'],
+            'neighborhood' => ['Centro'],
             'residential_type' => 'house',
             'area' => 120,
             'bedrooms' => 3,
@@ -57,12 +57,12 @@ class ValuationApiTest extends TestCase
             'tenant_id' => $tenant->id,
             'user_id' => $user->id,
             'status' => PropertyValuation::STATUS_INSUFFICIENT_SAMPLE,
-            'city' => 'Jaraguá do Sul',
-            'neighborhood' => 'Centro',
             'residential_type' => 'house',
         ]);
 
         $valuation = PropertyValuation::withoutGlobalScopes()->firstOrFail();
+        $this->assertSame(['Jaraguá do Sul'], $valuation->city);
+        $this->assertSame(['Centro'], $valuation->neighborhood);
         $this->assertStringStartsWith('AVL-'.now()->format('Y').'-', $valuation->code);
     }
 
@@ -74,8 +74,8 @@ class ValuationApiTest extends TestCase
         Sanctum::actingAs($user);
 
         $response = $this->postJson('/api/v1/valuations', [
-            'city' => 'Jaraguá do Sul',
-            'neighborhood' => 'Centro',
+            'city' => ['Jaraguá do Sul'],
+            'neighborhood' => ['Centro'],
             'residential_type' => 'house',
             'area' => 120,
             'bedrooms' => 3,
@@ -285,8 +285,8 @@ class ValuationApiTest extends TestCase
         Sanctum::actingAs($user);
 
         $response = $this->postJson('/api/v1/valuations', [
-            'city' => 'Jaraguá do Sul',
-            'neighborhood' => 'Centro',
+            'city' => ['Jaraguá do Sul'],
+            'neighborhood' => ['Centro'],
             'residential_type' => 'house',
             'area' => 120,
             'bedrooms' => 3,
@@ -327,8 +327,8 @@ class ValuationApiTest extends TestCase
         Sanctum::actingAs($user);
 
         $createResponse = $this->postJson('/api/v1/valuations', [
-            'city' => 'Jaraguá do Sul',
-            'neighborhood' => 'Centro',
+            'city' => ['Jaraguá do Sul'],
+            'neighborhood' => ['Centro'],
             'residential_type' => 'house',
             'area' => 120,
             'bedrooms' => 3,
@@ -364,8 +364,8 @@ class ValuationApiTest extends TestCase
             'user_id' => $user->id,
             'code' => 'AVL-2026-000009',
             'status' => PropertyValuation::STATUS_CALCULATED,
-            'city' => 'Jaraguá do Sul',
-            'neighborhood' => 'Centro',
+            'city' => ['Jaraguá do Sul'],
+            'neighborhood' => ['Centro'],
             'residential_type' => 'house',
             'area' => 120,
             'bedrooms' => 3,
@@ -444,8 +444,8 @@ class ValuationApiTest extends TestCase
             'user_id' => $user->id,
             'code' => 'AVL-2026-000010',
             'status' => PropertyValuation::STATUS_CALCULATED,
-            'city' => 'Jaraguá do Sul',
-            'neighborhood' => 'Centro',
+            'city' => ['Jaraguá do Sul'],
+            'neighborhood' => ['Centro'],
             'residential_type' => 'house',
             'area' => 120,
             'bedrooms' => 3,
@@ -523,8 +523,8 @@ class ValuationApiTest extends TestCase
             'user_id' => $user->id,
             'code' => 'AVL-2026-000011',
             'status' => PropertyValuation::STATUS_CALCULATED,
-            'city' => 'Jaraguá do Sul',
-            'neighborhood' => 'Centro',
+            'city' => ['Jaraguá do Sul'],
+            'neighborhood' => ['Centro'],
             'residential_type' => 'house',
             'area' => 120,
             'bedrooms' => 3,
@@ -605,8 +605,8 @@ class ValuationApiTest extends TestCase
             'user_id' => $userA->id,
             'code' => 'AVL-2026-000001',
             'status' => PropertyValuation::STATUS_INSUFFICIENT_SAMPLE,
-            'city' => 'Jaraguá do Sul',
-            'neighborhood' => 'Centro',
+            'city' => ['Jaraguá do Sul'],
+            'neighborhood' => ['Centro'],
             'residential_type' => 'house',
             'area' => 100,
             'bedrooms' => 3,
@@ -622,8 +622,8 @@ class ValuationApiTest extends TestCase
             'user_id' => User::factory()->for($tenantB)->create()->id,
             'code' => 'AVL-2026-000002',
             'status' => PropertyValuation::STATUS_INSUFFICIENT_SAMPLE,
-            'city' => 'Jaraguá do Sul',
-            'neighborhood' => 'Centro',
+            'city' => ['Jaraguá do Sul'],
+            'neighborhood' => ['Centro'],
             'residential_type' => 'house',
             'area' => 100,
             'bedrooms' => 3,
@@ -655,8 +655,8 @@ class ValuationApiTest extends TestCase
             'user_id' => User::factory()->for($tenantB)->create()->id,
             'code' => 'AVL-2026-000005',
             'status' => PropertyValuation::STATUS_CALCULATED,
-            'city' => 'Jaraguá do Sul',
-            'neighborhood' => 'Centro',
+            'city' => ['Jaraguá do Sul'],
+            'neighborhood' => ['Centro'],
             'residential_type' => 'house',
             'area' => 100,
             'bedrooms' => 3,
@@ -689,8 +689,8 @@ class ValuationApiTest extends TestCase
             'user_id' => $user->id,
             'code' => 'AVL-2026-000006',
             'status' => PropertyValuation::STATUS_INSUFFICIENT_SAMPLE,
-            'city' => 'Jaraguá do Sul',
-            'neighborhood' => 'Centro',
+            'city' => ['Jaraguá do Sul'],
+            'neighborhood' => ['Centro'],
             'residential_type' => 'house',
             'area' => 100,
             'bedrooms' => 3,
@@ -861,8 +861,8 @@ class ValuationApiTest extends TestCase
             'user_id' => $creator->id,
             'code' => 'AVL-2026-000003',
             'status' => PropertyValuation::STATUS_CALCULATED,
-            'city' => 'Jaraguá do Sul',
-            'neighborhood' => 'Centro',
+            'city' => ['Jaraguá do Sul'],
+            'neighborhood' => ['Centro'],
             'residential_type' => 'house',
             'area' => 100,
             'bedrooms' => 3,
@@ -896,8 +896,8 @@ class ValuationApiTest extends TestCase
             'user_id' => $user->id,
             'code' => 'AVL-2026-000004',
             'status' => PropertyValuation::STATUS_INSUFFICIENT_SAMPLE,
-            'city' => 'Jaraguá do Sul',
-            'neighborhood' => 'Centro',
+            'city' => ['Jaraguá do Sul'],
+            'neighborhood' => ['Centro'],
             'residential_type' => 'house',
             'area' => 100,
             'bedrooms' => 3,
@@ -918,8 +918,8 @@ class ValuationApiTest extends TestCase
     private function valuationPayload(array $overrides = []): array
     {
         return array_merge([
-            'city' => 'Jaraguá do Sul',
-            'neighborhood' => 'Centro',
+            'city' => ['Jaraguá do Sul'],
+            'neighborhood' => ['Centro'],
             'residential_type' => 'house',
             'area' => 120,
             'bedrooms' => 3,

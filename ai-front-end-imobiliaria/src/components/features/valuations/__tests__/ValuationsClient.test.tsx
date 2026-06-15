@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ValuationsClient } from "../ValuationsClient";
 import * as valuationService from "@/services/valuationService";
+import * as scrapyPropertyService from "@/services/scrapyPropertyService";
 import { useAuthStore } from "@/store/useAuthStore";
 import type { ComparableCandidate, PaginatedValuationsResponse, Valuation } from "@/types/valuation";
 
@@ -21,6 +22,10 @@ vi.mock("@/services/valuationService", () => ({
   getValuationCandidates: vi.fn(),
   getValuation: vi.fn(),
   getValuations: vi.fn(),
+}));
+
+vi.mock("@/services/scrapyPropertyService", () => ({
+  getScrapyPropertyFilters: vi.fn(),
 }));
 
 const calculatedValuation: Valuation = {
@@ -190,6 +195,17 @@ describe("ValuationsClient", () => {
     vi.mocked(valuationService.getValuationCandidates).mockReset();
     vi.mocked(valuationService.getValuation).mockReset();
     vi.mocked(valuationService.getValuations).mockReset();
+    vi.mocked(scrapyPropertyService.getScrapyPropertyFilters).mockReset();
+    vi.mocked(scrapyPropertyService.getScrapyPropertyFilters).mockResolvedValue({
+      tipos: ["casa", "apartamento"],
+      bairros: ["Centro", "Vila Lalau"],
+      cidades: ["Jaraguá do Sul"],
+      imobiliarias: [],
+      quartos: [3],
+      suites: [],
+      banheiros: [2],
+      vagas: [1, 2],
+    });
   });
 
   it("reviews comparable candidates before creating a valuation", async () => {
@@ -201,12 +217,16 @@ describe("ValuationsClient", () => {
 
     render(<ValuationsClient />);
 
-    fireEvent.change(screen.getByLabelText("Cidade"), {
-      target: { value: "Jaraguá do Sul" },
+    const citySelect = await screen.findByLabelText("Cidade") as HTMLSelectElement;
+    const neighborhoodSelect = await screen.findByLabelText("Bairro") as HTMLSelectElement;
+
+    await waitFor(() => {
+      expect(citySelect.options.length).toBeGreaterThan(0);
+      expect(neighborhoodSelect.options.length).toBeGreaterThan(0);
     });
-    fireEvent.change(screen.getByLabelText("Bairro"), {
-      target: { value: "Centro" },
-    });
+
+    fireEvent.change(citySelect, { target: { value: "Jaraguá do Sul" } });
+    fireEvent.change(neighborhoodSelect, { target: { value: "Centro" } });
 
     fireEvent.click(screen.getByRole("button", { name: /buscar comparáveis/i }));
 
@@ -223,8 +243,8 @@ describe("ValuationsClient", () => {
 
     await waitFor(() => {
       expect(valuationService.createValuation).toHaveBeenCalledWith({
-        city: "Jaraguá do Sul",
-        neighborhood: "Centro",
+        city: ["Jaraguá do Sul"],
+        neighborhood: ["Centro"],
         residential_type: "house",
         area: 100,
         bedrooms: 3,

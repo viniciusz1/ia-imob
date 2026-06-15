@@ -54,7 +54,7 @@ class WordValuationReportGenerator
                 ],
                 [
                     ['Imobiliária', $valuation->tenant?->name ?? '-'],
-                    ['Cidade/UF', $valuation->city],
+                    ['Cidade/UF', $this->locationLabel($valuation->city)],
                     ['Versão', '1.0'],
                 ],
             ]),
@@ -62,7 +62,7 @@ class WordValuationReportGenerator
             $this->table([
                 [
                     ['Tipo do imóvel', ResidentialType::label($valuation->residential_type)],
-                    ['Endereço / referência', $valuation->neighborhood.', '.$valuation->city],
+                    ['Endereço / referência', $this->locationLabel($valuation->neighborhood).', '.$this->locationLabel($valuation->city)],
                 ],
                 [
                     ['Área privativa / útil', $this->number((float) $valuation->area).' m²'],
@@ -373,6 +373,15 @@ class WordValuationReportGenerator
             'rejected' => 'Inválido',
             default => '-',
         };
+    }
+
+    private function locationLabel(?array $values): string
+    {
+        if (empty($values)) {
+            return '-';
+        }
+
+        return implode(', ', array_slice($values, 0, 3)).(count($values) > 3 ? '...' : '');
     }
 
     private function escape(string $value): string

@@ -16,8 +16,10 @@ class StoreValuationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'city' => ['required', 'string', 'max:120'],
-            'neighborhood' => ['required', 'string', 'max:120'],
+            'city' => ['required', 'array', 'min:1'],
+            'city.*' => ['required', 'string', 'max:120'],
+            'neighborhood' => ['required', 'array', 'min:1'],
+            'neighborhood.*' => ['required', 'string', 'max:120'],
             'residential_type' => ['required', 'string', Rule::in(ResidentialType::values())],
             'area' => ['required', 'numeric', 'min:20', 'max:2000'],
             'bedrooms' => ['required', 'integer', 'min:0', 'max:10'],

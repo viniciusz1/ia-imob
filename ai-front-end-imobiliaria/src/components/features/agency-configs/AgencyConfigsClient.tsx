@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import type { ReactNode } from "react";
-import { Database, Edit, FlaskConical, Plus, RefreshCw, Trash2 } from "lucide-react";
+import { Database, Edit, FlaskConical, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import {
@@ -203,6 +203,21 @@ export function AgencyConfigsClient() {
         }
     };
 
+    const toggleAgencyStatus = async () => {
+        if (!selectedAgency) return;
+        try {
+            const payload = agencyPayloadFromConfig(selectedAgency);
+            await updateAgency.mutateAsync({
+                agencyType: selectedAgency.agency_type,
+                agencyId: selectedAgency.id,
+                payload: { ...payload, is_active: !selectedAgency.is_active },
+            });
+            toast.success(selectedAgency.is_active ? "Agência desativada." : "Agência ativada.");
+        } catch (err: unknown) {
+            toast.error(errorMessage(err, "Erro ao alterar status da agência."));
+        }
+    };
+
     const openCreateExtractor = () => {
         setEditingExtractor(null);
         setExtractorForm(emptyExtractorForm);
@@ -326,18 +341,6 @@ export function AgencyConfigsClient() {
                                                 <TableCell>{agency.extractors.length}</TableCell>
                                                 <TableCell className="text-right">
                                                     <div className="flex justify-end gap-2">
-                                                        <Button
-                                                            size="sm"
-                                                            variant="outline"
-                                                            title="Reonboard com Cadastrador"
-                                                            onClick={(event) => {
-                                                                event.stopPropagation();
-                                                                setCadastradorAgency(agency);
-                                                                setCadastradorOpen(true);
-                                                            }}
-                                                        >
-                                                            <RefreshCw className="h-4 w-4" />
-                                                        </Button>
                                                         <Button size="sm" variant="outline" onClick={(event) => {
                                                             event.stopPropagation();
                                                             openEditAgency(agency);
@@ -376,10 +379,26 @@ export function AgencyConfigsClient() {
                                         {selectedAgency ? selectedAgency.name : "Selecione uma agência"}
                                     </CardDescription>
                                 </div>
-                                <Button size="sm" disabled={!selectedAgency} onClick={openCreateExtractor}>
-                                    <Plus className="mr-2 h-4 w-4" />
-                                    Novo
-                                </Button>
+                                <div className="flex items-center gap-3">
+                                    {selectedAgency && (
+                                        <div className="flex items-center gap-2">
+                                            <Switch
+                                                id="agency-status"
+                                                size="sm"
+                                                checked={selectedAgency.is_active}
+                                                onCheckedChange={toggleAgencyStatus}
+                                                disabled={updateAgency.isPending}
+                                            />
+                                            <Label htmlFor="agency-status" className="text-sm text-muted-foreground">
+                                                {selectedAgency.is_active ? "Ativa" : "Inativa"}
+                                            </Label>
+                                        </div>
+                                    )}
+                                    <Button size="sm" disabled={!selectedAgency} onClick={openCreateExtractor}>
+                                        <Plus className="mr-2 h-4 w-4" />
+                                        Novo
+                                    </Button>
+                                </div>
                             </div>
                         </CardHeader>
                         <CardContent>
@@ -671,6 +690,35 @@ function formFromAgency(agency: AgencyConfig): AgencyFormState {
                 cards_to_iterate_selector_value: agency.cards_to_iterate_selector_value,
             }),
     };
+}
+
+function agencyPayloadFromConfig(agency: AgencyConfig): AgencyPayload {
+    const common = {
+        name: agency.name,
+        domain: agency.domain,
+        is_active: agency.is_active,
+        expected_min_items: agency.expected_min_items,
+    };
+
+    if (agency.agency_type === "sitemap") {
+        return {
+            ...common,
+            domain: agency.domain,
+            sitemap_url: agency.sitemap_url,
+            allowed_url_patterns: agency.allowed_url_patterns,
+        } satisfies SitemapAgencyPayload;
+    }
+
+    return {
+        ...common,
+        url: agency.url,
+        url_pagination_template: agency.url_pagination_template,
+        total_pages_selector_type: agency.total_pages_selector_type,
+        total_pages_selector_value: agency.total_pages_selector_value,
+        total_pages_formula: agency.total_pages_formula,
+        cards_to_iterate_selector_type: agency.cards_to_iterate_selector_type,
+        cards_to_iterate_selector_value: agency.cards_to_iterate_selector_value,
+    } satisfies WsmAgencyPayload;
 }
 
 function agencyPayloadFromForm(agencyType: AgencyType, form: AgencyFormState): AgencyPayload {

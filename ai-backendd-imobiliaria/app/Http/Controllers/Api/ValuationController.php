@@ -33,8 +33,8 @@ class ValuationController extends Controller
         $data = $request->validated();
 
         $valuation = $create->execute($request->user(), new ValuationInput(
-            city: $data['city'],
-            neighborhood: $data['neighborhood'],
+            city: (array) $data['city'],
+            neighborhood: (array) $data['neighborhood'],
             residentialType: $data['residential_type'],
             area: (float) $data['area'],
             bedrooms: (int) $data['bedrooms'],
@@ -51,8 +51,8 @@ class ValuationController extends Controller
         $data = $request->validated();
 
         $candidates = $calculator->comparableCandidates(new ValuationInput(
-            city: $data['city'],
-            neighborhood: $data['neighborhood'],
+            city: (array) $data['city'],
+            neighborhood: (array) $data['neighborhood'],
             residentialType: $data['residential_type'],
             area: (float) $data['area'],
             bedrooms: (int) $data['bedrooms'],
