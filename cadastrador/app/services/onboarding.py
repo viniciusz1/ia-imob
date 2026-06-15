@@ -183,6 +183,7 @@ class OnboardingService:
         self,
         *,
         url: str,
+        name: str | None = None,
         conn,
         request: Request | None = None,
     ) -> AsyncIterator[bytes]:
@@ -211,7 +212,7 @@ class OnboardingService:
                 yield encode_event("error", {"reason": "unsupported_site"})
                 return
 
-            identity = await self.llm.resolve_identity(url, discovery.homepage_html)
+            identity = Identity(domain=domain, name=name)
             yield encode_event(
                 "progress",
                 {"step": "identity_resolved", "name": identity.name, "domain": identity.domain},

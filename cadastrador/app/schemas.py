@@ -84,6 +84,7 @@ def fallback_name_from_domain(domain: str) -> str:
 
 class OnboardRequest(BaseModel):
     url: str
+    name: str
 
     @field_validator("url")
     @classmethod

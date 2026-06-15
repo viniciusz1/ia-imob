@@ -56,7 +56,7 @@ async def onboard(
         async with _semaphore:
             conn = connect()
             try:
-                async for chunk in service.stream_onboarding(url=payload.url, conn=conn, request=request):
+                async for chunk in service.stream_onboarding(url=payload.url, name=payload.name, conn=conn, request=request):
                     yield chunk
             except BaseException:
                 conn.rollback()

@@ -209,6 +209,7 @@ type CadastradorPanelProps = {
 export function CadastradorPanel({ open, onOpenChange, preSelectedAgency, agencies }: CadastradorPanelProps) {
     const [activeTab, setActiveTab] = useState(preSelectedAgency ? "reonboard" : "onboard");
     const [onboardUrl, setOnboardUrl] = useState("");
+    const [onboardName, setOnboardName] = useState("");
     const [events, setEvents] = useState<CadastradorEvent[]>([]);
     const [busy, setBusy] = useState(false);
     const abortRef = useRef<AbortController | null>(null);
@@ -227,11 +228,12 @@ export function CadastradorPanel({ open, onOpenChange, preSelectedAgency, agenci
 
     const handleOnboard = useCallback(() => {
         const url = onboardUrl.trim();
-        if (!url) return;
+        const name = onboardName.trim();
+        if (!url || !name) return;
         if (abortRef.current) abortRef.current.abort();
         setEvents([]);
         setBusy(true);
-        const ctrl = onboardAgency(url, (evt) => {
+        const ctrl = onboardAgency({ url, name }, (evt) => {
             setEvents((prev) => [...prev, evt]);
             if (evt.type === "result" || evt.type === "error") {
                 setBusy(false);
@@ -239,7 +241,7 @@ export function CadastradorPanel({ open, onOpenChange, preSelectedAgency, agenci
             }
         });
         abortRef.current = ctrl;
-    }, [onboardUrl]);
+    }, [onboardUrl, onboardName]);
 
     const handleCancel = () => {
         abortRef.current?.abort();
@@ -335,6 +337,16 @@ export function CadastradorPanel({ open, onOpenChange, preSelectedAgency, agenci
 
                     {/* ── Onboard ─────────────────────────────────── */}
                     <TabsContent value="onboard" className="space-y-4 pt-4">
+                        <div className="space-y-2">
+                            <Label>Nome da imobiliária</Label>
+                            <Input
+                                placeholder="Ex: Imobiliária Exemplo"
+                                value={onboardName}
+                                onChange={(e) => setOnboardName(e.target.value)}
+                                onKeyDown={(e) => e.key === "Enter" && handleOnboard()}
+                                disabled={busy}
+                            />
+                        </div>
                         <div className="flex gap-2">
                             <div className="flex-1 space-y-2">
                                 <Label>URL da imobiliária</Label>
@@ -347,7 +359,7 @@ export function CadastradorPanel({ open, onOpenChange, preSelectedAgency, agenci
                                 />
                             </div>
                             <div className="flex items-end gap-2">
-                                <Button onClick={handleOnboard} disabled={busy || !onboardUrl.trim()}>
+                                <Button onClick={handleOnboard} disabled={busy || !onboardUrl.trim() || !onboardName.trim()}>
                                     {busy ? "Onboarding…" : "Iniciar"}
                                 </Button>
                                 {busy && (

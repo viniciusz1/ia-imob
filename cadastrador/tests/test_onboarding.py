@@ -195,7 +195,7 @@ async def test_stream_onboarding_reports_name_resolution_failure():
     conn = _Conn()
 
     body = b""
-    async for chunk in service.stream_onboarding(url="missing.test", conn=conn):
+    async for chunk in service.stream_onboarding(url="missing.test", name="Missing", conn=conn):
         body += chunk
 
     payloads = _event_payloads(body)
@@ -234,7 +234,7 @@ async def test_stream_onboarding_emits_tournament_observability(monkeypatch):
     )
 
     body = b""
-    async for chunk in service.stream_onboarding(url="https://x.test", conn=_Conn()):
+    async for chunk in service.stream_onboarding(url="https://x.test", name="Imob X", conn=_Conn()):
         body += chunk
 
     events = _decoded_events(body)
@@ -277,7 +277,7 @@ async def test_stream_onboarding_persists_html_evidence_for_successful_attempt(m
     )
 
     body = b""
-    async for chunk in service.stream_onboarding(url="https://x.test", conn=conn):
+    async for chunk in service.stream_onboarding(url="https://x.test", name="Imob X", conn=conn):
         body += chunk
 
     evidence_inserts = [

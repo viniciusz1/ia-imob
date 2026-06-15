@@ -52,14 +52,14 @@ class _Conn:
 
 
 class _Service:
-    async def stream_onboarding(self, *, url, conn, request=None):
+    async def stream_onboarding(self, *, url, name=None, conn, request=None):
         yield b'event: progress\ndata: {"step":"fetching"}\n\n'
         yield b'event: result\ndata: {"outcome":"active","agency_id":1}\n\n'
 
 
 def test_normalize_http_url_defaults_https():
     assert normalize_http_url(" example.com/imoveis ") == "https://example.com/imoveis"
-    assert OnboardRequest(url="//example.com").url == "https://example.com"
+    assert OnboardRequest(url="//example.com", name="Example").url == "https://example.com"
 
 
 @pytest.mark.asyncio
@@ -82,7 +82,7 @@ async def test_onboard_stream_contract(monkeypatch):
 
     request = agencies.Request({"type": "http", "headers": []}, receive)
     response = await agencies.onboard(
-        OnboardRequest(url="example.com"),
+        OnboardRequest(url="example.com", name="Example Imóveis"),
         request,
         _Service(),
     )
