@@ -15,6 +15,11 @@
  * NEXT_PUBLIC_CADASTRADOR_URL to its public address.
  */
 
+import type {
+    ExtractorRefinementPreview,
+    ExtractorRefinementPreviewRequest,
+} from "@/types/agencyRefinement";
+
 const CADASTRADOR_URL =
     process.env.NEXT_PUBLIC_CADASTRADOR_URL ?? "http://localhost:8000";
 
@@ -132,9 +137,14 @@ function streamSSE(path: string, body: unknown, onEvent: SSECallback): AbortCont
 
 // ── Public API ────────────────────────────────────────────────────────
 
+type OnboardPayload = {
+    url: string;
+    name: string;
+};
+
 /** Start onboarding a new agency. SSE events delivered via `onEvent`. */
-export function onboardAgency(url: string, onEvent: SSECallback): AbortController {
-    return streamSSE("/agencies/onboard", { url }, onEvent);
+export function onboardAgency(payload: OnboardPayload, onEvent: SSECallback): AbortController {
+    return streamSSE("/agencies/onboard", payload, onEvent);
 }
 
 /** Re-onboard an existing agency. SSE events delivered via `onEvent`. */
@@ -189,4 +199,20 @@ export async function debugIdentity(url: string): Promise<unknown> {
         throw new Error(`HTTP ${response.status}: ${text.slice(0, 200)}`);
     }
     return response.json();
+}
+
+/** Preview one field's extractor chain against persisted HTML evidence. */
+export async function previewExtractorRefinement(
+    payload: ExtractorRefinementPreviewRequest,
+): Promise<ExtractorRefinementPreview> {
+    const response = await fetch(`${CADASTRADOR_URL}/refinement/preview`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+    });
+    if (!response.ok) {
+        const text = await response.text().catch(() => "(unreadable)");
+        throw new Error(`HTTP ${response.status}: ${text.slice(0, 200)}`);
+    }
+    return response.json() as Promise<ExtractorRefinementPreview>;
 }
