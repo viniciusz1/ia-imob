@@ -55,14 +55,14 @@ class AgencyConfigController extends Controller
     public function refinement(Request $request, string $agencyType, int $agencyId): JsonResponse
     {
         $this->authorizeRefine($request);
+        $agency = $this->findAgency($agencyType, $agencyId)->load('extractors');
+        $evidence = $this->latestSuccessfulAttemptEvidence($agencyType, $agencyId);
 
         return response()->json([
             'data' => [
-                'agency' => (new AgencyConfigResource(
-                    $this->findAgency($agencyType, $agencyId)->load('extractors')
-                ))->resolve($request),
-                'evidence_available' => false,
-                'evidence' => [],
+                'agency' => (new AgencyConfigResource($agency))->resolve($request),
+                'evidence_available' => $evidence->isNotEmpty(),
+                'evidence' => $evidence->values()->all(),
             ],
         ]);
     }
@@ -213,6 +213,43 @@ class AgencyConfigController extends Controller
     private function assertAgencyType(string $agencyType): void
     {
         abort_unless(in_array($agencyType, self::AGENCY_TYPES, true), 404, 'Tipo de agência inválido.');
+    }
+
+    private function latestSuccessfulAttemptEvidence(string $agencyType, int $agencyId): \Illuminate\Support\Collection
+    {
+        $attempt = DB::table('agency_onboarding_attempts')
+            ->where('agency_type', $agencyType)
+            ->where('agency_id', $agencyId)
+            ->whereIn('outcome', ['active', 'saved_inactive'])
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
+            ->first();
+
+        if (! $attempt) {
+            return collect();
+        }
+
+        return DB::table('agency_onboarding_evidence')
+            ->where('agency_onboarding_attempt_id', $attempt->id)
+            ->orderBy('sample_index')
+            ->get([
+                'id',
+                'agency_onboarding_attempt_id',
+                'sample_index',
+                'url',
+                'content_hash',
+                'html',
+                'captured_at',
+            ])
+            ->map(fn (object $row): array => [
+                'id' => $row->id,
+                'attempt_id' => $row->agency_onboarding_attempt_id,
+                'sample_index' => $row->sample_index,
+                'url' => $row->url,
+                'content_hash' => $row->content_hash,
+                'html' => $row->html,
+                'captured_at' => $row->captured_at,
+            ]);
     }
 
     private function authorizeManage(Request $request): void

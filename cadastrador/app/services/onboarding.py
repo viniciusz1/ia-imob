@@ -27,6 +27,7 @@ from app.services.persistence import (
     deactivate_agency,
     duration_ms,
     persist_agency,
+    record_evidence,
     record_attempt,
 )
 from app.services.sse import encode_event
@@ -337,7 +338,7 @@ class OnboardingService:
                 "llm_rounds": llm_rounds,
                 "tournament": tournament_report,
             }
-            record_attempt(
+            attempt_id = record_attempt(
                 conn,
                 AttemptRecord(
                     agency_type=persisted.agency_type,
@@ -349,6 +350,11 @@ class OnboardingService:
                     duration_ms=duration_ms(started_at),
                     llm_rounds=llm_rounds,
                 ),
+            )
+            record_evidence(
+                conn,
+                attempt_id=attempt_id,
+                samples=list(zip(discovery.sample_urls or [], discovery.sample_htmls)),
             )
             yield encode_event(
                 "result",

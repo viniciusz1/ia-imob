@@ -3,7 +3,9 @@ from __future__ import annotations
 import json
 import re
 import time
+from hashlib import sha256
 from dataclasses import dataclass
+from collections.abc import Sequence
 
 from app.compat import ensure_imobscrapy_imports
 from app.schemas import (
@@ -231,7 +233,7 @@ def persist_agency(conn, proposal: OnboardingProposal, identity: Identity) -> Pe
     )
 
 
-def record_attempt(conn, attempt: AttemptRecord) -> None:
+def record_attempt(conn, attempt: AttemptRecord) -> int:
     with conn.cursor() as cur:
         cur.execute(
             """
@@ -239,6 +241,7 @@ def record_attempt(conn, attempt: AttemptRecord) -> None:
                 (agency_type, agency_id, submitted_url, derived_domain, outcome,
                  report, duration_ms, llm_rounds, submitted_by, created_at, updated_at)
             VALUES (%s, %s, %s, %s, %s, %s::jsonb, %s, %s, %s, NOW(), NOW())
+            RETURNING id
             """,
             (
                 attempt.agency_type,
@@ -252,8 +255,34 @@ def record_attempt(conn, attempt: AttemptRecord) -> None:
                 attempt.submitted_by,
             ),
         )
+        row = cur.fetchone()
+        return int(row[0]) if row else 0
+
+
+def record_evidence(
+    conn,
+    *,
+    attempt_id: int,
+    samples: Sequence[tuple[str, str]],
+) -> None:
+    with conn.cursor() as cur:
+        for sample_index, (url, html) in enumerate(samples):
+            cur.execute(
+                """
+                INSERT INTO agency_onboarding_evidence
+                    (agency_onboarding_attempt_id, sample_index, url, content_hash,
+                     html, captured_at, created_at, updated_at)
+                VALUES (%s, %s, %s, %s, %s, NOW(), NOW(), NOW())
+                """,
+                (
+                    attempt_id,
+                    sample_index,
+                    url,
+                    sha256(html.encode("utf-8")).hexdigest(),
+                    html,
+                ),
+            )
 
 
 def duration_ms(started_at: float) -> int:
     return int((time.monotonic() - started_at) * 1000)
-

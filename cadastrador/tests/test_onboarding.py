@@ -53,12 +53,20 @@ class _Cursor:
 
     def execute(self, query, params=None):
         self.conn.executed.append((query, params))
+        if "RETURNING id" in query:
+            self.conn.next_id += 1
+            self.conn.fetchone_value = (self.conn.next_id,)
+
+    def fetchone(self):
+        return self.conn.fetchone_value
 
 
 class _Conn:
     def __init__(self):
         self.executed = []
         self.commits = 0
+        self.next_id = 40
+        self.fetchone_value = None
 
     def cursor(self):
         return _Cursor(self)
@@ -241,6 +249,50 @@ async def test_stream_onboarding_emits_tournament_observability(monkeypatch):
         for payload in progress
     )
     assert result["report"]["tournament"]["valor"]["anchor_agreement"]["rate"] == 1.0
+
+
+@pytest.mark.asyncio
+async def test_stream_onboarding_persists_html_evidence_for_successful_attempt(monkeypatch):
+    import app.services.onboarding as onboarding
+
+    monkeypatch.setattr(
+        onboarding,
+        "persist_agency",
+        lambda conn, proposal, identity: PersistResult(
+            agency_type="sitemap",
+            agency_id=123,
+            name=identity.name,
+            domain=identity.domain,
+            is_active=True,
+            extractors_inserted=len(proposal.extractors),
+        ),
+    )
+    conn = _Conn()
+    service = OnboardingService(
+        fetcher=_TournamentFetcher(),
+        probe=_TournamentProbe(),
+        llm=_TournamentLlm(),
+        verifier=SelectorVerifier(),
+        validator=_ActiveValidator(),
+    )
+
+    body = b""
+    async for chunk in service.stream_onboarding(url="https://x.test", conn=conn):
+        body += chunk
+
+    evidence_inserts = [
+        params
+        for query, params in conn.executed
+        if "INSERT INTO agency_onboarding_evidence" in query
+    ]
+
+    assert b"event: result" in body
+    assert len(evidence_inserts) == 2
+    assert evidence_inserts[0][1] == 0
+    assert evidence_inserts[0][2] == "https://x.test/imovel/1"
+    assert evidence_inserts[0][4] == _TOURNAMENT_HTML
+    assert evidence_inserts[1][1] == 1
+    assert evidence_inserts[1][2] == "https://x.test/imovel/2"
 
 
 @pytest.mark.asyncio
