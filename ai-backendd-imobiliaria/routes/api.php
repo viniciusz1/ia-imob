@@ -52,6 +52,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('agency-configs/{agencyType}', [\App\Http\Controllers\Api\AgencyConfigController::class, 'storeAgency']);
     Route::get('agency-configs/{agencyType}/{agencyId}', [\App\Http\Controllers\Api\AgencyConfigController::class, 'show']);
     Route::get('agency-configs/{agencyType}/{agencyId}/refinement', [\App\Http\Controllers\Api\AgencyConfigController::class, 'refinement']);
+    Route::post('agency-configs/{agencyType}/{agencyId}/refinements', [\App\Http\Controllers\Api\AgencyConfigController::class, 'saveRefinement']);
     Route::put('agency-configs/{agencyType}/{agencyId}', [\App\Http\Controllers\Api\AgencyConfigController::class, 'updateAgency']);
     Route::delete('agency-configs/{agencyType}/{agencyId}', [\App\Http\Controllers\Api\AgencyConfigController::class, 'destroyAgency']);
     Route::post('agency-configs/{agencyType}/{agencyId}/extractors', [\App\Http\Controllers\Api\AgencyConfigController::class, 'storeExtractor']);

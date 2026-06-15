@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\AgencyConfigResource;
 use App\Http\Resources\AgencyFieldExtractorResource;
+use App\Models\AgencyExtractorRefinement;
 use App\Models\AgencyFieldExtractor;
 use App\Models\SitemapAgency;
 use App\Models\WsmAgency;
@@ -63,6 +64,110 @@ class AgencyConfigController extends Controller
                 'agency' => (new AgencyConfigResource($agency))->resolve($request),
                 'evidence_available' => $evidence->isNotEmpty(),
                 'evidence' => $evidence->values()->all(),
+            ],
+        ]);
+    }
+
+    public function saveRefinement(Request $request, string $agencyType, int $agencyId): JsonResponse
+    {
+        $this->authorizeRefine($request);
+        $this->assertAgencyType($agencyType);
+
+        $validated = $request->validate([
+            'field_name' => ['required', 'string', Rule::in(self::FIELD_NAMES)],
+            'extractors' => ['required', 'array', 'min:1'],
+            'extractors.*.id' => ['nullable', 'integer'],
+            'extractors.*.priority' => ['required', 'integer', 'min:1'],
+            'extractors.*.source_type' => ['required', Rule::in(['xpath', 'css', 'og', 'jsonld', 'literal'])],
+            'extractors.*.selector_value' => ['required', 'string'],
+            'extractors.*.selector_index' => ['nullable', 'integer', 'min:0'],
+            'extractors.*.selector_params' => ['nullable', 'array'],
+            'extractors.*.selector_join' => ['required', 'boolean'],
+            'extractors.*.pipeline' => ['nullable', 'string'],
+            'extractors.*.output_type' => ['required', Rule::in(['text', 'number', 'boolean', 'image_url', 'link_url'])],
+            'extractors.*.is_optional' => ['required', 'boolean'],
+        ]);
+
+        $agency = $this->findAgency($agencyType, $agencyId);
+        $fieldName = $validated['field_name'];
+
+        /** @var \Illuminate\Database\Eloquent\Collection<int, AgencyFieldExtractor> $existing */
+        $existing = AgencyFieldExtractor::query()
+            ->where('agency_type', $agencyType)
+            ->where('agency_id', $agencyId)
+            ->where('field_name', $fieldName)
+            ->orderBy('priority')
+            ->get();
+
+        $before = AgencyFieldExtractorResource::collection($existing)->resolve($request);
+
+        $attempt = DB::table('agency_onboarding_attempts')
+            ->where('agency_type', $agencyType)
+            ->where('agency_id', $agencyId)
+            ->whereIn('outcome', ['active', 'saved_inactive'])
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
+            ->first();
+
+        $saved = [];
+
+        DB::transaction(function () use ($agencyType, $agencyId, $fieldName, $existing, $validated, &$saved): void {
+            $payloads = $validated['extractors'];
+            $existingById = $existing->keyBy('id');
+            $seenIds = [];
+
+            foreach ($payloads as $payload) {
+                $data = [
+                    'agency_type' => $agencyType,
+                    'agency_id' => $agencyId,
+                    'field_name' => $fieldName,
+                    'priority' => $payload['priority'],
+                    'source_type' => $payload['source_type'],
+                    'selector_value' => $payload['selector_value'],
+                    'selector_index' => $payload['selector_index'] ?? null,
+                    'selector_params' => $payload['selector_params'] ?? null,
+                    'selector_join' => $payload['selector_join'],
+                    'pipeline' => $payload['pipeline'] ?? null,
+                    'output_type' => $payload['output_type'],
+                    'is_optional' => $payload['is_optional'],
+                ];
+
+                if (! empty($payload['id']) && $existingById->has($payload['id'])) {
+                    $extractor = $existingById->get($payload['id']);
+                    $extractor->update($data);
+                    $seenIds[] = $extractor->id;
+                } else {
+                    $saved[] = AgencyFieldExtractor::create($data);
+                }
+            }
+
+            $toDelete = $existing->reject(fn (AgencyFieldExtractor $extractor): bool => in_array($extractor->id, $seenIds, true));
+            foreach ($toDelete as $extractor) {
+                $extractor->delete();
+            }
+        });
+
+        $after = AgencyFieldExtractor::query()
+            ->where('agency_type', $agencyType)
+            ->where('agency_id', $agencyId)
+            ->where('field_name', $fieldName)
+            ->orderBy('priority')
+            ->get();
+
+        AgencyExtractorRefinement::create([
+            'user_id' => $request->user()?->id,
+            'agency_type' => $agencyType,
+            'agency_id' => $agencyId,
+            'field_name' => $fieldName,
+            'agency_onboarding_attempt_id' => $attempt?->id,
+            'before' => $before,
+            'after' => AgencyFieldExtractorResource::collection($after)->resolve($request),
+        ]);
+
+        return response()->json([
+            'data' => [
+                'agency' => (new AgencyConfigResource($agency->refresh()->load('extractors')))->resolve($request),
+                'extractors' => AgencyFieldExtractorResource::collection($after)->resolve($request),
             ],
         ]);
     }
