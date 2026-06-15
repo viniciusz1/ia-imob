@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from "react";
 import type { ReactNode } from "react";
-import { Database, Edit, FlaskConical, Plus, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Database, Edit, Eye, FlaskConical, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import {
@@ -14,6 +15,7 @@ import {
     useUpdateAgencyConfig,
     useUpdateAgencyExtractor,
 } from "@/hooks/useAgencyConfigs";
+import { usePermission } from "@/hooks/usePermission";
 import type {
     AgencyConfig,
     AgencyFieldExtractor,
@@ -129,6 +131,8 @@ const emptyExtractorForm: ExtractorFormState = {
 };
 
 export function AgencyConfigsClient() {
+    const router = useRouter();
+    const canRefineExtractors = usePermission("agency_configs.refine");
     const { data, isLoading, error } = useAgencyConfigs();
     const createAgency = useCreateAgencyConfig();
     const updateAgency = useUpdateAgencyConfig();
@@ -262,6 +266,11 @@ export function AgencyConfigsClient() {
         }
     };
 
+    const openExtractorRefinement = () => {
+        if (!selectedAgency) return;
+        router.push(`/agencias-importadas/${selectedAgency.agency_type}/${selectedAgency.id}/verificar-extratores`);
+    };
+
     return (
         <div className="space-y-6">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -380,6 +389,17 @@ export function AgencyConfigsClient() {
                                     </CardDescription>
                                 </div>
                                 <div className="flex items-center gap-3">
+                                    {canRefineExtractors && (
+                                        <Button
+                                            size="sm"
+                                            variant="outline"
+                                            disabled={!selectedAgency}
+                                            onClick={openExtractorRefinement}
+                                        >
+                                            <Eye className="mr-2 h-4 w-4" />
+                                            Verificar extratores
+                                        </Button>
+                                    )}
                                     {selectedAgency && (
                                         <div className="flex items-center gap-2">
                                             <Switch

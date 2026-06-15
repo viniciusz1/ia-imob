@@ -9,12 +9,14 @@ import type {
     SitemapAgencyConfig,
     WsmAgencyConfig,
 } from "@/types/agencyConfig";
+import type { AgencyExtractorRefinement } from "@/types/agencyRefinement";
 
 const BASE_PATH = `${API_PREFIX}/agency-configs`;
 
 type ListResponse = { data: AgencyConfigsResponse };
 type AgencyResponse = { data: AgencyConfig };
 type ExtractorResponse = { data: AgencyFieldExtractor };
+type RefinementResponse = { data: AgencyExtractorRefinement };
 
 export async function getAgencyConfigs(): Promise<AgencyConfigsResponse> {
     const { data } = await api.get<ListResponse>(BASE_PATH);
@@ -40,6 +42,16 @@ export async function updateAgencyConfig(
 
 export async function deleteAgencyConfig(agencyType: AgencyType, agencyId: number): Promise<void> {
     await api.delete(`${BASE_PATH}/${agencyType}/${agencyId}`);
+}
+
+export async function getAgencyExtractorRefinement(
+    agencyType: AgencyType,
+    agencyId: number
+): Promise<AgencyExtractorRefinement> {
+    const { data } = await api.get<RefinementResponse>(
+        `${BASE_PATH}/${agencyType}/${agencyId}/refinement`
+    );
+    return data.data;
 }
 
 export async function createAgencyExtractor(

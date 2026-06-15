@@ -29,7 +29,7 @@ class AgencyConfigController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $this->authorizeManage($request);
+        $this->authorizeView($request);
 
         return response()->json([
             'data' => [
@@ -45,11 +45,26 @@ class AgencyConfigController extends Controller
 
     public function show(Request $request, string $agencyType, int $agencyId): AgencyConfigResource
     {
-        $this->authorizeManage($request);
+        $this->authorizeView($request);
 
         return new AgencyConfigResource(
             $this->findAgency($agencyType, $agencyId)->load('extractors')
         );
+    }
+
+    public function refinement(Request $request, string $agencyType, int $agencyId): JsonResponse
+    {
+        $this->authorizeRefine($request);
+
+        return response()->json([
+            'data' => [
+                'agency' => (new AgencyConfigResource(
+                    $this->findAgency($agencyType, $agencyId)->load('extractors')
+                ))->resolve($request),
+                'evidence_available' => false,
+                'evidence' => [],
+            ],
+        ]);
     }
 
     public function storeAgency(Request $request, string $agencyType): JsonResponse
@@ -202,6 +217,21 @@ class AgencyConfigController extends Controller
 
     private function authorizeManage(Request $request): void
     {
-        abort_unless($request->user()?->can('roles.manage'), 403);
+        abort_unless($request->user()?->can('agency_configs.manage'), 403);
+    }
+
+    private function authorizeView(Request $request): void
+    {
+        abort_unless(
+            $request->user()?->can('agency_configs.view')
+                || $request->user()?->can('agency_configs.manage')
+                || $request->user()?->can('agency_configs.refine'),
+            403
+        );
+    }
+
+    private function authorizeRefine(Request $request): void
+    {
+        abort_unless($request->user()?->can('agency_configs.refine'), 403);
     }
 }
