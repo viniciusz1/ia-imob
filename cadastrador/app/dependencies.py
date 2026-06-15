@@ -92,7 +92,7 @@ def get_db() -> Iterator:
         conn.close()
 
 
-def require_token(x_cadastrador_token: str | None = Header(default=None)) -> None:
+async def require_token(x_cadastrador_token: str | None = Header(default=None)) -> None:
     expected = get_settings().token
     if expected and x_cadastrador_token != expected:
         raise HTTPException(status_code=401, detail="invalid or missing X-Cadastrador-Token")
@@ -102,4 +102,3 @@ def get_onboarding_service():
     from app.services.onboarding import OnboardingService
 
     return OnboardingService.from_settings(get_settings())
-

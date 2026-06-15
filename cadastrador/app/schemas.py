@@ -136,6 +136,19 @@ class ExtractorProposal(BaseModel):
     is_optional: bool = False
 
 
+class RefinementEvidence(BaseModel):
+    id: int
+    sample_index: int
+    url: str
+    html: str
+
+
+class RefinementPreviewRequest(BaseModel):
+    field_name: FieldName
+    extractors: list[ExtractorProposal]
+    evidence: list[RefinementEvidence]
+
+
 class OnboardingProposal(BaseModel):
     strategy: ExecutionModel
     name: str
@@ -188,4 +201,3 @@ class AttemptRecord(BaseModel):
     duration_ms: int | None = None
     llm_rounds: int | None = None
     submitted_by: str | None = None
-
