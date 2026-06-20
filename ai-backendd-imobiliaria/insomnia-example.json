@@ -1,0 +1,140 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2026-06-15T22:34:45.950Z",
+  "__export_source": "insomnia.desktop.app:v0.1",
+  "resources": [
+    {
+      "_id": "wrk_iaimob_example",
+      "parentId": null,
+      "_type": "workspace",
+      "name": "IA Imob - Exemplo",
+      "description": "Coleção de exemplo para testar a API do IA Imob",
+      "scope": "collection"
+    },
+    {
+      "_id": "env_iaimob_base",
+      "parentId": "wrk_iaimob_example",
+      "_type": "environment",
+      "name": "Base Environment",
+      "data": {
+        "base_url": "http://localhost/api/v1",
+        "public_host": "acme.localhost"
+      },
+      "dataPropertyOrder": {
+        "&": ["base_url", "public_host"]
+      },
+      "color": "r#7d69cb",
+      "isPrivate": false,
+      "metaSortKey": 0
+    },
+    {
+      "_id": "fld_public_routes",
+      "parentId": "wrk_iaimob_example",
+      "_type": "request_group",
+      "name": "Rotas Públicas",
+      "description": "Rotas que não exigem autenticação",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 0
+    },
+    {
+      "_id": "req_llm_chat",
+      "parentId": "fld_public_routes",
+      "_type": "request",
+      "name": "LLM Chat",
+      "url": "{{base_url}}/llm/chat",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Você é um assistente imobiliário. Responda em português de forma objetiva.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Oi, tudo bem?\"\n    }\n  ],\n  \"model\": \"deepseek-chat\",\n  \"temperature\": 0.7,\n  \"max_tokens\": 512\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json",
+          "id": "pair_content_type"
+        },
+        {
+          "name": "Accept",
+          "value": "application/json",
+          "id": "pair_accept"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": 0,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global"
+    },
+    {
+      "_id": "req_plans",
+      "parentId": "fld_public_routes",
+      "_type": "request",
+      "name": "Listar Planos",
+      "url": "{{base_url}}/plans",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json",
+          "id": "pair_accept"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": 1,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global"
+    },
+    {
+      "_id": "req_public_properties",
+      "parentId": "fld_public_routes",
+      "_type": "request",
+      "name": "Listar Imóveis Públicos",
+      "url": "{{base_url}}/public/properties",
+      "method": "GET",
+      "body": {},
+      "parameters": [
+        {
+          "id": "pair_purpose",
+          "name": "purpose",
+          "value": "venda",
+          "description": "venda ou locacao"
+        }
+      ],
+      "headers": [
+        {
+          "name": "Accept",
+          "value": "application/json",
+          "id": "pair_accept"
+        },
+        {
+          "name": "X-Tenant-Host",
+          "value": "{{public_host}}",
+          "id": "pair_tenant_host"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": 2,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global"
+    }
+  ]
+}

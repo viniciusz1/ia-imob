@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { useRouter } from "next/navigation";
-import { Database, Edit, Eye, FlaskConical, Plus, Trash2 } from "lucide-react";
+import { Database, Edit, Eye, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import {
@@ -58,7 +58,7 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { CadastradorPanel } from "@/components/features/agency-configs/CadastradorPanel";
+
 
 const FIELD_NAMES = [
     "tipo", "valor", "bairro", "cidade", "link_imovel", "imagem", "descricao",
@@ -150,8 +150,6 @@ export function AgencyConfigsClient() {
     const [extractorModalOpen, setExtractorModalOpen] = useState(false);
     const [editingExtractor, setEditingExtractor] = useState<AgencyFieldExtractor | null>(null);
     const [extractorForm, setExtractorForm] = useState<ExtractorFormState>(emptyExtractorForm);
-    const [cadastradorOpen, setCadastradorOpen] = useState(false);
-    const [cadastradorAgency, setCadastradorAgency] = useState<AgencyConfig | null>(null);
 
     const agencies = useMemo(() => {
         if (!data) return [];
@@ -284,10 +282,6 @@ export function AgencyConfigsClient() {
                     </p>
                 </div>
                 <div className="flex gap-2">
-                    <Button variant="outline" onClick={() => { setCadastradorAgency(null); setCadastradorOpen(true); }}>
-                        <FlaskConical className="mr-2 h-4 w-4" />
-                        Cadastrador
-                    </Button>
                     <Button variant="outline" onClick={() => openCreateAgency("sitemap")}>
                         <Plus className="mr-2 h-4 w-4" />
                         Nova Sitemap
@@ -493,12 +487,6 @@ export function AgencyConfigsClient() {
                 isPending={createExtractor.isPending || updateExtractor.isPending}
             />
 
-            <CadastradorPanel
-                open={cadastradorOpen}
-                onOpenChange={setCadastradorOpen}
-                preSelectedAgency={cadastradorAgency}
-                agencies={agencies}
-            />
         </div>
     );
 }

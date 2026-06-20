@@ -104,7 +104,7 @@ class AgencyConfigController extends Controller
         $attempt = DB::table('agency_onboarding_attempts')
             ->where('agency_type', $agencyType)
             ->where('agency_id', $agencyId)
-            ->whereIn('outcome', ['active', 'saved_inactive'])
+            ->where('outcome', 'active')
             ->orderByDesc('created_at')
             ->orderByDesc('id')
             ->first();
@@ -325,7 +325,7 @@ class AgencyConfigController extends Controller
         $attempt = DB::table('agency_onboarding_attempts')
             ->where('agency_type', $agencyType)
             ->where('agency_id', $agencyId)
-            ->whereIn('outcome', ['active', 'saved_inactive'])
+            ->where('outcome', 'active')
             ->orderByDesc('created_at')
             ->orderByDesc('id')
             ->first();

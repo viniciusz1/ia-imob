@@ -11,9 +11,6 @@ Read `CONTEXT-MAP.md` at the repo root when it exists. It points to the relevant
 - `ai-backendd-imobiliaria/CONTEXT.md`
 - `ai-front-end-imobiliaria/CONTEXT.md`
 - `imobscrapy/CONTEXT.md`
-- `cadastrador/README.md`
-
-Treat `cadastrador/` as its own context because it has separate onboarding and validation behavior from the general scraper pipeline.
 
 Read `docs/adr/` for system-wide decisions when it exists.
 
@@ -22,7 +19,6 @@ For context-specific decisions, also check each context's `docs/adr/` directory 
 - `ai-backendd-imobiliaria/docs/adr/`
 - `ai-front-end-imobiliaria/docs/adr/`
 - `imobscrapy/docs/adr/`
-- `cadastrador/docs/adr/`
 
 If any of these files do not exist, proceed silently. Do not require creating them before work starts; producer skills can create them lazily when terms or decisions are resolved.
 

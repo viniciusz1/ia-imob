@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Log;
 
 class DeepSeekProvider implements LlmProvider
 {
-    public function chat(array $messages, array $responseFormat = []): string
+    public function chat(array $messages, array $responseFormat = [], array $options = []): string
     {
         $config = config('ai.providers.deepseek');
 
@@ -16,31 +16,31 @@ class DeepSeekProvider implements LlmProvider
             throw new \RuntimeException('DEEPSEEK_API_KEY not configured.');
         }
 
-        $payload = [
+        $payload = array_merge([
             'model' => $config['model'],
             'messages' => $messages,
             'temperature' => 0.1,
             'max_tokens' => 1024,
-        ];
+        ], $options);
 
-        if (!empty($responseFormat)) {
+        if (! empty($responseFormat)) {
             $payload['response_format'] = $responseFormat;
         }
 
         try {
             $response = Http::timeout($config['timeout'])
                 ->withHeaders([
-                    'Authorization' => 'Bearer ' . $config['api_key'],
+                    'Authorization' => 'Bearer '.$config['api_key'],
                     'Content-Type' => 'application/json',
                 ])
-                ->post($config['base_url'] . '/v1/chat/completions', $payload);
+                ->post($config['base_url'].'/v1/chat/completions', $payload);
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 Log::error('DeepSeek API error', [
                     'status' => $response->status(),
                     'body' => $response->body(),
                 ]);
-                throw new \RuntimeException('AI service returned error: ' . $response->status());
+                throw new \RuntimeException('AI service returned error: '.$response->status());
             }
 
             $data = $response->json();

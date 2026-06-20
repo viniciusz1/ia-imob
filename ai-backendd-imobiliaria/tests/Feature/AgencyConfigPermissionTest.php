@@ -159,7 +159,7 @@ class AgencyConfigPermissionTest extends TestCase
             'agency_id' => $sitemapAgency->id,
             'submitted_url' => 'https://alpha.test',
             'derived_domain' => 'alpha.test',
-            'outcome' => 'saved_inactive',
+            'outcome' => 'active',
             'report' => json_encode([]),
             'created_at' => now(),
             'updated_at' => now(),

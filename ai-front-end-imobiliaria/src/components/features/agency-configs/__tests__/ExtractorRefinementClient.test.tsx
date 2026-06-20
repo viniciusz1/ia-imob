@@ -4,7 +4,6 @@ import { describe, expect, it, vi, beforeEach, type ReactNode } from "vitest";
 
 import { ExtractorRefinementClient } from "../ExtractorRefinementClient";
 import { useAgencyExtractorRefinement } from "@/hooks/useAgencyExtractorRefinement";
-import { useExtractorRefinementPreview } from "@/hooks/useExtractorRefinementPreview";
 import type { AgencyExtractorRefinement } from "@/types/agencyRefinement";
 
 function renderWithQueryClient(node: ReactNode) {
@@ -14,10 +13,6 @@ function renderWithQueryClient(node: ReactNode) {
 
 vi.mock("@/hooks/useAgencyExtractorRefinement", () => ({
     useAgencyExtractorRefinement: vi.fn(),
-}));
-
-vi.mock("@/hooks/useExtractorRefinementPreview", () => ({
-    useExtractorRefinementPreview: vi.fn(),
 }));
 
 vi.mock("@/services/agencyConfigService", async (importOriginal) => {
@@ -130,11 +125,6 @@ const refinementWithEvidence: AgencyExtractorRefinement = {
 describe("ExtractorRefinementClient", () => {
     beforeEach(() => {
         vi.clearAllMocks();
-        vi.mocked(useExtractorRefinementPreview).mockReturnValue({
-            data: null,
-            isLoading: false,
-            error: null,
-        } as ReturnType<typeof useExtractorRefinementPreview>);
     });
 
     it("shows agency context and no-evidence state", () => {
@@ -151,7 +141,7 @@ describe("ExtractorRefinementClient", () => {
         expect(screen.getByText("sitemap")).toBeInTheDocument();
         expect(screen.getByText("alpha.test")).toBeInTheDocument();
         expect(screen.getByText(/Sem Evidencia HTML/i)).toBeInTheDocument();
-        expect(screen.getByText(/rode o Cadastrador ou reonboard/i)).toBeInTheDocument();
+        expect(screen.getByText(/execute um reonboard/i)).toBeInTheDocument();
     });
 
     it("summarizes extractors by field and switches between captured HTML evidence", () => {
@@ -182,52 +172,12 @@ describe("ExtractorRefinementClient", () => {
         expect(screen.getByDisplayValue(".price::text")).toBeInTheDocument();
     });
 
-    it("shows rendered and source HTML views with selected evidence highlighted", () => {
+    it("shows rendered and source HTML views for selected evidence", () => {
         vi.mocked(useAgencyExtractorRefinement).mockReturnValue({
             data: refinementWithEvidence,
             isLoading: false,
             error: null,
         } as ReturnType<typeof useAgencyExtractorRefinement>);
-        vi.mocked(useExtractorRefinementPreview).mockReturnValue({
-            data: {
-                results: [
-                    {
-                        evidence_id: 201,
-                        sample_index: 0,
-                        url: "https://alpha.test/imovel/1",
-                        status: "extraiu valor",
-                        value: "Casa Centro",
-                        used_priority: 2,
-                        selected_evidence: {
-                            kind: "selector",
-                            source_type: "css",
-                            selector_value: "h1::text",
-                            matches_count: 1,
-                            selected_indexes: [0],
-                            fragments: ["Casa Centro"],
-                        },
-                    },
-                    {
-                        evidence_id: 202,
-                        sample_index: 1,
-                        url: "https://alpha.test/imovel/2",
-                        status: "extraiu valor",
-                        value: "Apartamento Sul",
-                        used_priority: 2,
-                        selected_evidence: {
-                            kind: "selector",
-                            source_type: "css",
-                            selector_value: "h1::text",
-                            matches_count: 1,
-                            selected_indexes: [0],
-                            fragments: ["Apartamento Sul"],
-                        },
-                    },
-                ],
-            },
-            isLoading: false,
-            error: null,
-        } as ReturnType<typeof useExtractorRefinementPreview>);
 
         renderWithQueryClient(<ExtractorRefinementClient agencyType="sitemap" agencyId={7} />);
 
@@ -236,32 +186,23 @@ describe("ExtractorRefinementClient", () => {
         const frame = screen.getByTitle("Visualização renderizada da Evidencia HTML");
         expect(frame).toHaveAttribute(
             "srcdoc",
-            expect.stringContaining("<mark data-refinement-highlight>Casa Centro</mark>")
+            expect.stringContaining("Casa Centro")
         );
-        expect(screen.getByText("Casa Centro", { selector: "mark" })).toBeInTheDocument();
 
         fireEvent.click(screen.getByRole("button", { name: /HTML 2/i }));
 
         expect(frame).toHaveAttribute(
             "srcdoc",
-            expect.stringContaining("<mark data-refinement-highlight>Apartamento Sul</mark>")
+            expect.stringContaining("Apartamento Sul")
         );
-        expect(screen.getByText("Apartamento Sul", { selector: "mark" })).toBeInTheDocument();
     });
 
-    it("allows editing extractor selector and triggers preview", async () => {
-        const refetch = vi.fn();
+    it("allows editing extractor selector", async () => {
         vi.mocked(useAgencyExtractorRefinement).mockReturnValue({
             data: refinementWithEvidence,
             isLoading: false,
             error: null,
         } as ReturnType<typeof useAgencyExtractorRefinement>);
-        vi.mocked(useExtractorRefinementPreview).mockReturnValue({
-            data: { results: [] },
-            isLoading: false,
-            error: null,
-            refetch,
-        } as unknown as ReturnType<typeof useExtractorRefinementPreview>);
 
         renderWithQueryClient(<ExtractorRefinementClient agencyType="sitemap" agencyId={7} />);
 
@@ -293,18 +234,11 @@ describe("ExtractorRefinementClient", () => {
     });
 
     it("saves refinement by calling the service", async () => {
-        const refetch = vi.fn();
         vi.mocked(useAgencyExtractorRefinement).mockReturnValue({
             data: refinementWithEvidence,
             isLoading: false,
             error: null,
         } as ReturnType<typeof useAgencyExtractorRefinement>);
-        vi.mocked(useExtractorRefinementPreview).mockReturnValue({
-            data: { results: [] },
-            isLoading: false,
-            error: null,
-            refetch,
-        } as unknown as ReturnType<typeof useExtractorRefinementPreview>);
 
         const saveMock = vi
             .spyOn(agencyConfigService, "saveExtractorRefinement")

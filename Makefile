@@ -1,11 +1,10 @@
 # ==================================================
 #  🏠 IA Imobiliária — Makefile
 # ==================================================
-# Monorepo with four components:
-#   backend     -> ai-backendd-imobiliaria  (Laravel 12 + Sail)
-#   frontend    -> ai-front-end-imobiliaria (Next.js 16)
-#   scraper     -> imobscrapy               (Scrapy, Python .venv)
-#   cadastrador -> cadastrador              (FastAPI onboarding service)
+# Monorepo with three components:
+#   backend  -> ai-backendd-imobiliaria  (Laravel 12 + Sail)
+#   frontend -> ai-front-end-imobiliaria (Next.js 16)
+#   scraper  -> imobscrapy               (Scrapy, Python .venv)
 #
 # Run `make help` to list every target.
 
@@ -13,7 +12,6 @@
 BACKEND_DIR   := ai-backendd-imobiliaria
 FRONTEND_DIR  := ai-front-end-imobiliaria
 SCRAPER_DIR   := imobscrapy
-CADASTRADOR_DIR := cadastrador
 
 # ---- Tooling ------------------------------------------------------
 SAIL    := ./vendor/bin/sail
@@ -22,14 +20,6 @@ PYTHON  := $(VENV)/bin/python
 PIP     := $(VENV)/bin/pip
 PYTEST  := $(VENV)/bin/pytest
 UVICORN := $(VENV)/bin/uvicorn
-CADASTRADOR_VENV := .venv
-CADASTRADOR_PYTHON := $(abspath $(CADASTRADOR_VENV))/bin/python
-CADASTRADOR_PIP := $(abspath $(CADASTRADOR_VENV))/bin/pip
-CADASTRADOR_UVICORN := $(abspath $(CADASTRADOR_VENV))/bin/uvicorn
-
-# Cadastrador onboarding service host/port
-CADASTRADOR_HOST ?= 0.0.0.0
-CADASTRADOR_PORT ?= 8000
 VERBOSE ?= 0
 INSPECTION_PACKAGE ?= millar:v1
 CREATE_INSPECTION_PACKAGE ?=
@@ -42,10 +32,9 @@ DB_INSPECTION_PACKAGE ?= db-rich:v1
 .DEFAULT_GOAL := help
 .PHONY: help \
         up start \
-        install install-backend install-frontend install-scraper install-cadastrador \
-        dev-backend dev-frontend dev-scraper cadastrador inspect-cadastrador create-inspection-package \
-        create-db-inspection-package inspect-db-cadastrador \
-        test test-backend test-frontend test-scraper test-cadastrador \
+        install install-backend install-frontend install-scraper \
+        dev-backend dev-frontend dev-scraper \
+        test test-backend test-frontend test-scraper \
         lint lint-backend lint-frontend format-backend \
         build build-frontend \
         crawl crawl-sitemap crawl-api \
@@ -98,16 +87,7 @@ help: ## Show this help
 	print_target crawl-sitemap; \
 	print_target crawl-api; \
 	print_target test-scraper; \
-	echo ""; \
-	printf "\033[1mCadastrador / Inspector\033[0m\n"; \
-	print_target install-cadastrador; \
-	print_target cadastrador; \
-	print_target test-cadastrador; \
-	print_target inspect-cadastrador; \
-	print_target create-inspection-package; \
-	print_target create-db-inspection-package; \
-	print_target inspect-db-cadastrador
-	@echo ""
+	echo ""
 
 # ==================================================
 #  Full stack
@@ -115,7 +95,7 @@ help: ## Show this help
 up start: ## Start backend (Sail) + frontend together via start.sh
 	./start.sh
 
-install: install-backend install-frontend install-scraper install-cadastrador ## Install dependencies for every component
+install: install-backend install-frontend install-scraper ## Install dependencies for every component
 
 # ==================================================
 #  Backend (Laravel + Sail)
@@ -199,35 +179,9 @@ test-scraper: ## Run the agency extraction test suite
 	cd $(SCRAPER_DIR) && ../$(PYTHON) -m pytest tests
 
 # ==================================================
-#  Cadastrador (FastAPI onboarding service)
-# ==================================================
-install-cadastrador: ## Create the Cadastrador venv and install dependencies
-	test -d $(CADASTRADOR_VENV) || python3 -m venv $(CADASTRADOR_VENV)
-	$(CADASTRADOR_PIP) install -e '$(CADASTRADOR_DIR)[test]'
-
-cadastrador: ## Start the Cadastrador FastAPI service
-	cd $(CADASTRADOR_DIR) && $(CADASTRADOR_UVICORN) app.main:app --host $(CADASTRADOR_HOST) --port $(CADASTRADOR_PORT) $(if $(filter 1,$(VERBOSE)),--log-level debug --reload,)
-
-test-cadastrador: ## Run the Cadastrador test suite
-	cd $(CADASTRADOR_DIR) && $(CADASTRADOR_PYTHON) -m pytest tests/
-
-ic: ## Run Cadastrador inspection bench (set INSPECTION_PACKAGE=agency:v1)
-	cd $(CADASTRADOR_DIR) && $(CADASTRADOR_PYTHON) -m app.inspection run $(INSPECTION_PACKAGE) --llm
-
-create-inspection-package: ## Create inspector samples from sitemap (set SITEMAP_URL=...)
-	@test -n "$(SITEMAP_URL)" || (echo "Use: make create-inspection-package SITEMAP_URL=https://site.test/sitemap.xml [INIT_URL=50] [CREATE_INSPECTION_PACKAGE=agency:v1] [AGENCY='Agency Name'] [FORCE=1]"; exit 1)
-	cd $(CADASTRADOR_DIR) && $(CADASTRADOR_PYTHON) -m app.inspection create-package --sitemap-url "$(SITEMAP_URL)" --sample-size $(INSPECTION_SAMPLE_SIZE) --init-url $(INIT_URL) $(if $(CREATE_INSPECTION_PACKAGE),--package "$(CREATE_INSPECTION_PACKAGE)",) $(if $(AGENCY),--agency "$(AGENCY)",) $(if $(filter 1,$(FORCE)),--force,)
-
-create-db-inspection-package: ## Create inspector samples from scrapy-properties DB rows
-	cd $(CADASTRADOR_DIR) && $(CADASTRADOR_PYTHON) -m app.inspection create-db-package --package "$(DB_INSPECTION_PACKAGE)" --sample-size $(INSPECTION_SAMPLE_SIZE) $(if $(AGENCY),--agency "$(AGENCY)",) $(if $(filter 1,$(FORCE)),--force,)
-
-inspect-db-cadastrador: create-db-inspection-package ## Create DB-backed inspector package and run it
-	$(MAKE) ic INSPECTION_PACKAGE="$(DB_INSPECTION_PACKAGE)"
-
-# ==================================================
 #  Aggregate test / lint
 # ==================================================
-test: test-backend test-frontend test-scraper test-cadastrador ## Run all test suites
+test: test-backend test-frontend test-scraper ## Run all test suites
 
 lint: lint-backend lint-frontend ## Lint backend and frontend
 
@@ -236,6 +190,6 @@ lint: lint-backend lint-frontend ## Lint backend and frontend
 # ==================================================
 clean: ## Remove local build artifacts and caches
 	rm -rf $(FRONTEND_DIR)/.next
-	rm -rf .pytest_cache $(SCRAPER_DIR)/.pytest_cache $(CADASTRADOR_DIR)/.pytest_cache
+	rm -rf .pytest_cache $(SCRAPER_DIR)/.pytest_cache
 	find . -type d -name __pycache__ -prune -exec rm -rf {} + 2>/dev/null || true
 	@echo "🧹 Clean complete."

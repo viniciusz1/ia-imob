@@ -9,13 +9,11 @@ import {
     FileWarning,
     ListChecks,
     Plus,
-    RotateCcw,
     Save,
     Trash2,
 } from "lucide-react";
 
 import { useAgencyExtractorRefinement } from "@/hooks/useAgencyExtractorRefinement";
-import { useExtractorRefinementPreview } from "@/hooks/useExtractorRefinementPreview";
 import type {
     AgencyFieldExtractor,
     AgencyType,
@@ -24,7 +22,6 @@ import type {
 } from "@/types/agencyConfig";
 import type {
     AgencyEvidenceHtml,
-    ExtractorRefinementPreviewResult,
     ExtractorRefinementSaveExtractor,
 } from "@/types/agencyRefinement";
 import { Badge } from "@/components/ui/badge";
@@ -89,16 +86,6 @@ export function ExtractorRefinementClient({ agencyType, agencyId }: ExtractorRef
             setDraftExtractors([]);
         }
     }, [selectedField]);
-
-    const preview = useExtractorRefinementPreview({
-        fieldName: selectedField?.fieldName ?? null,
-        extractors: draftExtractors,
-        evidence: data?.evidence ?? [],
-        enabled: Boolean(data?.evidence_available) && draftExtractors.length > 0,
-    });
-    const selectedPreview = selectedEvidence
-        ? preview.data?.results.find((result) => result.evidence_id === selectedEvidence.id)
-        : undefined;
 
     if (isLoading) {
         return (
@@ -244,7 +231,7 @@ export function ExtractorRefinementClient({ agencyType, agencyId }: ExtractorRef
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="text-sm text-muted-foreground">
-                        Rode o Cadastrador ou reonboard para capturar a Amostra de Torneio antes de verificar os
+                        Execute um reonboard para capturar a Amostra de Torneio antes de verificar os
                         Extractors.
                     </CardContent>
                 </Card>
@@ -320,16 +307,6 @@ export function ExtractorRefinementClient({ agencyType, agencyId }: ExtractorRef
                                     </Button>
                                     <Button
                                         type="button"
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => preview.refetch()}
-                                        disabled={!selectedField || draftExtractors.length === 0}
-                                    >
-                                        <RotateCcw className="mr-1 h-4 w-4" />
-                                        Testar
-                                    </Button>
-                                    <Button
-                                        type="button"
                                         size="sm"
                                         onClick={handleSave}
                                         disabled={!dirty || isSaving || draftExtractors.length === 0}
@@ -375,12 +352,7 @@ export function ExtractorRefinementClient({ agencyType, agencyId }: ExtractorRef
                                 ))}
                             </div>
 
-                            <HtmlEvidencePanel
-                                evidence={selectedEvidence}
-                                previewResult={selectedPreview}
-                                isPreviewLoading={preview.isLoading}
-                                hasPreviewError={Boolean(preview.error)}
-                            />
+                            <HtmlEvidencePanel evidence={selectedEvidence} />
                         </div>
                     </section>
                 </div>
@@ -592,14 +564,8 @@ function ExtractorEditor({ editorId, extractor, onChange, onRemove, canRemove, d
 
 function HtmlEvidencePanel({
     evidence,
-    previewResult,
-    isPreviewLoading,
-    hasPreviewError,
 }: {
     evidence: AgencyEvidenceHtml | undefined;
-    previewResult: ExtractorRefinementPreviewResult | undefined;
-    isPreviewLoading: boolean;
-    hasPreviewError: boolean;
 }) {
     if (!evidence) {
         return (
@@ -609,9 +575,8 @@ function HtmlEvidencePanel({
         );
     }
 
-    const fragments = previewResult?.selected_evidence?.fragments ?? [];
-    const highlightedHtml = buildHighlightedHtml(evidence.html, fragments);
-    const codeSegments = splitHighlightedHtml(evidence.html, fragments);
+    const highlightedHtml = injectHighlightStyle(evidence.html);
+    const codeSegments: HighlightSegment[] = [{ text: evidence.html, highlighted: false }];
 
     return (
         <div className="min-w-0 rounded-md border">
@@ -619,14 +584,8 @@ function HtmlEvidencePanel({
                 <div className="flex flex-wrap items-center gap-2">
                     <Badge variant="outline">Amostra {evidence.sample_index + 1}</Badge>
                     <Badge variant="secondary">Hash {evidence.content_hash}</Badge>
-                    {previewResult && <Badge>{previewResult.status}</Badge>}
-                    {isPreviewLoading && <Badge variant="outline">Calculando destaque</Badge>}
-                    {hasPreviewError && <Badge variant="destructive">Erro no preview</Badge>}
                 </div>
                 <div className="break-all text-sm font-medium">{evidence.url}</div>
-                {previewResult?.value && (
-                    <div className="text-sm text-muted-foreground">Valor: {previewResult.value}</div>
-                )}
             </div>
             <Separator />
             <div className="grid gap-0 xl:grid-cols-2">
@@ -692,67 +651,6 @@ function formatExtractorCount(count: number): string {
 interface HighlightSegment {
     text: string;
     highlighted: boolean;
-}
-
-interface HighlightRange {
-    start: number;
-    end: number;
-}
-
-function buildHighlightedHtml(html: string, fragments: string[]): string {
-    const ranges = findHighlightRanges(html, fragments);
-    if (ranges.length === 0) return injectHighlightStyle(html);
-
-    let cursor = 0;
-    let output = "";
-    for (const range of ranges) {
-        output += html.slice(cursor, range.start);
-        output += `<mark data-refinement-highlight>${html.slice(range.start, range.end)}</mark>`;
-        cursor = range.end;
-    }
-    output += html.slice(cursor);
-
-    return injectHighlightStyle(output);
-}
-
-function splitHighlightedHtml(html: string, fragments: string[]): HighlightSegment[] {
-    const ranges = findHighlightRanges(html, fragments);
-    if (ranges.length === 0) return [{ text: html, highlighted: false }];
-
-    const segments: HighlightSegment[] = [];
-    let cursor = 0;
-    for (const range of ranges) {
-        if (range.start > cursor) {
-            segments.push({ text: html.slice(cursor, range.start), highlighted: false });
-        }
-        segments.push({ text: html.slice(range.start, range.end), highlighted: true });
-        cursor = range.end;
-    }
-    if (cursor < html.length) {
-        segments.push({ text: html.slice(cursor), highlighted: false });
-    }
-    return segments;
-}
-
-function findHighlightRanges(html: string, fragments: string[]): HighlightRange[] {
-    const ranges = fragments
-        .map((fragment) => fragment.trim())
-        .filter(Boolean)
-        .map((fragment) => {
-            const start = html.indexOf(fragment);
-            return start >= 0 ? { start, end: start + fragment.length } : null;
-        })
-        .filter((range): range is HighlightRange => range !== null)
-        .sort((a, b) => a.start - b.start || b.end - a.end);
-
-    const nonOverlapping: HighlightRange[] = [];
-    for (const range of ranges) {
-        const previous = nonOverlapping[nonOverlapping.length - 1];
-        if (!previous || range.start >= previous.end) {
-            nonOverlapping.push(range);
-        }
-    }
-    return nonOverlapping;
 }
 
 function injectHighlightStyle(html: string): string {

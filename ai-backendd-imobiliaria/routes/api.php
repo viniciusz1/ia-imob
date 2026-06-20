@@ -78,6 +78,9 @@ Route::middleware(\App\Http\Middleware\ResolvePublicTenant::class)
         Route::get('site', [\App\Http\Controllers\Api\PublicSiteController::class, 'show']);
     });
 
+// LLM Chat (Public)
+Route::post('/llm/chat', [\App\Http\Controllers\Api\LlmChatController::class, 'chat']);
+
 // Plans (Public)
 Route::get('/plans', [\App\Http\Controllers\Api\PlanController::class, 'index']);
 
