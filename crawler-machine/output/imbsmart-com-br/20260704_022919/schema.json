@@ -1,0 +1,167 @@
+{
+  "metadata": {
+    "sample_url": "https://imbsmart.com.br/apartamentos-suite-2-quartos-no-baependi-em-jaragua-do-sul-a-venda",
+    "generated_at": "2026-07-04T02:37:13.225816+00:00"
+  },
+  "schema": {
+    "name": "Property Detail",
+    "baseSelector": "//body",
+    "fields": [
+      {
+        "name": "url",
+        "selector": ".//link[@rel='canonical']",
+        "type": "attribute",
+        "attribute": "href"
+      },
+      {
+        "name": "imagem",
+        "selector": ".//div[contains(@class,'fotorama')]/div[1]",
+        "type": "attribute",
+        "attribute": "data-img"
+      },
+      {
+        "name": "tipo_imovel",
+        "selector": ".//tr[@class='category']/td[@class='Value']",
+        "type": "regex",
+        "pattern": "»\\s*(.+)"
+      },
+      {
+        "name": "quartos",
+        "selector": ".//tr[@class='bedroom']/td[@class='Value']",
+        "type": "regex",
+        "pattern": "(\\d+)"
+      },
+      {
+        "name": "sala",
+        "selector": ".//tr[@class='room']/td[@class='Value']",
+        "type": "text"
+      },
+      {
+        "name": "banheiros",
+        "selector": ".//tr[@class='bathroom']/td[@class='Value']",
+        "type": "text"
+      },
+      {
+        "name": "suites",
+        "selector": ".//tr[@class='bedroom']/td[@class='Value']",
+        "type": "regex",
+        "pattern": "sendo\\s+(\\d+)\\s+suíte"
+      },
+      {
+        "name": "vagas",
+        "selector": ".//tr[@class='garage']/td[@class='Value']",
+        "type": "text"
+      },
+      {
+        "name": "ano",
+        "selector": ".//tr[@class='built_year']/td[@class='Value']",
+        "type": "text"
+      },
+      {
+        "name": "valor",
+        "selector": ".//tr[contains(@class,'Venda')]//span[contains(@class,'value')]",
+        "type": "text"
+      },
+      {
+        "name": "area_privada",
+        "selector": ".//tr[contains(@class,'area_private')]/td[@class='Value']",
+        "type": "text"
+      },
+      {
+        "name": "area_util",
+        "selector": ".//tr[contains(@class,'area_useful')]/td[@class='Value']",
+        "type": "text"
+      },
+      {
+        "name": "detalhes",
+        "selector": ".//div[contains(@class,'TextBox')]",
+        "type": "text"
+      },
+      {
+        "name": "bairro",
+        "selector": ".//td[contains(@class,'Label') and contains(text(),'Bairro')]/following-sibling::td[contains(@class,'Value')]",
+        "type": "text"
+      },
+      {
+        "name": "cidade",
+        "selector": ".//td[contains(@class,'Label') and contains(text(),'Cidade')]/following-sibling::td[contains(@class,'Value')]",
+        "type": "text"
+      },
+      {
+        "name": "piscina",
+        "selector": ".//li[@class='Piscina']",
+        "type": "text"
+      },
+      {
+        "name": "churrasqueira",
+        "selector": ".//li[@class='Churrasqueira']",
+        "type": "text"
+      },
+      {
+        "name": "academia",
+        "selector": ".//li[@class='Academia']",
+        "type": "text"
+      },
+      {
+        "name": "salao_festas",
+        "selector": ".//li[@class='SalaodeFestas']",
+        "type": "text"
+      },
+      {
+        "name": "playground",
+        "selector": ".//li[@class='EspacoKids']",
+        "type": "text"
+      },
+      {
+        "name": "sacada",
+        "selector": ".//li[@class='Sacadacomchurrasqueira']",
+        "type": "text"
+      },
+      {
+        "name": "mobiliado",
+        "selector": ".//li[@class='Mobiliado']",
+        "type": "text"
+      },
+      {
+        "name": "ar_condicionado",
+        "selector": ".//li[@class='ArCondicionado']",
+        "type": "text"
+      },
+      {
+        "name": "lavanderia",
+        "selector": ".//li[@class='Lavanderia']",
+        "type": "text"
+      },
+      {
+        "name": "escritorio",
+        "selector": ".//li[@class='Escritorio']",
+        "type": "text"
+      },
+      {
+        "name": "closet",
+        "selector": ".//li[@class='Closet']",
+        "type": "text"
+      },
+      {
+        "name": "elevador",
+        "selector": ".//li[@class='Elevador']",
+        "type": "text"
+      },
+      {
+        "name": "portaria_24h",
+        "selector": ".//li[@class='Portaria24h']",
+        "type": "text"
+      },
+      {
+        "name": "aceita_permuta",
+        "selector": ".//li[@class='AceitaPermuta']",
+        "type": "text"
+      },
+      {
+        "name": "financiamento",
+        "selector": ".//li[@class='Financiamento']",
+        "type": "text"
+      }
+    ]
+  }
+}
