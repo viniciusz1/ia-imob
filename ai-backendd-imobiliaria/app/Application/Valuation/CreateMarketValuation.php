@@ -20,7 +20,7 @@ final readonly class CreateMarketValuation
 
         return DB::transaction(function () use ($user, $input, $result): PropertyValuation {
             $valuation = PropertyValuation::create([
-                'tenant_id' => $user->tenant_id,
+                'agency_id' => $user->agency_id,
                 'user_id' => $user->id,
                 'code' => $this->nextCode(),
                 'status' => $result->status,

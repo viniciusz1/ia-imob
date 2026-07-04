@@ -121,9 +121,9 @@
           "id": "pair_accept"
         },
         {
-          "name": "X-Tenant-Host",
+          "name": "X-Agency-Host",
           "value": "{{public_host}}",
-          "id": "pair_tenant_host"
+          "id": "pair_agency_host"
         }
       ],
       "authentication": {},

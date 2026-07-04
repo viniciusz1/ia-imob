@@ -41,7 +41,7 @@ import {
   getValuation,
   getValuations,
 } from "@/services/valuationService";
-import { getScrapyPropertyFilters } from "@/services/scrapyPropertyService";
+import { getMarketPropertyFilters } from "@/services/marketPropertyService";
 import { authService } from "@/services/authService";
 import { useAuthStore } from "@/store/useAuthStore";
 import type {
@@ -120,7 +120,7 @@ function comparableReviewsFrom(candidates: ComparableCandidate[]): ComparableRev
     }
 
     reviews.push({
-      scrapy_property_id: candidate.scrapy_property_id,
+      market_property_id: candidate.market_property_id,
       status: candidate.review_status,
     });
   }
@@ -202,7 +202,7 @@ export function ValuationsClient() {
     async function loadFilters() {
       setIsLoadingFilters(true);
       try {
-        const filters = await getScrapyPropertyFilters();
+        const filters = await getMarketPropertyFilters();
         setAvailableCities(filters.cidades);
         setAvailableNeighborhoods(filters.bairros);
       } catch (error) {
@@ -316,7 +316,7 @@ export function ValuationsClient() {
   }
 
   function selectAllCandidates() {
-    setSelectedCandidateIds(new Set(candidates.map((candidate) => candidate.scrapy_property_id)));
+    setSelectedCandidateIds(new Set(candidates.map((candidate) => candidate.market_property_id)));
   }
 
   function clearCandidateSelection() {
@@ -326,7 +326,7 @@ export function ValuationsClient() {
   function markSelectedCandidates(status: ComparableReviewDecision) {
     setCandidates((current) =>
       current.map((candidate) =>
-        selectedCandidateIds.has(candidate.scrapy_property_id)
+        selectedCandidateIds.has(candidate.market_property_id)
           ? { ...candidate, review_status: status }
           : candidate
       )
@@ -337,7 +337,7 @@ export function ValuationsClient() {
   function cycleCandidateStatus(candidateId: number) {
     setCandidates((current) =>
       current.map((candidate) =>
-        candidate.scrapy_property_id === candidateId
+        candidate.market_property_id === candidateId
           ? { ...candidate, review_status: nextReviewStatus(candidate.review_status) }
           : candidate
       )
@@ -865,15 +865,15 @@ function ComparableReviewPanel({
             </TableHeader>
             <TableBody>
               {candidates.map((candidate) => {
-                const agencyLabel = candidate.agency ?? `#${candidate.scrapy_property_id}`;
+                const agencyLabel = candidate.agency ?? `#${candidate.market_property_id}`;
 
                 return (
-                  <TableRow key={candidate.scrapy_property_id}>
+                  <TableRow key={candidate.market_property_id}>
                     <TableCell>
                       <Checkbox
                         aria-label={`Selecionar comparável ${agencyLabel}`}
-                        checked={selectedCandidateIds.has(candidate.scrapy_property_id)}
-                        onCheckedChange={(checked) => onToggleSelected(candidate.scrapy_property_id, checked === true)}
+                        checked={selectedCandidateIds.has(candidate.market_property_id)}
+                        onCheckedChange={(checked) => onToggleSelected(candidate.market_property_id, checked === true)}
                       />
                     </TableCell>
                     <TableCell>
@@ -882,7 +882,7 @@ function ComparableReviewPanel({
                         variant="outline"
                         size="sm"
                         className={reviewStatusClassName(candidate.review_status)}
-                        onClick={() => onCycleStatus(candidate.scrapy_property_id)}
+                        onClick={() => onCycleStatus(candidate.market_property_id)}
                         aria-label={`Status do comparável ${agencyLabel}: ${reviewStatusLabels[candidate.review_status]}`}
                       >
                         {reviewStatusLabels[candidate.review_status]}
@@ -947,7 +947,7 @@ function ComparableTable({ comparables }: { comparables: Valuation["comparable_e
         </TableHeader>
         <TableBody>
           {comparables.map((comparable) => (
-            <TableRow key={comparable.scrapy_property_id}>
+            <TableRow key={comparable.market_property_id}>
               <TableCell>
                 {comparable.review_status ? (
                   <Badge variant="outline" className={reviewStatusClassName(comparable.review_status)}>

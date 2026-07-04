@@ -4,7 +4,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     /**
      * Run the migrations.
      */
@@ -58,7 +59,7 @@ return new class extends Migration {
             $table->string('virtual_tour_url')->nullable();
 
             // Internal Management
-            $table->foreignId('owner_id')->nullable()->constrained('users')->onDelete('set null'); // Assuming owners might be users or a separate client table, but doc says "Reference to Owner, in the client table". If there is no clients table yet, I'll use users or wait. Doc says: "owner_id (foreignId, nullable - Referência ao Proprietário, na tabela de clientes)". 
+            $table->foreignId('owner_id')->nullable()->constrained('users')->onDelete('set null'); // Assuming owners might be users or a separate client table, but doc says "Reference to Owner, in the client table". If there is no clients table yet, I'll use users or wait. Doc says: "owner_id (foreignId, nullable - Referência ao Proprietário, na tabela de clientes)".
             $table->foreignId('broker_id')->nullable()->constrained('users')->onDelete('set null');
             $table->text('internal_notes')->nullable();
             $table->boolean('has_exclusive_right')->default(false);

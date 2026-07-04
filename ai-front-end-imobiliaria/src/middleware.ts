@@ -4,7 +4,7 @@ import type { NextRequest } from "next/server";
 const AUTH_SESSION_COOKIE = "ia_imob_authenticated";
 
 // The CRM host serves the authenticated dashboard; every other host is a
-// Tenant's White-Label public site.
+// Agency's White-Label public site.
 const CRM_HOST = process.env.NEXT_PUBLIC_CRM_HOST ?? "localhost";
 
 function isCrmHost(hostname: string): boolean {
@@ -16,7 +16,7 @@ export function middleware(request: NextRequest) {
     const path = request.nextUrl.pathname;
 
     if (!isCrmHost(hostname)) {
-        // Tenant public host: no auth. Frameworks/metadata routes are
+        // Agency public host: no auth. Frameworks/metadata routes are
         // host-aware on their own and must not be rewritten.
         if (
             path.startsWith("/_next") ||
@@ -28,7 +28,7 @@ export function middleware(request: NextRequest) {
             return NextResponse.next();
         }
 
-        // Rewrite the tenant host into the path so per-tenant route/fetch
+        // Rewrite the agency host into the path so per-agency route/fetch
         // caches stay isolated (Next keys caches by path, not host).
         if (!path.startsWith("/site/")) {
             const url = request.nextUrl.clone();

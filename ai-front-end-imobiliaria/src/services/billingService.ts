@@ -1,7 +1,7 @@
 import api, { API_PREFIX } from "@/services/api";
 import type {
   SubscriptionPlan,
-  TenantSubscription,
+  AgencySubscription,
   SubscriptionCreatePayload,
 } from "@/types/billing";
 
@@ -10,7 +10,7 @@ export async function fetchPlans(): Promise<SubscriptionPlan[]> {
   return data;
 }
 
-export async function fetchCurrentSubscription(): Promise<TenantSubscription | null> {
+export async function fetchCurrentSubscription(): Promise<AgencySubscription | null> {
   try {
     const { data } = await api.get(`${API_PREFIX}/subscriptions/current`);
     return data;
@@ -22,7 +22,7 @@ export async function fetchCurrentSubscription(): Promise<TenantSubscription | n
 
 export async function createSubscription(
   payload: SubscriptionCreatePayload,
-): Promise<TenantSubscription> {
+): Promise<AgencySubscription> {
   const { data } = await api.post(`${API_PREFIX}/subscriptions`, payload);
   return data;
 }

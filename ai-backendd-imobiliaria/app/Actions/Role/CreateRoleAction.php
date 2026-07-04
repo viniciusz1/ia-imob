@@ -10,9 +10,7 @@ use Spatie\Permission\Models\Role;
 class CreateRoleAction
 {
     /**
-     * @param string $name
-     * @param array $permissions Array of permission IDs or Names
-     * @return Role
+     * @param  array  $permissions  Array of permission IDs or Names
      */
     public function execute(string $name, array $permissions): Role
     {
@@ -23,7 +21,7 @@ class CreateRoleAction
             'guard_name' => $guard,
         ]);
 
-        if (!empty($permissions)) {
+        if (! empty($permissions)) {
             $role->syncPermissions($this->normalizePermissionIdsForGuard($permissions, $guard));
         }
 
@@ -31,7 +29,7 @@ class CreateRoleAction
     }
 
     /**
-     * @param array<int, int|string> $permissions
+     * @param  array<int, int|string>  $permissions
      * @return array<int, int>
      */
     private function normalizePermissionIdsForGuard(array $permissions, string $guard): array
@@ -42,7 +40,7 @@ class CreateRoleAction
                     ? Permission::query()->find((int) $permission)
                     : Permission::query()->where('name', (string) $permission)->first();
 
-                if (!$sourcePermission) {
+                if (! $sourcePermission) {
                     return null;
                 }
 

@@ -3,8 +3,8 @@
 namespace Tests\Feature;
 
 use App\Models\Property;
-use App\Models\Tenant;
-use App\Models\TenantSiteSettings;
+use App\Models\Agency;
+use App\Models\AgencySiteSettings;
 use App\Services\RevalidationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request;
@@ -30,12 +30,12 @@ class RevalidationTest extends TestCase
     public function test_revalidation_service_posts_signed_tag_payload(): void
     {
         Http::fake([
-            $this->url => Http::response(['revalidated' => ['tenant:acme.localhost']], 200),
+            $this->url => Http::response(['revalidated' => ['agency:acme.localhost']], 200),
         ]);
 
-        app(RevalidationService::class)->revalidate(['tenant:acme.localhost']);
+        app(RevalidationService::class)->revalidate(['agency:acme.localhost']);
 
-        $payload = json_encode(['tags' => ['tenant:acme.localhost']]);
+        $payload = json_encode(['tags' => ['agency:acme.localhost']]);
         $signature = hash_hmac('sha256', $payload, 'test-secret');
 
         Http::assertSent(function (Request $request) use ($payload, $signature): bool {
@@ -46,20 +46,20 @@ class RevalidationTest extends TestCase
         });
     }
 
-    public function test_property_observer_revalidates_tenant_and_property_tags(): void
+    public function test_property_observer_revalidates_agency_and_property_tags(): void
     {
         Http::fake([
             $this->url => Http::response(['revalidated' => []], 200),
         ]);
 
-        $tenant = Tenant::factory()->create();
-        $tenant->domains()->create([
+        $agency = Agency::factory()->create();
+        $agency->domains()->create([
             'hostname' => 'acme.localhost',
             'is_primary' => true,
         ]);
 
         $property = Property::factory()->create([
-            'tenant_id' => $tenant->id,
+            'agency_id' => $agency->id,
             'slug' => 'casa-centro',
         ]);
 
@@ -69,26 +69,26 @@ class RevalidationTest extends TestCase
             return $body === [
                 'tags' => [
                     "property:{$property->slug}",
-                    'tenant:acme.localhost',
+                    'agency:acme.localhost',
                 ],
             ];
         });
     }
 
-    public function test_site_settings_observer_revalidates_tenant_tag(): void
+    public function test_site_settings_observer_revalidates_agency_tag(): void
     {
         Http::fake([
             $this->url => Http::response(['revalidated' => []], 200),
         ]);
 
-        $tenant = Tenant::factory()->create();
-        $tenant->domains()->create([
+        $agency = Agency::factory()->create();
+        $agency->domains()->create([
             'hostname' => 'acme.localhost',
             'is_primary' => true,
         ]);
 
-        TenantSiteSettings::create([
-            'tenant_id' => $tenant->id,
+        AgencySiteSettings::create([
+            'agency_id' => $agency->id,
             'hero_title' => 'Nova chamada',
         ]);
 
@@ -96,7 +96,7 @@ class RevalidationTest extends TestCase
             $body = json_decode($request->body(), true);
 
             return $body === [
-                'tags' => ['tenant:acme.localhost'],
+                'tags' => ['agency:acme.localhost'],
             ];
         });
     }

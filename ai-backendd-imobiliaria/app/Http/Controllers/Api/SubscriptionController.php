@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\BillingType;
 use App\Enums\SubscriptionStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SubscriptionStoreRequest;
-use App\Http\Resources\TenantSubscriptionResource;
+use App\Http\Resources\AgencySubscriptionResource;
 use App\Models\SubscriptionPlan;
-use App\Enums\BillingType;
 use App\Services\SubscriptionService;
 use Illuminate\Http\JsonResponse;
 
@@ -24,7 +24,7 @@ class SubscriptionController extends Controller
         $user = auth()->user();
 
         // Check permission if needed, but usually any user can view their sub
-        if (!$user->can('subscriptions.view')) {
+        if (! $user->can('subscriptions.view')) {
             abort(403);
         }
 
@@ -33,11 +33,11 @@ class SubscriptionController extends Controller
             ->whereIn('status', [SubscriptionStatus::Active, SubscriptionStatus::Pending])
             ->first();
 
-        if (!$subscription) {
+        if (! $subscription) {
             return response()->json(null);
         }
 
-        return response()->json(new TenantSubscriptionResource($subscription));
+        return response()->json(new AgencySubscriptionResource($subscription));
     }
 
     /**
@@ -55,7 +55,7 @@ class SubscriptionController extends Controller
 
         $subscription->load('plan');
 
-        return response()->json(new TenantSubscriptionResource($subscription), 201);
+        return response()->json(new AgencySubscriptionResource($subscription), 201);
     }
 
     /**
@@ -66,7 +66,7 @@ class SubscriptionController extends Controller
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        if (!$user->can('subscriptions.manage')) {
+        if (! $user->can('subscriptions.manage')) {
             abort(403);
         }
 

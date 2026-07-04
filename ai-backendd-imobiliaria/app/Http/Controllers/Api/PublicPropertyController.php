@@ -11,9 +11,9 @@ use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 /**
- * Read-only public API for a White-Label Site. The Tenant is already resolved
- * and bound by ResolvePublicTenant, so the global TenantScope limits every
- * query to that Tenant; here we additionally force is_published = true.
+ * Read-only public API for a White-Label Site. The Agency is already resolved
+ * and bound by ResolvePublicAgency, so the global AgencyScope limits every
+ * query to that Agency; here we additionally force is_published = true.
  */
 class PublicPropertyController extends Controller
 {
@@ -29,7 +29,7 @@ class PublicPropertyController extends Controller
             'bathrooms', 'garage_spaces', 'features', 'is_highlighted', 'order_by', 'direction', 'per_page',
         ]);
 
-        // Public sites only ever see published inventory of the resolved Tenant.
+        // Public sites only ever see published inventory of the resolved Agency.
         $filters['is_published'] = true;
 
         // Whitelist sort to avoid arbitrary column ordering from query params.

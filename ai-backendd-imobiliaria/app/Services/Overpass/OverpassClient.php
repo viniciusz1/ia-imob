@@ -23,18 +23,18 @@ class OverpassClient
             throw new \RuntimeException('Could not connect to Overpass API.');
         }
 
-        if (!$response->successful()) {
+        if (! $response->successful()) {
             Log::error('Overpass API error', [
                 'status' => $response->status(),
                 'body' => $response->body(),
             ]);
 
-            throw new \RuntimeException('Overpass API returned error: ' . $response->status());
+            throw new \RuntimeException('Overpass API returned error: '.$response->status());
         }
 
         $data = $response->json();
 
-        if (!is_array($data)) {
+        if (! is_array($data)) {
             throw new \RuntimeException('Overpass API returned an invalid JSON payload.');
         }
 

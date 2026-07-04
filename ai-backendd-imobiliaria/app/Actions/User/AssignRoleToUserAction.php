@@ -10,9 +10,7 @@ use Spatie\Permission\Models\Role;
 class AssignRoleToUserAction
 {
     /**
-     * @param User $user
-     * @param int|string|null $roleIdentifier Role ID or Name
-     * @return void
+     * @param  int|string|null  $roleIdentifier  Role ID or Name
      */
     public function execute(User $user, int|string|null $roleIdentifier): void
     {
@@ -20,6 +18,7 @@ class AssignRoleToUserAction
 
         if (empty($roleIdentifier)) {
             $user->syncRoles([]);
+
             return;
         }
 

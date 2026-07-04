@@ -24,7 +24,7 @@ class SubscriptionStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'plan_slug'    => ['required', 'string', 'exists:subscription_plans,slug'],
+            'plan_slug' => ['required', 'string', 'exists:subscription_plans,slug'],
             'billing_type' => ['required', 'string', Rule::enum(BillingType::class)],
         ];
     }

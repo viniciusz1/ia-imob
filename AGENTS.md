@@ -6,7 +6,7 @@ This workspace combines three main areas:
 
 - `ai-backendd-imobiliaria/`: Laravel 12 API. Application code lives in `app/`, routes in `routes/`, database migrations/seeders in `database/`, and PHPUnit tests in `tests/Feature` and `tests/Unit`.
 - `ai-front-end-imobiliaria/`: Next.js 16 frontend. Source is in `src/`, route groups in `src/app`, feature components in `src/components/features`, shared UI in `src/components/ui`, API clients in `src/services`, schemas in `src/schemas`, and static assets in `public/`.
-- `imobscrapy/`: Scrapy/FastAPI ingestion service. Follow its local `imobscrapy/AGENTS.md` for scraper-specific rules.
+- `crawler-machine/`: Python crawler com discovery, schema IA e normalização. Persiste resultados em Postgres quando configurado.
 - `docs/`: product plans, roadmaps, and technical implementation notes.
 
 ## Build, Test, and Development Commands

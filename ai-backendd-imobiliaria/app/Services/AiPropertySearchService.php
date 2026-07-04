@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
-use App\Models\ScrapyProperty;
 use App\Models\AiParseCache;
+use App\Models\MarketProperty;
 use App\Services\Ai\Providers\LlmProvider;
 use App\Services\Overpass\ProximityResolver;
 use Illuminate\Support\Facades\Log;
@@ -29,6 +29,7 @@ class AiPropertySearchService
         private readonly LlmProvider $provider,
         private readonly ProximityResolver $proximityResolver,
     ) {}
+
     private const SYSTEM_PROMPT = <<<'PROMPT'
 You are a property search assistant for a Brazilian real estate platform. Extract structured search filters from the user's natural language query in Portuguese.
 
@@ -89,7 +90,7 @@ PROMPT;
     {
         $contextCity = $contextCity ?: config('overpass.default_city');
 
-        if (!config('ai.cache.enabled')) {
+        if (! config('ai.cache.enabled')) {
             return $this->parsePromptUncached($prompt, $contextCity);
         }
 
@@ -160,7 +161,7 @@ PROMPT;
             throw new \RuntimeException('Failed to parse AI response.');
         }
 
-        if (!is_array($filters)) {
+        if (! is_array($filters)) {
             throw new \RuntimeException('AI response is not a valid filter object.');
         }
 
@@ -169,7 +170,7 @@ PROMPT;
 
     public function normalizeParsedFilters(array $filters, ?string $contextCity = null): array
     {
-        if (empty($filters['proximity']) || !is_array($filters['proximity']) || !empty($filters['locations'])) {
+        if (empty($filters['proximity']) || ! is_array($filters['proximity']) || ! empty($filters['locations'])) {
             return $filters;
         }
 
@@ -182,7 +183,7 @@ PROMPT;
 
         $resolved = $this->proximityResolver->resolve($proximity, $contextCity);
 
-        if (!empty($resolved) && !empty($resolved['locations'])) {
+        if (! empty($resolved) && ! empty($resolved['locations'])) {
             $filters['locations'] = $this->normalizeLocations((array) $resolved['locations'], $contextCity);
             $filters['proximity'] = array_merge($proximity, (array) ($resolved['proximity'] ?? []));
 
@@ -203,7 +204,7 @@ PROMPT;
 
     private function cacheKey(string $prompt, ?string $contextCity): string
     {
-        return 'ai:parse:' . hash('sha256', json_encode([
+        return 'ai:parse:'.hash('sha256', json_encode([
             'prompt' => Str::of($prompt)->lower()->squish()->ascii()->toString(),
             'city' => $contextCity,
             'schema' => self::SCHEMA_VERSION,
@@ -259,9 +260,9 @@ PROMPT;
         $locations = $this->normalizeLocations($filters['locations'] ?? [], $primaryCity);
         $proximity = $this->normalizeProximity($filters['proximity'] ?? null, $primaryCity);
 
-        if (!empty($proximity)) {
+        if (! empty($proximity)) {
             $resolved = $this->proximityResolver->resolve($proximity, $contextCity);
-            if (!empty($resolved) && !empty($resolved['locations'])) {
+            if (! empty($resolved) && ! empty($resolved['locations'])) {
                 $locations = $this->normalizeLocations(
                     array_merge($locations, (array) $resolved['locations']),
                     $primaryCity
@@ -277,62 +278,62 @@ PROMPT;
             }
         }
 
-        if (!empty($filters['tipo']) && is_array($filters['tipo'])) {
+        if (! empty($filters['tipo']) && is_array($filters['tipo'])) {
             $normalized['tipo'] = $filters['tipo'];
         }
 
-        if (!empty($locations)) {
+        if (! empty($locations)) {
             $normalized['locations'] = $locations;
         }
 
-        if (!empty($proximity)) {
+        if (! empty($proximity)) {
             $normalized['proximity'] = $proximity;
         }
 
-        if (empty($locations) && !empty($filters['bairro']) && is_array($filters['bairro'])) {
+        if (empty($locations) && ! empty($filters['bairro']) && is_array($filters['bairro'])) {
             $normalized['bairro_fuzzy'] = array_map(
                 fn ($bairro) => $this->normalizeNeighborhoodName((string) $bairro, $primaryCity),
                 $this->normalizeStringArray($filters['bairro'])
             );
         }
 
-        if (empty($locations) && !empty($cities)) {
+        if (empty($locations) && ! empty($cities)) {
             $normalized['cidade_fuzzy'] = $cities;
         }
 
-        if (!empty($filters['imobiliaria']) && is_array($filters['imobiliaria'])) {
+        if (! empty($filters['imobiliaria']) && is_array($filters['imobiliaria'])) {
             $normalized['imobiliaria'] = $filters['imobiliaria'];
         }
 
-        if (!empty($filters['quartos']) && is_array($filters['quartos'])) {
+        if (! empty($filters['quartos']) && is_array($filters['quartos'])) {
             $normalized['quartos'] = $filters['quartos'];
         }
 
-        if (!empty($filters['quartos_plus'])) {
+        if (! empty($filters['quartos_plus'])) {
             $normalized['quartos_plus'] = true;
         }
 
-        if (!empty($filters['suites']) && is_array($filters['suites'])) {
+        if (! empty($filters['suites']) && is_array($filters['suites'])) {
             $normalized['suites'] = $filters['suites'];
         }
 
-        if (!empty($filters['suites_plus'])) {
+        if (! empty($filters['suites_plus'])) {
             $normalized['suites_plus'] = true;
         }
 
-        if (!empty($filters['banheiros']) && is_array($filters['banheiros'])) {
+        if (! empty($filters['banheiros']) && is_array($filters['banheiros'])) {
             $normalized['banheiros'] = $filters['banheiros'];
         }
 
-        if (!empty($filters['banheiros_plus'])) {
+        if (! empty($filters['banheiros_plus'])) {
             $normalized['banheiros_plus'] = true;
         }
 
-        if (!empty($filters['vagas']) && is_array($filters['vagas'])) {
+        if (! empty($filters['vagas']) && is_array($filters['vagas'])) {
             $normalized['vagas'] = $filters['vagas'];
         }
 
-        if (!empty($filters['vagas_plus'])) {
+        if (! empty($filters['vagas_plus'])) {
             $normalized['vagas_plus'] = true;
         }
 
@@ -344,7 +345,7 @@ PROMPT;
             $normalized['max'] = (int) $filters['max'];
         }
 
-        if (!empty($filters['comodidades']) && is_array($filters['comodidades'])) {
+        if (! empty($filters['comodidades']) && is_array($filters['comodidades'])) {
             $validComodidades = [
                 'piscina', 'churrasqueira', 'academia', 'salao_festas',
                 'playground', 'sacada', 'mobiliado', 'ar_condicionado',
@@ -359,7 +360,7 @@ PROMPT;
             }
         }
 
-        if (!empty($filters['sort']) && is_string($filters['sort'])) {
+        if (! empty($filters['sort']) && is_string($filters['sort'])) {
             $normalized['sort'] = $this->normalizeSort($filters['sort']);
         }
 
@@ -369,24 +370,24 @@ PROMPT;
     private function buildSystemPrompt(?string $contextCity): string
     {
         return self::SYSTEM_PROMPT
-            . "\n\nContext city: " . ($contextCity ?: 'none');
+            ."\n\nContext city: ".($contextCity ?: 'none');
     }
 
     private function buildUserPrompt(string $prompt, ?string $contextCity): string
     {
-        return "Context city: " . ($contextCity ?: 'none') . "\nUser: " . $prompt;
+        return 'Context city: '.($contextCity ?: 'none')."\nUser: ".$prompt;
     }
 
     private function normalizeLocations(mixed $locations, ?string $fallbackCity): array
     {
-        if (!is_array($locations)) {
+        if (! is_array($locations)) {
             return [];
         }
 
         $normalized = [];
 
         foreach ($locations as $location) {
-            if (!is_array($location)) {
+            if (! is_array($location)) {
                 continue;
             }
 
@@ -401,7 +402,7 @@ PROMPT;
                 $bairro = $this->normalizeNeighborhoodName($bairro, $cidade ?: $fallbackCity);
             }
 
-            $key = Str::lower($bairro . '|' . $cidade);
+            $key = Str::lower($bairro.'|'.$cidade);
             $normalized[$key] = array_filter([
                 'bairro' => $bairro,
                 'cidade' => $cidade,
@@ -413,7 +414,7 @@ PROMPT;
 
     private function normalizeProximity(mixed $proximity, ?string $fallbackCity): array
     {
-        if (!is_array($proximity)) {
+        if (! is_array($proximity)) {
             return [];
         }
 
@@ -424,7 +425,7 @@ PROMPT;
         }
 
         $radiusHint = $proximity['radius_hint'] ?? 'perto';
-        if (!in_array($radiusHint, ['muito_perto', 'perto', 'regiao'], true)) {
+        if (! in_array($radiusHint, ['muito_perto', 'perto', 'regiao'], true)) {
             $radiusHint = 'perto';
         }
 
@@ -443,7 +444,7 @@ PROMPT;
 
     private function normalizeStringArray(mixed $value): array
     {
-        if (!is_array($value)) {
+        if (! is_array($value)) {
             return [];
         }
 
@@ -460,7 +461,7 @@ PROMPT;
 
     private function paginateFilters(array $filters, int $perPage, string $sort, int $page)
     {
-        $query = ScrapyProperty::query();
+        $query = MarketProperty::query()->latestRun();
         $query->applyFilters($filters);
         $this->applySort($query, $sort);
 
@@ -539,9 +540,9 @@ PROMPT;
 
     private function hasApproximateProximity(array $filters): bool
     {
-        return !empty($filters['proximity'])
+        return ! empty($filters['proximity'])
             && is_array($filters['proximity'])
-            && !empty($filters['proximity']['approximate']);
+            && ! empty($filters['proximity']['approximate']);
     }
 
     private function relaxNeighborhoodFilters(array $filters, array &$relaxed): array
@@ -550,7 +551,7 @@ PROMPT;
         $cities = array_merge($cities, $this->normalizeStringArray($filters['cidade_fuzzy'] ?? []));
 
         foreach ((array) ($filters['locations'] ?? []) as $location) {
-            if (is_array($location) && !empty($location['cidade'])) {
+            if (is_array($location) && ! empty($location['cidade'])) {
                 $cities[] = (string) $location['cidade'];
             }
         }
@@ -563,11 +564,10 @@ PROMPT;
         }
 
         $cities = array_values(array_unique(array_filter($cities)));
-        if (!empty($cities) && empty($filters['cidade']) && empty($filters['cidade_fuzzy'])) {
+        if (! empty($cities) && empty($filters['cidade']) && empty($filters['cidade_fuzzy'])) {
             $filters['cidade_fuzzy'] = $cities;
         }
 
         return $filters;
     }
-
 }

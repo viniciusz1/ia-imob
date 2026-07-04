@@ -2,8 +2,8 @@
 
 namespace App\Domain\Valuation;
 
+use App\Models\MarketProperty;
 use App\Models\PropertyValuation;
-use App\Models\ScrapyProperty;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\ValidationException;
 
@@ -27,7 +27,7 @@ final class MarketValuationCalculator
 
             $candidates = $candidates
                 ->merge($relaxed['valid'])
-                ->unique('scrapy_property_id')
+                ->unique('market_property_id')
                 ->values();
         }
 
@@ -117,10 +117,10 @@ final class MarketValuationCalculator
     {
         $candidates = collect($this->comparableCandidates($input));
         $reviewMap = collect($reviews)
-            ->mapWithKeys(fn (array $review): array => [(int) $review['scrapy_property_id'] => $review['status']]);
+            ->mapWithKeys(fn (array $review): array => [(int) $review['market_property_id'] => $review['status']]);
 
         $candidateIds = $candidates
-            ->pluck('scrapy_property_id')
+            ->pluck('market_property_id')
             ->map(fn (int $id): int => $id)
             ->sort()
             ->values()
@@ -141,7 +141,7 @@ final class MarketValuationCalculator
 
         $reviewed = $candidates
             ->map(function (array $candidate) use ($reviewMap): array {
-                $id = (int) $candidate['scrapy_property_id'];
+                $id = (int) $candidate['market_property_id'];
 
                 return array_merge($candidate, ['review_status' => $reviewMap->get($id)]);
             })
@@ -207,12 +207,13 @@ final class MarketValuationCalculator
             $input->neighborhood
         );
 
-        $properties = ScrapyProperty::query()
+        $properties = MarketProperty::query()
+            ->latestRun()
             ->where('quartos', $input->bedrooms)
             ->where('vagas', $input->garageSpaces)
             ->get();
 
-        $matched = $properties->filter(function (ScrapyProperty $property) use ($input, $cities, $neighborhoods, $relaxBathrooms): bool {
+        $matched = $properties->filter(function (MarketProperty $property) use ($input, $cities, $neighborhoods, $relaxBathrooms): bool {
             if (! in_array(TextNormalizer::normalize((string) $property->cidade), $cities, true)) {
                 return false;
             }
@@ -236,7 +237,7 @@ final class MarketValuationCalculator
 
         $valid = $matched
             ->toBase()
-            ->map(fn (ScrapyProperty $property): ?array => $this->toComparableEvidence($property))
+            ->map(fn (MarketProperty $property): ?array => $this->toComparableEvidence($property))
             ->filter()
             ->values();
 
@@ -247,7 +248,7 @@ final class MarketValuationCalculator
         ];
     }
 
-    private function toComparableEvidence(ScrapyProperty $property): ?array
+    private function toComparableEvidence(MarketProperty $property): ?array
     {
         $price = (float) $property->valor;
         $area = (float) $property->area;
@@ -264,7 +265,7 @@ final class MarketValuationCalculator
         }
 
         return [
-            'scrapy_property_id' => $property->id,
+            'market_property_id' => $property->id,
             'residential_type' => ResidentialType::fromScrapedType($property->tipo),
             'raw_type' => $property->tipo,
             'city' => $property->cidade,

@@ -10,10 +10,7 @@ use Spatie\Permission\Models\Role;
 class UpdateRoleAction
 {
     /**
-     * @param Role $role
-     * @param string $name
-     * @param array $permissions Array of permission IDs or Names
-     * @return Role
+     * @param  array  $permissions  Array of permission IDs or Names
      */
     public function execute(Role $role, string $name, array $permissions): Role
     {
@@ -30,7 +27,7 @@ class UpdateRoleAction
     }
 
     /**
-     * @param array<int, int|string> $permissions
+     * @param  array<int, int|string>  $permissions
      * @return array<int, int>
      */
     private function normalizePermissionIdsForGuard(array $permissions, string $guard): array
@@ -41,7 +38,7 @@ class UpdateRoleAction
                     ? Permission::query()->find((int) $permission)
                     : Permission::query()->where('name', (string) $permission)->first();
 
-                if (!$sourcePermission) {
+                if (! $sourcePermission) {
                     return null;
                 }
 

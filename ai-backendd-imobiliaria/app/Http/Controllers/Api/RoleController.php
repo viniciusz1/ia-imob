@@ -40,6 +40,7 @@ class RoleController extends Controller
     public function show(ManageRolesRequest $request, Role $role): RoleResource
     {
         $this->ensureRoleGuard($role);
+
         return new RoleResource($role->load('permissions'));
     }
 

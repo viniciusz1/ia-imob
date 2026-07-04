@@ -2,21 +2,21 @@
 
 namespace App\Models;
 
-use App\Models\Concerns\BelongsToTenant;
+use App\Models\Concerns\BelongsToAgency;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PropertyValuation extends Model
 {
-    use BelongsToTenant, HasFactory;
+    use BelongsToAgency, HasFactory;
 
     public const STATUS_CALCULATED = 'calculated';
 
     public const STATUS_INSUFFICIENT_SAMPLE = 'insufficient_sample';
 
     protected $fillable = [
-        'tenant_id',
+        'agency_id',
         'user_id',
         'code',
         'status',

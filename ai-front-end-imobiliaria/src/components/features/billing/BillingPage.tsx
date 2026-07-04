@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import type {
   SubscriptionPlan,
-  TenantSubscription,
+  AgencySubscription,
   BillingType,
 } from "@/types/billing";
 import { createSubscription } from "@/services/billingService";
@@ -16,7 +16,7 @@ import { CreditCard } from "lucide-react";
 
 interface BillingPageProps {
   plans: SubscriptionPlan[];
-  currentSubscription: TenantSubscription | null;
+  currentSubscription: AgencySubscription | null;
 }
 
 const SHOW_PLAN_SELECTOR_STATUSES = new Set(["expired", "cancelled"]);

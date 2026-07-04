@@ -23,9 +23,7 @@ class DatabaseSeeder extends Seeder
             SystemEnumSeeder::class,
             FeatureSeeder::class,
             SubscriptionPlanSeeder::class,
-            ScrapyPropertySeeder::class,
-            AgencyConfigurationSeeder::class,
-            TenantDemoSeeder::class,
+            AgencyDemoSeeder::class,
         ]);
 
         // Create admin user and assign it to a variable

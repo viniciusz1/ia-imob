@@ -1,11 +1,16 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 
 import { middleware } from "@/middleware";
 
+vi.stubEnv("NEXT_PUBLIC_CRM_HOST", "localhost");
+
 function request(path: string, cookie?: string) {
     return new NextRequest(`http://localhost:3000${path}`, {
-        headers: cookie ? { cookie } : undefined,
+        headers: {
+            host: "localhost:3000",
+            ...(cookie ? { cookie } : {}),
+        },
     });
 }
 

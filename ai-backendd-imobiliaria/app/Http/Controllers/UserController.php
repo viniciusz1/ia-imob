@@ -14,20 +14,20 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class UserController extends Controller
 {
-    public function __construct(protected UserService $service)
-    {
-    }
+    public function __construct(protected UserService $service) {}
 
     public function index(IndexUserRequest $request): AnonymousResourceCollection
     {
         $filters = $request->only(['id', 'name', 'username', 'team_id', 'is_active', 'show_on_website', 'is_online']);
         $users = $this->service->list($filters, (int) $request->input('per_page', 15));
+
         return UserResource::collection($users);
     }
 
     public function show(ShowUserRequest $request, int $user): UserResource
     {
         $found = $this->service->findOrFail($user);
+
         return new UserResource($found);
     }
 
@@ -35,12 +35,13 @@ class UserController extends Controller
     {
         try {
             $user = $this->service->create($request->validated(), $request->file('avatar'));
+
             return (new UserResource($user))->response()->setStatusCode(201);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => $e->getMessage(),
                 'file' => $e->getFile(),
-                'line' => $e->getLine()
+                'line' => $e->getLine(),
             ], 500);
         }
     }
@@ -49,6 +50,7 @@ class UserController extends Controller
     {
         $found = $this->service->findOrFail($user);
         $updated = $this->service->update($found, $request->validated(), $request->file('avatar'));
+
         return new UserResource($updated);
     }
 
@@ -56,6 +58,7 @@ class UserController extends Controller
     {
         $found = $this->service->findOrFail($user);
         $this->service->delete($found);
+
         return response()->json(['message' => 'Usuário removido com sucesso.'], 200);
     }
 }

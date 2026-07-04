@@ -12,11 +12,11 @@ class UpdateUserRequest extends FormRequest
     {
         $targetUser = $this->route('user');
 
-        if (!$targetUser instanceof User) {
+        if (! $targetUser instanceof User) {
             $targetUser = User::query()->find((int) $targetUser);
         }
 
-        if (!$targetUser) {
+        if (! $targetUser) {
             return true;
         }
 

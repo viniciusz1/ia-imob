@@ -11,9 +11,7 @@ class LeadReceived extends Notification
 {
     use Queueable;
 
-    public function __construct(public Lead $lead)
-    {
-    }
+    public function __construct(public Lead $lead) {}
 
     /**
      * @return array<int, string>
@@ -28,15 +26,15 @@ class LeadReceived extends Notification
         $message = (new MailMessage)
             ->subject('Novo contato recebido no seu site')
             ->greeting('Novo lead!')
-            ->line($this->lead->name . ' demonstrou interesse.')
-            ->line('Telefone: ' . $this->lead->phone);
+            ->line($this->lead->name.' demonstrou interesse.')
+            ->line('Telefone: '.$this->lead->phone);
 
         if ($this->lead->email) {
-            $message->line('E-mail: ' . $this->lead->email);
+            $message->line('E-mail: '.$this->lead->email);
         }
 
         if ($this->lead->message) {
-            $message->line('Mensagem: ' . $this->lead->message);
+            $message->line('Mensagem: '.$this->lead->message);
         }
 
         return $message;

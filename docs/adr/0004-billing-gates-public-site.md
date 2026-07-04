@@ -1,6 +1,6 @@
 # Subscription status gates the public site; lapsed serves 503, cancelled serves 404
 
-A Tenant's white-label site is served only when its `TenantSubscription` is `Active`. Tenant resolution (host → `tenant_id`) also loads subscription status and short-circuits before rendering:
+A Agency's white-label site is served only when its `AgencySubscription` is `Active`. Agency resolution (host → `agency_id`) also loads subscription status and short-circuits before rendering:
 
 - `Active` → site live.
 - `Inactive` / `Expired` (lapsed, recoverable) → **HTTP 503** "temporarily unavailable".
@@ -11,5 +11,5 @@ We return **503 for lapsed** rather than a hard 404 because a brief non-payment 
 
 ## Consequences
 
-- The freshness webhook (ADR-0003) must also re-evaluate the site when subscription status changes (e.g. Asaas webhook flips a Tenant to Inactive → purge/transition the public cache).
+- The freshness webhook (ADR-0003) must also re-evaluate the site when subscription status changes (e.g. Asaas webhook flips a Agency to Inactive → purge/transition the public cache).
 - "Site live" depends on billing, so a billing bug can take a paying site offline — the Active check must be conservative and well-tested.

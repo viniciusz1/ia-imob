@@ -19,7 +19,7 @@ import { CheckCircle, Clock, AlertTriangle, Loader2 } from "lucide-react";
 import { cancelSubscription } from "@/services/billingService";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import type { TenantSubscription, SubscriptionStatus } from "@/types/billing";
+import type { AgencySubscription, SubscriptionStatus } from "@/types/billing";
 
 const BILLING_LABEL: Record<string, string> = {
   PIX: "Pix",
@@ -72,7 +72,7 @@ const STATUS_MESSAGE: Partial<Record<SubscriptionStatus, string>> = {
 };
 
 interface CurrentSubscriptionBannerProps {
-  subscription: TenantSubscription;
+  subscription: AgencySubscription;
   canManage?: boolean;
 }
 

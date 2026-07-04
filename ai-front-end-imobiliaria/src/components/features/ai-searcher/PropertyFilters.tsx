@@ -41,6 +41,7 @@ import type {
   SavedFilter,
 } from "./types";
 import api, { API_PREFIX } from "@/services/api";
+import { getMarketPropertyFilters } from "@/services/marketPropertyService";
 
 interface PropertyFiltersProps {
   properties: AiSearcherProperty[];
@@ -140,9 +141,8 @@ export function PropertyFilters(
   const isCommittingRef = useRef(false);
 
   useEffect(() => {
-    api
-      .get(`${API_PREFIX}/scrapy-properties/filters`)
-      .then((res) => setFilterOptions(res.data))
+    getMarketPropertyFilters()
+      .then((filters) => setFilterOptions(filters))
       .catch(console.error);
   }, []);
 

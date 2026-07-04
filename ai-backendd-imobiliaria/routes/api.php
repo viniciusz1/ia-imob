@@ -24,8 +24,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('valuations/{valuation}/comparables.xlsx', [\App\Http\Controllers\Api\ValuationController::class, 'comparableEvidence']);
     Route::post('valuations/candidates', [\App\Http\Controllers\Api\ValuationController::class, 'candidates']);
     Route::apiResource('valuations', \App\Http\Controllers\Api\ValuationController::class)->only(['index', 'store', 'show']);
-    Route::get('scrapy-properties/filters', [\App\Http\Controllers\Api\ScrapyPropertyController::class, 'filters']);
-    Route::apiResource('scrapy-properties', \App\Http\Controllers\Api\ScrapyPropertyController::class);
+    Route::get('market-properties/filters', [\App\Http\Controllers\Api\MarketPropertyController::class, 'filters']);
+    Route::apiResource('market-properties', \App\Http\Controllers\Api\MarketPropertyController::class);
 
     // Property Images
     Route::post('properties/{property}/images', [\App\Http\Controllers\Api\PropertyImageController::class, 'store']);
@@ -40,24 +40,12 @@ Route::middleware('auth:sanctum')->group(function () {
     // Saved Filters (Authenticated, user-scoped)
     Route::apiResource('saved-filters', \App\Http\Controllers\Api\SavedFilterController::class);
 
-    // White-Label Site settings (Branding, tenant-scoped to the current user)
+    // White-Label Site settings (Branding, agency-scoped to the current user)
     Route::get('site-settings', [\App\Http\Controllers\Api\SiteSettingsController::class, 'show']);
     Route::put('site-settings', [\App\Http\Controllers\Api\SiteSettingsController::class, 'update']);
 
     // AI Search (Authenticated)
-    Route::post('scrapy-properties/ai-search', [\App\Http\Controllers\Api\AiSearchController::class, 'search']);
-
-    // Imported agency configuration (DB-driven scraper configs)
-    Route::get('agency-configs', [\App\Http\Controllers\Api\AgencyConfigController::class, 'index']);
-    Route::post('agency-configs/{agencyType}', [\App\Http\Controllers\Api\AgencyConfigController::class, 'storeAgency']);
-    Route::get('agency-configs/{agencyType}/{agencyId}', [\App\Http\Controllers\Api\AgencyConfigController::class, 'show']);
-    Route::get('agency-configs/{agencyType}/{agencyId}/refinement', [\App\Http\Controllers\Api\AgencyConfigController::class, 'refinement']);
-    Route::post('agency-configs/{agencyType}/{agencyId}/refinements', [\App\Http\Controllers\Api\AgencyConfigController::class, 'saveRefinement']);
-    Route::put('agency-configs/{agencyType}/{agencyId}', [\App\Http\Controllers\Api\AgencyConfigController::class, 'updateAgency']);
-    Route::delete('agency-configs/{agencyType}/{agencyId}', [\App\Http\Controllers\Api\AgencyConfigController::class, 'destroyAgency']);
-    Route::post('agency-configs/{agencyType}/{agencyId}/extractors', [\App\Http\Controllers\Api\AgencyConfigController::class, 'storeExtractor']);
-    Route::put('agency-configs/extractors/{extractor}', [\App\Http\Controllers\Api\AgencyConfigController::class, 'updateExtractor']);
-    Route::delete('agency-configs/extractors/{extractor}', [\App\Http\Controllers\Api\AgencyConfigController::class, 'destroyExtractor']);
+    Route::post('market-properties/ai-search', [\App\Http\Controllers\Api\AiSearchController::class, 'search']);
 
     // Subscriptions (Authenticated)
     Route::get('/subscriptions/current', [\App\Http\Controllers\Api\SubscriptionController::class, 'current']);
@@ -67,8 +55,8 @@ Route::middleware('auth:sanctum')->group(function () {
     require __DIR__.'/api/user_routes.php';
 });
 
-// White-Label Public Site API (unauthenticated, tenant resolved from host)
-Route::middleware(\App\Http\Middleware\ResolvePublicTenant::class)
+// White-Label Public Site API (unauthenticated, agency resolved from host)
+Route::middleware(\App\Http\Middleware\ResolvePublicAgency::class)
     ->prefix('public')
     ->group(function () {
         Route::get('properties', [\App\Http\Controllers\Api\PublicPropertyController::class, 'index']);

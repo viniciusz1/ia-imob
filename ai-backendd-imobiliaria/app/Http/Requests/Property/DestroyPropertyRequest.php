@@ -11,11 +11,11 @@ class DestroyPropertyRequest extends FormRequest
     {
         $property = $this->route('property');
 
-        if (!$property instanceof Property) {
+        if (! $property instanceof Property) {
             $property = Property::query()->find((int) $property);
         }
 
-        if (!$property) {
+        if (! $property) {
             return true;
         }
 

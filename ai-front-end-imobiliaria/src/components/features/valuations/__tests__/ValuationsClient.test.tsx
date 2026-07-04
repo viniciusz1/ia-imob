@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ValuationsClient } from "../ValuationsClient";
 import * as valuationService from "@/services/valuationService";
-import * as scrapyPropertyService from "@/services/scrapyPropertyService";
+import * as marketPropertyService from "@/services/marketPropertyService";
 import { useAuthStore } from "@/store/useAuthStore";
 import type { ComparableCandidate, PaginatedValuationsResponse, Valuation } from "@/types/valuation";
 
@@ -24,8 +24,8 @@ vi.mock("@/services/valuationService", () => ({
   getValuations: vi.fn(),
 }));
 
-vi.mock("@/services/scrapyPropertyService", () => ({
-  getScrapyPropertyFilters: vi.fn(),
+vi.mock("@/services/marketPropertyService", () => ({
+  getMarketPropertyFilters: vi.fn(),
 }));
 
 const calculatedValuation: Valuation = {
@@ -74,7 +74,7 @@ const calculatedValuation: Valuation = {
   },
   comparable_evidence: [
     {
-      scrapy_property_id: 10,
+      market_property_id: 10,
       residential_type: "house",
       raw_type: "Casa",
       city: "Jaraguá do Sul",
@@ -121,7 +121,7 @@ const insufficientValuation: Valuation = {
 
 const comparableCandidates: ComparableCandidate[] = [
   {
-    scrapy_property_id: 10,
+    market_property_id: 10,
     residential_type: "house",
     raw_type: "Casa",
     city: "Jaraguá do Sul",
@@ -137,7 +137,7 @@ const comparableCandidates: ComparableCandidate[] = [
     review_status: "pending",
   },
   {
-    scrapy_property_id: 11,
+    market_property_id: 11,
     residential_type: "house",
     raw_type: "Casa",
     city: "Jaraguá do Sul",
@@ -195,8 +195,8 @@ describe("ValuationsClient", () => {
     vi.mocked(valuationService.getValuationCandidates).mockReset();
     vi.mocked(valuationService.getValuation).mockReset();
     vi.mocked(valuationService.getValuations).mockReset();
-    vi.mocked(scrapyPropertyService.getScrapyPropertyFilters).mockReset();
-    vi.mocked(scrapyPropertyService.getScrapyPropertyFilters).mockResolvedValue({
+    vi.mocked(marketPropertyService.getMarketPropertyFilters).mockReset();
+    vi.mocked(marketPropertyService.getMarketPropertyFilters).mockResolvedValue({
       tipos: ["casa", "apartamento"],
       bairros: ["Centro", "Vila Lalau"],
       cidades: ["Jaraguá do Sul"],
@@ -252,8 +252,8 @@ describe("ValuationsClient", () => {
         garage_spaces: 1,
         flood_risk: false,
         comparable_reviews: [
-          { scrapy_property_id: 10, status: "approved" },
-          { scrapy_property_id: 11, status: "rejected" },
+          { market_property_id: 10, status: "approved" },
+          { market_property_id: 11, status: "rejected" },
         ],
       });
     });

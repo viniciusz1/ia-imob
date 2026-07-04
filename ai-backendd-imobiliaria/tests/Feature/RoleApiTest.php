@@ -10,11 +10,12 @@ use Tests\TestCase;
 
 class RoleApiTest extends TestCase
 {
-    // Normally use RefreshDatabase but we're relying on seeder or DB transaction. 
+    // Normally use RefreshDatabase but we're relying on seeder or DB transaction.
     // Usually RefreshDatabase covers this in a standard Laravel project.
     use RefreshDatabase;
 
     protected User $admin;
+
     protected User $user;
 
     protected function setUp(): void
@@ -51,7 +52,7 @@ class RoleApiTest extends TestCase
     {
         $response = $this->actingAs($this->admin)->postJson('/api/roles', [
             'name' => 'Gerente',
-            'permissions' => ['users.view']
+            'permissions' => ['users.view'],
         ]);
 
         $response->assertStatus(201)
@@ -63,7 +64,7 @@ class RoleApiTest extends TestCase
     public function test_cannot_create_without_name()
     {
         $response = $this->actingAs($this->admin)->postJson('/api/roles', [
-            'permissions' => ['users.view']
+            'permissions' => ['users.view'],
         ]);
 
         $response->assertStatus(422)
@@ -76,7 +77,7 @@ class RoleApiTest extends TestCase
 
         $response = $this->actingAs($this->admin)->putJson("/api/roles/{$role->id}", [
             'name' => 'New Name',
-            'permissions' => []
+            'permissions' => [],
         ]);
 
         $response->assertStatus(200)

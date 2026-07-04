@@ -5,22 +5,17 @@ namespace App\Services;
 use App\Models\Property;
 use App\Models\PropertyImage;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class PropertyImageService
 {
     /**
      * Store a new image for a property.
-     *
-     * @param Property $property
-     * @param UploadedFile $file
-     * @param array $data
-     * @return PropertyImage
      */
     public function storeImage(Property $property, UploadedFile $file, array $data = []): PropertyImage
     {
-        $path = $file->store('properties/' . $property->id, 'public');
+        $path = $file->store('properties/'.$property->id, 'public');
 
         return DB::transaction(function () use ($property, $path, $data) {
             $isCover = $data['is_cover'] ?? false;
@@ -45,9 +40,6 @@ class PropertyImageService
 
     /**
      * Delete an image and its physical file.
-     *
-     * @param PropertyImage $image
-     * @return bool
      */
     public function deleteImage(PropertyImage $image): bool
     {
@@ -72,14 +64,12 @@ class PropertyImageService
 
     /**
      * Set an image as the cover for its property.
-     *
-     * @param PropertyImage $image
-     * @return bool
      */
     public function setAsCover(PropertyImage $image): bool
     {
         return DB::transaction(function () use ($image) {
             PropertyImage::where('property_id', $image->property_id)->update(['is_cover' => false]);
+
             return $image->update(['is_cover' => true]);
         });
     }
@@ -87,8 +77,7 @@ class PropertyImageService
     /**
      * Reorder images for a property.
      *
-     * @param array $orderMap Array of [image_id => order]
-     * @return void
+     * @param  array  $orderMap  Array of [image_id => order]
      */
     public function reorderImages(array $orderMap): void
     {

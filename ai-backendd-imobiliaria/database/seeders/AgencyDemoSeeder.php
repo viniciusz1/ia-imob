@@ -296,7 +296,7 @@ class AgencyDemoSeeder extends Seeder
             $data['street'] = $data['street'] ?? 'Rua Exemplo';
             $data['number'] = $data['number'] ?? '100';
         }
-        unset($data); // break the reference — classic PHP foreach gotcha
+        unset($data);
 
         foreach ($properties as $data) {
             Property::create($data);

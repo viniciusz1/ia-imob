@@ -22,7 +22,7 @@ export async function submitLead(host: string, formData: FormData): Promise<Lead
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "X-Tenant-Host": host,
+                "X-Agency-Host": host,
                 Accept: "application/json",
             },
             body: JSON.stringify({

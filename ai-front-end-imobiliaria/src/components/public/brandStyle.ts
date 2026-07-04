@@ -11,7 +11,7 @@ const FALLBACK = {
     muted: "#64748b",
 };
 
-/** Maps a Tenant's palette to the --brand-* CSS variables the Template uses. */
+/** Maps a Agency's palette to the --brand-* CSS variables the Template uses. */
 export function brandStyle(branding: SiteBranding | null): CSSProperties {
     const p = branding?.palette ?? FALLBACK;
 

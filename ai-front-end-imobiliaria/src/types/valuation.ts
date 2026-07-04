@@ -18,7 +18,7 @@ export interface ValuationInput {
 }
 
 export interface ComparableReview {
-  scrapy_property_id: number;
+  market_property_id: number;
   status: ComparableReviewDecision;
 }
 
@@ -59,7 +59,7 @@ export interface SampleSummary {
 }
 
 export interface ComparableEvidence {
-  scrapy_property_id: number;
+  market_property_id: number;
   residential_type: ResidentialType;
   raw_type: string;
   city: string;

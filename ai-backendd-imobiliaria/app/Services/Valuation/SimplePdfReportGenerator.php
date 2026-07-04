@@ -52,7 +52,7 @@ class SimplePdfReportGenerator
                 ['Responsável', $valuation->user?->name ?? '-'],
             ],
             [
-                ['Imobiliária', $valuation->tenant?->name ?? '-'],
+                ['Imobiliária', $valuation->agency?->name ?? '-'],
                 ['Cidade/UF', $this->locationLabel($valuation->city)],
                 ['Versão', '1.0'],
             ],
@@ -201,7 +201,7 @@ class SimplePdfReportGenerator
 
     private function header(): void
     {
-        $agencyName = $this->valuation?->tenant?->name ?? 'Imobiliária';
+        $agencyName = $this->valuation?->agency?->name ?? 'Imobiliária';
         $this->text(45, 805, $agencyName, 'F1', 9);
         $this->text(350, 805, 'Relatório de Avaliação de Mercado', 'F1', 9);
         $this->line(45, 792, 550, 792);

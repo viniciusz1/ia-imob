@@ -2,11 +2,11 @@
 
 namespace App\Services;
 
-use App\Models\User;
-use App\Models\SubscriptionPlan;
-use App\Models\TenantSubscription;
-use App\Enums\SubscriptionStatus;
 use App\Enums\BillingType;
+use App\Enums\SubscriptionStatus;
+use App\Models\SubscriptionPlan;
+use App\Models\AgencySubscription;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -16,23 +16,23 @@ class SubscriptionService
 
     /**
      * Creates or retrieves the Customer in Asaas and creates the subscription.
-     * Returns the saved TenantSubscription model.
+     * Returns the saved AgencySubscription model.
      */
     public function subscribe(
         User $user,
         SubscriptionPlan $plan,
         BillingType $billingType
-    ): TenantSubscription {
+    ): AgencySubscription {
         return DB::transaction(function () use ($user, $plan, $billingType) {
 
             // 1. Create or retrieve Customer in Asaas
             $asaasCustomerId = $user->asaas_customer_id;
 
-            if (!$asaasCustomerId) {
+            if (! $asaasCustomerId) {
                 $customer = $this->asaas->createCustomer([
-                    'name'              => $user->name,
-                    'cpfCnpj'           => $user->creci ?? '00000000000', // Asaas requires cpfCnpj. Replace with real CPF/CNPJ if available
-                    'email'             => $user->email,
+                    'name' => $user->name,
+                    'cpfCnpj' => $user->creci ?? '00000000000', // Asaas requires cpfCnpj. Replace with real CPF/CNPJ if available
+                    'email' => $user->email,
                     'externalReference' => (string) $user->id,
                 ]);
                 $asaasCustomerId = $customer['id'];
@@ -41,35 +41,35 @@ class SubscriptionService
 
             // 2. Create Subscription in Asaas
             $subscription = $this->asaas->createSubscription([
-                'customer'          => $asaasCustomerId,
-                'billingType'       => $billingType->value,
-                'value'             => $plan->total_price,
-                'nextDueDate'       => Carbon::today()->format('Y-m-d'),
-                'cycle'             => $plan->asaas_cycle->value,
-                'description'       => "ia-imob — {$plan->name}",
+                'customer' => $asaasCustomerId,
+                'billingType' => $billingType->value,
+                'value' => $plan->total_price,
+                'nextDueDate' => Carbon::today()->format('Y-m-d'),
+                'cycle' => $plan->asaas_cycle->value,
+                'description' => "ia-imob — {$plan->name}",
                 'externalReference' => (string) $user->id,
             ]);
 
             // 3. Persist locally
-            return TenantSubscription::create([
-                'user_id'               => $user->id,
-                'plan_id'               => $plan->id,
-                'asaas_customer_id'     => $asaasCustomerId,
+            return AgencySubscription::create([
+                'agency_id' => $user->agency_id,
+                'plan_id' => $plan->id,
+                'asaas_customer_id' => $asaasCustomerId,
                 'asaas_subscription_id' => $subscription['id'],
-                'billing_type'          => $billingType->value,
-                'status'                => SubscriptionStatus::Pending->value, // activated by webhook
-                'next_due_date'         => $subscription['nextDueDate'],
+                'billing_type' => $billingType->value,
+                'status' => SubscriptionStatus::Pending->value, // activated by webhook
+                'next_due_date' => $subscription['nextDueDate'],
             ]);
         });
     }
 
     /** Cancels the subscription in Asaas and updates the local status. */
-    public function cancel(TenantSubscription $tenantSubscription): void
+    public function cancel(AgencySubscription $agencySubscription): void
     {
-        $this->asaas->cancelSubscription($tenantSubscription->asaas_subscription_id);
+        $this->asaas->cancelSubscription($agencySubscription->asaas_subscription_id);
 
-        $tenantSubscription->update([
-            'status'  => SubscriptionStatus::Cancelled->value,
+        $agencySubscription->update([
+            'status' => SubscriptionStatus::Cancelled->value,
             'ends_at' => Carbon::now(),
         ]);
     }

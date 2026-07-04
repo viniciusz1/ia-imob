@@ -7,10 +7,10 @@ import type {
 } from "./types";
 import { hasPropertySlug } from "./types";
 
-// Server-side client for the White-Label public API. The tenant host is passed
-// explicitly (from the [host] route segment) and forwarded as X-Tenant-Host so
-// the backend resolves the tenant. The host is also baked into the URL so the
-// Next fetch cache key is unique per tenant (no cross-tenant cache bleed).
+// Server-side client for the White-Label public API. The agency host is passed
+// explicitly (from the [host] route segment) and forwarded as X-Agency-Host so
+// the backend resolves the agency. The host is also baked into the URL so the
+// Next fetch cache key is unique per agency (no cross-agency cache bleed).
 const PUBLIC_API_PREFIX = "/api/v1/public";
 
 function backendOrigin(): string {
@@ -25,15 +25,15 @@ interface FetchOptions {
 
 async function publicFetch<T>(host: string, path: string, query: Record<string, string>, opts: FetchOptions): Promise<T | null> {
     const params = new URLSearchParams(query);
-    // Cache discriminator so different tenants don't share a fetch cache entry.
-    params.set("__tenant", host);
+    // Cache discriminator so different agencies don't share a fetch cache entry.
+    params.set("__agency", host);
 
     const url = `${backendOrigin()}${PUBLIC_API_PREFIX}${path}?${params.toString()}`;
 
     const res = await fetch(url, {
         headers: {
             Accept: "application/json",
-            "X-Tenant-Host": host,
+            "X-Agency-Host": host,
         },
         next: { tags: opts.tags, revalidate: opts.revalidate ?? 300 },
     });
@@ -51,7 +51,7 @@ async function publicFetch<T>(host: string, path: string, query: Record<string, 
 export async function getBranding(host: string): Promise<SiteBranding | null> {
     const json = await publicFetch<{ data: SiteBranding }>(host, "/site", {}, {
         revalidate: 300,
-        tags: [`tenant:${host}`],
+        tags: [`agency:${host}`],
     });
     return json?.data ?? null;
 }
@@ -69,7 +69,7 @@ export async function listProperties(
 
     const json = await publicFetch<Paginated<PublicPropertySummary>>(host, "/properties", query, {
         revalidate: 60,
-        tags: [`tenant:${host}`],
+        tags: [`agency:${host}`],
     });
 
     if (!json) {
@@ -85,7 +85,7 @@ export async function listProperties(
 export async function getProperty(host: string, slug: string): Promise<PublicPropertyDetail | null> {
     const json = await publicFetch<{ data: PublicPropertyDetail }>(host, `/properties/${encodeURIComponent(slug)}`, {}, {
         revalidate: 300,
-        tags: [`tenant:${host}`, `property:${slug}`],
+        tags: [`agency:${host}`, `property:${slug}`],
     });
     return json?.data ?? null;
 }

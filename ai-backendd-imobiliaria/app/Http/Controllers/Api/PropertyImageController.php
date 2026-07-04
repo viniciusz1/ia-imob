@@ -8,7 +8,6 @@ use App\Models\Property;
 use App\Models\PropertyImage;
 use App\Services\PropertyImageService;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
 
 class PropertyImageController extends Controller

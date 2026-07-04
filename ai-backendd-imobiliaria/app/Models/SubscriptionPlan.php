@@ -21,15 +21,15 @@ class SubscriptionPlan extends Model
     protected function casts(): array
     {
         return [
-            'asaas_cycle'     => AsaasCycle::class,
-            'is_active'       => 'boolean',
+            'asaas_cycle' => AsaasCycle::class,
+            'is_active' => 'boolean',
             'price_per_month' => 'decimal:2',
-            'total_price'     => 'decimal:2',
+            'total_price' => 'decimal:2',
         ];
     }
 
     public function subscriptions(): HasMany
     {
-        return $this->hasMany(TenantSubscription::class, 'plan_id');
+        return $this->hasMany(AgencySubscription::class, 'plan_id');
     }
 }

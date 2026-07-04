@@ -15,7 +15,7 @@ class UpdateAgencyRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'slug' => ['required', 'string', 'max:255', 'unique:agencies,slug,' . $this->route('agency')?->id],
+            'slug' => ['required', 'string', 'max:255', 'unique:agencies,slug,'.$this->route('agency')?->id],
             'phone' => ['nullable', 'string', 'max:30'],
             'email' => ['nullable', 'email', 'max:255'],
             'document' => ['nullable', 'string', 'max:30'],

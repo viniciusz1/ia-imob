@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Models\Property;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
@@ -20,7 +19,7 @@ class PropertyFactory extends Factory
     public function definition(): array
     {
         return [
-            'reference_code' => strtoupper(Str::random(2)) . $this->faker->unique()->numberBetween(1000, 9999),
+            'reference_code' => strtoupper(Str::random(2)).$this->faker->unique()->numberBetween(1000, 9999),
             'title' => $this->faker->sentence(4),
             'description' => $this->faker->paragraph(),
             'property_type' => $this->faker->randomElement(['apartamento', 'casa', 'terreno']),

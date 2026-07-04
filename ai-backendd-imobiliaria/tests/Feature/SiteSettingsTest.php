@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Models\Tenant;
+use App\Models\Agency;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
@@ -12,10 +12,10 @@ class SiteSettingsTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_authenticated_user_can_view_their_tenant_site_settings(): void
+    public function test_authenticated_user_can_view_their_agency_site_settings(): void
     {
-        $tenant = Tenant::factory()->create();
-        $user = User::factory()->for($tenant)->create();
+        $agency = Agency::factory()->create();
+        $user = User::factory()->for($agency)->create();
         Sanctum::actingAs($user);
 
         $response = $this->getJson('/api/site-settings');
@@ -27,8 +27,8 @@ class SiteSettingsTest extends TestCase
 
     public function test_authenticated_user_can_update_branding(): void
     {
-        $tenant = Tenant::factory()->create();
-        $user = User::factory()->for($tenant)->create();
+        $agency = Agency::factory()->create();
+        $user = User::factory()->for($agency)->create();
         Sanctum::actingAs($user);
 
         $response = $this->putJson('/api/site-settings', [
@@ -38,17 +38,17 @@ class SiteSettingsTest extends TestCase
         ]);
 
         $response->assertOk()->assertJsonPath('data.palette.primary', '#112233');
-        $this->assertDatabaseHas('tenant_site_settings', [
-            'tenant_id' => $tenant->id,
+        $this->assertDatabaseHas('agency_site_settings', [
+            'agency_id' => $agency->id,
             'color_primary' => '#112233',
             'default_whatsapp' => '5547999990000',
         ]);
     }
 
-    public function test_public_site_endpoint_returns_tenant_branding(): void
+    public function test_public_site_endpoint_returns_agency_branding(): void
     {
-        $tenant = Tenant::factory()->create(['slug' => 'acme', 'name' => 'Imob Acme']);
-        $tenant->siteSettings()->create(['color_primary' => '#abcdef']);
+        $agency = Agency::factory()->create(['slug' => 'acme', 'name' => 'Imob Acme']);
+        $agency->siteSettings()->create(['color_primary' => '#abcdef']);
 
         $response = $this->getJson('http://acme.localhost/api/public/site');
 

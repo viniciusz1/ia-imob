@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
 
@@ -18,7 +17,7 @@ class RoleSeeder extends Seeder
         // Define the default roles for the system
         $roles = [
             'Administrador',
-            'Corretor'
+            'Corretor',
         ];
 
         foreach ($roles as $roleName) {

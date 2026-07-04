@@ -7,7 +7,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * A Tenant's Branding for both the CRM settings page and the public site.
+ * An Agency's Branding for both the CRM settings page and the public site.
  */
 class SiteSettingsResource extends JsonResource
 {

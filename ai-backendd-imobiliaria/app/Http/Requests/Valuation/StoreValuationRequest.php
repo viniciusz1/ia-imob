@@ -27,7 +27,7 @@ class StoreValuationRequest extends FormRequest
             'garage_spaces' => ['required', 'integer', 'min:0', 'max:10'],
             'flood_risk' => ['required', 'boolean'],
             'comparable_reviews' => ['sometimes', 'array'],
-            'comparable_reviews.*.scrapy_property_id' => ['required_with:comparable_reviews', 'integer'],
+            'comparable_reviews.*.market_property_id' => ['required_with:comparable_reviews', 'integer'],
             'comparable_reviews.*.status' => ['required_with:comparable_reviews', 'string', Rule::in(['approved', 'rejected'])],
         ];
     }

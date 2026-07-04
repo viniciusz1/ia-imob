@@ -40,7 +40,7 @@ class ComparableEvidenceExcelGenerator
             ],
             [
                 ['s', 'Imobiliária'],
-                ['s', $valuation->tenant?->name ?? '-'],
+                ['s', $valuation->agency?->name ?? '-'],
             ],
             [],
             [

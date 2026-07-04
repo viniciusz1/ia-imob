@@ -19,10 +19,10 @@ return new class extends Migration
             $segments = array_filter([
                 $p->purpose,
                 $p->property_type,
-                $p->bedrooms ? $p->bedrooms . ' quartos' : null,
+                $p->bedrooms ? $p->bedrooms.' quartos' : null,
                 $p->neighborhood,
                 $p->city,
-                'ref ' . $p->reference_code,
+                'ref '.$p->reference_code,
             ]);
 
             DB::table('properties')->where('id', $p->id)->update([
@@ -31,14 +31,14 @@ return new class extends Migration
         }
 
         Schema::table('properties', function (Blueprint $table) {
-            $table->unique(['tenant_id', 'slug']);
+            $table->unique(['agency_id', 'slug']);
         });
     }
 
     public function down(): void
     {
         Schema::table('properties', function (Blueprint $table) {
-            $table->dropUnique(['tenant_id', 'slug']);
+            $table->dropUnique(['agency_id', 'slug']);
             $table->dropColumn('slug');
         });
     }

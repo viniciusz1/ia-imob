@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\SubscriptionPlan;
 use App\Enums\AsaasCycle;
+use App\Models\SubscriptionPlan;
 use Illuminate\Database\Seeder;
 
 class SubscriptionPlanSeeder extends Seeder
@@ -15,28 +15,28 @@ class SubscriptionPlanSeeder extends Seeder
     {
         $plans = [
             [
-                'name'            => 'Plano Mensal',
-                'slug'            => 'monthly',
-                'asaas_cycle'     => AsaasCycle::Monthly->value,
+                'name' => 'Plano Mensal',
+                'slug' => 'monthly',
+                'asaas_cycle' => AsaasCycle::Monthly->value,
                 'price_per_month' => 299.00,
-                'total_price'     => 299.00,
-                'description'     => 'Acesso completo, cobrança mensal.',
+                'total_price' => 299.00,
+                'description' => 'Acesso completo, cobrança mensal.',
             ],
             [
-                'name'            => 'Plano Semestral',
-                'slug'            => 'semiannual',
-                'asaas_cycle'     => AsaasCycle::Semiannually->value,
+                'name' => 'Plano Semestral',
+                'slug' => 'semiannual',
+                'asaas_cycle' => AsaasCycle::Semiannually->value,
                 'price_per_month' => 249.00,
-                'total_price'     => 1494.00, // 249 * 6
-                'description'     => 'Acesso completo, economize pagando por semestre.',
+                'total_price' => 1494.00, // 249 * 6
+                'description' => 'Acesso completo, economize pagando por semestre.',
             ],
             [
-                'name'            => 'Plano Anual',
-                'slug'            => 'annual',
-                'asaas_cycle'     => AsaasCycle::Yearly->value,
+                'name' => 'Plano Anual',
+                'slug' => 'annual',
+                'asaas_cycle' => AsaasCycle::Yearly->value,
                 'price_per_month' => 199.00,
-                'total_price'     => 2388.00, // 199 * 12
-                'description'     => 'Acesso completo, o maior desconto com cobrança anual.',
+                'total_price' => 2388.00, // 199 * 12
+                'description' => 'Acesso completo, o maior desconto com cobrança anual.',
             ],
         ];
 

@@ -16,11 +16,11 @@ class UpdatePropertyRequest extends FormRequest
     {
         $property = $this->route('property');
 
-        if (!$property instanceof Property) {
+        if (! $property instanceof Property) {
             $property = Property::query()->find((int) $property);
         }
 
-        if (!$property) {
+        if (! $property) {
             return true;
         }
 
@@ -41,7 +41,7 @@ class UpdatePropertyRequest extends FormRequest
                 'sometimes',
                 'required',
                 'string',
-                Rule::unique('properties', 'reference_code')->ignore($propertyId)
+                Rule::unique('properties', 'reference_code')->ignore($propertyId),
             ],
             'title' => ['sometimes', 'required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
@@ -79,7 +79,7 @@ class UpdatePropertyRequest extends FormRequest
             'garage_spaces' => ['sometimes', 'integer', 'min:0'],
             'floor_number' => ['nullable', 'integer'],
             'total_floors' => ['nullable', 'integer'],
-            'build_year' => ['nullable', 'integer', 'min:1800', 'max:' . (date('Y') + 10)],
+            'build_year' => ['nullable', 'integer', 'min:1800', 'max:'.(date('Y') + 10)],
 
             // Media
             'video_url' => ['nullable', 'url', 'max:255'],
@@ -94,7 +94,7 @@ class UpdatePropertyRequest extends FormRequest
                 'required_if:has_exclusive_right,true',
                 'nullable',
                 'date',
-                'after_or_equal:today'
+                'after_or_equal:today',
             ],
             'keys_location' => ['nullable', 'string', 'max:255'],
 
@@ -113,18 +113,19 @@ class UpdatePropertyRequest extends FormRequest
         return function (string $attribute, mixed $value, \Closure $fail) use ($tag) {
             $enumData = SystemEnum::query()->where('tag', $tag)->value('data');
 
-            if (!is_array($enumData)) {
+            if (! is_array($enumData)) {
                 $fail("Nao foi possivel validar {$attribute}: enum {$tag} nao configurado.");
+
                 return;
             }
 
             $allowedValues = collect($enumData)
                 ->pluck('value')
-                ->filter(fn($item) => is_string($item))
+                ->filter(fn ($item) => is_string($item))
                 ->values()
                 ->all();
 
-            if (!in_array($value, $allowedValues, true)) {
+            if (! in_array($value, $allowedValues, true)) {
                 $fail("O valor selecionado para {$attribute} e invalido.");
             }
         };

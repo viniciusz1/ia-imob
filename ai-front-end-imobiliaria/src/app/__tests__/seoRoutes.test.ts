@@ -64,7 +64,7 @@ describe("public SEO routes", () => {
         });
     });
 
-    it("builds the sitemap for the requesting tenant host", async () => {
+    it("builds the sitemap for the requesting agency host", async () => {
         listPropertiesMock.mockResolvedValue({
             data: [property],
             meta: {
@@ -88,7 +88,7 @@ describe("public SEO routes", () => {
         );
     });
 
-    it("serves robots.txt with the tenant sitemap URL", async () => {
+    it("serves robots.txt with the agency sitemap URL", async () => {
         await expect(robots()).resolves.toMatchObject({
             rules: {
                 userAgent: "*",

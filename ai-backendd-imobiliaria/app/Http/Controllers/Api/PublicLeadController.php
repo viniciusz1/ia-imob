@@ -10,9 +10,9 @@ use App\Notifications\LeadReceived;
 use Illuminate\Http\JsonResponse;
 
 /**
- * Captures a Final Client's interest as a tenant-scoped Lead and notifies the
- * listing Broker. The Tenant is resolved/bound by ResolvePublicTenant, so the
- * global TenantScope both limits the property lookup and stamps the Lead.
+ * Captures a Final Client's interest as an agency-scoped Lead and notifies the
+ * listing Broker. The Agency is resolved/bound by ResolvePublicAgency, so the
+ * global AgencyScope both limits the property lookup and stamps the Lead.
  */
 class PublicLeadController extends Controller
 {

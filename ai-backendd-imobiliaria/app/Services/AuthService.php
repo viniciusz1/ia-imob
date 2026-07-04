@@ -10,9 +10,8 @@ class AuthService
     /**
      * Attempt to authenticate the user and update last_seen_at.
      *
-     * @param array $credentials
      * @return \App\Models\User
-     * 
+     *
      * @throws ValidationException
      */
     public function attemptLogin(array $credentials)
@@ -22,10 +21,10 @@ class AuthService
 
         $authCredentials = [
             $loginField => $credentials['login'],
-            'password' => $credentials['password']
+            'password' => $credentials['password'],
         ];
 
-        if (!Auth::attempt($authCredentials)) {
+        if (! Auth::attempt($authCredentials)) {
             throw ValidationException::withMessages([
                 'login' => __('auth.failed'),
             ]);
@@ -34,7 +33,7 @@ class AuthService
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        if (!$user->is_active) {
+        if (! $user->is_active) {
             Auth::logout();
             throw ValidationException::withMessages([
                 'login' => 'Conta inativa. Entre em contato com o administrador.',

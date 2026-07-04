@@ -76,7 +76,7 @@ class ValuationController extends Controller
         abort_unless($request->user()?->can('valuations.view'), 403);
         abort_unless($valuation->status === PropertyValuation::STATUS_CALCULATED, 404);
 
-        $valuation->load('user:id,name,email', 'tenant.siteSettings');
+        $valuation->load('user:id,name,email', 'agency.siteSettings');
         $filename = $valuation->code.'.pdf';
 
         return response($generator->generate($valuation), 200, [
@@ -90,7 +90,7 @@ class ValuationController extends Controller
         abort_unless($request->user()?->can('valuations.view'), 403);
         abort_unless($valuation->status === PropertyValuation::STATUS_CALCULATED, 404);
 
-        $valuation->load('user:id,name,email', 'tenant.siteSettings');
+        $valuation->load('user:id,name,email', 'agency.siteSettings');
         $filename = $valuation->code.'.docx';
 
         return response($generator->generate($valuation), 200, [
@@ -104,7 +104,7 @@ class ValuationController extends Controller
         abort_unless($request->user()?->can('valuations.view'), 403);
         abort_unless($valuation->status === PropertyValuation::STATUS_CALCULATED, 404);
 
-        $valuation->load('tenant');
+        $valuation->load('agency');
         $filename = $valuation->code.'-comparaveis.xlsx';
 
         return response($generator->generate($valuation), 200, [

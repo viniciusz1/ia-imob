@@ -18,7 +18,7 @@ class OverpassPoiImporter
         $payload = $this->client->fetch($this->buildQuery($city, $state));
         $elements = Arr::get($payload, 'elements', []);
 
-        if (!is_array($elements)) {
+        if (! is_array($elements)) {
             throw new \RuntimeException('Overpass API payload is missing the elements array.');
         }
 
@@ -29,8 +29,9 @@ class OverpassPoiImporter
         ];
 
         foreach ($elements as $element) {
-            if (!is_array($element)) {
+            if (! is_array($element)) {
                 $summary['skipped']++;
+
                 continue;
             }
 
@@ -40,6 +41,7 @@ class OverpassPoiImporter
 
             if ($name === '' || $point === null) {
                 $summary['skipped']++;
+
                 continue;
             }
 
@@ -62,6 +64,7 @@ class OverpassPoiImporter
                 );
 
                 $summary['neighborhoods']++;
+
                 continue;
             }
 
@@ -69,6 +72,7 @@ class OverpassPoiImporter
 
             if ($category === null) {
                 $summary['skipped']++;
+
                 continue;
             }
 
@@ -100,7 +104,7 @@ class OverpassPoiImporter
     private function buildQuery(string $city, string $state): string
     {
         $city = $this->escapeOverpassString($city);
-        $stateCode = $this->escapeOverpassString('BR-' . Str::upper($state));
+        $stateCode = $this->escapeOverpassString('BR-'.Str::upper($state));
         $timeout = (int) config('overpass.timeout', 60);
 
         return <<<OVERPASS
@@ -131,7 +135,7 @@ OVERPASS;
         $lat = $element['lat'] ?? Arr::get($element, 'center.lat');
         $lng = $element['lon'] ?? Arr::get($element, 'center.lon');
 
-        if (!is_numeric($lat) || !is_numeric($lng)) {
+        if (! is_numeric($lat) || ! is_numeric($lng)) {
             return null;
         }
 
@@ -179,8 +183,8 @@ OVERPASS;
     private function subcategoryFor(array $tags): ?string
     {
         foreach (['amenity', 'shop', 'industrial', 'landuse', 'man_made', 'office', 'public_transport', 'railway', 'leisure', 'tourism', 'place', 'boundary'] as $key) {
-            if (!empty($tags[$key])) {
-                return $key . '=' . $tags[$key];
+            if (! empty($tags[$key])) {
+                return $key.'='.$tags[$key];
             }
         }
 
@@ -201,19 +205,19 @@ OVERPASS;
 
         $normalizedName = $this->normalize($name);
         $aliases = array_merge($aliases, [
-            'perto de ' . $normalizedName,
-            'perto do ' . $normalizedName,
-            'perto da ' . $normalizedName,
-            'proximo de ' . $normalizedName,
-            'proximo ao ' . $normalizedName,
-            'proximo a ' . $normalizedName,
-            'regiao de ' . $normalizedName,
-            'regiao do ' . $normalizedName,
-            'regiao da ' . $normalizedName,
+            'perto de '.$normalizedName,
+            'perto do '.$normalizedName,
+            'perto da '.$normalizedName,
+            'proximo de '.$normalizedName,
+            'proximo ao '.$normalizedName,
+            'proximo a '.$normalizedName,
+            'regiao de '.$normalizedName,
+            'regiao do '.$normalizedName,
+            'regiao da '.$normalizedName,
         ]);
 
         if ($neighborhood) {
-            $aliases[] = 'bairro ' . $normalizedName;
+            $aliases[] = 'bairro '.$normalizedName;
         }
 
         return array_values(array_unique(array_filter(array_map(

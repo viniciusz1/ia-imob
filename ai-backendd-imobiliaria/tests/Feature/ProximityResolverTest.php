@@ -54,7 +54,8 @@ class ProximityResolverTest extends TestCase
         config(['ai.cache.enabled' => false]);
         $this->seedCityReferences();
 
-        $this->app->instance(LlmProvider::class, new class implements LlmProvider {
+        $this->app->instance(LlmProvider::class, new class implements LlmProvider
+        {
             public function chat(array $messages, array $responseFormat = []): string
             {
                 return '{"tipo":["Apartamento"],"proximity":{"reference":"centro","city":"Jaraguá do Sul","radius_hint":"perto"}}';

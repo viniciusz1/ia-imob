@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Scope;
 
 /**
- * Restricts a agency-owned model to the current Agency.
+ * Restricts an agency-owned model to the current Agency.
  *
  * The current Agency is resolved by the host model's currentAgencyId():
  * an explicit override (public site) takes priority, otherwise the

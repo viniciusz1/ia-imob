@@ -15,14 +15,14 @@ class SubscriptionPlanResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'            => $this->id,
-            'name'          => $this->name,
-            'slug'          => $this->slug,
-            'asaasCycle'    => $this->asaas_cycle->value,
+            'id' => $this->id,
+            'name' => $this->name,
+            'slug' => $this->slug,
+            'asaasCycle' => $this->asaas_cycle->value,
             'pricePerMonth' => (float) $this->price_per_month,
-            'totalPrice'    => (float) $this->total_price,
-            'description'   => $this->description,
-            'isActive'      => (bool) $this->is_active,
+            'totalPrice' => (float) $this->total_price,
+            'description' => $this->description,
+            'isActive' => (bool) $this->is_active,
         ];
     }
 }

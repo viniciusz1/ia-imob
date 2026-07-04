@@ -8,12 +8,13 @@ use Illuminate\Support\Facades\Http;
 class AsaasService
 {
     private string $baseUrl;
+
     private string $token;
 
     public function __construct()
     {
         $this->baseUrl = (string) config('services.asaas.base_url');
-        $this->token   = (string) config('services.asaas.token');
+        $this->token = (string) config('services.asaas.token');
     }
 
     private function client(): PendingRequest

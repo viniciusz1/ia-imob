@@ -35,12 +35,10 @@ class UserAgencyAssignmentTest extends TestCase
         $this->assertSame($agency->id, $created->agency_id);
     }
 
-    public function test_platform_admin_can_exist_without_agency(): void
+    public function test_database_rejects_a_user_without_a_agency(): void
     {
-        // Platform Admin users are deliberately agency-less.
-        // The database must accept a null agency_id.
-        $user = User::factory()->create(['agency_id' => null]);
+        $this->expectException(QueryException::class);
 
-        $this->assertNull($user->fresh()->agency_id);
+        User::factory()->create(['agency_id' => null]);
     }
 }

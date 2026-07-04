@@ -5,7 +5,7 @@ namespace App\Http\Resources\Api;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class ScrapyPropertyResource extends JsonResource
+class MarketPropertyResource extends JsonResource
 {
     public function toArray(Request $request): array
     {

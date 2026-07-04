@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Actions\User\AssignRoleToUserAction;
 use App\Models\User;
 use App\Repositories\UserRepository;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -9,15 +10,13 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use App\Actions\User\AssignRoleToUserAction;
 
 class UserService
 {
     public function __construct(
         protected UserRepository $repository,
         protected AssignRoleToUserAction $assignRoleAction
-    ) {
-    }
+    ) {}
 
     public function list(array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
@@ -27,8 +26,10 @@ class UserService
     public function findOrFail(int $id): User
     {
         $user = $this->repository->findById($id);
-        if (!$user)
+        if (! $user) {
             abort(404, 'Usuário não encontrado.');
+        }
+
         return $user;
     }
 
@@ -37,13 +38,14 @@ class UserService
         $roleId = $data['role_id'] ?? null;
         unset($data['role_id']);
 
-        if (!array_key_exists('tenant_id', $data) && auth()->user()?->tenant_id) {
-            $data['tenant_id'] = auth()->user()->tenant_id;
+        if (! array_key_exists('agency_id', $data) && auth()->user()?->agency_id) {
+            $data['agency_id'] = auth()->user()->agency_id;
         }
 
         $data['password'] = Hash::make($data['password']);
-        if ($avatar)
-            $data['avatar_path'] = $avatar->storeAs('avatars', Str::uuid() . '.' . $avatar->extension(), 'public');
+        if ($avatar) {
+            $data['avatar_path'] = $avatar->storeAs('avatars', Str::uuid().'.'.$avatar->extension(), 'public');
+        }
 
         $user = $this->repository->create($data);
 
@@ -60,7 +62,7 @@ class UserService
         $roleId = $data['role_id'] ?? null;
         unset($data['role_id']);
 
-        if (!empty($data['password'])) {
+        if (! empty($data['password'])) {
             $data['password'] = Hash::make($data['password']);
         } else {
             unset($data['password']);
@@ -69,7 +71,7 @@ class UserService
             if ($user->avatar_path && Storage::disk('public')->exists($user->avatar_path)) {
                 Storage::disk('public')->delete($user->avatar_path);
             }
-            $data['avatar_path'] = $avatar->storeAs('avatars', Str::uuid() . '.' . $avatar->extension(), 'public');
+            $data['avatar_path'] = $avatar->storeAs('avatars', Str::uuid().'.'.$avatar->extension(), 'public');
         }
 
         $user = $this->repository->update($user, $data);

@@ -2,9 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Models\Lead;
 use App\Models\Property;
-use App\Models\Tenant;
+use App\Models\Agency;
 use App\Models\User;
 use App\Notifications\LeadReceived;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -15,10 +14,10 @@ class PublicLeadApiTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_creates_a_tenant_scoped_lead_for_a_property(): void
+    public function test_creates_a_agency_scoped_lead_for_a_property(): void
     {
-        $acme = Tenant::factory()->create(['slug' => 'acme']);
-        $property = Property::factory()->create(['tenant_id' => $acme->id, 'is_published' => true]);
+        $acme = Agency::factory()->create(['slug' => 'acme']);
+        $property = Property::factory()->create(['agency_id' => $acme->id, 'is_published' => true]);
 
         $response = $this->postJson('http://acme.localhost/api/public/leads', [
             'name' => 'Maria Compradora',
@@ -30,7 +29,7 @@ class PublicLeadApiTest extends TestCase
 
         $response->assertCreated();
         $this->assertDatabaseHas('leads', [
-            'tenant_id' => $acme->id,
+            'agency_id' => $acme->id,
             'property_id' => $property->id,
             'name' => 'Maria Compradora',
             'phone' => '(47) 99999-0000',
@@ -39,7 +38,7 @@ class PublicLeadApiTest extends TestCase
 
     public function test_requires_name_and_phone(): void
     {
-        Tenant::factory()->create(['slug' => 'acme']);
+        Agency::factory()->create(['slug' => 'acme']);
 
         $this->postJson('http://acme.localhost/api/public/leads', [
             'email' => 'maria@example.com',
@@ -51,10 +50,10 @@ class PublicLeadApiTest extends TestCase
     {
         Notification::fake();
 
-        $acme = Tenant::factory()->create(['slug' => 'acme']);
+        $acme = Agency::factory()->create(['slug' => 'acme']);
         $broker = User::factory()->for($acme)->create();
         $property = Property::factory()->create([
-            'tenant_id' => $acme->id,
+            'agency_id' => $acme->id,
             'is_published' => true,
             'broker_id' => $broker->id,
         ]);
@@ -70,7 +69,7 @@ class PublicLeadApiTest extends TestCase
 
     public function test_is_rate_limited(): void
     {
-        Tenant::factory()->create(['slug' => 'acme']);
+        Agency::factory()->create(['slug' => 'acme']);
 
         $payload = ['name' => 'Spammer', 'phone' => '(47) 90000-0000'];
 

@@ -29,9 +29,6 @@ class PermissionSeeder extends Seeder
             'roles.manage',
             'subscriptions.view',
             'subscriptions.manage',
-            'agency_configs.view',
-            'agency_configs.manage',
-            'agency_configs.refine',
             'valuations.create',
             'valuations.view',
         ];

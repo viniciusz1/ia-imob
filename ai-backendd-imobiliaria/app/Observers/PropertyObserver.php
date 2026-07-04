@@ -19,15 +19,15 @@ class PropertyObserver
             $tags[] = "property:{$property->slug}";
         }
 
-        // Revalidate listing pages for each tenant domain
-        $domains = $property->tenant?->domains;
+        // Revalidate listing pages for each agency domain
+        $domains = $property->agency?->domains;
         if ($domains) {
             foreach ($domains as $domain) {
-                $tags[] = "tenant:{$domain->hostname}";
+                $tags[] = "agency:{$domain->hostname}";
             }
         }
 
-        if (!empty($tags)) {
+        if (! empty($tags)) {
             $this->revalidation->revalidate(array_unique($tags));
         }
     }

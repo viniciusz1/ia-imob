@@ -3,14 +3,13 @@
 namespace Tests\Feature;
 
 use App\Models\SubscriptionPlan;
-use App\Models\TenantSubscription;
+use App\Models\AgencySubscription;
 use App\Models\User;
 use App\Services\AsaasService;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Laravel\Sanctum\Sanctum;
-use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
 
 class SubscriptionTest extends TestCase
@@ -67,11 +66,11 @@ class SubscriptionTest extends TestCase
 
         // Mock AsaasService responses
         $mockAsaas = $this->mock(AsaasService::class);
-        
+
         $mockAsaas->shouldReceive('createCustomer')->once()->andReturn(['id' => 'cus_123']);
         $mockAsaas->shouldReceive('createSubscription')->once()->andReturn([
             'id' => 'sub_123',
-            'nextDueDate' => Carbon::today()->format('Y-m-d')
+            'nextDueDate' => Carbon::today()->format('Y-m-d'),
         ]);
 
         $response = $this->postJson('/api/subscriptions', [
@@ -84,15 +83,15 @@ class SubscriptionTest extends TestCase
             ->assertJsonPath('billing_type', 'PIX')
             ->assertJsonPath('status', 'pending');
 
-        $this->assertDatabaseHas('tenant_subscriptions', [
+        $this->assertDatabaseHas('agency_subscriptions', [
             'user_id' => $user->id,
             'asaas_subscription_id' => 'sub_123',
-            'status' => 'pending'
+            'status' => 'pending',
         ]);
 
         $this->assertDatabaseHas('users', [
             'id' => $user->id,
-            'asaas_customer_id' => 'cus_123'
+            'asaas_customer_id' => 'cus_123',
         ]);
     }
 
@@ -105,7 +104,7 @@ class SubscriptionTest extends TestCase
         $this->seed(\Database\Seeders\SubscriptionPlanSeeder::class);
         $plan = SubscriptionPlan::where('slug', 'monthly')->first();
 
-        $subscription = TenantSubscription::create([
+        $subscription = AgencySubscription::create([
             'user_id' => $user->id,
             'plan_id' => $plan->id,
             'asaas_customer_id' => 'cus_123',
@@ -118,24 +117,24 @@ class SubscriptionTest extends TestCase
         $mockAsaas = $this->mock(AsaasService::class);
         $mockAsaas->shouldReceive('cancelSubscription')->once()->with('sub_123')->andReturn(['status' => 'DELETED']);
 
-        $response = $this->deleteJson('/api/subscriptions/' . $subscription->id);
+        $response = $this->deleteJson('/api/subscriptions/'.$subscription->id);
 
         $response->assertStatus(200);
 
-        $this->assertDatabaseHas('tenant_subscriptions', [
+        $this->assertDatabaseHas('agency_subscriptions', [
             'id' => $subscription->id,
-            'status' => 'cancelled'
+            'status' => 'cancelled',
         ]);
     }
 
     public function test_asaas_webhook_marks_payment_confirmed(): void
     {
         $user = User::factory()->create();
-        
+
         $this->seed(\Database\Seeders\SubscriptionPlanSeeder::class);
         $plan = SubscriptionPlan::where('slug', 'monthly')->first();
 
-        $subscription = TenantSubscription::create([
+        $subscription = AgencySubscription::create([
             'user_id' => $user->id,
             'plan_id' => $plan->id,
             'asaas_customer_id' => 'cus_123',
@@ -151,20 +150,20 @@ class SubscriptionTest extends TestCase
             'event' => 'PAYMENT_CONFIRMED',
             'payment' => [
                 'externalReference' => (string) $user->id,
-                'dueDate' => Carbon::tomorrow()->format('Y-m-d')
-            ]
+                'dueDate' => Carbon::tomorrow()->format('Y-m-d'),
+            ],
         ];
 
         $response = $this->postJson('/api/webhooks/asaas', $payload, [
-            'asaas-access-token' => 'secret_token'
+            'asaas-access-token' => 'secret_token',
         ]);
 
         $response->assertStatus(200);
 
-        $this->assertDatabaseHas('tenant_subscriptions', [
+        $this->assertDatabaseHas('agency_subscriptions', [
             'id' => $subscription->id,
             'status' => 'active',
-            'next_due_date' => Carbon::tomorrow()->format('Y-m-d')
+            'next_due_date' => Carbon::tomorrow()->format('Y-m-d'),
         ]);
     }
 
@@ -173,7 +172,7 @@ class SubscriptionTest extends TestCase
         config(['services.asaas.webhook_token' => 'secret_token']);
 
         $response = $this->postJson('/api/webhooks/asaas', [], [
-            'asaas-access-token' => 'invalid_token'
+            'asaas-access-token' => 'invalid_token',
         ]);
 
         $response->assertStatus(401);

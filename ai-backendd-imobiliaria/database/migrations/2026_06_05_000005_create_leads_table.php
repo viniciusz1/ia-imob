@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('leads', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('tenant_id')->constrained('tenants')->cascadeOnDelete();
+            $table->foreignId('agency_id')->constrained('agencies')->cascadeOnDelete();
             $table->foreignId('property_id')->nullable()->constrained('properties')->nullOnDelete();
             $table->string('name');
             $table->string('phone');
@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('status')->default('new');
             $table->timestamps();
 
-            $table->index(['tenant_id', 'status']);
+            $table->index(['agency_id', 'status']);
         });
     }
 

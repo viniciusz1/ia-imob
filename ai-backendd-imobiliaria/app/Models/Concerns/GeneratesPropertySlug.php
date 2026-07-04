@@ -43,7 +43,7 @@ trait GeneratesPropertySlug
         $suffix = 2;
 
         while (static::withoutGlobalScopes()
-            ->where('tenant_id', $property->tenant_id)
+            ->where('agency_id', $property->agency_id)
             ->where('slug', $slug)
             ->when($property->exists, fn ($query) => $query->whereKeyNot($property->getKey()))
             ->exists()

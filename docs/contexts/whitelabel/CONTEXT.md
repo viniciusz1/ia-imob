@@ -6,15 +6,15 @@ The public, search-engine-facing storefront where a real estate agency's own pub
 
 **Agency**:
 A real estate agency that is a paying customer of the platform. First-class entity that owns its Users, Properties, leads, brand/site settings, and is the billing entity.
-_Avoid_: Tenant, Imobiliária (ambiguous — see Source Agency), client, account, customer
+_Avoid_: Agency, Imobiliária (ambiguous — see Source Agency), client, account, customer
 
 **Broker**:
 A CRM `User` (a property-seller/agent) belonging to exactly one Agency. Lists and sells properties and may appear on the Agency's public site via a personal profile (photo, CRECI, social links).
 _Avoid_: User (too generic in public context), realtor, salesperson
 
 **Source Agency**:
-A real estate company whose website is scraped for listings (the meaning of "Imobiliária" in the [Imobscrapy](../../../imobscrapy/CONTEXT.md) context). A Source Agency is *not* an Agency and never publishes to a white-label site.
-_Avoid_: Agency, Tenant, customer
+A real estate company whose website is scraped for listings by the [Crawler Machine](../../../crawler-machine/CONTEXT.md). A Source Agency is *not* an Agency and never publishes to a white-label site.
+_Avoid_: Agency, Agency, customer
 
 **Final Client**:
 An anonymous public visitor (a buyer) who browses and searches an Agency's white-label site. Not authenticated, not a CRM user.
@@ -33,7 +33,7 @@ An Agency's visual identity applied to the Template: logo, favicon, a semantic c
 _Avoid_: Theme, customization, config
 
 **Published Property**:
-A `Property` record (the CRM-owned inventory model — never `ScrapyProperty`) whose `is_published = true`. Only Published Properties appear on a White-Label Site.
+A `Property` record (the CRM-owned inventory model — never `MarketProperty`) whose `is_published = true`. Only Published Properties appear on a White-Label Site.
 _Avoid_: Listing, ad, scraped property
 
 **Lead**:
@@ -43,10 +43,10 @@ _Avoid_: Contact, inquiry, message
 ## Relationships
 
 - An **Agency** has many **Brokers**, many **Published Properties**, one **Branding**, and exactly one **White-Label Site**.
-- A **White-Label Site** shows only that Agency's **Published Properties** (`Property`, never `ScrapyProperty`) and is served only while the Agency's subscription is active.
+- A **White-Label Site** shows only that Agency's **Published Properties** (`Property`, never `MarketProperty`) and is served only while the Agency's subscription is active.
 - A **Final Client** searches one Agency's **White-Label Site** at a time and becomes a **Lead** by submitting the contact form.
 - A **Lead** belongs to one **Agency** and optionally references one **Published Property** (and the listing **Broker**).
 
 ## Flagged ambiguities
 
-- "Imobiliária" means two different things across contexts: in Imobscrapy it is a **Source Agency** (a scrape target); here it is an **Agency** (a paying customer who publishes). These never overlap.
+- "Imobiliária" means two different things across contexts: in Crawler Machine it is a **Source Agency** (a scrape target); here it is an **Agency** (a paying customer who publishes). These never overlap.

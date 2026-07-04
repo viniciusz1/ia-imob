@@ -30,7 +30,7 @@ return new class extends Migration
 
             while (
                 DB::table('properties')
-                    ->where('tenant_id', $property->tenant_id)
+                    ->where('agency_id', $property->agency_id)
                     ->where('slug', $slug)
                     ->where('id', '<>', $property->id)
                     ->exists()

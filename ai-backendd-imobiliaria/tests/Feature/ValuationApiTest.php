@@ -2,9 +2,9 @@
 
 namespace Tests\Feature;
 
+use App\Models\MarketProperty;
 use App\Models\PropertyValuation;
-use App\Models\ScrapyProperty;
-use App\Models\Tenant;
+use App\Models\Agency;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
@@ -29,8 +29,8 @@ class ValuationApiTest extends TestCase
 
     public function test_user_with_permission_can_create_saved_valuation_with_insufficient_sample(): void
     {
-        $tenant = Tenant::factory()->create();
-        $user = User::factory()->for($tenant)->create();
+        $agency = Agency::factory()->create();
+        $user = User::factory()->for($agency)->create();
         $user->givePermissionTo('valuations.create');
 
         Sanctum::actingAs($user);
@@ -54,7 +54,7 @@ class ValuationApiTest extends TestCase
             ->assertJsonPath('data.can_download_report', false);
 
         $this->assertDatabaseHas('property_valuations', [
-            'tenant_id' => $tenant->id,
+            'agency_id' => $agency->id,
             'user_id' => $user->id,
             'status' => PropertyValuation::STATUS_INSUFFICIENT_SAMPLE,
             'residential_type' => 'house',
@@ -68,8 +68,8 @@ class ValuationApiTest extends TestCase
 
     public function test_user_without_create_permission_cannot_create_valuation(): void
     {
-        $tenant = Tenant::factory()->create();
-        $user = User::factory()->for($tenant)->create();
+        $agency = Agency::factory()->create();
+        $user = User::factory()->for($agency)->create();
 
         Sanctum::actingAs($user);
 
@@ -90,8 +90,8 @@ class ValuationApiTest extends TestCase
 
     public function test_user_can_preview_up_to_fifty_pending_comparable_candidates(): void
     {
-        $tenant = Tenant::factory()->create();
-        $user = User::factory()->for($tenant)->create();
+        $agency = Agency::factory()->create();
+        $user = User::factory()->for($agency)->create();
         $user->givePermissionTo('valuations.create');
 
         foreach (range(1, 55) as $index) {
@@ -121,8 +121,8 @@ class ValuationApiTest extends TestCase
 
     public function test_candidate_preview_merges_exact_and_relaxed_bathroom_matches(): void
     {
-        $tenant = Tenant::factory()->create();
-        $user = User::factory()->for($tenant)->create();
+        $agency = Agency::factory()->create();
+        $user = User::factory()->for($agency)->create();
         $user->givePermissionTo('valuations.create');
 
         foreach ([5000, 5500] as $pricePerSquareMeter) {
@@ -146,8 +146,8 @@ class ValuationApiTest extends TestCase
 
     public function test_candidate_preview_handles_only_relaxed_bathroom_matches(): void
     {
-        $tenant = Tenant::factory()->create();
-        $user = User::factory()->for($tenant)->create();
+        $agency = Agency::factory()->create();
+        $user = User::factory()->for($agency)->create();
         $user->givePermissionTo('valuations.create');
 
         foreach ([6000, 6500, 7000] as $pricePerSquareMeter) {
@@ -167,8 +167,8 @@ class ValuationApiTest extends TestCase
 
     public function test_reviewed_valuation_uses_only_approved_comparables_and_preserves_rejected_evidence(): void
     {
-        $tenant = Tenant::factory()->create();
-        $user = User::factory()->for($tenant)->create();
+        $agency = Agency::factory()->create();
+        $user = User::factory()->for($agency)->create();
         $user->givePermissionTo('valuations.create');
 
         $low = $this->createComparable(['valor' => 5000 * 100]);
@@ -179,9 +179,9 @@ class ValuationApiTest extends TestCase
 
         $response = $this->postJson('/api/v1/valuations', $this->valuationPayload([
             'comparable_reviews' => [
-                ['scrapy_property_id' => $low->id, 'status' => 'approved'],
-                ['scrapy_property_id' => $middle->id, 'status' => 'rejected'],
-                ['scrapy_property_id' => $high->id, 'status' => 'approved'],
+                ['market_property_id' => $low->id, 'status' => 'approved'],
+                ['market_property_id' => $middle->id, 'status' => 'rejected'],
+                ['market_property_id' => $high->id, 'status' => 'approved'],
             ],
         ]));
 
@@ -197,18 +197,18 @@ class ValuationApiTest extends TestCase
 
         $this->assertSame(
             [$low->id, $high->id],
-            $evidence->where('review_status', 'approved')->pluck('scrapy_property_id')->values()->all()
+            $evidence->where('review_status', 'approved')->pluck('market_property_id')->values()->all()
         );
         $this->assertSame(
             [$middle->id],
-            $evidence->where('review_status', 'rejected')->pluck('scrapy_property_id')->values()->all()
+            $evidence->where('review_status', 'rejected')->pluck('market_property_id')->values()->all()
         );
     }
 
     public function test_reviewed_valuation_requires_every_candidate_to_be_reviewed(): void
     {
-        $tenant = Tenant::factory()->create();
-        $user = User::factory()->for($tenant)->create();
+        $agency = Agency::factory()->create();
+        $user = User::factory()->for($agency)->create();
         $user->givePermissionTo('valuations.create');
 
         $first = $this->createComparable(['valor' => 5000 * 100]);
@@ -218,7 +218,7 @@ class ValuationApiTest extends TestCase
 
         $response = $this->postJson('/api/v1/valuations', $this->valuationPayload([
             'comparable_reviews' => [
-                ['scrapy_property_id' => $first->id, 'status' => 'approved'],
+                ['market_property_id' => $first->id, 'status' => 'approved'],
             ],
         ]));
 
@@ -230,8 +230,8 @@ class ValuationApiTest extends TestCase
 
     public function test_reviewed_valuation_requires_at_least_one_approved_comparable(): void
     {
-        $tenant = Tenant::factory()->create();
-        $user = User::factory()->for($tenant)->create();
+        $agency = Agency::factory()->create();
+        $user = User::factory()->for($agency)->create();
         $user->givePermissionTo('valuations.create');
 
         $first = $this->createComparable(['valor' => 5000 * 100]);
@@ -241,8 +241,8 @@ class ValuationApiTest extends TestCase
 
         $response = $this->postJson('/api/v1/valuations', $this->valuationPayload([
             'comparable_reviews' => [
-                ['scrapy_property_id' => $first->id, 'status' => 'rejected'],
-                ['scrapy_property_id' => $second->id, 'status' => 'rejected'],
+                ['market_property_id' => $first->id, 'status' => 'rejected'],
+                ['market_property_id' => $second->id, 'status' => 'rejected'],
             ],
         ]));
 
@@ -254,12 +254,12 @@ class ValuationApiTest extends TestCase
 
     public function test_create_valuation_calculates_market_range_from_strict_comparables(): void
     {
-        $tenant = Tenant::factory()->create();
-        $user = User::factory()->for($tenant)->create();
+        $agency = Agency::factory()->create();
+        $user = User::factory()->for($agency)->create();
         $user->givePermissionTo('valuations.create');
 
         foreach ([5000, 5500, 6000, 6500, 7000] as $pricePerSquareMeter) {
-            ScrapyProperty::factory()->create([
+            MarketProperty::factory()->create([
                 'tipo' => 'Casa',
                 'cidade' => 'jaragua do sul',
                 'bairro' => 'centro',
@@ -271,7 +271,7 @@ class ValuationApiTest extends TestCase
             ]);
         }
 
-        ScrapyProperty::factory()->create([
+        MarketProperty::factory()->create([
             'tipo' => 'Casa',
             'cidade' => 'jaragua do sul',
             'bairro' => 'centro norte',
@@ -307,12 +307,12 @@ class ValuationApiTest extends TestCase
 
     public function test_flood_risk_reduces_full_market_range_and_report_can_be_downloaded(): void
     {
-        $tenant = Tenant::factory()->create();
-        $user = User::factory()->for($tenant)->create();
+        $agency = Agency::factory()->create();
+        $user = User::factory()->for($agency)->create();
         $user->givePermissionTo(['valuations.create', 'valuations.view']);
 
         foreach ([5000, 5500, 6000, 6500, 7000] as $pricePerSquareMeter) {
-            ScrapyProperty::factory()->create([
+            MarketProperty::factory()->create([
                 'tipo' => 'Casa',
                 'cidade' => 'jaragua do sul',
                 'bairro' => 'centro',
@@ -355,12 +355,12 @@ class ValuationApiTest extends TestCase
 
     public function test_pdf_report_uses_valuation_template_with_agency_branding(): void
     {
-        $tenant = Tenant::factory()->create(['name' => 'Imobiliária Modelo']);
-        $user = User::factory()->for($tenant)->create(['name' => 'Corretor Modelo']);
+        $agency = Agency::factory()->create(['name' => 'Imobiliária Modelo']);
+        $user = User::factory()->for($agency)->create(['name' => 'Corretor Modelo']);
         $user->givePermissionTo('valuations.view');
 
         $valuation = PropertyValuation::withoutGlobalScopes()->create([
-            'tenant_id' => $tenant->id,
+            'agency_id' => $agency->id,
             'user_id' => $user->id,
             'code' => 'AVL-2026-000009',
             'status' => PropertyValuation::STATUS_CALCULATED,
@@ -380,7 +380,7 @@ class ValuationApiTest extends TestCase
             'final_max_value' => 780000,
             'sample_summary' => ['total_found' => 5, 'invalid_count' => 0, 'outlier_count' => 0, 'used_count' => 5],
             'comparable_evidence' => [[
-                'scrapy_property_id' => 10,
+                'market_property_id' => 10,
                 'residential_type' => 'house',
                 'raw_type' => 'Casa',
                 'city' => 'Jaraguá do Sul',
@@ -395,7 +395,7 @@ class ValuationApiTest extends TestCase
                 'link' => 'https://example.com/imovel',
                 'review_status' => 'approved',
             ], [
-                'scrapy_property_id' => 11,
+                'market_property_id' => 11,
                 'residential_type' => 'house',
                 'raw_type' => 'Casa',
                 'city' => 'Jaraguá do Sul',
@@ -434,13 +434,13 @@ class ValuationApiTest extends TestCase
             'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMB/axqWVQAAAAASUVORK5CYII='
         ));
 
-        $tenant = Tenant::factory()->create(['name' => 'Imobiliária Modelo']);
-        $tenant->siteSettings()->create(['logo_path' => 'logos/modelo.png']);
-        $user = User::factory()->for($tenant)->create(['name' => 'Corretor Modelo']);
+        $agency = Agency::factory()->create(['name' => 'Imobiliária Modelo']);
+        $agency->siteSettings()->create(['logo_path' => 'logos/modelo.png']);
+        $user = User::factory()->for($agency)->create(['name' => 'Corretor Modelo']);
         $user->givePermissionTo('valuations.view');
 
         $valuation = PropertyValuation::withoutGlobalScopes()->create([
-            'tenant_id' => $tenant->id,
+            'agency_id' => $agency->id,
             'user_id' => $user->id,
             'code' => 'AVL-2026-000010',
             'status' => PropertyValuation::STATUS_CALCULATED,
@@ -460,7 +460,7 @@ class ValuationApiTest extends TestCase
             'final_max_value' => 780000,
             'sample_summary' => ['total_found' => 5, 'invalid_count' => 0, 'outlier_count' => 0, 'used_count' => 5],
             'comparable_evidence' => [[
-                'scrapy_property_id' => 10,
+                'market_property_id' => 10,
                 'residential_type' => 'house',
                 'raw_type' => 'Casa',
                 'city' => 'Jaraguá do Sul',
@@ -475,7 +475,7 @@ class ValuationApiTest extends TestCase
                 'link' => 'https://example.com/imovel',
                 'review_status' => 'approved',
             ], [
-                'scrapy_property_id' => 11,
+                'market_property_id' => 11,
                 'residential_type' => 'house',
                 'raw_type' => 'Casa',
                 'city' => 'Jaraguá do Sul',
@@ -514,12 +514,12 @@ class ValuationApiTest extends TestCase
 
     public function test_calculated_valuation_comparables_can_be_downloaded_as_excel(): void
     {
-        $tenant = Tenant::factory()->create(['name' => 'Imobiliária Modelo']);
-        $user = User::factory()->for($tenant)->create(['name' => 'Corretor Modelo']);
+        $agency = Agency::factory()->create(['name' => 'Imobiliária Modelo']);
+        $user = User::factory()->for($agency)->create(['name' => 'Corretor Modelo']);
         $user->givePermissionTo('valuations.view');
 
         $valuation = PropertyValuation::withoutGlobalScopes()->create([
-            'tenant_id' => $tenant->id,
+            'agency_id' => $agency->id,
             'user_id' => $user->id,
             'code' => 'AVL-2026-000011',
             'status' => PropertyValuation::STATUS_CALCULATED,
@@ -539,7 +539,7 @@ class ValuationApiTest extends TestCase
             'final_max_value' => 780000,
             'sample_summary' => ['total_found' => 5, 'invalid_count' => 0, 'outlier_count' => 0, 'used_count' => 5],
             'comparable_evidence' => [[
-                'scrapy_property_id' => 10,
+                'market_property_id' => 10,
                 'residential_type' => 'house',
                 'raw_type' => 'Casa',
                 'city' => 'Jaraguá do Sul',
@@ -554,7 +554,7 @@ class ValuationApiTest extends TestCase
                 'link' => 'https://example.com/imovel',
                 'review_status' => 'approved',
             ], [
-                'scrapy_property_id' => 11,
+                'market_property_id' => 11,
                 'residential_type' => 'house',
                 'raw_type' => 'Casa',
                 'city' => 'Jaraguá do Sul',
@@ -593,15 +593,15 @@ class ValuationApiTest extends TestCase
         $xlsx->close();
     }
 
-    public function test_view_permission_lists_only_current_tenant_valuations(): void
+    public function test_view_permission_lists_only_current_agency_valuations(): void
     {
-        $tenantA = Tenant::factory()->create();
-        $tenantB = Tenant::factory()->create();
-        $userA = User::factory()->for($tenantA)->create();
+        $agencyA = Agency::factory()->create();
+        $agencyB = Agency::factory()->create();
+        $userA = User::factory()->for($agencyA)->create();
         $userA->givePermissionTo('valuations.view');
 
         PropertyValuation::withoutGlobalScopes()->create([
-            'tenant_id' => $tenantA->id,
+            'agency_id' => $agencyA->id,
             'user_id' => $userA->id,
             'code' => 'AVL-2026-000001',
             'status' => PropertyValuation::STATUS_INSUFFICIENT_SAMPLE,
@@ -618,8 +618,8 @@ class ValuationApiTest extends TestCase
         ]);
 
         PropertyValuation::withoutGlobalScopes()->create([
-            'tenant_id' => $tenantB->id,
-            'user_id' => User::factory()->for($tenantB)->create()->id,
+            'agency_id' => $agencyB->id,
+            'user_id' => User::factory()->for($agencyB)->create()->id,
             'code' => 'AVL-2026-000002',
             'status' => PropertyValuation::STATUS_INSUFFICIENT_SAMPLE,
             'city' => ['Jaraguá do Sul'],
@@ -643,16 +643,16 @@ class ValuationApiTest extends TestCase
             ->assertJsonPath('data.0.code', 'AVL-2026-000001');
     }
 
-    public function test_user_cannot_view_or_download_report_for_another_tenant_valuation(): void
+    public function test_user_cannot_view_or_download_report_for_another_agency_valuation(): void
     {
-        $tenantA = Tenant::factory()->create();
-        $tenantB = Tenant::factory()->create();
-        $userA = User::factory()->for($tenantA)->create();
+        $agencyA = Agency::factory()->create();
+        $agencyB = Agency::factory()->create();
+        $userA = User::factory()->for($agencyA)->create();
         $userA->givePermissionTo('valuations.view');
 
         $valuation = PropertyValuation::withoutGlobalScopes()->create([
-            'tenant_id' => $tenantB->id,
-            'user_id' => User::factory()->for($tenantB)->create()->id,
+            'agency_id' => $agencyB->id,
+            'user_id' => User::factory()->for($agencyB)->create()->id,
             'code' => 'AVL-2026-000005',
             'status' => PropertyValuation::STATUS_CALCULATED,
             'city' => ['Jaraguá do Sul'],
@@ -680,12 +680,12 @@ class ValuationApiTest extends TestCase
 
     public function test_saved_valuations_do_not_expose_update_or_delete_routes(): void
     {
-        $tenant = Tenant::factory()->create();
-        $user = User::factory()->for($tenant)->create();
+        $agency = Agency::factory()->create();
+        $user = User::factory()->for($agency)->create();
         $user->givePermissionTo('valuations.view');
 
         $valuation = PropertyValuation::withoutGlobalScopes()->create([
-            'tenant_id' => $tenant->id,
+            'agency_id' => $agency->id,
             'user_id' => $user->id,
             'code' => 'AVL-2026-000006',
             'status' => PropertyValuation::STATUS_INSUFFICIENT_SAMPLE,
@@ -709,8 +709,8 @@ class ValuationApiTest extends TestCase
 
     public function test_bathrooms_relax_to_plus_or_minus_one_when_exact_sample_is_insufficient(): void
     {
-        $tenant = Tenant::factory()->create();
-        $user = User::factory()->for($tenant)->create();
+        $agency = Agency::factory()->create();
+        $user = User::factory()->for($agency)->create();
         $user->givePermissionTo('valuations.create');
 
         foreach ([5000, 5500] as $pricePerSquareMeter) {
@@ -734,8 +734,8 @@ class ValuationApiTest extends TestCase
 
     public function test_relaxed_bathroom_sample_still_returns_insufficient_sample_when_below_minimum(): void
     {
-        $tenant = Tenant::factory()->create();
-        $user = User::factory()->for($tenant)->create();
+        $agency = Agency::factory()->create();
+        $user = User::factory()->for($agency)->create();
         $user->givePermissionTo('valuations.create');
 
         foreach ([5000, 5500, 6000, 6500] as $pricePerSquareMeter) {
@@ -755,8 +755,8 @@ class ValuationApiTest extends TestCase
 
     public function test_final_sample_is_capped_to_thirty_closest_areas(): void
     {
-        $tenant = Tenant::factory()->create();
-        $user = User::factory()->for($tenant)->create();
+        $agency = Agency::factory()->create();
+        $user = User::factory()->for($agency)->create();
         $user->givePermissionTo('valuations.create');
 
         foreach (range(1, 35) as $index) {
@@ -782,8 +782,8 @@ class ValuationApiTest extends TestCase
 
     public function test_outlier_trimming_removes_extremes_when_enough_comparables_remain(): void
     {
-        $tenant = Tenant::factory()->create();
-        $user = User::factory()->for($tenant)->create();
+        $agency = Agency::factory()->create();
+        $user = User::factory()->for($agency)->create();
         $user->givePermissionTo('valuations.create');
 
         foreach ([1000, 5000, 5200, 5400, 5600, 5800, 6000, 6200, 6400, 6600, 6800, 20000] as $pricePerSquareMeter) {
@@ -806,8 +806,8 @@ class ValuationApiTest extends TestCase
 
     public function test_outlier_trimming_is_skipped_when_it_would_drop_below_minimum_sample(): void
     {
-        $tenant = Tenant::factory()->create();
-        $user = User::factory()->for($tenant)->create();
+        $agency = Agency::factory()->create();
+        $user = User::factory()->for($agency)->create();
         $user->givePermissionTo('valuations.create');
 
         foreach ([1000, 5000, 5500, 6000, 6500, 20000] as $pricePerSquareMeter) {
@@ -826,8 +826,8 @@ class ValuationApiTest extends TestCase
 
     public function test_invalid_comparables_are_reported_and_excluded_from_calculation(): void
     {
-        $tenant = Tenant::factory()->create();
-        $user = User::factory()->for($tenant)->create();
+        $agency = Agency::factory()->create();
+        $user = User::factory()->for($agency)->create();
         $user->givePermissionTo('valuations.create');
 
         foreach ([5000, 5500, 6000, 6500, 7000] as $pricePerSquareMeter) {
@@ -852,12 +852,12 @@ class ValuationApiTest extends TestCase
 
     public function test_user_without_view_permission_cannot_list_or_view_valuation_or_download_report(): void
     {
-        $tenant = Tenant::factory()->create();
-        $creator = User::factory()->for($tenant)->create();
-        $viewer = User::factory()->for($tenant)->create();
+        $agency = Agency::factory()->create();
+        $creator = User::factory()->for($agency)->create();
+        $viewer = User::factory()->for($agency)->create();
 
         $valuation = PropertyValuation::withoutGlobalScopes()->create([
-            'tenant_id' => $tenant->id,
+            'agency_id' => $agency->id,
             'user_id' => $creator->id,
             'code' => 'AVL-2026-000003',
             'status' => PropertyValuation::STATUS_CALCULATED,
@@ -887,12 +887,12 @@ class ValuationApiTest extends TestCase
 
     public function test_insufficient_sample_valuation_does_not_have_pdf_report(): void
     {
-        $tenant = Tenant::factory()->create();
-        $user = User::factory()->for($tenant)->create();
+        $agency = Agency::factory()->create();
+        $user = User::factory()->for($agency)->create();
         $user->givePermissionTo('valuations.view');
 
         $valuation = PropertyValuation::withoutGlobalScopes()->create([
-            'tenant_id' => $tenant->id,
+            'agency_id' => $agency->id,
             'user_id' => $user->id,
             'code' => 'AVL-2026-000004',
             'status' => PropertyValuation::STATUS_INSUFFICIENT_SAMPLE,
@@ -929,9 +929,9 @@ class ValuationApiTest extends TestCase
         ], $overrides);
     }
 
-    private function createComparable(array $overrides = []): ScrapyProperty
+    private function createComparable(array $overrides = []): MarketProperty
     {
-        return ScrapyProperty::factory()->create(array_merge([
+        return MarketProperty::factory()->create(array_merge([
             'tipo' => 'Casa',
             'cidade' => 'jaragua do sul',
             'bairro' => 'centro',

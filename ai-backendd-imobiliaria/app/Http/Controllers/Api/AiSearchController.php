@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\Api\ScrapyPropertyResource;
+use App\Http\Resources\Api\MarketPropertyResource;
 use App\Services\AiPropertySearchService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -43,7 +43,7 @@ class AiSearchController extends Controller
 
         return response()->json([
             'filters' => $result['filters'],
-            'data' => ScrapyPropertyResource::collection($properties),
+            'data' => MarketPropertyResource::collection($properties),
             'meta' => [
                 'current_page' => $properties->currentPage(),
                 'last_page' => $properties->lastPage(),

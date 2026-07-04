@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('property_valuations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('tenant_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('agency_id')->constrained()->cascadeOnDelete();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->string('code')->unique();
             $table->string('status');
@@ -33,8 +33,8 @@ return new class extends Migration
             $table->json('comparable_evidence')->nullable();
             $table->timestamps();
 
-            $table->index(['tenant_id', 'created_at']);
-            $table->index(['tenant_id', 'status']);
+            $table->index(['agency_id', 'created_at']);
+            $table->index(['agency_id', 'status']);
         });
     }
 

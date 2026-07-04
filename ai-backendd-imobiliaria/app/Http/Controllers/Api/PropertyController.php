@@ -28,6 +28,7 @@ class PropertyController extends Controller
     public function index(IndexPropertyRequest $request)
     {
         $properties = $this->propertyService->listProperties($request->all());
+
         return new PropertyCollection($properties);
     }
 
@@ -37,6 +38,7 @@ class PropertyController extends Controller
     public function store(StorePropertyRequest $request)
     {
         $property = $this->propertyService->createProperty($request->validated());
+
         return new PropertyResource($property->load(['images', 'features', 'broker', 'owner']));
     }
 
@@ -54,6 +56,7 @@ class PropertyController extends Controller
     public function update(UpdatePropertyRequest $request, Property $property)
     {
         $updatedProperty = $this->propertyService->updateProperty($property, $request->validated());
+
         return new PropertyResource($updatedProperty->load(['images', 'features', 'broker', 'owner']));
     }
 
@@ -63,6 +66,7 @@ class PropertyController extends Controller
     public function destroy(DestroyPropertyRequest $request, Property $property)
     {
         $this->propertyService->deleteProperty($property);
+
         return response()->noContent();
     }
 }

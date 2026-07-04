@@ -3,8 +3,8 @@
 namespace Tests\Feature;
 
 use App\Models\SubscriptionPlan;
-use App\Models\Tenant;
-use App\Models\TenantSubscription;
+use App\Models\Agency;
+use App\Models\AgencySubscription;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -20,63 +20,63 @@ class PublicSiteGatingTest extends TestCase
         $this->seed(\Database\Seeders\SubscriptionPlanSeeder::class);
     }
 
-    private function tenantWithSubscriptionStatus(?string $status): Tenant
+    private function agencyWithSubscriptionStatus(?string $status): Agency
     {
-        $tenant = Tenant::factory()->create(['slug' => 'acme']);
-        $owner = User::factory()->for($tenant)->create();
-        $tenant->update(['owner_user_id' => $owner->id]);
+        $agency = Agency::factory()->create(['slug' => 'acme']);
+        $owner = User::factory()->for($agency)->create();
+        $agency->update(['owner_user_id' => $owner->id]);
 
         if ($status !== null) {
-            TenantSubscription::create([
-                'tenant_id' => $tenant->id,
+            AgencySubscription::create([
+                'agency_id' => $agency->id,
                 'plan_id' => SubscriptionPlan::first()->id,
                 'billing_type' => 'PIX',
                 'status' => $status,
             ]);
         }
 
-        return $tenant;
+        return $agency;
     }
 
-    public function test_serves_an_active_tenant(): void
+    public function test_serves_an_active_agency(): void
     {
-        $this->tenantWithSubscriptionStatus('active');
+        $this->agencyWithSubscriptionStatus('active');
 
         $this->getJson('http://acme.localhost/api/public/properties')->assertOk();
     }
 
-    public function test_serves_a_tenant_without_a_subscription_as_preview(): void
+    public function test_serves_a_agency_without_a_subscription_as_preview(): void
     {
-        $this->tenantWithSubscriptionStatus(null);
+        $this->agencyWithSubscriptionStatus(null);
 
         $this->getJson('http://acme.localhost/api/public/properties')->assertOk();
     }
 
     public function test_returns_503_when_subscription_is_inactive(): void
     {
-        $this->tenantWithSubscriptionStatus('inactive');
+        $this->agencyWithSubscriptionStatus('inactive');
 
         $this->getJson('http://acme.localhost/api/public/properties')->assertStatus(503);
     }
 
     public function test_returns_503_when_subscription_is_expired(): void
     {
-        $this->tenantWithSubscriptionStatus('expired');
+        $this->agencyWithSubscriptionStatus('expired');
 
         $this->getJson('http://acme.localhost/api/public/properties')->assertStatus(503);
     }
 
     public function test_returns_404_when_subscription_is_cancelled(): void
     {
-        $this->tenantWithSubscriptionStatus('cancelled');
+        $this->agencyWithSubscriptionStatus('cancelled');
 
         $this->getJson('http://acme.localhost/api/public/properties')->assertStatus(404);
     }
 
-    public function test_resolves_a_tenant_by_custom_domain(): void
+    public function test_resolves_a_agency_by_custom_domain(): void
     {
-        $tenant = Tenant::factory()->create(['slug' => 'acme']);
-        $tenant->domains()->create(['hostname' => 'www.imobacme.com.br', 'is_primary' => true]);
+        $agency = Agency::factory()->create(['slug' => 'acme']);
+        $agency->domains()->create(['hostname' => 'www.imobacme.com.br', 'is_primary' => true]);
 
         $this->getJson('http://www.imobacme.com.br/api/public/properties')->assertOk();
     }

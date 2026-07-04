@@ -22,7 +22,7 @@ class SavedFilterController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'name'    => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:255'],
             'filters' => ['required', 'array'],
         ]);
 
@@ -38,7 +38,7 @@ class SavedFilterController extends Controller
         }
 
         $validated = $request->validate([
-            'name'    => ['sometimes', 'string', 'max:255'],
+            'name' => ['sometimes', 'string', 'max:255'],
             'filters' => ['sometimes', 'array'],
         ]);
 

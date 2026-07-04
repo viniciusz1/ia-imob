@@ -53,7 +53,7 @@ class WordValuationReportGenerator
                     ['Responsável', $valuation->user?->name ?? '-'],
                 ],
                 [
-                    ['Imobiliária', $valuation->tenant?->name ?? '-'],
+                    ['Imobiliária', $valuation->agency?->name ?? '-'],
                     ['Cidade/UF', $this->locationLabel($valuation->city)],
                     ['Versão', '1.0'],
                 ],
@@ -146,7 +146,7 @@ class WordValuationReportGenerator
             .'<w:hdr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">'
             .'<w:p><w:pPr><w:jc w:val="both"/><w:pBdr><w:bottom w:val="single" w:sz="6" w:space="4" w:color="111827"/></w:pBdr></w:pPr>'
             .$logo
-            .$this->run($valuation->tenant?->name ?? 'Imobiliária', true)
+            .$this->run($valuation->agency?->name ?? 'Imobiliária', true)
             .$this->run('    Documento administrativo de avaliação de mercado')
             .'</w:p></w:hdr>';
     }
@@ -260,7 +260,7 @@ class WordValuationReportGenerator
 
     private function logo(PropertyValuation $valuation): ?array
     {
-        $path = $valuation->tenant?->siteSettings?->logo_path;
+        $path = $valuation->agency?->siteSettings?->logo_path;
 
         if (! is_string($path) || $path === '' || filter_var($path, FILTER_VALIDATE_URL)) {
             return null;

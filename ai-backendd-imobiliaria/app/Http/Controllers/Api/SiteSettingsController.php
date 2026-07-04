@@ -8,7 +8,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
- * CRM-side Branding management for the authenticated user's own Tenant.
+ * CRM-side Branding management for the authenticated user's own Agency.
  */
 class SiteSettingsController extends Controller
 {
@@ -16,18 +16,18 @@ class SiteSettingsController extends Controller
 
     public function show(Request $request): JsonResponse
     {
-        $tenant = $request->user()->tenant;
-        abort_if($tenant === null, 422, 'User is not associated with a tenant.');
+        $agency = $request->user()->agency;
+        abort_if($agency === null, 422, 'User is not associated with an agency.');
 
-        $settings = $tenant->siteSettings ?? $tenant->siteSettings()->create([]);
+        $settings = $agency->siteSettings ?? $agency->siteSettings()->create([]);
 
         return (new SiteSettingsResource($settings))->response()->setStatusCode(200);
     }
 
     public function update(Request $request): JsonResponse
     {
-        $tenant = $request->user()->tenant;
-        abort_if($tenant === null, 422, 'User is not associated with a tenant.');
+        $agency = $request->user()->agency;
+        abort_if($agency === null, 422, 'User is not associated with an agency.');
 
         $validated = $request->validate([
             'theme_slug' => ['sometimes', 'string', 'max:50'],
@@ -50,7 +50,7 @@ class SiteSettingsController extends Controller
             'about_text' => ['sometimes', 'nullable', 'string', 'max:5000'],
         ]);
 
-        $settings = $tenant->siteSettings()->updateOrCreate([], $validated);
+        $settings = $agency->siteSettings()->updateOrCreate([], $validated);
 
         return (new SiteSettingsResource($settings))->response()->setStatusCode(200);
     }

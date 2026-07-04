@@ -36,13 +36,13 @@ return [
     ],
 
     'asaas' => [
-        'token'         => env('ASAAS_API_TOKEN'),
+        'token' => env('ASAAS_API_TOKEN'),
         'webhook_token' => env('ASAAS_WEBHOOK_TOKEN'),
-        'base_url'      => env('ASAAS_BASE_URL', 'https://api-sandbox.asaas.com'),
+        'base_url' => env('ASAAS_BASE_URL', 'https://api-sandbox.asaas.com'),
     ],
 
     'next' => [
-        'revalidate_url'     => env('NEXT_REVALIDATE_URL'),
+        'revalidate_url' => env('NEXT_REVALIDATE_URL'),
         'revalidation_secret' => env('REVALIDATION_SECRET'),
     ],
 

@@ -118,7 +118,7 @@ export function AiPromptInput({ onResults, onLoadingChange, isLoading, sort, lar
     onLoadingChange(true);
 
     try {
-      const response = await api.post(`${API_PREFIX}/scrapy-properties/ai-search`, {
+      const response = await api.post(`${API_PREFIX}/market-properties/ai-search`, {
         prompt: trimmed,
         per_page: 21,
         sort,

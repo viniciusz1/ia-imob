@@ -23,7 +23,7 @@ return new class extends Migration
             $table->char('person_type', 1);
 
             // Relacionamentos (Assumindo que groups e teams serão criados)
-            $table->foreignId('group_id')->nullable(); 
+            $table->foreignId('group_id')->nullable();
             $table->foreignId('team_id')->nullable();
 
             // Credenciais

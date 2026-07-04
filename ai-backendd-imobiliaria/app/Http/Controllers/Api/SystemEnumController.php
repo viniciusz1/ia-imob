@@ -18,7 +18,7 @@ class SystemEnumController extends Controller
 
         $query = SystemEnum::query();
 
-        if (!empty($tags)) {
+        if (! empty($tags)) {
             $tagList = explode(',', $tags);
             $query->whereIn('tag', $tagList);
         }

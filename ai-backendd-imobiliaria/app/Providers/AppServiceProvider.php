@@ -2,10 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\AgencySiteSettings;
 use App\Models\Property;
-use App\Models\TenantSiteSettings;
+use App\Observers\AgencySiteSettingsObserver;
 use App\Observers\PropertyObserver;
-use App\Observers\TenantSiteSettingsObserver;
 use App\Services\Ai\Providers\DeepSeekProvider;
 use App\Services\Ai\Providers\LlmProvider;
 use Illuminate\Support\ServiceProvider;
@@ -25,6 +25,6 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Property::observe(PropertyObserver::class);
-        TenantSiteSettings::observe(TenantSiteSettingsObserver::class);
+        AgencySiteSettings::observe(AgencySiteSettingsObserver::class);
     }
 }

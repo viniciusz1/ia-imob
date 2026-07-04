@@ -11,7 +11,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const proto = headersList.get("x-forwarded-proto") ?? "https";
     const origin = `${proto}://${host}`;
 
-    // List all published properties for this tenant
+    // List all published properties for this agency
     const { data: properties, meta } = await listProperties(hostname, { per_page: 100 });
 
     const propertyEntries: MetadataRoute.Sitemap = properties.map((property) => ({

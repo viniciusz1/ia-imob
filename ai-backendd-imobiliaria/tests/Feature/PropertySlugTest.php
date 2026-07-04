@@ -3,7 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Property;
-use App\Models\Tenant;
+use App\Models\Agency;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
@@ -26,7 +26,7 @@ class PropertySlugTest extends TestCase
 
     private function actingBroker(): User
     {
-        $user = User::factory()->for(Tenant::factory())->create();
+        $user = User::factory()->for(Agency::factory())->create();
         $user->givePermissionTo(['properties.create', 'properties.edit']);
         Sanctum::actingAs($user);
 
@@ -83,7 +83,7 @@ class PropertySlugTest extends TestCase
         $property = Property::withoutGlobalScopes()->where('reference_code', 'AP9999')->firstOrFail();
         $originalSlug = $property->slug;
 
-        $this->putJson('/api/properties/' . $property->id, [
+        $this->putJson('/api/properties/'.$property->id, [
             'title' => 'Título completamente diferente',
             'neighborhood' => 'Outro Bairro',
         ])->assertSuccessful();

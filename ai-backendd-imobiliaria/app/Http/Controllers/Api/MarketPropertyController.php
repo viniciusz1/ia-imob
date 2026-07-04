@@ -3,14 +3,14 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\ScrapyProperty;
+use App\Models\MarketProperty;
 use Illuminate\Http\Request;
 
-class ScrapyPropertyController extends Controller
+class MarketPropertyController extends Controller
 {
     public function index(Request $request)
     {
-        $query = ScrapyProperty::query();
+        $query = MarketProperty::query()->latestRun();
 
         $filters = [
             'tipo' => $request->input('tipo'),
@@ -65,54 +65,64 @@ class ScrapyPropertyController extends Controller
         $perPage = $request->input('per_page', 20);
         $properties = $query->paginate($perPage);
 
-        return \App\Http\Resources\Api\ScrapyPropertyResource::collection($properties);
+        return \App\Http\Resources\Api\MarketPropertyResource::collection($properties);
     }
 
     public function filters()
     {
-        $tipos = ScrapyProperty::whereNotNull('tipo')
+        $baseQuery = MarketProperty::query()->latestRun();
+
+        $tipos = (clone $baseQuery)
+            ->whereNotNull('tipo')
             ->where('tipo', '!=', '')
             ->distinct()
             ->orderBy('tipo')
             ->pluck('tipo');
 
-        $bairros = ScrapyProperty::whereNotNull('bairro')
+        $bairros = (clone $baseQuery)
+            ->whereNotNull('bairro')
             ->where('bairro', '!=', '')
             ->distinct()
             ->orderBy('bairro')
             ->pluck('bairro');
 
-        $cidades = ScrapyProperty::whereNotNull('cidade')
+        $cidades = (clone $baseQuery)
+            ->whereNotNull('cidade')
             ->where('cidade', '!=', '')
             ->distinct()
             ->orderBy('cidade')
             ->pluck('cidade');
 
-        $imobiliarias = ScrapyProperty::whereNotNull('imobiliaria')
+        $imobiliarias = (clone $baseQuery)
+            ->whereNotNull('imobiliaria')
             ->where('imobiliaria', '!=', '')
             ->distinct()
             ->orderBy('imobiliaria')
             ->pluck('imobiliaria');
 
-        $quartos = ScrapyProperty::whereNotNull('quartos')
+        $quartos = (clone $baseQuery)
+            ->whereNotNull('quartos')
             ->where('quartos', '>', 0)
             ->distinct()
             ->orderBy('quartos')
             ->pluck('quartos');
 
-        $suites = ScrapyProperty::whereNotNull('suites')
+        $suites = (clone $baseQuery)
+            ->whereNotNull('suites')
             ->where('suites', '>', 0)
             ->distinct()
             ->orderBy('suites')
             ->pluck('suites');
 
-        $banheiros = ScrapyProperty::whereNotNull('banheiros')
+        $banheiros = (clone $baseQuery)
+            ->whereNotNull('banheiros')
             ->where('banheiros', '>', 0)
             ->distinct()
             ->orderBy('banheiros')
             ->pluck('banheiros');
 
-        $vagas = ScrapyProperty::whereNotNull('vagas')
+        $vagas = (clone $baseQuery)
+            ->whereNotNull('vagas')
             ->where('vagas', '>', 0)
             ->distinct()
             ->orderBy('vagas')

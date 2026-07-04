@@ -195,7 +195,7 @@ export function AiSearcherClient() {
         payload.filters = aiFiltersRef.current;
       }
 
-      const response = await api.post(`${API_PREFIX}/scrapy-properties/ai-search`, payload);
+      const response = await api.post(`${API_PREFIX}/market-properties/ai-search`, payload);
 
       const data: AiSearchResponse = response.data;
       const keepsApproximation = Boolean(payload.filters) && aiApproximateRef.current;
@@ -237,7 +237,7 @@ export function AiSearcherClient() {
             queryParams.set("per_page", _perPage);
           }
 
-          const response = await api.get(`${API_PREFIX}/scrapy-properties?${queryParams.toString()}`);
+          const response = await api.get(`${API_PREFIX}/market-properties?${queryParams.toString()}`);
 
           const data = response.data.data.map((item: Record<string, unknown> & { [k: string]: unknown }) => ({
             id: item.id,

@@ -18,7 +18,7 @@ export interface SubscriptionPlan {
   isActive: boolean;
 }
 
-export interface TenantSubscription {
+export interface AgencySubscription {
   id: number;
   plan: SubscriptionPlan;
   billingType: BillingType;

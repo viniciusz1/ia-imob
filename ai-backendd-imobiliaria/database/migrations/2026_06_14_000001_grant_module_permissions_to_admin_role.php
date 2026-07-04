@@ -16,8 +16,6 @@ return new class extends Migration
 
         $guard = (string) config('auth.defaults.guard', 'web');
         $permissionNames = [
-            'agency_configs.view',
-            'agency_configs.manage',
             'site_settings.view',
             'site_settings.manage',
         ];
@@ -49,8 +47,6 @@ return new class extends Migration
         $guard = (string) config('auth.defaults.guard', 'web');
         $permissions = Permission::query()
             ->whereIn('name', [
-                'agency_configs.view',
-                'agency_configs.manage',
                 'site_settings.view',
                 'site_settings.manage',
             ])

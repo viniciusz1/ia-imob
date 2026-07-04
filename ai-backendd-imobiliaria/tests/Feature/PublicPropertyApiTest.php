@@ -3,7 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Property;
-use App\Models\Tenant;
+use App\Models\Agency;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
@@ -15,18 +15,18 @@ class PublicPropertyApiTest extends TestCase
     private function getPublicProperties(string $host = 'acme.localhost', string $query = ''): \Illuminate\Testing\TestResponse
     {
         return $this
-            ->withHeader('X-Tenant-Host', $host)
+            ->withHeader('X-Agency-Host', $host)
             ->getJson('/api/v1/public/properties'.$query);
     }
 
-    public function test_lists_only_published_properties_of_the_resolved_tenant(): void
+    public function test_lists_only_published_properties_of_the_resolved_agency(): void
     {
-        $acme = Tenant::factory()->create(['slug' => 'acme']);
-        $other = Tenant::factory()->create(['slug' => 'other']);
+        $acme = Agency::factory()->create(['slug' => 'acme']);
+        $other = Agency::factory()->create(['slug' => 'other']);
 
-        Property::factory()->count(2)->create(['tenant_id' => $acme->id, 'is_published' => true]);
-        Property::factory()->create(['tenant_id' => $acme->id, 'is_published' => false]);
-        Property::factory()->create(['tenant_id' => $other->id, 'is_published' => true]);
+        Property::factory()->count(2)->create(['agency_id' => $acme->id, 'is_published' => true]);
+        Property::factory()->create(['agency_id' => $acme->id, 'is_published' => false]);
+        Property::factory()->create(['agency_id' => $other->id, 'is_published' => true]);
 
         $response = $this->getPublicProperties();
 
@@ -40,9 +40,9 @@ class PublicPropertyApiTest extends TestCase
 
     public function test_filters_by_purpose(): void
     {
-        $acme = Tenant::factory()->create(['slug' => 'acme']);
-        Property::factory()->count(2)->create(['tenant_id' => $acme->id, 'is_published' => true, 'purpose' => 'venda']);
-        Property::factory()->create(['tenant_id' => $acme->id, 'is_published' => true, 'purpose' => 'locacao']);
+        $acme = Agency::factory()->create(['slug' => 'acme']);
+        Property::factory()->count(2)->create(['agency_id' => $acme->id, 'is_published' => true, 'purpose' => 'venda']);
+        Property::factory()->create(['agency_id' => $acme->id, 'is_published' => true, 'purpose' => 'locacao']);
 
         $response = $this->getPublicProperties(query: '?purpose=venda');
 
@@ -51,13 +51,13 @@ class PublicPropertyApiTest extends TestCase
 
     public function test_public_listing_generates_missing_property_slugs(): void
     {
-        $acme = Tenant::factory()->create(['slug' => 'acme']);
+        $acme = Agency::factory()->create(['slug' => 'acme']);
         $propertyWithSlug = Property::factory()->create([
-            'tenant_id' => $acme->id,
+            'agency_id' => $acme->id,
             'is_published' => true,
         ]);
         $propertyWithoutSlug = Property::factory()->create([
-            'tenant_id' => $acme->id,
+            'agency_id' => $acme->id,
             'is_published' => true,
         ]);
 
@@ -77,10 +77,10 @@ class PublicPropertyApiTest extends TestCase
 
     public function test_hides_internal_fields_and_respects_privacy_flags(): void
     {
-        $acme = Tenant::factory()->create(['slug' => 'acme']);
+        $acme = Agency::factory()->create(['slug' => 'acme']);
 
         Property::factory()->create([
-            'tenant_id' => $acme->id,
+            'agency_id' => $acme->id,
             'is_published' => true,
             'show_price' => false,
             'show_exact_address' => false,

@@ -1,43 +1,33 @@
 # ==================================================
-#  🏠 IA Imobiliária — Makefile
+#  IA Imobiliária — Makefile
 # ==================================================
 # Monorepo with three components:
 #   backend  -> ai-backendd-imobiliaria  (Laravel 12 + Sail)
 #   frontend -> ai-front-end-imobiliaria (Next.js 16)
-#   scraper  -> imobscrapy               (Scrapy, Python .venv)
+#   scraper  -> crawler-machine          (Python .venv)
 #
 # Run `make help` to list every target.
 
 # ---- Directories --------------------------------------------------
 BACKEND_DIR   := ai-backendd-imobiliaria
 FRONTEND_DIR  := ai-front-end-imobiliaria
-SCRAPER_DIR   := imobscrapy
+CRAWLER_DIR   := crawler-machine
 
 # ---- Tooling ------------------------------------------------------
 SAIL    := ./vendor/bin/sail
-VENV    := $(SCRAPER_DIR)/.venv
+VENV    := $(CRAWLER_DIR)/.venv
 PYTHON  := $(VENV)/bin/python
 PIP     := $(VENV)/bin/pip
 PYTEST  := $(VENV)/bin/pytest
-UVICORN := $(VENV)/bin/uvicorn
-VERBOSE ?= 0
-INSPECTION_PACKAGE ?= millar:v1
-CREATE_INSPECTION_PACKAGE ?=
-INSPECTION_SAMPLE_SIZE ?= 5
-INIT_URL ?= 0
-AGENCY ?=
-FORCE ?= 0
-DB_INSPECTION_PACKAGE ?= db-rich:v1
 
 .DEFAULT_GOAL := help
 .PHONY: help \
         up start \
-        install install-backend install-frontend install-scraper \
-        dev-backend dev-frontend dev-scraper \
-        test test-backend test-frontend test-scraper \
+        install install-backend install-frontend install-crawler \
+        dev-backend dev-frontend \
+        test test-backend test-frontend test-crawler \
         lint lint-backend lint-frontend format-backend \
         build build-frontend \
-        crawl crawl-sitemap crawl-api \
         backend-stop clean
 
 # ==================================================
@@ -45,7 +35,7 @@ DB_INSPECTION_PACKAGE ?= db-rich:v1
 # ==================================================
 help: ## Show this help
 	@echo ""
-	@echo "🏠 IA Imobiliária — comandos disponíveis:"
+	@echo "IA Imobiliária — comandos disponíveis:"
 	@echo ""
 	@print_target() { \
 		target="$$1"; \
@@ -80,13 +70,9 @@ help: ## Show this help
 	print_target test-frontend; \
 	print_target lint-frontend; \
 	echo ""; \
-	printf "\033[1mScraper / Imobscrapy\033[0m\n"; \
-	print_target install-scraper; \
-	print_target dev-scraper; \
-	print_target crawl; \
-	print_target crawl-sitemap; \
-	print_target crawl-api; \
-	print_target test-scraper; \
+	printf "\033[1mScraper / crawler-machine\033[0m\n"; \
+	print_target install-crawler; \
+	print_target test-crawler; \
 	echo ""
 
 # ==================================================
@@ -95,7 +81,7 @@ help: ## Show this help
 up start: ## Start backend (Sail) + frontend together via start.sh
 	./start.sh
 
-install: install-backend install-frontend install-scraper ## Install dependencies for every component
+install: install-backend install-frontend install-crawler ## Install dependencies for every component
 
 # ==================================================
 #  Backend (Laravel + Sail)
@@ -158,30 +144,19 @@ lint-frontend: ## Lint the frontend with ESLint
 	cd $(FRONTEND_DIR) && npm run lint
 
 # ==================================================
-#  Scraper (imobscrapy)
+#  Scraper (crawler-machine)
 # ==================================================
-install-scraper: ## Create the imobscrapy venv and install requirements
+install-crawler: ## Create the crawler-machine venv and install requirements
 	test -d $(VENV) || python3 -m venv $(VENV)
-	$(PIP) install -r $(SCRAPER_DIR)/requirements.txt
+	$(PIP) install -r $(CRAWLER_DIR)/requirements.txt
 
-dev-scraper: crawl ## Alias for the default crawl
-
-crawl: ## Run the WSM listing/pagination spider (imobscrapy)
-	cd $(SCRAPER_DIR) && ../$(PYTHON) -m scrapy crawl imobscrapy
-
-crawl-sitemap: ## Run the sitemap-driven spider
-	cd $(SCRAPER_DIR) && ../$(PYTHON) -m scrapy crawl sitemap
-
-crawl-api: ## Run the API-endpoint spider
-	cd $(SCRAPER_DIR) && ../$(PYTHON) -m scrapy crawl apispider
-
-test-scraper: ## Run the agency extraction test suite
-	cd $(SCRAPER_DIR) && ../$(PYTHON) -m pytest tests
+test-crawler: ## Run the crawler-machine test suite
+	cd $(CRAWLER_DIR) && ../$(PYTHON) -m pytest tests
 
 # ==================================================
 #  Aggregate test / lint
 # ==================================================
-test: test-backend test-frontend test-scraper ## Run all test suites
+test: test-backend test-frontend test-crawler ## Run all test suites
 
 lint: lint-backend lint-frontend ## Lint backend and frontend
 
@@ -190,6 +165,6 @@ lint: lint-backend lint-frontend ## Lint backend and frontend
 # ==================================================
 clean: ## Remove local build artifacts and caches
 	rm -rf $(FRONTEND_DIR)/.next
-	rm -rf .pytest_cache $(SCRAPER_DIR)/.pytest_cache
+	rm -rf .pytest_cache $(CRAWLER_DIR)/.pytest_cache
 	find . -type d -name __pycache__ -prune -exec rm -rf {} + 2>/dev/null || true
-	@echo "🧹 Clean complete."
+	@echo "Clean complete."

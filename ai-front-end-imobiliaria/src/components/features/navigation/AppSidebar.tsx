@@ -10,7 +10,6 @@ import {
     Building2,
     Calculator,
     CreditCard,
-    Database,
     Globe,
     LayoutDashboard,
     Loader2,
@@ -71,11 +70,6 @@ const navItems = [
         href: "/avaliacoes",
         icon: Calculator,
         permissions: ["valuations.create", "valuations.view"],
-    },
-    {
-        title: "Agências importadas",
-        href: "/agencias-importadas",
-        icon: Database,
     },
     {
         title: "Plano & Assinatura",

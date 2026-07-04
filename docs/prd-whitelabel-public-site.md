@@ -8,9 +8,9 @@ From a buyer's perspective: "I want to search a specific agency's properties for
 
 ## Solution
 
-A **White-Label Public Site**: a public, SEO-optimized storefront, generated from a shared **Template** and re-skinned per agency via that agency's **Branding**. Each agency is a **Tenant**; its site shows only its own **Published Properties** (`Property` records with `is_published = true` — never scraped `ScrapyProperty` data). A **Final Client** (anonymous visitor) browses and searches the inventory and converts by submitting the contact form (creating a **Lead**) or tapping a WhatsApp deep-link.
+A **White-Label Public Site**: a public, SEO-optimized storefront, generated from a shared **Template** and re-skinned per agency via that agency's **Branding**. Each agency is a **Agency**; its site shows only its own **Published Properties** (`Property` records with `is_published = true` — never scraped `ScrapyProperty` data). A **Final Client** (anonymous visitor) browses and searches the inventory and converts by submitting the contact form (creating a **Lead**) or tapping a WhatsApp deep-link.
 
-To make this real, the platform becomes a logical multi-tenant SaaS (see ADR-0001): a first-class `Tenant` owns its Brokers, Properties, Leads, Branding, and billing. The public site is served per Tenant, resolved from the request host (subdomain for v1, custom domains later), and is gated by the Tenant's subscription status (ADR-0004). The agency configures its Branding through a basic site-settings page in the CRM.
+To make this real, the platform becomes a logical multi-agency SaaS (see ADR-0001): a first-class `Agency` owns its Brokers, Properties, Leads, Branding, and billing. The public site is served per Agency, resolved from the request host (subdomain for v1, custom domains later), and is gated by the Agency's subscription status (ADR-0004). The agency configures its Branding through a basic site-settings page in the CRM.
 
 This PRD covers the **v1** slice: the multi-tenancy foundation, the public read API, one Template with the core public pages (Home, Search, Property detail, Contact), Lead capture, the CRM site-settings page, and the SEO + freshness machinery.
 
@@ -40,7 +40,7 @@ This PRD covers the **v1** slice: the multi-tenancy foundation, the public read 
 20. As a Final Client, I want a recently sold or unpublished property to disappear from the public site promptly, so that I don't waste time inquiring about unavailable properties.
 21. As a Final Client, I want the site to be in Brazilian Portuguese, so that it reads naturally.
 
-### Tenant / Broker (agency user in the CRM)
+### Agency / Broker (agency user in the CRM)
 
 22. As a Broker, I want a property I publish (`is_published = true`) to appear on my agency's public site, so that buyers can find it.
 23. As a Broker, I want an unpublished property to never appear publicly, so that drafts and internal listings stay private.
@@ -56,8 +56,8 @@ This PRD covers the **v1** slice: the multi-tenancy foundation, the public read 
 
 ### Platform
 
-33. As the platform, I want every Property, Broker, Lead, and configuration scoped to a Tenant via `tenant_id`, so that data is isolated per agency.
-34. As the platform, I want to resolve the correct Tenant from the request host, so that each public request serves the right agency.
+33. As the platform, I want every Property, Broker, Lead, and configuration scoped to a Agency via `agency_id`, so that data is isolated per agency.
+34. As the platform, I want to resolve the correct Agency from the request host, so that each public request serves the right agency.
 35. As the platform, I want a lapsed subscription's site to return 503 (recoverable) and a cancelled subscription's site to return 404 (gone), so that brief non-payment does not destroy an agency's SEO but genuine cancellation deindexes.
 36. As the platform, I want public property/landing pages cached and revalidated on change, so that the site is fast yet never serves a stale sold property.
 37. As the platform, I want public lead submissions rate-limited and spam-resistant, so that the Lead inbox is not flooded.
@@ -66,19 +66,19 @@ This PRD covers the **v1** slice: the multi-tenancy foundation, the public read 
 ## Implementation Decisions
 
 ### Multi-tenancy foundation (ADR-0001)
-- Introduce a first-class `Tenant` model (the agency), with an `owner_user_id` (primary contact / signup user).
-- Add `tenant_id` to `users`, `properties`, and the new `leads` table, plus other tenant-owned tables, enforced by a global Eloquent scope so queries return only the current Tenant's rows.
-- A `User` (a **Broker**) belongs to exactly one Tenant. `email` / `username` remain globally unique. `group_id` / `team_id` remain intra-tenant org units.
-- Re-key `TenantSubscription` from `user_id` to `tenant_id`; the agency is the billing entity.
-- Media is isolated per Tenant by storage path prefix (`tenants/{id}/...`). v1 keeps the existing `local` disk (no object storage / CDN yet) with per-tenant folders — an explicit, documented deferral.
+- Introduce a first-class `Agency` model (the agency), with an `owner_user_id` (primary contact / signup user).
+- Add `agency_id` to `users`, `properties`, and the new `leads` table, plus other agency-owned tables, enforced by a global Eloquent scope so queries return only the current Agency's rows.
+- A `User` (a **Broker**) belongs to exactly one Agency. `email` / `username` remain globally unique. `group_id` / `team_id` remain intra-agency org units.
+- Re-key `AgencySubscription` from `user_id` to `agency_id`; the agency is the billing entity.
+- Media is isolated per Agency by storage path prefix (`agencies/{id}/...`). v1 keeps the existing `local` disk (no object storage / CDN yet) with per-agency folders — an explicit, documented deferral.
 
-### Tenant resolution
-- A `tenant_domains` table (`tenant_id`, `hostname`, `is_primary`, `verified_at`) maps hostnames to Tenants. v1 ships subdomain resolution (`{slug}.{platform-domain}`); the table is built to support custom domains later without schema change.
-- The public Next.js app resolves the Tenant from the `Host` header in `middleware.ts` and injects the resolved tenant context into the `(public)` routes. The CRM's own host falls through to the dashboard. (Single shared middleware — the accepted coupling cost of keeping the public site in the existing app.)
+### Agency resolution
+- A `agency_domains` table (`agency_id`, `hostname`, `is_primary`, `verified_at`) maps hostnames to Agencies. v1 ships subdomain resolution (`{slug}.{platform-domain}`); the table is built to support custom domains later without schema change.
+- The public Next.js app resolves the Agency from the `Host` header in `middleware.ts` and injects the resolved agency context into the `(public)` routes. The CRM's own host falls through to the dashboard. (Single shared middleware — the accepted coupling cost of keeping the public site in the existing app.)
 
 ### Public read API (ADR-0002)
 - A new unauthenticated, read-only route group (`routes/api/public.php`): `GET /api/public/properties`, `GET /api/public/properties/{slug}`, `POST /api/public/leads`.
-- Every read hard-filters `tenant_id = <resolved> AND is_published = true`. The endpoint is distinct from the authenticated `PropertyController`.
+- Every read hard-filters `agency_id = <resolved> AND is_published = true`. The endpoint is distinct from the authenticated `PropertyController`.
 - A dedicated `PublicPropertyResource` **whitelists** safe fields only. It never emits `internal_notes`, owner/broker internals, or `keys_location`. Privacy is enforced at the API layer, not just in rendering:
   - `show_exact_address = false` → omit `street`, `number`, `complement`; do not send real `latitude`/`longitude`; send only `neighborhood` + `city` and a coarsened coordinate (neighborhood-centroid or rounded/jittered).
   - `show_price = false` → omit price; UI renders "Sob consulta".
@@ -89,25 +89,25 @@ This PRD covers the **v1** slice: the multi-tenancy foundation, the public read 
 - Both `sale` (Comprar) and `rent` (Alugar) purposes are supported; the Template's hero CTA defaults to Comprar.
 
 ### Lead capture
-- A new `leads` table/model: `tenant_id`, nullable `property_id`, `name`, `phone`, `email`, `message`, `source`, `status`.
-- `POST /api/public/leads` creates a tenant-scoped Lead and notifies the listing broker (or an agency default contact). v1 = persist + notify; no CRM inbox UI (the table is shaped so an inbox is a trivial follow-up). The contact form coexists with a WhatsApp deep-link, which produces no Lead.
+- A new `leads` table/model: `agency_id`, nullable `property_id`, `name`, `phone`, `email`, `message`, `source`, `status`.
+- `POST /api/public/leads` creates a agency-scoped Lead and notifies the listing broker (or an agency default contact). v1 = persist + notify; no CRM inbox UI (the table is shaped so an inbox is a trivial follow-up). The contact form coexists with a WhatsApp deep-link, which produces no Lead.
 
 ### Branding & Template
-- A `tenant_site_settings` table (1:1 with Tenant): `logo_path`, `favicon_path`, color palette (`primary`, `secondary`, `accent`, `bg`, `surface`, `text`, `muted`), `theme_slug`, `default_whatsapp`, social links, `google_analytics_id` / `meta_pixel_id`, hero text, about/contact blurb.
+- A `agency_site_settings` table (1:1 with Agency): `logo_path`, `favicon_path`, color palette (`primary`, `secondary`, `accent`, `bg`, `surface`, `text`, `muted`), `theme_slug`, `default_whatsapp`, social links, `google_analytics_id` / `meta_pixel_id`, hero text, about/contact blurb.
 - One Template for v1, selected by `theme_slug` (so multiple Templates are a later switch, not a refactor). Branding is injected as CSS custom properties at the `(public)` root layout; the Template references only those tokens.
 - A basic CRM site-settings page lets an agency admin set its Branding and view its subdomain. No page builder.
 
 ### Public site placement & rendering (ADR-0003)
 - The public site is a `(public)` route group inside the existing Next.js app, strictly folder-separated: its own root layout (no auth shell, public theme provider), its own `services/public/` (token-less API clients), its own `components/themes/` tree.
-- Property detail pages and category/landing pages use ISR. Laravel fires a signed webhook to a Next route (`POST /api/revalidate`) on Property publish/unpublish/update and on Branding change, calling `revalidateTag` on tags such as `tenant:{id}` and `property:{id}`. Search/filter pages are SSR.
+- Property detail pages and category/landing pages use ISR. Laravel fires a signed webhook to a Next route (`POST /api/revalidate`) on Property publish/unpublish/update and on Branding change, calling `revalidateTag` on tags such as `agency:{id}` and `property:{id}`. Search/filter pages are SSR.
 
 ### SEO
-- `Property` gains a stored, backend-generated `slug` (format `{purpose}-{type}-{bedrooms}-quartos-{neighborhood}-{city}-ref{reference_code}`), unique per Tenant, generated once and stable after first publish; a changed slug issues a 301.
-- Per-property `generateMetadata` (title/description), Open Graph + Twitter cards using the cover photo, `RealEstateListing` JSON-LD (price, geo, area, photos), canonical URLs, a per-tenant dynamic `sitemap.ts`, and `robots.txt`.
+- `Property` gains a stored, backend-generated `slug` (format `{purpose}-{type}-{bedrooms}-quartos-{neighborhood}-{city}-ref{reference_code}`), unique per Agency, generated once and stable after first publish; a changed slug issues a 301.
+- Per-property `generateMetadata` (title/description), Open Graph + Twitter cards using the cover photo, `RealEstateListing` JSON-LD (price, geo, area, photos), canonical URLs, a per-agency dynamic `sitemap.ts`, and `robots.txt`.
 
 ### Subscription gating (ADR-0004)
-- Tenant resolution loads subscription status and short-circuits: `Active` → live; `Inactive`/`Expired` → 503; `Cancelled` → 404/410; `Pending` → subdomain preview only.
-- The Asaas webhook flipping a Tenant's subscription status must also trigger public-cache re-evaluation/purge (ties into the ADR-0003 revalidation path).
+- Agency resolution loads subscription status and short-circuits: `Active` → live; `Inactive`/`Expired` → 503; `Cancelled` → 404/410; `Pending` → subdomain preview only.
+- The Asaas webhook flipping a Agency's subscription status must also trigger public-cache re-evaluation/purge (ties into the ADR-0003 revalidation path).
 
 ### Locale
 - pt-BR only for v1.
@@ -117,13 +117,13 @@ This PRD covers the **v1** slice: the multi-tenancy foundation, the public read 
 Good tests here assert **external behavior at the highest seam** — the HTTP boundary and rendered component output — not implementation internals (not the global-scope class, not the slug generator's private methods, not middleware plumbing). Prior art to mirror: `tests/Feature/PropertyTest.php`, `tests/Feature/RoleApiTest.php`, `tests/Feature/SubscriptionTest.php` (Laravel Feature tests using `RefreshDatabase`, factories, seeders, and Sanctum), and the existing Vitest + Testing Library setup on the frontend.
 
 1. **Public API (primary seam, Laravel Feature tests, same shape as `PropertyTest`).**
-   - `GET /api/public/properties` returns only the resolved Tenant's published properties; never another Tenant's, never unpublished.
+   - `GET /api/public/properties` returns only the resolved Agency's published properties; never another Agency's, never unpublished.
    - Filters (purpose, type, city, neighborhood, price, bedrooms, etc.) and `reference_code` lookup return the expected subset; pagination/sort behave.
    - The whitelisting resource never includes internal fields; with `show_price = false` the price is absent and the contract signals "on request"; with `show_exact_address = false` the response has no `street`/`number`/`complement` and no real `latitude`/`longitude` (asserted explicitly — this is a privacy guarantee, not cosmetics).
-   - `GET /api/public/properties/{slug}` resolves a published property and returns 404 for an unpublished one or one belonging to another Tenant.
-   - `POST /api/public/leads` creates a tenant-scoped Lead, validates input, and is rate-limited (excess submissions rejected).
+   - `GET /api/public/properties/{slug}` resolves a published property and returns 404 for an unpublished one or one belonging to another Agency.
+   - `POST /api/public/leads` creates a agency-scoped Lead, validates input, and is rate-limited (excess submissions rejected).
 
-2. **Multi-tenancy isolation (extend the existing CRM HTTP seam).** Acting (Sanctum) as a user of Tenant A, the existing authenticated endpoints (`/api/properties`, etc.) never return Tenant B's rows. Tested through the HTTP boundary, not by inspecting the scope class.
+2. **Multi-tenancy isolation (extend the existing CRM HTTP seam).** Acting (Sanctum) as a user of Agency A, the existing authenticated endpoints (`/api/properties`, etc.) never return Agency B's rows. Tested through the HTTP boundary, not by inspecting the scope class.
 
 3. **Slug (through the create/update HTTP flow).** Creating a `Property` yields a `slug`; updating editable fields does not change an already-published property's slug.
 
@@ -136,8 +136,8 @@ Subscription gating (503/404/preview) is asserted through seam 1 — the public 
 ## Out of Scope
 
 - `ScrapyProperty` / AI Searcher content on the public site (separate surface, never shown).
-- Custom customer domains and per-domain TLS/DNS verification UI (v1 is subdomain-only; `tenant_domains` table is built to support it later).
-- Object storage / CDN for media (v1 stays on `local` disk with per-tenant folders; migration deferred).
+- Custom customer domains and per-domain TLS/DNS verification UI (v1 is subdomain-only; `agency_domains` table is built to support it later).
+- Object storage / CDN for media (v1 stays on `local` disk with per-agency folders; migration deferred).
 - A CRM Leads inbox / pipeline / assignment / statuses (the old `gestao-leads` vision); v1 only persists + notifies.
 - A page builder, custom fonts, section reordering, or multiple Templates (one Template, fixed layout, branded via palette/logo).
 - A brokers directory and "Sobre"/About pages (deferred to v2).
@@ -147,7 +147,7 @@ Subscription gating (503/404/preview) is asserted through seam 1 — the public 
 
 ## Further Notes
 
-- Domain glossary lives in `docs/contexts/whitelabel/CONTEXT.md` (registered in `CONTEXT-MAP.md`). Note the deliberate disambiguation: **"Imobiliária" is a Source Agency in the Imobscrapy context (a scrape target) but a Tenant here (a paying customer who publishes)** — these never overlap. Use **Broker** for a CRM `User` on the public side, **Final Client** for an anonymous visitor, and **Lead** only after a form submission.
+- Domain glossary lives in `docs/contexts/whitelabel/CONTEXT.md` (registered in `CONTEXT-MAP.md`). Note the deliberate disambiguation: **"Imobiliária" is a Source Agency in the Imobscrapy context (a scrape target) but a Agency here (a paying customer who publishes)** — these never overlap. Use **Broker** for a CRM `User` on the public side, **Final Client** for an anonymous visitor, and **Lead** only after a form submission.
 - Decisions are recorded in ADRs: `0001` (multi-tenancy), `0002` (public read boundary + privacy at the API layer), `0003` (ISR + on-demand revalidation), `0004` (billing gates the site).
 - Critical path: the multi-tenancy refactor (ADR-0001) underpins everything and should be the first implementation slice, landed and green before any public-site work begins.
 - Open items intentionally left to implementation (not design decisions): map provider (Leaflet/OSM vs Google — note the system already imports OSM POIs via `PointOfInterest` / `NeighborhoodReferencePoint`), default search sort and page size, the exact lead anti-spam mechanism (rate-limit + honeypot/captcha), and the trigger point for migrating media to object storage.

@@ -23,8 +23,8 @@ describe('RoleFormModal', () => {
 
         (usePermissions as any).mockReturnValue({
             data: [
-                { id: 1, name: 'Criar Usuários' },
-                { id: 2, name: 'Editar Imóveis' },
+                { id: 1, name: 'users.create', label: 'Criar Usuários' },
+                { id: 2, name: 'properties.edit', label: 'Editar Imóveis' },
             ],
             isLoading: false,
         });
@@ -46,6 +46,10 @@ describe('RoleFormModal', () => {
         // Preenche o nome
         const nameInput = screen.getByLabelText(/Nome do Grupo \*/i);
         fireEvent.change(nameInput, { target: { value: 'Gerentes' } });
+
+        // Expande o grupo de permissões
+        const groupTrigger = screen.getByRole('button', { name: /Usuários/i });
+        fireEvent.click(groupTrigger);
 
         // Seleciona a primeira permissão
         const permissionCheckbox1 = screen.getByLabelText('Criar Usuários');
