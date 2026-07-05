@@ -92,7 +92,10 @@ async def test_pipeline_runs_all_steps_and_saves_artifacts(config, output):
         sample_url="https://example.com/imovel/1",
     )
 
-    assert result.normalized == [{"quartos": 3}, {"quartos": 2}]
+    assert result.normalized == [
+        {"quartos": 3, "_quality": {"valid": True, "warnings": []}},
+        {"quartos": 2, "_quality": {"valid": True, "warnings": []}},
+    ]
     assert result.errors == []
     assert result.run_id is None
     assert schema_generator.sample_url == "https://example.com/imovel/1"
@@ -101,6 +104,7 @@ async def test_pipeline_runs_all_steps_and_saves_artifacts(config, output):
     assert output.schema.exists()
     assert output.raw.exists()
     assert output.normalized.exists()
+    assert output.quality_report.exists()
 
     discovered = json.loads(output.discovered.read_text())
     assert discovered["urls"] == [
@@ -142,10 +146,15 @@ async def test_pipeline_saves_to_sink_when_configured(config, output):
         sample_url="https://example.com/imovel/1",
     )
 
-    assert result.normalized == [{"quartos": 3}]
+    assert result.normalized == [{"quartos": 3, "_quality": {"valid": True, "warnings": []}}]
     assert result.run_id == 7
     sink.start_run.assert_called_once_with("imob-test")
-    sink.save_run.assert_called_once_with("imob-test", [{"quartos": 3}], [])
+    sink.save_run.assert_called_once_with(
+        "imob-test",
+        [{"quartos": 3}],
+        [{"quartos": 3, "_quality": {"valid": True, "warnings": []}}],
+        [],
+    )
 
 
 @pytest.mark.anyio
@@ -197,7 +206,7 @@ async def test_pipeline_reuses_discovery_from_sink(config, output):
         regenerate_discovery=False,
     )
 
-    assert result.normalized == [{"quartos": 3}]
+    assert result.normalized == [{"quartos": 3, "_quality": {"valid": True, "warnings": []}}]
     sink.load_latest_discovery.assert_called_once_with("imob-test")
     # discoverer NÃO foi chamado porque usamos o cache
     assert discoverer.urls == ["https://should-not-be-called.com"]  # untouched
@@ -231,7 +240,7 @@ async def test_pipeline_regenerate_discovery_ignores_cache(config, output):
         regenerate_discovery=True,
     )
 
-    assert result.normalized == [{"quartos": 4}]
+    assert result.normalized == [{"quartos": 4, "_quality": {"valid": True, "warnings": []}}]
     # load_latest_discovery NÃO foi chamado porque regenerate=True
     sink.load_latest_discovery.assert_not_called()
 
@@ -264,7 +273,7 @@ async def test_pipeline_reuses_schema_from_sink(config, output):
         regenerate_schema=False,
     )
 
-    assert result.normalized == [{"quartos": 5}]
+    assert result.normalized == [{"quartos": 5, "_quality": {"valid": True, "warnings": []}}]
     sink.load_latest_schema.assert_called_once_with("imob-test")
     # o schema_generator.generate não foi chamado
     assert schema_generator.sample_url is None
@@ -298,7 +307,7 @@ async def test_pipeline_regenerate_schema_ignores_cache(config, output):
         regenerate_schema=True,
     )
 
-    assert result.normalized == [{"quartos": 6}]
+    assert result.normalized == [{"quartos": 6, "_quality": {"valid": True, "warnings": []}}]
     # load_latest_schema NÃO foi chamado
     sink.load_latest_schema.assert_not_called()
     assert schema_generator.sample_url == "https://example.com/imovel/fresh"

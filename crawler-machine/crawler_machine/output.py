@@ -41,6 +41,10 @@ class OutputPath:
     def errors(self) -> Path:
         return self.root / "errors.json"
 
+    @property
+    def quality_report(self) -> Path:
+        return self.root / "quality_report.json"
+
 
 def _slugify_domain(domain: str) -> str:
     """Converte um domínio em um slug seguro para nomes de pasta."""

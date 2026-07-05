@@ -18,3 +18,4 @@ def test_output_path_provides_artifact_paths(tmp_path: Path):
     assert output.raw == output.root / "raw.json"
     assert output.normalized == output.root / "normalized.json"
     assert output.errors == output.root / "errors.json"
+    assert output.quality_report == output.root / "quality_report.json"

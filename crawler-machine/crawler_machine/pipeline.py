@@ -8,9 +8,14 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Awaitable, Callable, Protocol
 
+import psycopg2
+
+from crawler_machine.catalog import CatalogRepository
 from crawler_machine.config import DomainConfig
+from crawler_machine.data_normalizer import DataNormalizer
 from crawler_machine.output import OutputPath
-from crawler_machine.sink import PostgresSink, build_source_name
+from crawler_machine.schema import ensure_schema
+from crawler_machine.sink import PostgresConfig, PostgresSink, build_source_name
 
 logger = logging.getLogger(__name__)
 
@@ -122,7 +127,7 @@ class Pipeline:
                 self._report("pipeline", 100, "Nenhuma URL encontrada. Finalizando.")
                 if self._sink is not None and sink_run_id is not None:
                     await asyncio.to_thread(
-                        self._sink.save_run, source_name, [], []
+                        self._sink.save_run, source_name, [], [], []
                     )
                 return PipelineResult(normalized=[], errors=[], output=self._output, run_id=sink_run_id)
 
@@ -178,6 +183,12 @@ class Pipeline:
             self._report("crawl", 50, f"Iniciando crawling de {len(urls)} URLs...")
             crawler = self._crawler_factory(schema)
             raw_data, errors = await crawler.crawl(urls)
+            self._report("crawl", 75, f"{len(raw_data)} registros extraídos | {len(errors)} erros")
+
+            self._report("normalize", 75, "Normalizando dados...")
+            normalizer = self._build_normalizer(source_name)
+            normalized, quality_report = normalizer.normalize_many(raw_data)
+
             self._save_json(
                 self._output.raw,
                 {
@@ -190,10 +201,6 @@ class Pipeline:
                     "errors": errors,
                 },
             )
-            self._report("crawl", 75, f"{len(raw_data)} registros extraídos | {len(errors)} erros")
-
-            self._report("normalize", 75, "Normalizando dados...")
-            normalized = raw_data
             self._save_json(
                 self._output.normalized,
                 {
@@ -202,6 +209,15 @@ class Pipeline:
                         "count": len(normalized),
                     },
                     "data": normalized,
+                },
+            )
+            self._save_json(
+                self._output.quality_report,
+                {
+                    "metadata": {
+                        "generated_at": _now_iso(),
+                    },
+                    **quality_report,
                 },
             )
             self._save_json(
@@ -217,7 +233,7 @@ class Pipeline:
 
             if self._sink is not None:
                 sink_run_id = await asyncio.to_thread(
-                    self._sink.save_run, source_name, normalized, errors
+                    self._sink.save_run, source_name, raw_data, normalized, errors
                 )
                 self._report("sink", 100, f"Dados persistidos no Postgres (run {sink_run_id})")
 
@@ -249,6 +265,23 @@ class Pipeline:
             regenerate_discovery=regenerate_discovery,
             regenerate_schema=regenerate_schema,
         ))
+
+    def _build_normalizer(self, source_name: str) -> DataNormalizer:
+        catalog_repository: CatalogRepository | None = None
+        if self._sink is not None and isinstance(self._sink._config, PostgresConfig):
+            connection = psycopg2.connect(
+                host=self._sink._config.host,
+                port=self._sink._config.port,
+                dbname=self._sink._config.database,
+                user=self._sink._config.user,
+                password=self._sink._config.password,
+            )
+            try:
+                ensure_schema(connection)
+                catalog_repository = CatalogRepository.from_postgres(connection)
+            finally:
+                connection.close()
+        return DataNormalizer(catalog_repository=catalog_repository)
 
     def _report(self, step: str, percent: int, message: str) -> None:
         if self._progress_callback is not None:
