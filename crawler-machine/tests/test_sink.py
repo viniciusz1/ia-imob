@@ -131,16 +131,27 @@ def test_save_run_persists_run_and_properties_atomically():
 
     with patch("psycopg2.connect", return_value=mock_connection):
         with patch("crawler_machine.sink.execute_values") as mock_execute_values:
+            raw_properties = [
+                {
+                    "tipo_imovel": "Casa",
+                    "valor": "R$ 500.000,00",
+                    "quartos": "3",
+                    "piscina": "sim",
+                }
+            ]
+            normalized_properties = [
+                {
+                    "tipo_imovel": "Casa",
+                    "valor": 500000.0,
+                    "quartos": 3,
+                    "piscina": True,
+                    "_quality": {"valid": True, "warnings": []},
+                }
+            ]
             run_id = sink.save_run(
                 "imob-test",
-                [
-                    {
-                        "tipo_imovel": "Casa",
-                        "valor": "R$ 500.000,00",
-                        "quartos": "3",
-                        "piscina": "sim",
-                    }
-                ],
+                raw_properties,
+                normalized_properties,
                 [],
             )
 
@@ -162,8 +173,12 @@ def test_save_run_persists_run_and_properties_atomically():
                         """,
         ("imob-test", 42),
     )
-    mock_execute_values.assert_called_once()
-    assert mock_execute_values.call_args[0][0] is mock_cursor
+    assert mock_execute_values.call_count == 2
+    calls = mock_execute_values.call_args_list
+    assert "crawler.raw_properties" in calls[0][0][1]
+    assert "crawler.market_properties" in calls[1][0][1]
+    assert calls[0][0][0] is mock_cursor
+    assert calls[1][0][0] is mock_cursor
 
 
 def test_fail_run_updates_status_and_error():

@@ -32,8 +32,47 @@ def _rename_fields(record: dict[str, Any]) -> dict[str, Any]:
     return renamed
 
 
+RAW_PROPERTY_COLUMNS = [
+    "crawler_run_id",
+    "source_url",
+    "external_id",
+    "tipo_imovel",
+    "imagem",
+    "quartos",
+    "sala",
+    "banheiros",
+    "suites",
+    "vagas",
+    "ano",
+    "valor",
+    "area_privada",
+    "area_util",
+    "detalhes",
+    "bairro",
+    "cidade",
+    "piscina",
+    "churrasqueira",
+    "academia",
+    "salao_festas",
+    "playground",
+    "sacada",
+    "mobiliado",
+    "ar_condicionado",
+    "lavanderia",
+    "escritorio",
+    "closet",
+    "elevador",
+    "portaria_24h",
+    "aceita_permuta",
+    "financiamento",
+    "raw_payload",
+]
+
+
 MARKET_PROPERTY_COLUMNS = [
     "crawler_run_id",
+    "raw_property_id",
+    "source_url",
     "tipo",
     "imobiliaria",
     "valor",
@@ -65,6 +104,8 @@ MARKET_PROPERTY_COLUMNS = [
     "andar",
     "posicao_solar",
     "ano_construcao",
+    "quality_status",
+    "quality_metadata",
 ]
 
 BOOLEAN_FIELDS = {
@@ -193,8 +234,9 @@ class PostgresSink:
 
     Cada execução cria um registro em ``crawler_runs``. Apenas o run mais
     recente com status ``completed`` de uma determinada fonte fica marcado
-    como ``latest``. Os imóveis são salvos em ``market_properties`` vinculados
-    ao run. A gravação é atômica: run + properties + atualização do latest.
+    como ``latest``. Os dados brutos são salvos em ``crawler.raw_properties``
+    e os dados normalizados em ``crawler.market_properties``, vinculados por
+    ``raw_property_id``. A gravação é atômica: run + raw + normalized + latest.
     """
 
     def __init__(self, config: PostgresConfig):
@@ -203,7 +245,8 @@ class PostgresSink:
     def save_run(
         self,
         source_name: str,
-        properties: list[dict[str, Any]],
+        raw_properties: list[dict[str, Any]],
+        normalized_properties: list[dict[str, Any]],
         errors: list[dict[str, Any]],
     ) -> int:
         """Salva uma execução completa e retorna o ID do run criado."""
@@ -224,7 +267,7 @@ class PostgresSink:
                         VALUES (%s, %s, NOW(), NOW(), %s, TRUE)
                         RETURNING id
                         """,
-                        (source_name, "completed", len(properties)),
+                        (source_name, "completed", len(normalized_properties)),
                     )
                     run_id = cursor.fetchone()[0]
 
@@ -237,23 +280,40 @@ class PostgresSink:
                         (source_name, run_id),
                     )
 
-                    if properties:
-                        rows = self._build_rows(run_id, properties, source_name)
+                    raw_ids: list[int] = []
+                    if raw_properties:
+                        raw_rows = self._build_raw_rows(run_id, raw_properties)
                         execute_values(
                             cursor,
                             f"""
-                            INSERT INTO market_properties (
+                            INSERT INTO crawler.raw_properties (
+                                {", ".join(RAW_PROPERTY_COLUMNS)}
+                            ) VALUES %s
+                            RETURNING id
+                            """,
+                            raw_rows,
+                        )
+                        raw_ids = [row[0] for row in cursor.fetchall()]
+
+                    if normalized_properties:
+                        market_rows = self._build_market_rows(
+                            run_id, normalized_properties, raw_ids, source_name
+                        )
+                        execute_values(
+                            cursor,
+                            f"""
+                            INSERT INTO crawler.market_properties (
                                 {", ".join(MARKET_PROPERTY_COLUMNS)}
                             ) VALUES %s
                             """,
-                            rows,
+                            market_rows,
                         )
 
                     logger.info(
                         "Run %s salvo para %s com %s propriedades",
                         run_id,
                         source_name,
-                        len(properties),
+                        len(normalized_properties),
                     )
                     return run_id
         finally:
@@ -594,19 +654,54 @@ class PostgresSink:
         finally:
             connection.close()
 
-    def _build_rows(
+    def _build_raw_rows(
         self,
         run_id: int,
-        properties: list[dict[str, Any]],
+        raw_properties: list[dict[str, Any]],
+    ) -> list[tuple]:
+        rows: list[tuple] = []
+        for record in raw_properties:
+            row: list[Any] = [run_id]
+            payload = dict(record)
+            for column in RAW_PROPERTY_COLUMNS[1:]:
+                if column == "source_url":
+                    row.append(record.get("url"))
+                elif column == "external_id":
+                    row.append(record.get("external_id"))
+                elif column == "raw_payload":
+                    row.append(json.dumps(payload))
+                else:
+                    value = record.get(column)
+                    row.append(str(value) if value is not None else None)
+            rows.append(tuple(row))
+        return rows
+
+    def _build_market_rows(
+        self,
+        run_id: int,
+        normalized_properties: list[dict[str, Any]],
+        raw_ids: list[int],
         source_name: str,
     ) -> list[tuple]:
         rows: list[tuple] = []
-        for record in properties:
+        for index, record in enumerate(normalized_properties):
             renamed = _rename_fields(record)
+            quality = record.get("_quality", {})
+            quality_status = "valid" if quality.get("valid", True) else "invalid"
+            quality_metadata = quality
+
             row: list[Any] = [run_id]
-            for column in MARKET_PROPERTY_COLUMNS[1:]:
+            raw_property_id = raw_ids[index] if index < len(raw_ids) else None
+            row.append(raw_property_id)
+            row.append(record.get("url"))
+
+            for column in MARKET_PROPERTY_COLUMNS[3:]:
                 if column == "imobiliaria":
                     value = renamed.get("imobiliaria") or source_name
+                elif column == "quality_status":
+                    value = quality_status
+                elif column == "quality_metadata":
+                    value = json.dumps(quality_metadata)
                 else:
                     value = renamed.get(column)
                 row.append(_coerce_for_column(value, column))
