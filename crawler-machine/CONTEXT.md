@@ -18,9 +18,15 @@ Sistema especializado em extrair dados de imobiliárias a partir da URL base de 
 - **CLI**: interface de terminal com subcomandos para executar cada etapa isoladamente (`discover`, `schema`, `crawl`, `normalize`) ou o fluxo completo (`run`).
 - **Pasta de saída**: estrutura `output/<slug-do-dominio>/<timestamp>/` contendo os artefatos de cada execução (`discovered.json`, `schema.json`, `raw.json`, `normalized.json`).
 - **Fonte**: origem dos dados (ex: nome da imobiliária). Representada por um slug, passado via CLI com `--source-name`.
-- **PostgresSink**: destino opcional de persistência. Quando configurado, salva cada execução como um `crawler_run` e os imóveis em `market_properties`.
+- **PostgresSink**: destino opcional de persistência. Quando configurado, salva cada execução como um `crawler_run`, os dados brutos em `raw_properties` e os imóveis normalizados em `market_properties`.
 - **crawler_run**: registro de uma execução do crawler no Postgres. Apenas o run mais recente com status `completed` de uma fonte está marcado como `latest`.
-- **MarketProperty**: imóvel extraído persistido no Postgres, vinculado a um `crawler_run`.
+- **MarketProperty**: imóvel normalizado persistido no Postgres, vinculado a um `crawler_run` e a um `raw_property`.
+- **RawProperty**: dado bruto extraído de um imóvel, persistido antes da normalização, permitindo reprocessamento e debug.
+- **CatalogRepository**: repositório que carrega os catálogos de normalização (`cities`, `neighborhoods`, `property_types`) em memória para consulta pelos normalizadores semânticos.
+- **FieldNormalizer**: contrato para classes que normalizam um campo individual, retornando `NormalizationResult`.
+- **NormalizationResult**: resultado da normalização de um campo, contendo valor normalizado, flag de validade, warnings e flag de omissão.
+- **QualityReport**: relatório global de qualidade gerado por execução, com estatísticas de validação por campo e lista de registros com problemas.
+- **crawler schema**: schema dedicado no Postgres (`crawler`) que abriga catálogos, dados brutos e dados normalizados do crawler, isolados do schema do backend.
 - **discovery_runs**: tabela que persiste os resultados de descoberta de URLs por fonte. Segue o mesmo padrão `status`/`latest` do `crawler_runs`, com FK opcional para `crawler_runs.id`. Permite reutilizar URLs descobertas entre execuções.
 - **schema_runs**: tabela que persiste o schema de extração (XPath/CSS) gerado por IA por fonte. Segue o mesmo padrão `status`/`latest`, com FK opcional para `crawler_runs.id`. Armazena `schema_data` (JSONB), `schema_type`, `sample_url` e `fields_snapshot`.
 
