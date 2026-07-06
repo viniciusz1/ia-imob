@@ -1,4 +1,4 @@
-from crawler_machine.normalizers.integer_normalizer import IntegerNormalizer
+from src.normalization.normalizers.integer_normalizer import IntegerNormalizer
 
 
 def test_parses_integer_from_text():

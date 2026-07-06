@@ -1,6 +1,6 @@
 import pytest
 
-from crawler_machine.discoverer import URLDiscoverer
+from src.discoverer import URLDiscoverer
 
 
 class FakeMapper:

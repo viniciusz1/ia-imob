@@ -3,7 +3,7 @@ from pathlib import Path
 
 from typer.testing import CliRunner
 
-from crawler_machine.cli import app
+from src.cli import app
 
 runner = CliRunner()
 

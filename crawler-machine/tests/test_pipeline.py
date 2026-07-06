@@ -5,9 +5,9 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from crawler_machine.config import CrawlerConfig, DiscoveryConfig, FieldConfig, LLMConfig
-from crawler_machine.output import OutputPath
-from crawler_machine.pipeline import Pipeline
+from src.config import CrawlerConfig, DiscoveryConfig, FieldConfig, LLMConfig
+from src.output import OutputPath
+from src.pipeline import Pipeline
 
 
 class FakeDiscoverer:

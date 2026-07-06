@@ -1,5 +1,5 @@
-from crawler_machine.catalog import Catalog, CatalogRepository
-from crawler_machine.data_normalizer import DataNormalizer
+from src.catalog import Catalog, CatalogRepository
+from src.normalization.engine import DataNormalizer
 
 
 def _repo() -> CatalogRepository:

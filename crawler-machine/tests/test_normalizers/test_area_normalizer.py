@@ -1,4 +1,4 @@
-from crawler_machine.normalizers.area_normalizer import AreaNormalizer
+from src.normalization.normalizers.area_normalizer import AreaNormalizer
 
 
 def test_parses_area_with_unit():

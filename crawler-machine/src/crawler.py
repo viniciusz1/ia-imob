@@ -8,8 +8,8 @@ from typing import Any, Awaitable, Callable
 from crawl4ai import AsyncWebCrawler, BrowserConfig, CrawlerRunConfig
 from crawl4ai.extraction_strategy import JsonCssExtractionStrategy, JsonXPathExtractionStrategy
 
-from crawler_machine.config import CrawlerConfig, FieldConfig
-from crawler_machine.normalizer import DataNormalizer
+from src.config import CrawlerConfig, FieldConfig
+from src.normalization.legacy import DataNormalizer
 
 
 @dataclass(frozen=True)

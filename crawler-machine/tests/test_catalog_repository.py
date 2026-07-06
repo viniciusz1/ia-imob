@@ -4,9 +4,9 @@ import psycopg2
 import pytest
 from dotenv import load_dotenv
 
-from crawler_machine.catalog import Catalog, CatalogRepository
-from crawler_machine.catalog_seeders import seed_catalogs
-from crawler_machine.schema import ensure_schema
+from src.catalog import Catalog, CatalogRepository
+from tests.catalog_seed import seed_test_catalogs
+from tests.crawler_schema import ensure_schema
 
 load_dotenv()
 
@@ -100,7 +100,7 @@ def test_from_postgres_loads_catalogs():
     connection = _connect()
     try:
         ensure_schema(connection)
-        seed_catalogs(connection)
+        seed_test_catalogs(connection)
         repo = CatalogRepository.from_postgres(connection)
 
         city = repo.find_city("Jaraguá do Sul")

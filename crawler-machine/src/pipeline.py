@@ -10,12 +10,11 @@ from typing import Any, Awaitable, Callable, Protocol
 
 import psycopg2
 
-from crawler_machine.catalog import CatalogRepository
-from crawler_machine.config import DomainConfig
-from crawler_machine.data_normalizer import DataNormalizer
-from crawler_machine.output import OutputPath
-from crawler_machine.schema import ensure_schema
-from crawler_machine.sink import PostgresConfig, PostgresSink, build_source_name
+from src.catalog import CatalogRepository
+from src.config import DomainConfig
+from src.normalization.engine import DataNormalizer
+from src.output import OutputPath
+from src.sink import PostgresConfig, PostgresSink, build_source_name
 
 logger = logging.getLogger(__name__)
 
@@ -277,7 +276,6 @@ class Pipeline:
                 password=self._sink._config.password,
             )
             try:
-                ensure_schema(connection)
                 catalog_repository = CatalogRepository.from_postgres(connection)
             finally:
                 connection.close()

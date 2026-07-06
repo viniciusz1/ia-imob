@@ -1,6 +1,7 @@
 import pytest
 
-from crawler_machine.normalizer import DataNormalizer, coerce_boolean, extract_first_number, parse_number
+from src.normalization.coercers import coerce_boolean, extract_first_number, parse_number
+from src.normalization.legacy import DataNormalizer
 
 
 @pytest.mark.parametrize(

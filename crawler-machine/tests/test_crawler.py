@@ -2,8 +2,8 @@ from typing import Any
 
 import pytest
 
-from crawler_machine.config import CrawlerConfig, FieldConfig
-from crawler_machine.crawler import CrawlResult, ImovelCrawler
+from src.config import CrawlerConfig, FieldConfig
+from src.crawler import CrawlResult, ImovelCrawler
 
 
 class FakeCrawlerRunner:

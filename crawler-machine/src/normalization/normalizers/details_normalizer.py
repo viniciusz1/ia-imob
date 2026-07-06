@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from typing import Any
 
-from crawler_machine.normalization_result import NormalizationResult
+from src.normalization.result import NormalizationResult
 
 
 class DetailsNormalizer:

@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from crawler_machine.normalization_result import NormalizationResult
-from crawler_machine.normalizer import extract_first_number
+from src.normalization.result import NormalizationResult
+from src.normalization.coercers import extract_first_number
 
 
 class ValueNormalizer:

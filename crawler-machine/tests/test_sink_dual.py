@@ -4,9 +4,9 @@ import psycopg2
 import pytest
 from dotenv import load_dotenv
 
-from crawler_machine.catalog_seeders import seed_catalogs
-from crawler_machine.schema import ensure_schema
-from crawler_machine.sink import PostgresConfig, PostgresSink
+from src.sink import PostgresConfig, PostgresSink
+from tests.catalog_seed import seed_test_catalogs
+from tests.crawler_schema import ensure_schema
 
 load_dotenv()
 
@@ -32,7 +32,7 @@ def sink():
     )
     connection = _connect()
     ensure_schema(connection)
-    seed_catalogs(connection)
+    seed_test_catalogs(connection)
     connection.close()
     return PostgresSink(config)
 

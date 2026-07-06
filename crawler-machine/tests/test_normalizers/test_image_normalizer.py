@@ -1,4 +1,4 @@
-from crawler_machine.normalizers.image_normalizer import ImageNormalizer
+from src.normalization.normalizers.image_normalizer import ImageNormalizer
 
 
 def test_accepts_image_url():

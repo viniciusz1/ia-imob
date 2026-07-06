@@ -4,7 +4,7 @@ import psycopg2
 import pytest
 from dotenv import load_dotenv
 
-from crawler_machine.schema import ensure_schema
+from tests.crawler_schema import ensure_schema
 
 load_dotenv()
 
@@ -20,6 +20,11 @@ def _connect():
 
 
 def test_ensure_schema_creates_crawler_catalog_tables():
+    """O helper de teste consegue criar as tabelas esperadas localmente.
+
+    O schema real é mantido pelas migrations do backend Laravel; este teste
+    cobre apenas o helper usado pelos testes Python quando não há PHP ativo.
+    """
     connection = _connect()
     try:
         ensure_schema(connection)

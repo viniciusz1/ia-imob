@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from crawler_machine.config import ConfigLoader, DomainConfig, FieldConfig
+from src.config import ConfigLoader, DomainConfig, FieldConfig
 
 
 @pytest.fixture

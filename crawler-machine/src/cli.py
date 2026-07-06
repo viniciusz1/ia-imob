@@ -11,14 +11,14 @@ import typer
 from dotenv import load_dotenv
 from tqdm import tqdm
 
-from crawler_machine.config import ConfigLoader, DomainConfig
-from crawler_machine.crawler import ImovelCrawler
-from crawler_machine.discoverer import URLDiscoverer
-from crawler_machine.normalizer import DataNormalizer
-from crawler_machine.output import OutputPath
-from crawler_machine.pipeline import Pipeline
-from crawler_machine.schema_generator import SchemaGenerator
-from crawler_machine.sink import PostgresConfig, PostgresSink
+from src.config import ConfigLoader, DomainConfig
+from src.crawler import ImovelCrawler
+from src.discoverer import URLDiscoverer
+from src.normalization.legacy import DataNormalizer
+from src.output import OutputPath
+from src.pipeline import Pipeline
+from src.schema_generator import SchemaGenerator
+from src.sink import PostgresConfig, PostgresSink
 
 app = typer.Typer(help="Crawler de imobiliárias com discovery, schema IA e normalização.")
 

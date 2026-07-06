@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from crawler_machine.normalizers.year_normalizer import YearNormalizer
+from src.normalization.normalizers.year_normalizer import YearNormalizer
 
 
 def test_parses_year():

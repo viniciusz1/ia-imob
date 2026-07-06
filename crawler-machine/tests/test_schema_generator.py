@@ -2,8 +2,8 @@ from typing import Any
 
 import pytest
 
-from crawler_machine.config import FieldConfig, LLMConfig
-from crawler_machine.schema_generator import SchemaGenerator
+from src.config import FieldConfig, LLMConfig
+from src.schema_generator import SchemaGenerator
 
 
 class FakeSchemaGenerator:

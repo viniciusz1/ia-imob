@@ -103,28 +103,51 @@ python -m pytest tests/ -v
 
 ```
 crawler-machine/
-├── crawler_machine/
+├── src/
 │   ├── __init__.py
 │   ├── __main__.py
 │   ├── cli.py
 │   ├── config.py
 │   ├── crawler.py
 │   ├── discoverer.py
-│   ├── normalizer.py
 │   ├── output.py
 │   ├── pipeline.py
-│   └── schema_generator.py
+│   ├── schema_generator.py
+│   ├── catalog.py
+│   ├── sink.py
+│   └── normalization/
+│       ├── __init__.py
+│       ├── result.py
+│       ├── protocol.py
+│       ├── engine.py
+│       ├── coercers.py
+│       ├── legacy.py
+│       └── normalizers/
+│           ├── area_normalizer.py
+│           ├── city_normalizer.py
+│           ├── details_normalizer.py
+│           ├── image_normalizer.py
+│           ├── integer_normalizer.py
+│           ├── neighborhood_normalizer.py
+│           ├── property_type_normalizer.py
+│           ├── url_normalizer.py
+│           ├── value_normalizer.py
+│           └── year_normalizer.py
 ├── config/
 │   └── domain.json
 ├── tests/
 │   ├── test_cli.py
 │   ├── test_config.py
 │   ├── test_crawler.py
+│   ├── test_data_normalizer_semantic.py
 │   ├── test_discoverer.py
 │   ├── test_normalizer.py
 │   ├── test_output.py
 │   ├── test_pipeline.py
-│   └── test_schema_generator.py
+│   ├── test_schema_generator.py
+│   ├── catalog_seed.py
+│   ├── crawler_schema.py
+│   └── test_normalizers/
 ├── .env.example
 ├── README.md
 ├── requirements.txt

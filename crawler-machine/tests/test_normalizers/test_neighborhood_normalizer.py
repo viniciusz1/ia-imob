@@ -1,5 +1,5 @@
-from crawler_machine.catalog import Catalog, CatalogRepository
-from crawler_machine.normalizers.neighborhood_normalizer import NeighborhoodNormalizer
+from src.catalog import Catalog, CatalogRepository
+from src.normalization.normalizers.neighborhood_normalizer import NeighborhoodNormalizer
 
 
 def _repo() -> CatalogRepository:

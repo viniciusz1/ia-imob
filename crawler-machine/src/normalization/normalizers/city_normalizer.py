@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from crawler_machine.catalog import CatalogRepository
-from crawler_machine.normalization_result import NormalizationResult
+from src.catalog import CatalogRepository
+from src.normalization.result import NormalizationResult
 
 
 class CityNormalizer:

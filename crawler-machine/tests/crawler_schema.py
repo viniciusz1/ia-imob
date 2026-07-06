@@ -1,10 +1,18 @@
+"""Helper de schema exclusivo para os testes do crawler.
+
+ATENÇÃO: a fonte da verdade do banco de dados do crawler fica no backend
+Laravel (ai-backendd-imobiliaria/database/migrations).  Este módulo existe
+apenas para permitir que os testes Python garantam o schema localmente sem
+depender de um ambiente Laravel rodando.  Sempre que for necessário alterar
+o schema, criar seeders ou qualquer outra mudança no banco, faça isso no PHP.
+"""
+
 from __future__ import annotations
 
 import logging
 from typing import Any
 
 logger = logging.getLogger(__name__)
-
 
 _SCHEMA_SQL = """
 CREATE SCHEMA IF NOT EXISTS crawler;
@@ -122,8 +130,8 @@ CREATE TABLE IF NOT EXISTS crawler.market_properties (
 
 
 def ensure_schema(connection: Any) -> None:
-    """Garante que o schema crawler e suas tabelas existam no banco."""
+    """Garante que o schema crawler e suas tabelas existam no banco (apenas testes)."""
     with connection:
         with connection.cursor() as cursor:
             cursor.execute(_SCHEMA_SQL)
-            logger.info("Schema crawler garantido no banco.")
+            logger.info("Schema crawler garantido no banco (helper de teste).")

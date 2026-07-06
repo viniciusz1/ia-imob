@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from crawler_machine.output import OutputPath
+from src.output import OutputPath
 
 
 def test_output_path_creates_directories(tmp_path: Path):

@@ -1,4 +1,4 @@
-from crawler_machine.normalizers.url_normalizer import UrlNormalizer
+from src.normalization.normalizers.url_normalizer import UrlNormalizer
 
 
 def test_accepts_absolute_url():

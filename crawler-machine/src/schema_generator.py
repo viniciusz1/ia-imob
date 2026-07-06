@@ -10,7 +10,7 @@ import litellm
 from crawl4ai import LLMConfig as Crawl4AILLMConfig
 from crawl4ai.extraction_strategy import JsonCssExtractionStrategy
 
-from crawler_machine.config import FieldConfig, LLMConfig
+from src.config import FieldConfig, LLMConfig
 
 logger = logging.getLogger(__name__)
 

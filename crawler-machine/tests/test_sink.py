@@ -6,7 +6,7 @@ from unittest.mock import MagicMock, call, patch
 
 import pytest
 
-from crawler_machine.sink import (
+from src.sink import (
     PostgresConfig,
     PostgresSink,
     _coerce_for_column,
@@ -130,7 +130,7 @@ def test_save_run_persists_run_and_properties_atomically():
     mock_connection.cursor.return_value.__exit__ = MagicMock(return_value=False)
 
     with patch("psycopg2.connect", return_value=mock_connection):
-        with patch("crawler_machine.sink.execute_values") as mock_execute_values:
+        with patch("src.sink.execute_values") as mock_execute_values:
             raw_properties = [
                 {
                     "tipo_imovel": "Casa",

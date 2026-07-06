@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Protocol
 
-from crawler_machine.normalization_result import NormalizationResult
+from src.normalization.result import NormalizationResult
 
 
 class FieldNormalizer(Protocol):

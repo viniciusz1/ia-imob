@@ -2,21 +2,21 @@ from __future__ import annotations
 
 from typing import Any
 
-from crawler_machine.catalog import CatalogRepository
-from crawler_machine.config import FieldConfig
-from crawler_machine.field_normalizer import FieldNormalizer
-from crawler_machine.normalization_result import NormalizationResult
-from crawler_machine.normalizer import _COERCERS
-from crawler_machine.normalizers.area_normalizer import AreaNormalizer
-from crawler_machine.normalizers.city_normalizer import CityNormalizer
-from crawler_machine.normalizers.details_normalizer import DetailsNormalizer
-from crawler_machine.normalizers.image_normalizer import ImageNormalizer
-from crawler_machine.normalizers.integer_normalizer import IntegerNormalizer
-from crawler_machine.normalizers.neighborhood_normalizer import NeighborhoodNormalizer
-from crawler_machine.normalizers.property_type_normalizer import PropertyTypeNormalizer
-from crawler_machine.normalizers.url_normalizer import UrlNormalizer
-from crawler_machine.normalizers.value_normalizer import ValueNormalizer
-from crawler_machine.normalizers.year_normalizer import YearNormalizer
+from src.catalog import CatalogRepository
+from src.config import FieldConfig
+from src.normalization.coercers import _COERCERS
+from src.normalization.normalizers.area_normalizer import AreaNormalizer
+from src.normalization.normalizers.city_normalizer import CityNormalizer
+from src.normalization.normalizers.details_normalizer import DetailsNormalizer
+from src.normalization.normalizers.image_normalizer import ImageNormalizer
+from src.normalization.normalizers.integer_normalizer import IntegerNormalizer
+from src.normalization.normalizers.neighborhood_normalizer import NeighborhoodNormalizer
+from src.normalization.normalizers.property_type_normalizer import PropertyTypeNormalizer
+from src.normalization.normalizers.url_normalizer import UrlNormalizer
+from src.normalization.normalizers.value_normalizer import ValueNormalizer
+from src.normalization.normalizers.year_normalizer import YearNormalizer
+from src.normalization.protocol import FieldNormalizer
+from src.normalization.result import NormalizationResult
 
 
 class DataNormalizer:
