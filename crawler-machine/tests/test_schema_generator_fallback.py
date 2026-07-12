@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Any
 
 import pytest
@@ -7,7 +9,7 @@ from crawler_machine.schema_generator import SchemaGenerator
 
 
 class FakeSchemaGenerator:
-    def __init__(self, schema: dict):
+    def __init__(self, schema: dict[str, Any]):
         self.schema = schema
         self.calls: list[tuple[str, str]] = []
 
@@ -34,7 +36,7 @@ def llm_config():
 
 
 @pytest.mark.anyio
-async def test_schema_generator_builds_prompt_and_returns_schemas(fields, llm_config):
+async def test_schema_generator_generates_xpath_and_css(fields, llm_config):
     expected_schema = {"name": "ImovelDetalhes", "baseSelector": "//body", "fields": []}
     fake = FakeSchemaGenerator(expected_schema)
 
@@ -53,11 +55,20 @@ async def test_schema_generator_builds_prompt_and_returns_schemas(fields, llm_co
     ]
 
 
-def test_schema_generator_builds_query_from_fields(fields, llm_config):
+@pytest.mark.anyio
+async def test_schema_generator_merges_distinct_schemas(fields, llm_config):
+    async def generate(**kwargs: Any) -> dict:
+        return {"name": kwargs["schema_type"], "baseSelector": f"{kwargs['schema_type'].lower()}-selector"}
+
+    generator = SchemaGenerator(
+        llm_config=llm_config, fields=fields, generator=generate
+    )
+    result = await generator.generate("https://example.com/imovel/1")
+
+    assert result["schemas"]["xpath"]["name"] == "XPATH"
+    assert result["schemas"]["css"]["name"] == "CSS"
+
+
+def test_schema_generator_default_schema_type_is_css_for_single_call(fields, llm_config):
     generator = SchemaGenerator(llm_config=llm_config, fields=fields)
-
-    query = generator._build_query()
-
-    assert "quartos" in query
-    assert "valor" in query
-    assert "Número de quartos" in query
+    assert generator._schema_type == "CSS"
