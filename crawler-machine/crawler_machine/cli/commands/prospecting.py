@@ -80,7 +80,7 @@ def find(
 
     if out is None:
         timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
-        out = Path("output/prospecting") / f"candidatos_{timestamp}.{fmt}"
+        out = Path("output/prospecting") / timestamp / f"candidates.{fmt}"
 
     write_candidates(result, out, fmt=fmt)
 

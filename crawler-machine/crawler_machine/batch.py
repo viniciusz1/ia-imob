@@ -8,12 +8,9 @@ from typing import Any, Callable
 import yaml
 
 from crawler_machine.config import DomainConfig
-from crawler_machine.extraction.factory import build_crawl_engine
-from crawler_machine.discoverer import URLDiscoverer
 from crawler_machine.output import OutputPath
-from crawler_machine.pipeline import Pipeline
-from crawler_machine.schema_generator import SchemaGenerator
-from crawler_machine.sink import PostgresSink
+from crawler_machine.pipeline import build_pipeline
+from crawler_machine.sink import RunStore
 
 
 class BatchError(Exception):
@@ -27,7 +24,7 @@ def build_default_runner(
     config: DomainConfig,
     output_dir: Path,
     verbose: bool = False,
-    sink: PostgresSink | None = None,
+    sink: RunStore | None = None,
 ) -> Runner:
     """Constrói o runner padrão que executa o pipeline completo."""
 
@@ -39,24 +36,12 @@ def build_default_runner(
             base_dir=output_dir, domain=base_url, timestamp=timestamp
         )
 
-        def crawler_factory(schema: dict[str, Any]):
-            return build_crawl_engine(config=config, schema=schema)
-
-        pipeline = Pipeline(
+        pipeline = build_pipeline(
             config=config,
             output=output,
-            discoverer=URLDiscoverer(
-                max_urls=config.discovery.max_urls,
-                listing_patterns=config.discovery.listing_patterns,
-            ),
-            schema_generator=SchemaGenerator(
-                llm_config=config.llm,
-                fields=config.fields,
-                verbose=verbose,
-            ),
-            crawler_factory=crawler_factory,
-            sink=sink,
             source_name=source_name,
+            sink=sink,
+            verbose=verbose,
         )
 
         result = pipeline.run_sync(base_url, sample_url=sample_url)
@@ -154,9 +139,10 @@ def run_batch(
         "items": items,
     }
 
-    output_dir.mkdir(parents=True, exist_ok=True)
+    reports_dir = output_dir / "batch-reports"
+    reports_dir.mkdir(parents=True, exist_ok=True)
     timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
-    report_path = output_dir / f"batch_report_{timestamp}.json"
+    report_path = reports_dir / f"{timestamp}.json"
     report_path.write_text(
         json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8"
     )
