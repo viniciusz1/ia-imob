@@ -1,0 +1,199 @@
+{
+  "metadata": {
+    "count": 48
+  },
+  "errors": [
+    {
+      "url": "https://chaleimobiliaria.com.br/imovel/sala-tifa-martins-jaragua-do-sul-sc-50.00m2-13704",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://chaleimobiliaria.com.br/imovel/sala-tifa-martins-jaragua-do-sul-sc-50.00m2-13703",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://chaleimobiliaria.com.br/imovel/sala-tifa-martins-jaragua-do-sul-sc-50.00m2-13702",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://chaleimobiliaria.com.br/imovel/terreno-area-nova-brasilia-jaragua-do-sul-sc-300.00m2-12979",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://chaleimobiliaria.com.br/imovel/sala-chico-de-paulo-jaragua-do-sul-sc-55.00m2-13597",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://chaleimobiliaria.com.br/imovel/apartamento-jaragua-esquerdo-jaragua-do-sul-sc-2-quartos-98.94m2-15490",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://chaleimobiliaria.com.br/imovel/casa-barra-do-rio-cerro-jaragua-do-sul-sc-1-quartos-14481",
+      "error": "Unexpected error in _crawl_web at line 778 in _crawl_web (../../../.local/lib/python3.14/site-packages/crawl4ai/async_crawler_strategy.py):\nError: Failed on navigating ACS-GOTO:\nPage.goto: net::ERR_CERT_VERIFIER_CHANGED at https://chaleimobiliaria.com.br/imovel/casa-barra-do-rio-cerro-jaragua-do-sul-sc-1-quartos-14481\nCall log:\n  - navigating to \"https://chaleimobiliaria.com.br/imovel/casa-barra-do-rio-cerro-jaragua-do-sul-sc-1-quartos-14481\", waiting until \"domcontentloaded\"\n\n\nCode context:\n 773                                   tag=\"GOTO\",\n 774                                   params={\"url\": url},\n 775                               )\n 776                               response = None\n 777                           else:\n 778 →                             raise RuntimeError(f\"Failed on navigating ACS-GOTO:\\n{str(e)}\")\n 779   \n 780                       # ──────────────────────────────────────────────────────────────\n 781                       # Walk the redirect chain.  Playwright returns only the last\n 782                       # hop, so we trace the `request.redirected_from` links until the\n 783                       # first response that differs from the final one and surface its"
+    },
+    {
+      "url": "https://chaleimobiliaria.com.br/imovel/casa-comercial-centro-jaragua-do-sul-sc-90.00m2-15606",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://chaleimobiliaria.com.br/imovel/apartamento-czerniewicz-jaragua-do-sul-sc-2-quartos-15329",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://chaleimobiliaria.com.br/imovel/terreno-area-rau-jaragua-do-sul-sc-12992",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://chaleimobiliaria.com.br/imovel/terreno-area-tres-rios-do-norte-jaragua-do-sul-sc-13989",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://chaleimobiliaria.com.br/imovel/terreno-area-nereu-ramos-jaragua-do-sul-sc-13876",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://chaleimobiliaria.com.br/imovel/casa-vila-nova-jaragua-do-sul-sc-3-quartos-242.53m2-12414",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://chaleimobiliaria.com.br/imovel/chacara-centro-guaramirim-sc-1-quartos-11338",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://chaleimobiliaria.com.br/imovel/casa-sao-luis-jaragua-do-sul-sc-3-quartos-126.00m2-15599",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://chaleimobiliaria.com.br/imovel/casa-geminada-ilha-da-figueira-jaragua-do-sul-sc-3-quartos-173.26m2-13209",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://chaleimobiliaria.com.br/imovel/casa-joao-tozini-corupa-sc-2-quartos-12537",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://chaleimobiliaria.com.br/imovel/terreno-area-barra-do-rio-molha-jaragua-do-sul-sc-12498",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://chaleimobiliaria.com.br/imovel/terreno-area-ribeirao-cavalo-jaragua-do-sul-sc-11990",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://chaleimobiliaria.com.br/imovel/terreno-area-ribeirao-cavalo-jaragua-do-sul-sc-11989",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://chaleimobiliaria.com.br/imovel/terreno-area-ribeirao-cavalo-jaragua-do-sul-sc-11988",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://chaleimobiliaria.com.br/imovel/terreno-area-ribeirao-cavalo-jaragua-do-sul-sc-11985",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://chaleimobiliaria.com.br/imovel/terreno-area-ribeirao-cavalo-jaragua-do-sul-sc-11984",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://chaleimobiliaria.com.br/imovel/terreno-area-ribeirao-cavalo-jaragua-do-sul-sc-11983",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://chaleimobiliaria.com.br/imovel/terreno-area-vila-lenzi-jaragua-do-sul-sc-11890",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://chaleimobiliaria.com.br/imovel/terreno-area-vila-lenzi-jaragua-do-sul-sc-11889",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://chaleimobiliaria.com.br/imovel/terreno-area-vila-lenzi-jaragua-do-sul-sc-11844",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://chaleimobiliaria.com.br/imovel/terreno-area-barra-do-rio-molha-jaragua-do-sul-sc-11263",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://chaleimobiliaria.com.br/imovel/terreno-area-jaragua-esquerdo-jaragua-do-sul-sc-11248",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://chaleimobiliaria.com.br/imovel/galpao-ilha-da-figueira-jaragua-do-sul-sc-150.00m2-15362",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://chaleimobiliaria.com.br/imovel/galpao-ilha-da-figueira-jaragua-do-sul-sc-145.00m2-15361",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://chaleimobiliaria.com.br/imovel/casa-barra-do-rio-molha-jaragua-do-sul-sc-2-quartos-14339",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://chaleimobiliaria.com.br/imovel/casa-centro-jaragua-do-sul-sc-181.00m2-14363",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://chaleimobiliaria.com.br/imovel/chacara-guamiranga-guaramirim-sc-2-quartos-14309",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://chaleimobiliaria.com.br/imovel/casa-centenario-jaragua-do-sul-sc-3-quartos-392.00m2-10190",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://chaleimobiliaria.com.br/imovel/apartamento-czerniewicz-jaragua-do-sul-sc-3-quartos-105.35m2-13247",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://chaleimobiliaria.com.br/imovel/sala-barra-do-rio-cerro-jaragua-do-sul-sc-15249",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://chaleimobiliaria.com.br/imovel/sala-barra-do-rio-cerro-jaragua-do-sul-sc-399.00m2-15246",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://chaleimobiliaria.com.br/imovel/sala-vila-nova-jaragua-do-sul-sc-14450",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://chaleimobiliaria.com.br/imovel/sala-vila-baependi-jaragua-do-sul-sc-75.00m2-12433",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://chaleimobiliaria.com.br/imovel/sala-nova-brasilia-jaragua-do-sul-sc-35.00m2-15207",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://chaleimobiliaria.com.br/imovel/sala-nova-brasilia-jaragua-do-sul-sc-70.00m2-15206",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://chaleimobiliaria.com.br/imovel/sala-nova-brasilia-jaragua-do-sul-sc-35.00m2-15205",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://chaleimobiliaria.com.br/imovel/casa-itajuba-barra-velha-sc-3-quartos-150.00m2-15202",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://chaleimobiliaria.com.br/imovel/sala-nova-brasilia-jaragua-do-sul-sc-35.00m2-15203",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://chaleimobiliaria.com.br/imovel/sala-centro-jaragua-do-sul-sc-10296",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://chaleimobiliaria.com.br/imovel/sala-jaragua-99-jaragua-do-sul-sc-15143",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://chaleimobiliaria.com.br/imovel/sala-centro-jaragua-do-sul-sc-60.00m2-15135",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    }
+  ]
+}

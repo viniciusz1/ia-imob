@@ -1,0 +1,165 @@
+{
+  "metadata": {
+    "sample_url": "https://www.imobiliariajaragua.com.br/imovel/apartamento-a-venda-jaragua-esquerdo-jaragua-do-sul-sc/268",
+    "generated_at": "2026-07-06T23:15:40.144440+00:00"
+  },
+  "schema": {
+    "name": "Property Details",
+    "baseSelector": "//body",
+    "fields": [
+      {
+        "name": "codigo_imovel",
+        "selector": "//input[@id='codigoimovel']",
+        "type": "attribute",
+        "attribute": "value"
+      },
+      {
+        "name": "imagem",
+        "selector": "//div[@class='galeria_completa']/a[1]/img",
+        "type": "attribute",
+        "attribute": "data-src"
+      },
+      {
+        "name": "tipo_imovel",
+        "selector": "//ol[contains(@class,'breadcrumb')]/li[3]/a",
+        "type": "text"
+      },
+      {
+        "name": "quartos",
+        "selector": "//div[contains(@class,'icon_detalhes')][span[contains(text(),'Quartos')]]/span[1]",
+        "type": "text"
+      },
+      {
+        "name": "banheiros",
+        "selector": "//div[contains(@class,'icon_detalhes')][span[contains(text(),'Banheiro')]]/span[1]",
+        "type": "text"
+      },
+      {
+        "name": "suites",
+        "selector": "//div[contains(@class,'icon_detalhes')][span[contains(text(),'Suite')]]/span[1]",
+        "type": "text"
+      },
+      {
+        "name": "vagas",
+        "selector": "//div[contains(@class,'icon_detalhes')][span[contains(text(),'Vagas')]]/span[1]",
+        "type": "text"
+      },
+      {
+        "name": "valor",
+        "selector": "//h6[@class='preco-imovel']",
+        "type": "text"
+      },
+      {
+        "name": "area_privada",
+        "selector": "//div[contains(@class,'icon_detalhes')][span[contains(text(),'Área Principal')]]/span[1]",
+        "type": "text"
+      },
+      {
+        "name": "detalhes",
+        "selector": "//h2[contains(text(),'Descrição do imóvel')]/parent::div/following-sibling::div/p[contains(@class,'descricao')]",
+        "type": "text"
+      },
+      {
+        "name": "bairro",
+        "selector": "//ol[contains(@class,'breadcrumb')]/li[4]/a",
+        "type": "text"
+      },
+      {
+        "name": "cidade",
+        "selector": "//h1[contains(@class,'titulo_principal')]",
+        "type": "regex",
+        "pattern": "- (.*?)/SC"
+      },
+      {
+        "name": "piscina",
+        "selector": "//h2[contains(text(),'Descrição do imóvel')]/parent::div/following-sibling::div/p[contains(@class,'descricao')]",
+        "type": "regex",
+        "pattern": "([Pp]iscina)"
+      },
+      {
+        "name": "churrasqueira",
+        "selector": "//h2[contains(text(),'Descrição do imóvel')]/parent::div/following-sibling::div/p[contains(@class,'descricao')]",
+        "type": "regex",
+        "pattern": "([Cc]hurrasqueira)"
+      },
+      {
+        "name": "academia",
+        "selector": "//h2[contains(text(),'Descrição do imóvel')]/parent::div/following-sibling::div/p[contains(@class,'descricao')]",
+        "type": "regex",
+        "pattern": "([Aa]cademia)"
+      },
+      {
+        "name": "salao_festas",
+        "selector": "//h2[contains(text(),'Descrição do imóvel')]/parent::div/following-sibling::div/p[contains(@class,'descricao')]",
+        "type": "regex",
+        "pattern": "([Ss]alão de [Ff]estas)"
+      },
+      {
+        "name": "playground",
+        "selector": "//h2[contains(text(),'Descrição do imóvel')]/parent::div/following-sibling::div/p[contains(@class,'descricao')]",
+        "type": "regex",
+        "pattern": "([Pp]layground)"
+      },
+      {
+        "name": "sacada",
+        "selector": "//h2[contains(text(),'Descrição do imóvel')]/parent::div/following-sibling::div/p[contains(@class,'descricao')]",
+        "type": "regex",
+        "pattern": "([Ss]acada)"
+      },
+      {
+        "name": "mobiliado",
+        "selector": "//h2[contains(text(),'Descrição do imóvel')]/parent::div/following-sibling::div/p[contains(@class,'descricao')]",
+        "type": "regex",
+        "pattern": "([Mm]obiliado)"
+      },
+      {
+        "name": "ar_condicionado",
+        "selector": "//h2[contains(text(),'Descrição do imóvel')]/parent::div/following-sibling::div/p[contains(@class,'descricao')]",
+        "type": "regex",
+        "pattern": "([Aa]r condicionado)"
+      },
+      {
+        "name": "lavanderia",
+        "selector": "//h2[contains(text(),'Descrição do imóvel')]/parent::div/following-sibling::div/p[contains(@class,'descricao')]",
+        "type": "regex",
+        "pattern": "([Ll]avanderia)"
+      },
+      {
+        "name": "escritorio",
+        "selector": "//h2[contains(text(),'Descrição do imóvel')]/parent::div/following-sibling::div/p[contains(@class,'descricao')]",
+        "type": "regex",
+        "pattern": "([Ee]scritório)"
+      },
+      {
+        "name": "closet",
+        "selector": "//h2[contains(text(),'Descrição do imóvel')]/parent::div/following-sibling::div/p[contains(@class,'descricao')]",
+        "type": "regex",
+        "pattern": "([Cc]loset)"
+      },
+      {
+        "name": "elevador",
+        "selector": "//h2[contains(text(),'Descrição do imóvel')]/parent::div/following-sibling::div/p[contains(@class,'descricao')]",
+        "type": "regex",
+        "pattern": "([Ee]levador)"
+      },
+      {
+        "name": "portaria_24h",
+        "selector": "//h2[contains(text(),'Descrição do imóvel')]/parent::div/following-sibling::div/p[contains(@class,'descricao')]",
+        "type": "regex",
+        "pattern": "([Pp]orteiro)"
+      },
+      {
+        "name": "aceita_permuta",
+        "selector": "//h2[contains(text(),'Descrição do imóvel')]/parent::div/following-sibling::div/p[contains(@class,'descricao')]",
+        "type": "regex",
+        "pattern": "([Pp]ermuta)"
+      },
+      {
+        "name": "financiamento",
+        "selector": "//h2[contains(text(),'Descrição do imóvel')]/parent::div/following-sibling::div/p[contains(@class,'descricao')]",
+        "type": "regex",
+        "pattern": "([Ff]inanciamento)"
+      }
+    ]
+  }
+}

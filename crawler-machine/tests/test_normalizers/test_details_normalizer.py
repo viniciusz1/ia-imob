@@ -1,4 +1,4 @@
-from src.normalization.normalizers.details_normalizer import DetailsNormalizer
+from crawler_machine.normalization.normalizers.details_normalizer import DetailsNormalizer
 
 
 def test_cleans_description():

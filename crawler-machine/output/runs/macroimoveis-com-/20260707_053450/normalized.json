@@ -1,0 +1,5122 @@
+{
+  "metadata": {
+    "normalized_at": "2026-07-07T05:45:30.551274+00:00",
+    "count": 251
+  },
+  "data": [
+    {
+      "url": "https://macroimoveis.com/1945",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_xTN83Qj50lcoIsxEYRXr-3hG1Binwv6NNcKdRYFwR_odvlQpUthpoiUd6PcZrK1Mc8UkEi8n1qG-pVVsCMieUH.jpg",
+      "tipo_imovel": "Residencial » Casa",
+      "quartos": 3,
+      "banheiros": 3,
+      "vagas": 4,
+      "valor": 990.0,
+      "area_privada": 290.0,
+      "bairro": "XV de Novembro",
+      "cidade": "Corupá",
+      "piscina": null,
+      "churrasqueira": null,
+      "sacada": null,
+      "mobiliado": null,
+      "aceita_permuta": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa",
+          "cidade fora do catálogo: Corupá"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1918",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_zTppG2j50laqksxEYRXr-3hG3AMvM9oHZzRP5kHRD4hWqXQ08Bc5GSJcWt7abS9bEpUUyEfqpdz6bfwQq44sLyAw.jpg",
+      "tipo_imovel": "Residencial » Casa",
+      "quartos": 2,
+      "banheiros": 2,
+      "vagas": 3,
+      "valor": 320.0,
+      "area_privada": 80.0,
+      "bairro": "Bananal do Sul",
+      "cidade": "Guaramirim",
+      "mobiliado": null,
+      "aceita_permuta": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa",
+          "cidade fora do catálogo: Guaramirim"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2245",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-QIVPZD32IUlNQQbDSG7ztTSCZ4S-eENkTljJV4wkIvNLnU4c4UPLpgYw5r34TL4Ee0ywFNRN0G187fTgwmGU-lBw.jpg",
+      "tipo_imovel": "Residencial » Casa",
+      "quartos": 3,
+      "banheiros": 1,
+      "vagas": 2,
+      "valor": 780.0,
+      "area_privada": 120.0,
+      "bairro": "Amizade",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1729",
+      "imagem": "https://img.apre.me/DcdJDoAgDADA3-QoiGw99C0GgZAago3G8H2d22SSCW6ja0IbsiCuhXiCoQeanP9NsrUioo1_70k4D75FBQzao2qDS_f3IAYdtaP8AQ.jpg",
+      "tipo_imovel": "Residencial » Casa",
+      "quartos": 3,
+      "banheiros": 3,
+      "vagas": 4,
+      "valor": 995.0,
+      "area_privada": 192.86,
+      "bairro": "Amizade",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "aceita_permuta": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2274",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-SIgCD00LcYFiU1BBuN4fvOFJIJfqV7QhuiEE0lnmDphSaXSs4Fex7J54jb3pNwGfzIEq1BDGZpg2vnLxODjtpT_QE.jpg",
+      "tipo_imovel": "Residencial » Casa",
+      "quartos": 3,
+      "banheiros": 2,
+      "vagas": 2,
+      "valor": 750.0,
+      "area_privada": 220.0,
+      "bairro": "Vila Baependi",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1832",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_xTp7KZHztLlIIsxEYRXr-3qtgCSnIv6NNcKaGJLojyQrfLFW6BMVNOR_Z9HKZ16mOeUoqMwfepbeh3igJuSFJ-.jpg",
+      "tipo_imovel": "Residencial » Casa",
+      "quartos": 3,
+      "banheiros": 2,
+      "vagas": 3,
+      "valor": 860.0,
+      "area_privada": 297.0,
+      "bairro": "Barra do Rio Cerro",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "aceita_permuta": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1967",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_xTXcPMj50lypUsxEYRXr-3CtuASHwPqN1cziisAyZ_odrlKKEgHiJ0pnltm2np_piPiIEQfe0qTb_dFcISIpcf.jpg",
+      "tipo_imovel": "Residencial » Casa",
+      "quartos": 4,
+      "banheiros": 1,
+      "vagas": 2,
+      "valor": 500.0,
+      "area_privada": 100.0,
+      "bairro": "Chico de Paulo",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2341",
+      "imagem": "https://img.apre.me/BcHbCoAgDADQv9mjzlvpw74lbIIsxEYR-n7nMOmCFOhe0KeaUlwjWeDpha6XwRpqiM1Hx2U7RlXhKY-aVDDv2dk_pQ35ThLAjIn4Bw.jpg",
+      "tipo_imovel": "Residencial » Casa",
+      "quartos": 4,
+      "banheiros": 1,
+      "vagas": 2,
+      "valor": 700.0,
+      "area_privada": 107.0,
+      "bairro": "Czerniewicz",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1706",
+      "imagem": "https://img.apre.me/BcHBDYAgDADAbfpEUAr20VkMgpIago3GsL53mXUALnwPqF0NkSssA2Z_oepl8IiYQzp9cDFsLankLo9ORN4iTbVLafLtLGBXi5x-.jpg",
+      "tipo_imovel": "Residencial » Casa",
+      "quartos": 3,
+      "banheiros": 1,
+      "vagas": 2,
+      "valor": 375.0,
+      "area_privada": 81.9,
+      "bairro": "Czerniewicz",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2466",
+      "imagem": "https://img.apre.me/BcHbCoAgDADQv9mjLm-Nh31LmIIsxEYR-n7nVNYF0fO9oE81OW_NZYHjF7pehnxA9HtN2Zd0jKJSpzxqKURyztk_pQ35ThZAwsj1Bw.jpg",
+      "tipo_imovel": "Residencial » Casa",
+      "quartos": 3,
+      "banheiros": 2,
+      "vagas": 3,
+      "valor": 990.0,
+      "area_privada": 160.0,
+      "bairro": "Czerniewicz",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2075",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_zTpjLTj50lbIIsxEYRXr-3hG0BRb4X9GmuFN9YFwR_odvlpCSkPcZaW07HqKYy9bGtBEwU-NantqHfyQqYkVh_.jpg",
+      "tipo_imovel": "Residencial » Casa",
+      "quartos": 3,
+      "banheiros": 3,
+      "vagas": 1,
+      "valor": 899.0,
+      "area_privada": 170.0,
+      "bairro": "Jaraguá Esquerdo",
+      "cidade": "Jaraguá do Sul",
+      "piscina": null,
+      "churrasqueira": null,
+      "sacada": null,
+      "mobiliado": null,
+      "aceita_permuta": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1996",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-TIIoLtoW8xCIbUEGw0hu87U1gnxMD3hDbUEPnKMmHhF5pe5oylUk15zYRp71mlDHnU4oYhem-bkNrlO1jAoYtcfg.jpg",
+      "tipo_imovel": "Residencial » Casa",
+      "quartos": 2,
+      "banheiros": 2,
+      "valor": 790.0,
+      "area_privada": 138.0,
+      "bairro": "Jaraguá 99",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "aceita_permuta": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2091",
+      "imagem": "https://img.apre.me/BcHbCoAgDADQv9mjV8z2sG_JqSELsVGEv985lXRBinQv6FMNom8kCwK90PUyrTDXHM7IGbdjsEqd8qjFkJKL3vYpbchXSMDtLlH9AQ.jpg",
+      "tipo_imovel": "Residencial » Casa",
+      "quartos": 3,
+      "banheiros": 3,
+      "vagas": 2,
+      "valor": 950.0,
+      "area_privada": 141.37,
+      "bairro": "Jaraguá 99",
+      "cidade": "Jaraguá do Sul",
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1536",
+      "imagem": "https://img.apre.me/BcFJCoAwDADA3_RYa0K3Q94immKJlBoU6fedEbYJgfie0Ia5UtbKOgH5hWaXQyFCIsEzxLj13VSGPrZQyljS0obWrt-BCj77wPID.jpg",
+      "tipo_imovel": "Residencial » Casa",
+      "quartos": 3,
+      "sala": 1,
+      "banheiros": 2,
+      "vagas": 1,
+      "valor": 350.0,
+      "area_privada": 150.0,
+      "bairro": "Jaraguá 99",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1238",
+      "imagem": "https://img.apre.me/BcHbCoAgDADQv9mjl6WhD-uWyImyEBtF_Pudw6QL4kb3gj7V5OwryQKkF7peJjNiKw2D57gf41ThKY-a5FzAaPuUOuQrJOCSi8Q-.jpg",
+      "tipo_imovel": "Residencial » Casa",
+      "quartos": 3,
+      "banheiros": 2,
+      "vagas": 3,
+      "valor": 600.0,
+      "area_privada": 132.75,
+      "bairro": "João Pessoa",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2259",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-SIbBU59C0GiyE1BBuN4fvOMOkEDHRPaENNzq6STPD0QtPLBFsiek4np7zuvajwkEcXiy6m5JY2pHb5DhKwm0XiHw.jpg",
+      "tipo_imovel": "Residencial » Casa",
+      "quartos": 3,
+      "banheiros": 1,
+      "vagas": 2,
+      "valor": 670.0,
+      "area_privada": 111.54,
+      "bairro": "João Pessoa",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2425",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_xTp6Lpx84SNVEWYqMIr997TLogBroX9KmmFFdJFnh6oetlKvOGtWFqeKR9HCo85VGbc8jBedun1CHfSQKYMRL-.jpg",
+      "tipo_imovel": "Residencial » Casa",
+      "quartos": 2,
+      "banheiros": 1,
+      "vagas": 3,
+      "valor": 450.0,
+      "area_privada": 60.0,
+      "bairro": "Nereu Ramos",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1989",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-SI7NJD32JkCakh2GgM33emkCwIju4FfYpCNJV4gaUXulwqtpTRh9K8TfEYp3CZ-MiGdkdnzNYn18FfJgaddKDyAw.jpg",
+      "tipo_imovel": "Residencial » Casa",
+      "quartos": 2,
+      "banheiros": 2,
+      "vagas": 3,
+      "valor": 500.0,
+      "area_privada": 91.0,
+      "bairro": "Nereu Ramos",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "aceita_permuta": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2113",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-TIVsFy6FuMQiQ1BBuN4fvOFNYJEfme0IaanH1lmRD4haaXCYtDX-BcY6W09V2lDHnUJkeB0Ns2pHb5DhZw5CKXHw.jpg",
+      "tipo_imovel": "Residencial » Casa",
+      "quartos": 4,
+      "banheiros": 2,
+      "vagas": 4,
+      "valor": 899.0,
+      "area_privada": 180.0,
+      "bairro": "Rau",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "aceita_permuta": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2145",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_xTnTlxHztLlIIsxEYRXr-3qtgC2uRe0Kc5ZmyiC6K80O1yDVthIs4xcN7HYVqnPuYxMeeEvk9tQ79TFEIJJPUH.jpg",
+      "tipo_imovel": "Residencial » Casa",
+      "quartos": 5,
+      "banheiros": 4,
+      "vagas": 2,
+      "valor": 590.0,
+      "area_privada": 158.1,
+      "bairro": "Rau",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "aceita_permuta": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2427",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-TIpqAc_hYDRUgNwUZj_L4zhDLBL3hPaENUjLYgT3D4QpNLnetScyXrjU3h6EmYBj_iQ9yct063waXzl5HB7MYj-Q.jpg",
+      "tipo_imovel": "Residencial » Casa",
+      "quartos": 2,
+      "banheiros": 2,
+      "vagas": 2,
+      "valor": 650.0,
+      "area_privada": 117.0,
+      "bairro": "Rau",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1661",
+      "imagem": "https://img.apre.me/BcHbCoAgDADQv9mjzsLbw74lbKIsxEYR-n7nMOkCv9O9oE81ObtKsmCjF7pepjqOrjUuroVwjKLCUx61CVPEbPuUOuQ7SQATeuIf.jpg",
+      "tipo_imovel": "Residencial » Casa",
+      "quartos": 3,
+      "banheiros": 3,
+      "vagas": 2,
+      "valor": 890.0,
+      "area_privada": 75.0,
+      "bairro": "Rau",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "aceita_permuta": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1532",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-SICCnLoW8xQpXUEGw0hu87U0knoKd7Qhtqcl6ZZIKjF5pe5mAMPhd2J4aw9V2lDnl0SdGnFJc2hLt8hQRsskj1Bw.jpg",
+      "tipo_imovel": "Residencial » Casa",
+      "quartos": 4,
+      "sala": 2,
+      "banheiros": 2,
+      "vagas": 2,
+      "valor": 300.0,
+      "area_privada": 120.0,
+      "bairro": "Rio da Luz",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1601",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-QIRWQ79C0GQUkNwUZj_L4zhWSCs3RPaENUSqYST1johSaXqvVM_QgBMXm-9SxcBj_izeqti7oNrp2-nRgwoqPyAw.jpg",
+      "tipo_imovel": "Residencial » Casa",
+      "quartos": 4,
+      "banheiros": 3,
+      "vagas": 1,
+      "valor": 730.0,
+      "area_privada": 215.17,
+      "bairro": "São Luís",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2452",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_zTdGXox84SOlMWYqMIr997TDrBr3RPaENNjK6QTEB6oellasnVJfZnxbQfPanwkEeXLQZnEZc2pHT5MgnYYD3xDw.jpg",
+      "tipo_imovel": "Residencial » Casa",
+      "quartos": 3,
+      "banheiros": 1,
+      "vagas": 2,
+      "valor": 530.0,
+      "area_privada": 105.0,
+      "bairro": "São Luís",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "aceita_permuta": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/562",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_xT19KYHztLlIosxEYRXr-3stiEuMo9oQ1zKS1FdALJC63a5ZhrQKox5kDb3g-TPPQxT4zM5NvQ0vU7RQEZo_Qf.jpeg",
+      "tipo_imovel": "Residencial » Casa",
+      "quartos": 2,
+      "banheiros": 1,
+      "vagas": 1,
+      "valor": 600.0,
+      "area_privada": 104.0,
+      "bairro": "São Luís",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2399",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_xTbTJtHztLlJIsxEYRXr-3itgEinJPaMMc81JFJ6C80OxyBRkTE8b95LT13bQMfcznSJwD_ja0dv0OUQhrICk-.jpg",
+      "tipo_imovel": "Residencial » Casa",
+      "quartos": 3,
+      "banheiros": 2,
+      "vagas": 2,
+      "valor": 737.0,
+      "area_privada": 85.5,
+      "bairro": "São Luís",
+      "cidade": "Jaraguá do Sul",
+      "piscina": null,
+      "churrasqueira": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2208",
+      "imagem": "https://img.apre.me/BcFJCsAgDADA3_SoUXE75C2lLkiK2NBS-H5nKskG7_jeMJaonE0j3mDphSGXKq7YXkPH6HI45ilcFz_iEVOO3uixuE3_CjFgQk-1Bw.jpg",
+      "tipo_imovel": "Residencial » Casa",
+      "quartos": 4,
+      "banheiros": 2,
+      "vagas": 3,
+      "valor": 520.0,
+      "area_privada": 184.0,
+      "bairro": "Tifa Martins",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "aceita_permuta": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1957",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-SIBVOWQ99iZAmpIdhoDN93prAuoJ3vBX2qSclWlgWOX_h6GXTWx4DUcgv_GKdKmfLoFkMiZ_3Wp9QhX2YBjEhcfg.jpg",
+      "tipo_imovel": "Residencial » Casa",
+      "quartos": 4,
+      "banheiros": 2,
+      "vagas": 2,
+      "valor": 550.0,
+      "area_privada": 150.0,
+      "bairro": "Tifa Martins",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "aceita_permuta": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2081",
+      "imagem": "https://img.apre.me/BcFJCsAgDADA3_ToVjR6yFtKVJAUsaGl_P3ONNIN8aB7w1hqSvGdZEOgF4ZeBpGPyrkGLjmdk1XakkdtxIQYvB1L_pSvkoDLLlL7AQ.jpg",
+      "tipo_imovel": "Residencial » Casa",
+      "quartos": 4,
+      "banheiros": 3,
+      "vagas": 2,
+      "valor": 380.0,
+      "area_privada": 200.0,
+      "bairro": "Tifa Martins",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2337",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_zTdGXqx84STVEWYqMIr997mXSCX_me0IaalFwhmYD0QtPLFK5b8Ogqc9qPfqrkIY8uiA5DdEsbUrp8TAI2Wk-5Bw.jpg",
+      "tipo_imovel": "Residencial » Casa",
+      "quartos": 1,
+      "banheiros": 1,
+      "vagas": 3,
+      "valor": 426.0,
+      "area_privada": 38.11,
+      "bairro": "Três Rios do Norte",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1645",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-TIpmU59C0GgZAago3G8H1nCskC3Ohe0KeolGwlXuDohS6XcnuovmHLvgV-jCxcJj_irUuYou6T6_DvJAYTDVL5AQ.jpg",
+      "tipo_imovel": "Residencial » Casa",
+      "quartos": 3,
+      "banheiros": 3,
+      "vagas": 2,
+      "valor": 988.0,
+      "area_privada": 150.0,
+      "bairro": "Três Rios do Norte",
+      "cidade": "Jaraguá do Sul",
+      "piscina": null,
+      "churrasqueira": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2434",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_xTnanox84SOkEWYqMIr997TLohHnRvGEtNKdhJNnh6YehlSq6tOx_5YE3nrCq85FGLAUNCb8eSPuVrJOCyi8Q-.jpg",
+      "tipo_imovel": "Residencial » Casa",
+      "quartos": 2,
+      "banheiros": 1,
+      "vagas": 2,
+      "valor": 599.0,
+      "area_privada": 120.0,
+      "bairro": "Três Rios do Norte",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "aceita_permuta": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2424",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_xTp87Kj50lTEkWYqMIr997hXVCDHxPaENNSq6yTPD8QtPLZKI1Uyh4Yl72nlXKkEetC0TeeduG1C7fwQK4YeTyAw.jpg",
+      "tipo_imovel": "Residencial » Casa",
+      "quartos": 3,
+      "banheiros": 2,
+      "vagas": 2,
+      "valor": 965.0,
+      "area_privada": 150.0,
+      "bairro": "Três Rios do Norte",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "aceita_permuta": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1818",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_xTZzaZHztLpIIsxEYRXr-3qtgCinIv6NNczqGJLtjkhW6X24lbCoWII6djnKZ16mOeMQbC4PvUNvQrooCMJPUH.jpg",
+      "tipo_imovel": "Residencial » Casa",
+      "quartos": 3,
+      "banheiros": 3,
+      "vagas": 2,
+      "valor": 899.0,
+      "area_privada": 162.03,
+      "bairro": "Três Rios do Norte",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "aceita_permuta": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1959",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-SI7MuhbzFKCakh2GgM33emoiwIDu8FfYoqxRDyAosvdLlUI03a_OyopbiPQ7hOfmRLPkVrzNYn0_DvRAaddcD6Aw.jpg",
+      "tipo_imovel": "Residencial » Casa",
+      "quartos": 3,
+      "banheiros": 2,
+      "vagas": 2,
+      "ano": 2013,
+      "valor": 860.0,
+      "area_privada": 144.0,
+      "bairro": "Três Rios do Sul",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "aceita_permuta": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2332",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_xTXabpx84SOkEWYqMIr997TLogeLoX9KkmZ2wkCzZ6oetlYkkH7zlWrDmeo6jwlEct_oAxoe1T2pCvkoBLLhD-.jpg",
+      "tipo_imovel": "Residencial » Casa",
+      "quartos": 4,
+      "banheiros": 2,
+      "vagas": 3,
+      "valor": 820.0,
+      "area_privada": 181.87,
+      "bairro": "Três Rios do Sul",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1958",
+      "imagem": "https://img.apre.me/BcHbCoAgDADQv9mjTWWaD-uWyAuyEBtF_PudU1gXkOd7QZ9qUrKVZYHjF7peBkMjDJ5abjEc41QpUx7dUkzkrN36lDrkyyyAOxKXHw.jpg",
+      "tipo_imovel": "Residencial » Casa",
+      "quartos": 3,
+      "banheiros": 2,
+      "vagas": 2,
+      "valor": 780.0,
+      "area_privada": 117.86,
+      "bairro": "Três Rios do Sul",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "aceita_permuta": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1960",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_zTNsvMj50lSocsxEYRXr-3MtuAMPM9oHZzKVFhHeD5hWqXk7RQTIIiEte9Haa562MTYYyeaKpdS9PvZAXcMHD_AQ.jpg",
+      "tipo_imovel": "Residencial » Casa",
+      "quartos": 2,
+      "banheiros": 2,
+      "vagas": 2,
+      "valor": 690.0,
+      "area_privada": 130.0,
+      "bairro": "Vila Lenzi",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "aceita_permuta": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/927",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-TIIvuhbzFIDakh2GgM33emoSwIDu8FfYoqxRLygg1f6HIpkyxFSzWHM8V9VOE2_REdTXLe6z6ZBn8HMphsArYf.jpg",
+      "tipo_imovel": "Residencial » Casa",
+      "quartos": 1,
+      "banheiros": 4,
+      "vagas": 2,
+      "valor": 750.0,
+      "area_privada": 175.0,
+      "bairro": "Schroeder I",
+      "cidade": "Schroeder",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "aceita_permuta": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa",
+          "cidade fora do catálogo: Schroeder"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2298",
+      "imagem": "https://img.apre.me/BcHbCoAgDADQv9mjTcXbw74lbJIsxEYR-n7nMOmC4Ole0KeaUmwjWeDoha6XiTlhwhMrlxL3UVV4yqMberQu261PaUO_gwQwYyD_AQ.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 2,
+      "banheiros": 2,
+      "vagas": 1,
+      "valor": 390.0,
+      "area_privada": 62.0,
+      "bairro": "Amizade",
+      "cidade": "Guaramirim",
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento",
+          "cidade fora do catálogo: Guaramirim"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2385",
+      "imagem": "https://img.apre.me/BcHbCoAgDADQv9mjOsVyD-uWyAuyEBtF_PudU1gXxMD3gj7VEGFlWeD5ha6XSXjWnKtrrtF2jFOlTHnUBr8HJLR9Sh3yZRZwyUUuPw.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 3,
+      "banheiros": 1,
+      "vagas": 1,
+      "valor": 515.0,
+      "area_privada": 80.0,
+      "bairro": "Água Verde",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "aceita_permuta": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1016",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_xTLafox84SOVEWYqMIr997TLogeLoX9Kkm562SLNjpha6XQa4utVY8RozHOFV4yqMWQ0oRbZ9Sh3yFBFxygfgH.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 3,
+      "banheiros": 2,
+      "vagas": 1,
+      "valor": 480.0,
+      "area_privada": 135.0,
+      "bairro": "Amizade",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2193",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_zTprHSj50lzJUsxEYRXr-3CtsAmvkeULu5lLywDgj8QrXLxXxk8RLwDGnZWjYtXR_bCBFX8lPtKk2-nRUwInH5AQ.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 3,
+      "banheiros": 2,
+      "vagas": 1,
+      "valor": 446.0,
+      "area_privada": 118.0,
+      "bairro": "Amizade",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "sacada": null,
+      "elevador": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2256",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-SIbBU49C1GSyQ1BBuN4fvOMOkEDHRPaENNKa6STPD0QtPLRDxTtBk5p7JufVfhIY8u1vsQklvakNrlO0jAZovEPw.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 2,
+      "banheiros": 2,
+      "vagas": 1,
+      "valor": 485.0,
+      "area_privada": 76.26,
+      "bairro": "Amizade",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2167",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_zTXMNwHztLNCVZiI0ivH7vFfEJieSe0IYHZqxiE1Z5ofkVGIn0VE2KvO39cCvDHl8yRY4JlzasdvtUDGKOScoP.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 2,
+      "banheiros": 1,
+      "vagas": 1,
+      "valor": 400.0,
+      "area_privada": 89.6,
+      "bairro": "Vila Baependi",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "sacada": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2465",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_xTp8vQj50lcoIsxEYRXr-3hG1BIr4X9GmulNBYF0R_odvlCKtIDrgVOvdjnKYy9TFPRDnG6PvUNvSrrIAZE8sP.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 2,
+      "banheiros": 1,
+      "vagas": 1,
+      "valor": 340.0,
+      "area_privada": 57.41,
+      "bairro": "Vila Baependi",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2464",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_xTbTLRj50lTEUmYqMIr997hXUDeb439KUmpaOybEB_oeswiLU1IvLJ53DOrFKWPGopYERE25fUKd-FAi464vID.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 2,
+      "banheiros": 1,
+      "vagas": 1,
+      "valor": 390.0,
+      "area_privada": 57.41,
+      "bairro": "Vila Baependi",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2461",
+      "imagem": "https://img.apre.me/BcFJCsAgDADA3_ToErHoIW8pakRSxIaW4vc700g3xED3hrHU5OyZZAPSC0Mvw9x7qjlUDOU4Z1FpSx616JJHRDuW8JSvkoBLLlL7AQ.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 2,
+      "banheiros": 1,
+      "vagas": 1,
+      "valor": 375.0,
+      "area_privada": 57.0,
+      "bairro": "Vila Baependi",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2436",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-SIFC3CoW8xLIbUEGw0hu87U1gn0Mr3hDbUxIiVZYLjF5peJlnKIW14Rkz_6EmlDHl0od2RR7e0IbXLl1nABktcfg.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 2,
+      "banheiros": 1,
+      "vagas": 1,
+      "valor": 590.0,
+      "area_privada": 79.52,
+      "bairro": "Vila Baependi",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1402",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_zTlkPTj50ldIIsxEYRXr-3hG1BIL4X9Gku572xLvD8QrfL_VKookg6WojnKKYy9bENM3mKW5-ahn6VFTBhYPkB.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 3,
+      "sala": 1,
+      "banheiros": 2,
+      "vagas": 1,
+      "valor": 550.0,
+      "area_privada": 118.0,
+      "bairro": "Vila Baependi",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "aceita_permuta": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2215",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-SIbDX00LcYBSQ1BBuN4fvOZNYJGPie0IYaIldYJnh_oellYqjenxFzqrRufVfJQx5dQiCX0C1tSOnyHSxgk0XOPw.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 2,
+      "banheiros": 2,
+      "vagas": 1,
+      "valor": 459.0,
+      "area_privada": 86.15,
+      "bairro": "Vila Baependi",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2048",
+      "imagem": "https://img.apre.me/BcHbCoAgDADQv9mjVzT3sG_JnCQLsVGEv985TLogRboX9KkG0TeSBYFe6HoZDvmsbvOMqeR9HCo85VEbAxb03vYpbchXScAVl4h-.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 3,
+      "banheiros": 2,
+      "vagas": 1,
+      "valor": 659.0,
+      "area_privada": 84.59,
+      "bairro": "Vila Baependi",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2470",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-TIUqzKoW8xLIbUEGw0hu87U1gnUOB7QhtqYvSVZQLyC00vk8lhqCdtNaT16EmlDHnULugxINo2pHb5Mgu43RGXHw.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 2,
+      "banheiros": 1,
+      "valor": 430.0,
+      "area_privada": 66.19,
+      "bairro": "Barra do Rio Cerro",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2384",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-SIILL00LcYoZHUEGw0hu87U0knBE-3hDbUIDommbDSC00vU1J2PjHjyRj3fqjUIY8uuEXv0C1tCHf5CgnYbAPVHw.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 3,
+      "banheiros": 2,
+      "vagas": 2,
+      "valor": 475.0,
+      "area_privada": 105.46,
+      "bairro": "Barra do Rio Cerro",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1248",
+      "imagem": "https://img.apre.me/BcFJCsAgDADA3_To2oge8pbihqSIDS3F73emkmxAT-eGsUSlZBvxBkcvjC6Xyq30EHzE3o9wzixcFz_ig7PoUI-FbfJXiMFEg1R-.jpeg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 2,
+      "banheiros": 1,
+      "vagas": 1,
+      "valor": 395.0,
+      "area_privada": 63.0,
+      "bairro": "Barra do Rio Cerro",
+      "cidade": "Jaraguá do Sul",
+      "elevador": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2388",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_xTl2a0j50ldIYsxEYRXr-3hG1CinxPaMMc0VJZJwR_odnlKFOqGQXppO3o2VSGPubjGjFg8G1o7foVVsAdE8sP.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 2,
+      "banheiros": 1,
+      "vagas": 1,
+      "valor": 410.0,
+      "area_privada": 75.42,
+      "bairro": "Barra do Rio Cerro",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "aceita_permuta": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1236",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_zTNF3mx84SNkUWYqMIr997TDoBPd0T2lCTkiskE1Z6oellsGJxqWYfGLejZxUe8ugSYowOlzakdPlOErC7ReIf.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 3,
+      "banheiros": 2,
+      "vagas": 1,
+      "valor": 429.0,
+      "area_privada": 102.0,
+      "bairro": "Barra do Rio Cerro",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2478",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-TIjsKhbzEUDKkh2GgM33emoiyIHu8FfYrK2TbkBQ5f6HIpikTWlnjuoWzHKMJ18iPaW5eCc7pPboM-QgaTTMT6Aw.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 2,
+      "banheiros": 1,
+      "vagas": 1,
+      "valor": 370.0,
+      "area_privada": 79.0,
+      "bairro": "Centro",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1848",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-SIbBU49C1GIJAago3G8H1nCskCdHQv6FNUSqYSL7D0QpdLJd9aTBWty2E-xilcJj_yodE_aLP1yXXwl4lBR41Ufg.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 3,
+      "banheiros": 2,
+      "vagas": 1,
+      "valor": 535.0,
+      "area_privada": 89.0,
+      "bairro": "Centro",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "sacada": null,
+      "mobiliado": null,
+      "aceita_permuta": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2164",
+      "imagem": "https://img.apre.me/BcFbCoAgEAXQ3cynzwzvx6wlTEEmxIYi3H7nVNZFKfK9qE81gG8siwK-1PUyDakAISEH7McoKnXKozb7CGze9iltyHeykMsucf0B.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 3,
+      "banheiros": 3,
+      "vagas": 1,
+      "valor": 590.0,
+      "area_privada": 82.92,
+      "bairro": "Centro",
+      "cidade": "Jaraguá do Sul",
+      "piscina": null,
+      "mobiliado": null,
+      "elevador": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1487",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-SIWGQ79C1GCyE1BBuN4fvOMOkE7_ie0IaanNdCMgHphaaXsYiuOuQaMYS9Hyo85NElhpi2uLQhpct3koBN1hP-.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 2,
+      "sala": 1,
+      "banheiros": 2,
+      "vagas": 1,
+      "valor": 940.0,
+      "area_privada": 138.79,
+      "bairro": "Centro",
+      "cidade": "Jaraguá do Sul",
+      "piscina": null,
+      "churrasqueira": null,
+      "mobiliado": null,
+      "elevador": null,
+      "aceita_permuta": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1560",
+      "imagem": "https://img.apre.me/BcFJCoAwDADA3_TYTVqTQ94iXaRESg2K9PvOVNYFceN7QZ9qiHxjWRD4ha6X2QtiOXP25DEdI6vUKY9aCmlzaPuUNuQrLODQRa4-.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 3,
+      "sala": 1,
+      "banheiros": 2,
+      "vagas": 1,
+      "valor": 400.0,
+      "area_privada": 87.44,
+      "bairro": "Centro",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "aceita_permuta": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2435",
+      "imagem": "https://img.apre.me/BcHbCoAgDADQv9mjV2b5sG8JnSQLsVGEv985TLoAI90L_lSTs28kCwK90PUy5azst8It_5KOUVR4yqMWY8Dkg_1T2pCvkoDbHRL-.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 2,
+      "banheiros": 2,
+      "vagas": 1,
+      "valor": 695.0,
+      "area_privada": 98.8,
+      "bairro": "Centro",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "elevador": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2406",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_xTN1PRj50lTEkWYqMIr997lXVB2Phe0KeanKmxLHD8QtfLJEJ-xq2QwxL3UVTqlEct_eATOtuntCHfwQKYMHD9AQ.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 3,
+      "banheiros": 2,
+      "vagas": 1,
+      "valor": 890.0,
+      "area_privada": 101.0,
+      "bairro": "Centro",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "elevador": null,
+      "aceita_permuta": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1726",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_zTnOnSj50lUkMWYqMIr997hXVCWPme0IaalLCyTHD8QtPLRDqzJ_8xYaS9HyplyKPLhs5SWtqQ2uXLLGCjDVx_.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 2,
+      "banheiros": 1,
+      "vagas": 1,
+      "valor": 299.0,
+      "area_privada": 62.38,
+      "bairro": "Centro",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "aceita_permuta": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1262",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_zTnDrJj50lcoIsxEYRXr-3hG0BRb4X9GmuFGysCwK-0O1yFTGRILaUKR-jNJWpj20lJIq09alt6FdZwe_eWH4.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 3,
+      "banheiros": 2,
+      "vagas": 2,
+      "valor": 650.0,
+      "area_privada": 188.11,
+      "bairro": "Centro",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "aceita_permuta": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1659",
+      "imagem": "https://img.apre.me/BcFJCsAgDADA3_ToFrR6yFuKC0qK2NBS-H5nKskGj3RvGEtUSrYRb3D0wpBLuRhtzqFb7CGcMwvXxY9oj3iYpMfiNvkrxGCi8VR-.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 3,
+      "sala": 1,
+      "banheiros": 2,
+      "vagas": 1,
+      "valor": 720.0,
+      "area_privada": 122.5,
+      "bairro": "Centro",
+      "cidade": "Jaraguá do Sul",
+      "piscina": null,
+      "playground": null,
+      "sacada": null,
+      "mobiliado": null,
+      "elevador": null,
+      "aceita_permuta": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1633",
+      "imagem": "https://img.apre.me/BcHbCoAgDADQv9mjTfP6sG8JmyALsVGEv985TLog7HQv6FNNKbaRLHD0QtfLhIqYvC0_cYzHqCo85dHNpYQlb31KG-KdJIAZA-EP.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 3,
+      "sala": 1,
+      "banheiros": 2,
+      "vagas": 2,
+      "valor": 780.0,
+      "area_privada": 103.31,
+      "bairro": "Czerniewicz",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "playground": null,
+      "mobiliado": null,
+      "elevador": null,
+      "aceita_permuta": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1296",
+      "imagem": "https://img.apre.me/BcHBDYAgDADAbfqEohTk0VmMgpIago3GsL53mXUAzXwPqF1NSq6wDJj4haqXKbM-Q3bFhYPC2jaV3OVRizGiJ1u7lCbfzgK4IHH_AQ.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 3,
+      "banheiros": 2,
+      "vagas": 1,
+      "ano": 2011,
+      "valor": 520.0,
+      "area_privada": 98.28,
+      "bairro": "Czerniewicz",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2163",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-TIjthD32JkCakh2GgM33emkCyInu4FfYpCtJV4gaMXulzK1dAyNkzG43aMU7hMfkSnYBCD1X1yHfxlYjC7iVR_.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 2,
+      "banheiros": 2,
+      "vagas": 1,
+      "valor": 430.0,
+      "area_privada": 60.5,
+      "bairro": "Czerniewicz",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "sacada": null,
+      "mobiliado": null,
+      "aceita_permuta": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/971",
+      "imagem": "https://img.apre.me/BcHBDYAgDADAbfpELKDw6CwGqZIago3GsL53hXRAcHQPqF1NSjOTDEB6oeplkOOZA7uj5HXZWlYpXR6dPDoMfqpduMm3k4CNNlD5AQ.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 3,
+      "banheiros": 2,
+      "vagas": 1,
+      "valor": 710.0,
+      "area_privada": 158.0,
+      "bairro": "Czerniewicz",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "academia": null,
+      "elevador": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2183",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_xT58zQj50lcoIsxEYRXr-3hG1Binwv6NNcKaGxLiB_odvlRKJkqvncqOzHOE1l6mMekYhS8H1qG-pVVsCMieUH.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 1,
+      "banheiros": 2,
+      "vagas": 1,
+      "valor": 660.0,
+      "area_privada": 60.03,
+      "bairro": "Czerniewicz",
+      "cidade": "Jaraguá do Sul",
+      "piscina": null,
+      "academia": null,
+      "mobiliado": null,
+      "elevador": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1341",
+      "imagem": "https://img.apre.me/BcHbCoAgDADQv9mjeZvmw74lcoIsxEYR-n7nMOkCDHQv6FNNKa6RLPD0QtfL_MI518rWRUzHOFV4yqNbiDYhbn1KG-JVErC7ReIf.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 3,
+      "banheiros": 3,
+      "vagas": 1,
+      "valor": 924.0,
+      "area_privada": 138.04,
+      "bairro": "Czerniewicz",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "elevador": null,
+      "aceita_permuta": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2396",
+      "imagem": "https://img.apre.me/BcFJCoAwDADA3_TYxm6YQ94iXbBESg2K9PvOVNYF0fO9oE81RFtjWeD4ha6XianlQkjkT0rHyCp1yqPWOwoJne1T2pCvsADuGLn_.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 2,
+      "banheiros": 2,
+      "vagas": 1,
+      "valor": 470.0,
+      "area_privada": 55.61,
+      "bairro": "Czerniewicz",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2395",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-SIlU166FuMQCQ1BBuN4fvOFNYJwfE9oQ01RGtlmWD5haaXcTFvDqsnd1Lc_6FShjy6pJR8RLu0IbXLl1kAEwYuPw.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 2,
+      "banheiros": 1,
+      "vagas": 1,
+      "valor": 430.0,
+      "area_privada": 50.8,
+      "bairro": "Czerniewicz",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2203",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-SILGHpoW8xUiKpIdhoDN93hkkXxED3gj7VILpGssDTC10vk0ttgfHMNmDax6HCUx7drMeUo9v6lDbkqyRgi43EPw.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 3,
+      "banheiros": 2,
+      "vagas": 1,
+      "valor": 767.99,
+      "area_privada": 93.83,
+      "bairro": "Czerniewicz",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "elevador": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1795",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_xTnWm6j50lSkMWYqMIr997hXVCXPie0IYaIqwsEzy-0PQyGbOvGE9KlNat7yplyKM2UcjBoW1DapfvYAGXXeTyAw.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 3,
+      "banheiros": 2,
+      "vagas": 1,
+      "valor": 690.0,
+      "area_privada": 94.01,
+      "bairro": "Czerniewicz",
+      "cidade": "Jaraguá do Sul",
+      "piscina": null,
+      "churrasqueira": null,
+      "playground": null,
+      "mobiliado": null,
+      "elevador": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2269",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-TIJgg99C1GlpAago3G8H1nCsmCsNG9oE9RiLYSL3D0QpdLWfS5NazoE_7HOIXL5Ed0cC6maHWfXAd-mRhMMoHKDw.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 3,
+      "banheiros": 2,
+      "vagas": 2,
+      "valor": 730.0,
+      "area_privada": 115.0,
+      "bairro": "Ilha da Figueira",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "elevador": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1793",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_zTnGm6j50laoIsxEYRXr-3hG1CWvme0IY5IqysEwK-0OxyWCWkLIEy5W3vh6kMfWzBEkv0uLShtet3soIvPrH8.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 2,
+      "banheiros": 1,
+      "vagas": 1,
+      "valor": 400.0,
+      "area_privada": 65.12,
+      "bairro": "Jaraguá Esquerdo",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "elevador": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2221",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-TIahEOfYthiaSGYKMxfN_ZSrIAPd0L_hSVkm3ECxy90OVSNWLx7gzZbikcIwvXyY9o53ZMaHWf3AZ-hRhMNEj1Bw.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 2,
+      "banheiros": 1,
+      "vagas": 1,
+      "valor": 460.0,
+      "area_privada": 56.0,
+      "area_util": 114.0,
+      "bairro": "Jaraguá Esquerdo",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1840",
+      "imagem": "https://img.apre.me/DchJDoAgDADA3-SIILId_hZTwJAago3G8H2d4xSUCc7iNaENUSmZijxhxQeanCrkg2z02hAFv3cSLoNvWczm-L9LG1w7vxkZdNQOywc.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 3,
+      "banheiros": 2,
+      "vagas": 2,
+      "valor": 850.0,
+      "area_privada": 115.15,
+      "bairro": "Jaraguá Esquerdo",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "elevador": null,
+      "aceita_permuta": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1617",
+      "imagem": "https://img.apre.me/BcFJCsAgDADA3_So1t1D3lKigqSIDS3F73emoWwIDu8NY4kq5ejIGyy_MORSlGL3rmZPFOM5SbgtfkQXa13Keizuk7_KDCabgO0H.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 2,
+      "banheiros": 2,
+      "vagas": 1,
+      "valor": 349.0,
+      "area_privada": 61.35,
+      "bairro": "Jaraguá Esquerdo",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2387",
+      "imagem": "https://img.apre.me/BcFJCoAwDADA3_RYm2rEHPIW6aIlUmpQpN93JosNoFnuAbWbY8YiOiDIC9Uux2dZiFMMePC6t2iauz42eSRCxql2LU2-JAp_8yT5Bw.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 3,
+      "banheiros": 2,
+      "vagas": 1,
+      "valor": 590.0,
+      "area_privada": 129.0,
+      "bairro": "Jaraguá Esquerdo",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1684",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-TIpkg59C1GiiE1BBuN4fvOMOmEuNA9oQ01OftKMiHQC00vw4g1rMGX06Vt74cKD3nUuoTos21DapevkIBDF4l-.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 2,
+      "banheiros": 1,
+      "vagas": 1,
+      "valor": 339.545,
+      "area_privada": 46.12,
+      "bairro": "Jaraguá Esquerdo",
+      "cidade": "Jaraguá do Sul",
+      "piscina": null,
+      "churrasqueira": null,
+      "playground": null,
+      "elevador": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2099",
+      "imagem": "https://img.apre.me/BcHbCoAgDADQv9mjl5ZOH-YtYQqyEBtF_PudU1kXBOR7QZ9qcvaNZcHGL3S9TNhTSYXIYU3xGEWlTnnUEmaK6G2f0oZ8Jwu45ALXHw.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 2,
+      "banheiros": 2,
+      "vagas": 2,
+      "valor": 990.0,
+      "area_privada": 120.0,
+      "bairro": "Jaraguá Esquerdo",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "elevador": null,
+      "aceita_permuta": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2447",
+      "imagem": "https://img.apre.me/DcpLCoAgEADQ28zSv_Ys5ixhCjIhNhTh9eutXyVZED1dC-oUhWgb8QJHD3Q5lc0heRsNoitpH0W4Tr5Fbyn81ek_uQ1_D2Iw2USqHw.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 2,
+      "banheiros": 1,
+      "vagas": 1,
+      "valor": 369.0,
+      "area_privada": 56.19,
+      "bairro": "Jaraguá 99",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2353",
+      "imagem": "https://img.apre.me/BcHbCoAgDADQv9mjl0SZD-uWsJmyEBtF_Pudw6QLYqB7QZ9qcvaVZMFGL3S9TMstYOHjrK6kfRQVnvKozT4FRG-7lDrkO0jAoYvEPw.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 2,
+      "banheiros": 1,
+      "vagas": 1,
+      "valor": 310.0,
+      "area_privada": 63.75,
+      "bairro": "João Pessoa",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2350",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_zTZmZtHztLmJIsxEYRXr-3stiAGOQeULs5Zl9EB8zyQrXLncQLpoBbzLzuLZnmro9NTCEQ_al2LU2-QxSQMEr_AQ.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 2,
+      "banheiros": 1,
+      "vagas": 1,
+      "valor": 295.0,
+      "area_privada": 51.37,
+      "bairro": "Nereu Ramos",
+      "cidade": "Jaraguá do Sul",
+      "piscina": null,
+      "churrasqueira": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/180",
+      "imagem": "https://img.apre.me/BcFJCsAgDADA3_ToElH0kLcUjVRSxIaW4vc7w6QbYqB7w1hqSvGdZAPSC0Mvg2dPnALm2mI6ZlXhJY-akNCjt2NJn-I1EnDZReIf.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 2,
+      "banheiros": 2,
+      "vagas": 1,
+      "valor": 369.9,
+      "area_privada": 95.0,
+      "bairro": "Nereu Ramos",
+      "cidade": "Jaraguá do Sul",
+      "aceita_permuta": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2407",
+      "imagem": "https://img.apre.me/BcHbCoAgDADQv9mjeUHTh31L2IayEBtF_PudQ6gLYsB7QZ9qSnGMssDjC10vw9RSKs0Ru5qOUVVoyqObd2HP1m99Cg-5ThSw2UakHw.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 3,
+      "banheiros": 2,
+      "vagas": 1,
+      "valor": 490.0,
+      "area_privada": 69.0,
+      "bairro": "Nova Brasília",
+      "cidade": "Jaraguá do Sul",
+      "piscina": null,
+      "churrasqueira": null,
+      "mobiliado": null,
+      "elevador": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1899",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-SIrCKHvsVACaSGYKMxfN8ZQlkQHN4L_hSVkqnICyy_0OVSrSVXfMk2UtzPkYVp8iOb094kbbY_uQ7_CjLoQwekHw.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 2,
+      "banheiros": 2,
+      "valor": 568.284,
+      "area_privada": 67.51,
+      "bairro": "Nova Brasília",
+      "cidade": "Jaraguá do Sul",
+      "academia": null,
+      "mobiliado": null,
+      "lavanderia": null,
+      "elevador": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1898",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-TIplA49C1GqSE1BBuN4fvOVNIJcaF7QhtqSvFMMiHQC00vw4nziREDVkxb31XqkEdtcKsvzts2hLt8Bwm47CLVHw.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 1,
+      "banheiros": 1,
+      "valor": 432.308,
+      "area_privada": 34.18,
+      "bairro": "Nova Brasília",
+      "cidade": "Jaraguá do Sul",
+      "academia": null,
+      "sacada": null,
+      "mobiliado": null,
+      "lavanderia": null,
+      "elevador": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2202",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-TIalkOfYtBiKSGYKMxfN_ZSrIAPd0L_hSVs23ECxy90OVSiOX0zqdofA77KMJ18iN6CylEtLpPboO-gxhMMkj1Bw.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 3,
+      "banheiros": 2,
+      "vagas": 1,
+      "valor": 540.0,
+      "area_privada": 82.0,
+      "bairro": "Rau",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/623",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_xTp2box84SNkUWYqMIr997TLogBroX9KkmZ1dJFnh6oetlcOPaODVfit_PUVR4yqMWXQwu2D6lDvlOEsCEkfgH.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 3,
+      "banheiros": 2,
+      "vagas": 2,
+      "valor": 602.0,
+      "area_privada": 83.0,
+      "bairro": "Rau",
+      "cidade": "Jaraguá do Sul",
+      "piscina": null,
+      "playground": null,
+      "elevador": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2463",
+      "imagem": "https://img.apre.me/DcNRCoAgDADQ2_xTbbLQj50lbJIsxEYRXr8ePGGbQJGvCW2Yy3mprBOQH2h2OjpiKEQVcyzr1oupDL3NI2L6_za0dn13VggpEMsH.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 2,
+      "banheiros": 1,
+      "vagas": 1,
+      "valor": 375.0,
+      "area_privada": 56.0,
+      "bairro": "São Luís",
+      "cidade": "Jaraguá do Sul",
+      "piscina": null,
+      "churrasqueira": null,
+      "playground": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/291",
+      "imagem": "https://img.apre.me/BcFJCoAwDADA3_RYUyXVHPIW6UaJlBoU6fedyWITaJN7QhvmmH0RnbDKC80uFzGEynUnThzOHk3z0McWRKTglza0dP2SKOCBJPkH.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 2,
+      "banheiros": 1,
+      "vagas": 1,
+      "valor": 376.8,
+      "area_privada": 54.96,
+      "bairro": "São Luís",
+      "cidade": "Jaraguá do Sul",
+      "playground": null,
+      "elevador": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2386",
+      "imagem": "https://img.apre.me/BcHBDYAgDADAbfrEgoL00VmMApIago3GsL53iXWAn-keULsaIptZBjh_oeplApbVL8WdWChsbVdJXR6dIqG3ZKfaJTf5DhbAiJ7TDw.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 2,
+      "banheiros": 1,
+      "vagas": 1,
+      "valor": 380.0,
+      "area_privada": 54.76,
+      "bairro": "São Luís",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "elevador": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2404",
+      "imagem": "https://img.apre.me/BcHbCoAgDADQv9mj1wz3sG8JmygLsVGEv985TLogRboX9KkG0VeSBYFe6HqZXLC4xq1yw-0YRYWnPGq3iD67YPuUOuQ7ScBll4h-.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 2,
+      "banheiros": 1,
+      "vagas": 1,
+      "valor": 299.0,
+      "area_privada": 59.0,
+      "bairro": "Tifa Martins",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1489",
+      "imagem": "https://img.apre.me/BcHbCoAgDADQv9mjLc3bw74ldIIsxEYR-n7nMOkC7_he0KeanPdGssDSC10vkwoiH6XF6kI4R1HhKY9uKWbr49antCFfJQFM6Il-.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 2,
+      "sala": 1,
+      "banheiros": 1,
+      "vagas": 1,
+      "valor": 280.0,
+      "area_privada": 63.27,
+      "bairro": "Tifa Martins",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1656",
+      "imagem": "https://img.apre.me/BcHbCoAgDADQv9mjzsTLHvYtYUqyEBtF_PudU1kXBM-3gj7VELnGsmDjF7pehiLWdGLxlHLcR1GpUx61GINDsn1KG-IdLIAZA9cf.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 2,
+      "sala": 1,
+      "banheiros": 1,
+      "vagas": 1,
+      "valor": 340.0,
+      "area_privada": 59.46,
+      "bairro": "Três Rios do Norte",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "sacada": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1995",
+      "imagem": "https://img.apre.me/BcHbCoAgDADQv9mjt2G6h31LlIosxEYR-n7nFNYFEfle0KcaIl9ZFgR_oetlsB2YksfQKG-7OFTKlEctBYfRe9un1CHfyQIuu8jlBw.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 2,
+      "banheiros": 1,
+      "vagas": 1,
+      "valor": 400.0,
+      "area_privada": 65.87,
+      "bairro": "Três Rios do Sul",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "sacada": null,
+      "mobiliado": null,
+      "aceita_permuta": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2031",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_zTpqVsHztLmIYsxEYRXr-3itiEuMo9oQ1zzL6KTgjyQrPLncQphcqYmdLes2kZ_tiCGxF5v7Shtet3iAISRik-.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 2,
+      "banheiros": 1,
+      "vagas": 1,
+      "valor": 260.0,
+      "area_privada": 70.66,
+      "bairro": "Três Rios do Sul",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "sacada": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2454",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_xTbaLpx84SpikLsVGE1-e9TDLBWXomtCEqxq0QT0D6oMmtakzh8i7UiskfPQnnwa9o3K01iLoNLp3-kxhMMI7yAg.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 2,
+      "banheiros": 1,
+      "vagas": 1,
+      "valor": 330.0,
+      "area_privada": 50.0,
+      "bairro": "Três Rios do Sul",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2462",
+      "imagem": "https://img.apre.me/BcFJCsAgDADA3_ToElH0kLcU60aK2NBS-H5nCskG7_jeMJaolGwl3oD0wpBLudaC6T0XdDkcMwuXxY-okKJFRD0W18nfSQwmGk-lBw.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 3,
+      "banheiros": 2,
+      "vagas": 1,
+      "valor": 690.0,
+      "area_privada": 93.15,
+      "bairro": "Vila Lalau",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "sacada": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1824",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_xTnWLpx84SOkMWYqMIr997TLogBroX9KkmZ2wkCzy90PUywaFPfKZcy74do6jwlEct_ozRoe1T2pCvkoBLLhL-.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 3,
+      "banheiros": 3,
+      "vagas": 2,
+      "valor": 890.0,
+      "area_privada": 195.25,
+      "bairro": "Vila Lalau",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "sacada": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2443",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-SIUGQ79C2GxZAago3G8H1nKskCZ_le0KeolEwjXoD0QpdLRV12e4amA2Z-jCxcJz_y_YQmGtz65Db4K8Sgo3ZUfw.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 3,
+      "banheiros": 2,
+      "vagas": 1,
+      "valor": 885.0,
+      "area_privada": 93.8,
+      "bairro": "Vila Lalau",
+      "cidade": "Jaraguá do Sul",
+      "piscina": null,
+      "churrasqueira": null,
+      "academia": null,
+      "playground": null,
+      "mobiliado": null,
+      "elevador": null,
+      "aceita_permuta": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2280",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-TIZsD20LcYBSQ1BBuN4fvOZNYJceF7QhtqiHxhmRD4haaXKSHVcNa4ZqS09V0lD3nUInnn0Ns2pHT5DhZw6CLnHw.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 2,
+      "sala": 1,
+      "banheiros": 2,
+      "vagas": 1,
+      "valor": 630.0,
+      "area_privada": 73.07,
+      "bairro": "Vila Lalau",
+      "cidade": "Jaraguá do Sul",
+      "piscina": null,
+      "churrasqueira": null,
+      "academia": null,
+      "playground": null,
+      "mobiliado": null,
+      "elevador": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1815",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_xTp2Lpx84SNksWYqMIr997TDohBrontKEmZ1dJJnh6oellTj4whJQYy7psvajwkEdtDh4jOtuG1C7fTgKYMBL-.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 3,
+      "banheiros": 2,
+      "vagas": 1,
+      "valor": 420.0,
+      "area_privada": 82.67,
+      "bairro": "Vila Lenzi",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "sacada": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1965",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-SILNbAoW8xUoTUEGw0hu87w6QTMNA9oQ01KblCMsHTC00vU2vK4UT0jHHb_6HCQx5dcLU2OLe0IaXLl0nARovEPw.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 2,
+      "banheiros": 2,
+      "vagas": 1,
+      "valor": 415.0,
+      "area_privada": 70.45,
+      "bairro": "Vila Lenzi",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2242",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_zTtJi6j50lapYsxEYRXr-3hG0ALnwPqN0cUSisA2Z_odrlRNJBIZ-FJ4pr20yl62MTekSKYapdS9NvZwWfPbL8.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 2,
+      "banheiros": 2,
+      "vagas": 1,
+      "valor": 419.0,
+      "area_privada": 74.0,
+      "bairro": "Vila Lenzi",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1816",
+      "imagem": "https://img.apre.me/BcHBDYAgDADAbfqEUgXl0VkMgpIago3GsL53mXWAn-geULuaGF1hGUD8QtXLHERYHJ0hxSVsLankLo-aGSf06GztUpp8Owvgip7zDw.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 2,
+      "banheiros": 1,
+      "vagas": 1,
+      "valor": 318.0,
+      "area_privada": 64.85,
+      "bairro": "Vila Lenzi",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "sacada": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2394",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-TIUhbl0LcYBCU1BBuN4fvOFJIJwdE9oQ1RKdlKPAHphSaXih4Pm9Es7kxx61m4DH5EW3Q_GtRtcO387cRgVhOo-A.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 2,
+      "banheiros": 2,
+      "vagas": 1,
+      "valor": 685.0,
+      "area_privada": 78.82,
+      "bairro": "Vila Lenzi",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1915",
+      "imagem": "https://img.apre.me/M7ItVksvyNJLsTQxS01MTTZOMjMzi89JLMhMzsssKtA3t7Q0sjDXT8-LTMnJLE2yzVQzsDAwtU0GAA.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 2,
+      "banheiros": 3,
+      "vagas": 2,
+      "valor": 868.767,
+      "area_privada": 84.0,
+      "bairro": "Vila Nova",
+      "cidade": "Jaraguá do Sul",
+      "piscina": null,
+      "churrasqueira": null,
+      "sacada": null,
+      "mobiliado": null,
+      "elevador": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2383",
+      "imagem": "https://img.apre.me/M7ItVksvyNJLsTQxS01MTTZOMjMzi89JLMhMzsssKtA3t7Q0sjDXT8-LTMnJLE2yzVQzsDAwtU0GAA.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 3,
+      "banheiros": 2,
+      "vagas": 3,
+      "valor": 650.0,
+      "area_privada": 130.0,
+      "bairro": "Vila Nova",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "playground": null,
+      "mobiliado": null,
+      "elevador": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2249",
+      "imagem": "https://img.apre.me/M7QtVksvyNIzSTRPNDdOMrIwN7c0iy8uyUvMKdA3MrYwNDQ31E-Py0zJySxNss1UM7AwMLVNBgA.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 2,
+      "banheiros": 1,
+      "valor": 885.344,
+      "area_privada": 56.87,
+      "bairro": "Centro",
+      "cidade": "Pomerode",
+      "piscina": null,
+      "academia": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento",
+          "cidade fora do catálogo: Pomerode"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2248",
+      "imagem": "https://img.apre.me/M7QtVksvyNIzN7cwTzZIMbIwN7c0iy8uyUvMKdC3MLIwNDQ31E-Py0zJySxNss1UM7AwMLVNBgA.jpg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 1,
+      "banheiros": 1,
+      "valor": 442.146,
+      "area_privada": 26.58,
+      "bairro": "Centro",
+      "cidade": "Pomerode",
+      "piscina": null,
+      "academia": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento",
+          "cidade fora do catálogo: Pomerode"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1072",
+      "imagem": "https://img.apre.me/M7QtVktPLcjSSzJIMTUzTLRITDIzMYsvLslLzCnQNzc2NTc30U-Py0zJySxNss1UM7AwMLVNBgA.jpeg",
+      "tipo_imovel": "Residencial » Apartamento",
+      "quartos": 3,
+      "banheiros": 1,
+      "vagas": 1,
+      "valor": 350.0,
+      "area_privada": 86.4,
+      "bairro": "Centro",
+      "cidade": "Schroeder",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Apartamento",
+          "cidade fora do catálogo: Schroeder"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2094",
+      "imagem": "https://phosphor.utils.elfsightcdn.com/?url=https%3A%2F%2Flh3.googleusercontent.com%2Fa%2FAAcHTteC2uPagufufxuE-HwrcWe9JvqVrWTEMTPGh_99Qk8T%3Ds40-c-rp-mo-br100",
+      "tipo_imovel": "Misto » Residencial e Comercial",
+      "quartos": 4,
+      "banheiros": 1,
+      "vagas": 1,
+      "valor": 850.0,
+      "area_privada": 250.0,
+      "bairro": "São Luís",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "aceita_permuta": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Misto » Residencial e Comercial"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1480",
+      "imagem": "https://img.apre.me/M7ItVktPLcjSs0w1TjQwNE00T0kyNovPSSzITM7LLCrQt7Q0Mzc00U-Py0zJySxNss1UM7AwMLVNBgA.jpeg",
+      "tipo_imovel": "Residencial » Lote/Terreno",
+      "valor": 250.0,
+      "bairro": "Quinta dos Açorianos",
+      "cidade": "Barra Velha",
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Lote/Terreno",
+          "cidade fora do catálogo: Barra Velha"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/849",
+      "imagem": "https://img.apre.me/M7ItVktPLcjSszQwTTRLMTFOMTI0NIvPSSzITM7LLCrQN7IwNDcz1E-Py0zJySxNss1UM7AwMLVNBgA.jpeg",
+      "tipo_imovel": "Residencial » Lote/Terreno",
+      "quartos": 4,
+      "banheiros": 2,
+      "vagas": 2,
+      "valor": 600.0,
+      "area_privada": 105.0,
+      "bairro": "Ilha da Figueira",
+      "cidade": "Guaramirim",
+      "mobiliado": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Lote/Terreno",
+          "cidade fora do catálogo: Guaramirim"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2290",
+      "imagem": "https://img.apre.me/M7ItVktPLcjSMzQzTzRJSTZMMbYwNovPSSzITM7LLCrQtzQ2tzAw0U-Py0zJySxNss1UM7AwMLVNBgA.jpeg",
+      "tipo_imovel": "Residencial » Lote/Terreno",
+      "valor": 360.0,
+      "area_privada": 395.0,
+      "bairro": "Amizade",
+      "cidade": "Guaramirim",
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Lote/Terreno",
+          "cidade fora do catálogo: Guaramirim"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2147",
+      "imagem": "https://img.apre.me/M7ItVktPLcjSSzEyTDZPMTMyTkkzNIvPSSzITM7LLCrQNzSxNDQ30k-Py0zJySxNss1UM7AwMLVNBgA.jpeg",
+      "tipo_imovel": "Residencial » Lote/Terreno",
+      "valor": 175.0,
+      "area_privada": 364.8,
+      "bairro": "Beira Rio",
+      "cidade": "Guaramirim",
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Lote/Terreno",
+          "cidade fora do catálogo: Guaramirim"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2071",
+      "imagem": "https://img.apre.me/M7ItVktPLcjSszQwTTRLMTFOMTI0NIvPSSzITM7LLCrQN7IwNDcz1E-Py0zJySxNss1UM7AwMLVNBgA.jpeg",
+      "tipo_imovel": "Residencial » Lote/Terreno",
+      "valor": 650.0,
+      "bairro": "Amizade",
+      "cidade": "Jaraguá do Sul",
+      "aceita_permuta": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Lote/Terreno"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/671",
+      "imagem": "https://img.apre.me/M7ItVktPLcjSszQwTTRLMTFOMTI0NIvPSSzITM7LLCrQN7IwNDcz1E-Py0zJySxNss1UM7AwMLVNBgA.jpeg",
+      "tipo_imovel": "Residencial » Lote/Terreno",
+      "valor": 750.0,
+      "bairro": "Amizade",
+      "cidade": "Jaraguá do Sul",
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Lote/Terreno"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2319",
+      "imagem": "https://img.apre.me/M7ItVktPLcjSszQwTTRLMTFOMTI0NIvPSSzITM7LLCrQN7IwNDcz1E-Py0zJySxNss1UM7AwMLVNBgA.jpeg",
+      "tipo_imovel": "Residencial » Lote/Terreno",
+      "valor": 382.879,
+      "area_privada": 345.31,
+      "bairro": "Amizade",
+      "cidade": "Jaraguá do Sul",
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Lote/Terreno"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2182",
+      "imagem": "https://img.apre.me/M7ItVktPLcjSszQwTTRLMTFOMTI0NIvPSSzITM7LLCrQN7IwNDcz1E-Py0zJySxNss1UM7AwMLVNBgA.jpeg",
+      "tipo_imovel": "Residencial » Lote/Terreno",
+      "valor": 690.0,
+      "bairro": "Amizade",
+      "cidade": "Jaraguá do Sul",
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Lote/Terreno"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2229",
+      "imagem": "https://img.apre.me/M7ItVktPLcjSszQwTTRLMTFOMTI0NIvPSSzITM7LLCrQN7IwNDcz1E-Py0zJySxNss1UM7AwMLVNBgA.jpeg",
+      "tipo_imovel": "Residencial » Lote/Terreno",
+      "valor": 490.0,
+      "bairro": "Amizade",
+      "cidade": "Jaraguá do Sul",
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Lote/Terreno"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2025",
+      "imagem": "https://img.apre.me/M7ItVktPLcjSszQwTTRLMTFOMTI0NIvPSSzITM7LLCrQN7IwNDcz1E-Py0zJySxNss1UM7AwMLVNBgA.jpeg",
+      "tipo_imovel": "Residencial » Lote/Terreno",
+      "valor": 400.0,
+      "bairro": "Barra do Rio Cerro",
+      "cidade": "Jaraguá do Sul",
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Lote/Terreno"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1170",
+      "imagem": "https://img.apre.me/M7ItVktPLcjSszQwTTRLMTFOMTI0NIvPSSzITM7LLCrQN7IwNDcz1E-Py0zJySxNss1UM7AwMLVNBgA.jpeg",
+      "tipo_imovel": "Residencial » Lote/Terreno",
+      "valor": 400.0,
+      "bairro": "Barra do Rio Cerro",
+      "cidade": "Jaraguá do Sul",
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Lote/Terreno"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2225",
+      "imagem": "https://img.apre.me/M7ItVktPLcjSM0gySEo0N08yTTQyMovPSSzITM7LLCrQNzI2NbQw0k-Py0zJySxNss1UM7AwMLVNBgA.jpeg",
+      "tipo_imovel": "Residencial » Lote/Terreno",
+      "valor": 900.0,
+      "bairro": "Barra do Rio Cerro",
+      "cidade": "Jaraguá do Sul",
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Lote/Terreno"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2460",
+      "imagem": "https://img.apre.me/M7ItVktPLcjSszQwTTRLMTFOMTI0NIvPSSzITM7LLCrQN7IwNDcz1E-Py0zJySxNss1UM7AwMLVNBgA.jpeg",
+      "tipo_imovel": "Residencial » Lote/Terreno",
+      "valor": 480.0,
+      "bairro": "Barra do Rio Molha",
+      "cidade": "Jaraguá do Sul",
+      "aceita_permuta": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Lote/Terreno"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1798",
+      "imagem": "https://img.apre.me/M7ItVktPLcjSszQwTTRLMTFOMTI0NIvPSSzITM7LLCrQN7IwNDcz1E-Py0zJySxNss1UM7AwMLVNBgA.jpeg",
+      "tipo_imovel": "Residencial » Lote/Terreno",
+      "valor": 700.0,
+      "bairro": "Chico de Paulo",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Lote/Terreno"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1768",
+      "imagem": "https://img.apre.me/M7ItVktPLcjSs0w1TjQwNE00T0kyNovPSSzITM7LLCrQt7Q0Mzc00U-Py0zJySxNss1UM7AwMLVNBgA.jpeg",
+      "tipo_imovel": "Residencial » Lote/Terreno",
+      "valor": 290.0,
+      "bairro": "Chico de Paulo",
+      "cidade": "Jaraguá do Sul",
+      "aceita_permuta": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Lote/Terreno"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2389",
+      "imagem": "https://img.apre.me/M7ItVktPLcjSs0w1TjQwNE00T0kyNovPSSzITM7LLCrQt7Q0Mzc00U-Py0zJySxNss1UM7AwMLVNBgA.jpeg",
+      "tipo_imovel": "Residencial » Lote/Terreno",
+      "valor": 300.0,
+      "bairro": "Chico de Paulo",
+      "cidade": "Jaraguá do Sul",
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Lote/Terreno"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/894",
+      "imagem": "https://img.apre.me/M7ItVktPLcjSSzEyTDZPMTMyTkkzNIvPSSzITM7LLCrQNzSxNDQ30k-Py0zJySxNss1UM7AwMLVNBgA.jpeg",
+      "tipo_imovel": "Residencial » Lote/Terreno",
+      "valor": 230.0,
+      "bairro": "Estrada Nova",
+      "cidade": "Jaraguá do Sul",
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Lote/Terreno"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2275",
+      "imagem": "https://img.apre.me/M7ItVktPLcjSszQwTTRLMTFOMTI0NIvPSSzITM7LLCrQN7IwNDcz1E-Py0zJySxNss1UM7AwMLVNBgA.jpeg",
+      "tipo_imovel": "Residencial » Lote/Terreno",
+      "valor": 500.0,
+      "bairro": "Ilha da Figueira",
+      "cidade": "Jaraguá do Sul",
+      "aceita_permuta": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Lote/Terreno"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1315",
+      "imagem": "https://img.apre.me/M7ItVktPLcjSs0w1TjQwNE00T0kyNovPSSzITM7LLCrQt7Q0Mzc00U-Py0zJySxNss1UM7AwMLVNBgA.jpeg",
+      "tipo_imovel": "Residencial » Lote/Terreno",
+      "valor": 293.0,
+      "area_privada": 317.95,
+      "bairro": "João Pessoa",
+      "cidade": "Jaraguá do Sul",
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Lote/Terreno"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/302",
+      "imagem": "https://img.apre.me/M7ItVktPLcjSszAxMLRINTcyNk0yMYvPSSzITM7LLCrQN7a0NLM00U-Py0zJySxNss1UM7AwMLVNBgA.jpeg",
+      "tipo_imovel": "Residencial » Lote/Terreno",
+      "valor": 519.0,
+      "bairro": "Nova Brasília",
+      "cidade": "Jaraguá do Sul",
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Lote/Terreno"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1930",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-QIBWU79C0GQUkNwUZj_L4zhWSCW_ie0IaolEwlnmDphSaX8kdMJluL9Qx_61m4DH5E_xhWNEa3wbXztxMDRnRUfg.jpg",
+      "tipo_imovel": "Residencial » Lote/Terreno",
+      "valor": 725.24,
+      "area_privada": 312.5,
+      "bairro": "Rio Cerro I",
+      "cidade": "Jaraguá do Sul",
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Lote/Terreno"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2474",
+      "imagem": "https://img.apre.me/DcjBCoAgDADQv9lRzdzMw74lTEEWYqMIf7-e8RXWCbjyNaENNSktlWWC5weangYzuhAzEYVMe88qZcitNsR-vLdtSO3yHizgNodcPg.jpg",
+      "tipo_imovel": "Residencial » Lote/Terreno",
+      "valor": 285.0,
+      "area_privada": 398.63,
+      "bairro": "Rio da Luz",
+      "cidade": "Jaraguá do Sul",
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Lote/Terreno"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2348",
+      "imagem": "https://img.apre.me/BcHbCoAgDADQv9mj15T5sG_JmigLsVGEv985TLogRboX9KmmFF9JFgR6oetlasDYWo4hccn7OFR4yqN2KxgQve1T6pDvJAGHLhH-.jpg",
+      "tipo_imovel": "Residencial » Lote/Terreno",
+      "valor": 210.0,
+      "area_privada": 300.0,
+      "bairro": "Rio da Luz",
+      "cidade": "Jaraguá do Sul",
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Lote/Terreno"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2343",
+      "imagem": "https://img.apre.me/M7ItVktPLcjSs0w1TjQwNE00T0kyNovPSSzITM7LLCrQt7Q0Mzc00U-Py0zJySxNss1UM7AwMLVNBgA.jpeg",
+      "tipo_imovel": "Residencial » Lote/Terreno",
+      "valor": 226.9,
+      "area_privada": 300.7,
+      "bairro": "Rio da Luz",
+      "cidade": "Jaraguá do Sul",
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Lote/Terreno"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1508",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_zT1HTTj50lUkEWYqMIr997lXVB3Ple0KeanF1jWeD5ha6XweRKIKKIAfEYp0qd8uhms09IW5-ShnyFBWyykesP.jpg",
+      "tipo_imovel": "Residencial » Lote/Terreno",
+      "quartos": 3,
+      "sala": 1,
+      "vagas": 1,
+      "valor": 850.0,
+      "bairro": "São Luís",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "aceita_permuta": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Lote/Terreno"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1321",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_zT1LFsHztLpIYsxEYRXr-3itgEQrkntGGOOVTRCVFeaKddDrHmSIETR1r3fpiWoY8thMkTLW1o7fplUfCbJyk-.jpeg",
+      "tipo_imovel": "Residencial » Lote/Terreno",
+      "valor": 205.0,
+      "area_privada": 300.53,
+      "bairro": "Três Rios do Norte",
+      "cidade": "Jaraguá do Sul",
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Lote/Terreno"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2318",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_zTpqm4j50lTEUWYqMIr997hXVB2Ple0KcaIltZFjh_oetlWvSIRKG2TPEYWaVMeXQL5KxPdutT6pDvZAFMGLj8.jpg",
+      "tipo_imovel": "Residencial » Lote/Terreno",
+      "valor": 209.0,
+      "area_privada": 304.28,
+      "bairro": "Três Rios do Norte",
+      "cidade": "Jaraguá do Sul",
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Lote/Terreno"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1971",
+      "imagem": "https://img.apre.me/BcHBDYAgDADAbfoEqiD20VkMgpIago3GsL53mXVAmPkeULsaIiwsAyZ_oeplKKZy_BSRzrhsLankLo9a79DPiLZ2KU2_nQXc6gLnHw.jpg",
+      "tipo_imovel": "Residencial » Lote/Terreno",
+      "valor": 220.0,
+      "area_privada": 320.62,
+      "bairro": "Três Rios do Norte",
+      "cidade": "Jaraguá do Sul",
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Lote/Terreno"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/896",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-TIjsChbzEsSmoINhrD952pyAu8xXtBnyxS0g1pgcEX_sGXyCZW592ZWrHbPjJTnfSwjCYE7WSf1AZ9BQlUVB7rDw.jpeg",
+      "tipo_imovel": "Residencial » Lote/Terreno",
+      "valor": 207.0,
+      "bairro": "Três Rios do Norte",
+      "cidade": "Jaraguá do Sul",
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Lote/Terreno",
+          "área deve ser maior que zero: 0.0"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2005",
+      "imagem": "https://img.apre.me/BcFJCsAgDADA3_RojbuHvKW4gKSIDS3F73emkWzwlu4NY4nKGTvxBkMvDLlUjeg8ltqdSeGcRbgtfuRINtqAeIzFffJXiUEn7an9.jpg",
+      "tipo_imovel": "Residencial » Lote/Terreno",
+      "valor": 294.909,
+      "area_privada": 336.49,
+      "bairro": "Três Rios do Norte",
+      "cidade": "Jaraguá do Sul",
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Lote/Terreno"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2257",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_yzTM25j50lbIYswkYRXr-3hG3AGvge0LpNREtlHeD5hWbnlLBEJJIjI6XtKqbS9bEZo08Bl7l1rZd_Oyu47FaWHw.jpg",
+      "tipo_imovel": "Residencial » Lote/Terreno",
+      "valor": 360.0,
+      "bairro": "Três Rios do Norte",
+      "cidade": "Jaraguá do Sul",
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Lote/Terreno"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2301",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_xTnaW4j50lzIEsxEYRXr-3GtuCtPG9oE9zRCisCyK-0O1yETeqBasIUT5GNW1TH-N7DjEW9H2qDP1OVgglJG4-.jpg",
+      "tipo_imovel": "Residencial » Lote/Terreno",
+      "valor": 300.0,
+      "bairro": "Três Rios do Sul",
+      "cidade": "Jaraguá do Sul",
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Lote/Terreno"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1183",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-SIFSzLoW8xCJHUEGw0hu87U1gnkON7QhtqUlorywTLLzS9zHb67K1NEQP5vWeVMuTRJTiLSEsbUrt8BwtgROLyAw.jpg",
+      "tipo_imovel": "Residencial » Lote/Terreno",
+      "valor": 350.0,
+      "bairro": "Três Rios do Sul",
+      "cidade": "Jaraguá do Sul",
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Lote/Terreno"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1813",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-TIpigc_hYDBUkNwUZj_L4zhDLBL3hPaENUjLYgT3D4QpNLnbXkSuRSLPt29CRMgx-Rxoa4Gqvb4NL5y8hggvFIPw.jpg",
+      "tipo_imovel": "Residencial » Lote/Terreno",
+      "valor": 630.0,
+      "bairro": "Vila Lenzi",
+      "cidade": "Jaraguá do Sul",
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Lote/Terreno"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/893",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-TIIgL20LcYtpAago3G8H1nCskC7_he0KcoRFuJF2z0Qm9yKWwuGetTrNmFcyThMvkRjRii3XWfXAd-mRjMYTyVHw.jpeg",
+      "tipo_imovel": "Residencial » Lote/Terreno",
+      "valor": 215.0,
+      "area_privada": 358.03,
+      "bairro": "Braço do Ribeirão Cavalo",
+      "cidade": "Jaraguá do Sul",
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Lote/Terreno"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2477",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-TIJosc_hZDwZAago3G8H1nKsqCsOG9oE9ROduGvMDhC10uFY1tMZ9E5Es8RhGukx-RKdrkndN9chv8ETKY3QSsPw.jpg",
+      "tipo_imovel": "Residencial » Lote/Terreno",
+      "valor": 184.9,
+      "bairro": "Centro Norte",
+      "cidade": "Schroeder",
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Lote/Terreno",
+          "cidade fora do catálogo: Schroeder"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2279",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-TIKkIPfYsRUFJDsNEYvu9MIZkQPN0T2hCFaCvxBEcvNLmUPeJZ3ZJjTrhufRcugx-RPnjEaHUbXDt-mRhMMoHKDw.jpg",
+      "tipo_imovel": "Residencial » Lote/Terreno",
+      "valor": 215.0,
+      "area_privada": 330.0,
+      "bairro": "Centro Norte",
+      "cidade": "Schroeder",
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Lote/Terreno",
+          "cidade fora do catálogo: Schroeder"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2201",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-TIYkXg0LcYFiU1BBuN4fvOFJIJDume0IaoGG0lnrDQC00udQQTsscUyhm3vSfhMvgR7XBF76xug2vnLxODCcZR_QE.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 2,
+      "banheiros": 1,
+      "vagas": 2,
+      "valor": 369.0,
+      "area_privada": 62.64,
+      "bairro": "Rio Branco",
+      "cidade": "Guaramirim",
+      "mobiliado": null,
+      "aceita_permuta": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada",
+          "cidade fora do catálogo: Guaramirim"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/852",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_zTZmbqx84SOkkWYqMIr997TDrBO7ontKEmJVtJJqz0QtPLBD6Ly2iDw7wfPavwkEcXb1PEbWlDapevkABG9MQ-.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 3,
+      "banheiros": 3,
+      "vagas": 2,
+      "valor": 549.0,
+      "area_privada": 140.15,
+      "bairro": "Ilha da Figueira",
+      "cidade": "Guaramirim",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada",
+          "cidade fora do catálogo: Guaramirim"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1831",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_xT50rJj50lbJIsxEYRXr-3hG1CXPie0Ia5nENlnUD8QrPLEUnJJKdELGnvxVSGPuZXJEoYfBtau34HK_CGkeUH.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 2,
+      "banheiros": 1,
+      "vagas": 2,
+      "valor": 349.0,
+      "area_privada": 55.36,
+      "bairro": "Bananal do Sul",
+      "cidade": "Guaramirim",
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada",
+          "cidade fora do catálogo: Guaramirim"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2356",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-TIIvuhbzFSDKkh2GgM33eGUBYEh-eCPkWVYhvygg1f6HIpyqYm488aqcR9HMI0_RHtXYo5W90nt8FfRQaTTUD6AQ.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 3,
+      "banheiros": 2,
+      "vagas": 1,
+      "valor": 459.0,
+      "area_privada": 80.49,
+      "bairro": "Bananal do Sul",
+      "cidade": "Guaramirim",
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada",
+          "cidade fora do catálogo: Guaramirim"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2355",
+      "imagem": "https://img.apre.me/BcFJCsAgDADA3_Toitshbykai6SIDS3F73eGUDYEj-eGsUSVYjvyBocvDLmUM5ZqsmeLVOIxqzAtfkQ7n2LOVo-FffLXkMFkE5B_.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 2,
+      "banheiros": 2,
+      "vagas": 1,
+      "valor": 439.0,
+      "area_privada": 73.59,
+      "bairro": "Bananal do Sul",
+      "cidade": "Guaramirim",
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada",
+          "cidade fora do catálogo: Guaramirim"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1642",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_zTNNPcx84SOVEWYqMIr997TDoheLontKEG0RWSCSu90PQyXDZXsGZbOcajnyo85NHF4x4wLW1I6fJlErDJBuIf.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 2,
+      "banheiros": 2,
+      "vagas": 2,
+      "valor": 600.0,
+      "area_privada": 87.45,
+      "bairro": "Caixa D'Água",
+      "cidade": "Guaramirim",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "aceita_permuta": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada",
+          "cidade fora do catálogo: Guaramirim"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2060",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-TIJig99C2GRUkNwUZj_L4zhWRCWOie0IYoRFuJJzh6ocml0pHdabLxYYvr3pNwGfyIRvRondVtcO38ZWIw0QQqPw.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 3,
+      "banheiros": 3,
+      "vagas": 2,
+      "valor": 759.0,
+      "area_privada": 163.54,
+      "bairro": "Amizade",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/841",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_zTlqa1j50lcpIsxEYRXr-3hG1ADHwPqN0c0VxYB3h_odrlsvgkBc_wEqW9HabS9bEpRQy4TLVrafplVsANI8sP.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 3,
+      "banheiros": 3,
+      "vagas": 2,
+      "valor": 795.0,
+      "area_privada": 127.0,
+      "bairro": "Amizade",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1382",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-QIKPuhbzEUIqkh2GgM33emoizwFu8FfYrKeWvIC3Z8oculcnVnIWqUog-HKMJ18iM6OmdN0H1yG-wRMphkPNYf.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 3,
+      "banheiros": 3,
+      "vagas": 1,
+      "valor": 640.0,
+      "area_privada": 121.0,
+      "bairro": "Amizade",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2159",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-TIIotw6FuMtAmpIdhoDN93hlAXpID3gj7V1OoZZcGGL3S9TAuZd2aiWGo_xqlCUx61MSdXo7d9Cg-5Ggq44hLSDw.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 2,
+      "banheiros": 3,
+      "vagas": 2,
+      "valor": 511.0,
+      "area_privada": 88.0,
+      "bairro": "Amizade",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2357",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_zTpqbox84SNlEWYqMIr997TLogeLoX9KkmZ1tJFjh6oetlMlq2zTd0WOIxigpPeXTbY4op2a1PqUO_kwQwYSD_AQ.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 3,
+      "banheiros": 3,
+      "vagas": 2,
+      "valor": 500.0,
+      "area_privada": 100.0,
+      "bairro": "Amizade",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1556",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_zTtLK5j50lbIYsxEYRXr-3hG1AXPgeULs5olBYB8z8QrXL5ZJ9Fn_uKLjtLZtK18emkJAIp9q1NP0OVvDJR5Yf.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 3,
+      "banheiros": 3,
+      "vagas": 2,
+      "valor": 700.0,
+      "area_privada": 132.22,
+      "bairro": "Amizade",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1623",
+      "imagem": "https://img.apre.me/BcHBDYAgDADAbfoEi4Lw6CxGipIago3GsL53TDrAz3QPqF1NSlhIBjh6oeplMJbs8xnw4BC2tqtwl0ctunWJ0dYupcmXSWCKkyf_AQ.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 3,
+      "sala": 1,
+      "banheiros": 3,
+      "valor": 985.0,
+      "area_privada": 131.37,
+      "bairro": "Vila Baependi",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "aceita_permuta": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2086",
+      "imagem": "https://img.apre.me/BcFJCsAgDADA3_Ro3TWHvKW4gKSIDS3F73emkWwIju4NY4lCNJ14g6UXhlwqpl6KywaxYjxnEW6LHzms9wmtOcbiPvmrxKCzDtR_.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 2,
+      "banheiros": 3,
+      "vagas": 1,
+      "valor": 480.0,
+      "area_privada": 82.91,
+      "bairro": "Barra do Rio Cerro",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2085",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-SILLL00LcYFkNqCDYaw-edqSQLvKN7QZ_iEE0jXmDphS6XCq3ldMaasGA4Rhaukx-ZnN0jWrP1yW3wV4hBJ_2p-g.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 3,
+      "banheiros": 2,
+      "vagas": 1,
+      "valor": 680.0,
+      "area_privada": 104.59,
+      "bairro": "Barra do Rio Cerro",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2125",
+      "imagem": "https://img.apre.me/BcFJCsAgDADA3_ToWsUc8pbihqSIDS3F73emkmwInu4NY4lCtI14g6MXhlwqHzH3UEKKPcVzZuG6_BFtnEX0Vo-FbfJXiMEkE6j_.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 3,
+      "banheiros": 3,
+      "vagas": 2,
+      "valor": 798.0,
+      "area_privada": 135.0,
+      "bairro": "Barra do Rio Cerro",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "sacada": null,
+      "mobiliado": null,
+      "aceita_permuta": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2254",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_zTXGbqx84SU0kWYqMIr997hXSCd3RPaENNSlhJJqz0QtPLcMRc2Z0cQ9qPziplyKOL3zBhwKUNqV2_TAI2Wk-lBw.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 3,
+      "banheiros": 1,
+      "vagas": 2,
+      "valor": 520.0,
+      "area_privada": 80.39,
+      "bairro": "Barra do Rio Cerro",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "aceita_permuta": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1597",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_zTrNyaHztLmJIsxEYRXr-3stgAXOUeULu5GOciOmCRF6pdjjAybicmZKK9JdPc9bEJiUPgqXYtTb9DFDx7lPwD.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 3,
+      "banheiros": 3,
+      "vagas": 2,
+      "valor": 692.0,
+      "area_privada": 168.0,
+      "bairro": "Czerniewicz",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "aceita_permuta": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1946",
+      "imagem": "https://img.apre.me/DcFJDoAgDADA3-TIZgA59C0GC5Iago3G8H2dIZQJfsFrQhuiUrIFeYLDB5qcytgU6hGpZpfD1rMwDb5FRxfsT7fBpfO7I4NZjUf6AA.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 3,
+      "banheiros": 3,
+      "vagas": 1,
+      "valor": 630.0,
+      "area_privada": 137.0,
+      "bairro": "Czerniewicz",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2431",
+      "imagem": "https://img.apre.me/BcHbCoAgDADQv9mj1xz6sG_JnCQLsVGEv985TLogRboX9KmmFN9IFgR6oetlwhaQ61lz9gfu41DhKY-aiCWiD7ZPaUO_SgIuu0T8Aw.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 3,
+      "banheiros": 3,
+      "vagas": 2,
+      "valor": 830.0,
+      "area_privada": 170.0,
+      "bairro": "Estrada Nova",
+      "cidade": "Jaraguá do Sul",
+      "piscina": null,
+      "churrasqueira": null,
+      "mobiliado": null,
+      "aceita_permuta": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2287",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_xTp2a6j50lSkkWYqMIr997hXVCDHxPaEMNkassEzy-0PQyMZwh14ppIVq3vquUIY9a7ylhdrYNqV2_gwUwY_TyAw.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 2,
+      "banheiros": 2,
+      "vagas": 2,
+      "valor": 455.0,
+      "area_privada": 94.99,
+      "bairro": "Estrada Nova",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/646",
+      "imagem": "https://img.apre.me/BcFJCsAgDADA3_ToUvdD3lI0gqSIDS3F73eGUDYEh-eGsUSVYjvyhgNfGHIpU8lmii024_M5qzAtfkSnEpJ3eizuk7_GDCabgPQD.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 2,
+      "banheiros": 2,
+      "vagas": 2,
+      "valor": 780.0,
+      "area_privada": 186.0,
+      "bairro": "Ilha da Figueira",
+      "cidade": "Jaraguá do Sul",
+      "aceita_permuta": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1267",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-TIoinYQ99iEITUEGw0hu87k1kn4Mr3hDbUEPnCMmHhF5peJtXqCV0hPGPYe1LJQx61Mcawom1DSpfvYAG3OeT8Aw.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 3,
+      "banheiros": 3,
+      "vagas": 2,
+      "ano": 2023,
+      "valor": 990.0,
+      "area_privada": 173.26,
+      "bairro": "Ilha da Figueira",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2366",
+      "imagem": "https://img.apre.me/BcHbCoAgDADQv9mjl9JsD-uWyA1kITaK8Pc7h8km5JXuCW2YQ4xCOmGhF5pdjhNiDSxSBLejn6Y89DFfUowBo29DpetXSSHsIRP-.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 3,
+      "banheiros": 2,
+      "vagas": 2,
+      "valor": 520.0,
+      "area_privada": 103.64,
+      "bairro": "Jaraguá 99",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1784",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-SIBanKoW8xLEpqCDYaw-edyawDaOZ7QO1qQrCFZYDjF6pe5vQupXBQoRiWvUWV3OXRyeGKHu1Uu5QmX2IB3JA4-w.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 2,
+      "banheiros": 2,
+      "vagas": 1,
+      "valor": 339.0,
+      "area_privada": 64.62,
+      "bairro": "Jaraguá 99",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2445",
+      "imagem": "https://img.apre.me/DcpJDoAgDADA3-QIyFLl0LcYLAmpIdhoDN-XOQ_TTkiBrgltqMl5qSQTPD3Q9DSRMYbACbMvuPeiwkNutbj6v3rbhtQu70ECbnOJ_AM.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 2,
+      "banheiros": 1,
+      "vagas": 1,
+      "valor": 340.0,
+      "area_privada": 56.0,
+      "bairro": "Jaraguá 99",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2444",
+      "imagem": "https://img.apre.me/DcoxDoAgDADA33QELJbA0LcYBSU1BBuN4ft682XWAeT5GlC7mpSmwjIA_YGqp8lzihT2gxKuYWmrSu5yq-Ue-4q2dilN3o0FXHTE_QM.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 2,
+      "banheiros": 3,
+      "vagas": 2,
+      "valor": 435.0,
+      "area_privada": 84.98,
+      "bairro": "Jaraguá 99",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2218",
+      "imagem": "https://img.apre.me/DchJCoAwDADA3_TYxS6YQ94iNcUSKTUo0u-rHIdJJ6RA14Q21CD6SjJhoQeaniYWPmIoNXPAvPWiwkNutcmtDpO3bUjt8u4k8E8i-gA.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 2,
+      "banheiros": 2,
+      "vagas": 1,
+      "valor": 340.0,
+      "area_privada": 69.0,
+      "bairro": "Jaraguá 99",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1905",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_zTXGq4j50laoosxEYRXr-3hG1CCnxPaMMcERbWCSu-0OxyVLNQRKmYadv7YSpDH1tCjEgelza0dP1OVvDZJ5Yf.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 2,
+      "banheiros": 1,
+      "vagas": 2,
+      "valor": 370.0,
+      "area_privada": 56.9,
+      "bairro": "Jaraguá 99",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2283",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-QIRWU79C1GSiQ1BBuN4fvOMOkEv9I9oQ01ObtKMmGhF5peJp4xbgUzc8ph74cKD3nUBp8Qk7NtSO3yFRLAhJ74Bw.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 2,
+      "banheiros": 1,
+      "vagas": 1,
+      "valor": 370.0,
+      "area_privada": 70.0,
+      "bairro": "Jaraguá 99",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/794",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_xTnTrRj50lUkEWYqMIr997jXUDBb43jKWmFOwsGzy-MPQyGSkmjxSwpnTMU6UtedSGSK4EO5b0KV9lAZcdcfsB.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 3,
+      "banheiros": 2,
+      "vagas": 1,
+      "valor": 599.0,
+      "area_privada": 132.0,
+      "bairro": "Jaraguá 99",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2041",
+      "imagem": "https://img.apre.me/BcHbCoAgDADQv9mjqbl0D-uW8AKyEBtF_PudU1kX4M73gj7VELnGssDzC10vQ9GXEhKGHOk4R1apUx7dMCKSc1uf0oZ8hQVsssj1Bw.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 2,
+      "banheiros": 2,
+      "valor": 324.9,
+      "area_privada": 65.0,
+      "bairro": "Jaraguá 99",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2472",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_zTTKfpx84SNkkWYqMIr997TDoheLontKEm57WSTHD0QtPLnD5t3jNiwBL3XlR4yKMLRhvRuaUNqV2_gwRssoH4Bw.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 3,
+      "banheiros": 3,
+      "vagas": 2,
+      "valor": 560.0,
+      "area_privada": 112.0,
+      "bairro": "João Pessoa",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2471",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-QIlUXk0LcYFiU1BBuN4fvOFJIJ3tI9oQ1RMS6VeIKhF5pcqrh05qNiMC6te0-CZfAjGm1w1hjdBtfOXyYG3NBT_QE.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 2,
+      "banheiros": 2,
+      "vagas": 2,
+      "valor": 450.0,
+      "area_privada": 65.84,
+      "bairro": "João Pessoa",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2330",
+      "imagem": "https://img.apre.me/BcFJCsAgDADA3_So0aroIW8pbkiK2NBS-H5nKskGf9C9YSxRKZlGvMHSC0MuZVN2pWPsDXM4Zxauix-R6A4TotFjcZv8FWLAiJ7qDw.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 3,
+      "banheiros": 2,
+      "vagas": 1,
+      "valor": 424.9,
+      "area_privada": 80.0,
+      "bairro": "João Pessoa",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1679",
+      "imagem": "https://img.apre.me/BcHbCoAgDADQv9mjl2SmD-uW0BmyEBtF_Pudw6QLMNC9oE81OftGsmCjF7pehl2JNSRf45niMYoKT3nUJtzRZ9untCFfJQGXHBL-.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 2,
+      "banheiros": 3,
+      "vagas": 2,
+      "valor": 425.0,
+      "area_privada": 82.74,
+      "bairro": "João Pessoa",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2063",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_zTdLaVHztLmIIsxEYRXr-3itgEinJPaMNcSqGKTkB5odnlPOXEGQm3mPjo2bQMfWzhlSNiWNrQ2vU7RcHvnqT8.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 2,
+      "banheiros": 2,
+      "vagas": 1,
+      "valor": 380.0,
+      "area_privada": 84.0,
+      "bairro": "Nereu Ramos",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1896",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-QI1ArKoW8xLIbUEGw0hu87U1gneOJ7QhtqYsTKMmHhF5pe5sS8IqaKG8Vw9KRShjxqKRBGh7YNqV2_zAJud57LDw.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 3,
+      "banheiros": 3,
+      "vagas": 2,
+      "valor": 460.0,
+      "area_privada": 108.7,
+      "bairro": "Nereu Ramos",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1677",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_zTNJu4j50laoosxEYRXr-3hG0CRr4ntGGOKBTWCSu-0OxytVTKaaOEQmnvh6kMfWyJOWGgpQ0tXb_TFXz2yPID.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 2,
+      "banheiros": 3,
+      "vagas": 1,
+      "valor": 460.0,
+      "area_privada": 85.0,
+      "bairro": "Nereu Ramos",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1676",
+      "imagem": "https://img.apre.me/BcHbCoAgDADQv9mjt9hwD-uWMA1ZiI0i-P3OqWILcJN7QZ-mmGMTXZDkhW6Xa_WkTC0RVqZ9FNM69TEfMmFk36e2od8hCiEHlPoD.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 3,
+      "banheiros": 3,
+      "vagas": 2,
+      "valor": 590.0,
+      "area_privada": 110.0,
+      "bairro": "Nereu Ramos",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2370",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-TImiI99C1GQUkNwUZj_L4zhXUCRr4ntKGGyFeWCYFfaHqZnOJCeOQzVkpr31TKkEdtcBgdeduG1C7fzgIuO_TyAw.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 2,
+      "banheiros": 1,
+      "vagas": 1,
+      "valor": 325.0,
+      "area_privada": 60.77,
+      "bairro": "Nereu Ramos",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2369",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-SILKL20LcYKUJqCDYaw-edYdIBMdA9oHY1iC6TDPD0QtXLJF8Yz7KWkHHZ26HCXR6dPM7Boptql9zkSyRgNxuJfw.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 3,
+      "banheiros": 1,
+      "vagas": 1,
+      "valor": 430.0,
+      "area_privada": 77.09,
+      "bairro": "Nereu Ramos",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2390",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-TIZhE49C1GQUgNwUZj_L4zmWSCX_ie0IaolGwhnuDohSaX8jEUtBVDPdO69V04D35EY7QJjdNtcOn8HcRgovGUfw.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 2,
+      "banheiros": 1,
+      "vagas": 1,
+      "valor": 345.0,
+      "area_privada": 54.69,
+      "bairro": "Nereu Ramos",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/680",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_xTZ0OXHztLlIYsxEYRXr-3itiESHJPaMNczqGKTljkhWaXIyba8WSMxGnru2kZ_pgPiTGRb0Nr1_8QBVwxSvkB.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 3,
+      "banheiros": 2,
+      "vagas": 2,
+      "valor": 790.0,
+      "area_privada": 140.0,
+      "bairro": "Rau",
+      "cidade": "Jaraguá do Sul",
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2300",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-SI7NBD32IEDKkh2GgM33emkiwIju4FfYpCNI14gaUXulzK5dMFb2NpiHEfh3Cd-MiWfDI2m61PboO-Qgw660D1Bw.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 3,
+      "banheiros": 3,
+      "vagas": 1,
+      "valor": 590.0,
+      "area_privada": 104.88,
+      "bairro": "Rau",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2187",
+      "imagem": "https://img.apre.me/DcdLCoAgEADQ28zSX4zoYs4SNopMiA1FeP16u8ekC3Cja0GfanL2lWRBoAe6nuZAn7i02nLIcR9Fhafcav_GiN72KXXIe5CASw6JPw.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 3,
+      "banheiros": 2,
+      "vagas": 2,
+      "valor": 750.0,
+      "area_privada": 140.0,
+      "bairro": "Rau",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2174",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-TIDsKhbzFSIqkh2GgM33eGUBZEj-eCPkWVYhvyAocvdLnUmX2hrUaXbEn7OIRp8iM6BG9stLpPboO-igwmm4j0Aw.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 3,
+      "banheiros": 3,
+      "vagas": 1,
+      "valor": 650.0,
+      "area_privada": 110.78,
+      "bairro": "São Luís",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2321",
+      "imagem": "https://img.apre.me/BcHbCoAgDADQv9mjl3LiHvYtYSqyEBtF_PudU1gX4M73gj7VEPnKsmDjF7pepjbcI_XWWqZ4jKxSpjxqMQUfkrd9Sh3ynSzgkkMuPw.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 3,
+      "banheiros": 3,
+      "vagas": 2,
+      "valor": 900.0,
+      "area_privada": 137.0,
+      "bairro": "São Luís",
+      "cidade": "Jaraguá do Sul",
+      "piscina": null,
+      "churrasqueira": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2029",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_zTXKbNj50lcoIsxEYRXr-3hG1CDHxPaMNczlhZJ6z8QrPL7RFDLSSBNkpHP01l6GOLp0SEuLShtetXWMGTjyw-.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 3,
+      "banheiros": 3,
+      "vagas": 2,
+      "valor": 705.0,
+      "area_privada": 135.5,
+      "bairro": "Tifa Martins",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2156",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-SIIEvooW8xWpDUEGw0hu87w6QToqd7QhtqEF0hmbDSC00vEzDUiHzWbDFtfVfhIY8u3tuUg1vakNLlO0jAZhuJfw.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 3,
+      "banheiros": 3,
+      "vagas": 2,
+      "valor": 700.0,
+      "area_privada": 144.0,
+      "bairro": "Tifa Martins",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/564",
+      "imagem": "https://img.apre.me/BcHBDYAgDADAbfoELILw6CxGQEgNwUZjWN_7TDLBWbontCEqxqUQT0B6oZ1yqZLQbtVXl1f0ez_E8_BHNEYTAuo2uHT_EjGYYBzlHw.jpeg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 2,
+      "banheiros": 2,
+      "vagas": 1,
+      "valor": 449.0,
+      "area_privada": 81.52,
+      "bairro": "Tifa Martins",
+      "cidade": "Jaraguá do Sul",
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1045",
+      "imagem": "https://img.apre.me/BcHBDYAgDADAbfoERBB5dBYDFEkNwUZjWN_7gjLBr3hPaENUjAshT7D4QpNLVaJINYczu7QdPQmXwY9oZ40NTrfB1PnLyGB247H8.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 3,
+      "sala": 1,
+      "banheiros": 3,
+      "vagas": 3,
+      "ano": 2023,
+      "valor": 849.0,
+      "area_privada": 142.0,
+      "bairro": "Três Rios do Norte",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2449",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-QIiKnQQ99iWJTUEGw0hu87U1gn4Mr3hDbUEC2VZYLnF5peJiakfAQ8k0-b3pNKGfKoDUTOeW-bkNrlyyzgokMuPw.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 3,
+      "banheiros": 2,
+      "vagas": 2,
+      "valor": 750.0,
+      "area_privada": 122.0,
+      "bairro": "Três Rios do Norte",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2373",
+      "imagem": "https://img.apre.me/BcHbCoAgDADQv9mjl0xxD-uWSIeyEBtF_PudU0kXxED3gj7VIHomWbDRC10vE0vbE3tumTEd41SpUx61OXh06G2fwkO_QgIuu0j1Bw.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 2,
+      "banheiros": 2,
+      "vagas": 2,
+      "valor": 420.0,
+      "area_privada": 103.37,
+      "bairro": "Três Rios do Norte",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2079",
+      "imagem": "https://img.apre.me/DclJDoAgDADA3-SI7JZD32IEDKkh2GgM39e5TiGZEBxdE9oQlZKpxBMsPdDkVN5HF2o6MiLGre-CZfAti1n-sWZpg2vnNxODRh2ofA.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 3,
+      "banheiros": 2,
+      "vagas": 2,
+      "valor": 920.0,
+      "area_privada": 178.86,
+      "bairro": "Três Rios do Norte",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2168",
+      "imagem": "https://img.apre.me/BcHbCoAgDADQv9mjzVvpw74ldIIsxEYR-n7nMOmC6Ole0KeanG0jWeDoha6Xaa2kkLBysHk-R1HhKY9u-nAZo936lDbkqySACSPxDw.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 2,
+      "sala": 1,
+      "banheiros": 2,
+      "vagas": 1,
+      "ano": 2025,
+      "valor": 369.0,
+      "area_privada": 71.0,
+      "bairro": "Três Rios do Norte",
+      "cidade": "Jaraguá do Sul",
+      "aceita_permuta": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2057",
+      "imagem": "https://img.apre.me/BcHbCoAgDADQv9mjeWE1H-YtYTNkITaK8Pc7R9gmYOJ7Qhvmcg6VdULkF5pdDs-skxTEirTuvZjK0McWItxCDEsbWrt_Byt48sjyAw.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 2,
+      "banheiros": 2,
+      "vagas": 2,
+      "valor": 525.0,
+      "area_privada": 113.05,
+      "bairro": "Três Rios do Norte",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2451",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_zT5szKj50ldIIsxEYRXr-3hG1CDHxPaMNcSr6yTiB_odnlasSYwipYKG9nz6Yy9LEl7N4j0dKG1q5fYQU8MLL8.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 3,
+      "banheiros": 3,
+      "vagas": 2,
+      "valor": 500.0,
+      "area_privada": 129.45,
+      "bairro": "Três Rios do Norte",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2450",
+      "imagem": "https://img.apre.me/BcHbCoAgDADQv9mjbitDH-Yt4QVkITaK8Pc7p4otCJvcC-o0lxI10QUsL3S7HCWixgGxcD7OkU3r1Mf8HpGQ2fepbehXRAEjBqk-.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 2,
+      "banheiros": 2,
+      "vagas": 1,
+      "valor": 450.0,
+      "area_privada": 89.42,
+      "bairro": "Três Rios do Norte",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2133",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-SIRVkPfYtBQFJDsNEYvu9MJplgN7ontCEqRl2IJ6z0QpNLuWqS9al6dwa39yScBz_yBNSojV7a4NL5O4gBA1rKPw.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 2,
+      "banheiros": 3,
+      "vagas": 2,
+      "valor": 378.9,
+      "area_privada": 93.0,
+      "bairro": "Três Rios do Norte",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "sacada": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2342",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_zT1DLdx84SOUUWYqMIr997TDohrHRPaEMNoiskEzy90PQypy9cMdfkGfejnyo85NFliyvG5JY2pHT5MgnYZAPxDw.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 3,
+      "banheiros": 3,
+      "vagas": 2,
+      "valor": 720.0,
+      "area_privada": 182.0,
+      "bairro": "Três Rios do Norte",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1850",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-TIUkTh0LcYKYbUEGw0hu87w6QTYqB7QhtqcvaVZALSC00vgydyCZxTrGnd_6HCQx61GPyyOW-bkNrlKyTgkovEPw.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 3,
+      "banheiros": 3,
+      "vagas": 2,
+      "valor": 962.4,
+      "area_privada": 1.65,
+      "bairro": "Três Rios do Norte",
+      "cidade": "Jaraguá do Sul",
+      "piscina": null,
+      "churrasqueira": null,
+      "sacada": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2119",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-TIYkXg0LcYpJHUEGw0hu87U0knBKR7QhtqcvZMMmGhF5pehl3xiLiekfO296JShzxqY0yY0ds2hLt8Bwm45ALVHw.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 2,
+      "banheiros": 3,
+      "vagas": 1,
+      "valor": 534.0,
+      "area_privada": 104.0,
+      "bairro": "Três Rios do Norte",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2120",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_zTZqbOj50lSkUWYqMIr997mXWCd3xPaENNSrawTFj5haaXwbhhwBoqlRT2fqjkIY8uFMklZ5c2pHT5ThZAQs-5Bw.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 3,
+      "banheiros": 3,
+      "vagas": 1,
+      "valor": 699.0,
+      "area_privada": 149.0,
+      "bairro": "Três Rios do Norte",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2068",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_zT1GXpx84S6UQWYqMIr997hXRCQLontKEmJcckEzy90PQyrq6cI9YaOW1HP1XKkEeX3TtE75Y2hLt8mQRstIHKDw.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 2,
+      "banheiros": 2,
+      "vagas": 2,
+      "valor": 388.0,
+      "area_privada": 70.0,
+      "bairro": "Três Rios do Norte",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1510",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-TIoizl0LcYlkhqCDYaw-edqSQL-E73gj5FpWQb8YKNXuhyqYwhN1vcmWsMx8jCdfIjOqDDEHWf3AZ-hRgMGk-1Bw.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 3,
+      "banheiros": 3,
+      "vagas": 2,
+      "valor": 640.0,
+      "area_privada": 109.0,
+      "bairro": "Três Rios do Norte",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/793",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-QICBTh0LcYlkhqCDYaw-edqSQL0NG9oE9RKW2NeIGlF7pcyhU8Me8mxOLDMbJwnfyIth5NcrpPboO-QgwmGqT6Aw.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 3,
+      "banheiros": 2,
+      "vagas": 1,
+      "valor": 539.0,
+      "area_privada": 128.0,
+      "bairro": "Três Rios do Norte",
+      "cidade": "Jaraguá do Sul",
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2084",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_zTdKW4j50lapYsxEYRXr-3hG1AnPkeULs5olBYByC-UO1yQoLLmQQPT2ltm6l0fWxKkULGMNWupem3s4LPPrL8.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 2,
+      "banheiros": 1,
+      "vagas": 1,
+      "valor": 330.0,
+      "area_privada": 56.0,
+      "bairro": "Três Rios do Norte",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1981",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_zTtkzRj50laqIsxEYRXr-3hG1C8HxPaMNczlRYJ6z8QrPLFdlCrJEqYop7P0xl6GMLESZPtLShpet3sgImDCw-.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 3,
+      "banheiros": 3,
+      "vagas": 2,
+      "valor": 650.0,
+      "area_privada": 119.6,
+      "bairro": "Três Rios do Norte",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1785",
+      "imagem": "https://img.apre.me/BcHBDYAgDADAbfqEAiLw6CwGQUkNwUZjWN_7QjLBO7ontCEqJVOJJ1h6ocmljhqsS-GMOYZ161m4DH5EmxBwQaPb4Nr524kBI3oqPw.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 3,
+      "banheiros": 3,
+      "vagas": 2,
+      "valor": 780.0,
+      "area_privada": 192.66,
+      "bairro": "Três Rios do Norte",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2408",
+      "imagem": "https://img.apre.me/BcHbCoAgDADQv9mjTc3bw74lbIIsxEYR-n7nMOmC4Ole0KeaUmwjWeDoha6XsTtXj5iSxxqPUVV4yqObtTFldFuf0oZ8JwlgxkD8Aw.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 2,
+      "banheiros": 3,
+      "vagas": 2,
+      "valor": 480.0,
+      "area_privada": 92.0,
+      "bairro": "Três Rios do Norte",
+      "cidade": "Jaraguá do Sul",
+      "piscina": null,
+      "churrasqueira": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1695",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_xTl07Nj50lTEEWYqMIr997lXVB8Hwv6FNNzltjWeD4ha6XwUiUMcVClOIxikqd8qj15KLLtk9pQ76TBXDHwPUH.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 3,
+      "banheiros": 3,
+      "vagas": 2,
+      "ano": 2024,
+      "valor": 590.0,
+      "area_privada": 156.0,
+      "bairro": "Três Rios do Norte",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "sacada": null,
+      "mobiliado": null,
+      "aceita_permuta": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1398",
+      "imagem": "https://img.apre.me/BcHbCoAgDADQv9mjziv5sG_JmiILsVGEv985TLogBboX9KmmFFdJFnh6oetlWmnOHTUytpT3cajwlEdtwBh8tn1KHfKdJIAbJuIf.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 2,
+      "banheiros": 3,
+      "vagas": 2,
+      "valor": 500.0,
+      "area_privada": 92.05,
+      "bairro": "Três Rios do Norte",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "aceita_permuta": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2238",
+      "imagem": "https://img.apre.me/BcHbCoAgDADQv9mjl43MPexbIo1kITaK8Pc7p4pNWEjuCW2YY46H6ASUF5pdbi2UmQh3OjltfTetQx-ziAE5Rd_GHl2-Igohh0XqDw.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 2,
+      "banheiros": 1,
+      "vagas": 1,
+      "valor": 400.0,
+      "area_privada": 60.0,
+      "bairro": "Três Rios do Norte",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2139",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_zTZrmhHztLlJYsxEYRXr-3stgAWuQeULu5lHwRHTDLC9UuR4EO5pPQY_K1baa562MTU_QQ-FS7lqbfLgoYkST-.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 3,
+      "banheiros": 3,
+      "vagas": 2,
+      "valor": 750.0,
+      "area_privada": 156.52,
+      "bairro": "Três Rios do Norte",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2371",
+      "imagem": "https://img.apre.me/DchJDoAgDADA3-TIZkB76FuMUCU1BBuN4fs6xymkA_JE14Da1SB6JhkQ6IGqpzlyTIGZ95kxrW1TKV1utQHd4tDb2oWbvJkE-ohUPg.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 2,
+      "banheiros": 3,
+      "vagas": 2,
+      "valor": 455.0,
+      "area_privada": 124.0,
+      "bairro": "Três Rios do Norte",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1570",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-TIKksPfYtBMKSGYKMxfN_ZSrIgeLoX9CkK0TbiBY5e6HKp5PD0JaM1McV9FOE6_RGdIm4m6z65Df4OYjDZBKo-.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 2,
+      "banheiros": 2,
+      "vagas": 1,
+      "valor": 430.0,
+      "area_privada": 87.0,
+      "bairro": "Três Rios do Sul",
+      "cidade": "Jaraguá do Sul",
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1571",
+      "imagem": "https://img.apre.me/BcHbCoAgDADQv9mjLW-Mh31LmKIsxEYR-n7nFNYFwfG9oE81Ke2VZYHlF7peBqu1LTdPzlI8RlYpUx7dKCaPtPUpdch3sgASBi4-.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 3,
+      "banheiros": 3,
+      "vagas": 1,
+      "valor": 620.0,
+      "area_privada": 140.0,
+      "bairro": "Três Rios do Sul",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "sacada": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1055",
+      "imagem": "https://img.apre.me/BcHBDYAgDADAbfpEECjy6CwGQUgNwUZjWN_7TDLBW7ontCEqRlOIJ6z0QpNLocHT1lQxBYd7T8J58CNLsN4Ft7TBpfN3EIPetKf8Aw.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 3,
+      "banheiros": 3,
+      "vagas": 2,
+      "valor": 700.0,
+      "area_privada": 102.0,
+      "bairro": "Três Rios do Sul",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2467",
+      "imagem": "https://img.apre.me/BcHbCoAgDADQv9mj2sTbw74lcoYsxEYR-n7nMOmC4Ole0KeaUrZGsgDpha6X4erPkjil4o_4j0OFpzxqEWNGRNuntCFfJQGXXSD_AQ.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 3,
+      "banheiros": 3,
+      "vagas": 2,
+      "valor": 850.0,
+      "area_privada": 148.0,
+      "bairro": "Três Rios do Sul",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2052",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_zTNm2iHztLlJIsxEYRXr-3itgEDnJPaMNczlRFJ3h5odnlGGtYic7gU45b303L0MeWiJ7J09KG1q7fIQqYkKX8.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 3,
+      "banheiros": 3,
+      "valor": 685.0,
+      "area_privada": 123.0,
+      "bairro": "Três Rios do Sul",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2401",
+      "imagem": "https://img.apre.me/DcdJDoAgDADA3-TIphB66FuMlEhqCDYaw-d1bsOkE_JC14Q21CD6SjIh0ANNT8MulYwLp3Jg2vquwkNutT6vLrtg25Da5S0k8D8Sfw.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 2,
+      "banheiros": 1,
+      "vagas": 1,
+      "valor": 369.0,
+      "area_privada": 60.0,
+      "bairro": "Três Rios do Sul",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2128",
+      "imagem": "https://img.apre.me/BcFJCoAwDADA3_TYvZoe8hbRFEuk1KBIv_8Mk07Ike4JbagpxVeSCYFeaHoZPFeMnmMKWJat7yo85FGLiM4lb9uQ2uU7SMChy8Q-.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 2,
+      "banheiros": 2,
+      "vagas": 1,
+      "valor": 375.0,
+      "area_privada": 63.14,
+      "bairro": "Três Rios do Sul",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2108",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_xTp2Lpx84SNksWYqMIr997TDohBrontKEmZ1dJJnh6oellfMHzyBw8c1q2XlR4yKMWs0trcLYNqV2_nQQwYST_AQ.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 3,
+      "banheiros": 3,
+      "vagas": 2,
+      "valor": 650.0,
+      "area_privada": 134.0,
+      "bairro": "Três Rios do Sul",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/49",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_zTbOnMj50lbIIsxEYRXr-3hG1C3Pie0Ia5nNfKOgH5hWaXCyRSIlKqiejoxVSGPrZgwEBLG1q7ficr_N1Hlh8.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 3,
+      "banheiros": 3,
+      "vagas": 1,
+      "valor": 838.0,
+      "area_privada": 148.0,
+      "bairro": "Três Rios do Sul",
+      "cidade": "Jaraguá do Sul",
+      "piscina": null,
+      "churrasqueira": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2267",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-SIRSzLoW8xApHUEGw0hu87U1gnkON7QhtqUrKVZcLKLzS9zIaUyaI7MSa-90OlDHl0scn5EOzShtQuX2YBjEhcfg.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 2,
+      "banheiros": 2,
+      "vagas": 2,
+      "valor": 550.0,
+      "area_privada": 92.58,
+      "bairro": "Três Rios do Sul",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2291",
+      "imagem": "https://img.apre.me/BcHbCoAgDADQv9mjzsTLHvYtYRqyEBtF_PudU1kXBM-3gj7VELnGsmDjF7peBkuNp28eE1HcR1GpUx61iQK67Gyf0oZ8BwtgxsD1Bw.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 2,
+      "banheiros": 3,
+      "vagas": 1,
+      "valor": 450.0,
+      "area_privada": 72.4,
+      "bairro": "Três Rios do Sul",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2038",
+      "imagem": "https://img.apre.me/DcdJDoAgDADA3-Qou9JD32IQlNQQbDSG7_vcJpMMCI6uAbXLhGgK8QBLD1Q5-6PflyN6G3FeWxLOnW9RGJxDY1TtXBq-GzHoqAPlDw.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 2,
+      "banheiros": 2,
+      "vagas": 1,
+      "valor": 354.9,
+      "area_privada": 69.7,
+      "bairro": "Três Rios do Sul",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1758",
+      "imagem": "https://img.apre.me/BcFJDoAgDADA3-TIogXsoW8xCJHUEGw0hu87U1gnhJXvCW2oIfKVZcLCLzS9DHoq6cRMDlPce1YpQx61ETElsm1I7fIdLOA2F7j8.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 3,
+      "banheiros": 3,
+      "vagas": 2,
+      "valor": 979.0,
+      "area_privada": 176.0,
+      "bairro": "Vila Lalau",
+      "cidade": "Jaraguá do Sul",
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/1163",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_xTXbnSj50lTEUWYqMIr997mXUCrXxPaENNjFhYJiz8QtPLVNyJELEmH7ajJ5U85FFLzlP0tg0pXb6TBVxwxPkH.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 3,
+      "banheiros": 3,
+      "vagas": 3,
+      "valor": 980.0,
+      "area_privada": 187.0,
+      "bairro": "Vila Lalau",
+      "cidade": "Jaraguá do Sul",
+      "piscina": null,
+      "churrasqueira": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/707",
+      "imagem": "https://img.apre.me/BcHbCoAgDADQv9mjTc3bw74lcoIsxEYR-n7nMOmC4Ole0KeaUmwjWeDoha6XQevSbn2qXFM8xqnCUx7dcsEY-dantCFfJQHMGIh-.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 2,
+      "banheiros": 2,
+      "vagas": 1,
+      "valor": 550.0,
+      "area_privada": 107.0,
+      "bairro": "Vila Lenzi",
+      "cidade": "Jaraguá do Sul",
+      "churrasqueira": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2446",
+      "imagem": "https://img.apre.me/DcpLCoAgEADQ28xSTfG3mLOEOiQTYkMRXr-e_jWUBd7htaBPUTlvhLzA4gNdThUPqilFCtmWsI8i3Cbfop11f7W6T6bBb0UGk4zH9gE.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 2,
+      "banheiros": 2,
+      "vagas": 2,
+      "valor": 340.0,
+      "area_privada": 73.92,
+      "bairro": "Jaraguá 84",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2253",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_xTnWLmx84SOkkWYqMIr997TLogBroX9KkmZ2wkCzy90PUyBbHGM7TGKW-HKCo85VHrHHpMaPuUNuSrJOB2F4l-.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 2,
+      "banheiros": 1,
+      "vagas": 2,
+      "valor": 360.0,
+      "area_privada": 66.56,
+      "bairro": "Jaraguá 84",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2121",
+      "imagem": "https://img.apre.me/BcFJCsAgDADA3_ToiksOeUupipIiNrQUv9_ZSrIheLo3jCUK0TbiDY5eGHKp2JO1_ewl9RyPeQrXxY9oF9Cjt3osbpO-Qgwmm0D1Bw.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "quartos": 2,
+      "banheiros": 1,
+      "vagas": 1,
+      "ano": 2025,
+      "valor": 325.0,
+      "area_privada": 59.33,
+      "bairro": "Braço do Ribeirão Cavalo",
+      "cidade": "Jaraguá do Sul",
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada"
+        ]
+      }
+    },
+    {
+      "url": "https://macroimoveis.com/2251",
+      "imagem": "https://img.apre.me/BcFRCoAgDADQ2_xTnWXOj50lUkMWYqMIr997hXVCWPie0IaalLCyTPD8QtPLoPNrdvWkGNO290OlDHnUIhFiRNuG1C5fZgFHLnD5AQ.jpg",
+      "tipo_imovel": "Residencial » Casa Geminada",
+      "valor": 940.719,
+      "area_privada": 85.52,
+      "bairro": "Centro",
+      "cidade": "Pomerode",
+      "piscina": null,
+      "academia": null,
+      "mobiliado": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "tipo_imovel fora do catálogo: Residencial » Casa Geminada",
+          "cidade fora do catálogo: Pomerode"
+        ]
+      }
+    }
+  ]
+}

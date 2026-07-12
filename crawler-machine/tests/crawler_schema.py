@@ -17,6 +17,62 @@ logger = logging.getLogger(__name__)
 _SCHEMA_SQL = """
 CREATE SCHEMA IF NOT EXISTS crawler;
 
+CREATE TABLE IF NOT EXISTS crawler.crawler_runs (
+    id SERIAL PRIMARY KEY,
+    source_name TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'running',
+    started_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    completed_at TIMESTAMP WITH TIME ZONE,
+    error_message TEXT,
+    properties_count INT,
+    latest BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_crawler_runs_source_name ON crawler.crawler_runs(source_name);
+CREATE INDEX IF NOT EXISTS idx_crawler_runs_status ON crawler.crawler_runs(status);
+CREATE INDEX IF NOT EXISTS idx_crawler_runs_source_name_latest ON crawler.crawler_runs(source_name, latest);
+
+CREATE TABLE IF NOT EXISTS crawler.discovery_runs (
+    id SERIAL PRIMARY KEY,
+    source_name TEXT NOT NULL,
+    crawler_run_id INT REFERENCES crawler.crawler_runs(id) ON DELETE SET NULL,
+    urls JSONB,
+    status TEXT NOT NULL DEFAULT 'running',
+    started_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    completed_at TIMESTAMP WITH TIME ZONE,
+    error_message TEXT,
+    latest BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_discovery_runs_source_name ON crawler.discovery_runs(source_name);
+CREATE INDEX IF NOT EXISTS idx_discovery_runs_status ON crawler.discovery_runs(status);
+CREATE INDEX IF NOT EXISTS idx_discovery_runs_source_name_latest ON crawler.discovery_runs(source_name, latest);
+
+CREATE TABLE IF NOT EXISTS crawler.schema_runs (
+    id SERIAL PRIMARY KEY,
+    source_name TEXT NOT NULL,
+    crawler_run_id INT REFERENCES crawler.crawler_runs(id) ON DELETE SET NULL,
+    schema_data JSONB,
+    schema_type TEXT,
+    sample_url TEXT,
+    fields_snapshot JSONB,
+    status TEXT NOT NULL DEFAULT 'running',
+    started_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    completed_at TIMESTAMP WITH TIME ZONE,
+    error_message TEXT,
+    latest BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_schema_runs_source_name ON crawler.schema_runs(source_name);
+CREATE INDEX IF NOT EXISTS idx_schema_runs_status ON crawler.schema_runs(status);
+CREATE INDEX IF NOT EXISTS idx_schema_runs_source_name_latest ON crawler.schema_runs(source_name, latest);
+
 CREATE TABLE IF NOT EXISTS crawler.cities (
     id SERIAL PRIMARY KEY,
     name TEXT NOT NULL,
@@ -49,7 +105,7 @@ CREATE TABLE IF NOT EXISTS crawler.property_types (
 
 CREATE TABLE IF NOT EXISTS crawler.raw_properties (
     id SERIAL PRIMARY KEY,
-    crawler_run_id INT NOT NULL REFERENCES public.crawler_runs(id) ON DELETE CASCADE,
+    crawler_run_id INT NOT NULL REFERENCES crawler.crawler_runs(id) ON DELETE CASCADE,
     source_url TEXT,
     external_id TEXT,
     tipo_imovel TEXT,
@@ -87,7 +143,7 @@ CREATE TABLE IF NOT EXISTS crawler.raw_properties (
 
 CREATE TABLE IF NOT EXISTS crawler.market_properties (
     id SERIAL PRIMARY KEY,
-    crawler_run_id INT NOT NULL REFERENCES public.crawler_runs(id) ON DELETE CASCADE,
+    crawler_run_id INT NOT NULL REFERENCES crawler.crawler_runs(id) ON DELETE CASCADE,
     raw_property_id INT REFERENCES crawler.raw_properties(id) ON DELETE SET NULL,
     source_url TEXT,
     tipo TEXT,

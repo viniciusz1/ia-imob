@@ -42,6 +42,9 @@ def test_ensure_schema_creates_crawler_catalog_tables():
         assert "cities" in tables
         assert "neighborhoods" in tables
         assert "property_types" in tables
+        assert "crawler_runs" in tables
+        assert "discovery_runs" in tables
+        assert "schema_runs" in tables
         assert "raw_properties" in tables
         assert "market_properties" in tables
     finally:

@@ -1,0 +1,162 @@
+{
+  "metadata": {
+    "sample_url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/apartamento-para-venda-na-ilha-da-figueira-jaragua-do-sul/1147",
+    "generated_at": "2026-07-07T04:05:51.090342+00:00"
+  },
+  "schema": {
+    "name": "Property Details",
+    "baseSelector": "//body",
+    "fields": [
+      {
+        "name": "url",
+        "selector": "//meta[@property='og:url']/@content",
+        "type": "attribute",
+        "attribute": "content"
+      },
+      {
+        "name": "imagem",
+        "selector": "//a[@data-fancybox='gallery'][@data-index='0']/img",
+        "type": "attribute",
+        "attribute": "data-src"
+      },
+      {
+        "name": "tipo_imovel",
+        "selector": "//h1[@class='titulo-principal']",
+        "type": "regex",
+        "pattern": "^(\\w+)"
+      },
+      {
+        "name": "quartos",
+        "selector": "//div[contains(@class,'icon_detalhes') and not(contains(@class,'hide'))]/p[contains(text(),'quarto')]",
+        "type": "regex",
+        "pattern": "(\\d+)"
+      },
+      {
+        "name": "banheiros",
+        "selector": "//div[contains(@class,'icon_detalhes') and not(contains(@class,'hide'))]/p[contains(text(),'banheiro')]",
+        "type": "regex",
+        "pattern": "(\\d+)"
+      },
+      {
+        "name": "suites",
+        "selector": "//div[contains(@class,'icon_detalhes') and contains(@class,'hide')]/p[contains(text(),'Suíte')]",
+        "type": "regex",
+        "pattern": "(\\d+)"
+      },
+      {
+        "name": "vagas",
+        "selector": "//div[contains(@class,'icon_detalhes') and not(contains(@class,'hide'))]/p[contains(text(),'Vaga')]",
+        "type": "regex",
+        "pattern": "(\\d+)"
+      },
+      {
+        "name": "valor",
+        "selector": "//h6[@class='preco-imovel']",
+        "type": "text"
+      },
+      {
+        "name": "area_privada",
+        "selector": "//div[contains(@class,'icon_detalhes') and not(contains(@class,'hide'))]/p[contains(text(),'m²')]",
+        "type": "regex",
+        "pattern": "([\\d,]+)"
+      },
+      {
+        "name": "area_util",
+        "selector": "//div[contains(@class,'icon_detalhes') and contains(@class,'hide')]/p[contains(text(),'m²')]",
+        "type": "regex",
+        "pattern": "([\\d,]+)"
+      },
+      {
+        "name": "detalhes",
+        "selector": "//p[@class='descricao']",
+        "type": "text"
+      },
+      {
+        "name": "bairro",
+        "selector": "//ol[@class='breadcrumb']/li[3]/a",
+        "type": "text"
+      },
+      {
+        "name": "cidade",
+        "selector": "//p[@class='sub-titulo']",
+        "type": "regex",
+        "pattern": ",\\s*([^,]+?)\\s*-\\s*SC"
+      },
+      {
+        "name": "piscina",
+        "selector": "//p[@class='descricao'][contains(., 'Piscina')]",
+        "type": "text"
+      },
+      {
+        "name": "churrasqueira",
+        "selector": "//p[@class='descricao'][contains(., 'churrasqueira')]",
+        "type": "text"
+      },
+      {
+        "name": "academia",
+        "selector": "//p[@class='descricao'][contains(., 'Academia')]",
+        "type": "text"
+      },
+      {
+        "name": "salao_festas",
+        "selector": "//p[@class='descricao'][contains(., 'Salão de festa')]",
+        "type": "text"
+      },
+      {
+        "name": "playground",
+        "selector": "//p[@class='descricao'][contains(., 'Pracinha')]",
+        "type": "text"
+      },
+      {
+        "name": "sacada",
+        "selector": "//p[@class='descricao'][contains(., 'Sacada')]",
+        "type": "text"
+      },
+      {
+        "name": "mobiliado",
+        "selector": "//p[@class='descricao'][contains(., 'móveis')]",
+        "type": "text"
+      },
+      {
+        "name": "ar_condicionado",
+        "selector": "//li[contains(@class,'extras-active') and contains(., 'Ar condicionado')]",
+        "type": "text"
+      },
+      {
+        "name": "lavanderia",
+        "selector": "//p[@class='descricao'][contains(., 'área de serviço')]",
+        "type": "text"
+      },
+      {
+        "name": "escritorio",
+        "selector": "//li[contains(@class,'extras-active') and contains(., 'Escritório')]",
+        "type": "text"
+      },
+      {
+        "name": "closet",
+        "selector": "//li[contains(@class,'extras-active') and contains(., 'Closet')]",
+        "type": "text"
+      },
+      {
+        "name": "elevador",
+        "selector": "//p[@class='descricao'][contains(., 'Elevador')]",
+        "type": "text"
+      },
+      {
+        "name": "portaria_24h",
+        "selector": "//p[@class='descricao'][contains(., 'Portaria')]",
+        "type": "text"
+      },
+      {
+        "name": "aceita_permuta",
+        "selector": "//*[contains(text(),'Aceita permuta')]",
+        "type": "text"
+      },
+      {
+        "name": "financiamento",
+        "selector": "//*[contains(text(),'Financiamento')]",
+        "type": "text"
+      }
+    ]
+  }
+}

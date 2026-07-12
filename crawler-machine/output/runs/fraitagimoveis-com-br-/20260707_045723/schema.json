@@ -1,0 +1,169 @@
+{
+  "metadata": {
+    "sample_url": "https://fraitagimoveis.com.br/imoveis/venda/schroeder/rio-hern/-/casa/ca705/imovel/2344562",
+    "generated_at": "2026-07-07T05:04:05.117845+00:00"
+  },
+  "schema": {
+    "name": "Property Detail",
+    "baseSelector": "//div[@data-builder-section='pagina']",
+    "fields": [
+      {
+        "name": "url",
+        "selector": ".//a[contains(@data-gtm-text, 'Link:')]",
+        "type": "regex",
+        "attribute": "data-gtm-text",
+        "pattern": "Link: (https://[^&]+)"
+      },
+      {
+        "name": "imagem",
+        "selector": ".//div[contains(@class,'swiper-slide-active')]//img[contains(@class,'GalleryPiecesProperties_img__')]",
+        "type": "attribute",
+        "attribute": "src"
+      },
+      {
+        "name": "tipo_imovel",
+        "selector": ".//div[contains(@class,'container_caracters__')][.//label[contains(text(),'Tipo do Imóvel')]]//label[contains(@class,'result_info_caracters__')]",
+        "type": "text"
+      },
+      {
+        "name": "quartos",
+        "selector": ".//div[contains(@class,'container_caracters__')][.//label[contains(text(),'Quartos')]]//label[contains(@class,'result_info_caracters__')]",
+        "type": "regex",
+        "pattern": "(\\d+)"
+      },
+      {
+        "name": "banheiros",
+        "selector": ".//div[contains(@class,'container_caracters__')][.//label[contains(text(),'Banheiros')]]//label[contains(@class,'result_info_caracters__')]",
+        "type": "text"
+      },
+      {
+        "name": "suites",
+        "selector": ".//div[contains(@class,'container_caracters__')][.//label[contains(text(),'Quartos')]]//label[contains(@class,'result_info_caracters__')]",
+        "type": "regex",
+        "pattern": "\\(Sendo\\s*(\\d+)\\s*Suíte\\)"
+      },
+      {
+        "name": "vagas",
+        "selector": ".//div[contains(@class,'all_caracters__')]//label[contains(., 'Garagem')]",
+        "type": "regex",
+        "pattern": "(\\d+)"
+      },
+      {
+        "name": "valor",
+        "selector": ".//div[contains(@class,'text_price__')]/label",
+        "type": "text"
+      },
+      {
+        "name": "area_util",
+        "selector": ".//div[contains(@class,'container_caracters__')][.//label[contains(text(),'Área Útil')]]//label[contains(@class,'result_info_caracters__')]",
+        "type": "regex",
+        "pattern": "([\\d.,]+)"
+      },
+      {
+        "name": "area_privada",
+        "selector": ".//div[contains(@class,'container_caracters__')][.//label[contains(text(),'Área Privativa')]]//label[contains(@class,'result_info_caracters__')]",
+        "type": "text"
+      },
+      {
+        "name": "detalhes",
+        "selector": ".//div[contains(@class,'description_properties__')]//p",
+        "type": "text"
+      },
+      {
+        "name": "bairro",
+        "selector": ".//ul[contains(@class,'HistoryComponent_body1__')]/li[5]//div[contains(@class,'text_normal')]",
+        "type": "text"
+      },
+      {
+        "name": "cidade",
+        "selector": ".//ul[contains(@class,'HistoryComponent_body1__')]/li[4]//div[contains(@class,'text_normal')]",
+        "type": "text"
+      },
+      {
+        "name": "sala",
+        "selector": ".//div[contains(@class,'all_caracters__')]//label[contains(., 'Sala de Estar')]",
+        "type": "text"
+      },
+      {
+        "name": "churrasqueira",
+        "selector": ".//div[contains(@class,'all_caracters__')]//label[contains(., 'Churrasqueira')]",
+        "type": "text"
+      },
+      {
+        "name": "lavanderia",
+        "selector": ".//div[contains(@class,'all_caracters__')]//label[contains(., 'Lavanderia')]",
+        "type": "text"
+      },
+      {
+        "name": "piscina",
+        "selector": ".//div[contains(@class,'all_caracters__')]//label[contains(., 'Piscina')]",
+        "type": "text"
+      },
+      {
+        "name": "academia",
+        "selector": ".//div[contains(@class,'all_caracters__')]//label[contains(., 'Academia')]",
+        "type": "text"
+      },
+      {
+        "name": "salao_festas",
+        "selector": ".//div[contains(@class,'all_caracters__')]//label[contains(., 'Área de Festas')]",
+        "type": "text"
+      },
+      {
+        "name": "playground",
+        "selector": ".//div[contains(@class,'all_caracters__')]//label[contains(., 'Playground')]",
+        "type": "text"
+      },
+      {
+        "name": "sacada",
+        "selector": ".//div[contains(@class,'all_caracters__')]//label[contains(., 'Sacada')]",
+        "type": "text"
+      },
+      {
+        "name": "mobiliado",
+        "selector": ".//div[contains(@class,'all_caracters__')]//label[contains(., 'Mobiliado')]",
+        "type": "text"
+      },
+      {
+        "name": "ar_condicionado",
+        "selector": ".//div[contains(@class,'all_caracters__')]//label[contains(., 'Ar Condicionado')]",
+        "type": "text"
+      },
+      {
+        "name": "escritorio",
+        "selector": ".//div[contains(@class,'all_caracters__')]//label[contains(., 'Escritório')]",
+        "type": "text"
+      },
+      {
+        "name": "closet",
+        "selector": ".//div[contains(@class,'all_caracters__')]//label[contains(., 'Closet')]",
+        "type": "text"
+      },
+      {
+        "name": "elevador",
+        "selector": ".//div[contains(@class,'all_caracters__')]//label[contains(., 'Elevador')]",
+        "type": "text"
+      },
+      {
+        "name": "portaria_24h",
+        "selector": ".//div[contains(@class,'all_caracters__')]//label[contains(., 'Portaria')]",
+        "type": "text"
+      },
+      {
+        "name": "ano",
+        "selector": ".//div[contains(@class,'container_caracters__')][.//label[contains(text(),'Ano')]]//label[contains(@class,'result_info_caracters__')]",
+        "type": "text"
+      },
+      {
+        "name": "aceita_permuta",
+        "selector": ".//div[contains(@class,'all_caracters__')]//label[contains(., 'Permuta')]",
+        "type": "text"
+      },
+      {
+        "name": "financiamento",
+        "selector": ".//div[contains(@class,'all_caracters__')]//label[contains(., 'Financiamento')]",
+        "type": "text"
+      }
+    ]
+  }
+}

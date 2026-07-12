@@ -1,0 +1,167 @@
+{
+  "metadata": {
+    "sample_url": "https://betelimoveis.imb.br/imovel/apartamento-a-venda-no-bairro-vila-verde-em-caxias-do-sul-rs/700",
+    "generated_at": "2026-07-07T06:21:06.960398+00:00"
+  },
+  "schema": {
+    "name": "Betel Property Detail",
+    "baseSelector": "/html",
+    "fields": [
+      {
+        "name": "url",
+        "selector": ".//link[@rel='canonical']",
+        "type": "attribute",
+        "attribute": "href"
+      },
+      {
+        "name": "imagem",
+        "selector": ".//meta[@property='og:image']",
+        "type": "attribute",
+        "attribute": "content"
+      },
+      {
+        "name": "ref",
+        "selector": ".//span[starts-with(normalize-space(text()), 'Ref.:')]",
+        "type": "text"
+      },
+      {
+        "name": "tipo_imovel",
+        "selector": ".//div[contains(@class, 'Detail__header')]//h1",
+        "type": "text"
+      },
+      {
+        "name": "valor",
+        "selector": ".//div[contains(@class, 'Detail__header')]//span[contains(text(), 'R$')]",
+        "type": "regex",
+        "pattern": "R\\$[\\d.,]+"
+      },
+      {
+        "name": "quartos",
+        "selector": ".//section[h3='Cômodos']//span[contains(text(), 'Dormitórios')]",
+        "type": "text"
+      },
+      {
+        "name": "sala",
+        "selector": ".//section[h3='Cômodos']//span[contains(text(), 'Sala de estar')]",
+        "type": "text"
+      },
+      {
+        "name": "banheiros",
+        "selector": ".//section[h3='Cômodos']//span[contains(text(), 'Banheiro')]",
+        "type": "text"
+      },
+      {
+        "name": "suites",
+        "selector": ".//section[h3='Cômodos']//span[contains(text(), 'Suíte')]",
+        "type": "text"
+      },
+      {
+        "name": "vagas",
+        "selector": ".//section[h3='Cômodos']//span[contains(text(), 'Vaga')]",
+        "type": "text"
+      },
+      {
+        "name": "area_privada",
+        "selector": ".//section[h3='Ficha do imóvel']//span[text()='Área Privativa']/following-sibling::span[1]",
+        "type": "text"
+      },
+      {
+        "name": "detalhes",
+        "selector": ".//section[h3='Descrição do imóvel']//div[contains(@class, 'sc-zu5nfd-0')]",
+        "type": "text"
+      },
+      {
+        "name": "bairro",
+        "selector": ".//section[h3='Localização']//span[contains(text(), '-')]",
+        "type": "regex",
+        "pattern": "^(.*?) -"
+      },
+      {
+        "name": "cidade",
+        "selector": ".//section[h3='Localização']//span[contains(text(), '-')]",
+        "type": "regex",
+        "pattern": " - (.+?)/"
+      },
+      {
+        "name": "churrasqueira",
+        "selector": ".//section[h3='Condomínio']//span[contains(text(), 'Churrasqueira')]",
+        "type": "text"
+      },
+      {
+        "name": "elevador",
+        "selector": ".//section[h3='Condomínio']//span[contains(text(), 'Elevador')]",
+        "type": "text"
+      },
+      {
+        "name": "salao_festas",
+        "selector": ".//section[h3='Condomínio']//span[contains(text(), 'Salão de festas')]",
+        "type": "text"
+      },
+      {
+        "name": "piscina",
+        "selector": ".//section[h3='Condomínio']//span[contains(text(), 'Piscina')]",
+        "type": "text"
+      },
+      {
+        "name": "academia",
+        "selector": ".//section[h3='Condomínio']//span[contains(text(), 'Academia')]",
+        "type": "text"
+      },
+      {
+        "name": "playground",
+        "selector": ".//section[h3='Condomínio']//span[contains(text(), 'Playground')]",
+        "type": "text"
+      },
+      {
+        "name": "sacada",
+        "selector": ".//section[h3='Características']//span[contains(text(), 'Sacada')]",
+        "type": "text"
+      },
+      {
+        "name": "ar_condicionado",
+        "selector": ".//section[h3='Características']//span[contains(text(), 'Ar condicionado')]",
+        "type": "text"
+      },
+      {
+        "name": "lavanderia",
+        "selector": ".//section[h3='Características']//span[contains(text(), 'Lavanderia')]",
+        "type": "text"
+      },
+      {
+        "name": "escritorio",
+        "selector": ".//section[h3='Características']//span[contains(text(), 'Escritório')]",
+        "type": "text"
+      },
+      {
+        "name": "closet",
+        "selector": ".//section[h3='Características']//span[contains(text(), 'Closet')]",
+        "type": "text"
+      },
+      {
+        "name": "portaria_24h",
+        "selector": ".//section[h3='Condomínio']//span[contains(text(), 'Portaria')]",
+        "type": "text"
+      },
+      {
+        "name": "mobiliado",
+        "selector": ".//section[h3='Ficha do imóvel']//span[text()='Possui mobília?']/following-sibling::span[1]",
+        "type": "text"
+      },
+      {
+        "name": "financiamento",
+        "selector": ".//section[h3='Ficha do imóvel']//span[text()='Aceita Financiamento']",
+        "type": "text"
+      },
+      {
+        "name": "aceita_permuta",
+        "selector": ".//section[h3='Ficha do imóvel']//span[text()='Aceita Permuta']",
+        "type": "text"
+      },
+      {
+        "name": "idade_imovel",
+        "selector": ".//section[h3='Ficha do imóvel']//span[text()='Idade do imóvel']/following-sibling::span[1]",
+        "type": "text"
+      }
+    ]
+  }
+}

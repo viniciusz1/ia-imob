@@ -4,7 +4,7 @@ import psycopg2
 import pytest
 from dotenv import load_dotenv
 
-from src.sink import PostgresConfig, PostgresSink
+from crawler_machine.sink import PostgresConfig, PostgresSink
 from tests.catalog_seed import seed_test_catalogs
 from tests.crawler_schema import ensure_schema
 
@@ -33,6 +33,19 @@ def sink():
     connection = _connect()
     ensure_schema(connection)
     seed_test_catalogs(connection)
+    with connection:
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                TRUNCATE TABLE
+                    crawler.crawler_runs,
+                    crawler.discovery_runs,
+                    crawler.schema_runs,
+                    crawler.raw_properties,
+                    crawler.market_properties
+                RESTART IDENTITY CASCADE
+                """
+            )
     connection.close()
     return PostgresSink(config)
 

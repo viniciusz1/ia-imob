@@ -1,0 +1,13 @@
+{
+  "metadata": {
+    "generated_at": "2026-07-07T05:28:32.244106+00:00"
+  },
+  "exterminated_count": 42,
+  "extermination_reasons": {
+    "bairro": 34,
+    "valor": 26,
+    "tipo_imovel": 42
+  },
+  "total_records": 0,
+  "records_with_issues": []
+}

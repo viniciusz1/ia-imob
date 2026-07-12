@@ -1,0 +1,189 @@
+{
+  "metadata": {
+    "sample_url": "https://www.imoveisplaneta.com.br/imovel/1950/comprar/casa/jaragua-do-sul/chico-de-paulo",
+    "generated_at": "2026-07-07T05:28:20.497212+00:00"
+  },
+  "schema": {
+    "name": "Property Detail",
+    "baseSelector": "//html",
+    "fields": [
+      {
+        "name": "url",
+        "selector": ".//meta[@property='og:url']",
+        "type": "attribute",
+        "attribute": "content"
+      },
+      {
+        "name": "imagem",
+        "selector": ".//meta[@property='og:image']",
+        "type": "attribute",
+        "attribute": "content"
+      },
+      {
+        "name": "tipo_imovel",
+        "selector": ".//h1[@class='title-imovel']",
+        "type": "regex",
+        "pattern": "^\\S+"
+      },
+      {
+        "name": "bairro",
+        "selector": ".//h1[@class='title-imovel']",
+        "type": "regex",
+        "pattern": "^\\S+\\s+(.*?)\\s+com"
+      },
+      {
+        "name": "cidade",
+        "selector": ".//footer//h4[contains(.,'Imóveis em')]",
+        "type": "regex",
+        "pattern": "em (.+)"
+      },
+      {
+        "name": "valor",
+        "selector": ".//div[@class='valores']//span[contains(.,'R$')]",
+        "type": "text"
+      },
+      {
+        "name": "detalhes",
+        "selector": ".//div[@class='descricao-texto']",
+        "type": "text"
+      },
+      {
+        "name": "area_privada",
+        "selector": ".//span[contains(.,'privativa')]",
+        "type": "regex",
+        "pattern": "\\d+"
+      },
+      {
+        "name": "area_util",
+        "selector": ".//span[contains(.,'total') and not(contains(.,'terreno'))]",
+        "type": "regex",
+        "pattern": "\\d+"
+      },
+      {
+        "name": "quartos",
+        "selector": ".//span[contains(.,'dormitório')]",
+        "type": "regex",
+        "pattern": "\\d+"
+      },
+      {
+        "name": "banheiros",
+        "selector": ".//span[contains(.,'banheiro')]",
+        "type": "regex",
+        "pattern": "\\d+"
+      },
+      {
+        "name": "vagas",
+        "selector": ".//i[contains(@class,'fa-car')]/following-sibling::span[1]",
+        "type": "regex",
+        "pattern": "\\d+"
+      },
+      {
+        "name": "suites",
+        "selector": ".//span[contains(.,'suíte')]",
+        "type": "regex",
+        "pattern": "\\d+"
+      },
+      {
+        "name": "sala",
+        "selector": ".//span[contains(.,'sala')]",
+        "type": "regex",
+        "pattern": "\\d+"
+      },
+      {
+        "name": "ano",
+        "selector": ".//span[contains(.,'ano')]",
+        "type": "regex",
+        "pattern": "\\d{4}"
+      },
+      {
+        "name": "mobiliado",
+        "selector": ".//span[contains(.,'mobília') or contains(.,'mobiliado')]",
+        "type": "text"
+      },
+      {
+        "name": "piscina",
+        "selector": ".//div[@class='descricao-texto']",
+        "type": "regex",
+        "pattern": "piscina"
+      },
+      {
+        "name": "churrasqueira",
+        "selector": ".//div[@class='descricao-texto']",
+        "type": "regex",
+        "pattern": "churrasqueira"
+      },
+      {
+        "name": "academia",
+        "selector": ".//div[@class='descricao-texto']",
+        "type": "regex",
+        "pattern": "academia"
+      },
+      {
+        "name": "salao_festas",
+        "selector": ".//div[@class='descricao-texto']",
+        "type": "regex",
+        "pattern": "salao"
+      },
+      {
+        "name": "playground",
+        "selector": ".//div[@class='descricao-texto']",
+        "type": "regex",
+        "pattern": "playground"
+      },
+      {
+        "name": "sacada",
+        "selector": ".//div[@class='descricao-texto']",
+        "type": "regex",
+        "pattern": "sacada"
+      },
+      {
+        "name": "ar_condicionado",
+        "selector": ".//div[@class='descricao-texto']",
+        "type": "regex",
+        "pattern": "ar condicionado"
+      },
+      {
+        "name": "lavanderia",
+        "selector": ".//div[@class='descricao-texto']",
+        "type": "regex",
+        "pattern": "lavanderia"
+      },
+      {
+        "name": "escritorio",
+        "selector": ".//div[@class='descricao-texto']",
+        "type": "regex",
+        "pattern": "escritorio"
+      },
+      {
+        "name": "closet",
+        "selector": ".//div[@class='descricao-texto']",
+        "type": "regex",
+        "pattern": "closet"
+      },
+      {
+        "name": "elevador",
+        "selector": ".//div[@class='descricao-texto']",
+        "type": "regex",
+        "pattern": "elevador"
+      },
+      {
+        "name": "portaria_24h",
+        "selector": ".//div[@class='descricao-texto']",
+        "type": "regex",
+        "pattern": "portaria 24h"
+      },
+      {
+        "name": "aceita_permuta",
+        "selector": ".//div[@class='descricao-texto']",
+        "type": "regex",
+        "pattern": "permuta"
+      },
+      {
+        "name": "financiamento",
+        "selector": ".//div[@class='descricao-texto']",
+        "type": "regex",
+        "pattern": "financiamento"
+      }
+    ]
+  }
+}

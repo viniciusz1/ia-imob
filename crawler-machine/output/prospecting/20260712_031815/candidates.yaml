@@ -1,0 +1,384 @@
+generated_at: '2026-07-12T03:18:15.121006+00:00'
+query_cities:
+- Jaragua do Sul, SC
+candidates:
+- city: Jaragua do Sul
+  state: SC
+  name: ITAIVAN Imobiliária
+  base_url: http://www.itaivan.com/
+  source_name: www-itaivan-com
+  sample_url: null
+  phone: +55 47 3055-3412
+  address: R. Pres. Epitácio Pessoa, 1048 - Centro, Jaraguá do Sul - SC, 89251-100,
+    Brasil
+  google_place_id: ChIJVVVVJVSU3pQRomsT8GrnTMY
+  source: google_places
+  status: candidate
+  reject_reason: null
+- city: Jaragua do Sul
+  state: SC
+  name: Poder Imóveis
+  base_url: http://www.poderimoveis.com/
+  source_name: www-poderimoveis-com
+  sample_url: null
+  phone: +55 47 3275-1212
+  address: R. Henrique Piazera, 103 - Centro, Jaraguá do Sul - SC, 89252-060, Brasil
+  google_place_id: ChIJ2T0gqv-U3pQR-GmNMKI_Xzk
+  source: google_places
+  status: candidate
+  reject_reason: null
+- city: Jaragua do Sul
+  state: SC
+  name: Imobiliária Piermann
+  base_url: http://www.piermann.com.br/
+  source_name: www-piermann-com-br
+  sample_url: null
+  phone: +55 47 3370-0700
+  address: R. Expedicionário Gumercindo da Silva, 588 - Centro, Jaraguá do Sul - SC,
+    89252-000, Brasil
+  google_place_id: ChIJbUDlrWCU3pQRrp80oHE4I1Q
+  source: google_places
+  status: candidate
+  reject_reason: null
+- city: Jaragua do Sul
+  state: SC
+  name: Imobiliária Beta
+  base_url: http://www.imobiliariabeta.com.br/
+  source_name: www-imobiliariabeta-com-br
+  sample_url: null
+  phone: +55 47 3501-1000
+  address: R. João Januário Ayroso, 531 - Jaraguá Esquerdo, Jaraguá do Sul - SC, 89253-100,
+    Brasil
+  google_place_id: ChIJz44tJsKU3pQRWbAnZrb-mdA
+  source: google_places
+  status: candidate
+  reject_reason: null
+- city: Jaragua do Sul
+  state: SC
+  name: Imobiliária Vivenda Imóveis
+  base_url: http://vivendaimoveis.com/
+  source_name: vivendaimoveis-com
+  sample_url: null
+  phone: +55 47 3372-1122
+  address: R. Jorge Czerniewicz, 400 - Czerniewicz, Jaraguá do Sul - SC, 89255-000,
+    Brasil
+  google_place_id: ChIJ86_K0qqV3pQRcGqnWDJGQYw
+  source: google_places
+  status: candidate
+  reject_reason: null
+- city: Jaragua do Sul
+  state: SC
+  name: IMOBILIÁRIA JARAGUÁ - Venda de Apartamentos e Casas em Jaraguá do Sul e Região
+  base_url: http://www.imobiliariajaragua.com.br/
+  source_name: www-imobiliariajaragua-com-br
+  sample_url: null
+  phone: +55 47 3375-0800
+  address: R. Marina Frutuoso, 502 - Centro, Jaraguá do Sul - SC, 89251-500, Brasil
+  google_place_id: ChIJTy4IgHGV3pQRmPFkLtxCwyw
+  source: google_places
+  status: candidate
+  reject_reason: null
+- city: Jaragua do Sul
+  state: SC
+  name: HAUS Imóveis
+  base_url: https://www.haus.imb.br/
+  source_name: www-haus-imb-br
+  sample_url: null
+  phone: +55 47 3373-2000
+  address: Av. Mal. Floriano Peixoto, 80 - Sl 08 - Centro, Jaraguá do Sul - SC, 89251-150,
+    Brasil
+  google_place_id: ChIJ5W-DER-V3pQRnNVh5X7pj8U
+  source: google_places
+  status: candidate
+  reject_reason: null
+- city: Jaragua do Sul
+  state: SC
+  name: Cidade Imóveis
+  base_url: http://imoveiscidade.com.br/
+  source_name: imoveiscidade-com-br
+  sample_url: null
+  phone: +55 47 3055-0070
+  address: R. Barão do Rio Branco, 700 - Centro, Jaraguá do Sul - SC, 89251-400, Brasil
+  google_place_id: ChIJgxH--BuV3pQRlYzRLgu_Y50
+  source: google_places
+  status: candidate
+  reject_reason: null
+- city: Jaragua do Sul
+  state: SC
+  name: Dual Imobiliária
+  base_url: http://www.dualimobiliaria.com.br/
+  source_name: www-dualimobiliaria-com-br
+  sample_url: null
+  phone: +55 47 99623-0399
+  address: R. Cel. Procópio Gomes de Oliveira, 1207 - Centro, Jaraguá do Sul - SC,
+    89251-201, Brasil
+  google_place_id: ChIJl7xICRuV3pQRTcR4tI1bGjk
+  source: google_places
+  status: candidate
+  reject_reason: null
+- city: Jaragua do Sul
+  state: SC
+  name: Imobiliária Urbana Imóveis
+  base_url: http://www.imobiliariaurbana.com.br/
+  source_name: www-imobiliariaurbana-com-br
+  sample_url: null
+  phone: +55 47 99136-0113
+  address: R. Max Wilhelm, 674 - 4 - Vila Baependi, Jaraguá do Sul - SC, 89256-000,
+    Brasil
+  google_place_id: ChIJYYwqYwaV3pQR02Bd3X4S3Qs
+  source: google_places
+  status: candidate
+  reject_reason: null
+- city: Jaragua do Sul
+  state: SC
+  name: SPLENDORE IMÓVEIS
+  base_url: https://www.splendoreimoveis.com/
+  source_name: www-splendoreimoveis-com
+  sample_url: null
+  phone: +55 47 3275-4477
+  address: R. Domingos Rodrigues da Nova, 483 - Centro, Jaraguá do Sul - SC, 89251-640,
+    Brasil
+  google_place_id: ChIJVVWlPwOV3pQRDLQ7vrv8d30
+  source: google_places
+  status: candidate
+  reject_reason: null
+- city: Jaragua do Sul
+  state: SC
+  name: Imobiliária SMART
+  base_url: http://www.imbsmart.com.br/
+  source_name: www-imbsmart-com-br
+  sample_url: null
+  phone: +55 47 3307-5333
+  address: R. José Emmendoerfer, 421 - Nova Brasília, Jaraguá do Sul - SC, 89253-000,
+    Brasil
+  google_place_id: ChIJXbWaKVOV3pQRpXxiYg-5Nlg
+  source: google_places
+  status: candidate
+  reject_reason: null
+- city: Jaragua do Sul
+  state: SC
+  name: PACHA Imóveis
+  base_url: http://www.pachaimoveis.com.br/
+  source_name: www-pachaimoveis-com-br
+  sample_url: null
+  phone: +55 47 3407-0272
+  address: R. Pastor Ferdinand Schlunzen, 223 - Sl 01 - Centro, Jaraguá do Sul - SC,
+    89251-070, Brasil
+  google_place_id: ChIJj9wuJ2Ob9ygRaZPLl6m_R1o
+  source: google_places
+  status: candidate
+  reject_reason: null
+- city: Jaragua do Sul
+  state: SC
+  name: Sollus Imobiliária Jaraguá do Sul
+  base_url: http://www.sollusimobiliaria.com.br/
+  source_name: www-sollusimobiliaria-com-br
+  sample_url: null
+  phone: +55 47 3371-5656
+  address: R. Jacob Buck, 71 - Sl 5 - Centro, Jaraguá do Sul - SC, 89251-160, Brasil
+  google_place_id: ChIJhZStxhuV3pQRfoj5mSd-9Uo
+  source: google_places
+  status: candidate
+  reject_reason: null
+- city: Jaragua do Sul
+  state: SC
+  name: Donna Imóveis
+  base_url: https://donnajaragua.com.br/
+  source_name: donnajaragua-com-br
+  sample_url: null
+  phone: +55 47 2020-4818
+  address: R. Frederico Curt Alberto Vasel, 265 - sala 03 - Barra do Rio Molha, Jaraguá
+    do Sul - SC, 89259-500, Brasil
+  google_place_id: ChIJ_80yh02V3pQRmYZ0_28MtT0
+  source: google_places
+  status: candidate
+  reject_reason: null
+- city: Jaragua do Sul
+  state: SC
+  name: D2 Imóveis | Imobiliária em Jaraguá do Sul
+  base_url: https://www.d2imoveis.com/
+  source_name: www-d2imoveis-com
+  sample_url: null
+  phone: +55 47 98914-0202
+  address: R. Emil Burow, 151 - Centro, Jaraguá do Sul - SC, 89251-530, Brasil
+  google_place_id: ChIJaby0_IyV3pQRXw6Ldsfgi2E
+  source: google_places
+  status: candidate
+  reject_reason: null
+- city: Jaragua do Sul
+  state: SC
+  name: IMOB Imóveis | Imobiliária em Jaraguá do Sul
+  base_url: https://imobimobiliariasc.com.br/?utm_source=googlemaps
+  source_name: imobimobiliariasc-com-br-utm-source-googlemaps
+  sample_url: null
+  phone: +55 47 98914-8791
+  address: IMOB Imóveis - R. Gov. Jorge Lacerda, 345 - Centro, Jaraguá do Sul - SC,
+    89251-390, Brasil
+  google_place_id: ChIJYz1XViOV3pQRhZYLjRct0Vc
+  source: google_places
+  status: candidate
+  reject_reason: null
+- city: Jaragua do Sul
+  state: SC
+  name: Morada Brasil
+  base_url: http://www.moradabrasil.com/
+  source_name: www-moradabrasil-com
+  sample_url: null
+  phone: +55 47 3372-0555
+  address: R. Marina Frutuoso, 144 - Centro, Jaraguá do Sul - SC, 89251-500, Brasil
+  google_place_id: ChIJIb2cp-OU3pQReocHAEq2RDM
+  source: google_places
+  status: candidate
+  reject_reason: null
+- city: Jaragua do Sul
+  state: SC
+  name: Chalé Imobiliária
+  base_url: http://www.chaleimobiliaria.com.br/
+  source_name: www-chaleimobiliaria-com-br
+  sample_url: null
+  phone: +55 47 3371-1500
+  address: R. Reinoldo Rau, 49 - Centro, Jaraguá do Sul - SC, 89251-600, Brasil
+  google_place_id: ChIJb5USGQKV3pQRbmd1Y8_HuTI
+  source: google_places
+  status: candidate
+  reject_reason: null
+- city: Jaragua do Sul
+  state: SC
+  name: Imobiliária Habitat
+  base_url: http://www.imobiliariahabitat.com.br/
+  source_name: www-imobiliariahabitat-com-br
+  sample_url: null
+  phone: +55 47 3371-8009
+  address: R. Felipe Schmidt, 157 - Centro, Jaraguá do Sul - SC, 89251-060, Brasil
+  google_place_id: ChIJ8TKNvlaU3pQR9bcjYvnbGz0
+  source: google_places
+  status: candidate
+  reject_reason: null
+- city: Jaragua do Sul
+  state: SC
+  name: Imobiliária A Chave
+  base_url: https://imobiliariaachave.com.br/
+  source_name: imobiliariaachave-com-br
+  sample_url: null
+  phone: +55 47 3275-1666
+  address: R. Barão do Rio Branco, 221 - Centro, Jaraguá do Sul - SC, 89251-400, Brasil
+  google_place_id: ChIJ5-dPnR2V3pQRvE9ZzlKrr1A
+  source: google_places
+  status: candidate
+  reject_reason: null
+- city: Jaragua do Sul
+  state: SC
+  name: MACRO imóveis
+  base_url: https://www.macroimoveis.com/
+  source_name: www-macroimoveis-com
+  sample_url: null
+  phone: +55 47 99611-2222
+  address: R. Frederico Bartel, 225 - Centro, Jaraguá do Sul - SC, 89251-800, Brasil
+  google_place_id: ChIJ30upFeuV3pQRAYCMW0VRRIk
+  source: google_places
+  status: candidate
+  reject_reason: null
+- city: Jaragua do Sul
+  state: SC
+  name: Séculus Imobiliária
+  base_url: http://www.seculus.net/
+  source_name: www-seculus-net
+  sample_url: null
+  phone: +55 47 3275-9500
+  address: R. Marina Frutuoso, 700 - Centro, Jaraguá do Sul - SC, 89251-500, Brasil
+  google_place_id: ChIJJeigCB6V3pQR4GTg3UMwswU
+  source: google_places
+  status: candidate
+  reject_reason: null
+- city: Jaragua do Sul
+  state: SC
+  name: Imobiliária Barra Sul
+  base_url: https://www.imobiliariabarrasul.com/
+  source_name: www-imobiliariabarrasul-com
+  sample_url: null
+  phone: +55 47 3376-0015
+  address: R. Ângelo Rubini, 1053 - Barra do Rio Cerro, Jaraguá do Sul - SC, 89260-155,
+    Brasil
+  google_place_id: ChIJc78D26GU3pQRLPu5UM5WE4A
+  source: google_places
+  status: candidate
+  reject_reason: null
+- city: Jaragua do Sul
+  state: SC
+  name: IMOBILIARIA MOURA
+  base_url: http://www.mouraimoveis.com.br/
+  source_name: www-mouraimoveis-com-br
+  sample_url: null
+  phone: +55 47 99716-5108
+  address: R. José Emmendoerfer, 1704 - Jaraguá Esquerdo, Jaraguá do Sul - SC, 89252-278,
+    Brasil
+  google_place_id: ChIJUYSfXuHEaAQRGb0jVWYG6Oo
+  source: google_places
+  status: candidate
+  reject_reason: null
+- city: Jaragua do Sul
+  state: SC
+  name: Brisa Sul Imóveis - Imobiliária
+  base_url: https://www.brisaimoveis.com/
+  source_name: www-brisaimoveis-com
+  sample_url: null
+  phone: +55 47 98867-9201
+  address: R. Barão do Rio Branco, 805 - Centro, Jaraguá do Sul - SC, 89251-400, Brasil
+  google_place_id: ChIJ6yq-nfaV3pQR_KI3Kwky60Q
+  source: google_places
+  status: candidate
+  reject_reason: null
+- city: Jaragua do Sul
+  state: SC
+  name: Berta Imóveis l Imobiliária em Jaraguá do Sul
+  base_url: http://www.bertaimoveis.com/
+  source_name: www-bertaimoveis-com
+  sample_url: null
+  phone: +55 47 3055-0900
+  address: Av. Mal. Deodoro da Fonseca, 191 - Alameda 25 - Centro, Jaraguá do Sul
+    - SC, 89251-701, Brasil
+  google_place_id: ChIJwcd3Of6U3pQRE68K_J3nm7A
+  source: google_places
+  status: candidate
+  reject_reason: null
+- city: Jaragua do Sul
+  state: SC
+  name: Atlanta Imóveis
+  base_url: http://www.atlantaimoveis.com/
+  source_name: www-atlantaimoveis-com
+  sample_url: null
+  phone: +55 47 98431-1122
+  address: R. Martim Stahl, 121 - Vila Nova, Jaraguá do Sul - SC, 89259-310, Brasil
+  google_place_id: ChIJw0kCuh6V3pQReXqtkBSEI1g
+  source: google_places
+  status: candidate
+  reject_reason: null
+- city: Jaragua do Sul
+  state: SC
+  name: Imóveis Planeta
+  base_url: http://www.imoveisplaneta.com.br/
+  source_name: www-imoveisplaneta-com-br
+  sample_url: null
+  phone: +55 47 3275-0100
+  address: R. Barão do Rio Branco, 557 - Centro, Jaraguá do Sul - SC, 89251-400, Brasil
+  google_place_id: ChIJjQFnFRyV3pQR8YzEbD7OlTw
+  source: google_places
+  status: candidate
+  reject_reason: null
+- city: Jaragua do Sul
+  state: SC
+  name: Spaço Imóveis
+  base_url: http://www.spacoimoveis.net/
+  source_name: www-spacoimoveis-net
+  sample_url: null
+  phone: +55 47 3275-1100
+  address: R. Bernardo Dornbusch, 1568 - Vila Lalau, Jaraguá do Sul - SC, 89256-184,
+    Brasil
+  google_place_id: ChIJm6IoDg2V3pQR0BISSM24dCU
+  source: google_places
+  status: candidate
+  reject_reason: null
+summary:
+  total: 30
+  candidates: 30
+  rejected: 0

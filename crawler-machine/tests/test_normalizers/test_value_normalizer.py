@@ -1,6 +1,6 @@
 import pytest
 
-from src.normalization.normalizers.value_normalizer import ValueNormalizer
+from crawler_machine.normalization.normalizers.value_normalizer import ValueNormalizer
 
 
 def test_parses_brazilian_currency():

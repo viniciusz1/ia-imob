@@ -6,15 +6,17 @@ from unittest.mock import MagicMock, call, patch
 
 import pytest
 
-from src.sink import (
+from crawler_machine.sink import (
     PostgresConfig,
     PostgresSink,
-    _coerce_for_column,
-    _rename_fields,
-    _to_boolean,
-    _to_float,
-    _to_int,
     build_source_name,
+)
+from crawler_machine.sink.coercion import (
+    coerce_for_column,
+    rename_fields,
+    to_boolean,
+    to_float,
+    to_int,
 )
 
 
@@ -26,7 +28,7 @@ def test_build_source_name_from_explicit_name():
     assert build_source_name("https://example.com", "Imobiliária Modelo") == "imobiliaria-modelo"
 
 
-def test_rename_fields_maps_crawler_names_to_db_columns():
+def testrename_fields_maps_crawler_names_to_db_columns():
     record = {
         "tipo_imovel": "Apartamento",
         "url": "https://example.com/imovel/1",
@@ -34,7 +36,7 @@ def test_rename_fields_maps_crawler_names_to_db_columns():
         "area_util": 72.5,
         "ano": 2020,
     }
-    renamed = _rename_fields(record)
+    renamed = rename_fields(record)
     assert renamed == {
         "tipo": "Apartamento",
         "link_imovel": "https://example.com/imovel/1",
@@ -56,8 +58,8 @@ def test_rename_fields_maps_crawler_names_to_db_columns():
         (None, None),
     ],
 )
-def test_to_boolean(value, expected):
-    assert _to_boolean(value) == expected
+def testto_boolean(value, expected):
+    assert to_boolean(value) == expected
 
 
 @pytest.mark.parametrize(
@@ -70,8 +72,8 @@ def test_to_boolean(value, expected):
         ("", None),
     ],
 )
-def test_to_float(value, expected):
-    assert _to_float(value) == expected
+def testto_float(value, expected):
+    assert to_float(value) == expected
 
 
 @pytest.mark.parametrize(
@@ -82,13 +84,13 @@ def test_to_float(value, expected):
         (None, None),
     ],
 )
-def test_to_int(value, expected):
-    assert _to_int(value) == expected
+def testto_int(value, expected):
+    assert to_int(value) == expected
 
 
-def test_coerce_for_column_preserves_strings():
-    assert _coerce_for_column("  Centro  ", "bairro") == "Centro"
-    assert _coerce_for_column("", "bairro") is None
+def testcoerce_for_column_preserves_strings():
+    assert coerce_for_column("  Centro  ", "bairro") == "Centro"
+    assert coerce_for_column("", "bairro") is None
 
 
 def test_postgres_config_from_env_requires_all_fields():
@@ -130,7 +132,7 @@ def test_save_run_persists_run_and_properties_atomically():
     mock_connection.cursor.return_value.__exit__ = MagicMock(return_value=False)
 
     with patch("psycopg2.connect", return_value=mock_connection):
-        with patch("src.sink.execute_values") as mock_execute_values:
+        with patch("crawler_machine.sink.run_store.execute_values") as mock_execute_values:
             raw_properties = [
                 {
                     "tipo_imovel": "Casa",
@@ -158,7 +160,7 @@ def test_save_run_persists_run_and_properties_atomically():
     assert run_id == 42
     mock_cursor.execute.assert_any_call(
         """
-                        INSERT INTO crawler_runs
+                        INSERT INTO crawler.crawler_runs
                             (source_name, status, started_at, completed_at, properties_count, latest)
                         VALUES (%s, %s, NOW(), NOW(), %s, TRUE)
                         RETURNING id
@@ -167,7 +169,7 @@ def test_save_run_persists_run_and_properties_atomically():
     )
     mock_cursor.execute.assert_any_call(
         """
-                        UPDATE crawler_runs
+                        UPDATE crawler.crawler_runs
                         SET latest = FALSE
                         WHERE source_name = %s AND id != %s
                         """,
@@ -201,7 +203,7 @@ def test_fail_run_updates_status_and_error():
 
     mock_cursor.execute.assert_called_once_with(
         """
-                        UPDATE crawler_runs
+                        UPDATE crawler.crawler_runs
                         SET status = %s, completed_at = NOW(), error_message = %s
                         WHERE id = %s
                         """,
@@ -225,13 +227,13 @@ def test_save_discovery_run_persists_and_flips_latest():
     assert run_id == 10
 
     insert_call = mock_cursor.execute.call_args_list[0]
-    assert insert_call[0][0].strip().startswith("INSERT INTO discovery_runs")
+    assert insert_call[0][0].strip().startswith("INSERT INTO crawler.discovery_runs")
     assert insert_call[0][1][0] == "imob-test"
     assert insert_call[0][1][1] == "completed"
     assert insert_call[0][1][2] == '["https://example.com/imovel/1", "https://example.com/imovel/2"]'
 
     update_call = mock_cursor.execute.call_args_list[1]
-    assert "UPDATE discovery_runs" in update_call[0][0]
+    assert "UPDATE crawler.discovery_runs" in update_call[0][0]
     assert "SET latest = FALSE" in update_call[0][0]
     assert update_call[0][1] == ("imob-test", 10)
 
@@ -241,7 +243,7 @@ def test_load_latest_discovery_returns_urls():
     sink = PostgresSink(config)
 
     mock_cursor = MagicMock()
-    mock_cursor.fetchone.return_value = ['["https://example.com/a", "https://example.com/b"]']
+    mock_cursor.fetchone.return_value = [["https://example.com/a", "https://example.com/b"]]
     mock_connection = MagicMock()
     mock_connection.cursor.return_value.__enter__ = MagicMock(return_value=mock_cursor)
     mock_connection.cursor.return_value.__exit__ = MagicMock(return_value=False)
@@ -283,7 +285,7 @@ def test_start_discovery_run_creates_running_row():
 
     assert run_id == 5
     call = mock_cursor.execute.call_args_list[0]
-    assert "INSERT INTO discovery_runs" in call[0][0]
+    assert "INSERT INTO crawler.discovery_runs" in call[0][0]
     assert call[0][1] == ("imob-test", "running")
 
 
@@ -301,11 +303,11 @@ def test_fail_discovery_run_updates_status():
 
     mock_cursor.execute.assert_called_once()
     call = mock_cursor.execute.call_args_list[0]
-    assert "UPDATE discovery_runs" in call[0][0]
+    assert "UPDATE crawler.discovery_runs" in call[0][0]
     assert call[0][1] == ("failed", "no urls found", 3)
 
 
-# --- schema_runs tests ---
+# --- crawler.schema_runs tests ---
 
 
 def test_save_schema_run_persists_and_flips_latest():
@@ -330,12 +332,12 @@ def test_save_schema_run_persists_and_flips_latest():
 
     assert run_id == 7
     insert_call = mock_cursor.execute.call_args_list[0]
-    assert "INSERT INTO schema_runs" in insert_call[0][0]
+    assert "INSERT INTO crawler.schema_runs" in insert_call[0][0]
     assert insert_call[0][1][0] == "imob-test"
     assert insert_call[0][1][1] == "completed"
 
     update_call = mock_cursor.execute.call_args_list[1]
-    assert "UPDATE schema_runs" in update_call[0][0]
+    assert "UPDATE crawler.schema_runs" in update_call[0][0]
     assert "SET latest = FALSE" in update_call[0][0]
 
 
@@ -345,7 +347,7 @@ def test_load_latest_schema_returns_schema_data():
 
     expected_schema = {"name": "ImovelSchema", "baseSelector": "//body", "fields": [{"name": "quartos", "selector": "//span[@class='rooms']"}]}
     mock_cursor = MagicMock()
-    mock_cursor.fetchone.return_value = [json.dumps(expected_schema)]
+    mock_cursor.fetchone.return_value = [expected_schema]
     mock_connection = MagicMock()
     mock_connection.cursor.return_value.__enter__ = MagicMock(return_value=mock_cursor)
     mock_connection.cursor.return_value.__exit__ = MagicMock(return_value=False)
@@ -387,7 +389,7 @@ def test_start_schema_run_creates_running_row():
 
     assert run_id == 3
     call = mock_cursor.execute.call_args_list[0]
-    assert "INSERT INTO schema_runs" in call[0][0]
+    assert "INSERT INTO crawler.schema_runs" in call[0][0]
     assert call[0][1] == ("imob-test", "running")
 
 
@@ -405,5 +407,5 @@ def test_fail_schema_run_updates_status():
 
     mock_cursor.execute.assert_called_once()
     call = mock_cursor.execute.call_args_list[0]
-    assert "UPDATE schema_runs" in call[0][0]
+    assert "UPDATE crawler.schema_runs" in call[0][0]
     assert call[0][1] == ("failed", "LLM timeout", 5)

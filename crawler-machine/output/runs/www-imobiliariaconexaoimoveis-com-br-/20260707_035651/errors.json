@@ -1,0 +1,207 @@
+{
+  "metadata": {
+    "count": 50
+  },
+  "errors": [
+    {
+      "url": "https://www.imobiliariaconexaoimoveis.com.br/imoveis-favoritos",
+      "error": "Unexpected error in _crawl_web at line 778 in _crawl_web (../../../.local/lib/python3.14/site-packages/crawl4ai/async_crawler_strategy.py):\nError: Failed on navigating ACS-GOTO:\nPage.goto: net::ERR_HTTP_RESPONSE_CODE_FAILURE at https://www.imobiliariaconexaoimoveis.com.br/imoveis-favoritos\nCall log:\n  - navigating to \"https://www.imobiliariaconexaoimoveis.com.br/imoveis-favoritos\", waiting until \"domcontentloaded\"\n\n\nCode context:\n 773                                   tag=\"GOTO\",\n 774                                   params={\"url\": url},\n 775                               )\n 776                               response = None\n 777                           else:\n 778 →                             raise RuntimeError(f\"Failed on navigating ACS-GOTO:\\n{str(e)}\")\n 779   \n 780                       # ──────────────────────────────────────────────────────────────\n 781                       # Walk the redirect chain.  Playwright returns only the last\n 782                       # hop, so we trace the `request.redirected_from` links until the\n 783                       # first response that differs from the final one and surface its"
+    },
+    {
+      "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/apartamento-para-venda-em-jaragua-do-sul-sc-no-bairro-santa-luzia/370",
+      "error": "Blocked by anti-bot protection: Structural: no_content_elements on small page (330 bytes, 228 chars visible)"
+    },
+    {
+      "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/terreno-para-venda-em-jaragua-do-sul-sc-no-bairro-tres-rios-do-norte/259",
+      "error": "Blocked by anti-bot protection: Structural: no_content_elements on small page (330 bytes, 228 chars visible)"
+    },
+    {
+      "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/terreno-para-venda-em-jaragua-do-sul-sc-no-bairro-estrada-nova/328",
+      "error": "Blocked by anti-bot protection: Structural: no_content_elements on small page (330 bytes, 228 chars visible)"
+    },
+    {
+      "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/terreno-para-venda-em-guaramirim-sc-no-bairro-bananal-do-sul/310",
+      "error": "Blocked by anti-bot protection: Structural: no_content_elements on small page (330 bytes, 228 chars visible)"
+    },
+    {
+      "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/apartamento-para-venda-em-jaragua-do-sul-sc-no-bairro-nereu-ramos/371",
+      "error": "Blocked by anti-bot protection: Structural: no_content_elements on small page (330 bytes, 228 chars visible)"
+    },
+    {
+      "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/apartamento-para-venda-em-jaragua-do-sul-sc-no-bairro-joao-pessoa/363",
+      "error": "Blocked by anti-bot protection: Structural: no_content_elements on small page (330 bytes, 228 chars visible)"
+    },
+    {
+      "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/terreno-para-venda-em-jaragua-do-sul-sc-no-bairro-tres-rios-do-norte/227",
+      "error": "Blocked by anti-bot protection: Structural: no_content_elements on small page (330 bytes, 228 chars visible)"
+    },
+    {
+      "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-geminada-para-venda-em-guaramirim-sc-no-bairro-corticeira/267",
+      "error": "Blocked by anti-bot protection: Structural: no_content_elements on small page (330 bytes, 228 chars visible)"
+    },
+    {
+      "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/apartamento-para-venda-em-guaramirim-sc-no-bairro-corticeira/268",
+      "error": "Blocked by anti-bot protection: Structural: no_content_elements on small page (330 bytes, 228 chars visible)"
+    },
+    {
+      "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/apartamento-para-venda-em-jaragua-do-sul-sc-no-bairro-tres-rios-do-sul/297",
+      "error": "Blocked by anti-bot protection: Structural: no_content_elements on small page (330 bytes, 228 chars visible)"
+    },
+    {
+      "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/apartamento-para-venda-em-guaramirim-sc-no-bairro-bananal-do-sul/263",
+      "error": "Blocked by anti-bot protection: Structural: no_content_elements on small page (330 bytes, 228 chars visible)"
+    },
+    {
+      "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-geminada-para-venda-em-guaramirim-sc-no-bairro-rio-branco/247",
+      "error": "Blocked by anti-bot protection: Structural: no_content_elements on small page (330 bytes, 228 chars visible)"
+    },
+    {
+      "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-geminada-para-venda-em-jaragua-do-sul-sc-no-bairro-jaragua-84/344",
+      "error": "Blocked by anti-bot protection: Structural: no_content_elements on small page (330 bytes, 228 chars visible)"
+    },
+    {
+      "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/apartamento-para-venda-em-jaragua-do-sul-sc-no-bairro-ilha-da-figueira/411",
+      "error": "Blocked by anti-bot protection: Structural: no_content_elements on small page (330 bytes, 228 chars visible)"
+    },
+    {
+      "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-geminada-para-venda-em-jaragua-do-sul-sc-no-bairro-joao-pessoa/409",
+      "error": "Blocked by anti-bot protection: Structural: no_content_elements on small page (330 bytes, 228 chars visible)"
+    },
+    {
+      "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/apartamento-para-venda-em-jaragua-do-sul-sc-no-bairro-ilha-da-figueira/374",
+      "error": "Blocked by anti-bot protection: Structural: no_content_elements on small page (330 bytes, 228 chars visible)"
+    },
+    {
+      "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-geminada-para-venda-no-bairro-beira-rio/248",
+      "error": "Blocked by anti-bot protection: Structural: no_content_elements on small page (333 bytes, 231 chars visible)"
+    },
+    {
+      "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-geminada-para-venda-em-jaragua-do-sul-sc-no-bairro-tres-rios-do-norte/270",
+      "error": "Blocked by anti-bot protection: Structural: no_content_elements on small page (330 bytes, 228 chars visible)"
+    },
+    {
+      "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/apartamento-com-2-quartos-ilha-da-figueira-jaragua-do-sul/404",
+      "error": "Blocked by anti-bot protection: Structural: no_content_elements on small page (330 bytes, 228 chars visible)"
+    },
+    {
+      "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-guaramirim-sc-no-bairro-beira-rio/343",
+      "error": "Blocked by anti-bot protection: Structural: no_content_elements on small page (330 bytes, 228 chars visible)"
+    },
+    {
+      "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/apartamento-para-venda-em-jaragua-do-sul-sc-no-bairro-ilha-da-figueira/412",
+      "error": "Blocked by anti-bot protection: Structural: no_content_elements on small page (330 bytes, 228 chars visible)"
+    },
+    {
+      "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-geminada-para-venda-em-guaramirim-sc-no-bairro-bananal-do-sul/84",
+      "error": "Blocked by anti-bot protection: Structural: no_content_elements on small page (330 bytes, 228 chars visible)"
+    },
+    {
+      "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/apartamento-para-venda-em-jaragua-do-sul-sc-no-bairro-tres-rios-do-norte/255",
+      "error": "Blocked by anti-bot protection: Structural: no_content_elements on small page (330 bytes, 228 chars visible)"
+    },
+    {
+      "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/sobrado-geminado-com-2-quartos-tres-rios-do-sul-jaragua-do-sul/408",
+      "error": "Blocked by anti-bot protection: Structural: no_content_elements on small page (330 bytes, 228 chars visible)"
+    },
+    {
+      "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-geminada-para-venda-em-jaragua-do-sul-sc-no-bairro-tifa-martins/345",
+      "error": "Blocked by anti-bot protection: Structural: no_content_elements on small page (330 bytes, 228 chars visible)"
+    },
+    {
+      "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/apartamento-para-venda-em-guaramirim-sc-no-bairro-amizade/265",
+      "error": "Blocked by anti-bot protection: Structural: no_content_elements on small page (330 bytes, 228 chars visible)"
+    },
+    {
+      "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-geminada-para-venda-em-jaragua-do-sul-sc-no-bairro-tres-rios-do-sul/190",
+      "error": "Blocked by anti-bot protection: Structural: no_content_elements on small page (330 bytes, 228 chars visible)"
+    },
+    {
+      "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-geminada-para-venda-em-jaragua-do-sul-sc-no-bairro-ilha-da-figueira/393",
+      "error": "Blocked by anti-bot protection: Structural: no_content_elements on small page (330 bytes, 228 chars visible)"
+    },
+    {
+      "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/apartamento-para-venda-em-barra-velha-sc-no-bairro-itacolomi/241",
+      "error": "Blocked by anti-bot protection: Structural: no_content_elements on small page (330 bytes, 228 chars visible)"
+    },
+    {
+      "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/apartamento-para-venda-em-jaragua-do-sul-sc-no-bairro-vieiras/184",
+      "error": "Blocked by anti-bot protection: Structural: no_content_elements on small page (330 bytes, 228 chars visible)"
+    },
+    {
+      "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/chacara-para-venda-em-guaramirim-sc-no-bairro-rio-branco/334",
+      "error": "Blocked by anti-bot protection: Structural: no_content_elements on small page (330 bytes, 228 chars visible)"
+    },
+    {
+      "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/apartamento-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-lenzi/243",
+      "error": "Blocked by anti-bot protection: Structural: no_content_elements on small page (330 bytes, 228 chars visible)"
+    },
+    {
+      "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-geminada-para-venda-em-guaramirim-sc-no-bairro-escolinha/332",
+      "error": "Blocked by anti-bot protection: Structural: no_content_elements on small page (330 bytes, 228 chars visible)"
+    },
+    {
+      "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-geminada-para-venda-em-guaramirim-sc-no-bairro-escolinha/355",
+      "error": "Blocked by anti-bot protection: Structural: no_content_elements on small page (330 bytes, 228 chars visible)"
+    },
+    {
+      "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/apartamento-para-venda-em-barra-velha-sc-no-bairro-itajuba/338",
+      "error": "Blocked by anti-bot protection: Structural: no_content_elements on small page (330 bytes, 228 chars visible)"
+    },
+    {
+      "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-geminada-para-venda-em-jaragua-do-sul-sc-no-bairro-nereu-ramos/348",
+      "error": "Blocked by anti-bot protection: Structural: no_content_elements on small page (330 bytes, 228 chars visible)"
+    },
+    {
+      "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/apartamento-para-venda-em-jaragua-do-sul-sc-no-bairro-chico-de-paulo/242",
+      "error": "Blocked by anti-bot protection: Structural: no_content_elements on small page (330 bytes, 228 chars visible)"
+    },
+    {
+      "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/sobrado-para-venda-em-jaragua-do-sul-sc-no-bairro-jaragua-esquerdo/384",
+      "error": "Blocked by anti-bot protection: Structural: no_content_elements on small page (330 bytes, 228 chars visible)"
+    },
+    {
+      "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-geminada-para-venda-em-jaragua-do-sul-sc-no-bairro-estrada-nova/238",
+      "error": "Blocked by anti-bot protection: Structural: no_content_elements on small page (330 bytes, 228 chars visible)"
+    },
+    {
+      "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/sobrado-geminado-com-1-suite-2-quartos-rau-jaragua-do-sul/414",
+      "error": "Blocked by anti-bot protection: Structural: no_content_elements on small page (330 bytes, 228 chars visible)"
+    },
+    {
+      "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/terreno-para-venda-avai-guaramirim/389",
+      "error": "Blocked by anti-bot protection: Structural: no_content_elements on small page (330 bytes, 228 chars visible)"
+    },
+    {
+      "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-guaramirim-sc-no-bairro-avai/108",
+      "error": "Blocked by anti-bot protection: Structural: no_content_elements on small page (330 bytes, 228 chars visible)"
+    },
+    {
+      "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/apartamento-para-venda-em-jaragua-do-sul-sc-no-bairro-chico-de-paulo/257",
+      "error": "Blocked by anti-bot protection: Structural: no_content_elements on small page (330 bytes, 228 chars visible)"
+    },
+    {
+      "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-em-jaragua-do-sul-sc-no-bairro-jaragua-84/230",
+      "error": "Blocked by anti-bot protection: Structural: no_content_elements on small page (330 bytes, 228 chars visible)"
+    },
+    {
+      "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/apartamento-para-venda-em-balneario-picarras-sc-no-bairro-itacolomi/337",
+      "error": "Blocked by anti-bot protection: Structural: no_content_elements on small page (330 bytes, 228 chars visible)"
+    },
+    {
+      "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-alto-padrao-para-venda-em-jaragua-do-sul-sc-no-bairro-agua-verde/237",
+      "error": "Blocked by anti-bot protection: Structural: no_content_elements on small page (330 bytes, 228 chars visible)"
+    },
+    {
+      "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/sobrado-para-venda-no-amizade-guaramirim/206",
+      "error": "Blocked by anti-bot protection: Structural: no_content_elements on small page (330 bytes, 228 chars visible)"
+    },
+    {
+      "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/comercial-para-venda-em-guaramirim-sc-no-bairro-avai/6",
+      "error": "Blocked by anti-bot protection: Structural: no_content_elements on small page (330 bytes, 228 chars visible)"
+    },
+    {
+      "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/terreno-para-venda-em-jaragua-do-sul-sc-no-bairro-vila-nova/239",
+      "error": "Blocked by anti-bot protection: Structural: no_content_elements on small page (330 bytes, 228 chars visible)"
+    }
+  ]
+}

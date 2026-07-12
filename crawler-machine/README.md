@@ -36,38 +36,93 @@ Copie o exemplo de variáveis de ambiente:
 cp .env.example .env
 ```
 
-Edite `.env` e adicione sua chave da API DeepSeek:
+Edite `.env` e adicione sua chave da API DeepSeek e os dados de acesso ao Postgres:
 
 ```bash
 DEEPSEEK_API_KEY=sk-sua-chave-aqui
+
+DB_HOST=localhost
+DB_PORT=5432
+DB_DATABASE=ia_imob
+DB_USERNAME=sail
+DB_PASSWORD=password
 ```
 
-Os campos a serem extraídos e as configurações globais ficam em `config/domain.json`.
+> **A fonte de verdade dos dados do crawler é o Postgres.** Os artefatos JSON em `output/` ainda são gerados para debug, mas as URLs descobertas, schemas gerados, dados brutos e imóveis normalizados são lidos e gravados no banco (`discovery_runs`, `schema_runs`, `raw_properties`, `market_properties`).
+
+Os campos padrão a serem extraídos e as configurações globais de LLM/crawler continuam em `config/domain.json`, servindo de base para a geração de schemas. O `source_name` usado no banco deve ser escolhido de forma consistente para cada imobiliária.
 
 ## Uso
 
 ### Pipeline completo
 
+O comando `run` reutiliza URLs e schemas já salvos no banco quando `--source-name` já possui registros `latest`. Para forçar nova geração, use `--regenerate-discovery` e/ou `--regenerate-schema`.
+
 ```bash
+# Primeiro run: é necessário informar a URL de exemplo para gerar o schema
 python -m crawler_machine run https://imbsmart.com.br \
+  --source-name imbsmart-com-br \
   --sample-url https://imbsmart.com.br/imovel/exemplo
+
+# Runs seguintes: reutiliza discovery e schema do banco
+python -m crawler_machine run https://imbsmart.com.br \
+  --source-name imbsmart-com-br
 ```
+
+`--source-name` é **obrigatório** em todos os comandos que persistem ou leem do banco.
+
+### Batch de imobiliárias
+
+O comando `clone-das-sombras` processa uma lista de imobiliárias definidas em um arquivo YAML. Cada item precisa de `base_url` e `source_name`; `sample_url` é obrigatório apenas na primeira execução, quando ainda não há schema/discovery cacheado no banco.
+
+```bash
+python -m crawler_machine clone-das-sombras imobiliarias.yaml
+```
+
+Exemplo de `imobiliarias.yaml`:
+
+```yaml
+- base_url: https://imbsmart.com.br
+  source_name: imbsmart-com-br
+  sample_url: https://imbsmart.com.br/imovel/exemplo
+- base_url: https://jaraguaimoveis.com.br
+  source_name: jaraguaimoveis-com-br
+  sample_url: https://jaraguaimoveis.com.br/imovel/exemplo
+```
+
+O processamento é sequencial e resiliente: se uma imobiliária falhar, o batch continua com as demais. Ao final, gera `output/batch_report_<timestamp>.json` com o status de cada imobiliária, além dos artefatos normais por imobiliária em `output/<slug>/<timestamp>/`.
+
+### Prospecção de imobiliárias
+
+O comando `prospecting find` busca imobiliárias candidatas em cidades via **Google Places API** — útil para descobrir alvos em cidades onde o sistema ainda não tem cobertura. Requer a variável `GOOGLE_PLACES_API_KEY` no `.env`.
+
+```bash
+python -m crawler_machine prospecting find \
+  --cities "Joinville,SC;Blumenau,SC" \
+  --max-per-city 30
+```
+
+A UF é obrigatória (para desambiguar homônimos). O resultado é um **YAML de candidatos para revisão humana** em `output/prospecting/candidatos_<timestamp>.yaml`, com cada entrada classificada como `candidate` ou `rejected` (`aggregator` / `no_website` / `duplicate_domain`). Para incluir uma imobiliária no pipeline, revise os `candidate`, preencha `sample_url` e adicione-os ao YAML do `clone-das-sombras`.
 
 ### Etapas isoladas
 
 Descobrir URLs:
 
 ```bash
-python -m crawler_machine discover https://imbsmart.com.br
+python -m crawler_machine discover https://imbsmart.com.br \
+  --source-name imbsmart-com-br \
+  --save-to-db
 ```
 
 Gerar schema:
 
 ```bash
-python -m crawler_machine schema https://imbsmart.com.br/imovel/exemplo
+python -m crawler_machine schema https://imbsmart.com.br/imovel/exemplo \
+  --source-name imbsmart-com-br \
+  --save-to-db
 ```
 
-Crawlear usando schema e URLs salvos:
+Crawlear usando arquivos JSON locais (não consulta o banco):
 
 ```bash
 python -m crawler_machine crawl output/imbsmart-com-br/20260702_120000/schema.json \
@@ -90,8 +145,12 @@ output/<slug-do-dominio>/<timestamp>/
   schema.json
   raw.json
   normalized.json
+  rejected.json
+  quality_report.json
   errors.json
 ```
+
+O destino principal, no entanto, são as tabelas do Postgres gerenciadas pelo backend.
 
 ## Testes
 

@@ -4,7 +4,7 @@ import psycopg2
 import pytest
 from dotenv import load_dotenv
 
-from src.catalog import Catalog, CatalogRepository
+from crawler_machine.catalog import Catalog, CatalogRepository
 from tests.catalog_seed import seed_test_catalogs
 from tests.crawler_schema import ensure_schema
 

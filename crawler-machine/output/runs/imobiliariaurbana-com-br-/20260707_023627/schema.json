@@ -1,0 +1,186 @@
+{
+  "metadata": {
+    "sample_url": "https://imobiliariaurbana.com.br/imovel/jaragua-do-sul/nova-brasilia/apartamento-a-venda-no-residencial-brisa-do-vale-em-nova-brasilia-lancamento-em-jaragua-do-sul-2004",
+    "generated_at": "2026-07-07T02:51:28.342861+00:00"
+  },
+  "schema": {
+    "name": "Property Detail Page",
+    "baseSelector": "//html",
+    "fields": [
+      {
+        "name": "url",
+        "selector": ".//head/link[@rel='canonical']",
+        "type": "attribute",
+        "attribute": "href"
+      },
+      {
+        "name": "imagem",
+        "selector": ".//div[contains(@class, 'gallery-main')]//img",
+        "type": "attribute",
+        "attribute": "src"
+      },
+      {
+        "name": "tipo_imovel",
+        "selector": ".//li[span[contains(text(),'Tipo')]]/span[2]",
+        "type": "text"
+      },
+      {
+        "name": "quartos",
+        "selector": ".//div[contains(@class, 'col-sm-3')][.//i[contains(@class, 'bi-door-closed')]]/text()[normalize-space()]",
+        "type": "regex",
+        "pattern": "(\\d+)"
+      },
+      {
+        "name": "sala",
+        "selector": ".//div[@class='text-muted']",
+        "type": "regex",
+        "pattern": "(\\d+)\\s*sala(s)?"
+      },
+      {
+        "name": "banheiros",
+        "selector": ".//li[span[contains(text(),'Banheiros')]]/span[2]",
+        "type": "text"
+      },
+      {
+        "name": "suites",
+        "selector": ".//div[contains(@class, 'col-sm-3')][.//i[contains(@class, 'bi-droplet-half')]]/text()[normalize-space()]",
+        "type": "regex",
+        "pattern": "(\\d+)"
+      },
+      {
+        "name": "vagas",
+        "selector": ".//div[contains(@class, 'col-sm-3')][.//i[contains(@class, 'bi-car-front')]]/text()[normalize-space()]",
+        "type": "regex",
+        "pattern": "(\\d+)"
+      },
+      {
+        "name": "ano",
+        "selector": ".//div[@class='text-muted']",
+        "type": "regex",
+        "pattern": "Entrega prevista:\\s*\\w+/(\\d{4})"
+      },
+      {
+        "name": "valor",
+        "selector": ".//div[contains(@class, 'property-price')]",
+        "type": "text"
+      },
+      {
+        "name": "area_privada",
+        "selector": ".//li[span[contains(text(),'Área Total')]]/span[2]",
+        "type": "regex",
+        "pattern": "(\\d+[.,]?\\d*)"
+      },
+      {
+        "name": "area_util",
+        "selector": ".//li[span[contains(text(),'Área Útil')]]/span[2]",
+        "type": "regex",
+        "pattern": "(\\d+[.,]?\\d*)"
+      },
+      {
+        "name": "detalhes",
+        "selector": ".//div[@class='text-muted']",
+        "type": "text"
+      },
+      {
+        "name": "bairro",
+        "selector": ".//li[span[contains(text(),'Bairro')]]/span[2]",
+        "type": "text"
+      },
+      {
+        "name": "cidade",
+        "selector": ".//li[span[contains(text(),'Cidade')]]/span[2]",
+        "type": "text"
+      },
+      {
+        "name": "piscina",
+        "selector": ".//div[@class='text-muted']",
+        "type": "regex",
+        "pattern": "piscina"
+      },
+      {
+        "name": "churrasqueira",
+        "selector": ".//div[@class='text-muted']",
+        "type": "regex",
+        "pattern": "churrasqueira"
+      },
+      {
+        "name": "academia",
+        "selector": ".//div[@class='text-muted']",
+        "type": "regex",
+        "pattern": "academia"
+      },
+      {
+        "name": "salao_festas",
+        "selector": ".//div[@class='text-muted']",
+        "type": "regex",
+        "pattern": "festas"
+      },
+      {
+        "name": "playground",
+        "selector": ".//div[@class='text-muted']",
+        "type": "regex",
+        "pattern": "playground"
+      },
+      {
+        "name": "sacada",
+        "selector": ".//div[@class='text-muted']",
+        "type": "regex",
+        "pattern": "sacada"
+      },
+      {
+        "name": "mobiliado",
+        "selector": ".//div[@class='text-muted']",
+        "type": "regex",
+        "pattern": "mobiliado"
+      },
+      {
+        "name": "ar_condicionado",
+        "selector": ".//div[@class='text-muted']",
+        "type": "regex",
+        "pattern": "ar condicionado"
+      },
+      {
+        "name": "lavanderia",
+        "selector": ".//div[@class='text-muted']",
+        "type": "regex",
+        "pattern": "lavanderia"
+      },
+      {
+        "name": "escritorio",
+        "selector": ".//div[@class='text-muted']",
+        "type": "regex",
+        "pattern": "escrit[oó]rio"
+      },
+      {
+        "name": "closet",
+        "selector": ".//div[@class='text-muted']",
+        "type": "regex",
+        "pattern": "closet"
+      },
+      {
+        "name": "elevador",
+        "selector": ".//div[@class='text-muted']",
+        "type": "regex",
+        "pattern": "elevador"
+      },
+      {
+        "name": "portaria_24h",
+        "selector": ".//div[@class='text-muted']",
+        "type": "regex",
+        "pattern": "portaria 24h"
+      },
+      {
+        "name": "aceita_permuta",
+        "selector": ".//div[@class='text-muted']",
+        "type": "regex",
+        "pattern": "permuta"
+      },
+      {
+        "name": "financiamento",
+        "selector": ".//div[@class='text-muted']",
+        "type": "regex",
+        "pattern": "financiamento"
+      }
+    ]
+  }
+}

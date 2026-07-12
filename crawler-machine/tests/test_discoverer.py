@@ -1,6 +1,6 @@
 import pytest
 
-from src.discoverer import URLDiscoverer
+from crawler_machine.discoverer import URLDiscoverer
 
 
 class FakeMapper:
@@ -20,9 +20,9 @@ def mapper_results():
     ]
 
 
-def test_discoverer_returns_all_urls(mapper_results):
+def test_discoverer_returns_all_urls_when_filter_disabled(mapper_results):
     mapper = FakeMapper(mapper_results)
-    discoverer = URLDiscoverer(mapper=mapper, max_urls=10)
+    discoverer = URLDiscoverer(mapper=mapper, max_urls=10, listing_patterns=[])
 
     urls = discoverer.discover_sync("https://example.com")
 
@@ -33,9 +33,21 @@ def test_discoverer_returns_all_urls(mapper_results):
     ]
 
 
+def test_discoverer_filters_urls_by_listing_patterns(mapper_results):
+    mapper = FakeMapper(mapper_results)
+    discoverer = URLDiscoverer(mapper=mapper, max_urls=10, listing_patterns=[r"/imovel/"])
+
+    urls = discoverer.discover_sync("https://example.com")
+
+    assert urls == [
+        "https://example.com/imovel/1",
+        "https://example.com/imovel/2",
+    ]
+
+
 def test_discoverer_respects_max_urls(mapper_results):
     mapper = FakeMapper(mapper_results)
-    discoverer = URLDiscoverer(mapper=mapper, max_urls=2)
+    discoverer = URLDiscoverer(mapper=mapper, max_urls=2, listing_patterns=[])
 
     urls = discoverer.discover_sync("https://example.com")
 
@@ -52,7 +64,7 @@ def test_discoverer_skips_entries_without_url():
         {"status": "valid"},
         {"url": None, "status": "valid"},
     ])
-    discoverer = URLDiscoverer(mapper=mapper, max_urls=10)
+    discoverer = URLDiscoverer(mapper=mapper, max_urls=10, listing_patterns=[])
 
     urls = discoverer.discover_sync("https://example.com")
 

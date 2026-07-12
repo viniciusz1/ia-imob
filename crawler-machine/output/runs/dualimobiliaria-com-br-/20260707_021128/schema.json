@@ -1,0 +1,185 @@
+{
+  "metadata": {
+    "sample_url": "https://dualimobiliaria.com.br/imovel/geminado-com-18654m2-a-venda-no-bairro-ilha-da-figueira-em-jaragua-do-sul-1903",
+    "generated_at": "2026-07-07T02:21:32.538003+00:00"
+  },
+  "schema": {
+    "name": "Property Detail",
+    "baseSelector": "//body",
+    "fields": [
+      {
+        "name": "url",
+        "selector": ".//input[@name='url']",
+        "type": "attribute",
+        "attribute": "value"
+      },
+      {
+        "name": "imagem",
+        "selector": ".//img[contains(@class, 'galeria-thumb')][@data-index='0']",
+        "type": "attribute",
+        "attribute": "src"
+      },
+      {
+        "name": "tipo_imovel",
+        "selector": ".//span[contains(text(), 'Tipo:')]/strong",
+        "type": "regex",
+        "pattern": "^(\\w+)"
+      },
+      {
+        "name": "quartos",
+        "selector": ".//span[contains(text(), 'Dormitórios:')]/strong",
+        "type": "text"
+      },
+      {
+        "name": "sala",
+        "selector": ".//span[contains(text(), 'Salas:')]/strong",
+        "type": "text"
+      },
+      {
+        "name": "banheiros",
+        "selector": ".//span[contains(text(), 'Banheiros:')]/strong",
+        "type": "text"
+      },
+      {
+        "name": "suites",
+        "selector": ".//span[contains(text(), 'Suite:')]/strong",
+        "type": "text"
+      },
+      {
+        "name": "vagas",
+        "selector": ".//span[contains(text(), 'Vagas:')]/strong",
+        "type": "text"
+      },
+      {
+        "name": "ano",
+        "selector": ".//span[contains(text(), 'Ano Construção:')]/strong",
+        "type": "text"
+      },
+      {
+        "name": "valor",
+        "selector": ".//div[contains(@class, 'price')]",
+        "type": "text"
+      },
+      {
+        "name": "area_privada",
+        "selector": ".//span[contains(text(), 'Área Interna:')]/strong",
+        "type": "regex",
+        "pattern": "(\\d+[\\.,]?\\d*)"
+      },
+      {
+        "name": "area_util",
+        "selector": ".//i[contains(@class, 'fa-ruler-combined')]/following-sibling::strong[1]",
+        "type": "regex",
+        "pattern": "(\\d+[\\.,]?\\d*)"
+      },
+      {
+        "name": "detalhes",
+        "selector": ".//div[contains(@class, 'conteudo') and contains(., 'Descrição:')]",
+        "type": "regex",
+        "pattern": "Descrição:\\s*([\\s\\S]*?)\\s*Caracteristicas:"
+      },
+      {
+        "name": "bairro",
+        "selector": ".//i[contains(@class, 'fa-map-marker-alt')]/parent::div",
+        "type": "regex",
+        "pattern": "^\\s*([^,]+?)\\s*,"
+      },
+      {
+        "name": "cidade",
+        "selector": ".//i[contains(@class, 'fa-map-marker-alt')]/parent::div",
+        "type": "regex",
+        "pattern": ",\\s*(.*)$"
+      },
+      {
+        "name": "piscina",
+        "selector": ".//strong[text()='Descrição:']/following-sibling::p[1]",
+        "type": "regex",
+        "pattern": "(?i)piscina"
+      },
+      {
+        "name": "churrasqueira",
+        "selector": ".//strong[text()='Descrição:']/following-sibling::p[1]",
+        "type": "regex",
+        "pattern": "(?i)churrasqueira"
+      },
+      {
+        "name": "academia",
+        "selector": ".//strong[text()='Descrição:']/following-sibling::p[1]",
+        "type": "regex",
+        "pattern": "(?i)academia"
+      },
+      {
+        "name": "salao_festas",
+        "selector": ".//strong[text()='Descrição:']/following-sibling::p[1]",
+        "type": "regex",
+        "pattern": "(?i)sal[ãa]o\\s+de\\s+festas"
+      },
+      {
+        "name": "playground",
+        "selector": ".//strong[text()='Descrição:']/following-sibling::p[1]",
+        "type": "regex",
+        "pattern": "(?i)playground"
+      },
+      {
+        "name": "sacada",
+        "selector": ".//strong[text()='Descrição:']/following-sibling::p[1]",
+        "type": "regex",
+        "pattern": "(?i)sacada"
+      },
+      {
+        "name": "mobiliado",
+        "selector": ".//strong[text()='Descrição:']/following-sibling::p[1]",
+        "type": "regex",
+        "pattern": "(?i)mobiliad[ao]"
+      },
+      {
+        "name": "ar_condicionado",
+        "selector": ".//strong[text()='Descrição:']/following-sibling::p[1]",
+        "type": "regex",
+        "pattern": "(?i)ar\\s+condicionado"
+      },
+      {
+        "name": "lavanderia",
+        "selector": ".//strong[text()='Descrição:']/following-sibling::p[1]",
+        "type": "regex",
+        "pattern": "(?i)(lavanderia|área de serviço)"
+      },
+      {
+        "name": "escritorio",
+        "selector": ".//strong[text()='Descrição:']/following-sibling::p[1]",
+        "type": "regex",
+        "pattern": "(?i)escrit[oó]rio"
+      },
+      {
+        "name": "closet",
+        "selector": ".//strong[text()='Descrição:']/following-sibling::p[1]",
+        "type": "regex",
+        "pattern": "(?i)closet"
+      },
+      {
+        "name": "elevador",
+        "selector": ".//strong[text()='Descrição:']/following-sibling::p[1]",
+        "type": "regex",
+        "pattern": "(?i)elevador"
+      },
+      {
+        "name": "portaria_24h",
+        "selector": ".//strong[text()='Descrição:']/following-sibling::p[1]",
+        "type": "regex",
+        "pattern": "(?i)portaria"
+      },
+      {
+        "name": "aceita_permuta",
+        "selector": ".//strong[text()='Descrição:']/following-sibling::p[1]",
+        "type": "regex",
+        "pattern": "(?i)permuta"
+      },
+      {
+        "name": "financiamento",
+        "selector": ".//strong[text()='Descrição:']/following-sibling::p[1]",
+        "type": "regex",
+        "pattern": "(?i)financiamento"
+      }
+    ]
+  }
+}
