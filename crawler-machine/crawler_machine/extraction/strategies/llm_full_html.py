@@ -9,8 +9,8 @@ from crawl4ai import AsyncWebCrawler, BrowserConfig, CrawlerRunConfig, LLMConfig
 from crawl4ai.extraction_strategy import LLMExtractionStrategy
 
 from crawler_machine.config import CrawlerConfig, FieldConfig, LLMConfig
-from crawler_machine.crawler import _DEFAULT_USER_AGENT
 from crawler_machine.extraction.result import CrawlResult
+from crawler_machine.extraction.strategies._constants import _DEFAULT_USER_AGENT
 
 logger = logging.getLogger(__name__)
 

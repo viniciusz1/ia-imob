@@ -90,6 +90,13 @@ async def test_engine_runs_strategies_in_order_and_fills_missing_fields(crawler_
     assert results[0]["valor"] == 450_000.0
     assert results[0]["tipo_imovel"] == "Casa"
     assert results[0]["url"] == "https://example.com/1"
+    assert results[0]["_extraction_trace"] == {
+        "bairro": "a",
+        "cidade": "a",
+        "valor": "b",
+        "tipo_imovel": "b",
+        "url": "url",
+    }
     assert strategy_b.calls[0][1].html == "<html>https://example.com/1</html>"
 
 

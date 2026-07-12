@@ -1,5 +1,5 @@
-from src.catalog import Catalog, CatalogRepository
-from src.normalization.engine import DataNormalizer
+from crawler_machine.catalog import Catalog, CatalogRepository
+from crawler_machine.normalization.engine import DataNormalizer
 
 
 def _repo() -> CatalogRepository:
@@ -68,3 +68,29 @@ def test_normalizer_generates_quality_report():
     assert len(normalized) == 2
     assert report["total_records"] == 2
     assert report["records_with_issues"] == [1]
+
+
+def test_normalizer_computes_strategy_usage_metrics():
+    normalizer = DataNormalizer()
+    records = [
+        {
+            "valor": "R$ 100.000,00",
+            "_extraction_trace": {"valor": "xpath", "url": "url"},
+        },
+        {
+            "valor": "R$ 200.000,00",
+            "_extraction_trace": {"valor": "css", "url": "url"},
+        },
+        {
+            "bairro": "Centro",
+            "_extraction_trace": {"bairro": "fit_markdown_llm", "url": "url"},
+        },
+    ]
+
+    normalized, report = normalizer.normalize_many(records)
+
+    assert report["strategy_usage"]["xpath"]["fields"]["valor"] == 1
+    assert report["strategy_usage"]["css"]["fields"]["valor"] == 1
+    assert report["strategy_usage"]["fit_markdown_llm"]["fields"]["bairro"] == 1
+    assert report["llm_calls"]["fit_markdown_llm"] == 1
+    assert report["llm_calls"]["llm_full_html"] == 0

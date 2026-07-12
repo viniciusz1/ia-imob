@@ -59,10 +59,12 @@ class CrawlEngine:
         """Executa a cadeia de fallback para uma única URL."""
         previous: CrawlResult | None = None
         accumulated: dict[str, Any] = {}
+        trace: dict[str, str] = {}
         last_error: str | None = None
 
         if "url" in self._required_fields:
             accumulated["url"] = url
+            trace["url"] = "url"
 
         for strategy in self._strategies:
             try:
@@ -93,15 +95,17 @@ class CrawlEngine:
                     for key, value in record.items():
                         if key not in accumulated and self._is_meaningful(value):
                             accumulated[key] = value
+                            trace[key] = strategy.name
 
             if self._required_fields.issubset({
                 k for k, v in accumulated.items() if self._is_meaningful(v)
             }):
                 break
 
-        if not accumulated or set(accumulated.keys()) == {"url"} and last_error is not None:
+        if not accumulated or (set(accumulated.keys()) == {"url"} and last_error is not None):
             return None, {"url": url, "error": last_error or "no data extracted"}
 
+        accumulated["_extraction_trace"] = trace
         return accumulated, None
 
     @staticmethod

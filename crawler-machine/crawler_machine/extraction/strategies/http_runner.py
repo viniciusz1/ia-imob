@@ -8,8 +8,8 @@ from crawl4ai import AsyncWebCrawler, BrowserConfig, CacheMode, CrawlerRunConfig
 from crawl4ai.async_dispatcher import MemoryAdaptiveDispatcher
 
 from crawler_machine.config import CrawlerConfig
-from crawler_machine.crawler import _DEFAULT_USER_AGENT
 from crawler_machine.extraction.result import CrawlResult
+from crawler_machine.extraction.strategies._constants import _DEFAULT_USER_AGENT
 
 logger = logging.getLogger(__name__)
 
