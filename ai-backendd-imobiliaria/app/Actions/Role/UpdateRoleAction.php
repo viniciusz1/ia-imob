@@ -14,7 +14,7 @@ class UpdateRoleAction
      */
     public function execute(Role $role, string $name, array $permissions): Role
     {
-        $guard = (string) config('auth.defaults.guard', 'web');
+        $guard = $this->permissionGuard();
 
         $role->update([
             'name' => $name,
@@ -57,5 +57,15 @@ class UpdateRoleAction
             ->unique()
             ->values()
             ->all();
+    }
+
+    /**
+     * Fixed guard for Spatie roles/permissions.
+     * auth:sanctum mutates config('auth.defaults.guard') at runtime,
+     * so we always use the guard the tables were seeded with.
+     */
+    private function permissionGuard(): string
+    {
+        return 'web';
     }
 }

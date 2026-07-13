@@ -5,6 +5,8 @@ namespace Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class DatabaseSeeder extends Seeder
 {
@@ -38,13 +40,16 @@ class DatabaseSeeder extends Seeder
             'has_broker_page' => true,
         ]);
 
-        // Assign all permissions to the 'Administrador' role
-        $adminRole = \Spatie\Permission\Models\Role::where('name', 'Administrador')
+        // Assign all agency-level permissions to the 'Administrador' role.
+        // Platform permissions are reserved for the Platform Admin role.
+        $adminRole = Role::where('name', 'Administrador')
             ->where('guard_name', $guard)
             ->first();
 
         $adminRole?->syncPermissions(
-            \Spatie\Permission\Models\Permission::where('guard_name', $guard)->get()
+            Permission::where('guard_name', $guard)
+                ->where('name', 'not like', 'platform.%')
+                ->get()
         );
 
         // Assign the role to the admin user

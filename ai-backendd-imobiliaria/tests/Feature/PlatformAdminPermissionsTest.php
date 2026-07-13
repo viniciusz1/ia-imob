@@ -98,4 +98,22 @@ class PlatformAdminPermissionsTest extends TestCase
             $this->assertNotContains($perm, $permissions ?? [], "Agency user must not have platform permission [{$perm}]");
         }
     }
+
+    public function test_user_endpoint_excludes_platform_permissions_for_agency_admin(): void
+    {
+        $agencyAdmin = \App\Models\User::where('email', 'admin@imobiliaria.com')->first();
+
+        $this->assertNotNull($agencyAdmin, 'Agency admin user must exist');
+
+        $response = $this->actingAs($agencyAdmin)
+            ->getJson('/api/v1/user');
+
+        $response->assertStatus(200);
+
+        $permissions = $response->json('data.permissions');
+
+        foreach (['platform.agencies.view', 'platform.agencies.create', 'platform.agencies.update', 'platform.agencies.deactivate'] as $perm) {
+            $this->assertNotContains($perm, $permissions ?? [], "Agency admin must not have platform permission [{$perm}]");
+        }
+    }
 }

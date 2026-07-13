@@ -55,6 +55,11 @@ Route::middleware('auth:sanctum')->group(function () {
     require __DIR__.'/api/user_routes.php';
 });
 
+// Platform Admin API (auth:sanctum + platform permissions)
+Route::prefix('admin')->group(function () {
+    require __DIR__.'/api/admin.php';
+});
+
 // White-Label Public Site API (unauthenticated, agency resolved from host)
 Route::middleware(\App\Http\Middleware\ResolvePublicAgency::class)
     ->prefix('public')

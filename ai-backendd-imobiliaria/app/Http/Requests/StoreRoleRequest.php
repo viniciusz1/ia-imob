@@ -22,17 +22,24 @@ class StoreRoleRequest extends FormRequest
      */
     public function rules(): array
     {
-        $guard = (string) config('auth.defaults.guard', 'web');
-
         return [
             'name' => [
                 'required',
                 'string',
                 'max:255',
-                Rule::unique('roles', 'name')->where('guard_name', $guard),
+                Rule::unique('roles', 'name')->where('guard_name', $this->permissionGuard()),
             ],
             'permissions' => ['required', 'array'],
             'permissions.*' => ['integer', Rule::exists('permissions', 'id')],
         ];
+    }
+
+    /**
+     * Fixed guard for Spatie roles/permissions.
+     * auth:sanctum mutates config('auth.defaults.guard') at runtime.
+     */
+    private function permissionGuard(): string
+    {
+        return 'web';
     }
 }

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, type ElementType } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
@@ -21,6 +21,7 @@ import {
 import { authService } from "@/services/authService";
 import { clearAuthenticatedSession } from "@/services/authSessionCookie";
 import { useAuthStore } from "@/store/useAuthStore";
+import { hasPermission } from "@/lib/permissions";
 import {
     Sidebar,
     SidebarContent,
@@ -39,7 +40,14 @@ import {
 // Navigation items
 // ---------------------------------------------------------------------------
 
-const navItems = [
+interface NavItem {
+    title: string;
+    href: string;
+    icon: ElementType;
+    permissions?: string[];
+}
+
+const navItems: NavItem[] = [
     {
         title: "Dashboard",
         href: "/",
@@ -54,11 +62,13 @@ const navItems = [
         title: "Usuários",
         href: "/usuarios",
         icon: Users,
+        permissions: ["users.view"],
     },
     {
         title: "Grupos",
         href: "/grupos",
         icon: ShieldCheck,
+        permissions: ["roles.manage"],
     },
     {
         title: "Buscador com IA",
@@ -75,11 +85,13 @@ const navItems = [
         title: "Plano & Assinatura",
         href: "/billing",
         icon: CreditCard,
+        permissions: ["subscriptions.view"],
     },
     {
         title: "Configurações do site",
         href: "/configuracoes-do-site",
         icon: Globe,
+        permissions: ["site_settings.view"],
     },
 ];
 
@@ -96,15 +108,17 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
     const [isLoggingOut, setIsLoggingOut] = useState(false);
     const userPermissions = Array.isArray(user?.permissions) ? user.permissions : null;
     const visibleNavItems = navItems.filter((item) => {
-        if (!("permissions" in item) || !item.permissions) {
+        if (!item.permissions || item.permissions.length === 0) {
             return true;
         }
 
+        // While permissions are still loading (null/undefined), show all items
+        // to avoid layout flicker; they will be filtered once the user is loaded.
         if (userPermissions === null) {
             return true;
         }
 
-        return item.permissions.some((permission) => userPermissions.includes(permission));
+        return hasPermission(userPermissions, item.permissions, "any");
     });
 
     const handleLogout = async () => {
