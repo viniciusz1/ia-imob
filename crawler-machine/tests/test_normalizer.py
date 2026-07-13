@@ -1,6 +1,7 @@
 import pytest
 
-from crawler_machine.normalizer import DataNormalizer, coerce_boolean, extract_first_number, parse_number
+from crawler_machine.normalization.coercers import coerce_boolean, extract_first_number, parse_number
+from crawler_machine.normalization.engine import DataNormalizer
 
 
 @pytest.mark.parametrize(
@@ -68,13 +69,12 @@ def test_normalizer_applies_coercions(fields):
     normalizer = DataNormalizer()
     result = normalizer.normalize(record, fields)
 
-    assert result == {
-        "tipo_imovel": "Apartamento",
-        "quartos": 3,
-        "valor": 450_000.0,
-        "area_util": 72.5,
-        "sem_coercao": "mantém como está",
-    }
+    assert result["tipo_imovel"] == "Apartamento"
+    assert result["quartos"] == 3
+    assert result["valor"] == 450_000.0
+    assert result["area_util"] == 72.5
+    assert result["sem_coercao"] == "mantém como está"
+    assert result["_quality"]["valid"] is True
 
 
 def test_normalizer_omits_fields_not_present_in_record(fields):
@@ -83,19 +83,23 @@ def test_normalizer_omits_fields_not_present_in_record(fields):
     normalizer = DataNormalizer()
     result = normalizer.normalize(record, fields)
 
-    assert result == {"quartos": 2}
+    assert result["quartos"] == 2
+    assert result["_quality"]["valid"] is True
 
 
-def test_normalizer_normalize_many_records(fields):
+def test_normalizer_normalize_many_records_and_returns_report(fields):
     records = [
         {"quartos": "2", "valor": "R$ 100.000,00"},
         {"quartos": "3", "valor": "R$ 200.000,00"},
     ]
 
     normalizer = DataNormalizer()
-    result = normalizer.normalize_many(records, fields)
+    normalized, report = normalizer.normalize_many(records, fields)
 
-    assert result == [
-        {"quartos": 2, "valor": 100_000.0},
-        {"quartos": 3, "valor": 200_000.0},
-    ]
+    assert len(normalized) == 2
+    assert normalized[0]["quartos"] == 2
+    assert normalized[0]["valor"] == 100_000.0
+    assert normalized[1]["quartos"] == 3
+    assert normalized[1]["valor"] == 200_000.0
+    assert report["total_records"] == 2
+    assert report["records_with_issues"] == []

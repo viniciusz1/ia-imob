@@ -1,0 +1,2080 @@
+{
+  "metadata": {
+    "rejected_at": "2026-07-07T03:36:14.470170+00:00",
+    "count": 100
+  },
+  "rejected": [
+    {
+      "index": 1,
+      "record": {
+        "url": "https://imbsmart.com.br/casa-centro-guaramirim-suite-01-dormitorio-com-area-de-festas",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 2,
+        "banheiros": 3,
+        "vagas": 2,
+        "valor": null,
+        "area_privada": 195.0,
+        "area_util": 0.0,
+        "detalhes": "Belissíma casa no centro de Guaramirim \n \n*464m² de área total e 195,22m² de área privativa \n \n*A casa possui 2 dormitórios, sendo um deles suíte com closet \n*2 banheiros sociais \n*1 home office \n*sala de estar \n*sala de jantar \n*cozinha planejada \n*área de festa com móveis planejados \n*área de serviço com móveis planejados \n*garagem coberta para dois carros \n \n*imóvel ideal para quem busca conforto, livre de enchentes e deslizamento...",
+        "bairro": "Centro",
+        "cidade": "Guaramirim",
+        "churrasqueira": null,
+        "salao_festas": null
+      },
+      "missing_fields": [
+        "valor",
+        "imagem"
+      ],
+      "reason": "missing required fields: valor, imagem"
+    },
+    {
+      "index": 5,
+      "record": {
+        "url": "https://imbsmart.com.br/casa-com-3-quartos-e-ampla-area-externa-no-amizade",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 3,
+        "banheiros": 2,
+        "vagas": 3,
+        "valor": 780.0,
+        "area_privada": 84.0,
+        "area_util": 84.0,
+        "detalhes": "🏡 Casa aconchegante no bairro Amizade, em Jaraguá do Sul, perfeita para quem busca conforto e praticidade no dia a dia. Com 84m² de área privativa, o imóvel conta com 3 quartos, 2 banheiros e ambientes bem distribuídos para toda a família.\n✨ A área externa é um grande destaque, oferecendo amplo espaço para lazer e convivência. A garagem espaçosa com churrasqueira é ideal para reunir amigos e familiares em momentos especiais.\n📍 Localizada em uma região tranquila e valorizada, com fácil acesso aos principais pontos da cidade e às comodidades do bairro.",
+        "bairro": "Amizade",
+        "cidade": "Jaraguá do Sul",
+        "salao_festas": null
+      },
+      "missing_fields": [
+        "imagem"
+      ],
+      "reason": "missing required fields: imagem"
+    },
+    {
+      "index": 6,
+      "record": {
+        "url": "https://imbsmart.com.br/casa-com-4-dormitorios-suite-amizade",
+        "imagem": "https://img.apre.me/M7ItVksvyNIzTTO3TEk2SDI2TDExi09NT8zN1Dc3MjLSL0otLrXNVDMwNTC1TQYA.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 4,
+        "banheiros": 3,
+        "vagas": 4,
+        "valor": null,
+        "area_privada": 162.0,
+        "area_util": 162.0,
+        "detalhes": "Casa à venda em Jaraguá do Sul, SC! Localizada no bairro Amizade, esta casa com 162 metros quadrados conta com uma suíte e mais 3 quartos, perfeita para acomodar toda a família com conforto e praticidade. Além disso, a área de festa com piscina é ideal para reunir amigos e familiares e aproveitar momentos de lazer e descontração. Com 2 garagens, 3 banheiros, 2 salas e um terreno de 650 metros quadrados, este imóvel é a escolha certa para quem busca espaço, conforto e qualidade de vida. Não perca essa oportunidade! Por apenas R$ 1.500.000,00, você pode ter o seu novo lar em uma das melhores regiões de Jaraguá do Sul. Agende uma visita e venha conferir de perto todas as vantagens deste imóvel incrível! Entre em contato conosco e faça já a sua proposta. Sua nova casa dos sonhos espera por você! 🌟🏡#imóvelavenda #casaparafamília #jaraguadosul #imóveisSC #casaampla #áreadelazer #venhaparaoconforto",
+        "bairro": "Amizade",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 7,
+      "record": {
+        "url": "https://imbsmart.com.br/sobrado-com-5-quartos-avenda-no-amizade",
+        "imagem": "https://img.apre.me/BcHbCoAgDADQv9mjLfMyH-YtYQtkITaK8Pc7R9gmoOd7QhvmsBKyTvD8QrPLkaRMVHPwhdLeq6kMfWwpZQvZr0sbenb9DlbAiJHlBw.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 5,
+        "banheiros": 3,
+        "valor": null,
+        "area_privada": 300.0,
+        "area_util": 300.0,
+        "detalhes": "Excelente casa Semimobiliada à venda no bairro Amizade!\n \nCom área de terreno de 346m², o imóvel conta com ambientes amplos e bem distribuídos.\nSendo 5 quartos para acomodar toda a sua família entre um deles uma suíte master.\nGaragem coberta, área de festas com forno a lenha.\n \nAgende uma visita",
+        "bairro": "Amizade",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 8,
+      "record": {
+        "url": "https://imbsmart.com.br/casa-com-03-suites-a-venda-no-bairro-amizade",
+        "imagem": "https://img.apre.me/M7ItVksvyNIztjQ2SDRPNjZPNrIwi09NT8zN1Dc2NTLUL0otLrXNVDMwNTC1TQYA.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 3,
+        "banheiros": 3,
+        "suites": 3,
+        "vagas": 3,
+        "valor": null,
+        "area_util": 329.0,
+        "detalhes": "Ampla Casa à Venda no bairro Amizade | NOVA\n \nO imóvel conta com living integrado, com sala de estar, jantar e varanda conectadas - com vista para a natureza!\nFundos com churrasqueira e amplo espaço de terreno.\n \nPiso superior com 03 suítes, sendo uma master com espaço para ter 2 pias e 2 chuveiros. Também conta com espaço para escritório.\n \n \nEntre em contato e saiba mais detalhes do imóvel!",
+        "bairro": "Amizade",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 10,
+      "record": {
+        "url": "https://imbsmart.com.br/casa-com-3-suite-e-escritorio-a-venda-no-amizade",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 4,
+        "banheiros": 5,
+        "suites": 4,
+        "vagas": 2,
+        "valor": null,
+        "area_privada": 248.0,
+        "area_util": 248.0,
+        "detalhes": "Casa em Loteamento de Alto Padrão\n \nContendo 248,36m² de área privativa, a casa conta com:\nPiso superior\n-1 Suíte Master com sacada, closet e-banheiro (2 chuveiros e 2 cubas)2 Suítes-Escritório-Piso vinílico-Rebaixo em gesso-Esquadrias com persiana elétrica\n \nPiso inferior\nVaga de garagem para 2 carrosSala de TV + Jantar + Cozinha integradosLavanderiaLavabo interno1 suíte1 banheiro social\n \nÁrea externa\nAmplo espaço de jardim egrama frente e fundosPiscinaDucha piscina\n \nImóvel moderno, com automação residencial, câmeras de segurança  persianas elétricas, infraestrutura para energia solar e muito mais!\nEntre em contato conosco e saiba mais detalhes!",
+        "bairro": "Amizade",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor",
+        "imagem"
+      ],
+      "reason": "missing required fields: valor, imagem"
+    },
+    {
+      "index": 11,
+      "record": {
+        "url": "https://imbsmart.com.br/casa-com-piscina-no-bairro-amizade",
+        "imagem": "https://img.apre.me/M7ItVksvyNIztjQ2SDRPNjZPNrIwi09NT8zN1Dc2NTLUL0otLrXNVDMwNTC1TQYA.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 3,
+        "banheiros": 2,
+        "valor": null,
+        "area_privada": 206.0,
+        "area_util": 206.0,
+        "detalhes": "Casa com Piscina à Venda | Bairro Amizade\nResidência de alto padrão, projetada para oferecer conforto, funcionalidade e sofisticação no bairro Amizade. A Residência Lisboa VII une ambientes amplos, bem distribuídos e uma excelente área de lazer para toda a família.\n🏠 Área construída total: 205,55m²• Casa: 189,05m²• Piscina: 10,89m²• Depósito/casa de máquinas: 5,61m²\n🌿 Terreno: 390,60m² (13,95m x 28,00m)\nÁrea Social e Funcional• Living integrado com sala de estar, sala de jantar e cozinha• Escritório• Lavabo• Lavanderia\nÁrea Íntima• 1 suíte com closet separado• 2 quartos• Banheiro social\nÁrea Externa• Garagem com 2 vagas lado a lado + 2 vagas frontais• Corredor lateral• Espaço de lazer com piscina• Casa de máquinas / depósito\nUma residência moderna, ideal para quem busca qualidade de vida, espaço e excelente localização.\nEntre em contato para mais informações e agende uma visita!",
+        "bairro": "Amizade",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 13,
+      "record": {
+        "url": "https://imbsmart.com.br/sobrado-alto-padrao-no-amizade-em-jaragua-do-sul-cinco-quartos-5-suites",
+        "imagem": "https://img.apre.me/BcHBDYAgDADAbfqEWgX00VmMVCU1BBuNYX3vhK0DEt8dSjOH24ysHYhfKIddjpIkCcsQzkxxrZupNH3Mp0hpGn1pulf9MitgwMDyAw.jpeg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 5,
+        "banheiros": 8,
+        "vagas": 5,
+        "valor": null,
+        "area_privada": 740.0,
+        "area_util": 740.0,
+        "detalhes": "Mansão duplex disponível para venda. Área privativa: 740m² | Terreno: 900m² | 1 Suíte Master com Closet e Hidromassagem + 4 Suítes com Closet | 5 vagas de garagem | 3 Salas.Diferenciais: 5 suítes com closet, área de festas com 120 M², deck com piscina, 5 vagas de garagem, academia com 30 M² com lavabo e terraço, depósito.\nVENDIDO NO FORMATO PORTEIRA FECHADA (100% MOBILIADA).",
+        "bairro": "Amizade",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 14,
+      "record": {
+        "url": "https://imbsmart.com.br/casa-mobiliada-com-3-suites-no-bairro-amizade",
+        "imagem": "https://img.apre.me/M7ItVksvyNIzTk00MkkzMjNNNLQwi09NT8zN1DcxMDbSL0otLrXNVDMwNTC1TQYA.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 3,
+        "banheiros": 4,
+        "suites": 3,
+        "valor": null,
+        "area_privada": 280.0,
+        "detalhes": "Área privativa: 280 m2Área de terreno: 360 m2\n \nCasa 100% mobiliada com 3 suítes amplas e mobiliadas no piso superior;\nAmplo living com sala de estar e jantar, cozinha gourmet, lavanderia, escritório;\nGaragem para 2 carros;\nPiscina aquecida;Aquecimento solar;Poço semi-artesiano.",
+        "bairro": "Amizade",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "salao_festas": null,
+        "sacada": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 15,
+      "record": {
+        "url": "https://imbsmart.com.br/casa-no-amizade-a-venda-em-jaragua-do-sul-cinco-quartos-tres-suites-com-piscina",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 5,
+        "banheiros": 5,
+        "vagas": 4,
+        "valor": null,
+        "area_privada": 500.0,
+        "detalhes": "- Casa está no final da rua, O terreno vai até o rio; onte tem enrocamento de pedras de proteção alto onde não sobe enchente,sobre o qual está um canil com área de aprox. 200m² de terreno;- Construida em três patamares de altura, com acesso de um ao outro com lances de escada de 7 degraus;- 2 salões de festas com churrasqueira e mobiliados, um destes com fogão a lenha;- 2 salas de tv, uma delas com lareira;- Garagem coberta e fechada para 4 carros/camionetes;-Um dos salões tem Jardim com lagoa e roda d’agua;",
+        "bairro": "Amizade",
+        "cidade": "Jaraguá do Sul",
+        "salao_festas": null
+      },
+      "missing_fields": [
+        "valor",
+        "imagem"
+      ],
+      "reason": "missing required fields: valor, imagem"
+    },
+    {
+      "index": 18,
+      "record": {
+        "url": "https://imbsmart.com.br/casa-com-3-quartos-sendo-uma-suite",
+        "imagem": "https://img.apre.me/M7ItVktPLcjSS0k1MTBLSU41SEkxNovPSSzITM7LLCrQNzQwNTUx0U-Py0zJySxNss1UMzA1MLVNBgA.jpeg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 3,
+        "banheiros": 1,
+        "vagas": 3,
+        "valor": null,
+        "area_privada": 287.0,
+        "detalhes": "Casa muito bem localizada, com 3 quartos sendo 1 suíte, ambientes amplos e confortáveis. Conta com área de festa com churrasqueira, ideal para reunir família e amigos, além de garagem para até 3 carros. Ótima opção para quem busca praticidade, conforto e excelente localização.",
+        "bairro": "Barra do Rio Cerro",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 19,
+      "record": {
+        "url": "https://imbsmart.com.br/casa-terrea-com-tres-suites-na-barra-do-rio-cerro",
+        "imagem": "https://img.apre.me/M7ItVksvyNIztjQ2SDRPNjZPNrIwi09NT8zN1Dc2NTLUL0otLrXNVDMwNTC1TQYA.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 3,
+        "banheiros": 4,
+        "suites": 3,
+        "vagas": 2,
+        "valor": null,
+        "area_privada": 210.0,
+        "area_util": 210.0,
+        "detalhes": "Ampla casa com acabamento moderno de alto padrão.\n \nPossui 3 suíte, living integrado, fundos com piscina e 4 vagas de garagem (duas cobertas).",
+        "bairro": "Barra do Rio Cerro",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 20,
+      "record": {
+        "url": "https://imbsmart.com.br/casa-com-1-suite-com-closet-2-quartos-a-venda-na-barra-do-rio-cerro",
+        "imagem": "https://img.apre.me/M7ItVksvyNIztjQ2SDRPNjZPNrIwi09NT8zN1Dc2NTLUL0otLrXNVDMwNTC1TQYA.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 3,
+        "banheiros": 2,
+        "suites": 1,
+        "vagas": 2,
+        "valor": null,
+        "area_privada": 215.0,
+        "area_util": 215.0,
+        "detalhes": "Casa Alto Padrão à Venda em Jaraguá do Sul\n \nLocalizada em um excelente condomínio residencial, o imóvel fica localizado no bairro Barra do Rio Cerro, em rua sem saída e pouco movimentada, oferecendo muita privacidade. Ao mesmo tempo, está a poucos minutos de estabelecimentos como lanchonetes, posto de gasolina, escolas, posto de saúde...\nA casa conta com 215m² privativos, sendo ampla e espaçosa, com  preparação para piscina, escritório para home office, persianas automatizadas nos quartos, sala com pé-direito duplo, aspiração central, preparação para sistema fotovoltaico e água quente.\n \nQue tal agendar uma visita e conhecer melhor o imóvel? Entre agora mesmo em contato conosco!",
+        "bairro": "Barra do Rio Cerro",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 21,
+      "record": {
+        "url": "https://imbsmart.com.br/terreno-de-1001m-sup2-com-2-casas-barra-do-rio-molha",
+        "imagem": "https://img.apre.me/M7ItVksvyNIztjQ2SDRPNjZPNrIwi09NT8zN1Dc2NTLUL0otLrXNVDMwNTC1TQYA.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 4,
+        "banheiros": 2,
+        "valor": null,
+        "area_privada": 140.0,
+        "detalhes": "Terreno de 1001,2m² com 2 casas em alvenaria de 70 e 90m²",
+        "bairro": "Barra do Rio Molha",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 23,
+      "record": {
+        "url": "https://imbsmart.com.br/casa-com-piscina-1-suite-e-2-quartos-no-centro-de-jaragua-do-sul",
+        "imagem": "https://img.apre.me/M7ItVksvyNIztjQ2SDRPNjZPNrIwi09NT8zN1Dc2NTLUL0otLrXNVDMwNTC1TQYA.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 3,
+        "banheiros": 2,
+        "suites": 1,
+        "vagas": 2,
+        "valor": null,
+        "area_privada": 156.0,
+        "area_util": 156.0,
+        "detalhes": "🏡 Espaço, conforto e uma localização que facilita o dia a dia!\nEsta excelente residência foi pensada para quem busca praticidade sem abrir mão de ambientes amplos e aconchegantes. São 156m² de área privativa em um terreno de 363m², distribuídos em 3 dormitórios, incluindo uma suíte, além de escritório, salas integradas, cozinha sob medida, lavanderia e garagem para 2 veículos.\nNa área externa, o imóvel oferece um espaço perfeito para aproveitar bons momentos, com piscina e área de festas ideal para reunir família e amigos.\nLocalizada em uma região residencial tranquila e valorizada, a casa fica próxima de mercados, escolas, farmácias, academias, igrejas, restaurantes, posto de combustível e diversas conveniências do dia a dia.\n✨ Um imóvel completo para quem deseja morar bem, com conforto, lazer e fácil acesso a tudo que importa.",
+        "bairro": "Centro",
+        "cidade": "Jaraguá do Sul",
+        "salao_festas": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 27,
+      "record": {
+        "url": "https://imbsmart.com.br/casa-a-venda-com-3-suites-mais-1-quarto-no-bairro-czerniewicz",
+        "imagem": "https://img.apre.me/BcFRCoAgDADQ2_xTlzrZz84SZigLsVGE1__9KrYAg9wL_jSHhVF0QZAXul0uprzFwrGVRnkfxbROfcwnIubs_9Rz6HeIAhKS1B8.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 4,
+        "banheiros": 4,
+        "suites": 3,
+        "valor": null,
+        "area_privada": 170.0,
+        "area_util": 170.0,
+        "detalhes": "Casa à Venda em ótima Localização Próximo ao Centro!\n \nImóvel com 4 quartos, sendo 1 suíte, sala de escritório, depósito, ampla área de festas, área de serviço e lavabos.\nConta também com pomar, espaço nos fundos e ao redor.\nA casa está conectada em outro terreno, tendo também a opção de comprá-los juntos (com alteração de valor).\n \nEntre já em contato conosco e saiba mais detalhes!",
+        "bairro": "Czerniewicz",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 28,
+      "record": {
+        "url": "https://imbsmart.com.br/casa-com-piscina",
+        "imagem": "https://img.apre.me/BcFRCoAgDADQ2_xTp6Llx84SOkkWYqMIr997TLoAPd0L_lSDZUeSBZ5e6HoZ58LGZ6gtu5KOUVR4yqM2o4-JeduntCFfJQGMGIl-.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 3,
+        "banheiros": 3,
+        "vagas": 3,
+        "valor": null,
+        "area_privada": 250.0,
+        "area_util": 250.0,
+        "detalhes": "✨ Sofisticação, conforto e exclusividade em cada detalhe!\nEsta residência foi projetada para quem valoriza espaços amplos, acabamentos de qualidade e momentos especiais com a família.\n🏠 Características do imóvel:✔ Suíte principal com closet e sacada privativa✔ 2 dormitórios em estilo demi-suíte✔ Living integrado com lareira e pé-direito elevado✔ Cozinha moderna com ilha central✔ Espaço gourmet com churrasqueira✔ Piscina para aproveitar os dias de lazer✔ Mezanino versátil com sala de cinema e escritório✔ Garagem para até 3 veículos\n✨ Ambientes elegantes, excelente iluminação natural e acabamentos que combinam requinte e praticidade, com porcelanato nas áreas sociais e piso laminado nos dormitórios.\n📍 Em localização privilegiada, a poucos minutos da SCAR.\n🔑 Um imóvel diferenciado para quem busca qualidade de vida e bem-estar. Agende sua visita e venha conhecer! 🏡💙",
+        "bairro": "Czerniewicz",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 29,
+      "record": {
+        "url": "https://imbsmart.com.br/sobrado-com-6-quartos-a-venda-no-bairro-czerniewicz",
+        "imagem": "https://img.apre.me/DcgxDoAgDADA33TEWkW79C0GiyE1BBuN4ft646l4ByS5OpTmAROjWAeSB4qfgQ9infNEyOuy1eSmzW4fKNJ-41Ca5WrvLgYYMYp_.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 6,
+        "banheiros": 2,
+        "vagas": 2,
+        "valor": null,
+        "area_privada": 241.0,
+        "area_util": 241.0,
+        "detalhes": "Casa à Venda com 241m² privativos no bairro Czerniewicz!\n \nO imóvel conta com 2 andares, possuindo no andar inferior área de serviço, cozinha, 1 suíte, banheiro social e 1 quarto.\nNo piso superior conta com mais uma área de serviço, cozinha, 02 quartos, banheiro social e sala de estar (que atualmente foi transformada em um amplo quarto).\nNos fundos á uma área de festas coberta, com cozinha, churrasqueira e banheiro com chuveiro.\nEm cima da área de festas há mais um andar com uma ampla área de serviço e espaço de terraço.\n \nFicou interessado nesse imóvel? Entre agora mesmo em contato conosco e saiba mais detalhes!",
+        "bairro": "Czerniewicz",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 30,
+      "record": {
+        "url": "https://imbsmart.com.br/casa-com-1-suite-e-2-quartos-e-ampla-area-externa-no-bairro",
+        "imagem": "https://img.apre.me/BcFJCsAgDADA3_SoUXA75C1FTZEUsaGl_P3OdNIN6OneMJYarBlJNnh6YehlmFPBdsYWucRjVpW_5FGbg0tYnB1LeMrXSAADBuo-.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 3,
+        "banheiros": 2,
+        "suites": 1,
+        "vagas": 3,
+        "valor": null,
+        "area_privada": 190.0,
+        "area_util": 190.0,
+        "detalhes": "🏡 Casa no bairro Czerniewicz\n✨ Perfeita para quem busca espaço, conforto e versatilidade no dia a dia!\n🔹 1 suíte + 2 dormitórios (sendo 1 adaptado como escritório) 💻🔹 Banheiro social🔹 Área de festas ideal para receber amigos e família 🎉🍖🔹 Espaço separado para trabalho e ferramentas 🛠️🔹 Ampla área externa, perfeita para lazer ou futuras ampliações 🌿🔹 Garagem para 3 ou mais carros 🚗🚗🚗\n📍 Localizada em uma região tranquila, essa casa oferece tudo que você precisa para morar bem e com qualidade de vida!\n💡 Ótima opção tanto para moradia quanto para quem precisa de espaço para trabalho em casa!",
+        "bairro": "Czerniewicz",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 31,
+      "record": {
+        "url": "https://imbsmart.com.br/casa-com-suite-closet-2-quartos-na-estrada-nova-82",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 3,
+        "banheiros": 3,
+        "vagas": 2,
+        "valor": 885.0,
+        "area_privada": 156.0,
+        "detalhes": "Casa com suíte/closet + 2 quartosTerreno com 350 mt2Casa com 156,10 m² Suíte com closet + dois dormitórios, banheiro comumSala, cozinha área de festa conjugados Area de serviço separadaGaragem coberta para dois carros.Infraestrutura para ar condicionado e tubulação para água quente pronta.",
+        "bairro": "Estrada Nova",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "imagem"
+      ],
+      "reason": "missing required fields: imagem"
+    },
+    {
+      "index": 32,
+      "record": {
+        "url": "https://imbsmart.com.br/casa-com-suite-closet-2-quartos-na-estrada-nova-30",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 3,
+        "banheiros": 3,
+        "vagas": 2,
+        "valor": 885.0,
+        "area_privada": 152.0,
+        "detalhes": "Casa com suíte/closet + 2 quartos na Estrada Nova\nTerreno com 350 m² Casa com 151,80 m² Suíte + dois dormitórios, banheiro comumSala, cozinha área de festa conjugados Area de serviço Garagem coberta para dois carros.Infraestrutura para ar condicionado e tubulação para água quente pronta.\n \nAceita financiamento.Valor R$ 880.000,00",
+        "bairro": "Estrada Nova",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "imagem"
+      ],
+      "reason": "missing required fields: imagem"
+    },
+    {
+      "index": 33,
+      "record": {
+        "url": "https://imbsmart.com.br/casa-com-3-quartos-sendo-1-suite-no-bairro-estrada-nova",
+        "imagem": "https://img.apre.me/M7ItVksvyNIztjQ2SDRPNjZPNrIwi09NT8zN1Dc2NTLUL0otLrXNVDMwNTC1TQYA.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 3,
+        "banheiros": 4,
+        "vagas": 2,
+        "valor": null,
+        "area_privada": 205.0,
+        "area_util": 205.0,
+        "detalhes": "🏡 Características do Imóvel – 201m² de Área Privativa\nPiso Térreo:\n\n\nSala de TV\n\n\nEscritório\n\n\nBanheiro social\n\n\n1 dormitório amplo\n\n\nCozinha integrada à área de festas\n\n\nÁrea de festas com churrasqueira a carvão\n\n\nPiscina integrada à área externa\n\n\nBanheiro de apoio para área de festas e piscina\n\n\nDepósito\n\n\nEdícula multiuso (ferramentas, bicicletas, etc.)\n\n\nGaragem coberta para 2 veículos\n\n\nJardim frontal\n\n\nEspaço para cultivo de flores com proteção\n\n\nPiso Superior:\n\n\nSala íntima\n\n\n1 suíte ampla\n\n\n2 dormitórios\n\n\nBanheiro social\n\n\nSacada em L\n\n\nDiferenciais:\n\n\nSistema de energia solar com 18 painéis\n\n\nCisterna para reaproveitamento da água da chuva\n\n\nMóveis sob medida inclusos\n\n\nLocalização:\n\n\nPróximo às Faculdades Católica e Estácio\n\n\nPróximo ao Centro de Inovação e mercados\n\n\nFácil acesso ao centro da cidade e à BR-280",
+        "bairro": "Estrada Nova",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 34,
+      "record": {
+        "url": "https://imbsmart.com.br/casa-com-sala-comercial-a-venda-no-bairro-estrada-nova",
+        "imagem": "https://img.apre.me/BcFJCsAgDADA3_SoUXHpIW8pLigpYkNL8fudqSQb0NK9YSxRmBMSb7D0wpBLOeN6S6EkgyGcMwvXxY9oh0c0UY-FbfJXiAE9eqo-.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 3,
+        "banheiros": 2,
+        "vagas": 4,
+        "valor": null,
+        "area_privada": 280.0,
+        "area_util": 280.0,
+        "detalhes": "Casa à Venda com Sala Comercial!\n \nO imóvel possui 2 andares, na parte da frente no andar inferior há uma sala comercial de 100m². Nos fundos há o pátio da casa com vaga de garagem para 4 carros (2 cobertas), churrasqueira, lavabo e área com piscina. \nA casa conta com 3 quartos sendo 1 suíte, sala de jantar e sala de estar, cozinha e área de serviço a parte. Também possui 12 placas de energia solar.\nFica localizado em uma equina, a sala comercial para a rua principal e a entrada da casa em rua lateral sem saída.\n \nEntre já em contato e saiba mais detalhes do imóvel1",
+        "bairro": "Estrada Nova",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 37,
+      "record": {
+        "url": "https://imbsmart.com.br/sobrado-com-piscina-1-suite-e-2-quartos-no-bairro-ilha-da-figueira",
+        "imagem": "https://img.apre.me/M7ItVksvyNIztjQ2SDRPNjZPNrIwi09NT8zN1Dc2NTLUL0otLrXNVDMwNTC1TQYA.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "valor": null,
+        "area_privada": 270.0,
+        "area_util": 270.0,
+        "detalhes": "🏡 Casa à venda🛏️ 1 suíte + 2 quartos🛋️ Semimobiliada🎉 Área de festas🏊 Piscina💦 Jacuzzi🌿 Área externa ampla🌅 Sacada com deck de madeira🚗 2 vagas de garagem cobertas",
+        "bairro": "Ilha da Figueira",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 39,
+      "record": {
+        "url": "https://imbsmart.com.br/casa-com-piscina-no-terraco-e-ampla-area-externa-no-bairro-ilha-da-figueira",
+        "imagem": "https://img.apre.me/M7ItVksvyNIztjQ2SDRPNjZPNrIwi09NT8zN1Dc2NTLUL0otLrXNVDMwNTC1TQYA.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 3,
+        "banheiros": 4,
+        "vagas": 3,
+        "valor": null,
+        "area_privada": 240.0,
+        "area_util": 240.0,
+        "detalhes": "Sobrado com linda piscina no bairro Ilha da Figueira, ideal para quem busca conforto, lazer e amplo espaço. O imóvel conta com 2 suítes e 1 quarto, além de uma área de festas no piso superior, perfeita para confraternizações.\nNa parte inferior, há um amplo espaço com depósito e estufa, ideal para montar algum tipo de negócio, oficina ou área multiuso. Nos fundos, o imóvel oferece uma agradável área verde com pequena lagoa, proporcionando contato com a natureza e tranquilidade.\nPossui ainda pátio grande, com vaga para mais de 10 carros, e cozinha externa, complementando a estrutura para lazer e eventos.",
+        "bairro": "Ilha da Figueira",
+        "cidade": "Jaraguá do Sul",
+        "salao_festas": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 40,
+      "record": {
+        "url": "https://imbsmart.com.br/casa-na-ilha-da-figueira-com-suite-02-dormitorios",
+        "imagem": "https://img.apre.me/M7ItVksvyNIztjQ2SDRPNjZPNrIwi09NT8zN1Dc2NTLUL0otLrXNVDMwNTC1TQYA.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 3,
+        "banheiros": 3,
+        "vagas": 2,
+        "valor": null,
+        "area_privada": 140.0,
+        "area_util": 140.0,
+        "bairro": "Ilha da Figueira",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 41,
+      "record": {
+        "url": "https://imbsmart.com.br/casa-alto-padrao-com-1-suite-mais-2-quartos-na-ilha-da-figueira",
+        "imagem": "https://img.apre.me/DcVJDoAgDADA3-QIpZHl0rcYBCU1BBuN4fs6lymsE5D4mtCGGswJWSYQP9D0NMdeYqgUXfhfe1YpQ261SyJywbYhtcu7sQB69Fw_.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 3,
+        "banheiros": 3,
+        "suites": 1,
+        "vagas": 2,
+        "valor": null,
+        "area_privada": 143.0,
+        "area_util": 143.0,
+        "detalhes": "Casa com acabamento Alto Padrão!\n \nSão 3 quartos, sendo 1 suíte, living integrado com sala de estar, jantar e cozinha, lavanderia, área de festas com lavabo, preparação para piscina e uma vaga de garagem coberta!\n2 Portões de acesso, possibilitando ampliação de garagem!\nAmplo espaço de terreno na frente e fundos (com passagens laterais).\nAvalia permuta!\n \nAcabamento:Piso vinílico, porcelanato, rebaixo em gesso, portão eletrônico e pé direito alto no living.\n \nPara saber mais detalhes entre já em contato conosco!",
+        "bairro": "Ilha da Figueira",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 42,
+      "record": {
+        "url": "https://imbsmart.com.br/casa-na-ilha-da-figueira-6ag",
+        "imagem": "https://img.apre.me/M7ItVksvyNJLTDUzN042NUg0NUw0i09NT8zN1DcxNjTVL0otLrXNVDMwNTC1TQYA.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 2,
+        "banheiros": 4,
+        "vagas": 2,
+        "valor": null,
+        "area_util": 180.0,
+        "detalhes": "CASA COM SUÍTE + 2 QUARTOS• Possui 180m² construídos• Amplo terreno com espaço para piscina• Corredor lateral na casa• Lavanderia fechada• 2 vagas de garagem coberta",
+        "bairro": "Ilha da Figueira",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 43,
+      "record": {
+        "url": "https://imbsmart.com.br/casa-terrea-jaragua-esquerdo-a-venda",
+        "imagem": "https://img.apre.me/M7ItVksvyNKzMEgyMUi1tDA3NE40i09NT8zN1De1MLIw1C9KLS61zVQzMDUwtU0GAA.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 3,
+        "banheiros": 2,
+        "vagas": 2,
+        "valor": 998.0,
+        "area_privada": 138.0,
+        "detalhes": "✨ Um imóvel completo para quem busca conforto, espaço e qualidade de vida em uma das regiões mais valorizadas da cidade.\n✔️ 1 suíte + 2 dormitórios✔️ 2 banheiros✔️ Sala de estar ampla✔️ Cozinha funcional✔️ 2 vagas de garagem✔️ Excelente distribuição dos ambientes✔️ Espaço ideal para toda a família\n📐 Área total: 336m²📐 Área privativa: 138m²\n💰 R$ 998.000,00\n📍 Excelente opção para morar com conforto e tranquilidade.",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "salao_festas": null,
+        "sacada": null
+      },
+      "missing_fields": [
+        "bairro"
+      ],
+      "reason": "missing required fields: bairro"
+    },
+    {
+      "index": 44,
+      "record": {
+        "url": "https://imbsmart.com.br/casa-a-venda-jaragua-esquerdo-jaragua-do-sul-tres-quartos-um-suite",
+        "imagem": "https://img.apre.me/BcHbCoAgDADQv9mjDtvMHvYt4QVkITaK8Pc7p4otwCD3gj7NYU4ouiDIC90uh7EdxJjSVmI8RzatUx-zTER78H1qG-oVUUBGlvoD.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 3,
+        "banheiros": 3,
+        "vagas": 2,
+        "valor": null,
+        "area_privada": 230.0,
+        "area_util": 230.0,
+        "detalhes": "Maravilhosa Casa no Bairro Jaraguá Esquerdo.\n \nContendo terreno de 392m² e 230m² de área construída, a casa conta com 3 suítes, cozinha, sala de estar e jantar, área de serviço, área de festas com lavabo, deck pergolado com cobertura em vidro e um escritório com 30m² anexado na parte da frente do imóvel.\nMóveis planejados com alta qualidade e cozinha com acabamento em pedra quartzo.\nCasa toda murada, com muro de contenção nos fundos e pomar com espaço de jardim.\n \nEntre em contato conosco e saiba mais detalhes desse imóvel!",
+        "bairro": "Jaraguá Esquerdo",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 45,
+      "record": {
+        "url": "https://imbsmart.com.br/casa",
+        "imagem": "https://img.apre.me/M7ItVksvyNJLMjUwSEy0SDU3NTQzi09NT8zN1Dc0NjLXL0otLrXNVDMwNTC1TQYA.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 3,
+        "banheiros": 3,
+        "vagas": 2,
+        "valor": null,
+        "area_privada": 200.0,
+        "detalhes": "Casa de 200m² em rua sem saída no Jaragua Esquerdo: O imóvel conta com um terreno de 675m², uma suíte master + 2 quartos, cozinha mobiliada integrada com a sala de estar e jantar, lavabo para área de festas, e banheiro social. \nLocalizada em uma rua sem saída no morro com um lindo por do sol e fundos com area de preservação natural (vista permanente) Para quem busca contato com natureza e aconchego, vai se encantar com essa linda casa! VALOR DE VENDA: R$ 1.800.000,00",
+        "bairro": "Jaraguá Esquerdo",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "salao_festas": null,
+        "sacada": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 46,
+      "record": {
+        "url": "https://imbsmart.com.br/sobrado-no-jaragua-esquerdo-com-3-suites-1-quarto-100-mobiliado",
+        "imagem": "https://img.apre.me/M7ItVksvyNIzTk00MkkzMjNNNLQwi09NT8zN1DcxMDbSL0otLrXNVDMwNTC1TQYA.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 4,
+        "banheiros": 5,
+        "suites": 3,
+        "vagas": 2,
+        "valor": null,
+        "area_privada": 312.0,
+        "bairro": "Jaraguá Esquerdo",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "salao_festas": null,
+        "sacada": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 47,
+      "record": {
+        "url": "https://imbsmart.com.br/casa-com-3-quartos-a-venda-no-jaragua-esquerdo",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 3,
+        "banheiros": 1,
+        "vagas": 2,
+        "valor": 700.0,
+        "area_privada": 140.0,
+        "area_util": 140.0,
+        "detalhes": "Ótima Oportunidade de Casa à Venda no bairro Jaraguá Esquerdo!\n \nO imóvel conta com sala de estar, sala de jantar, cozinha, banheiro social, 3 quartos, área de festas e garagem coberta para 02 carros!\nAlém de possuir amplo terreno com 379m².\nLocalizada em rua sem saída, a 5 minutos do Centro!\n \nEntre agora mesmo em contato conosco e saiba mais detalhes do imóvel.",
+        "bairro": "Jaraguá Esquerdo",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "salao_festas": null,
+        "sacada": null
+      },
+      "missing_fields": [
+        "imagem"
+      ],
+      "reason": "missing required fields: imagem"
+    },
+    {
+      "index": 51,
+      "record": {
+        "url": "https://imbsmart.com.br/sobrado-com-5-quartos-semimobiliado",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 5,
+        "banheiros": 2,
+        "vagas": 3,
+        "valor": 695.0,
+        "area_privada": 140.0,
+        "detalhes": "Sobrado semimobiliado com 140m² privativos\nTerreno com 329m² totais;\n3 vagas de garagem;\nFundos com churrasqueira.\n \nEdícola nos fundos com aproximadamente 30m²:\nPossui Sala de TV, lavanderia fechada, mesa de jantar, depósito\n \nPiso térreo do sobrado:\nSala de estar e jantar\nCozinha sob medida;\n3 dormitórios;\nBanheiro social\n \nPiso superior do sobrado:\nCozinha sob medida;\nMesa de jantar;\nAmpla sala de estar;\n2 dormitórios;\nBanheiro social",
+        "bairro": "Jaraguá 99",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "imagem"
+      ],
+      "reason": "missing required fields: imagem"
+    },
+    {
+      "index": 52,
+      "record": {
+        "url": "https://imbsmart.com.br/casa-alto-padrao-jaragua-do-sul-tres-quartos-um-suite-com-piscina",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 3,
+        "banheiros": 2,
+        "suites": 1,
+        "vagas": 2,
+        "valor": null,
+        "area_privada": 269.0,
+        "area_util": 269.0,
+        "detalhes": "Ampla Casa com Piscina à Venda em Jaraguá do Sul 📍✨\n \n•1 Suíte com Closet e sacada + 2 quartos• Banheiro Social• Living integrado• Área de serviço• Garagem coberta para 2 carros• Área de festas com churrasqueira• Piscina com hidromassagem e cascata• Espaço de jardim nos fundos👉🏻O imóvel fica localizado em rua tranquila, sem saída.\n \nEntre agora mesmo em contato conosco e saiba mais detalhes!",
+        "bairro": "Jaraguá 99",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null
+      },
+      "missing_fields": [
+        "valor",
+        "imagem"
+      ],
+      "reason": "missing required fields: valor, imagem"
+    },
+    {
+      "index": 53,
+      "record": {
+        "url": "https://imbsmart.com.br/casa-com-piscina-no-bairro-vieira",
+        "imagem": "https://img.apre.me/BcFRCoAgEAXA2_ynPcO1_tizhJnIhthShNdvJosNwiz3oNrNIa0QHTTLS7XY5TZeygYPxBLi3pJp7vrYFCJ7z1Ptejb9DlECgyX-.jpeg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 4,
+        "banheiros": 2,
+        "vagas": 2,
+        "valor": null,
+        "area_privada": 215.0,
+        "detalhes": "Terreno com 1.043,20m² com 31m de frenteCasa em alvenaria com 4 QuartosCozinha, Sala de JantarSala estar e Tv e Ateliê de costura2 BanheirosÁrea de festas com churrasqueira integrada com Garagem para 2 carros e espaço com PiscinaPoço em atividade com bombeamento motorizado jardim com árvores frutíferas e uma Pequena Edícula.",
+        "bairro": "João Pessoa",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "sacada": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 54,
+      "record": {
+        "url": "https://imbsmart.com.br/casa-semimobiliada-a-venda-em-nereu-ramos-jaragua-do-sul",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 2,
+        "banheiros": 1,
+        "vagas": 2,
+        "valor": 690.0,
+        "area_privada": 136.0,
+        "area_util": 136.0,
+        "detalhes": "Casa Semimobiliada à Venda no bairro Nereu Ramos em Jaraguá do Sul\n \nO imóvel conta com 136m² privativos, sala de estar, jantar e cozinha, 02 quartos, banheiro social, fundos com área de serviço.\nVaga de garagem para 02 carros.\nTodos os cômodos possuem preparação para ar split, rebaixo em gesso, possui portão basculante eletrônico, câmeras de monitoramento e amplo espaço nos fundos com área verde.\nAvaliam permuta!\n \nEntre em contato conosco e saiba mais detalhes nesse imóvel.",
+        "bairro": "Nereu Ramos",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "imagem"
+      ],
+      "reason": "missing required fields: imagem"
+    },
+    {
+      "index": 56,
+      "record": {
+        "url": "https://imbsmart.com.br/casa-com-4-suites-no-bairro-nova-brasilia",
+        "imagem": "https://img.apre.me/M7ItVksvyNIztjQ2SDRPNjZPNrIwi09NT8zN1Dc2NTLUL0otLrXNVDMwNTC1TQYA.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 4,
+        "banheiros": 6,
+        "suites": 4,
+        "vagas": 2,
+        "valor": null,
+        "area_privada": 317.0,
+        "area_util": 317.0,
+        "detalhes": "🏡 Casa de Alto Padrão no Bairro Nova Brasília\nEncante-se com esta belíssima residência, projetada para oferecer conforto, sofisticação e momentos inesquecíveis com a família e amigos. Com 4 suítes amplas, o imóvel une elegância, funcionalidade e excelente aproveitamento dos espaços.\n✨ Destaques do imóvel:• 4 suítes espaçosas• Sala de estar e jantar integradas• Cozinha moderna e funcional• Lavabo• Lavanderia independente• Garagem para vários veículos• Amplo terreno\n🌴 Área de lazer completaA área externa é um verdadeiro convite ao bem-estar, contando com piscina para os dias de sol e uma charmosa área gourmet com churrasqueira, perfeita para reunir familiares e amigos em momentos especiais.\n📍 Localizada no bairro Nova Brasília, uma região valorizada, tranquila e com fácil acesso ao centro, escolas, supermercados e demais comodidades.\n✨ Um imóvel pensado para quem valoriza conforto, privacidade e qualidade de vida em uma das melhores localizações da cidade.",
+        "bairro": "Nova Brasília",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 57,
+      "record": {
+        "url": "https://imbsmart.com.br/casa-a-venda-no-nova-brasilia-em-jaragua-do-sul-cinco-quartos-um-suite",
+        "imagem": "https://img.apre.me/M7ItVksvyNIztjQ2SDRPNjZPNrIwi09NT8zN1Dc2NTLUL0otLrXNVDMwNTC1TQYA.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 5,
+        "banheiros": 3,
+        "vagas": 4,
+        "valor": null,
+        "area_privada": 323.0,
+        "detalhes": "Sobrado com 322,61m² - Piso térreo: as garagens, uma edícula de 10m² e um quintal que cabe fácil uma piscina; 1 cozinha grande, 2 quartos, lavanderia com dispensa, uma sala com varanda, Banheiro com o chuveiro separado. Piso Superior: Suite com sacada + 2 quartos, sendo um com sacada, 1 sala de tv, 1 banheiro social, Área de festas com churrasqueira e um lavabo, integrada a mis uma sala, Cozinha, escritório, Lavanderia com dispensa.Ficam todos os móveis sob medida",
+        "bairro": "Nova Brasília",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 59,
+      "record": {
+        "url": "https://imbsmart.com.br/casa-de-alto-padrao-no-bairro-rau-com-3-suites",
+        "imagem": "https://img.apre.me/M7ItVksvyNIztjQ2SDRPNjZPNrIwi09NT8zN1Dc2NTLUL0otLrXNVDMwNTC1TQYA.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 3,
+        "banheiros": 3,
+        "suites": 3,
+        "vagas": 2,
+        "valor": null,
+        "area_privada": 280.0,
+        "area_util": 280.0,
+        "detalhes": "Casa nova de alto padrão mobiliada, localizada no Bairro Rau, Jaraguá do Sul - SC\nConstrução com 280 m², contendo:- 3 suítes (suíte principal com closet e sacada)- Escritório- Sala de estar- Cozinha gourmet com sala de jantar integrada- Lavanderia- Lavabo- Garagem para dois carros- Sala de máquinas para acomodar as máquinas dos ar-condicionados e inversores do sistema solar- Sala para guardar ferramentas- Obs: Terreno com 416M²Nos fundos da casa principal, tem uma edícula (uma segunda casa de 80M², com acesso separado/individual).\nDetalhes do imóvel;- Casa 100% mobiliada, com eletrodomésticos embutidos- Possui sistema de monitoramento, câmeras IP- Alarme smart- Todos os cômodos são climatizados com ar inverter quente/frio, smart e comado de voz- Todo sistema de iluminação é smart, e com comando de voz- Fechadura de porta, eletrônica/digital- Todos os banheiros possuam box fechado até o teto, e com sistema de exaustão- Sistema solar, com capacidade de geração para a demanda da casa- Poço semiartesiano- Adegas de vinhos para 100 garrafas (temperatura ambiente e climatizada)- Portões eletrônicos de entradas ultrarrápidos- Porteiro eletrônico com opção smart- Churrasqueira com sistemas de grelha bipartida e espetos giratórios- Obs: Imóvel possui um local já preparado para instalação de uma jacuzzi\nImóvel 100% legalizado, podendo ser financiado via banco.",
+        "bairro": "Rau",
+        "cidade": "Jaraguá do Sul",
+        "salao_festas": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 63,
+      "record": {
+        "url": "https://imbsmart.com.br/casa-com-1-suite-e-2-quartos-no-bairro",
+        "imagem": "https://img.apre.me/M7ItVksvyNIztjQ2SDRPNjZPNrIwi09NT8zN1Dc2NTLUL0otLrXNVDMwNTC1TQYA.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 3,
+        "banheiros": 2,
+        "suites": 1,
+        "vagas": 2,
+        "valor": null,
+        "area_privada": 231.0,
+        "area_util": 231.0,
+        "detalhes": "🏡 Casa Ampla com Área de Festas Completa – Conforto e Sofisticação ✨\nExcelente residência com 231,08 m² de área construída, ideal para quem busca espaço, funcionalidade e conforto em um só imóvel.\nA casa principal dispõe de 1 suíte + 2 quartos, sala de TV, escritório, além de sala de estar e jantar integradas, proporcionando ambientes amplos e bem iluminados. A cozinha funcional, lavanderia e 2 banheiros completam a área interna. Conta ainda com garagem, garantindo praticidade no dia a dia 🚗.\nO grande diferencial é a área de festas, perfeita para receber amigos e familiares, equipada com espaço gourmet, banheiro exclusivo e despensa, oferecendo total conforto para momentos de lazer 🍖✨.\nUm imóvel completo, com excelente distribuição dos ambientes, ideal para famílias que valorizam qualidade de vida e bons momentos em casa.\n📞 Entre em contato para mais informações ou agende sua visita!",
+        "bairro": "Rau",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "salao_festas": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 64,
+      "record": {
+        "url": "https://imbsmart.com.br/casa-semimobiliada-com-amplo-terreno-e-3-dormitorios",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 3,
+        "banheiros": 2,
+        "vagas": 2,
+        "valor": 899.0,
+        "area_privada": 180.0,
+        "bairro": "Rau",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "salao_festas": null,
+        "sacada": null
+      },
+      "missing_fields": [
+        "imagem"
+      ],
+      "reason": "missing required fields: imagem"
+    },
+    {
+      "index": 67,
+      "record": {
+        "url": "https://imbsmart.com.br/ampla-casa-mobiliada-com-1-suite-com-closet-2-quartos-no-sao-luis",
+        "imagem": "https://img.apre.me/M7ItVksvyNIztjQ2SDRPNjZPNrIwi09NT8zN1Dc2NTLUL0otLrXNVDMwNTC1TQYA.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 3,
+        "banheiros": 2,
+        "suites": 1,
+        "vagas": 2,
+        "valor": null,
+        "area_privada": 255.0,
+        "area_util": 255.0,
+        "detalhes": "Ótima Oportunidade em Loteamento Residencial no bairro São Luís!\n \nO imóvel conta com área privativa de 255m², incluindo um mezanino e terraço.\nPossui pé direito duplo, tornando a casa ampla e arejada, jardim de inverno, living integrado com sala de estar, sala de jantar e cozinha com móveis sob medida. Área de serviço e dispensa a parte.\nConta com 3 quartos, sendo 1 suíte com closet, fundos com área de festas e espaço de terreno. Há passagem lateral, garagem coberta para 2 carros e lavabo.\nPermanecem a mobília dos banheiros, closet, cozinha (com eletros embutidos), móveis da dispensa, rack da sala de estar e sofá.\n \nAvalia permuta!\nEntre em contato conosco e saiba mais detalhes desse imóvel!",
+        "bairro": "São Luís",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 69,
+      "record": {
+        "url": "https://imbsmart.com.br/casa-com-3-quartos-a-venda-no-tifa-martins",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 3,
+        "banheiros": 1,
+        "vagas": 3,
+        "valor": 680.0,
+        "area_privada": 220.0,
+        "area_util": 220.0,
+        "detalhes": "Casa com 3 Quartos e Amplo Espaço de Terreno!\n \nImóvel com bastante espaço, sendo 220m² construídos. Sala de estar, cozinha com sala de jantar, banheiro social, vaga de garagem coberta para 1 carro mais 2 vagas descobertas. \nNos fundos possui uma edícula com churrasqueira e grande área de serviço separada.\n \nEspaço de terreno nos fundos, frente e lateral, ótima pra quem busca por espaço. Fica localizada em rua tranquila e sem saída!\n \nEntre em contato conosco e saiba agora mais detalhes deste imóvel!.",
+        "bairro": "Tifa Martins",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "imagem"
+      ],
+      "reason": "missing required fields: imagem"
+    },
+    {
+      "index": 78,
+      "record": {
+        "url": "https://imbsmart.com.br/terreno-com-498m-com-2-casas-e-piscina-no-bairro-vila-lenzi",
+        "imagem": "https://img.apre.me/M7ItVksvyNIztjQ2SDRPNjZPNrIwi09NT8zN1Dc2NTLUL0otLrXNVDMwNTC1TQYA.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "valor": null,
+        "area_privada": 100.0,
+        "area_util": 100.0,
+        "detalhes": "Excelente oportunidade no bairro Vila Lenzi! Imóvel composto por dois terrenos com duas residências, oferecendo grande potencial tanto para moradia quanto para investimento.\nNo terreno encontra-se uma casa de madeira com aproximadamente 100 m² e uma ampla casa de alvenaria com cerca de 190 m². A residência principal conta com 3 quartos, sendo 1 suíte, banheiro social, sala de estar, cozinha, lavanderia e uma agradável área de festas, ideal para momentos em família. O imóvel também possui placas solares, proporcionando mais economia e sustentabilidade.\nA propriedade possui excelente localização e amplo espaço, sendo uma ótima opção para construção de prédio residencial ou empreendimento comercial.\n💰 Valor de venda das duas casas: R$ 1.900.000\nOs proprietários avaliam a venda separada da casa de madeira (lado direito do terreno), com possibilidade de permuta para construção de geminados, estimada em aproximadamente R$ 800.000.\nUma oportunidade versátil, perfeita para investidores, construtoras ou para quem busca um imóvel com grande área em uma região valorizada da cidade.",
+        "bairro": "Vila Lenzi",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 79,
+      "record": {
+        "url": "https://imbsmart.com.br/casa-semimobiliada-com-2-suites-e-1-quarto-no-bairro-vila-nova",
+        "imagem": "https://img.apre.me/M7ItVksvyNIztjQ2SDRPNjZPNrIwi09NT8zN1Dc2NTLUL0otLrXNVDMwNTC1TQYA.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 3,
+        "banheiros": 4,
+        "suites": 2,
+        "vagas": 3,
+        "valor": null,
+        "area_privada": 428.0,
+        "area_util": 428.0,
+        "detalhes": "✨ Seu novo lar espera por você em Vila Nova – Jaraguá do Sul/SC! ✨\nSe você busca espaço, conforto e uma estrutura completa para viver bem, esta residência é a escolha ideal. Semi mobiliada, moderna e com ambientes amplos, ela está situada em uma região tranquila e valorizada da cidade.\n📐 428 m² de área construída🌳 897 m² de terreno\n\n🏡 Parte térrea:🔥 Sala de estar aconchegante com lareira + segunda sala para receber visitas🍽️ Cozinha espaçosa e bem distribuída💼 Ambiente perfeito para escritório🎉 Área de festas com banheiro exclusivo🏊 Piscina para curtir os dias de sol📦 Dois espaços para armazenamento🧺 Lavanderia separada🚗 Garagem coberta para até 3 carros🚿 Dois banheiros sociais🥫 Despensa funcional🍊 Espaço externo com horta e pomar\n\n🛏️ Parte superior:🌅 Três dormitórios com sacada, sendo duas suítes👑 Suíte master com closet🛋️ Sala íntima com acesso à sacada🚿 Banheiro social de apoio\n\n❄️ Permanecem no imóvel os móveis planejados, alguns eletrodomésticos e 6 aparelhos de ar-condicionado.☀️ Conta ainda com 14 placas solares, garantindo mais economia e sustentabilidade.\n💰 Investimento: R$ 2.950.000,00\n✔️ Analisa propostas✔️ Aceita permuta✔️ Possibilidade de financiamento✔️ Uso de FGTS permitido\nUm imóvel completo, pensado para quem valoriza qualidade de vida, conforto e exclusividade.",
+        "bairro": "Vila Nova",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 82,
+      "record": {
+        "url": "https://imbsmart.com.br/casa-em-schroeder-com-uma-suite-02-quartos",
+        "imagem": "https://img.apre.me/M7ItVksvyNIztjQ2SDRPNjZPNrIwi09NT8zN1Dc2NTLUL0otLrXNVDMwNTC1TQYA.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 3,
+        "banheiros": 2,
+        "vagas": 2,
+        "valor": null,
+        "area_privada": 190.0,
+        "area_util": 190.0,
+        "detalhes": "Casa em Schroeder com uma suíte com closet  mais 02 dormitórios.\n \nImóvel localizado, centro de Schroeder contendo casa e area de festa.Local com rua pavimentada, próximo do Mercado Rancho Bom, Bancos, Lotérica, Farmácias, Academia entre outros.\nResidência murada com portão eletrônico, floreira, paisagismo, iluminação externa com arrandelas, detalhes em 3D nas paredes com iluminação em led. Terreno amplo com 722 m2. Casa semi mobiliada 110 m2:3 quartos sendo uma suíte com closet2 banheirosSala CozinhaTodos os ambientes climatizados, Piso Vinilico, Rebaixo em Gesso em toda Casa, Massa Corrida, Banheiros com porcelanato, ralos lineares, chuveiros Lorenzetti Aqua Duo; Cozinha com pedra Quartzo na pia e bancada. Cozinha, Sala e Banheiros com móveis sob medida. Iluminação toda com Led.\nÁrea de festas com 78 m2 possui:Garagem para 02 carros,BanheiroDispensa LavanderiaChurrasqueira com grelha inox sistema sobe s desce;Fogão a lenhaVidros mão amigaDois ar condicionadosPorcelanato Cozinha sob medida\nTerreno com Drenagem e com mais de 350 m2 de área livre para construção.\nA casa conta também com energia solar.",
+        "bairro": "Centro",
+        "cidade": "Schroeder",
+        "churrasqueira": null,
+        "salao_festas": null,
+        "sacada": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 95,
+      "record": {
+        "url": "https://imbsmart.com.br/apartamento-amizade-semimobiliado",
+        "imagem": "https://img.apre.me/M7ItVksvyNKzMEgyMUi1tDA3NE40i09NT8zN1De1MLIw1C9KLS61zVQzMDUwtU0GAA.jpg",
+        "tipo_imovel": "Residencial » Apartamento",
+        "quartos": 2,
+        "banheiros": 1,
+        "vagas": 1,
+        "valor": 400.0,
+        "area_privada": 70.0,
+        "detalhes": "✨ Um imóvel ideal para quem busca conforto, praticidade e uma excelente localização para morar ou investir.\n✔️ 2 dormitórios✔️ 1 banheiro✔️ Sala de estar aconchegante✔️ 1 vaga de garagem✔️ Imóvel semimobiliado✔️ Ambientes bem distribuídos\n📐 Área privativa: 70m²\n💰 R$ 400.000,00\n📍 Excelente opção para quem procura um apartamento funcional e pronto para morar.",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "salao_festas": null,
+        "sacada": null
+      },
+      "missing_fields": [
+        "bairro"
+      ],
+      "reason": "missing required fields: bairro"
+    },
+    {
+      "index": 107,
+      "record": {
+        "url": "https://imbsmart.com.br/apartamento-com-1-suite-e-1-quarto-no-centro-de-jaragu-do-sul",
+        "imagem": "https://img.apre.me/M7ItVksvyNIztjQ2SDRPNjZPNrIwi09NT8zN1Dc2NTLUL0otLrXNVDMwNTC1TQYA.jpg",
+        "tipo_imovel": "Residencial » Apartamento",
+        "quartos": 2,
+        "banheiros": 3,
+        "vagas": 1,
+        "valor": null,
+        "area_privada": 113.0,
+        "area_util": 113.0,
+        "detalhes": "Apartamento Semimobiliado no Centro de Jaraguá do Sul – 112 m²\nExcelente apartamento semimobiliado localizado no Centro de Jaraguá do Sul, próximo a escolas, farmácias, hospital e diversos comércios, oferecendo praticidade e qualidade de vida.\nO imóvel conta com 112 m² de área privativa, distribuídos em:\n\n\n1 suíte com banheira de hidromassagem e sacada\n\n\n1 quarto\n\n\nSala ampla com sacada\n\n\nCozinha\n\n\nBanheiro social\n\n\nLavabo\n\n\n1 vaga de garagem\n\n\nUm apartamento confortável, com ambientes bem distribuídos e ótima localização para quem busca morar no centro da cidade.",
+        "bairro": "Centro",
+        "cidade": "Jaraguá do Sul",
+        "elevador": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 108,
+      "record": {
+        "url": "https://imbsmart.com.br/apartamento-mobiliado-com-03-suites-a-venda-em-jaragua-do-sul-centro",
+        "imagem": "https://img.apre.me/M7ItVksvyNIztjQ2SDRPNjZPNrIwi09NT8zN1Dc2NTLUL0otLrXNVDMwNTC1TQYA.jpg",
+        "tipo_imovel": "Residencial » Apartamento",
+        "quartos": 3,
+        "banheiros": 3,
+        "suites": 3,
+        "vagas": 2,
+        "valor": null,
+        "area_privada": 129.0,
+        "area_util": 129.0,
+        "detalhes": "Apartamento Mobiliado à Venda no Centro de Jaraguá do Sul!\n \nPossuindo mais de 129m² privativos, o imóvel conta com 03 suítes, sendo uma delas com closet, hidromassagem, escritório, living integrado, área gourmet interna, área de serviço e 02 vagas de garagem.\nPermanece mobiliado, saindo apenas cama, TV, lavadora e banquetas.\n \nPrédio com academia, salão de festas mobiliado, piscina aquecida, brinquedoteca e elevador.\n \nEntre agora mesmo em contato conosco e saiba mais detalhes do imóvel.",
+        "bairro": "Centro",
+        "cidade": "Jaraguá do Sul",
+        "elevador": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 109,
+      "record": {
+        "url": "https://imbsmart.com.br/apartamento-novo-a-venda-02suite-01dormitorio",
+        "imagem": "https://img.apre.me/M7ItVksvyNIztjQ2SDRPNjZPNrIwi09NT8zN1Dc2NTLUL0otLrXNVDMwNTC1TQYA.jpg",
+        "tipo_imovel": "Residencial » Apartamento",
+        "quartos": 3,
+        "banheiros": 3,
+        "suites": 3,
+        "vagas": 2,
+        "valor": null,
+        "area_privada": 136.0,
+        "area_util": 139.0,
+        "detalhes": "Apartamento em Excelente localização à Venda\n▫ ️PRONTO PARA MORAR\n\n3 suítes\n- Living amplo e integrado com sala de estar, jantar, cozinha e área gourmet\nAmpla área de serviço com sacada aberta\n2 vagas de garagem lado a lado\nImóvel preparado para: automação residencial, aquecimento de água a gás, duto de exaustão para coifa, duto deaspiração central, cortineiros embutidos em toda a extensão da parede da janela onde se encontra paraautomação\nPrédio com excelente estrutura, hall de entrada mobiliado, contando com elevador, reconhecimento facial, fechaduras eletrônicas, salão de festas mobiliado, sala de jogos, área fitness e área de lazer.\n\nEntre agora mesmo em contato conosco e agende já uma visita!",
+        "bairro": "Centro",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "salao_festas": null,
+        "sacada": null,
+        "elevador": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 115,
+      "record": {
+        "url": "https://imbsmart.com.br/hyperion-residences",
+        "imagem": "https://img.apre.me/M7ItVksvyNIztjQ2SDRPNjZPNrIwi09NT8zN1Dc2NTLUL0otLrXNVDMwNTC1TQYA.jpg",
+        "tipo_imovel": "Residencial » Apartamento",
+        "quartos": 3,
+        "banheiros": 4,
+        "vagas": 4,
+        "valor": null,
+        "area_privada": 285.0,
+        "area_util": 285.0,
+        "detalhes": "O Hyperion Residences é um empreendimento de alto padrão da Proma Construções e Negócios que se destaca no skyline de Jaraguá do Sul pela sua imponência, sofisticação e localização privilegiada.\nProjetado para quem valoriza exclusividade, o edifício oferece apartamentos amplos, com excelente padrão de acabamento, poucas unidades por andar e uma vista espetacular da cidade. Conta ainda com completa área de lazer, ambientes modernos e toda a segurança e conforto de um residencial premium.\nO Hyperion Residences é a escolha ideal para quem busca morar com elegância, privacidade e alto nível de qualidade em um dos endereços mais desejados da cidade.",
+        "bairro": "Centro",
+        "cidade": "Jaraguá do Sul",
+        "salao_festas": null,
+        "elevador": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 121,
+      "record": {
+        "url": "https://imbsmart.com.br/apartamentos-a-venda-no-residencial-domus-no-centro-de-jaragua-do-sul",
+        "imagem": "https://img.apre.me/M7ItVksvyNIztjQ2SDRPNjZPNrIwi09NT8zN1Dc2NTLUL0otLrXNVDMwNTC1TQYA.jpg",
+        "tipo_imovel": "Residencial » Apartamento",
+        "quartos": 2,
+        "banheiros": 2,
+        "vagas": 1,
+        "ano": 20,
+        "valor": null,
+        "area_privada": 100.0,
+        "area_util": 100.0,
+        "detalhes": "Apartamento em Excelente Localização na Cidade de Jaraguá do Sul!\n \nUm empreendimento elegante e moderno na melhor localização da cidade.\nPossuindo 2 elevadores, 12 pavimentos e apenas 4 apartamentos por andar.\nA estrutura conta com áreas de lazer, espaço coworking, piscina, salão de festas, espaço kids e playground.\nTodas as áreas serão entregues mobiliadas e finamente decoradas!\nEntrega prevista para Agosto de 2026.\n \nEntre agora mesmo em contato conosco e saiba mais detalhes do empreendimento!Registro de Incorporação sob matrícula nr. R.2 - 98.819\n*preços sujeitos a alteração sem aviso*",
+        "bairro": "Centro",
+        "cidade": "Jaraguá do Sul",
+        "elevador": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 122,
+      "record": {
+        "url": "https://imbsmart.com.br/apartamentos-a-venda-no-centro-de-jaragua-do-sul",
+        "imagem": "https://img.apre.me/M7ItVksvyNJLMTJONElMNTdOtDQ3i89JLMhMzsssKtA3MzIwMDXRT8-LTMnJLE2yzVQzMDUwtU0GAA.jpg",
+        "tipo_imovel": "Residencial » Apartamento",
+        "quartos": 3,
+        "banheiros": 5,
+        "vagas": 2,
+        "valor": null,
+        "area_util": 215.0,
+        "detalhes": "O JAZZ RESIDENCE se conectaao centro de Jaraguá do Sulcom uma estratégica proximidade aossupermercados, escolas, farmácias, hospitais,restaurantes e lojas, às cicloviase principais avenidas da cidade.\n \nMatrícula 79.011\nIncorporação 4-79.011",
+        "bairro": "Centro",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "salao_festas": null,
+        "sacada": null,
+        "elevador": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 123,
+      "record": {
+        "url": "https://imbsmart.com.br/residencial-willow-apartamentos-a-venda-no-centro",
+        "imagem": "https://img.apre.me/BcFRCoAgDADQ2_xTp6bZx84SNkMWYqMIr997TDoBPd0T2lCDJSPJBE8vNL1MOZE5x5qWkNPeiwoPedRi2sLqnG1DapfvIAGMGIl-.jpg",
+        "tipo_imovel": "Residencial » Apartamento",
+        "quartos": 3,
+        "banheiros": 3,
+        "vagas": 2,
+        "valor": null,
+        "area_privada": 160.0,
+        "area_util": 149.0,
+        "bairro": "Centro",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "salao_festas": null,
+        "sacada": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 133,
+      "record": {
+        "url": "https://imbsmart.com.br/flat-san-sebastian",
+        "tipo_imovel": "Residencial » Apartamento",
+        "quartos": 1,
+        "banheiros": 1,
+        "vagas": 1,
+        "valor": 490.0,
+        "area_privada": 60.0,
+        "area_util": 60.0,
+        "bairro": "Czerniewicz",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "salao_festas": null,
+        "sacada": null,
+        "elevador": null
+      },
+      "missing_fields": [
+        "imagem"
+      ],
+      "reason": "missing required fields: imagem"
+    },
+    {
+      "index": 161,
+      "record": {
+        "url": "https://imbsmart.com.br/apartamento-suite-1-nova-brasilia",
+        "imagem": "https://img.apre.me/M7ItVksvyNKzMEgyMUi1tDA3NE40i09NT8zN1De1MLIw1C9KLS61zVQzMDUwtU0GAA.jpg",
+        "tipo_imovel": "Residencial » Apartamento",
+        "quartos": 2,
+        "banheiros": 2,
+        "vagas": 1,
+        "valor": 450.0,
+        "area_privada": 76.0,
+        "area_util": 88.0,
+        "detalhes": "🏡 Apartamento semimobiliado com suíte + 1 quarto à venda\n✨ Imóvel ideal para quem busca conforto, praticidade e um excelente aproveitamento dos ambientes.\n✔️ 1 suíte + 1 quarto✔️ Cozinha sob medida✔️ Banheiros sob medida✔️ Imóvel semimobiliado✔️ Apartamento 202✔️ Prédio sem elevadorResidencial Hebrom",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "salao_festas": null,
+        "sacada": null,
+        "elevador": null
+      },
+      "missing_fields": [
+        "bairro"
+      ],
+      "reason": "missing required fields: bairro"
+    },
+    {
+      "index": 164,
+      "record": {
+        "url": "https://imbsmart.com.br/residencial-boulevard-500-flats-mobiliados-no-bairro-nova-brasilia",
+        "tipo_imovel": "Residencial » Apartamento",
+        "quartos": 2,
+        "banheiros": 2,
+        "vagas": 1,
+        "ano": 20,
+        "valor": 457.5,
+        "area_privada": 34.0,
+        "area_util": 34.0,
+        "detalhes": "Pensado para moradia ou investimento,o BLVD 500 possui plantas que vão desdeaptos compactos com 33m² a opções com1 Suíte + 2 Quartos de 112m².\n \nO residencial contará com academia, espaço de coworking, lavanderia e mercado, área de lazer e muito mais!\nUnidades na planta!\nEntrega em Outubro de 2028!\nRegistro de Incorporação sob matrícula nr. R.4 - 109.383\nEntre em contato conosco e saiba mais detalhes do empreendimento!",
+        "bairro": "Nova Brasília",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "imagem"
+      ],
+      "reason": "missing required fields: imagem"
+    },
+    {
+      "index": 170,
+      "record": {
+        "url": "https://imbsmart.com.br/apartamento-semimobiliado-sao-luis",
+        "imagem": "https://img.apre.me/M7ItVksvyNKzMEgyMUi1tDA3NE40i09NT8zN1De1MLIw1C9KLS61zVQzMDUwtU0GAA.jpg",
+        "tipo_imovel": "Residencial » Apartamento",
+        "quartos": 2,
+        "banheiros": 1,
+        "vagas": 1,
+        "valor": 380.0,
+        "area_privada": 51.0,
+        "area_util": 72.0,
+        "detalhes": "✨ Excelente oportunidade para quem busca praticidade, conforto e ótimo custo-benefício em uma localização tranquila e valorizada.\n✔️ 2 dormitórios✔️ 1 banheiro✔️ Sala de estar aconchegante✔️ 1 vaga de garagem✔️ Imóvel semimobiliado✔️ Ambientes bem distribuídos\n📐 Área total: 77,39m²📐 Área privativa: 50,68 a 51m²📐 Área útil: 71,72m²\n💰 R$ 380.000,00\n📍 Ideal para morar ou investir.",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "salao_festas": null,
+        "sacada": null,
+        "elevador": null
+      },
+      "missing_fields": [
+        "bairro"
+      ],
+      "reason": "missing required fields: bairro"
+    },
+    {
+      "index": 186,
+      "record": {
+        "url": "https://imbsmart.com.br/apartamento-mobiliado-com-terraco-e-piscina-no-vila-nova",
+        "imagem": "https://img.apre.me/M7ItVksvyNIztjQ2SDRPNjZPNrIwi09NT8zN1Dc2NTLUL0otLrXNVDMwNTC1TQYA.jpg",
+        "tipo_imovel": "Residencial » Apartamento",
+        "quartos": 3,
+        "banheiros": 2,
+        "vagas": 2,
+        "valor": null,
+        "area_privada": 150.0,
+        "area_util": 150.0,
+        "detalhes": "Maravilhoso Apartamento à Venda a 1min do Centro!\n \nEste imóvel possui sofisticação e alto padrão de acabamento em cada detalhes, contando com amplo living integrado - com sala de estar, jantar, cozinha, lavabo e ainda uma área externa com piscina privativa. Perfeito pra você relaxar com sua família e receber seus amigos!\nAlém de 03 quartos, sendo 01 suíte e um banheiro social - todos finamente mobiliados!\n02 vagas de garagem gaveta.\n \nO residencial conta com área de festas completa com piscina, área gourmet e playground e fica em uma das melhores localizações da cidade, te proporcionando muito mais funcionalidade no dia a dia!\nEntre agora mesmo em contato conosco e saiba mais detalhes!",
+        "bairro": "Vila Nova",
+        "cidade": "Jaraguá do Sul",
+        "elevador": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 192,
+      "record": {
+        "url": "https://imbsmart.com.br/apartamento-suite1-no-vila-nova",
+        "tipo_imovel": "Residencial » Apartamento",
+        "quartos": 2,
+        "banheiros": 2,
+        "vagas": 1,
+        "valor": 530.0,
+        "area_privada": 74.0,
+        "area_util": 74.0,
+        "detalhes": "Apartamento suíte com espaço para closet  + 1 quarto no vila nova;\nCozinha sob medida nova;\nFicam móveis sob medida;\nSacada com churrasqueira;\nPrédio com elevador;\n1 vaga de garagem;",
+        "bairro": "Vila Nova",
+        "cidade": "Jaraguá do Sul",
+        "elevador": null
+      },
+      "missing_fields": [
+        "imagem"
+      ],
+      "reason": "missing required fields: imagem"
+    },
+    {
+      "index": 194,
+      "record": {
+        "url": "https://imbsmart.com.br/apartamentos-no-vila-nova-em-jaragua-do-sul-symphony-apartments",
+        "tipo_imovel": "Residencial » Apartamento",
+        "quartos": 3,
+        "banheiros": 4,
+        "vagas": 2,
+        "valor": null,
+        "area_privada": 148.0,
+        "area_util": 148.0,
+        "detalhes": "Área privativa de148m²\nÁrea total de 215,30m²3 suítes, sendo 1 másterAmpla sacada gourmet com churrasqueira2 vagas de garagens \n \nCondomínio com 2 elevadores, piscina adulto e infantil, deck molhado e seco, salão de festas, sala de jogos, brinquedoteca, playground, academia, cinema, piscina aquecida e spa.\n \nEntre em contato e saiba mais detalhes!",
+        "bairro": "Vila Nova",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "salao_festas": null,
+        "sacada": null,
+        "elevador": null
+      },
+      "missing_fields": [
+        "valor",
+        "imagem"
+      ],
+      "reason": "missing required fields: valor, imagem"
+    },
+    {
+      "index": 197,
+      "record": {
+        "url": "https://imbsmart.com.br/residencial-opera-apartments-a-venda-no-bairro-vila-nova-em-jaragua-do-sul",
+        "imagem": "https://img.apre.me/M7ItVksvyNIztjQ2SDRPNjZPNrIwi09NT8zN1Dc2NTLUL0otLrXNVDMwNTC1TQYA.jpg",
+        "tipo_imovel": "Residencial » Apartamento",
+        "quartos": 4,
+        "banheiros": 4,
+        "vagas": 2,
+        "valor": null,
+        "area_privada": 198.0,
+        "area_util": 198.0,
+        "detalhes": "Residencial em Construção no bairro Vila Nova em Jaraguá do Sul!\n \n-43 Apartamentos:4 Coberturas Duplex 394,36 m²1 Apartamento Unificado 399,91m²38 Apartamentos Tipo 198,35 m²\n \nO empreendimento oferece:\n01. Wine Bar02. Wine Bar 203. Espaço Gourmet04. Sala de Jogos05. Sanit. PNE06. Lavabo07. Brinquedoteca08. Playground09. Salão de Festas10. Piscina Externa11. Piscina ExternaInfantil12. Varanda PiscinaInterna13. Deck Piscina Interna14. Piscina InternaAquecida15. Lavabo16. Duchas17. Sauna18. Sala de Massagem19. Área Livre20. Lounge Externo21. Academia Interna22. Academia Externa",
+        "bairro": "Vila Nova",
+        "cidade": "Jaraguá do Sul",
+        "elevador": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 202,
+      "record": {
+        "url": "https://imbsmart.com.br/cobertura-mobiliada-com-04-suites-no-centro-de-jaragua-do-sul",
+        "imagem": "https://img.apre.me/M7ItVksvyNIzMLQwTzZKtDA0s7A0i89JLMhMzsssKtC3MDQ0tTQ31E-Py0zJySxNss1UMzA1MLVNBgA.jpg",
+        "tipo_imovel": "Residencial » Cobertura",
+        "quartos": 4,
+        "banheiros": 5,
+        "suites": 4,
+        "vagas": 6,
+        "valor": null,
+        "area_util": 400.0,
+        "bairro": "Centro",
+        "cidade": "Jaraguá do Sul",
+        "elevador": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 203,
+      "record": {
+        "url": "https://imbsmart.com.br/cobertura-a-venda-no-residencial-royal-barg",
+        "imagem": "https://img.apre.me/M7ItVksvyNIztjQ2SDRPNjZPNrIwi09NT8zN1Dc2NTLUL0otLrXNVDMwNTC1TQYA.jpg",
+        "tipo_imovel": "Residencial » Cobertura",
+        "quartos": 4,
+        "banheiros": 4,
+        "valor": null,
+        "area_privada": 252.0,
+        "area_util": 252.0,
+        "detalhes": "Cobertura exclusiva com 346m² de área total e 252m² privativos, ideal para quem valoriza espaço, conforto e localização estratégica.\nO imóvel conta com uma suíte ampla com closet e hidromassagem, além de mais três dormitórios, oferecendo excelente distribuição e privacidade para toda a família.\nA área social é um dos grandes destaques: sala espaçosa com acesso ao giardino privativo, com dimensão ideal para instalação de piscina e criação de um ambiente de lazer exclusivo. Sala de TV com lareira para momentos aconchegantes e cozinha com churrasqueira integrada, perfeita para receber convidados.\nPermanece com móveis sob medida em todos os ambientes, garantindo praticidade e sofisticação. Acabamentos de alto padrão, com porcelanato na área social e vinílico na área íntima, unindo elegância e conforto.\nDispõe de vaga para até 4 carros pequenos, prédio com 2 elevadores e localizado em rua de baixo fluxo, proporcionando mais tranquilidade e fácil acesso.\nExcelente localização, ao lado do McDonald's, além de estar próximo a farmácia e posto de gasolina, trazendo ainda mais comodidade para o dia a dia.\nUma cobertura ampla, completa e pronta para proporcionar qualidade de vida.",
+        "bairro": "Centro",
+        "cidade": "Jaraguá do Sul",
+        "elevador": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 204,
+      "record": {
+        "url": "https://imbsmart.com.br/cobertura-duplex-no-centro-de-jaragua-do-sul",
+        "imagem": "https://img.apre.me/M7ItVksvyNIztjQ2SDRPNjZPNrIwi09NT8zN1Dc2NTLUL0otLrXNVDMwNTC1TQYA.jpg",
+        "tipo_imovel": "Residencial » Cobertura",
+        "quartos": 3,
+        "banheiros": 3,
+        "vagas": 2,
+        "valor": null,
+        "area_privada": 190.0,
+        "area_util": 190.0,
+        "detalhes": "🏙️ Cobertura Duplex no Centro de Jaraguá do Sul 🏙️\nLinda cobertura duplex no coração da cidade, unindo conforto, sofisticação e uma localização incrível 💎\n🛏️ 1 suíte + 2 demi-suítes🌞 Ambientes amplos, bem iluminados e arejados🏊‍♂️ Piscina privativa para curtir momentos únicos com a família e amigos\n🚗 2 vagas de garagem + box privativo\n🏢 Condomínio com lazer completo:🎬 Cinema🏊 Piscina💪 Academia🧸 Brinquedoteca🎉 Salão de festas totalmente mobiliado\n📍 Localização privilegiada!A poucos metros do Clube Beira Rio 🌳🎾 Quadras de tênis🏐 Quadras de vôlei🏊 Piscina🍖 Quiosques para festas\n🎓 Próximo às melhores escolas de Jaraguá do Sul, trazendo mais praticidade e qualidade de vida 👨‍👩‍👧‍👦\n✨ Um imóvel completo para quem busca viver bem!",
+        "bairro": "Centro",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 205,
+      "record": {
+        "url": "https://imbsmart.com.br/cobertura-gigante-na-vila-nova",
+        "imagem": "https://img.apre.me/M7ItVksvyNJLTDUzN042NUg0NUw0i09NT8zN1DcxNjTVL0otLrXNVDMwNTC1TQYA.jpg",
+        "tipo_imovel": "Residencial » Cobertura",
+        "quartos": 5,
+        "banheiros": 5,
+        "vagas": 3,
+        "valor": null,
+        "area_privada": 394.0,
+        "area_util": 394.0,
+        "bairro": "Vila Nova",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "salao_festas": null,
+        "sacada": null,
+        "elevador": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 206,
+      "record": {
+        "url": "https://imbsmart.com.br/galpao-comercial-a-venda-na-barra-do-rio-cerro",
+        "tipo_imovel": "Comercial » Comercial",
+        "valor": null,
+        "area_privada": 600.0,
+        "area_util": 600.0,
+        "detalhes": "Galpão à venda no bairro Barra do Rio Cerro, ideal para quem busca espaço, funcionalidade e ótima estrutura para o seu negócio.\nO imóvel conta com um amplo espaço interno, perfeito para armazenagem, produção ou logística, além de uma área destinada a escritório, proporcionando praticidade para a gestão das atividades no próprio local. Dispõe também de banheiros já instalados, atendendo às necessidades do dia a dia.\nNa parte externa, oferece um estacionamento espaçoso, facilitando o acesso de clientes, colaboradores e veículos de carga. Uma excelente oportunidade para empresas que precisam de um imóvel versátil em uma localização estratégica.",
+        "bairro": "Barra do Rio Cerro",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor",
+        "imagem"
+      ],
+      "reason": "missing required fields: valor, imagem"
+    },
+    {
+      "index": 215,
+      "record": {
+        "url": "https://imbsmart.com.br/terreno-na-barra-com-2-casas-em-otima-localizacao",
+        "imagem": "https://img.apre.me/M7ItVksvyNIztjQ2SDRPNjZPNrIwi09NT8zN1Dc2NTLUL0otLrXNVDMwNTC1TQYA.jpg",
+        "tipo_imovel": "Residencial » Lote/Terreno",
+        "valor": null,
+        "area_privada": 1478.0,
+        "area_util": 1478.0,
+        "detalhes": "Terreno amplo com 1.478m² no bairro Barra do Rio Cerro, em uma região que vem se valorizando muito e oferece excelente potencial para investimento. O imóvel conta com 2 casas já construídas no terreno, sendo uma ótima opção tanto para moradia quanto para geração de renda.\nIdeal para quem busca uma área com grande potencial construtivo, seja para novos empreendimentos, geminados ou até mesmo para manter as casas existentes e aproveitar o espaço disponível. Localização estratégica, em um bairro em constante crescimento e cada vez mais procurado.",
+        "bairro": "Barra do Rio Cerro",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 221,
+      "record": {
+        "url": "https://imbsmart.com.br/terreno-com-2530m-na-barra-do-rio-cerro-em-jaragua-do-sul",
+        "imagem": "https://img.apre.me/BcFJCoAwDADA3_TYhoRUL3mLdMESKTUo0u87U9UXIOm9oE8PmHdUW0D6QvcrSKOceStMJ6VjZLc67fEowpw49mlt2FfUAAVF6w8.jpg",
+        "tipo_imovel": "Residencial » Lote/Terreno",
+        "valor": null,
+        "area_privada": 2580.0,
+        "detalhes": "Terreno com 2580m² fazendo frente em 30m com a Rua Feliciano Bortolinitem uma casa antiga averbada de 106m² e um rancho, não considerados no preço do terreno",
+        "bairro": "Barra do Rio Cerro",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 224,
+      "record": {
+        "url": "https://imbsmart.com.br/terreno-plano-com-5400000m-a-venda-proximo-a-weg-2",
+        "imagem": "https://img.apre.me/BcFRCoAgDADQ2_xThzLRj50lbIosxEYRXr-3hG0DBr43jGUOa0bWDYFfGHY5okYRY_kiKR2zmsrSx3xJSCX7sbRN-U5WQEJi_QE.jpg",
+        "tipo_imovel": "Residencial » Lote/Terreno",
+        "valor": null,
+        "detalhes": "Em excelente localização, o terreno conta com área plana de 53.776,24m².\nPronto para construir e com ótima valorização.\n \nImóvel avaliado em mais de 11 milhões de reais!\n \nAvaliam imóveis no negócio.\n \nEntre agora mesmo em contato contato conosco e saiba mais detalhes deste terreno.",
+        "bairro": "Centenário",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 226,
+      "record": {
+        "url": "https://imbsmart.com.br/terreno-comercial-no-czeriewicz-com-4410-95m",
+        "imagem": "https://img.apre.me/M7ItVksvyNIztjQ2SDRPNjZPNrIwi09NT8zN1Dc2NTLUL0otLrXNVDMwNTC1TQYA.jpg",
+        "tipo_imovel": "Residencial » Lote/Terreno",
+        "valor": null,
+        "bairro": "Czerniewicz",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 234,
+      "record": {
+        "url": "https://imbsmart.com.br/lote-a-venda-no-bairro-jaragua-esquerdo",
+        "imagem": "https://img.apre.me/BcFJCsAgDADA3_SoUVwPeUtxoZIiNrQUv9_ZRrIBLd0bxhKFJSHxBksvDLlUcq0HV89YUw7HLMJt8SPaoMs5Gj0W98lfJQb06Kn9.jpg",
+        "tipo_imovel": "Residencial » Lote/Terreno",
+        "valor": null,
+        "bairro": "Jaraguá Esquerdo",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 237,
+      "record": {
+        "url": "https://imbsmart.com.br/terreno-a-venda-no-jaragua-99-em-jaragua-do-sul",
+        "imagem": "https://img.apre.me/BcFRCoAgDADQ2_xTp6bmx84SaigLsVGE1__9SrIALd0L_hSFeUfiBZZe6HKpFF0JqRrbGoZjZOE6_REdrduC0X3yOfgrxIAePdUf.jpg",
+        "tipo_imovel": "Residencial » Lote/Terreno",
+        "valor": null,
+        "area_privada": 8523.0,
+        "detalhes": "Terreno medindo 8.523,37m²",
+        "bairro": "Jaraguá 99",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 241,
+      "record": {
+        "url": "https://imbsmart.com.br/terreno-em-nereu",
+        "imagem": "https://img.apre.me/BcFRCoAgDADQ2_xTl7XKj50lbIosxEYRXr-3hG0ABr4H1G4O046sAwK-UO1yS5BcopSAM61HS6bS9TEftzgR_do1N-1OVkBCYvkB.jpg",
+        "tipo_imovel": "Residencial » Lote/Terreno",
+        "valor": null,
+        "detalhes": "Seu sonho de construir a casa dos seus sonhos acaba de se tornar realidade! Este incrível lote de terreno está localizado no endereço privilegiado de Nereu Ramos, em Jaraguá do Sul, SC.Com uma área total de 69.013m², este imóvel é ideal para quem busca espaço, liberdade e tranquilidade para viver em um ambiente residencial. Com um valor de venda de apenas R$1.300.000,00, esta é a oportunidade perfeita para investir no seu futuro e construir a casa que sempre desejou.Não perca tempo e agende já uma visita para conhecer esse incrível terreno. Aproveite essa chance única e comece a construir as suas memórias em um lugar que você pode chamar de lar. Entre em contato conosco hoje mesmo e garanta o seu pedaço de paraíso em Jaraguá do Sul!",
+        "bairro": "Nereu Ramos",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 246,
+      "record": {
+        "url": "https://imbsmart.com.br/terreno-de-19244m-no-rau",
+        "imagem": "https://img.apre.me/BcFRCoAgDADQ2_xT58KhHztLmJIsxEYRXr-3qtgCJLkX9GkOS0LRBSQvdLvcmTgHPmILW_J9FNM69TGPmYgx_D61Df0OUcCIUeoP.jpg",
+        "tipo_imovel": "Residencial » Lote/Terreno",
+        "valor": null,
+        "detalhes": "Terreno de 19.244m² ao lado da BR-280 no Rau Frente principal (rua da Catolica) de 13,85m²Frente para a BR-280 com 121m²*Não é área de APP (pode ser desmatado 80% do terreno,20% de conservação).",
+        "bairro": "Rau",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "salao_festas": null,
+        "sacada": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 259,
+      "record": {
+        "url": "https://imbsmart.com.br/terreno-urbano-a-venda-no-bairro-vieira",
+        "imagem": "https://img.apre.me/M7ItVksvyNIztjQ2SDRPNjZPNrIwi09NT8zN1Dc2NTLUL0otLrXNVDMwNTC1TQYA.jpg",
+        "tipo_imovel": "Residencial » Lote/Terreno",
+        "valor": null,
+        "detalhes": "Área Total: 4.462,56 m²\nÁrea para construir: aprox.. 2.400 m²\nFrente 40,12 metros\nLado esquerdo: 103,22 metros\nLado direito: 121,03 metros",
+        "bairro": "Vieira",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 260,
+      "record": {
+        "url": "https://imbsmart.com.br/terreno-a-venda-com-1134m-no-bairro-vieira",
+        "imagem": "https://img.apre.me/BcFRCoAgDADQ2_zTpmXax84Sc5EsxEYRXr-3hGwABroH1G4OOSPpgEAvVLvcWWYuyQdm2da9sal0fWyKS8o5_6l2PZp_hRQwYiT5AQ.jpg",
+        "tipo_imovel": "Residencial » Lote/Terreno",
+        "valor": null,
+        "detalhes": "Terreno à venda no bairro Vieira!\n \nCom área total de 1.134m², em rua sem saída e pouco movimentada.\nTerreno plano com casa de alvenaria em cima.\n \nAceita permuta e avalia propostas.\nEntre em contato e saiba mais detalhes.",
+        "bairro": "Vieira",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 262,
+      "record": {
+        "url": "https://imbsmart.com.br/terreno-a-venda-com-3496-95m-no-bairro-vila-lenzi",
+        "imagem": "https://img.apre.me/M7ItVksvyNIztjQ2SDRPNjZPNrIwi09NT8zN1Dc2NTLUL0otLrXNVDMwNTC1TQYA.jpg",
+        "tipo_imovel": "Residencial » Lote/Terreno",
+        "valor": null,
+        "detalhes": "Terreno à Venda no bairro Vila Lenzi!\n \nCom área total de mais de 3.496.000m², o terreno fica localizado em uma esquina, rua tranquila e de fácil acesso!.\n \nEntre agora mesmo em contato conosco e saiba mais detalhes.",
+        "bairro": "Vila Lenzi",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 266,
+      "record": {
+        "url": "https://imbsmart.com.br/terreno-de-3985-58m-com-casa-de-2-quartos-na-vila-nova",
+        "imagem": "https://img.apre.me/M7ItVksvyNIztjQ2SDRPNjZPNrIwi09NT8zN1Dc2NTLUL0otLrXNVDMwNTC1TQYA.jpg",
+        "tipo_imovel": "Residencial » Lote/Terreno",
+        "quartos": 2,
+        "banheiros": 1,
+        "vagas": 2,
+        "valor": null,
+        "detalhes": "Terreno com 3.985,87m² e frente com 14,5m; com 1 casa de 129m² com 2 quartos, sala cozinha e banheiro.",
+        "bairro": "Vila Nova",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 268,
+      "record": {
+        "url": "https://imbsmart.com.br/terreno-no-bairro-vila-nova-em-jaragua-do-sul-1199m",
+        "imagem": "https://img.apre.me/M7ItVksvyNIztjQ2SDRPNjZPNrIwi09NT8zN1Dc2NTLUL0otLrXNVDMwNTC1TQYA.jpg",
+        "tipo_imovel": "Residencial » Lote/Terreno",
+        "valor": null,
+        "detalhes": "🌟 Oportunidade única em Jaraguá do Sul! 🏡 🌳 Lindo terreno localizado no bairro Boa Vista, com uma área total de 5277.2m2, ideal para construir a casa dos seus sonhos! 💰 Por apenas R$ 2.200.000,00, você pode garantir esse espaço incrível para viver em meio à natureza, com toda a tranquilidade e sossego que você merece. 🏡 Não perca essa chance de investir em um imóvel residencial de alto padrão!Agende sua visita e garanta já o seu lugar no paraíso em Jaraguá do Sul, SC. Entre em contato conosco e saiba mais!🌟 Seu sonho de morar bem começa aqui! 🌳#imóveis #terreno #jaraguadosul #sc #boavista #residencial #lote #oportunidade #tranquilidade #natureza",
+        "bairro": "Boa Vista",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 270,
+      "record": {
+        "url": "https://imbsmart.com.br/terreno-condominio-fechado-baependi",
+        "imagem": "https://img.apre.me/M7ItVksvyNIztjQ2SDRPNjZPNrIwi09NT8zN1Dc2NTLUL0otLrXNVDMwNTC1TQYA.jpg",
+        "tipo_imovel": "Residencial » Lote/Terreno",
+        "valor": null,
+        "area_util": 1851.0,
+        "detalhes": "Imóvel para se tornar o cartão postal da Cidade▫ Vista alta e reservada▫ Loteamento fechado com portaria eletronica.",
+        "bairro": "Baependi",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 271,
+      "record": {
+        "url": "https://imbsmart.com.br/terrenos-a-venda-em-massaranduba",
+        "imagem": "https://img.apre.me/M7ItVksvyNIztjQ2SDRPNjZPNrIwi09NT8zN1Dc2NTLUL0otLrXNVDMwNTC1TQYA.jpg",
+        "tipo_imovel": "Residencial » Lote/Terreno",
+        "valor": null,
+        "detalhes": "Área de terra com excelente aproveitamento, hoje utilizada para criação de gado.\nA propriedade está em uma localização estratégica, a cerca de 3 km da Cooperativa Juriti e poucos minutos do portal de Massaranduba, com acesso facilitado.\nÓtima oportunidade para quem busca um espaço versátil, seja para atividade rural ou investimento.",
+        "bairro": "Centro",
+        "cidade": "Massaranduba",
+        "salao_festas": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 272,
+      "record": {
+        "url": "https://imbsmart.com.br/terreno-com-2-mil-metros-quadrados-a-venda-em-massaranduba",
+        "imagem": "https://img.apre.me/BcFJDoAgDADA3-QIZefStxgEJTUEG43h_85UkgVo6V7QpygsGYkXWHqhH3Ipk2pMLZvTRR_3UYTr5Ed0Mi4mr-vkNvjbiQEDBqo-.jpeg",
+        "tipo_imovel": "Residencial » Lote/Terreno",
+        "valor": null,
+        "detalhes": "Terreno com 2mil m2 totais\nAvalia permutas",
+        "bairro": "Centro",
+        "cidade": "Massaranduba",
+        "churrasqueira": null,
+        "salao_festas": null,
+        "sacada": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 276,
+      "record": {
+        "url": "https://imbsmart.com.br/lotes-a-venda-em",
+        "tipo_imovel": "Residencial » Lote/Terreno",
+        "valor": 215.0,
+        "detalhes": "Lotes à Venda em Schroeder – 369m²\nÓtima oportunidade para quem busca investir ou construir em Schroeder. Lotes com 369m², ideais para projetos residenciais, oferecendo bom aproveitamento de espaço, em uma região tranquila e com excelente potencial de valorização.\n📍 Boa localização📐 Lotes amplos – 369m²🏡 Ideal para moradia ou investimento\nEntre em contato para mais informações e garanta seu lote!",
+        "bairro": "Centro",
+        "cidade": "Schroeder"
+      },
+      "missing_fields": [
+        "imagem"
+      ],
+      "reason": "missing required fields: imagem"
+    },
+    {
+      "index": 278,
+      "record": {
+        "url": "https://imbsmart.com.br/chacara-com-7-lagos-aceita-permuta",
+        "imagem": "https://img.apre.me/BcFRCoAgDADQ2_xTx0qxj50lbKksxEYRXr-3hG0CEt8T2jCHOSHrBOIXWrHLEZW6VFljjSHuPZvK0Mc8pbRh9G3o2fU7WAEDBpYf.jpeg",
+        "tipo_imovel": "Residencial » Chácara",
+        "quartos": 2,
+        "banheiros": 1,
+        "valor": null,
+        "area_util": 47697.0,
+        "detalhes": "Chácar com 47.696,75 m²\n \n7 lagoas e próximo ao centro de Guaramirim\nAceita permuta por imóvel de mesmo valor em Guaramim, Jaraguá ou praia\npossui uma casa simples de Madeira",
+        "bairro": "Centro",
+        "cidade": "Guaramirim",
+        "churrasqueira": null,
+        "salao_festas": null,
+        "sacada": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 279,
+      "record": {
+        "url": "https://imbsmart.com.br/chacara-com-8-lagoas-2-casas-e-choupana-de-festas-em-guaramirim",
+        "imagem": "https://img.apre.me/BcHbCoAgDADQv9mjTmleHvYtYSayEBtF_PudU1kXoOd7QZ9qsCRkWeD5ha6XaS5hiZl8Cznso6jUKY-ajSLm4Gyfcg75DhZAQuL6Aw.jpg",
+        "tipo_imovel": "Residencial » Chácara",
+        "valor": null,
+        "detalhes": "158 mil m2 8 lagoas 2 casas em perfeito estado 1 casa chacreiro 1 rancho pro gado Chiqueiro pra porcos Choupana de festas Pasto de 22 mil m2",
+        "bairro": "Barro Branco",
+        "cidade": "Guaramirim"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 302,
+      "record": {
+        "url": "https://imbsmart.com.br/casa-geminada-mobiliada-com-1-suite-e-2-quartos-a-venda-no-vila-nova",
+        "imagem": "https://img.apre.me/M7ItVksvyNIztjQ2SDRPNjZPNrIwi09NT8zN1Dc2NTLUL0otLrXNVDMwNTC1TQYA.jpg",
+        "tipo_imovel": "Residencial » Casa Geminado Térreo",
+        "quartos": 3,
+        "banheiros": 2,
+        "suites": 1,
+        "vagas": 2,
+        "valor": null,
+        "area_privada": 124.0,
+        "area_util": 124.0,
+        "detalhes": "EXCLUSIVIDADE DE VENDA SMART!\nCasa Mobiliada no Vila Nova!\n \nO imóvel conta conta com amplo living, integrado com sala de estar, jantar e cozinha. Possui área de serviço, banheiro social, 02 quartos e 01 suíte.\nHá móveis sob medida em todos os cômodos e permanece totalmente mobiliado, saindo apenas cama e TV do quarto principal.\nFundos com área de festas completa, lavabo e uma jacuzzi com hidromassagem para 7 pessoas!\nVaga de garagem para 02 carros, sendo uma coberta.\n \nPaisagismo e jardinagem aplicados na área externa e placa solar já instalada.\n \nEntre agora mesmo em contato conosco e saiba mais detalhes desse imóvel!",
+        "bairro": "Vila Nova",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 304,
+      "record": {
+        "url": "https://imbsmart.com.br/geminado-schroeder",
+        "imagem": "https://img.apre.me/M7ItVksvyNKzMEgyMUi1tDA3NE40i09NT8zN1De1MLIw1C9KLS61zVQzMDUwtU0GAA.jpg",
+        "tipo_imovel": "Residencial » Casa Geminado Térreo",
+        "quartos": 2,
+        "banheiros": 1,
+        "vagas": 1,
+        "valor": 300.0,
+        "area_privada": 50.0,
+        "area_util": 73.0,
+        "detalhes": "✨ Excelente oportunidade para quem busca um imóvel funcional, aconchegante e com ótimo custo-benefício.\n✔️ 2 dormitórios✔️ 1 banheiro✔️ Sala de estar integrada✔️ 1 vaga de garagem✔️ Ambientes bem distribuídos✔️ Ideal para morar ou investir\n📐 Área total: 122m²📐 Área privativa: 50,3m²📐 Área útil: 73,3m²\n💰 R$ 300.000,00\n📍 Ótima opção para quem procura conforto e praticidade em uma região tranquila.",
+        "cidade": "Schroeder"
+      },
+      "missing_fields": [
+        "bairro"
+      ],
+      "reason": "missing required fields: bairro"
+    },
+    {
+      "index": 325,
+      "record": {
+        "url": "https://imbsmart.com.br/geminado-alto-padrao-novo-com-3-suites-e-fundos-com-churrasqueira-e-pergolado",
+        "tipo_imovel": "Residencial » Casa Geminado Duplex",
+        "quartos": 3,
+        "banheiros": 4,
+        "suites": 3,
+        "vagas": 2,
+        "valor": null,
+        "area_privada": 164.0,
+        "bairro": "Jaraguá Esquerdo",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "salao_festas": null,
+        "sacada": null
+      },
+      "missing_fields": [
+        "valor",
+        "imagem"
+      ],
+      "reason": "missing required fields: valor, imagem"
+    },
+    {
+      "index": 335,
+      "record": {
+        "url": "https://imbsmart.com.br/geminado-com-3-quartos-e-piscina-semimobiliado",
+        "tipo_imovel": "Residencial » Casa Geminado Duplex",
+        "quartos": 3,
+        "banheiros": 2,
+        "vagas": 2,
+        "valor": 980.0,
+        "area_privada": 140.0,
+        "bairro": "São Luís",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "salao_festas": null,
+        "sacada": null
+      },
+      "missing_fields": [
+        "imagem"
+      ],
+      "reason": "missing required fields: imagem"
+    },
+    {
+      "index": 340,
+      "record": {
+        "url": "https://imbsmart.com.br/casa-geminada-suite-2-quartos-com-vaga-coberta",
+        "tipo_imovel": "Residencial » Casa Geminado Duplex",
+        "quartos": 3,
+        "banheiros": 2,
+        "vagas": 2,
+        "valor": 800.0,
+        "area_privada": 0.0,
+        "area_util": 129.0,
+        "detalhes": "Casas Geminadas à Venda em Três Rios do Norte\nLoteamento Miragem\n \n04 unidades disponíveis, sendo 01 unidade de esquina.\nTodas possuem suíte + 02 quartos, living integrado, garagem coberta e área com churrasqueira.\n \nAgende uma visita e venha saber mais detalhes.",
+        "bairro": "Três Rios do Norte",
+        "cidade": "Jaraguá do Sul",
+        "salao_festas": null
+      },
+      "missing_fields": [
+        "imagem"
+      ],
+      "reason": "missing required fields: imagem"
+    },
+    {
+      "index": 343,
+      "record": {
+        "url": "https://imbsmart.com.br/casa-geminada-com-1-suite-e-1-quarto-a-venda-em-tres-rios-do-norte",
+        "tipo_imovel": "Residencial » Casa Geminado Duplex",
+        "quartos": 2,
+        "banheiros": 2,
+        "suites": 1,
+        "vagas": 1,
+        "valor": 390.0,
+        "area_privada": 85.0,
+        "area_util": 85.0,
+        "detalhes": "Casa Geminada à Venda em Jaraguá do Sul\n \nO imóvel conta com  85m² privativos, 01 suíte, 02 quartos, banheiro social, living amplo integrado, área de serviço e fundos com espaço e fundos privativos. \nVaga de garagem para 01 carro.\n \nEntre agora mesmo em contato conosco e saiba mais detalhes!",
+        "bairro": "Três Rios do Norte",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "imagem"
+      ],
+      "reason": "missing required fields: imagem"
+    },
+    {
+      "index": 345,
+      "record": {
+        "url": "https://imbsmart.com.br/geminados-com-2-suites-tres-rios-do-norte",
+        "tipo_imovel": "Residencial » Casa Geminado Duplex",
+        "quartos": 2,
+        "banheiros": 2,
+        "vagas": 2,
+        "valor": 520.0,
+        "area_privada": 96.0,
+        "area_util": 96.0,
+        "detalhes": "🏡 Linda Casa Geminada Duplex em Três Rios do Norte, Jaraguá do Sul, SC 🌳➡️ Por apenas R$ 530.000,00, você pode ter um imóvel com acabamentos de alto padrão e muito conforto! ✨ Com hall de entrada mobiliado, rodapé em poliestireno, sacada com churrasqueira, tubulação de água quente e muito mais, esse imóvel possui tudo que você precisa para viver com qualidade de vida.🛌 Com 2 quartos, 2 banheiros e 2 suítes, além de 2 vagas de garagem, salão de festas mobiliado e uma sala ampla, você e sua família vão se encantar com cada detalhe dessa casa!🔑 Área privada de 96m² e terreno de 344.67m², essa casa é perfeita para quem busca conforto e praticidade.📲 Entre em contato conosco e agende uma visita para conhecer mais esse sonho de casa! Não perca essa oportunidade única de viver com qualidade e conforto em Jaraguá do Sul!",
+        "bairro": "Três Rios do Norte",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "imagem"
+      ],
+      "reason": "missing required fields: imagem"
+    },
+    {
+      "index": 346,
+      "record": {
+        "url": "https://imbsmart.com.br/geminado-alto-padrao-1",
+        "tipo_imovel": "Residencial » Casa Geminado Duplex",
+        "quartos": 3,
+        "banheiros": 3,
+        "suites": 1,
+        "vagas": 2,
+        "valor": 780.0,
+        "area_privada": 192.0,
+        "area_util": 192.0,
+        "detalhes": "Área privativa: 192m² | Suíte + 2 Quartos | 2 vagas de garagem.Piso térreo: Garagem para 2 carros com corredor lateral que dá acesso ao amplo living, integrado em multiplos ambientes. Quintal nos fundos com churrasqueira.Piso superior: 1 suíte com closet, 2 dormitórios e banheiro social.\nAceitam imóvel de menor valor na parte do pagamento!",
+        "bairro": "Três Rios do Norte",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "imagem"
+      ],
+      "reason": "missing required fields: imagem"
+    },
+    {
+      "index": 349,
+      "record": {
+        "url": "https://imbsmart.com.br/geminado-duplex-a-venda-com-2-suites-tres-rios-do-norte-em-jaragua-do-sul",
+        "tipo_imovel": "Residencial » Casa Geminado Duplex",
+        "quartos": 2,
+        "banheiros": 2,
+        "suites": 2,
+        "vagas": 2,
+        "valor": 397.5,
+        "area_privada": 92.0,
+        "area_util": 92.0,
+        "detalhes": "Geminado de 92m², com 2 suítes, sala e cozinha. banheiro, área de serviços, quintal com churrasqueira e vaga Acabamento em porcelanato, massa corrida, rebaixo em gesso portas laqueadas.",
+        "bairro": "Três Rios do Norte",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "sacada": null
+      },
+      "missing_fields": [
+        "imagem"
+      ],
+      "reason": "missing required fields: imagem"
+    },
+    {
+      "index": 354,
+      "record": {
+        "url": "https://imbsmart.com.br/geminado-novo-1-suite-2-quartos-em-fase-final-de-construcao",
+        "tipo_imovel": "Residencial » Casa Geminado Duplex",
+        "quartos": 3,
+        "banheiros": 3,
+        "suites": 1,
+        "vagas": 2,
+        "valor": 687.8,
+        "area_privada": 123.0,
+        "area_util": 123.0,
+        "bairro": "Três Rios do Sul",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "salao_festas": null,
+        "sacada": null
+      },
+      "missing_fields": [
+        "imagem"
+      ],
+      "reason": "missing required fields: imagem"
+    },
+    {
+      "index": 356,
+      "record": {
+        "url": "https://imbsmart.com.br/geminado-duplex-semimobiliado-com-suite-mais-2-dormitorios",
+        "tipo_imovel": "Residencial » Casa Geminado Duplex",
+        "quartos": 3,
+        "banheiros": 3,
+        "vagas": 2,
+        "valor": 700.0,
+        "area_privada": 102.0,
+        "area_util": 102.0,
+        "detalhes": "Geminado Semimibiliado com 102,09m² privativos\n1 suíte2 quartos3 banheiros2 vagas de garagem ,Churrasqueira,Lavanderia Externa Portão eletrônico,Área externa de 70m2Ficam todos os móveis que estão nas fotos e 1 ar condicionado.",
+        "bairro": "Três Rios do Sul",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "imagem"
+      ],
+      "reason": "missing required fields: imagem"
+    },
+    {
+      "index": 357,
+      "record": {
+        "url": "https://imbsmart.com.br/geminado-duplex-no-bairro-tres-rios-do-sul-com-2-quartos",
+        "tipo_imovel": "Residencial » Casa Geminado Duplex",
+        "quartos": 2,
+        "banheiros": 1,
+        "vagas": 1,
+        "valor": 467.0,
+        "area_privada": 93.0,
+        "area_util": 93.0,
+        "detalhes": "Geminado 93 m2\n2 quartos SalaCozinha Área de serviço Garagem LavaboloBanheiro social Área de fundosFicam no imóvel:Cozinha, fogão, forno elétrico, depurador, torneira elétrica, mesa, 2 cadeiras\nNo quarto fica o ar condicionado",
+        "bairro": "Três Rios do Sul",
+        "cidade": "Jaraguá do Sul",
+        "salao_festas": null
+      },
+      "missing_fields": [
+        "imagem"
+      ],
+      "reason": "missing required fields: imagem"
+    },
+    {
+      "index": 359,
+      "record": {
+        "url": "https://imbsmart.com.br/casa-geminada-com-1-suite-e-2-dormitorios-em-tres-rios-do-sul-venda-unidades",
+        "tipo_imovel": "Residencial » Casa Geminado Duplex",
+        "quartos": 3,
+        "banheiros": 2,
+        "suites": 1,
+        "vagas": 1,
+        "valor": 430.0,
+        "area_privada": 87.0,
+        "area_util": 87.0,
+        "detalhes": "Casas Geminadas à Venda em Três Rios do Sul\n \nUnidades 01 (esquina): Possui 140,37m² privativos, garagem coberta, espaço lateral, churrasqueira coberta, área de serviço, cozinha com sala de jantar, sala de estar, lavabo, 01 suíte com sacada e espaço para closet, 2 dormitórios e banheiro social.\n-Valor de venda: R$660.000,00\n \nUnidade 02: Possui 87,41m² privativos, 02 vagas de garagem, sala de estar, jantar e cozinha, fundos com espaço e área de serviço, lavabo, 01 suíte, 2 dormitórios e banheiro social.\n-Valor de venda: 460.000,00\n \nImóveis prontos para morar! Em excelente localização, próximo ao mercado Rancho Bom!\nEntre em contato conosco e saiba mais!",
+        "bairro": "Três Rios do Sul",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "imagem"
+      ],
+      "reason": "missing required fields: imagem"
+    }
+  ]
+}

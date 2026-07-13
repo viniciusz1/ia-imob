@@ -1,0 +1,19 @@
+{
+  "metadata": {
+    "generated_at": "2026-07-07T03:18:55.230695+00:00"
+  },
+  "exterminated_count": 8,
+  "extermination_reasons": {
+    "valor": 8
+  },
+  "total_records": 8,
+  "records_with_issues": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+  ]
+}

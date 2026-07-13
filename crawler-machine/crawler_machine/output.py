@@ -13,13 +13,18 @@ class OutputPath:
     domain: str
     timestamp: str
 
-    def __post_init__(self) -> None:
+    def prepare(self) -> None:
+        """Cria a estrutura de diretórios no disco.
+
+        Mantido como operação explícita para manter o objeto como
+        valor puro até que a persistência real seja necessária.
+        """
         self.root.mkdir(parents=True, exist_ok=True)
 
     @property
     def root(self) -> Path:
         slug = _slugify_domain(self.domain)
-        return self.base_dir / slug / self.timestamp
+        return self.base_dir / "runs" / slug / self.timestamp
 
     @property
     def discovered(self) -> Path:
@@ -40,6 +45,14 @@ class OutputPath:
     @property
     def errors(self) -> Path:
         return self.root / "errors.json"
+
+    @property
+    def rejected(self) -> Path:
+        return self.root / "rejected.json"
+
+    @property
+    def quality_report(self) -> Path:
+        return self.root / "quality_report.json"
 
 
 def _slugify_domain(domain: str) -> str:

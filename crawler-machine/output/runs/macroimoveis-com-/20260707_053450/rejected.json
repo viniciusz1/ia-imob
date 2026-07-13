@@ -1,0 +1,1341 @@
+{
+  "metadata": {
+    "rejected_at": "2026-07-07T05:45:30.553817+00:00",
+    "count": 60
+  },
+  "rejected": [
+    {
+      "index": 2,
+      "record": {
+        "url": "https://macroimoveis.com/2359",
+        "imagem": "https://img.apre.me/BcFRCoAgDADQ2_zTtLLNj50lbIYsxEYRXr-3hG1AXPgeULu5lEJhHTDzC9Uut1IRQTwxS9r2lk2l62MTYUKiMNWupel3sIInH1l_.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 4,
+        "banheiros": 3,
+        "vagas": 2,
+        "valor": null,
+        "area_privada": 143.35,
+        "bairro": "Amizade",
+        "cidade": "Jaraguá do Sul",
+        "piscina": null,
+        "churrasqueira": null,
+        "mobiliado": null,
+        "financiamento": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 4,
+      "record": {
+        "url": "https://macroimoveis.com/1943",
+        "imagem": "https://img.apre.me/BcFRCoAgDADQ2_zTtNC2j50ldIYsxEYRXr-3hG1C3Pie0IY5olBZJ6z8QrPLlbCfSBmrEKajZ1MZ_thCCcmHsLShtetXWMGjjyw-.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 4,
+        "banheiros": 4,
+        "vagas": 4,
+        "valor": null,
+        "area_privada": 327.0,
+        "bairro": "Amizade",
+        "cidade": "Jaraguá do Sul",
+        "piscina": null,
+        "churrasqueira": null,
+        "mobiliado": null,
+        "financiamento": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 6,
+      "record": {
+        "url": "https://macroimoveis.com/1717",
+        "imagem": "https://img.apre.me/BcFJDoAgDADA3-TIIlTpoW8xAobUEGw0hu87U1gnYOB7QhtqiHxlmbDwC00v43zMGE6i7Ld174dKGfKopZgikm1Dapcvs4BLDrn8.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 4,
+        "banheiros": 3,
+        "vagas": 4,
+        "valor": null,
+        "area_privada": 299.0,
+        "bairro": "Amizade",
+        "cidade": "Jaraguá do Sul",
+        "piscina": null,
+        "churrasqueira": null,
+        "sacada": null,
+        "mobiliado": null,
+        "aceita_permuta": null,
+        "financiamento": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 7,
+      "record": {
+        "url": "https://macroimoveis.com/2437",
+        "imagem": "https://img.apre.me/BcFJDoAgDADA3-TIKhUOfYtBIKSGYKMxfN_ZQrIgeLoX9CkqJVuJFzh6oculmkfrG26p2ozHyMJl8iM67g7ROt0n18HfSQwmmkDlBw.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 1,
+        "banheiros": 1,
+        "vagas": 4,
+        "valor": null,
+        "area_privada": 189.05,
+        "bairro": "Amizade",
+        "cidade": "Jaraguá do Sul",
+        "piscina": null,
+        "churrasqueira": null,
+        "mobiliado": null,
+        "aceita_permuta": null,
+        "financiamento": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 8,
+      "record": {
+        "url": "https://macroimoveis.com/2165",
+        "imagem": "https://img.apre.me/DcZJDoAgDADA3-SIBazKoW8xLJHUEGw0hu-rnCazDiDP14Da1YRgC8sAxw9UPU2xYUnJx2P_s7eokrvcOrmVEMlOtUtp8iYWwA2J8wc.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 4,
+        "sala": 2,
+        "banheiros": 3,
+        "vagas": 2,
+        "valor": null,
+        "area_privada": 300.0,
+        "bairro": "Amizade",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "mobiliado": null,
+        "financiamento": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 9,
+      "record": {
+        "url": "https://macroimoveis.com/1616",
+        "imagem": "https://img.apre.me/BcFJCsAgDADA3_ToihoPeUupESRFbGgpfr8zTLohRbo3jKWmVt9JNgR6YehluLlSkCvGgPmYpwovedTm6GNBO5b0KV8jAYcuEf8.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 4,
+        "sala": 1,
+        "banheiros": 6,
+        "vagas": 2,
+        "valor": null,
+        "area_privada": 248.36,
+        "bairro": "Amizade",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "mobiliado": null,
+        "aceita_permuta": null,
+        "financiamento": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 10,
+      "record": {
+        "url": "https://macroimoveis.com/1783",
+        "imagem": "https://img.apre.me/BcFJCoAwDADA3_TYfT3kLWJaKJFSgyL9vjMNZUP0eG8YS1SttiNvcPjCkEsRhZgbhZxKTsc8hdviR3R11Xtj9VjcJ3_EDKaYiO0H.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 3,
+        "banheiros": 3,
+        "vagas": 2,
+        "valor": null,
+        "area_privada": 214.0,
+        "bairro": "Vila Baependi",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "mobiliado": null,
+        "aceita_permuta": null,
+        "financiamento": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 12,
+      "record": {
+        "url": "https://macroimoveis.com/491",
+        "imagem": "https://img.apre.me/BcFRCoAgDADQ2_zTbGnmx84SOkUWYqMIr997TDrBb3RPaENNjGshmYD0Qqt6GSw5BUSO1eJ_9qTCQx5donM_4NKGlC5fJgF7WE-8Aw.jpeg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 3,
+        "banheiros": 3,
+        "vagas": 2,
+        "valor": null,
+        "area_privada": 258.0,
+        "bairro": "Barra do Rio Cerro",
+        "cidade": "Jaraguá do Sul",
+        "mobiliado": null,
+        "financiamento": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 13,
+      "record": {
+        "url": "https://macroimoveis.com/2184",
+        "imagem": "https://img.apre.me/BcFJDoAgDADA3-TIUqnIoW8xApHUEGw0hu87U1gn0ML3hDbUpOQrywTkF5peJpwxhkIhB0zr3g_VMuRRmwgRyds2pHb5Mgu4zRGXHw.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 3,
+        "banheiros": 4,
+        "vagas": 2,
+        "valor": null,
+        "area_privada": 210.22,
+        "bairro": "Barra do Rio Cerro",
+        "cidade": "Jaraguá do Sul",
+        "piscina": null,
+        "churrasqueira": null,
+        "mobiliado": null,
+        "financiamento": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 15,
+      "record": {
+        "url": "https://macroimoveis.com/2092",
+        "imagem": "https://img.apre.me/BcHbCoAgDADQv9mjl1LRh31LOEeyEBtF_Pud01AXxB3vBX2qKcUzyoINX_h6Gc_VMgc6I_V0jKrSpjxqg0-J7d72KTzkIxRw2UVsPw.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 4,
+        "banheiros": 6,
+        "vagas": 2,
+        "valor": null,
+        "area_privada": 385.0,
+        "area_util": 0.0,
+        "bairro": "Centro",
+        "cidade": "Jaraguá do Sul",
+        "piscina": null,
+        "churrasqueira": null,
+        "sacada": null,
+        "mobiliado": null,
+        "financiamento": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 16,
+      "record": {
+        "url": "https://macroimoveis.com/429",
+        "imagem": "https://img.apre.me/BcFJCsAgDADA3_SocSt6yFuKUZAUsaGl_P3ONNINKdC9YSw1pbhOssHTC0MvE5F9qCFwZHecs6q0JY-akhGdt2NJn-IxCWDGRO0H.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 3,
+        "sala": 2,
+        "banheiros": 3,
+        "vagas": 1,
+        "valor": null,
+        "area_privada": 198.0,
+        "bairro": "Centro",
+        "cidade": "Jaraguá do Sul",
+        "mobiliado": null,
+        "aceita_permuta": null,
+        "financiamento": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 17,
+      "record": {
+        "url": "https://macroimoveis.com/2393",
+        "imagem": "https://img.apre.me/BcFRCoAgDADQ2_xTzVzox84SOksWYqMIr997TDoBV7ontKEmpaWSTPD0QtPLYC1HzMjBn2nbe1bhIY-aFUNE520bUrt8hQRcdEj8Aw.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 3,
+        "banheiros": 4,
+        "vagas": 2,
+        "valor": null,
+        "area_privada": 200.0,
+        "bairro": "Chico de Paulo",
+        "cidade": "Jaraguá do Sul",
+        "mobiliado": null,
+        "financiamento": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 22,
+      "record": {
+        "url": "https://macroimoveis.com/1087",
+        "imagem": "https://img.apre.me/BcFRCoAgDADQ2_zTprnUj50laoIsxEYRXr-3hG0CrXxPaMNcKb6yTgj8QrPLUcoUMIr3SNveD1MZ_thCSCXFpQ2tXb_TFTAjsfw.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 3,
+        "banheiros": 4,
+        "vagas": 3,
+        "valor": null,
+        "area_privada": 312.78,
+        "bairro": "Czerniewicz",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "mobiliado": null,
+        "financiamento": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 23,
+      "record": {
+        "url": "https://macroimoveis.com/1716",
+        "imagem": "https://img.apre.me/BcFJDoAgDADA3-TIIlTl0LcYKIbUEGw0hu87w6QTMNA9oQ01KflKMmGhF5peJpZ6YnGM2W-r0bMKD3nURsSAybYhtctXSMDtDol-.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 3,
+        "banheiros": 2,
+        "vagas": 2,
+        "valor": null,
+        "area_privada": 165.65,
+        "bairro": "Ilha da Figueira",
+        "cidade": "Jaraguá do Sul",
+        "piscina": null,
+        "churrasqueira": null,
+        "sacada": null,
+        "mobiliado": null,
+        "aceita_permuta": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 24,
+      "record": {
+        "url": "https://macroimoveis.com/1326",
+        "imagem": "https://img.apre.me/BcHbCoAgDADQv9mjeVvow74lbKIsxEYR-n7nMOkCDHQv6FNNzq6SLPD0QtfLVG6lxsSxedyPUVR4yqObDd4hbn1KHfKdJGCTReIf.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 3,
+        "banheiros": 2,
+        "vagas": 4,
+        "valor": null,
+        "area_privada": 173.0,
+        "bairro": "Jaraguá Esquerdo",
+        "cidade": "Jaraguá do Sul",
+        "mobiliado": null,
+        "aceita_permuta": null,
+        "financiamento": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 28,
+      "record": {
+        "url": "https://macroimoveis.com/1625",
+        "imagem": "https://img.apre.me/BcFJDoAgDADA3-TIoimWQ99iBITUEGw0hu87k1kn4Mr3hDbUxOgLy4SFX2h6mUqE-kwVawlh74dKHvKo3dAjkW1DSpcvsYAjh5x-.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 3,
+        "sala": 1,
+        "banheiros": 4,
+        "vagas": 2,
+        "valor": null,
+        "area_privada": 270.0,
+        "bairro": "Jaraguá 99",
+        "cidade": "Jaraguá do Sul",
+        "piscina": null,
+        "churrasqueira": null,
+        "mobiliado": null,
+        "aceita_permuta": null,
+        "financiamento": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 35,
+      "record": {
+        "url": "https://macroimoveis.com/1809",
+        "imagem": "https://img.apre.me/BcHbCoAgDADQv9mjbZnWHvYt4QVkITaK8Pc7p4hNCF7uCW2YY6YqOmGVF5pdLmZMlBE98x7PnkzL0McWwsAb0tKG1q5fFgU8MEj5AQ.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 3,
+        "banheiros": 4,
+        "vagas": 2,
+        "valor": null,
+        "area_privada": 226.25,
+        "bairro": "Rau",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "mobiliado": null,
+        "aceita_permuta": null,
+        "financiamento": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 36,
+      "record": {
+        "url": "https://macroimoveis.com/2231",
+        "imagem": "https://img.apre.me/BcFJDoAgDADA3-QIBWQ79C0GIZIago3G8H1nKskC7_he0KeonE0jXmDphS6XirWcBp0PaErYRxGukx-RW3I2BqP75Db4O4gBE3qqPw.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 3,
+        "banheiros": 2,
+        "valor": null,
+        "area_privada": 181.0,
+        "bairro": "Rau",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "mobiliado": null,
+        "aceita_permuta": null,
+        "financiamento": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 39,
+      "record": {
+        "url": "https://macroimoveis.com/2306",
+        "imagem": "https://img.apre.me/BcHbCoAgDADQv9mjt5i6h31LmJIsxEYR-n7nVNYFuPG9oE81RL6xLAj8QtfLYHDJNTwJC8V9FJU65VHrY04he9untCHfwQIuO_T6Aw.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 3,
+        "banheiros": 3,
+        "valor": null,
+        "area_privada": 189.5,
+        "bairro": "Rau",
+        "cidade": "Jaraguá do Sul",
+        "financiamento": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 41,
+      "record": {
+        "url": "https://macroimoveis.com/2391",
+        "imagem": "https://img.apre.me/BcFJDoAgDADA3-TIUgTh0LcYBCU1BBuN4fvOFJIJ3tE9oQ1RKdlKPAHphSaXCtnZiLGu55HC1rNwGfyIdh7TYlC3wbXztxODicZT_QE.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 3,
+        "banheiros": 4,
+        "vagas": 2,
+        "valor": null,
+        "area_privada": 280.0,
+        "bairro": "Rau",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "mobiliado": null,
+        "financiamento": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 42,
+      "record": {
+        "url": "https://macroimoveis.com/2080",
+        "imagem": "https://img.apre.me/BcFJDoAgDADA3-SIFMN26FsMi5Aago3G8H1nCskCu9O9oE9RMWIlXmDohS6XsmdCbKGFHIM7RhIukx-ZHHr0Brc_uQ7_MjHooC2VHw.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 2,
+        "banheiros": 3,
+        "vagas": 2,
+        "valor": null,
+        "area_privada": 190.0,
+        "bairro": "Rau",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "mobiliado": null,
+        "aceita_permuta": null,
+        "financiamento": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 49,
+      "record": {
+        "url": "https://macroimoveis.com/541",
+        "imagem": "https://img.apre.me/BcFJDoAgDADA3-TIUgTh0LcYASU1BBuN4fvOFJIJ3tE9oQ1RKdlKPAHphSaX8rGemNYjZ4dh67twGfyITjYsEXUbXDt-mRhMNJ7KDw.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 3,
+        "banheiros": 2,
+        "vagas": 2,
+        "valor": null,
+        "area_privada": 213.0,
+        "bairro": "Tifa Martins",
+        "cidade": "Jaraguá do Sul",
+        "piscina": null,
+        "aceita_permuta": null,
+        "financiamento": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 52,
+      "record": {
+        "url": "https://macroimoveis.com/2322",
+        "imagem": "https://img.apre.me/BcFJDoAgDADA3-TIooD00LcYBCE1BBuN4fvOZJIJfqV7QhuiEG0hnrDQC00utWHIKVRXz4Rh70k4D35Eo-HWRavb4NL5O4jBROMp-w.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 3,
+        "banheiros": 3,
+        "vagas": 2,
+        "valor": null,
+        "area_privada": 149.74,
+        "bairro": "Tifa Martins",
+        "cidade": "Jaraguá do Sul",
+        "mobiliado": null,
+        "financiamento": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 58,
+      "record": {
+        "url": "https://macroimoveis.com/2230",
+        "imagem": "https://img.apre.me/BcHbCoAgDADQv9mjV_b0Yd8SpSELsVGEv985lXUBRr4X9KmmFN9YFgR_oetlKFKuZ0AsqaRt7Cp1yqOWKAZK3vYpbch3sIDLDrn_.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 3,
+        "banheiros": 3,
+        "vagas": 2,
+        "valor": null,
+        "area_privada": 189.0,
+        "bairro": "Três Rios do Norte",
+        "cidade": "Jaraguá do Sul",
+        "aceita_permuta": null,
+        "financiamento": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 62,
+      "record": {
+        "url": "https://macroimoveis.com/945",
+        "imagem": "https://img.apre.me/BcFRCoAgDADQ2_zTNHXNj50laoIsxEYRXr-3hG1CjnxPaMNcKaGyTlj5hWaXQwmRCAOiT7j3w1SGPrZsSCWlpQ2tXb_TFTz5zPID.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 4,
+        "sala": 2,
+        "banheiros": 3,
+        "vagas": 2,
+        "ano": 2006,
+        "valor": null,
+        "area_privada": 187.95,
+        "bairro": "Vila Lalau",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "mobiliado": null,
+        "aceita_permuta": null,
+        "financiamento": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 64,
+      "record": {
+        "url": "https://macroimoveis.com/2045",
+        "imagem": "https://img.apre.me/BcFJDoAgDADA3-TIUkDh0LcYLYbUEGw0hu87w6QTUqB7QhtqSvGVZALSC00vkxmj8ydGzHnZ_q7CQx61GNZUvLdtSO3yHSTgskvEPw.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 2,
+        "banheiros": 3,
+        "vagas": 5,
+        "valor": null,
+        "area_privada": 100.0,
+        "bairro": "Vila Nova",
+        "cidade": "Jaraguá do Sul",
+        "piscina": null,
+        "churrasqueira": null,
+        "mobiliado": null,
+        "aceita_permuta": null,
+        "financiamento": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 65,
+      "record": {
+        "url": "https://macroimoveis.com/753",
+        "imagem": "https://img.apre.me/BcHbCoAgDADQv9mjt7XUh31LpIIsxEYR-n7nVNYFhHwv6FNNzr6xLAj8QtfLxEChlug3RNyPcarUKY9aIucS2j6lDfkKC7jkiOsP.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 4,
+        "sala": 1,
+        "banheiros": 2,
+        "vagas": 1,
+        "valor": null,
+        "area_privada": 242.0,
+        "bairro": "Vila Nova",
+        "cidade": "Jaraguá do Sul",
+        "mobiliado": null,
+        "aceita_permuta": null,
+        "financiamento": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 66,
+      "record": {
+        "url": "https://macroimoveis.com/1952",
+        "imagem": "https://img.apre.me/BcFJDoAgDADA3-SIYFnKoW8xCobUEGw0hu87U1gnBOR7QhtqcnaVZcLKLzS9DOVUPKYTyVPc_q5Shjy6xIzonFvakNrlO1jAkg1cfg.jpg",
+        "tipo_imovel": "Residencial » Casa",
+        "quartos": 4,
+        "banheiros": 3,
+        "vagas": 4,
+        "valor": null,
+        "area_privada": 271.0,
+        "bairro": "Centro",
+        "cidade": "Schroeder",
+        "mobiliado": null,
+        "financiamento": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 90,
+      "record": {
+        "url": "https://macroimoveis.com/2157",
+        "imagem": "https://img.apre.me/BcFRCoAgDADQ2_xTp6W4j50lzIEsxEYRXr-3GtuCtPG9oE9zREFYF0R_odvlBKMIUkgVKR_jmrapj-mSYy578H2qDP1OVsCCidsP.jpg",
+        "tipo_imovel": "Residencial » Apartamento",
+        "quartos": 3,
+        "banheiros": 3,
+        "vagas": 1,
+        "valor": null,
+        "area_privada": 165.0,
+        "bairro": "Centro",
+        "cidade": "Jaraguá do Sul",
+        "sacada": null,
+        "mobiliado": null,
+        "elevador": null,
+        "financiamento": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 93,
+      "record": {
+        "url": "https://macroimoveis.com/2286",
+        "imagem": "https://img.apre.me/BcFRCoAgDADQ2_zTZuWcHztLpIIsxEYRXr-3itiEsMk9oQ1zKfkqOmGVF5pdLhPFghhoT4mOfpqWoY8tgTki_6UNrV2-LArIGKT8.jpg",
+        "tipo_imovel": "Residencial » Apartamento",
+        "quartos": 3,
+        "banheiros": 4,
+        "vagas": 3,
+        "valor": null,
+        "area_privada": 157.99,
+        "bairro": "Centro",
+        "cidade": "Jaraguá do Sul",
+        "piscina": null,
+        "churrasqueira": null,
+        "academia": null,
+        "playground": null,
+        "sacada": null,
+        "mobiliado": null,
+        "elevador": null,
+        "financiamento": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 94,
+      "record": {
+        "url": "https://macroimoveis.com/2144",
+        "imagem": "https://img.apre.me/BcFJCsAgDADA3_ToVtdD3lJcUFLEhpbi9ztTkTe4A_8NY7FISTekDQZfGHwJpa3y2eXSe-TnzEx10cMymBC91XIsapO_ggQqKof1Bw.jpg",
+        "tipo_imovel": "Residencial » Apartamento",
+        "quartos": 3,
+        "banheiros": 4,
+        "vagas": 2,
+        "valor": null,
+        "area_privada": 138.91,
+        "bairro": "Centro",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "sacada": null,
+        "mobiliado": null,
+        "elevador": null,
+        "financiamento": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 96,
+      "record": {
+        "url": "https://macroimoveis.com/1749",
+        "imagem": "https://img.apre.me/BcFRCoAgDADQ2_zTZqHTj50ldIIsxEYRXr-3hG1BOPhe0Ke5nH1jXbDzC90uJ55KqRlrTBTPUUxl6mMbISLlrU9tQ7-KCpgwsPw.jpg",
+        "tipo_imovel": "Residencial » Apartamento",
+        "quartos": 3,
+        "banheiros": 5,
+        "vagas": 2,
+        "valor": null,
+        "area_privada": 182.0,
+        "bairro": "Centro",
+        "cidade": "Jaraguá do Sul",
+        "piscina": null,
+        "churrasqueira": null,
+        "academia": null,
+        "playground": null,
+        "sacada": null,
+        "mobiliado": null,
+        "elevador": null,
+        "financiamento": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 99,
+      "record": {
+        "url": "https://macroimoveis.com/2405",
+        "imagem": "https://img.apre.me/BcHbCoAgDADQv9mjLi_hD-uWcBqyEBtF_PudU0kXRE-3gj7V5Lw1kgWOXuh6mZNTZk4OHZb9GEWlTnnUxuBDQmf7lDbkYxLAhJHqDw.jpg",
+        "tipo_imovel": "Residencial » Apartamento",
+        "quartos": 3,
+        "banheiros": 4,
+        "vagas": 4,
+        "valor": null,
+        "area_privada": 252.0,
+        "bairro": "Centro",
+        "cidade": "Jaraguá do Sul",
+        "piscina": null,
+        "churrasqueira": null,
+        "playground": null,
+        "mobiliado": null,
+        "elevador": null,
+        "aceita_permuta": null,
+        "financiamento": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 111,
+      "record": {
+        "url": "https://macroimoveis.com/972",
+        "imagem": "https://img.apre.me/BcFRCoAgDADQ2_zTdNPKj50lUlEWYqMIr997mXVCIL4ntKEmRldYJiC-0PQy1iVbkfxWK61HP1XykEeXgITBL21I6fIlFrC7DZx-.jpg",
+        "tipo_imovel": "Residencial » Apartamento",
+        "quartos": 3,
+        "banheiros": 4,
+        "vagas": 2,
+        "valor": null,
+        "area_privada": 344.01,
+        "bairro": "Czerniewicz",
+        "cidade": "Jaraguá do Sul",
+        "academia": null,
+        "elevador": null,
+        "aceita_permuta": null,
+        "financiamento": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 125,
+      "record": {
+        "url": "https://macroimoveis.com/1900",
+        "imagem": "https://img.apre.me/BcHBDYAgDADAbfqEggLy6CxGi5Iago3GsL53TDogTHQPqF1Nzq6QDPD0QtXL5IMjn674xCmubVPhLo-ahLPL6GztUpp8OwnggoH4Bw.jpg",
+        "tipo_imovel": "Residencial » Apartamento",
+        "quartos": 3,
+        "banheiros": 2,
+        "valor": null,
+        "area_privada": 112.22,
+        "bairro": "Nova Brasília",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "academia": null,
+        "mobiliado": null,
+        "elevador": null,
+        "financiamento": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 148,
+      "record": {
+        "url": "https://macroimoveis.com/1767",
+        "imagem": "https://img.apre.me/M7ItVksvyNJLsTQxS01MTTZOMjMzi89JLMhMzsssKtA3t7Q0sjDXT8-LTMnJLE2yzVQzsDAwtU0GAA.jpg",
+        "tipo_imovel": "Residencial » Apartamento",
+        "quartos": 3,
+        "banheiros": 3,
+        "vagas": 2,
+        "valor": null,
+        "area_privada": 149.75,
+        "bairro": "Vila Nova",
+        "cidade": "Jaraguá do Sul",
+        "piscina": null,
+        "churrasqueira": null,
+        "mobiliado": null,
+        "elevador": null,
+        "aceita_permuta": null,
+        "financiamento": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 149,
+      "record": {
+        "url": "https://macroimoveis.com/1529",
+        "imagem": "https://img.apre.me/BcFJDoAgDADA3-SICLL00LcYtpAago3G8H1nCskCZ_le0KcoxL0SLzD0QpdLVTx8S63Y7L0-RxIukx-ZAqKJYeuT6_AvE4OO2lH5AQ.jpg",
+        "tipo_imovel": "Residencial » Apartamento",
+        "quartos": 2,
+        "sala": 1,
+        "banheiros": 3,
+        "vagas": 2,
+        "valor": null,
+        "area_privada": 274.0,
+        "bairro": "Vila Nova",
+        "cidade": "Jaraguá do Sul",
+        "piscina": null,
+        "churrasqueira": null,
+        "sacada": null,
+        "mobiliado": null,
+        "elevador": null,
+        "aceita_permuta": null,
+        "financiamento": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 150,
+      "record": {
+        "url": "https://macroimoveis.com/1637",
+        "imagem": "https://img.apre.me/BcFRCoAgDADQ2_xTp6LOj50lSkkWYqMIr997lXVBDHwv6FNNKa6xLPD8QtfLoM_OzkQut5S2savUKY9a9BgK2T6lDfkOFkDCyPUH.jpg",
+        "tipo_imovel": "Residencial » Apartamento",
+        "quartos": 3,
+        "sala": 1,
+        "banheiros": 4,
+        "vagas": 2,
+        "valor": null,
+        "area_privada": 214.0,
+        "bairro": "Vila Nova",
+        "cidade": "Jaraguá do Sul",
+        "piscina": null,
+        "churrasqueira": null,
+        "academia": null,
+        "playground": null,
+        "mobiliado": null,
+        "elevador": null,
+        "aceita_permuta": null,
+        "financiamento": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 151,
+      "record": {
+        "url": "https://macroimoveis.com/2078",
+        "imagem": "https://img.apre.me/M7QtVksvyNJLNDROsUxKM0uysLAwiy8uyUvMKdA3NzM1NjMy1E-Py0zJySxNss1UM7AwMLVNBgA.jpg",
+        "tipo_imovel": "Residencial » Apartamento",
+        "quartos": 4,
+        "banheiros": 4,
+        "vagas": 3,
+        "valor": null,
+        "area_privada": 474.0,
+        "bairro": "Vila Nova",
+        "cidade": "Jaraguá do Sul",
+        "piscina": null,
+        "churrasqueira": null,
+        "academia": null,
+        "playground": null,
+        "mobiliado": null,
+        "elevador": null,
+        "financiamento": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 152,
+      "record": {
+        "url": "https://macroimoveis.com/2077",
+        "imagem": "https://img.apre.me/M7QtVksvyNIzNEhLSbUwNk2ysLAwiy8uyUvMKdA3NzIxNjMy1E-Py0zJySxNss1UM7AwMLVNBgA.jpg",
+        "tipo_imovel": "Residencial » Apartamento",
+        "quartos": 4,
+        "banheiros": 4,
+        "vagas": 3,
+        "valor": null,
+        "area_privada": 341.0,
+        "bairro": "Vila Nova",
+        "cidade": "Jaraguá do Sul",
+        "piscina": null,
+        "churrasqueira": null,
+        "academia": null,
+        "playground": null,
+        "mobiliado": null,
+        "elevador": null,
+        "financiamento": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 153,
+      "record": {
+        "url": "https://macroimoveis.com/2076",
+        "imagem": "https://img.apre.me/M7QtVksvyNJLTEo1NrIwMkqysLAwiy8uyUvMKdA3tDAwNjMy1E-Py0zJySxNss1UM7AwMLVNBgA.jpg",
+        "tipo_imovel": "Residencial » Apartamento",
+        "quartos": 4,
+        "banheiros": 4,
+        "vagas": 3,
+        "valor": null,
+        "area_privada": 233.0,
+        "bairro": "Vila Nova",
+        "cidade": "Jaraguá do Sul",
+        "piscina": null,
+        "churrasqueira": null,
+        "academia": null,
+        "playground": null,
+        "sacada": null,
+        "mobiliado": null,
+        "elevador": null,
+        "financiamento": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 155,
+      "record": {
+        "url": "https://macroimoveis.com/1934",
+        "imagem": "https://img.apre.me/M7QtVksvyNJLTTQ0MEtMNrewTDE3iy8uyUvMKdA3NTc0MzA01E-Py0zJySxNss1UM7AwMLVNBgA.jpg",
+        "tipo_imovel": "Residencial » Apartamento",
+        "quartos": 5,
+        "banheiros": 6,
+        "vagas": 5,
+        "valor": null,
+        "area_privada": 399.91,
+        "bairro": "Vila Nova",
+        "cidade": "Jaraguá do Sul",
+        "piscina": null,
+        "churrasqueira": null,
+        "academia": null,
+        "sacada": null,
+        "mobiliado": null,
+        "elevador": null,
+        "aceita_permuta": null,
+        "financiamento": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 156,
+      "record": {
+        "url": "https://macroimoveis.com/1937",
+        "imagem": "https://img.apre.me/M7QtVksvyNIzM7c0NDU0M0lOTDE3iy8uyUvMKdA3t7AwMzA01E-Py0zJySxNss1UM7AwMLVNBgA.jpg",
+        "tipo_imovel": "Residencial » Apartamento",
+        "quartos": 4,
+        "banheiros": 5,
+        "vagas": 3,
+        "valor": null,
+        "area_privada": 394.36,
+        "bairro": "Vila Nova",
+        "cidade": "Jaraguá do Sul",
+        "piscina": null,
+        "churrasqueira": null,
+        "academia": null,
+        "playground": null,
+        "sacada": null,
+        "mobiliado": null,
+        "elevador": null,
+        "aceita_permuta": null,
+        "financiamento": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 157,
+      "record": {
+        "url": "https://macroimoveis.com/1936",
+        "imagem": "https://img.apre.me/M7QtVksvyNIzTjU2M05LNEqyTDE3iy8uyUvMKdA3tzQyMzA01E-Py0zJySxNss1UM7AwMLVNBgA.jpg",
+        "tipo_imovel": "Residencial » Apartamento",
+        "quartos": 4,
+        "banheiros": 5,
+        "vagas": 3,
+        "valor": null,
+        "area_privada": 198.35,
+        "bairro": "Vila Nova",
+        "cidade": "Jaraguá do Sul",
+        "piscina": null,
+        "churrasqueira": null,
+        "academia": null,
+        "playground": null,
+        "sacada": null,
+        "mobiliado": null,
+        "elevador": null,
+        "aceita_permuta": null,
+        "financiamento": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 159,
+      "record": {
+        "url": "https://macroimoveis.com/2250",
+        "imagem": "https://img.apre.me/M7QtVksvyNIzNbRISU0zNLEwN7c0iy8uyUvMKdA3NbEwNDQ31E-Py0zJySxNss1UM7AwMLVNBgA.jpg",
+        "tipo_imovel": "Residencial » Apartamento",
+        "quartos": 3,
+        "banheiros": 4,
+        "valor": null,
+        "area_privada": 86.0,
+        "bairro": "Centro",
+        "cidade": "Pomerode",
+        "piscina": null,
+        "academia": null,
+        "mobiliado": null,
+        "financiamento": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 173,
+      "record": {
+        "url": "https://macroimoveis.com/6004",
+        "imagem": "https://img.apre.me/M7ItVktPLcjSM0gySEo0N08yTTQyMovPSSzITM7LLCrQNzI2NbQw0k-Py0zJySxNss1UM7AwMLVNBgA.jpeg",
+        "tipo_imovel": "Residencial » Lote/Terreno",
+        "valor": null,
+        "bairro": "Amizade",
+        "cidade": "Jaraguá do Sul",
+        "financiamento": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 174,
+      "record": {
+        "url": "https://macroimoveis.com/1603",
+        "imagem": "https://img.apre.me/M7ItVktPLcjSM0gySEo0N08yTTQyMovPSSzITM7LLCrQNzI2NbQw0k-Py0zJySxNss1UM7AwMLVNBgA.jpeg",
+        "tipo_imovel": "Residencial » Lote/Terreno",
+        "valor": null,
+        "bairro": "Amizade",
+        "cidade": "Jaraguá do Sul",
+        "financiamento": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 175,
+      "record": {
+        "url": "https://macroimoveis.com/2224",
+        "imagem": "https://img.apre.me/M7QtVksvyNJLNDIwTElNNU8zMrE0iy8uyUvMKdA3MjEztzQ11E-Py0zJySxNss1UM7AwMLVNBgA.jpg",
+        "tipo_imovel": "Residencial » Lote/Terreno",
+        "valor": null,
+        "bairro": "Vila Baependi",
+        "cidade": "Jaraguá do Sul",
+        "financiamento": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 178,
+      "record": {
+        "url": "https://macroimoveis.com/518",
+        "imagem": "https://img.apre.me/M7ItVktPLcjSSzEyTDZPMTMyTkkzNIvPSSzITM7LLCrQNzSxNDQ30k-Py0zJySxNss1UM7AwMLVNBgA.jpeg",
+        "tipo_imovel": "Residencial » Lote/Terreno",
+        "valor": null,
+        "bairro": "Barra do Rio Cerro",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 181,
+      "record": {
+        "url": "https://macroimoveis.com/2409",
+        "imagem": "https://img.apre.me/M7ItVktPLcjSszQwTTRLMTFOMTI0NIvPSSzITM7LLCrQN7IwNDcz1E-Py0zJySxNss1UM7AwMLVNBgA.jpeg",
+        "tipo_imovel": "Residencial » Lote/Terreno",
+        "valor": null,
+        "bairro": "Centenário",
+        "cidade": "Jaraguá do Sul",
+        "financiamento": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 185,
+      "record": {
+        "url": "https://macroimoveis.com/467",
+        "imagem": "https://img.apre.me/M7ItVktPLcjSM0gySEo0N08yTTQyMovPSSzITM7LLCrQNzI2NbQw0k-Py0zJySxNss1UM7AwMLVNBgA.jpeg",
+        "tipo_imovel": "Residencial » Lote/Terreno",
+        "valor": null,
+        "bairro": "Estrada Nova",
+        "cidade": "Jaraguá do Sul",
+        "aceita_permuta": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 188,
+      "record": {
+        "url": "https://macroimoveis.com/2158",
+        "imagem": "https://img.apre.me/M7ItVktPLcjSSzEyTDZPMTMyTkkzNIvPSSzITM7LLCrQNzSxNDQ30k-Py0zJySxNss1UM7AwMLVNBgA.jpeg",
+        "tipo_imovel": "Residencial » Lote/Terreno",
+        "valor": null,
+        "bairro": "Jaraguá Esquerdo",
+        "cidade": "Jaraguá do Sul",
+        "financiamento": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 189,
+      "record": {
+        "url": "https://macroimoveis.com/1629",
+        "imagem": "https://img.apre.me/M7ItVktPLcjSSzEyTDZPMTMyTkkzNIvPSSzITM7LLCrQNzSxNDQ30k-Py0zJySxNss1UM7AwMLVNBgA.jpeg",
+        "tipo_imovel": "Residencial » Lote/Terreno",
+        "valor": null,
+        "bairro": "João Pessoa",
+        "cidade": "Jaraguá do Sul",
+        "financiamento": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 192,
+      "record": {
+        "url": "https://macroimoveis.com/1221",
+        "tipo_imovel": "Residencial » Lote/Terreno",
+        "valor": 400.0,
+        "area_privada": 325.0,
+        "bairro": "Rau",
+        "cidade": "Jaraguá do Sul",
+        "mobiliado": null,
+        "financiamento": null
+      },
+      "missing_fields": [
+        "imagem"
+      ],
+      "reason": "missing required fields: imagem"
+    },
+    {
+      "index": 206,
+      "record": {
+        "url": "https://macroimoveis.com/566",
+        "imagem": "https://img.apre.me/BcHbCoAgDADQv9mjeUcf9i1hW8hCbBTh73cOoS5IAe8Ffaqp1THKAo8v9FMvwyU2x5UzRZ-30VRoyqNbcK4Uv-UpPOQ7UMAWm5B_.jpeg",
+        "tipo_imovel": "Residencial » Lote/Terreno",
+        "valor": null,
+        "bairro": "Vila Lenzi",
+        "cidade": "Jaraguá do Sul",
+        "aceita_permuta": null,
+        "financiamento": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 208,
+      "record": {
+        "url": "https://macroimoveis.com/1502",
+        "imagem": "https://img.apre.me/BcFRCoAgDADQ2_xTnTrNj50lSkEWYqMIr997lXUBBb4X9KmmFGwsCzy-0PUylBsVjzFgSGkfh0qd8qiN6DJl26e0Id-JAm5zxPUH.jpg",
+        "tipo_imovel": "Residencial » Lote/Terreno",
+        "valor": null,
+        "bairro": "Vila Lenzi",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 212,
+      "record": {
+        "url": "https://macroimoveis.com/904",
+        "imagem": "https://img.apre.me/BcFRCoAgDADQ2_xTN03Jj50lcoIsxEYRXr-3hG1Binwv6NNcKdRYFwR_odvlqiDlTLGQxHyM01SmPuYxYKHN96lt6FdZAXdMLD8.jpg",
+        "tipo_imovel": "Residencial » Chácara",
+        "quartos": 6,
+        "banheiros": 5,
+        "vagas": 5,
+        "valor": null,
+        "area_privada": 500.0,
+        "bairro": "Rio Molha",
+        "cidade": "Jaraguá do Sul",
+        "mobiliado": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 223,
+      "record": {
+        "url": "https://macroimoveis.com/220",
+        "imagem": "https://img.apre.me/BcHbCoAgDADQv9mj12n5sG_JnCALsVGEv985TLogRboX9KmmFN9IFgR6oetlCmb2qfqwBczHOFV4yqM2Z8TobZ-ShnyVBNzuEvEP.jpg",
+        "tipo_imovel": "Residencial » Casa Geminada",
+        "quartos": 3,
+        "banheiros": 2,
+        "vagas": 2,
+        "valor": null,
+        "area_privada": 186.0,
+        "bairro": "Amizade",
+        "cidade": "Jaraguá do Sul",
+        "mobiliado": null,
+        "financiamento": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 229,
+      "record": {
+        "url": "https://macroimoveis.com/1457",
+        "imagem": "https://img.apre.me/BcFJDoAgDADA3-QIWPZD32IQIqkh2GgM33emkizwlu4FfYrKeWvEC5Be6HIpROPbWax1IYV9FOE6_RHtokkYdZ-cBn8HMZhkPNUf.jpg",
+        "tipo_imovel": "Residencial » Casa Geminada",
+        "quartos": 3,
+        "banheiros": 4,
+        "vagas": 3,
+        "valor": null,
+        "area_privada": 158.35,
+        "bairro": "Barra do Rio Cerro",
+        "cidade": "Jaraguá do Sul",
+        "financiamento": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 232,
+      "record": {
+        "url": "https://macroimoveis.com/2101",
+        "imagem": "https://img.apre.me/BcFJDoAgDADA3-TIIhTtoW8xLAmpIdhoDN93prIuwMD3gj7VEPnGsmDjF7pepkWKmBOW0CidI6vUKY-a3ROl4G2f0oZ8hQXc4ZDrDw.jpg",
+        "tipo_imovel": "Residencial » Casa Geminada",
+        "quartos": 3,
+        "banheiros": 3,
+        "vagas": 2,
+        "valor": null,
+        "area_privada": 120.0,
+        "bairro": "Centro",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "aceita_permuta": null,
+        "financiamento": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    }
+  ]
+}

@@ -1,0 +1,189 @@
+{
+  "metadata": {
+    "sample_url": "https://imoveiscidade.com.br/imovel/casa-sao-luis-jaragua-do-sul-sc-3-quartos-136.79m2-CA0517",
+    "generated_at": "2026-07-07T03:54:18.972116+00:00"
+  },
+  "schema": {
+    "name": "Property Detail Page",
+    "baseSelector": "/html",
+    "fields": [
+      {
+        "name": "url",
+        "selector": "//meta[@property='og:url']",
+        "type": "attribute",
+        "attribute": "content"
+      },
+      {
+        "name": "imagem",
+        "selector": "//div[@id='property-details-tracking']",
+        "type": "attribute",
+        "attribute": "data-image"
+      },
+      {
+        "name": "tipo_imovel",
+        "selector": "//div[@id='property-details-tracking']",
+        "type": "attribute",
+        "attribute": "data-type"
+      },
+      {
+        "name": "quartos",
+        "selector": "//div[@id='property-details-tracking']",
+        "type": "attribute",
+        "attribute": "data-bedrooms"
+      },
+      {
+        "name": "sala",
+        "selector": "//h4[text()='Descrição']/following-sibling::div//p",
+        "type": "regex",
+        "pattern": "(\\d+)\\s*salas?"
+      },
+      {
+        "name": "banheiros",
+        "selector": "//div[@id='property-details-tracking']",
+        "type": "attribute",
+        "attribute": "data-bathrooms"
+      },
+      {
+        "name": "suites",
+        "selector": "//li[contains(.,'Suíte')]",
+        "type": "regex",
+        "pattern": "(\\d+)"
+      },
+      {
+        "name": "vagas",
+        "selector": "//h4[text()='Descrição']/following-sibling::div//p",
+        "type": "regex",
+        "pattern": "(\\d+)\\s*vagas?"
+      },
+      {
+        "name": "ano",
+        "selector": "//div[@id='property-details-tracking']",
+        "type": "attribute",
+        "attribute": "data-ano"
+      },
+      {
+        "name": "valor",
+        "selector": "//span[contains(@class,'text-base md:text-3xl')]",
+        "type": "text"
+      },
+      {
+        "name": "area_privada",
+        "selector": "//span[contains(.,'Área Privativa')]/b",
+        "type": "regex",
+        "pattern": "([\\d,]+)"
+      },
+      {
+        "name": "area_util",
+        "selector": "//span[contains(.,'Área Total')]/b",
+        "type": "regex",
+        "pattern": "([\\d,]+)"
+      },
+      {
+        "name": "detalhes",
+        "selector": "//h4[text()='Descrição']/following-sibling::div//p",
+        "type": "text"
+      },
+      {
+        "name": "bairro",
+        "selector": "//div[@id='property-details-tracking']",
+        "type": "attribute",
+        "attribute": "data-neighborhood"
+      },
+      {
+        "name": "cidade",
+        "selector": "//div[@id='property-details-tracking']",
+        "type": "attribute",
+        "attribute": "data-city"
+      },
+      {
+        "name": "piscina",
+        "selector": "//h4[text()='Descrição']/following-sibling::div//p",
+        "type": "regex",
+        "pattern": "(piscina)"
+      },
+      {
+        "name": "churrasqueira",
+        "selector": "//h4[text()='Descrição']/following-sibling::div//p",
+        "type": "regex",
+        "pattern": "(churrasqueira)"
+      },
+      {
+        "name": "academia",
+        "selector": "//h4[text()='Descrição']/following-sibling::div//p",
+        "type": "regex",
+        "pattern": "(academia)"
+      },
+      {
+        "name": "salao_festas",
+        "selector": "//h4[text()='Descrição']/following-sibling::div//p",
+        "type": "regex",
+        "pattern": "(salão de festas)"
+      },
+      {
+        "name": "playground",
+        "selector": "//h4[text()='Descrição']/following-sibling::div//p",
+        "type": "regex",
+        "pattern": "(playground)"
+      },
+      {
+        "name": "sacada",
+        "selector": "//h4[text()='Descrição']/following-sibling::div//p",
+        "type": "regex",
+        "pattern": "(sacada)"
+      },
+      {
+        "name": "mobiliado",
+        "selector": "//h4[text()='Descrição']/following-sibling::div//p",
+        "type": "regex",
+        "pattern": "(mobiliad[oa])"
+      },
+      {
+        "name": "ar_condicionado",
+        "selector": "//h4[text()='Descrição']/following-sibling::div//p",
+        "type": "regex",
+        "pattern": "(ar-condicionado|ar condicionado)"
+      },
+      {
+        "name": "lavanderia",
+        "selector": "//h4[text()='Descrição']/following-sibling::div//p",
+        "type": "regex",
+        "pattern": "(lavanderia|área de serviço)"
+      },
+      {
+        "name": "escritorio",
+        "selector": "//h4[text()='Descrição']/following-sibling::div//p",
+        "type": "regex",
+        "pattern": "(escritório)"
+      },
+      {
+        "name": "closet",
+        "selector": "//h4[text()='Descrição']/following-sibling::div//p",
+        "type": "regex",
+        "pattern": "(closet)"
+      },
+      {
+        "name": "elevador",
+        "selector": "//h4[text()='Descrição']/following-sibling::div//p",
+        "type": "regex",
+        "pattern": "(elevador)"
+      },
+      {
+        "name": "portaria_24h",
+        "selector": "//h4[text()='Descrição']/following-sibling::div//p",
+        "type": "regex",
+        "pattern": "(portaria 24h|portaria 24 horas)"
+      },
+      {
+        "name": "aceita_permuta",
+        "selector": "//h4[text()='Descrição']/following-sibling::div//p",
+        "type": "regex",
+        "pattern": "(permuta)"
+      },
+      {
+        "name": "financiamento",
+        "selector": "//h4[contains(.,'Financiamento Fácil')]",
+        "type": "text"
+      }
+    ]
+  }
+}

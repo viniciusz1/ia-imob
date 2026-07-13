@@ -34,17 +34,23 @@ def llm_config():
 
 
 @pytest.mark.anyio
-async def test_schema_generator_builds_prompt_and_returns_schema(fields, llm_config):
+async def test_schema_generator_builds_prompt_and_returns_schemas(fields, llm_config):
     expected_schema = {"name": "ImovelDetalhes", "baseSelector": "//body", "fields": []}
     fake = FakeSchemaGenerator(expected_schema)
 
     generator = SchemaGenerator(
         llm_config=llm_config, fields=fields, generator=fake.generate
     )
-    schema = await generator.generate("https://example.com/imovel/1")
+    result = await generator.generate("https://example.com/imovel/1")
 
-    assert schema == expected_schema
-    assert fake.calls == [("https://example.com/imovel/1", "XPATH")]
+    assert "metadata" in result
+    assert "schemas" in result
+    assert result["schemas"]["xpath"] == expected_schema
+    assert result["schemas"]["css"] == expected_schema
+    assert fake.calls == [
+        ("https://example.com/imovel/1", "XPATH"),
+        ("https://example.com/imovel/1", "CSS"),
+    ]
 
 
 def test_schema_generator_builds_query_from_fields(fields, llm_config):

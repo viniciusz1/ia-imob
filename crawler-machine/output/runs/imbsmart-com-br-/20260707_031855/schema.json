@@ -1,0 +1,182 @@
+{
+  "metadata": {
+    "sample_url": "https://imbsmart.com.br/apartamento-novo-a-venda-02suite-01dormitorio",
+    "generated_at": "2026-07-07T03:30:01.985417+00:00"
+  },
+  "schema": {
+    "name": "ImovelDetalhes",
+    "baseSelector": "//body",
+    "fields": [
+      {
+        "name": "url",
+        "selector": ".//input[@name='MEN_PAGE']",
+        "type": "attribute",
+        "attribute": "value"
+      },
+      {
+        "name": "imagem",
+        "selector": ".//div[contains(@class,'fotorama')]/div[@data-img][1]",
+        "type": "attribute",
+        "attribute": "data-img"
+      },
+      {
+        "name": "tipo_imovel",
+        "selector": ".//tr[@class='category']/td[@class='Value']",
+        "type": "text"
+      },
+      {
+        "name": "quartos",
+        "selector": ".//tr[@class='bedroom']/td[@class='Value']",
+        "type": "text"
+      },
+      {
+        "name": "sala",
+        "selector": ".//div[contains(@class,'BoxImovelDesc')]//div[@class='TextBox']",
+        "type": "regex",
+        "pattern": "sala"
+      },
+      {
+        "name": "banheiros",
+        "selector": ".//tr[@class='bathroom']/td[@class='Value']",
+        "type": "text"
+      },
+      {
+        "name": "suites",
+        "selector": ".//h1//span[@class='title']",
+        "type": "regex",
+        "pattern": "(\\d+)\\s*[Ss]uíte"
+      },
+      {
+        "name": "vagas",
+        "selector": ".//tr[@class='garage']/td[@class='Value']",
+        "type": "text"
+      },
+      {
+        "name": "ano",
+        "selector": ".//div[contains(@class,'BoxImovelDesc')]//div[@class='TextBox']",
+        "type": "regex",
+        "pattern": "\\b(19|20)\\d{2}\\b"
+      },
+      {
+        "name": "valor",
+        "selector": ".//tr[@class='Venda']//span[contains(@class,'value ')]",
+        "type": "text"
+      },
+      {
+        "name": "area_privada",
+        "selector": ".//tr[contains(@class,'area_private')]/td[@class='Value']",
+        "type": "text"
+      },
+      {
+        "name": "area_util",
+        "selector": ".//tr[contains(@class,'area_useful')]/td[@class='Value']",
+        "type": "text"
+      },
+      {
+        "name": "detalhes",
+        "selector": ".//div[contains(@class,'BoxImovelDesc')]//div[@class='TextBox']",
+        "type": "text"
+      },
+      {
+        "name": "bairro",
+        "selector": ".//tr[td[@class='Label' and normalize-space()='Bairro:']]/td[contains(@class,'Value')]",
+        "type": "text"
+      },
+      {
+        "name": "cidade",
+        "selector": ".//tr[td[@class='Label' and normalize-space()='Cidade:']]/td[contains(@class,'Value')]",
+        "type": "text"
+      },
+      {
+        "name": "piscina",
+        "selector": ".//li[contains(@class,'piscina')]",
+        "type": "attribute",
+        "attribute": "class"
+      },
+      {
+        "name": "churrasqueira",
+        "selector": ".//li[contains(@class,'churrasqueira')]",
+        "type": "attribute",
+        "attribute": "class"
+      },
+      {
+        "name": "academia",
+        "selector": ".//li[contains(@class,'academia') or contains(@class,'fitness')]",
+        "type": "attribute",
+        "attribute": "class"
+      },
+      {
+        "name": "salao_festas",
+        "selector": ".//li[contains(@class,'SalaodeFestas')]",
+        "type": "attribute",
+        "attribute": "class"
+      },
+      {
+        "name": "playground",
+        "selector": ".//li[contains(@class,'playground') or contains(@class,'brinquedoteca')]",
+        "type": "attribute",
+        "attribute": "class"
+      },
+      {
+        "name": "sacada",
+        "selector": ".//li[contains(@class,'Sacada')]",
+        "type": "attribute",
+        "attribute": "class"
+      },
+      {
+        "name": "mobiliado",
+        "selector": ".//div[contains(@class,'BoxImovelDesc')]//div[@class='TextBox']",
+        "type": "regex",
+        "pattern": "mobiliado|mobiliada"
+      },
+      {
+        "name": "ar_condicionado",
+        "selector": ".//div[contains(@class,'BoxImovelDesc')]//div[@class='TextBox']",
+        "type": "regex",
+        "pattern": "ar[\\s-]?condicionado"
+      },
+      {
+        "name": "lavanderia",
+        "selector": ".//div[contains(@class,'BoxImovelDesc')]//div[@class='TextBox']",
+        "type": "regex",
+        "pattern": "área de serviço|lavanderia"
+      },
+      {
+        "name": "escritorio",
+        "selector": ".//div[contains(@class,'BoxImovelDesc')]//div[@class='TextBox']",
+        "type": "regex",
+        "pattern": "escritório|escritorio"
+      },
+      {
+        "name": "closet",
+        "selector": ".//div[contains(@class,'BoxImovelDesc')]//div[@class='TextBox']",
+        "type": "regex",
+        "pattern": "closet"
+      },
+      {
+        "name": "elevador",
+        "selector": ".//li[contains(@class,'Elevador')]",
+        "type": "attribute",
+        "attribute": "class"
+      },
+      {
+        "name": "portaria_24h",
+        "selector": ".//div[contains(@class,'BoxImovelDesc')]//div[@class='TextBox']",
+        "type": "regex",
+        "pattern": "portaria\\s*24\\s*h"
+      },
+      {
+        "name": "aceita_permuta",
+        "selector": ".//div[contains(@class,'BoxImovelDesc')]//div[@class='TextBox']",
+        "type": "regex",
+        "pattern": "permuta"
+      },
+      {
+        "name": "financiamento",
+        "selector": ".//div[contains(@class,'BoxImovelDesc')]//div[@class='TextBox']",
+        "type": "regex",
+        "pattern": "financiamento"
+      }
+    ]
+  }
+}

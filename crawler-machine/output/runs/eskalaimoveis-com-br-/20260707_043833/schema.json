@@ -1,0 +1,174 @@
+{
+  "metadata": {
+    "sample_url": "https://eskalaimoveis.com.br/casa-geminada-2-quartos-tres-rios-do-norte-jaragua-do-sul",
+    "generated_at": "2026-07-07T04:50:17.597159+00:00"
+  },
+  "schema": {
+    "name": "PropertyDetails",
+    "baseSelector": "//body",
+    "fields": [
+      {
+        "name": "url",
+        "selector": ".//input[@name='MEN_PAGE']",
+        "type": "attribute",
+        "attribute": "value"
+      },
+      {
+        "name": "imagem",
+        "selector": ".//div[contains(@class,'BoxGaleriaImovel')]//div[@data-img][1]",
+        "type": "attribute",
+        "attribute": "data-img"
+      },
+      {
+        "name": "tipo_imovel",
+        "selector": ".//tr[@class='category']/td[@class='Value']",
+        "type": "text"
+      },
+      {
+        "name": "quartos",
+        "selector": ".//tr[@class='bedroom']/td[@class='Value']",
+        "type": "text"
+      },
+      {
+        "name": "sala",
+        "selector": ".//tr[@class='room']/td[@class='Value']",
+        "type": "text"
+      },
+      {
+        "name": "banheiros",
+        "selector": ".//tr[@class='bathroom']/td[@class='Value']",
+        "type": "text"
+      },
+      {
+        "name": "suites",
+        "selector": ".//div[contains(@class,'ImovelDesc')]//div[@class='TextBox']",
+        "type": "regex",
+        "pattern": "(\\d+) suíte"
+      },
+      {
+        "name": "vagas",
+        "selector": ".//tr[@class='garage']/td[@class='Value']",
+        "type": "text"
+      },
+      {
+        "name": "valor",
+        "selector": ".//div[contains(@class,'ImovelValor')]//span[contains(@class,'value')]",
+        "type": "text"
+      },
+      {
+        "name": "area_privada",
+        "selector": ".//tr[contains(@class,'area_private')]/td[@class='Value']",
+        "type": "text"
+      },
+      {
+        "name": "area_util",
+        "selector": ".//tr[contains(@class,'area_total')]/td[@class='Value']",
+        "type": "text"
+      },
+      {
+        "name": "detalhes",
+        "selector": ".//div[contains(@class,'ImovelDesc')]//div[@class='TextBox']",
+        "type": "text"
+      },
+      {
+        "name": "bairro",
+        "selector": "//div[contains(@class,'ImovelLocalizacao')]//tr[contains(.,'Bairro')]/td[contains(@class,'Value')]",
+        "type": "text"
+      },
+      {
+        "name": "cidade",
+        "selector": "//div[contains(@class,'ImovelLocalizacao')]//tr[contains(.,'Cidade')]/td[contains(@class,'Value')]",
+        "type": "text"
+      },
+      {
+        "name": "piscina",
+        "selector": ".//div[contains(@class,'ImovelDesc')]//div[@class='TextBox']",
+        "type": "regex",
+        "pattern": "piscina"
+      },
+      {
+        "name": "churrasqueira",
+        "selector": ".//div[contains(@class,'ImovelDesc')]//div[@class='TextBox']",
+        "type": "regex",
+        "pattern": "churrasqueira"
+      },
+      {
+        "name": "academia",
+        "selector": ".//div[contains(@class,'ImovelDesc')]//div[@class='TextBox']",
+        "type": "regex",
+        "pattern": "academia"
+      },
+      {
+        "name": "salao_festas",
+        "selector": ".//div[contains(@class,'ImovelDesc')]//div[@class='TextBox']",
+        "type": "regex",
+        "pattern": "salão de festas"
+      },
+      {
+        "name": "playground",
+        "selector": ".//div[contains(@class,'ImovelDesc')]//div[@class='TextBox']",
+        "type": "regex",
+        "pattern": "playground"
+      },
+      {
+        "name": "sacada",
+        "selector": ".//div[contains(@class,'ImovelDesc')]//div[@class='TextBox']",
+        "type": "regex",
+        "pattern": "sacada"
+      },
+      {
+        "name": "mobiliado",
+        "selector": ".//tr[@class='furnishing']/td[@class='Value']",
+        "type": "text"
+      },
+      {
+        "name": "ar_condicionado",
+        "selector": ".//div[contains(@class,'ImovelDesc')]//div[@class='TextBox']",
+        "type": "regex",
+        "pattern": "ar condicionado"
+      },
+      {
+        "name": "lavanderia",
+        "selector": ".//div[contains(@class,'ImovelDesc')]//div[@class='TextBox']",
+        "type": "regex",
+        "pattern": "lavanderia|área de serviço"
+      },
+      {
+        "name": "escritorio",
+        "selector": ".//div[contains(@class,'ImovelDesc')]//div[@class='TextBox']",
+        "type": "regex",
+        "pattern": "escritório"
+      },
+      {
+        "name": "closet",
+        "selector": ".//div[contains(@class,'ImovelDesc')]//div[@class='TextBox']",
+        "type": "regex",
+        "pattern": "closet"
+      },
+      {
+        "name": "elevador",
+        "selector": ".//div[contains(@class,'ImovelDesc')]//div[@class='TextBox']",
+        "type": "regex",
+        "pattern": "elevador"
+      },
+      {
+        "name": "portaria_24h",
+        "selector": ".//div[contains(@class,'ImovelDesc')]//div[@class='TextBox']",
+        "type": "regex",
+        "pattern": "portaria 24h"
+      },
+      {
+        "name": "aceita_permuta",
+        "selector": ".//div[contains(@class,'ImovelDesc')]//div[@class='TextBox']",
+        "type": "regex",
+        "pattern": "permuta"
+      },
+      {
+        "name": "financiamento",
+        "selector": ".//div[contains(@class,'ImovelDesc')]//div[@class='TextBox']",
+        "type": "regex",
+        "pattern": "financiamento"
+      }
+    ]
+  }
+}

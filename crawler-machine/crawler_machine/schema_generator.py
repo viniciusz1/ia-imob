@@ -4,6 +4,7 @@ import asyncio
 import inspect
 import logging
 import os
+from datetime import datetime, timezone
 from typing import Any, Awaitable, Callable
 
 import litellm
@@ -24,7 +25,7 @@ class SchemaGenerator:
         self,
         llm_config: LLMConfig,
         fields: list[FieldConfig],
-        schema_type: str = "XPATH",
+        schema_type: str = "CSS",
         generator: SchemaGeneratorFunc | None = None,
         verbose: bool = False,
     ):
@@ -42,7 +43,7 @@ class SchemaGenerator:
         return "Extraia: " + ", ".join(field_descriptions)
 
     async def generate(self, sample_url: str) -> dict[str, Any]:
-        """Gera o schema para a URL de exemplo."""
+        """Gera os schemas XPath e CSS para a URL de exemplo."""
         query = self._build_query()
         llm_config = self._build_crawl4ai_llm_config()
 
@@ -51,18 +52,19 @@ class SchemaGenerator:
             litellm.set_verbose = True
             logger.debug("Modo verbose ativado para chamadas LLM.")
 
+        schemas: dict[str, dict[str, Any]] = {}
         try:
-            result = self._generator(
-                url=sample_url,
-                schema_type=self._schema_type,
-                query=query,
-                llm_config=llm_config,
-                validate=True,
-            )
-
-            if inspect.isawaitable(result):
-                return await result
-            return result
+            for schema_type in ("XPATH", "CSS"):
+                result = self._generator(
+                    url=sample_url,
+                    schema_type=schema_type,
+                    query=query,
+                    llm_config=llm_config,
+                    validate=True,
+                )
+                schemas[schema_type.lower()] = (
+                    await result if inspect.isawaitable(result) else result
+                )
         except Exception as exc:
             if self._verbose:
                 logger.error(
@@ -77,6 +79,14 @@ class SchemaGenerator:
             ) from exc
         finally:
             litellm.set_verbose = previous_verbose
+
+        return {
+            "metadata": {
+                "sample_url": sample_url,
+                "generated_at": self._now_iso(),
+            },
+            "schemas": schemas,
+        }
 
     def generate_sync(self, sample_url: str) -> dict[str, Any]:
         """Versão síncrona de ``generate``."""
@@ -97,7 +107,14 @@ class SchemaGenerator:
             provider=self._llm_config.provider,
             api_token=os.environ.get(self._llm_config.api_key_env, ""),
             base_url=self._llm_config.base_url,
+            temperature=0.1,
+            max_tokens=2000,
         )
+
+    @staticmethod
+    def _now_iso() -> str:
+        """Retorna o instante atual no formato ISO 8601 (UTC)."""
+        return datetime.now(timezone.utc).isoformat()
 
     def _default_generate(self, **kwargs: Any) -> dict[str, Any]:
         """Geração real usando Crawl4AI."""

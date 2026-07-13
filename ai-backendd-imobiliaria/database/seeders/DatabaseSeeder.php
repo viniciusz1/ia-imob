@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
             PermissionSeeder::class,
             RoleSeeder::class,
             SystemEnumSeeder::class,
+            CrawlerCatalogSeeder::class,
             FeatureSeeder::class,
             SubscriptionPlanSeeder::class,
             AgencyDemoSeeder::class,
