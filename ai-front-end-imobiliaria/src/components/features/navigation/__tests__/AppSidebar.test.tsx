@@ -123,6 +123,22 @@ describe("AppSidebar", () => {
     expect(screen.queryByRole("link", { name: /plano & assinatura/i })).not.toBeInTheDocument();
   });
 
+  it("shows Mapa de Oferta only for users with market_insights.view permission", () => {
+    setUserPermissions(["market_insights.view"]);
+
+    renderSidebar();
+
+    expect(screen.getByRole("link", { name: /mapa de oferta/i })).toBeInTheDocument();
+  });
+
+  it("hides Mapa de Oferta for users without market_insights.view permission", () => {
+    setUserPermissions(["properties.view"]);
+
+    renderSidebar();
+
+    expect(screen.queryByRole("link", { name: /mapa de oferta/i })).not.toBeInTheDocument();
+  });
+
   it("shows Configurações do site only for users with site_settings.view permission", () => {
     setUserPermissions(["site_settings.view"]);
 

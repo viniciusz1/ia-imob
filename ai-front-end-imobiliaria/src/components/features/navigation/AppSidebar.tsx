@@ -14,6 +14,7 @@ import {
     LayoutDashboard,
     Loader2,
     LogOut,
+    Map,
     ShieldCheck,
     Users,
 } from "lucide-react";
@@ -80,6 +81,12 @@ const navItems: NavItem[] = [
         href: "/avaliacoes",
         icon: Calculator,
         permissions: ["valuations.create", "valuations.view"],
+    },
+    {
+        title: "Mapa de Oferta",
+        href: "/mapa-de-oferta",
+        icon: Map,
+        permissions: ["market_insights.view"],
     },
     {
         title: "Plano & Assinatura",

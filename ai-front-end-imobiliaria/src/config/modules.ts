@@ -4,6 +4,7 @@ import {
   Calculator,
   CreditCard,
   Globe,
+  Map,
   ShieldCheck,
   Users,
   type LucideIcon,
@@ -67,6 +68,17 @@ export const dashboardModules: DashboardModule[] = [
     dashboard: {
       title: "Avaliação de mercado",
       description: "Calcule valores com base em imóveis comparáveis.",
+    },
+  },
+  {
+    id: "offer-map",
+    title: "Mapa de Oferta",
+    href: "/mapa-de-oferta",
+    icon: Map,
+    permissions: ["market_insights.view"],
+    dashboard: {
+      title: "Mapa de Oferta",
+      description: "Visualize a distribuição espacial dos anúncios por bairro.",
     },
   },
   {
