@@ -10,7 +10,7 @@ class CrawlerRun extends Model
 {
     use HasFactory;
 
-    protected $table = 'crawler_runs';
+    protected $table = 'crawler.crawler_runs';
 
     protected $fillable = [
         'source_name',
