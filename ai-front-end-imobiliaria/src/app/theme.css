@@ -1,0 +1,109 @@
+/* ============================================================================
+   THEME — Midnight Galaxy
+   ----------------------------------------------------------------------------
+   SINGLE SOURCE OF TRUTH for the app's colors.
+
+   👉  To switch to a different theme later, edit ONLY the 4 values in the
+       "PALETTE" block below. Every UI color (light + dark) is derived from
+       them with color-mix(), so changing these 4 hexes re-skins the whole app.
+   ============================================================================ */
+
+:root {
+  /* ======================= PALETTE — edit to re-theme ======================= */
+  --brand-darkest: #2b1e3e; /* Deep Purple  — rich dark base    */
+  --brand-mid: #4a4e8f; /* Cosmic Blue  — mystical mid-tone */
+  --brand-accent: #a490c2; /* Lavender     — soft accent       */
+  --brand-lightest: #e6e6fa; /* Silver       — light highlights  */
+  /* ========================================================================== */
+
+  /* Corner rounding (shared by both modes) */
+  --radius: 0.625rem;
+
+  /* ------------------------- LIGHT MODE (derived) --------------------------- */
+  --background: color-mix(in oklab, var(--brand-lightest) 45%, white);
+  --foreground: var(--brand-darkest);
+
+  --card: #ffffff;
+  --card-foreground: var(--brand-darkest);
+
+  --popover: #ffffff;
+  --popover-foreground: var(--brand-darkest);
+
+  --primary: var(--brand-mid);
+  --primary-foreground: var(--brand-lightest);
+
+  --secondary: color-mix(in oklab, var(--brand-lightest) 75%, white);
+  --secondary-foreground: var(--brand-darkest);
+
+  --muted: color-mix(in oklab, var(--brand-lightest) 60%, white);
+  --muted-foreground: color-mix(in oklab, var(--brand-darkest) 58%, white);
+
+  --accent: color-mix(in oklab, var(--brand-accent) 28%, white);
+  --accent-foreground: var(--brand-darkest);
+
+  --destructive: oklch(0.577 0.245 27.325);
+
+  --border: color-mix(in oklab, var(--brand-accent) 34%, white);
+  --input: color-mix(in oklab, var(--brand-accent) 34%, white);
+  --ring: var(--brand-accent);
+
+  --chart-1: var(--brand-mid);
+  --chart-2: var(--brand-accent);
+  --chart-3: color-mix(in oklab, var(--brand-mid) 55%, var(--brand-accent));
+  --chart-4: color-mix(in oklab, var(--brand-accent) 60%, white);
+  --chart-5: color-mix(in oklab, var(--brand-mid) 65%, var(--brand-darkest));
+
+  --sidebar: color-mix(in oklab, var(--brand-lightest) 60%, white);
+  --sidebar-foreground: var(--brand-darkest);
+  --sidebar-primary: var(--brand-mid);
+  --sidebar-primary-foreground: var(--brand-lightest);
+  --sidebar-accent: color-mix(in oklab, var(--brand-accent) 24%, white);
+  --sidebar-accent-foreground: var(--brand-darkest);
+  --sidebar-border: color-mix(in oklab, var(--brand-accent) 34%, white);
+  --sidebar-ring: var(--brand-accent);
+}
+
+.dark {
+  /* ------------------------- DARK MODE (derived) ---------------------------- */
+  --background: var(--brand-darkest);
+  --foreground: var(--brand-lightest);
+
+  --card: color-mix(in oklab, var(--brand-darkest) 82%, var(--brand-mid));
+  --card-foreground: var(--brand-lightest);
+
+  --popover: color-mix(in oklab, var(--brand-darkest) 82%, var(--brand-mid));
+  --popover-foreground: var(--brand-lightest);
+
+  --primary: var(--brand-accent);
+  --primary-foreground: var(--brand-darkest);
+
+  --secondary: color-mix(in oklab, var(--brand-darkest) 62%, var(--brand-mid));
+  --secondary-foreground: var(--brand-lightest);
+
+  --muted: color-mix(in oklab, var(--brand-darkest) 70%, var(--brand-mid));
+  --muted-foreground: color-mix(in oklab, var(--brand-lightest) 62%, var(--brand-mid));
+
+  --accent: color-mix(in oklab, var(--brand-mid) 55%, var(--brand-darkest));
+  --accent-foreground: var(--brand-lightest);
+
+  --destructive: oklch(0.704 0.191 22.216);
+
+  --border: color-mix(in oklab, var(--brand-lightest) 14%, transparent);
+  --input: color-mix(in oklab, var(--brand-lightest) 18%, transparent);
+  --ring: var(--brand-accent);
+
+  --chart-1: var(--brand-accent);
+  --chart-2: var(--brand-mid);
+  --chart-3: color-mix(in oklab, var(--brand-accent) 55%, var(--brand-mid));
+  --chart-4: color-mix(in oklab, var(--brand-accent) 70%, white);
+  --chart-5: color-mix(in oklab, var(--brand-mid) 60%, var(--brand-lightest));
+
+  --sidebar: color-mix(in oklab, var(--brand-darkest) 88%, var(--brand-mid));
+  --sidebar-foreground: var(--brand-lightest);
+  --sidebar-primary: var(--brand-accent);
+  --sidebar-primary-foreground: var(--brand-darkest);
+  --sidebar-accent: color-mix(in oklab, var(--brand-mid) 55%, var(--brand-darkest));
+  --sidebar-accent-foreground: var(--brand-lightest);
+  --sidebar-border: color-mix(in oklab, var(--brand-lightest) 14%, transparent);
+  --sidebar-ring: var(--brand-accent);
+}

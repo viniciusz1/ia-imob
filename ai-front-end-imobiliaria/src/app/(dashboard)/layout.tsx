@@ -2,6 +2,7 @@ import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/s
 import { AppSidebar } from "@/components/features/navigation/AppSidebar";
 import { UserNav } from "@/components/features/auth/UserNav";
 import { Separator } from "@/components/ui/separator";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function DashboardLayout({
     children,
@@ -21,6 +22,7 @@ export default function DashboardLayout({
                         />
                     </div>
                     <div className="ml-auto flex items-center gap-2">
+                        <ThemeToggle />
                         <UserNav />
                     </div>
                 </header>
