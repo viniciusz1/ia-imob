@@ -31,6 +31,7 @@ class PermissionSeeder extends Seeder
             'subscriptions.manage',
             'valuations.create',
             'valuations.view',
+            'market_insights.view',
         ];
 
         foreach ($permissions as $permissionName) {

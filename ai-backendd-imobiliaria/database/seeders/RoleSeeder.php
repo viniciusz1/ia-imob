@@ -53,6 +53,7 @@ class RoleSeeder extends Seeder
             'users.edit.self',
             'valuations.create',
             'valuations.view',
+            'market_insights.view',
         ];
 
         $permissions = Permission::query()

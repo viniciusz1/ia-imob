@@ -17,5 +17,6 @@ class PermissionSeederTest extends TestCase
 
         $this->assertTrue(Permission::where('name', 'valuations.create')->exists());
         $this->assertTrue(Permission::where('name', 'valuations.view')->exists());
+        $this->assertTrue(Permission::where('name', 'market_insights.view')->exists());
     }
 }

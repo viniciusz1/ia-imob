@@ -8,6 +8,8 @@ return new class extends Migration
 {
     public function up(): void
     {
+        Schema::dropIfExists('crawler.prospects');
+
         Schema::create('crawler.prospects', function (Blueprint $table) {
             $table->id();
             $table->string('root_domain')->unique();

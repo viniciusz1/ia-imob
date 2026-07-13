@@ -47,6 +47,7 @@ class RoleSeederTest extends TestCase
             'users.edit.self',
             'valuations.create',
             'valuations.view',
+            'market_insights.view',
         ];
 
         foreach ($expectedPermissions as $permissionName) {
