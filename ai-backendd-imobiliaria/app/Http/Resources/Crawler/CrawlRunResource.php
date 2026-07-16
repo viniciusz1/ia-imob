@@ -21,6 +21,7 @@ class CrawlRunResource extends JsonResource
             'result_kind' => $this->result_kind,
             'publication_state' => $this->publication_state,
             'publishable' => $this->publishable,
+            'quality_report' => $this->whenLoaded('qualityReport', fn () => new QualityGateReportResource($this->qualityReport)),
             'counts' => [
                 'raw' => $this->raw_count,
                 'normalized' => $this->normalized_count,
@@ -30,6 +31,8 @@ class CrawlRunResource extends JsonResource
             'error_summary' => $this->error_summary,
             'started_at' => $this->started_at,
             'completed_at' => $this->completed_at,
+            'published_at' => $this->published_at,
+            'quarantined_at' => $this->quarantined_at,
             'created_at' => $this->created_at,
         ];
     }

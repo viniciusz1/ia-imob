@@ -26,6 +26,15 @@ export default async function CrawlRunPage({ params }: CrawlRunPageProps) {
         <Badge variant={run.result_kind === "partial" ? "destructive" : "secondary"}>{run.result_kind === "partial" ? "Resultado parcial · não publicável" : run.publication_state}</Badge>
       </div>
       <Card>
+        <CardHeader><CardTitle>Evidências de qualidade</CardTitle></CardHeader>
+        <CardContent className="space-y-2">
+          <p>Contrato v{run.market_data_contract_version_id} · Política v{run.quality_policy_version_id}</p>
+          {run.quality_report?.blockers.map((blocker) => <p className="text-destructive" key={blocker}>{blocker}</p>)}
+          {run.quality_report?.warnings.map((warning) => <p className="text-amber-700" key={warning}>{warning}</p>)}
+          {!run.quality_report && <p className="text-muted-foreground">Aguardando avaliação do portão de qualidade.</p>}
+        </CardContent>
+      </Card>
+      <Card>
         <CardHeader><CardTitle>Dados persistidos</CardTitle></CardHeader>
         <CardContent><CrawlRunDataTable initialPage={initialPage} runId={run.id} /></CardContent>
       </Card>

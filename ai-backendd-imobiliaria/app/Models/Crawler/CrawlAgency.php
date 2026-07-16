@@ -19,6 +19,7 @@ class CrawlAgency extends Model
         'lifecycle_state',
         'health_state',
         'revalidation_required',
+        'current_published_crawl_run_id',
     ];
 
     protected function casts(): array

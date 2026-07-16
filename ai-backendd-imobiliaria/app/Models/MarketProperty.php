@@ -93,7 +93,13 @@ class MarketProperty extends Model
     {
         return $query->whereHas('crawlerRun', function ($q) {
             $q->where('technical_state', 'succeeded')
-                ->where('publication_state', 'published');
+                ->where('publication_state', 'published')
+                ->whereExists(function ($currentAgency): void {
+                    $currentAgency->selectRaw('1')
+                        ->from('crawler.crawl_agencies as current_agency')
+                        ->whereColumn('current_agency.id', 'crawler.crawl_runs.crawl_agency_id')
+                        ->whereColumn('current_agency.current_published_crawl_run_id', 'crawler.crawl_runs.id');
+                });
         });
     }
 

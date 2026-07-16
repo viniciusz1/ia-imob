@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class CrawlerRun extends Model
 {
@@ -25,6 +26,8 @@ class CrawlerRun extends Model
         'publishable',
         'started_at',
         'completed_at',
+        'published_at',
+        'quarantined_at',
         'raw_count',
         'normalized_count',
         'rejected_count',
@@ -37,6 +40,8 @@ class CrawlerRun extends Model
         return [
             'started_at' => 'datetime',
             'completed_at' => 'datetime',
+            'published_at' => 'datetime',
+            'quarantined_at' => 'datetime',
             'publishable' => 'boolean',
             'raw_count' => 'integer',
             'normalized_count' => 'integer',
@@ -49,5 +54,10 @@ class CrawlerRun extends Model
     public function marketProperties(): HasMany
     {
         return $this->hasMany(MarketProperty::class);
+    }
+
+    public function qualityReport(): HasOne
+    {
+        return $this->hasOne(\App\Models\Crawler\QualityGateReport::class, 'crawl_run_id');
     }
 }

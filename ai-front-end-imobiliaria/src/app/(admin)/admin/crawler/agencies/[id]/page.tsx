@@ -7,6 +7,8 @@ import { listDiscoverySnapshots, listExtractionProfiles, listMarketDataContracts
 import { ExtractionProfileGenerator } from "@/components/features/crawler/profiles/ExtractionProfileGenerator";
 import { ProfileValidationPanel } from "@/components/features/crawler/profiles/ProfileValidationPanel";
 import { ProductionCrawlPanel } from "@/components/features/crawler/runs/ProductionCrawlPanel";
+import { CrawlRunSnapshotsPanel } from "@/components/features/crawler/runs/CrawlRunSnapshotsPanel";
+import { listCrawlRuns } from "@/services/crawlerService";
 
 const sections = [
   "Resumo",
@@ -25,11 +27,12 @@ interface CrawlAgencyDetailPageProps {
 export default async function CrawlAgencyDetailPage({ params }: CrawlAgencyDetailPageProps) {
   const { id } = await params;
   const agencyId = Number(id);
-  const [agency, snapshots, profiles, contracts] = await Promise.all([
+  const [agency, snapshots, profiles, contracts, runs] = await Promise.all([
     getCrawlAgency(agencyId),
     listDiscoverySnapshots(agencyId),
     listExtractionProfiles(agencyId),
     listMarketDataContracts(),
+    listCrawlRuns(agencyId),
   ]);
 
   return (
@@ -69,6 +72,10 @@ export default async function CrawlAgencyDetailPage({ params }: CrawlAgencyDetai
       <Card id="operações">
         <CardHeader><CardTitle>Novo crawl de produção</CardTitle></CardHeader>
         <CardContent><ProductionCrawlPanel agencyId={agency.id} profiles={profiles} snapshots={snapshots} /></CardContent>
+      </Card>
+      <Card id="snapshots">
+        <CardHeader><CardTitle>Snapshots e qualidade</CardTitle></CardHeader>
+        <CardContent><CrawlRunSnapshotsPanel runs={runs} /></CardContent>
       </Card>
     </section>
   );

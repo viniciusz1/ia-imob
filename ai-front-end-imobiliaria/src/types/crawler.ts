@@ -10,6 +10,7 @@ export interface CrawlAgency {
   lifecycle_state: CrawlAgencyLifecycle;
   health_state: CrawlAgencyHealth;
   revalidation_required: boolean;
+  current_published_crawl_run_id: number | null;
   created_at: string;
   updated_at: string;
 }
@@ -170,11 +171,25 @@ export interface CrawlRun {
   result_kind: "full" | "partial";
   publication_state: "candidate" | "quarantined" | "published";
   publishable: boolean;
+  quality_report: QualityGateReport | null;
   counts: { raw: number; normalized: number; rejected: number; errors: number };
   error_summary: Array<Record<string, unknown>>;
   started_at: string;
   completed_at: string | null;
+  published_at: string | null;
+  quarantined_at: string | null;
   created_at: string;
+}
+
+export interface QualityGateReport {
+  id: number;
+  verdict: "approved" | "blocked";
+  blockers: string[];
+  warnings: string[];
+  evidence: Record<string, number>;
+  market_data_contract_version_id: number;
+  quality_policy_version_id: number;
+  evaluated_at: string;
 }
 
 export interface CrawlRunRecord {

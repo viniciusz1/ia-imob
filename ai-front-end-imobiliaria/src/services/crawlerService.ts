@@ -176,6 +176,11 @@ export async function getCrawlRun(id: number): Promise<CrawlRun> {
   return response.data.data;
 }
 
+export async function listCrawlRuns(agencyId: number): Promise<CrawlRun[]> {
+  const response = await api.get<Resource<CrawlRun[]>>(`${BASE}/crawl-agencies/${agencyId}/crawl-runs`);
+  return response.data.data;
+}
+
 export async function listCrawlRunRecords(
   runId: number,
   params: { view: "normalized" | "raw" | "rejected"; search?: string; sort?: string; page?: number; per_page?: number },

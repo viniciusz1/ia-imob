@@ -69,6 +69,7 @@ Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.view
         Route::get('/crawl-agencies/{crawlAgency}/extraction-profiles', [ExtractionProfileController::class, 'index']);
         Route::get('/profile-validation-reports/{profileValidationReport}', [ProfileValidationController::class, 'show']);
         Route::get('/crawl-runs/{crawlRun}', [CrawlRunController::class, 'show']);
+        Route::get('/crawl-agencies/{crawlAgency}/crawl-runs', [CrawlRunController::class, 'index']);
         Route::get('/crawl-runs/{crawlRun}/records', [CrawlRunRecordController::class, 'index']);
         Route::get('/operation-groups/{operationGroup}', [OperationGroupController::class, 'show']);
     });
