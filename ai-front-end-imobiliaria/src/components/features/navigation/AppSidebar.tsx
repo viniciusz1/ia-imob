@@ -14,6 +14,7 @@ import {
     LayoutDashboard,
     Loader2,
     LogOut,
+    Radar,
     ShieldCheck,
     Users,
 } from "lucide-react";
@@ -80,6 +81,12 @@ const navItems = [
         title: "Configurações do site",
         href: "/configuracoes-do-site",
         icon: Globe,
+    },
+    {
+        title: "Operações do Crawler",
+        href: "/admin/crawler",
+        icon: Radar,
+        permissions: ["crawler.view"],
     },
 ];
 

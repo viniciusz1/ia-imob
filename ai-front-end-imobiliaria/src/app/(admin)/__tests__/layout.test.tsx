@@ -18,11 +18,12 @@ function axiosResponse<T>(data: T): AxiosResponse<T> {
 
 const mocks = vi.hoisted(() => ({
     replace: vi.fn(),
+    pathname: "/admin/agencies",
 }));
 
 vi.mock("next/navigation", () => ({
     useRouter: () => ({ replace: mocks.replace }),
-    usePathname: () => "/admin/agencies",
+    usePathname: () => mocks.pathname,
 }));
 
 vi.mock("@/services/authService", () => ({
@@ -48,6 +49,7 @@ describe("AdminLayout auth guard", () => {
         useAuthStore.getState().clearAuth();
         mocks.replace.mockClear();
         document.cookie = "ia_imob_authenticated=1; path=/";
+        mocks.pathname = "/admin/agencies";
     });
 
     afterEach(() => {
@@ -68,6 +70,26 @@ describe("AdminLayout auth guard", () => {
         renderAdmin();
 
         expect(screen.getByText(/carregando/i)).toBeInTheDocument();
+
+        await waitFor(() => {
+            expect(screen.getByTestId("admin-content")).toBeInTheDocument();
+        });
+
+        expect(mocks.replace).not.toHaveBeenCalled();
+    });
+
+    it("shows crawler admin content with crawler view permission", async () => {
+        mocks.pathname = "/admin/crawler";
+        vi.mocked(authService.getUser).mockResolvedValueOnce(
+            axiosResponse({
+                id: 1,
+                name: "Crawler Operator",
+                email: "crawler@example.com",
+                permissions: ["crawler.view"],
+            }),
+        );
+
+        renderAdmin();
 
         await waitFor(() => {
             expect(screen.getByTestId("admin-content")).toBeInTheDocument();

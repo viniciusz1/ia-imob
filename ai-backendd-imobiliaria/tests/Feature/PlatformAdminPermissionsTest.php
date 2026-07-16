@@ -40,6 +40,35 @@ class PlatformAdminPermissionsTest extends TestCase
         }
     }
 
+    public function test_crawler_operator_permissions_exist_and_belong_to_platform_admin(): void
+    {
+        $expected = [
+            'crawler.view',
+            'crawler.prospects.manage',
+            'crawler.agencies.manage',
+            'crawler.operations.execute',
+            'crawler.operations.cancel',
+            'crawler.profiles.approve',
+            'crawler.agencies.activate',
+            'crawler.snapshots.publish_exceptionally',
+            'crawler.policies.manage',
+            'crawler.schedules.manage',
+        ];
+
+        $role = Role::query()
+            ->where('name', 'Platform Admin')
+            ->where('guard_name', $this->guard)
+            ->firstOrFail();
+
+        foreach ($expected as $name) {
+            $this->assertDatabaseHas('permissions', [
+                'name' => $name,
+                'guard_name' => $this->guard,
+            ]);
+            $this->assertTrue($role->hasPermissionTo($name));
+        }
+    }
+
     public function test_platform_admin_role_exists_with_platform_permissions(): void
     {
         $role = Role::where('name', 'Platform Admin')

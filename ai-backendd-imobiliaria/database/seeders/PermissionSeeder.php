@@ -31,6 +31,20 @@ class PermissionSeeder extends Seeder
             'subscriptions.manage',
             'valuations.create',
             'valuations.view',
+            'platform.agencies.view',
+            'platform.agencies.create',
+            'platform.agencies.update',
+            'platform.agencies.deactivate',
+            'crawler.view',
+            'crawler.prospects.manage',
+            'crawler.agencies.manage',
+            'crawler.operations.execute',
+            'crawler.operations.cancel',
+            'crawler.profiles.approve',
+            'crawler.agencies.activate',
+            'crawler.snapshots.publish_exceptionally',
+            'crawler.policies.manage',
+            'crawler.schedules.manage',
         ];
 
         foreach ($permissions as $permissionName) {

@@ -65,4 +65,19 @@ describe("AppSidebar", () => {
 
     expect(screen.queryByRole("link", { name: /avaliar imóvel/i })).not.toBeInTheDocument();
   });
+
+  it("shows Operações do Crawler only with crawler view permission", () => {
+    useAuthStore.getState().setUser({
+      id: 1,
+      name: "Platform Admin",
+      email: "platform@example.com",
+      permissions: ["crawler.view"],
+    });
+
+    renderSidebar();
+
+    expect(
+      screen.getByRole("link", { name: /operações do crawler/i }),
+    ).toHaveAttribute("href", "/admin/crawler");
+  });
 });

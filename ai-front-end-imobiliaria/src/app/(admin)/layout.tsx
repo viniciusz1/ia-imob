@@ -1,14 +1,12 @@
 "use client";
 
 import { useAuthStore } from "@/store/useAuthStore";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { authService } from "@/services/authService";
 import { clearAuthenticatedSession } from "@/services/authSessionCookie";
 import { hasPermission } from "@/lib/permissions";
-
-const PLATFORM_PERMISSION = "platform.agencies.view";
 
 function hasSessionCookie(): boolean {
     if (typeof document === "undefined") return false;
@@ -19,6 +17,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     const user = useAuthStore((state) => state.user);
     const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
     const router = useRouter();
+    const pathname = usePathname();
+    const requiredPermission = pathname.startsWith("/admin/crawler")
+        ? "crawler.view"
+        : "platform.agencies.view";
     const [isChecking, setIsChecking] = useState(() => {
         if (typeof document === "undefined") return true;
         return !useAuthStore.getState().isAuthenticated && hasSessionCookie();
@@ -49,10 +51,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         }
 
         const perms = Array.isArray(user?.permissions) ? user.permissions : null;
-        if (!hasPermission(perms, PLATFORM_PERMISSION)) {
+        if (!hasPermission(perms, requiredPermission)) {
             router.replace("/");
         }
-    }, [isChecking, isAuthenticated, user, router]);
+    }, [isChecking, isAuthenticated, user, router, requiredPermission]);
 
     if (isChecking) {
         return (
@@ -64,7 +66,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
     if (!isAuthenticated) return null;
     const perms = Array.isArray(user?.permissions) ? user.permissions : null;
-    if (!hasPermission(perms, PLATFORM_PERMISSION)) return null;
+    if (!hasPermission(perms, requiredPermission)) return null;
 
     return (
         <div className="min-h-screen bg-background">

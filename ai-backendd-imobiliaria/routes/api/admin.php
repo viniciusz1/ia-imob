@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Api\AdminAgencyController;
 use App\Http\Controllers\Api\AdminController;
+use App\Http\Controllers\Api\Crawler\CrawlerOverviewController;
+use App\Http\Middleware\EnsurePlatformAdmin;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -37,3 +39,9 @@ Route::middleware(['auth:sanctum', 'can:platform.agencies.deactivate'])->group(f
     Route::post('/agencies/{agency}/deactivate', [AdminAgencyController::class, 'deactivate']);
     Route::post('/agencies/{agency}/activate', [AdminAgencyController::class, 'activate']);
 });
+
+Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.view'])
+    ->prefix('crawler')
+    ->group(function () {
+        Route::get('/overview', CrawlerOverviewController::class);
+    });
