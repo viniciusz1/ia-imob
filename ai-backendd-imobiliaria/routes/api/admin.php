@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AdminAgencyController;
 use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\Crawler\CrawlerOverviewController;
+use App\Http\Controllers\Api\Crawler\CrawlAgencyController;
 use App\Http\Middleware\EnsurePlatformAdmin;
 use Illuminate\Support\Facades\Route;
 
@@ -44,4 +45,14 @@ Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.view
     ->prefix('crawler')
     ->group(function () {
         Route::get('/overview', CrawlerOverviewController::class);
+        Route::get('/crawl-agencies', [CrawlAgencyController::class, 'index']);
+        Route::get('/crawl-agencies/{crawlAgency}', [CrawlAgencyController::class, 'show']);
+    });
+
+Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.agencies.manage'])
+    ->prefix('crawler')
+    ->group(function () {
+        Route::post('/crawl-agencies', [CrawlAgencyController::class, 'store']);
+        Route::put('/crawl-agencies/{crawlAgency}', [CrawlAgencyController::class, 'update']);
+        Route::patch('/crawl-agencies/{crawlAgency}/lifecycle', [CrawlAgencyController::class, 'transition']);
     });

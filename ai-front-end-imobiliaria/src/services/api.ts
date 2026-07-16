@@ -41,14 +41,14 @@ api.interceptors.request.use(async (config) => {
             const cookieStore = await cookies();
             const cookieString = cookieStore
                 .getAll()
-                .map((cookie: any) => `${cookie.name}=${cookie.value}`)
+                .map((cookie) => `${cookie.name}=${cookie.value}`)
                 .join("; ");
             if (cookieString) {
                 config.headers.Cookie = cookieString;
                 // Sanctum requires Referer or Origin to treat the request as stateful:
                 config.headers.Referer = "http://localhost:3000";
             }
-        } catch (error) {
+        } catch {
             // Ignorado, apenas significa que não estamos num contexto Next SSR
         }
     } else {
