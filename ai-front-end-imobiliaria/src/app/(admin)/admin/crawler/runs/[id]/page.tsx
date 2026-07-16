@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CrawlRunDataTable } from "@/components/features/crawler/runs/CrawlRunDataTable";
 import { getCrawlRun, listCrawlRunRecords } from "@/services/crawlerService";
+import { ExceptionalPublicationPanel } from "@/components/features/crawler/runs/ExceptionalPublicationPanel";
 
 interface CrawlRunPageProps {
   params: Promise<{ id: string }>;
@@ -34,6 +35,7 @@ export default async function CrawlRunPage({ params }: CrawlRunPageProps) {
           {!run.quality_report && <p className="text-muted-foreground">Aguardando avaliação do portão de qualidade.</p>}
         </CardContent>
       </Card>
+      <ExceptionalPublicationPanel initialRun={run} />
       <Card>
         <CardHeader><CardTitle>Dados persistidos</CardTitle></CardHeader>
         <CardContent><CrawlRunDataTable initialPage={initialPage} runId={run.id} /></CardContent>

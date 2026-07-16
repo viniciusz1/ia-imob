@@ -14,6 +14,7 @@ import type {
   PaginatedCrawlRunRecords,
   OperationGroup,
   WorkerInstance,
+  QualityPolicy,
 } from "@/types/crawler";
 
 const BASE = `${API_PREFIX}/admin/crawler`;
@@ -178,6 +179,35 @@ export async function getCrawlRun(id: number): Promise<CrawlRun> {
 
 export async function listCrawlRuns(agencyId: number): Promise<CrawlRun[]> {
   const response = await api.get<Resource<CrawlRun[]>>(`${BASE}/crawl-agencies/${agencyId}/crawl-runs`);
+  return response.data.data;
+}
+
+export async function listQualityPolicies(): Promise<QualityPolicy[]> {
+  const response = await api.get<Resource<QualityPolicy[]>>(`${BASE}/quality-policies`);
+  return response.data.data;
+}
+
+export async function createQualityPolicy(rules: QualityPolicy["rules"]): Promise<QualityPolicy> {
+  const response = await api.post<Resource<QualityPolicy>>(`${BASE}/quality-policies`, { rules });
+  return response.data.data;
+}
+
+export async function validateQualityPolicy(id: number): Promise<QualityPolicy> {
+  const response = await api.post<Resource<QualityPolicy>>(`${BASE}/quality-policies/${id}/validate`);
+  return response.data.data;
+}
+
+export async function activateQualityPolicy(id: number): Promise<QualityPolicy> {
+  const response = await api.post<Resource<QualityPolicy>>(`${BASE}/quality-policies/${id}/activate`);
+  return response.data.data;
+}
+
+export async function createQualityException(reportId: number, reason: string): Promise<void> {
+  await api.post(`${BASE}/quality-reports/${reportId}/exceptions`, { reason });
+}
+
+export async function publishCrawlRunExceptionally(runId: number, reason: string): Promise<CrawlRun> {
+  const response = await api.post<Resource<CrawlRun>>(`${BASE}/crawl-runs/${runId}/exceptional-publication`, { reason });
   return response.data.data;
 }
 

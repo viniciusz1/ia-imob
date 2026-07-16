@@ -22,6 +22,11 @@ class CrawlRunResource extends JsonResource
             'publication_state' => $this->publication_state,
             'publishable' => $this->publishable,
             'quality_report' => $this->whenLoaded('qualityReport', fn () => new QualityGateReportResource($this->qualityReport)),
+            'exceptional_publication' => $this->whenLoaded('exceptionalPublication', fn () => [
+                'published_by' => $this->exceptionalPublication->published_by,
+                'reason' => $this->exceptionalPublication->reason,
+                'published_at' => $this->exceptionalPublication->published_at,
+            ]),
             'counts' => [
                 'raw' => $this->raw_count,
                 'normalized' => $this->normalized_count,

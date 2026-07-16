@@ -172,6 +172,7 @@ export interface CrawlRun {
   publication_state: "candidate" | "quarantined" | "published";
   publishable: boolean;
   quality_report: QualityGateReport | null;
+  exceptional_publication: { published_by: number; reason: string; published_at: string } | null;
   counts: { raw: number; normalized: number; rejected: number; errors: number };
   error_summary: Array<Record<string, unknown>>;
   started_at: string;
@@ -186,10 +187,25 @@ export interface QualityGateReport {
   verdict: "approved" | "blocked";
   blockers: string[];
   warnings: string[];
-  evidence: Record<string, number>;
+  evidence: Record<string, unknown>;
   market_data_contract_version_id: number;
   quality_policy_version_id: number;
   evaluated_at: string;
+}
+
+export interface QualityPolicy {
+  id: number;
+  version: number;
+  status: "draft" | "validating" | "active";
+  rules: {
+    maximum_stock_drop_ratio: number;
+    maximum_error_ratio: number;
+    maximum_rejection_ratio: number;
+  };
+  created_by: number | null;
+  activated_by: number | null;
+  activated_at: string | null;
+  created_at: string;
 }
 
 export interface CrawlRunRecord {

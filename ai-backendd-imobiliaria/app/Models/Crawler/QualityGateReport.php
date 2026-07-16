@@ -3,6 +3,7 @@
 namespace App\Models\Crawler;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class QualityGateReport extends Model
 {
@@ -33,5 +34,10 @@ class QualityGateReport extends Model
     {
         static::updating(fn () => throw new \LogicException('Quality gate reports are immutable.'));
         static::deleting(fn () => throw new \LogicException('Quality gate reports are immutable.'));
+    }
+
+    public function crawlRun(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\CrawlerRun::class, 'crawl_run_id');
     }
 }

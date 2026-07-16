@@ -60,4 +60,9 @@ class CrawlerRun extends Model
     {
         return $this->hasOne(\App\Models\Crawler\QualityGateReport::class, 'crawl_run_id');
     }
+
+    public function exceptionalPublication(): HasOne
+    {
+        return $this->hasOne(\App\Models\Crawler\ExceptionalPublication::class, 'crawl_run_id');
+    }
 }

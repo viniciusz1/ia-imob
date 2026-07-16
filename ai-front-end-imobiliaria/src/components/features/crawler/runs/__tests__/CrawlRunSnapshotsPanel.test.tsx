@@ -27,6 +27,7 @@ const run = (id: number, state: CrawlRun["publication_state"], blockers: string[
     quality_policy_version_id: 1,
     evaluated_at: "2026-07-15T12:00:00Z",
   },
+  exceptional_publication: null,
   counts: { raw: 10, normalized: 8, rejected: 2, errors: 0 },
   error_summary: [],
   published_at: state === "published" ? "2026-07-15T12:00:00Z" : null,

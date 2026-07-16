@@ -15,7 +15,7 @@ class CrawlRunController extends Controller
         return CrawlRunResource::collection(
             CrawlerRun::query()
                 ->where('crawl_agency_id', $crawlAgency->id)
-                ->with('qualityReport')
+                ->with(['qualityReport', 'exceptionalPublication'])
                 ->latest('id')
                 ->get()
         );
@@ -23,6 +23,6 @@ class CrawlRunController extends Controller
 
     public function show(CrawlerRun $crawlRun): CrawlRunResource
     {
-        return new CrawlRunResource($crawlRun->load('qualityReport'));
+        return new CrawlRunResource($crawlRun->load(['qualityReport', 'exceptionalPublication']));
     }
 }

@@ -51,7 +51,7 @@ class ProductionCrawlService
                 'extraction_profile_id' => 'The selected profile does not target the active Market Data Contract.',
             ]);
         }
-        $policy = QualityPolicyVersion::query()->where('status', 'active')->firstOrFail();
+        $policy = QualityPolicyVersion::query()->where('status', 'active')->latest('version')->firstOrFail();
         $discovery = $snapshot === null
             ? ['mode' => 'fresh', 'base_url' => $agency->base_url]
             : [
