@@ -13,7 +13,7 @@ use Illuminate\Validation\ValidationException;
 
 class ProspectingService
 {
-    public function queue(string $city, string $state, User $user): CrawlerOperation
+    public function queue(string $city, string $state, User $user, bool $requeryKnownDomains = false): CrawlerOperation
     {
         return CrawlerOperation::query()->create([
             'type' => 'prospecting',
@@ -25,9 +25,54 @@ class ProspectingService
                 'city' => trim($city),
                 'state' => strtoupper($state),
                 'max_results' => 30,
-                'requery_known_domains' => false,
+                'requery_known_domains' => $requeryKnownDomains,
             ],
         ])->refresh();
+    }
+
+    public function preview(array $cities): array
+    {
+        $prospects = Prospect::query()->where(function ($query) use ($cities): void {
+            foreach ($cities as $city) {
+                $query->orWhere(function ($query) use ($city): void {
+                    $query->where('city', trim($city['city']))
+                        ->where('state', strtoupper($city['state']));
+                });
+            }
+        })->whereNotNull('root_domain')->count();
+
+        return [
+            'known_prospect_count' => $prospects,
+            'known_crawl_agency_count' => CrawlAgency::query()->count(),
+            'total' => $prospects + CrawlAgency::query()->count(),
+        ];
+    }
+
+    public function queueGroup(
+        string $name,
+        array $cities,
+        bool $requeryKnownDomains,
+        ?int $confirmedKnownDomainCount,
+        User $user,
+        CrawlerOperationControlService $control,
+    ): \App\Models\Crawler\OperationGroup {
+        $preview = $this->preview($cities);
+        if ($requeryKnownDomains && $confirmedKnownDomainCount !== $preview['total']) {
+            throw ValidationException::withMessages([
+                'confirmed_known_domain_count' => 'Preview the known domains and confirm the current affected count.',
+            ]);
+        }
+
+        return DB::transaction(function () use ($cities, $control, $name, $requeryKnownDomains, $user) {
+            $operations = collect($cities)->map(fn (array $city) => $this->queue(
+                $city['city'],
+                $city['state'],
+                $user,
+                $requeryKnownDomains,
+            ));
+
+            return $control->createGroup($name, $operations->pluck('id')->all(), $user, 'prospecting');
+        });
     }
 
     public function decide(Prospect $prospect, string $decision, string $reason, User $user): Prospect

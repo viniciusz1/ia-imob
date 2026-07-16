@@ -17,6 +17,7 @@ import type {
   QualityPolicy,
   Prospect,
   ProspectPromotion,
+  CrawlAgencySuggestion,
 } from "@/types/crawler";
 
 const BASE = `${API_PREFIX}/admin/crawler`;
@@ -223,8 +224,36 @@ export async function listProspects(params: {
   return response.data.data;
 }
 
+export async function listCrawlAgencySuggestions(): Promise<CrawlAgencySuggestion[]> {
+  const response = await api.get<Resource<CrawlAgencySuggestion[]>>(`${BASE}/crawl-agency-suggestions`, { params: { state: "pending" } });
+  return response.data.data;
+}
+
 export async function queueProspectingOperation(city: string, state: string): Promise<CrawlerOperation> {
   const response = await api.post<Resource<CrawlerOperation>>(`${BASE}/prospecting-operations`, { city, state });
+  return response.data.data;
+}
+
+export interface ProspectingCityInput { city: string; state: string }
+
+export interface ProspectingRequeryPreview {
+  known_prospect_count: number;
+  known_crawl_agency_count: number;
+  total: number;
+}
+
+export async function previewProspectingRequery(cities: ProspectingCityInput[]): Promise<ProspectingRequeryPreview> {
+  const response = await api.post<Resource<ProspectingRequeryPreview>>(`${BASE}/prospecting-requery-preview`, { cities });
+  return response.data.data;
+}
+
+export async function queueProspectingGroup(payload: {
+  name: string;
+  cities: ProspectingCityInput[];
+  requery_known_domains: boolean;
+  confirmed_known_domain_count?: number;
+}): Promise<OperationGroup> {
+  const response = await api.post<Resource<OperationGroup>>(`${BASE}/prospecting-operation-groups`, payload);
   return response.data.data;
 }
 

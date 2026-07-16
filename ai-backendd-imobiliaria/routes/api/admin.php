@@ -77,6 +77,7 @@ Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.view
         Route::get('/operation-groups/{operationGroup}', [OperationGroupController::class, 'show']);
         Route::get('/quality-policies', [QualityPolicyController::class, 'index']);
         Route::get('/prospects', [ProspectController::class, 'index']);
+        Route::get('/crawl-agency-suggestions', [ProspectController::class, 'suggestions']);
     });
 
 Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.operations.execute'])
@@ -109,6 +110,8 @@ Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.pros
     ->prefix('crawler')
     ->group(function () {
         Route::post('/prospecting-operations', [ProspectController::class, 'queue']);
+        Route::post('/prospecting-requery-preview', [ProspectController::class, 'preview']);
+        Route::post('/prospecting-operation-groups', [ProspectController::class, 'queueGroup']);
         Route::post('/prospects/{prospect}/decision', [ProspectController::class, 'decide']);
         Route::post('/prospects/{prospect}/promote', [ProspectController::class, 'promote']);
     });

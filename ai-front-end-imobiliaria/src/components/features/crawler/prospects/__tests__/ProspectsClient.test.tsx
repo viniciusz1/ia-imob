@@ -5,7 +5,14 @@ import { ProspectsClient } from "../ProspectsClient";
 
 describe("ProspectsClient", () => {
   it("queues a city and exposes automatic evidence and human review actions", () => {
-    render(<ProspectsClient initialProspects={[{
+    render(<ProspectsClient initialSuggestions={[{
+      id: 2,
+      crawl_agency_id: 3,
+      operation_id: 5,
+      differences: { name: "Suggested Name" },
+      state: "pending",
+      created_at: "2026-07-15T12:00:00Z",
+    }]} initialProspects={[{
       id: 1,
       root_domain: null,
       google_place_id: "place-1",
@@ -33,8 +40,13 @@ describe("ProspectsClient", () => {
     expect(screen.getByLabelText("Cidade")).toBeInTheDocument();
     expect(screen.getByLabelText("UF")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Prospectar cidade" })).toBeInTheDocument();
+    expect(screen.getByLabelText(/cidades em lote/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/reconsultar domínios conhecidos/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/filtrar operação/i)).toBeInTheDocument();
     expect(screen.getByText("no_website")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Aprovar" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Rejeitar" })).toBeInTheDocument();
+    expect(screen.getByText("Sugestões para Crawl Agencies existentes")).toBeInTheDocument();
+    expect(screen.getByText(/Suggested Name/)).toBeInTheDocument();
   });
 });

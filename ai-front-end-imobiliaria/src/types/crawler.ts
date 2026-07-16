@@ -237,6 +237,15 @@ export interface ProspectPromotion {
   onboarding_plan: { id: number; status: "draft" | "in_progress" | "completed"; steps: Array<{ key: string; state: string }> };
 }
 
+export interface CrawlAgencySuggestion {
+  id: number;
+  crawl_agency_id: number;
+  operation_id: number;
+  differences: Record<string, unknown>;
+  state: "pending" | "accepted" | "dismissed";
+  created_at: string;
+}
+
 export interface CrawlRunRecord {
   id: number;
   url?: string | null;

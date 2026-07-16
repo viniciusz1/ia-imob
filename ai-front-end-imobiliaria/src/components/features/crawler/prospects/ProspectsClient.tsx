@@ -9,24 +9,56 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { decideProspect, promoteProspect, queueProspectingOperation } from "@/services/crawlerService";
-import type { Prospect } from "@/types/crawler";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  decideProspect,
+  previewProspectingRequery,
+  promoteProspect,
+  queueProspectingGroup,
+  queueProspectingOperation,
+  type ProspectingRequeryPreview,
+} from "@/services/crawlerService";
+import type { CrawlAgencySuggestion, Prospect } from "@/types/crawler";
 
-export function ProspectsClient({ initialProspects }: { initialProspects: Prospect[] }) {
+export function ProspectsClient({ initialProspects, initialSuggestions = [] }: { initialProspects: Prospect[]; initialSuggestions?: CrawlAgencySuggestion[] }) {
   const [prospects, setProspects] = useState(initialProspects);
   const [city, setCity] = useState("");
   const [state, setState] = useState("");
+  const [batchCities, setBatchCities] = useState("");
+  const [requeryKnown, setRequeryKnown] = useState(false);
+  const [requeryPreview, setRequeryPreview] = useState<ProspectingRequeryPreview | null>(null);
+  const [requeryConfirmed, setRequeryConfirmed] = useState(false);
   const [reviewFilter, setReviewFilter] = useState("");
   const [classificationFilter, setClassificationFilter] = useState("");
   const [reasons, setReasons] = useState<Record<number, string>>({});
+  const [cityFilter, setCityFilter] = useState("");
+  const [operationFilter, setOperationFilter] = useState("");
   const filtered = useMemo(() => prospects.filter((prospect) =>
     (!reviewFilter || prospect.review_state === reviewFilter)
-    && (!classificationFilter || prospect.automatic_classification === classificationFilter),
-  ), [classificationFilter, prospects, reviewFilter]);
+    && (!classificationFilter || prospect.automatic_classification === classificationFilter)
+    && (!cityFilter || prospect.city.toLocaleLowerCase("pt-BR").includes(cityFilter.toLocaleLowerCase("pt-BR")))
+    && (!operationFilter || prospect.latest_operation_id === Number(operationFilter)),
+  ), [cityFilter, classificationFilter, operationFilter, prospects, reviewFilter]);
+
+  const cities = () => {
+    const parsed = batchCities.split("\n").map((line) => line.split(",").map((part) => part.trim())).filter((parts) => parts.length === 2 && parts[0] && parts[1]).map(([batchCity, batchState]) => ({ city: batchCity, state: batchState.toUpperCase() }));
+    return parsed.length > 0 ? parsed : [{ city: city.trim(), state: state.trim().toUpperCase() }];
+  };
 
   const queue = async () => {
-    const operation = await queueProspectingOperation(city, state.toUpperCase());
-    toast.success(`Prospecção #${operation.id} enfileirada.`);
+    const targets = cities();
+    if (targets.length === 1 && !requeryKnown) {
+      const operation = await queueProspectingOperation(targets[0].city, targets[0].state);
+      toast.success(`Prospecção #${operation.id} enfileirada.`);
+      return;
+    }
+    const group = await queueProspectingGroup({
+      name: `Prospecção de ${targets.length} cidades`,
+      cities: targets,
+      requery_known_domains: requeryKnown,
+      confirmed_known_domain_count: requeryKnown ? requeryPreview?.total : undefined,
+    });
+    toast.success(`Grupo #${group.id} com ${group.member_count} cidades enfileirado.`);
   };
   const decide = async (prospect: Prospect, decision: "approved" | "rejected") => {
     const updated = await decideProspect(prospect.id, decision, reasons[prospect.id] ?? "");
@@ -46,10 +78,16 @@ export function ProspectsClient({ initialProspects }: { initialProspects: Prospe
         <CardContent className="flex flex-wrap items-end gap-3">
           <div><Label htmlFor="prospect-city">Cidade</Label><Input id="prospect-city" onChange={(event) => setCity(event.target.value)} value={city} /></div>
           <div><Label htmlFor="prospect-state">UF</Label><Input id="prospect-state" maxLength={2} onChange={(event) => setState(event.target.value)} value={state} /></div>
-          <Button disabled={!city.trim() || state.trim().length !== 2} onClick={() => void queue()}>Prospectar cidade</Button>
+          <div className="min-w-72"><Label htmlFor="prospect-batch">Cidades em lote (Cidade,UF por linha)</Label><textarea className="min-h-20 w-full rounded-md border bg-transparent p-2" id="prospect-batch" onChange={(event) => setBatchCities(event.target.value)} value={batchCities} /></div>
+          <div className="flex items-center gap-2"><Checkbox checked={requeryKnown} id="requery-known" onCheckedChange={(checked) => { setRequeryKnown(checked === true); setRequeryPreview(null); setRequeryConfirmed(false); }} /><Label htmlFor="requery-known">Reconsultar domínios conhecidos</Label></div>
+          {requeryKnown && <Button onClick={() => void previewProspectingRequery(cities()).then(setRequeryPreview)} type="button" variant="outline">Calcular impacto</Button>}
+          {requeryPreview && <div className="space-y-2"><p>{requeryPreview.total} domínios conhecidos serão reconsultados</p><div className="flex items-center gap-2"><Checkbox checked={requeryConfirmed} id="confirm-requery" onCheckedChange={(checked) => setRequeryConfirmed(checked === true)} /><Label htmlFor="confirm-requery">Confirmar reconsulta</Label></div></div>}
+          <Button disabled={(!batchCities.trim() && (!city.trim() || state.trim().length !== 2)) || (requeryKnown && (!requeryPreview || !requeryConfirmed))} onClick={() => void queue()}>Prospectar cidade</Button>
         </CardContent>
       </Card>
       <div className="flex gap-3">
+        <Input aria-label="Filtrar cidade" onChange={(event) => setCityFilter(event.target.value)} placeholder="Cidade" value={cityFilter} />
+        <Input aria-label="Filtrar operação" onChange={(event) => setOperationFilter(event.target.value)} placeholder="ID da operação" type="number" value={operationFilter} />
         <select aria-label="Filtrar revisão" className="rounded-md border bg-transparent px-3" onChange={(event) => setReviewFilter(event.target.value)} value={reviewFilter}>
           <option value="">Todas as revisões</option><option value="pending">Pendentes</option><option value="approved">Aprovados</option><option value="rejected">Rejeitados</option>
         </select>
@@ -76,6 +114,15 @@ export function ProspectsClient({ initialProspects }: { initialProspects: Prospe
           </Card>
         ))}
       </div>
+      {initialSuggestions.length > 0 && (
+        <Card>
+          <CardHeader><CardTitle>Sugestões para Crawl Agencies existentes</CardTitle></CardHeader>
+          <CardContent className="space-y-2">
+            <p className="text-sm text-muted-foreground">Somente sugestões; cadastro, lifecycle, perfil e agendamento não são alterados automaticamente.</p>
+            {initialSuggestions.map((suggestion) => <div className="rounded-md border p-3" key={suggestion.id}><Link className="underline" href={`/admin/crawler/agencies/${suggestion.crawl_agency_id}`}>Crawl Agency #{suggestion.crawl_agency_id}</Link><pre className="whitespace-pre-wrap text-xs">{JSON.stringify(suggestion.differences, null, 2)}</pre></div>)}
+          </CardContent>
+        </Card>
+      )}
     </section>
   );
 }
