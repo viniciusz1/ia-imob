@@ -1,0 +1,7 @@
+# Identify market listings across immutable snapshots
+
+Each market listing has a stable Listing Identity scoped to its Crawl Agency. The source-provided external identifier is preferred; when it is unavailable, the canonical source URL is hashed. The database enforces uniqueness on `(crawl_agency_id, listing_key)`, while each crawl stores a separate immutable Listing Version linked to both that identity and its snapshot.
+
+This replaces treating every `market_properties` row as an unrelated observation. It allows the interface and downstream publication logic to classify listings as new, changed, unchanged, or absent between snapshots without mutating historical crawl data. URL canonicalization must remove non-semantic tracking variation but preserve components that distinguish listings; changing the derived fallback key may create a new identity, whereas a stable external identifier survives URL changes.
+
+Absence alone uses a two-publication confirmation window to avoid removing inventory because of a transient discovery or crawl gap. After the first absence from a Published Snapshot, the identity is `missing` and its last published version remains consumable. A second consecutive absence marks it `removed` and removes it from consumption. An explicit source status or HTTP `404`/`410` removes it immediately. If a removed listing reappears, its stable identity is reused with a new immutable Listing Version.

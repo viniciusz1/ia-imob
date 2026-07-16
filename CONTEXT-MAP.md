@@ -10,6 +10,7 @@
 ## Relationships
 
 - **White-Label Public Site**: reads only the Agency's own published `Property` inventory. It does **not** consume `MarketProperty` / Crawler Machine output — the scraped market data powers the internal AI Searcher, a separate surface.
-- **Property Valuation -> Crawler Machine**: Property Valuation uses `MarketProperty` records from the latest completed crawler run as comparable evidence for estimating market value.
-- **AI Searcher -> Crawler Machine**: AI Searcher reads `MarketProperty` records from the latest completed crawler run to answer market-wide property queries.
+- **Property Valuation -> Crawler Machine**: Property Valuation uses `MarketProperty` records from each Crawl Agency's current Published Snapshot as comparable evidence for estimating market value.
+- **AI Searcher -> Crawler Machine**: AI Searcher reads `MarketProperty` records from each Crawl Agency's current Published Snapshot to answer market-wide property queries.
 - **Platform Administration -> White-Label Public Site**: Platform Administration creates and manages Agencies; each Agency can own a White-Label Public Site.
+- **Platform Administration -> Crawler Machine**: Platform Admins govern global Crawl Agencies and request crawler operations; Crawler Machine executes those operations asynchronously and reports their progress and outcome.

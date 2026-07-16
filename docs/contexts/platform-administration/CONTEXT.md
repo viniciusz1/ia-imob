@@ -5,8 +5,12 @@ Internal system administration for managing the platform's customer Agencies and
 ## Language
 
 **Platform Admin**:
-An internal platform user who can manage Agencies and platform-level configuration across the system. A Platform Admin does not belong to an Agency by default and can view, create, update, activate, and deactivate Agencies.
+An internal platform user who can manage Agencies, global market-data sources, and platform-level operations across the system. A Platform Admin does not belong to an Agency by default.
 _Avoid_: Agency Admin, Broker, Agency user
+
+**Crawler Operator**:
+A Platform Admin acting within Crawler Operations whose authority is limited by explicit permissions for viewing, operating, approving, exceptional publishing, scheduling, and policy management.
+_Avoid_: Crawl Agency user, Agency Admin, unrestricted crawler administrator
 
 **Agency Admin**:
 A user who administers only their own Agency's CRM workspace, users, properties, branding, and subscription-facing settings.
@@ -18,7 +22,7 @@ _Avoid_: Owner user, primary contact, first broker, invitation-only admin
 
 **Agency**:
 A real estate agency that is a customer of the platform and owns its users, properties, leads, branding, subscription, and public site.
-_Avoid_: Agency, Source Agency, account, customer
+_Avoid_: Agency, Crawl Agency, account, customer
 
 **Agency Registration**:
 The Platform Admin workflow that creates a new Agency together with its Initial Agency Admin. In v1, registration captures only the minimum Agency identity/contact fields and the Initial Agency Admin credentials.

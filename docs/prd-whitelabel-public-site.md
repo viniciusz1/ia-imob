@@ -147,7 +147,7 @@ Subscription gating (503/404/preview) is asserted through seam 1 — the public 
 
 ## Further Notes
 
-- Domain glossary lives in `docs/contexts/whitelabel/CONTEXT.md` (registered in `CONTEXT-MAP.md`). Note the deliberate disambiguation: **"Imobiliária" is a Source Agency in the Imobscrapy context (a scrape target) but a Agency here (a paying customer who publishes)** — these never overlap. Use **Broker** for a CRM `User` on the public side, **Final Client** for an anonymous visitor, and **Lead** only after a form submission.
+- Domain glossary lives in `docs/contexts/whitelabel/CONTEXT.md` (registered in `CONTEXT-MAP.md`). Note the deliberate disambiguation: **"Imobiliária" is a Crawl Agency in the crawler context (a scrape target) but an Agency here (a paying customer who publishes)** — these never overlap. Use **Broker** for a CRM `User` on the public side, **Final Client** for an anonymous visitor, and **Lead** only after a form submission.
 - Decisions are recorded in ADRs: `0001` (multi-tenancy), `0002` (public read boundary + privacy at the API layer), `0003` (ISR + on-demand revalidation), `0004` (billing gates the site).
 - Critical path: the multi-tenancy refactor (ADR-0001) underpins everything and should be the first implementation slice, landed and green before any public-site work begins.
 - Open items intentionally left to implementation (not design decisions): map provider (Leaflet/OSM vs Google — note the system already imports OSM POIs via `PointOfInterest` / `NeighborhoodReferencePoint`), default search sort and page size, the exact lead anti-spam mechanism (rate-limit + honeypot/captcha), and the trigger point for migrating media to object storage.
