@@ -3,12 +3,34 @@ import type {
   CrawlAgency,
   CrawlAgencyInput,
   CrawlAgencyLifecycle,
+  MarketDataContract,
+  MarketDataField,
 } from "@/types/crawler";
 
 const BASE = `${API_PREFIX}/admin/crawler`;
 
 interface Resource<T> {
   data: T;
+}
+
+export async function listMarketDataContracts(): Promise<MarketDataContract[]> {
+  const response = await api.get<Resource<MarketDataContract[]>>(`${BASE}/market-data-contracts`);
+  return response.data.data;
+}
+
+export async function createMarketDataContract(fields: MarketDataField[]): Promise<MarketDataContract> {
+  const response = await api.post<Resource<MarketDataContract>>(`${BASE}/market-data-contracts`, { fields });
+  return response.data.data;
+}
+
+export async function validateMarketDataContract(id: number): Promise<MarketDataContract> {
+  const response = await api.post<Resource<MarketDataContract>>(`${BASE}/market-data-contracts/${id}/validate`);
+  return response.data.data;
+}
+
+export async function activateMarketDataContract(id: number): Promise<MarketDataContract> {
+  const response = await api.post<Resource<MarketDataContract>>(`${BASE}/market-data-contracts/${id}/activate`);
+  return response.data.data;
 }
 
 export async function listCrawlAgencies(): Promise<CrawlAgency[]> {

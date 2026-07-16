@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AdminAgencyController;
 use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\Crawler\CrawlerOverviewController;
+use App\Http\Controllers\Api\Crawler\MarketDataContractController;
 use App\Http\Controllers\Api\Crawler\CrawlAgencyController;
 use App\Http\Middleware\EnsurePlatformAdmin;
 use Illuminate\Support\Facades\Route;
@@ -47,6 +48,15 @@ Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.view
         Route::get('/overview', CrawlerOverviewController::class);
         Route::get('/crawl-agencies', [CrawlAgencyController::class, 'index']);
         Route::get('/crawl-agencies/{crawlAgency}', [CrawlAgencyController::class, 'show']);
+        Route::get('/market-data-contracts', [MarketDataContractController::class, 'index']);
+    });
+
+Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.policies.manage'])
+    ->prefix('crawler')
+    ->group(function () {
+        Route::post('/market-data-contracts', [MarketDataContractController::class, 'store']);
+        Route::post('/market-data-contracts/{marketDataContract}/validate', [MarketDataContractController::class, 'validateContract']);
+        Route::post('/market-data-contracts/{marketDataContract}/activate', [MarketDataContractController::class, 'activate']);
     });
 
 Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.agencies.manage'])
