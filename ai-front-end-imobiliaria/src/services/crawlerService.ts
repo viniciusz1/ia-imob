@@ -15,6 +15,8 @@ import type {
   OperationGroup,
   WorkerInstance,
   QualityPolicy,
+  Prospect,
+  ProspectPromotion,
 } from "@/types/crawler";
 
 const BASE = `${API_PREFIX}/admin/crawler`;
@@ -208,6 +210,31 @@ export async function createQualityException(reportId: number, reason: string): 
 
 export async function publishCrawlRunExceptionally(runId: number, reason: string): Promise<CrawlRun> {
   const response = await api.post<Resource<CrawlRun>>(`${BASE}/crawl-runs/${runId}/exceptional-publication`, { reason });
+  return response.data.data;
+}
+
+export async function listProspects(params: {
+  city?: string;
+  state?: string;
+  review_state?: Prospect["review_state"];
+  automatic_classification?: Prospect["automatic_classification"];
+} = {}): Promise<Prospect[]> {
+  const response = await api.get<Resource<Prospect[]>>(`${BASE}/prospects`, { params });
+  return response.data.data;
+}
+
+export async function queueProspectingOperation(city: string, state: string): Promise<CrawlerOperation> {
+  const response = await api.post<Resource<CrawlerOperation>>(`${BASE}/prospecting-operations`, { city, state });
+  return response.data.data;
+}
+
+export async function decideProspect(id: number, decision: "approved" | "rejected", reason: string): Promise<Prospect> {
+  const response = await api.post<Resource<Prospect>>(`${BASE}/prospects/${id}/decision`, { decision, reason });
+  return response.data.data;
+}
+
+export async function promoteProspect(id: number): Promise<ProspectPromotion> {
+  const response = await api.post<Resource<ProspectPromotion>>(`${BASE}/prospects/${id}/promote`);
   return response.data.data;
 }
 

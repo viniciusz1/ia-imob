@@ -208,6 +208,35 @@ export interface QualityPolicy {
   created_at: string;
 }
 
+export interface Prospect {
+  id: number;
+  root_domain: string | null;
+  google_place_id: string | null;
+  name: string;
+  city: string;
+  state: string;
+  base_url: string | null;
+  phone: string | null;
+  address: string | null;
+  source: "google_places";
+  automatic_classification: "candidate" | "rejected";
+  automatic_reason: string | null;
+  review_state: "pending" | "approved" | "rejected";
+  reviewed_by: number | null;
+  reviewed_at: string | null;
+  review_reason: string | null;
+  promoted_crawl_agency_id: number | null;
+  latest_operation_id: number | null;
+  metadata: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ProspectPromotion {
+  crawl_agency: CrawlAgency;
+  onboarding_plan: { id: number; status: "draft" | "in_progress" | "completed"; steps: Array<{ key: string; state: string }> };
+}
+
 export interface CrawlRunRecord {
   id: number;
   url?: string | null;

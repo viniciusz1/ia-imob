@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\Crawler\ExtractionProfileDecisionController;
 use App\Http\Controllers\Api\Crawler\MarketDataContractController;
 use App\Http\Controllers\Api\Crawler\OperationGroupController;
 use App\Http\Controllers\Api\Crawler\ProductionCrawlController;
+use App\Http\Controllers\Api\Crawler\ProspectController;
 use App\Http\Controllers\Api\Crawler\QualityDecisionController;
 use App\Http\Controllers\Api\Crawler\QualityPolicyController;
 use App\Http\Controllers\Api\Crawler\ProfileValidationController;
@@ -75,6 +76,7 @@ Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.view
         Route::get('/crawl-runs/{crawlRun}/records', [CrawlRunRecordController::class, 'index']);
         Route::get('/operation-groups/{operationGroup}', [OperationGroupController::class, 'show']);
         Route::get('/quality-policies', [QualityPolicyController::class, 'index']);
+        Route::get('/prospects', [ProspectController::class, 'index']);
     });
 
 Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.operations.execute'])
@@ -101,6 +103,14 @@ Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.prof
     ->group(function () {
         Route::post('/extraction-profiles/{extractionProfile}/decision', [ExtractionProfileDecisionController::class, 'decide']);
         Route::post('/extraction-profiles/{extractionProfile}/activate', [ExtractionProfileDecisionController::class, 'activate']);
+    });
+
+Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.prospects.manage'])
+    ->prefix('crawler')
+    ->group(function () {
+        Route::post('/prospecting-operations', [ProspectController::class, 'queue']);
+        Route::post('/prospects/{prospect}/decision', [ProspectController::class, 'decide']);
+        Route::post('/prospects/{prospect}/promote', [ProspectController::class, 'promote']);
     });
 
 Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.policies.manage'])
