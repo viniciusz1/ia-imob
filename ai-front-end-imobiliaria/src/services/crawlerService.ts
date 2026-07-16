@@ -12,6 +12,7 @@ import type {
   ProfileValidationReport,
   CrawlRun,
   PaginatedCrawlRunRecords,
+  OperationGroup,
   WorkerInstance,
 } from "@/types/crawler";
 
@@ -65,6 +66,33 @@ export async function queueDiscoveryOperation(
 
 export async function listCrawlerWorkers(): Promise<WorkerInstance[]> {
   const response = await api.get<Resource<WorkerInstance[]>>(`${BASE}/workers`);
+  return response.data.data;
+}
+
+export async function cancelCrawlerOperation(id: number): Promise<CrawlerOperation> {
+  const response = await api.post<Resource<CrawlerOperation>>(`${BASE}/operations/${id}/cancel`);
+  return response.data.data;
+}
+
+export async function retryCrawlerOperation(id: number): Promise<CrawlerOperation> {
+  const response = await api.post<Resource<CrawlerOperation>>(`${BASE}/operations/${id}/retry`);
+  return response.data.data;
+}
+
+export async function createOperationGroup(name: string, operationIds: number[]): Promise<OperationGroup> {
+  const response = await api.post<Resource<OperationGroup>>(`${BASE}/operation-groups`, { name, operation_ids: operationIds });
+  return response.data.data;
+}
+
+export async function actOnOperationGroup(
+  groupId: number,
+  action: "cancel" | "retry",
+  operationIds: number[],
+): Promise<OperationGroup> {
+  const response = await api.post<Resource<OperationGroup>>(`${BASE}/operation-groups/${groupId}/actions`, {
+    action,
+    operation_ids: operationIds,
+  });
   return response.data.data;
 }
 

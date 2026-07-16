@@ -17,6 +17,8 @@ class CrawlerOperation extends Model
         'crawl_agency_id',
         'market_data_contract_version_id',
         'plan',
+        'retry_of_operation_id',
+        'equivalence_key',
     ];
 
     protected function casts(): array
@@ -28,6 +30,8 @@ class CrawlerOperation extends Model
             'lease_expires_at' => 'datetime',
             'claimed_at' => 'datetime',
             'completed_at' => 'datetime',
+            'cancellation_requested_at' => 'datetime',
+            'timed_out_at' => 'datetime',
         ];
     }
 

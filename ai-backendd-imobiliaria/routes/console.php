@@ -9,3 +9,4 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('crawler:ensure-partitions --months=3')->daily();
+Schedule::command('crawler:expire-operation-leases')->everyMinute();

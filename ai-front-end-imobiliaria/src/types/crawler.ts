@@ -66,6 +66,8 @@ export interface CrawlerOperation {
   state: CrawlerOperationState;
   crawl_agency_id: number | null;
   market_data_contract_version_id: number | null;
+  retry_of_operation_id: number | null;
+  equivalence_key: string | null;
   plan: Record<string, unknown>;
   progress: CrawlerOperationProgress;
   result: Record<string, unknown> | null;
@@ -73,6 +75,17 @@ export interface CrawlerOperation {
   discovery_snapshot_id: number | null;
   created_at: string;
   completed_at: string | null;
+}
+
+export interface OperationGroup {
+  id: number;
+  name: string;
+  action: string;
+  member_count: number;
+  progress_percentage: number;
+  result: "in_progress" | "succeeded" | "failed" | "partial";
+  operations: CrawlerOperation[];
+  created_at: string;
 }
 
 export interface WorkerInstance {

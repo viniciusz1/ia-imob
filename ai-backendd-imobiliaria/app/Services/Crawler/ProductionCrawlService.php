@@ -8,6 +8,7 @@ use App\Models\Crawler\DiscoverySnapshot;
 use App\Models\Crawler\ExtractionProfile;
 use App\Models\Crawler\QualityPolicyVersion;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class ProductionCrawlService
@@ -59,36 +60,53 @@ class ProductionCrawlService
                 'urls' => $snapshot->urls()->orderBy('id')->pluck('url')->all(),
             ];
 
-        return CrawlerOperation::query()->create([
+        $plan = [
+            'version' => 1,
             'type' => 'production_crawl',
-            'state' => 'queued',
-            'requested_by' => $requester->id,
             'crawl_agency_id' => $agency->id,
-            'market_data_contract_version_id' => $contract->id,
-            'plan' => [
-                'version' => 1,
-                'type' => 'production_crawl',
-                'crawl_agency_id' => $agency->id,
-                'discovery' => $discovery,
-                'extraction_profile' => [
-                    'id' => $profile->id,
-                    'version' => $profile->version,
-                    'schemas' => $profile->schemas,
-                    'strategies' => $profile->strategies,
-                    'fields' => $profile->fields,
-                    'parameters' => $profile->parameters,
-                ],
-                'market_data_contract' => [
-                    'id' => $contract->id,
-                    'version' => $contract->version,
-                    'fields' => $contract->fields,
-                ],
-                'quality_policy' => [
-                    'id' => $policy->id,
-                    'version' => $policy->version,
-                    'rules' => $policy->rules,
-                ],
+            'discovery' => $discovery,
+            'extraction_profile' => [
+                'id' => $profile->id,
+                'version' => $profile->version,
+                'schemas' => $profile->schemas,
+                'strategies' => $profile->strategies,
+                'fields' => $profile->fields,
+                'parameters' => $profile->parameters,
             ],
-        ])->refresh();
+            'market_data_contract' => [
+                'id' => $contract->id,
+                'version' => $contract->version,
+                'fields' => $contract->fields,
+            ],
+            'quality_policy' => [
+                'id' => $policy->id,
+                'version' => $policy->version,
+                'rules' => $policy->rules,
+            ],
+        ];
+        $equivalenceKey = hash('sha256', json_encode($plan, JSON_THROW_ON_ERROR));
+
+        return DB::transaction(function () use ($agency, $contract, $equivalenceKey, $plan, $requester): CrawlerOperation {
+            DB::statement('SELECT pg_advisory_xact_lock(?)', [$agency->id]);
+            $pending = CrawlerOperation::query()
+                ->where('type', 'production_crawl')
+                ->where('state', 'queued')
+                ->where('crawl_agency_id', $agency->id)
+                ->where('equivalence_key', $equivalenceKey)
+                ->first();
+            if ($pending !== null) {
+                return $pending;
+            }
+
+            return CrawlerOperation::query()->create([
+                'type' => 'production_crawl',
+                'state' => 'queued',
+                'requested_by' => $requester->id,
+                'crawl_agency_id' => $agency->id,
+                'market_data_contract_version_id' => $contract->id,
+                'equivalence_key' => $equivalenceKey,
+                'plan' => $plan,
+            ])->refresh();
+        });
     }
 }

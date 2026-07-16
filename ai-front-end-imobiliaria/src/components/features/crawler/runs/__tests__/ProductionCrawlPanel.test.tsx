@@ -19,6 +19,8 @@ describe("ProductionCrawlPanel", () => {
       state: "queued",
       crawl_agency_id: 42,
       market_data_contract_version_id: 1,
+      retry_of_operation_id: null,
+      equivalence_key: null,
       plan: {},
       progress: { stage: "queued", percentage: 0, processed: 0, total: null, message: null, heartbeat_at: null },
       result: null,

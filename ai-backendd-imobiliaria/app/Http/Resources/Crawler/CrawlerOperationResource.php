@@ -15,6 +15,8 @@ class CrawlerOperationResource extends JsonResource
             'state' => $this->state,
             'crawl_agency_id' => $this->crawl_agency_id,
             'market_data_contract_version_id' => $this->market_data_contract_version_id,
+            'retry_of_operation_id' => $this->retry_of_operation_id,
+            'equivalence_key' => $this->equivalence_key,
             'plan' => $this->plan,
             'progress' => [
                 'stage' => $this->stage,

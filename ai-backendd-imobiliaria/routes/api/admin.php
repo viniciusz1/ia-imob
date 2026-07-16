@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AdminAgencyController;
 use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\Crawler\CrawlAgencyController;
 use App\Http\Controllers\Api\Crawler\CrawlerOperationController;
+use App\Http\Controllers\Api\Crawler\CrawlerOperationControlController;
 use App\Http\Controllers\Api\Crawler\CrawlerOverviewController;
 use App\Http\Controllers\Api\Crawler\CrawlRunController;
 use App\Http\Controllers\Api\Crawler\CrawlRunRecordController;
@@ -11,6 +12,7 @@ use App\Http\Controllers\Api\Crawler\DiscoverySnapshotController;
 use App\Http\Controllers\Api\Crawler\ExtractionProfileController;
 use App\Http\Controllers\Api\Crawler\ExtractionProfileDecisionController;
 use App\Http\Controllers\Api\Crawler\MarketDataContractController;
+use App\Http\Controllers\Api\Crawler\OperationGroupController;
 use App\Http\Controllers\Api\Crawler\ProductionCrawlController;
 use App\Http\Controllers\Api\Crawler\ProfileValidationController;
 use App\Http\Controllers\Api\Crawler\SampleUrlSuggestionController;
@@ -68,6 +70,7 @@ Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.view
         Route::get('/profile-validation-reports/{profileValidationReport}', [ProfileValidationController::class, 'show']);
         Route::get('/crawl-runs/{crawlRun}', [CrawlRunController::class, 'show']);
         Route::get('/crawl-runs/{crawlRun}/records', [CrawlRunRecordController::class, 'index']);
+        Route::get('/operation-groups/{operationGroup}', [OperationGroupController::class, 'show']);
     });
 
 Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.operations.execute'])
@@ -78,6 +81,15 @@ Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.oper
         Route::post('/extraction-profiles/generate', [ExtractionProfileController::class, 'generate']);
         Route::post('/extraction-profiles/{extractionProfile}/validation', [ProfileValidationController::class, 'store']);
         Route::post('/production-crawls', [ProductionCrawlController::class, 'store']);
+        Route::post('/operations/{operation}/retry', [CrawlerOperationControlController::class, 'retry']);
+        Route::post('/operation-groups', [OperationGroupController::class, 'store']);
+        Route::post('/operation-groups/{operationGroup}/actions', [OperationGroupController::class, 'action']);
+    });
+
+Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.operations.cancel'])
+    ->prefix('crawler')
+    ->group(function () {
+        Route::post('/operations/{operation}/cancel', [CrawlerOperationControlController::class, 'cancel']);
     });
 
 Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.profiles.approve'])

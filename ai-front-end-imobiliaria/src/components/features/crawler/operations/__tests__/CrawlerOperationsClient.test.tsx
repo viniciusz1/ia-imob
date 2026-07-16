@@ -26,6 +26,8 @@ describe("CrawlerOperationsClient", () => {
             state: "running",
             crawl_agency_id: 42,
             market_data_contract_version_id: 1,
+            retry_of_operation_id: null,
+            equivalence_key: "running-plan",
             plan: { base_url: "https://agency.example.com" },
             progress: { stage: "discovery", percentage: 45, processed: 9, total: 20, message: "Scanning", heartbeat_at: "2026-07-15T12:00:00Z" },
             result: null,
