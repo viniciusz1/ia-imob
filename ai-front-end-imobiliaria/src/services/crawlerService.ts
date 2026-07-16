@@ -5,6 +5,9 @@ import type {
   CrawlAgencyLifecycle,
   MarketDataContract,
   MarketDataField,
+  CrawlerOperation,
+  DiscoverySnapshotUrl,
+  WorkerInstance,
 } from "@/types/crawler";
 
 const BASE = `${API_PREFIX}/admin/crawler`;
@@ -30,6 +33,38 @@ export async function validateMarketDataContract(id: number): Promise<MarketData
 
 export async function activateMarketDataContract(id: number): Promise<MarketDataContract> {
   const response = await api.post<Resource<MarketDataContract>>(`${BASE}/market-data-contracts/${id}/activate`);
+  return response.data.data;
+}
+
+export async function listCrawlerOperations(): Promise<CrawlerOperation[]> {
+  const response = await api.get<Resource<CrawlerOperation[]>>(`${BASE}/operations`);
+  return response.data.data;
+}
+
+export async function getCrawlerOperation(id: number): Promise<CrawlerOperation> {
+  const response = await api.get<Resource<CrawlerOperation>>(`${BASE}/operations/${id}`);
+  return response.data.data;
+}
+
+export async function queueDiscoveryOperation(
+  crawlAgencyId: number,
+  contractId: number,
+): Promise<CrawlerOperation> {
+  const response = await api.post<Resource<CrawlerOperation>>(`${BASE}/operations`, {
+    type: "discovery",
+    crawl_agency_id: crawlAgencyId,
+    market_data_contract_version_id: contractId,
+  });
+  return response.data.data;
+}
+
+export async function listCrawlerWorkers(): Promise<WorkerInstance[]> {
+  const response = await api.get<Resource<WorkerInstance[]>>(`${BASE}/workers`);
+  return response.data.data;
+}
+
+export async function listDiscoverySnapshotUrls(id: number): Promise<DiscoverySnapshotUrl[]> {
+  const response = await api.get<Resource<DiscoverySnapshotUrl[]>>(`${BASE}/discovery-snapshots/${id}/urls`);
   return response.data.data;
 }
 

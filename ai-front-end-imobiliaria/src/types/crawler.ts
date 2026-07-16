@@ -48,3 +48,44 @@ export interface MarketDataContract {
   activated_at: string | null;
   created_at: string;
 }
+
+export type CrawlerOperationState = "queued" | "running" | "cancellation_requested" | "succeeded" | "failed" | "cancelled";
+
+export interface CrawlerOperationProgress {
+  stage: string;
+  percentage: number;
+  processed: number;
+  total: number | null;
+  message: string | null;
+  heartbeat_at: string | null;
+}
+
+export interface CrawlerOperation {
+  id: number;
+  type: string;
+  state: CrawlerOperationState;
+  crawl_agency_id: number | null;
+  market_data_contract_version_id: number | null;
+  plan: Record<string, unknown>;
+  progress: CrawlerOperationProgress;
+  result: Record<string, unknown> | null;
+  error: { code: string; message: string } | null;
+  discovery_snapshot_id: number | null;
+  created_at: string;
+  completed_at: string | null;
+}
+
+export interface WorkerInstance {
+  id: number;
+  worker_key: string;
+  version: string;
+  capacity: Record<string, number>;
+  health_state: string;
+  last_heartbeat_at: string;
+}
+
+export interface DiscoverySnapshotUrl {
+  id: number;
+  url: string;
+  created_at: string;
+}

@@ -3,6 +3,9 @@
 use App\Http\Controllers\Api\AdminAgencyController;
 use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\Crawler\CrawlerOverviewController;
+use App\Http\Controllers\Api\Crawler\CrawlerOperationController;
+use App\Http\Controllers\Api\Crawler\DiscoverySnapshotController;
+use App\Http\Controllers\Api\Crawler\WorkerInstanceController;
 use App\Http\Controllers\Api\Crawler\MarketDataContractController;
 use App\Http\Controllers\Api\Crawler\CrawlAgencyController;
 use App\Http\Middleware\EnsurePlatformAdmin;
@@ -49,6 +52,16 @@ Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.view
         Route::get('/crawl-agencies', [CrawlAgencyController::class, 'index']);
         Route::get('/crawl-agencies/{crawlAgency}', [CrawlAgencyController::class, 'show']);
         Route::get('/market-data-contracts', [MarketDataContractController::class, 'index']);
+        Route::get('/operations', [CrawlerOperationController::class, 'index']);
+        Route::get('/operations/{operation}', [CrawlerOperationController::class, 'show']);
+        Route::get('/discovery-snapshots/{discoverySnapshot}/urls', [DiscoverySnapshotController::class, 'urls']);
+        Route::get('/workers', [WorkerInstanceController::class, 'index']);
+    });
+
+Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.operations.execute'])
+    ->prefix('crawler')
+    ->group(function () {
+        Route::post('/operations', [CrawlerOperationController::class, 'store']);
     });
 
 Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.policies.manage'])
