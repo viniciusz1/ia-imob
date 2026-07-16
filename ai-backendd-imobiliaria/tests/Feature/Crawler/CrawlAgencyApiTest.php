@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Crawler;
 
+use App\Models\Crawler\CrawlAgency;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -88,9 +89,10 @@ class CrawlAgencyApiTest extends TestCase
             ->patchJson('/api/v1/admin/crawler/crawl-agencies/'.$agency['id'].'/lifecycle', [
                 'lifecycle_state' => 'active',
             ])
-            ->assertOk()
-            ->assertJsonPath('data.lifecycle_state', 'active')
-            ->assertJsonPath('data.health_state', 'unknown');
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('lifecycle_state');
+
+        $this->assertSame('unknown', CrawlAgency::query()->findOrFail($agency['id'])->health_state);
     }
 
     public function test_editing_name_and_domain_preserves_internal_identity(): void

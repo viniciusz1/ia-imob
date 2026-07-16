@@ -3,6 +3,7 @@
 namespace App\Services\Crawler;
 
 use App\Models\Crawler\CrawlAgency;
+use App\Models\Crawler\ExtractionProfile;
 use App\Models\Crawler\MarketDataContractVersion;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -68,6 +69,16 @@ class MarketDataContractService
                 'activated_by' => $actor->id,
                 'activated_at' => now(),
             ]);
+
+            if ($contract->compatibility === 'incompatible') {
+                CrawlAgency::query()
+                    ->whereIn('id', $contract->affected_agency_ids)
+                    ->update(['revalidation_required' => true]);
+                ExtractionProfile::query()
+                    ->whereIn('crawl_agency_id', $contract->affected_agency_ids)
+                    ->whereIn('status', ['candidate', 'approved', 'active'])
+                    ->update(['status' => 'revalidation_required']);
+            }
 
             return $contract->refresh();
         });

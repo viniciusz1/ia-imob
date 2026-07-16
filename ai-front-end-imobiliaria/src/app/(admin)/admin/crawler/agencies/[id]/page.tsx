@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getCrawlAgency } from "@/services/crawlerService";
 import { listDiscoverySnapshots, listExtractionProfiles, listMarketDataContracts } from "@/services/crawlerService";
 import { ExtractionProfileGenerator } from "@/components/features/crawler/profiles/ExtractionProfileGenerator";
+import { ProfileValidationPanel } from "@/components/features/crawler/profiles/ProfileValidationPanel";
 
 const sections = [
   "Resumo",
@@ -61,7 +62,7 @@ export default async function CrawlAgencyDetailPage({ params }: CrawlAgencyDetai
       <Card id="perfis-de-extração">
         <CardHeader><CardTitle>Perfis de Extração</CardTitle></CardHeader>
         <CardContent className="space-y-2">
-          {profiles.map((profile) => <div className="rounded-md border p-3" key={profile.id}>Versão {profile.version} · {profile.status} · {profile.sample_url}</div>)}
+          {profiles.map((profile) => <ProfileValidationPanel agencyLifecycle={agency.lifecycle_state} initialProfile={profile} key={profile.id} />)}
         </CardContent>
       </Card>
     </section>

@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers\Api\Crawler;
 
+use App\Enums\Crawler\CrawlAgencyLifecycle;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Crawler\StoreCrawlAgencyRequest;
 use App\Http\Requests\Crawler\TransitionCrawlAgencyRequest;
 use App\Http\Requests\Crawler\UpdateCrawlAgencyRequest;
 use App\Http\Resources\Crawler\CrawlAgencyResource;
 use App\Models\Crawler\CrawlAgency;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Http\Request;
-use App\Enums\Crawler\CrawlAgencyLifecycle;
 use App\Services\Crawler\CrawlAgencyLifecycleService;
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class CrawlAgencyController extends Controller
 {
@@ -53,7 +53,18 @@ class CrawlAgencyController extends Controller
     ): CrawlAgencyResource {
         $target = CrawlAgencyLifecycle::from($request->validated('lifecycle_state'));
 
+        if ($target === CrawlAgencyLifecycle::Active) {
+            abort_unless($request->user()->can('crawler.agencies.activate'), 403);
+        }
+
         return new CrawlAgencyResource($lifecycle->transition($crawlAgency, $target));
+    }
+
+    public function activate(
+        CrawlAgency $crawlAgency,
+        CrawlAgencyLifecycleService $lifecycle,
+    ): CrawlAgencyResource {
+        return new CrawlAgencyResource($lifecycle->transition($crawlAgency, CrawlAgencyLifecycle::Active));
     }
 
     public function update(UpdateCrawlAgencyRequest $request, CrawlAgency $crawlAgency): CrawlAgencyResource

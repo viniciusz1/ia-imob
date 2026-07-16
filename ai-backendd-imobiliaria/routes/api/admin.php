@@ -2,14 +2,16 @@
 
 use App\Http\Controllers\Api\AdminAgencyController;
 use App\Http\Controllers\Api\AdminController;
-use App\Http\Controllers\Api\Crawler\CrawlerOverviewController;
+use App\Http\Controllers\Api\Crawler\CrawlAgencyController;
 use App\Http\Controllers\Api\Crawler\CrawlerOperationController;
+use App\Http\Controllers\Api\Crawler\CrawlerOverviewController;
 use App\Http\Controllers\Api\Crawler\DiscoverySnapshotController;
 use App\Http\Controllers\Api\Crawler\ExtractionProfileController;
+use App\Http\Controllers\Api\Crawler\ExtractionProfileDecisionController;
+use App\Http\Controllers\Api\Crawler\MarketDataContractController;
+use App\Http\Controllers\Api\Crawler\ProfileValidationController;
 use App\Http\Controllers\Api\Crawler\SampleUrlSuggestionController;
 use App\Http\Controllers\Api\Crawler\WorkerInstanceController;
-use App\Http\Controllers\Api\Crawler\MarketDataContractController;
-use App\Http\Controllers\Api\Crawler\CrawlAgencyController;
 use App\Http\Middleware\EnsurePlatformAdmin;
 use Illuminate\Support\Facades\Route;
 
@@ -60,6 +62,7 @@ Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.view
         Route::get('/crawl-agencies/{crawlAgency}/discovery-snapshots', [DiscoverySnapshotController::class, 'index']);
         Route::get('/workers', [WorkerInstanceController::class, 'index']);
         Route::get('/crawl-agencies/{crawlAgency}/extraction-profiles', [ExtractionProfileController::class, 'index']);
+        Route::get('/profile-validation-reports/{profileValidationReport}', [ProfileValidationController::class, 'show']);
     });
 
 Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.operations.execute'])
@@ -68,6 +71,20 @@ Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.oper
         Route::post('/operations', [CrawlerOperationController::class, 'store']);
         Route::post('/crawl-agencies/{crawlAgency}/sample-url-suggestion', SampleUrlSuggestionController::class);
         Route::post('/extraction-profiles/generate', [ExtractionProfileController::class, 'generate']);
+        Route::post('/extraction-profiles/{extractionProfile}/validation', [ProfileValidationController::class, 'store']);
+    });
+
+Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.profiles.approve'])
+    ->prefix('crawler')
+    ->group(function () {
+        Route::post('/extraction-profiles/{extractionProfile}/decision', [ExtractionProfileDecisionController::class, 'decide']);
+        Route::post('/extraction-profiles/{extractionProfile}/activate', [ExtractionProfileDecisionController::class, 'activate']);
+    });
+
+Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.agencies.activate'])
+    ->prefix('crawler')
+    ->group(function () {
+        Route::post('/crawl-agencies/{crawlAgency}/activate', [CrawlAgencyController::class, 'activate']);
     });
 
 Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.policies.manage'])

@@ -9,6 +9,7 @@ import type {
   DiscoverySnapshotUrl,
   DiscoverySnapshot,
   ExtractionProfile,
+  ProfileValidationReport,
   WorkerInstance,
 } from "@/types/crawler";
 
@@ -93,6 +94,38 @@ export async function queueExtractionProfileGeneration(payload: {
   sample_url_confirmed: true;
 }): Promise<CrawlerOperation> {
   const response = await api.post<Resource<CrawlerOperation>>(`${BASE}/extraction-profiles/generate`, payload);
+  return response.data.data;
+}
+
+export async function queueProfileValidation(profileId: number): Promise<CrawlerOperation> {
+  const response = await api.post<Resource<CrawlerOperation>>(`${BASE}/extraction-profiles/${profileId}/validation`);
+  return response.data.data;
+}
+
+export async function getProfileValidationReport(id: number): Promise<ProfileValidationReport> {
+  const response = await api.get<Resource<ProfileValidationReport>>(`${BASE}/profile-validation-reports/${id}`);
+  return response.data.data;
+}
+
+export async function decideExtractionProfile(
+  profileId: number,
+  decision: "approved" | "rejected",
+  reason: string,
+): Promise<ExtractionProfile> {
+  const response = await api.post<Resource<ExtractionProfile>>(`${BASE}/extraction-profiles/${profileId}/decision`, {
+    decision,
+    reason,
+  });
+  return response.data.data;
+}
+
+export async function activateExtractionProfile(profileId: number): Promise<ExtractionProfile> {
+  const response = await api.post<Resource<ExtractionProfile>>(`${BASE}/extraction-profiles/${profileId}/activate`);
+  return response.data.data;
+}
+
+export async function activateCrawlAgency(id: number): Promise<CrawlAgency> {
+  const response = await api.post<Resource<CrawlAgency>>(`${BASE}/crawl-agencies/${id}/activate`);
   return response.data.data;
 }
 

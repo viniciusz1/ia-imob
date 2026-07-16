@@ -111,5 +111,36 @@ export interface ExtractionProfile {
   strategies: string[];
   fields: MarketDataField[];
   parameters: Record<string, unknown>;
+  decided_by: number | null;
+  decided_at: string | null;
+  decision_reason: string | null;
+  activated_by: number | null;
+  activated_at: string | null;
+  latest_validation_report: ProfileValidationReport | null;
+  created_at: string;
+}
+
+export interface ProfileValidationRecord {
+  id: number;
+  url: string;
+  raw_data: Record<string, unknown> | null;
+  normalized_data: Record<string, unknown> | null;
+  errors: string[];
+  field_presence: Record<string, boolean>;
+  is_valid: boolean;
+}
+
+export interface ProfileValidationReport {
+  id: number;
+  operation_id: number;
+  extraction_profile_id: number;
+  sampled_url_count: number;
+  valid_record_count: number;
+  valid_ratio: number;
+  required_field_coverage: Record<string, number>;
+  blocking_failures: string[];
+  warnings: string[];
+  eligible: boolean;
+  records: ProfileValidationRecord[];
   created_at: string;
 }
