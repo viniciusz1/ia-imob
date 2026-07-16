@@ -2,13 +2,14 @@ import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getCrawlAgency } from "@/services/crawlerService";
+import { getCrawlAgency, getCrawlAgencySchedule } from "@/services/crawlerService";
 import { listDiscoverySnapshots, listExtractionProfiles, listMarketDataContracts } from "@/services/crawlerService";
 import { ExtractionProfileGenerator } from "@/components/features/crawler/profiles/ExtractionProfileGenerator";
 import { ProfileValidationPanel } from "@/components/features/crawler/profiles/ProfileValidationPanel";
 import { ProductionCrawlPanel } from "@/components/features/crawler/runs/ProductionCrawlPanel";
 import { CrawlRunSnapshotsPanel } from "@/components/features/crawler/runs/CrawlRunSnapshotsPanel";
 import { listCrawlRuns } from "@/services/crawlerService";
+import { CrawlAgencySchedulePanel } from "@/components/features/crawler/schedules/CrawlAgencySchedulePanel";
 
 const sections = [
   "Resumo",
@@ -27,12 +28,13 @@ interface CrawlAgencyDetailPageProps {
 export default async function CrawlAgencyDetailPage({ params }: CrawlAgencyDetailPageProps) {
   const { id } = await params;
   const agencyId = Number(id);
-  const [agency, snapshots, profiles, contracts, runs] = await Promise.all([
+  const [agency, snapshots, profiles, contracts, runs, schedule] = await Promise.all([
     getCrawlAgency(agencyId),
     listDiscoverySnapshots(agencyId),
     listExtractionProfiles(agencyId),
     listMarketDataContracts(),
     listCrawlRuns(agencyId),
+    getCrawlAgencySchedule(agencyId),
   ]);
 
   return (
@@ -77,6 +79,7 @@ export default async function CrawlAgencyDetailPage({ params }: CrawlAgencyDetai
         <CardHeader><CardTitle>Snapshots e qualidade</CardTitle></CardHeader>
         <CardContent><CrawlRunSnapshotsPanel runs={runs} /></CardContent>
       </Card>
+      <CrawlAgencySchedulePanel initialSchedule={schedule} />
     </section>
   );
 }

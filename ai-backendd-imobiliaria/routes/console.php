@@ -11,3 +11,5 @@ Artisan::command('inspire', function () {
 Schedule::command('crawler:ensure-partitions --months=3')->daily();
 Schedule::command('crawler:expire-operation-leases')->everyMinute();
 Schedule::command('crawler:evaluate-candidates')->everyMinute();
+Schedule::command('crawler:update-circuits')->everyMinute()->withoutOverlapping();
+Schedule::command('crawler:dispatch-schedules')->everyMinute()->withoutOverlapping();

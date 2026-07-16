@@ -3,9 +3,10 @@
 use App\Http\Controllers\Api\AdminAgencyController;
 use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\Crawler\CrawlAgencyController;
-use App\Http\Controllers\Api\Crawler\CrawlerOperationController;
 use App\Http\Controllers\Api\Crawler\CrawlerOperationControlController;
+use App\Http\Controllers\Api\Crawler\CrawlerOperationController;
 use App\Http\Controllers\Api\Crawler\CrawlerOverviewController;
+use App\Http\Controllers\Api\Crawler\CrawlerScheduleController;
 use App\Http\Controllers\Api\Crawler\CrawlRunController;
 use App\Http\Controllers\Api\Crawler\CrawlRunRecordController;
 use App\Http\Controllers\Api\Crawler\DiscoverySnapshotController;
@@ -14,10 +15,10 @@ use App\Http\Controllers\Api\Crawler\ExtractionProfileDecisionController;
 use App\Http\Controllers\Api\Crawler\MarketDataContractController;
 use App\Http\Controllers\Api\Crawler\OperationGroupController;
 use App\Http\Controllers\Api\Crawler\ProductionCrawlController;
+use App\Http\Controllers\Api\Crawler\ProfileValidationController;
 use App\Http\Controllers\Api\Crawler\ProspectController;
 use App\Http\Controllers\Api\Crawler\QualityDecisionController;
 use App\Http\Controllers\Api\Crawler\QualityPolicyController;
-use App\Http\Controllers\Api\Crawler\ProfileValidationController;
 use App\Http\Controllers\Api\Crawler\SampleUrlSuggestionController;
 use App\Http\Controllers\Api\Crawler\WorkerInstanceController;
 use App\Http\Middleware\EnsurePlatformAdmin;
@@ -78,6 +79,8 @@ Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.view
         Route::get('/quality-policies', [QualityPolicyController::class, 'index']);
         Route::get('/prospects', [ProspectController::class, 'index']);
         Route::get('/crawl-agency-suggestions', [ProspectController::class, 'suggestions']);
+        Route::get('/schedule-default', [CrawlerScheduleController::class, 'default']);
+        Route::get('/crawl-agencies/{crawlAgency}/schedule', [CrawlerScheduleController::class, 'showAgency']);
     });
 
 Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.operations.execute'])
@@ -151,4 +154,11 @@ Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.agen
         Route::post('/crawl-agencies', [CrawlAgencyController::class, 'store']);
         Route::put('/crawl-agencies/{crawlAgency}', [CrawlAgencyController::class, 'update']);
         Route::patch('/crawl-agencies/{crawlAgency}/lifecycle', [CrawlAgencyController::class, 'transition']);
+    });
+
+Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.schedules.manage'])
+    ->prefix('crawler')
+    ->group(function () {
+        Route::put('/schedule-default', [CrawlerScheduleController::class, 'updateDefault']);
+        Route::put('/crawl-agencies/{crawlAgency}/schedule', [CrawlerScheduleController::class, 'updateAgency']);
     });

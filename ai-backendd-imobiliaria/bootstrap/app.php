@@ -17,6 +17,8 @@ return Application::configure(basePath: dirname(__DIR__))
         App\Console\Commands\EnsureCrawlerPartitionsCommand::class,
         App\Console\Commands\ExpireCrawlerOperationLeasesCommand::class,
         App\Console\Commands\EvaluateCrawlerCandidatesCommand::class,
+        App\Console\Commands\DispatchCrawlerSchedulesCommand::class,
+        App\Console\Commands\UpdateCrawlerCircuitsCommand::class,
     ])
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->statefulApi();

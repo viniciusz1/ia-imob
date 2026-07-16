@@ -18,6 +18,9 @@ import type {
   Prospect,
   ProspectPromotion,
   CrawlAgencySuggestion,
+  CrawlAgencySchedule,
+  ScheduleDefault,
+  SchedulePreset,
 } from "@/types/crawler";
 
 const BASE = `${API_PREFIX}/admin/crawler`;
@@ -310,5 +313,31 @@ export async function transitionCrawlAgency(
     `${BASE}/crawl-agencies/${id}/lifecycle`,
     { lifecycle_state: lifecycleState },
   );
+  return response.data.data;
+}
+
+export async function getScheduleDefault(): Promise<ScheduleDefault> {
+  const response = await api.get<Resource<ScheduleDefault>>(`${BASE}/schedule-default`);
+  return response.data.data;
+}
+
+export async function updateScheduleDefault(payload: {
+  preset: SchedulePreset;
+  timezone: string;
+}): Promise<ScheduleDefault> {
+  const response = await api.put<Resource<ScheduleDefault>>(`${BASE}/schedule-default`, payload);
+  return response.data.data;
+}
+
+export async function getCrawlAgencySchedule(agencyId: number): Promise<CrawlAgencySchedule> {
+  const response = await api.get<Resource<CrawlAgencySchedule>>(`${BASE}/crawl-agencies/${agencyId}/schedule`);
+  return response.data.data;
+}
+
+export async function updateCrawlAgencySchedule(
+  agencyId: number,
+  payload: { inherit_default: boolean; preset?: SchedulePreset; timezone?: string },
+): Promise<CrawlAgencySchedule> {
+  const response = await api.put<Resource<CrawlAgencySchedule>>(`${BASE}/crawl-agencies/${agencyId}/schedule`, payload);
   return response.data.data;
 }

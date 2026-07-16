@@ -63,6 +63,7 @@ class ProductionCrawlService
         $plan = [
             'version' => 1,
             'type' => 'production_crawl',
+            'trigger' => $input['trigger'] ?? 'manual',
             'crawl_agency_id' => $agency->id,
             'discovery' => $discovery,
             'extraction_profile' => [

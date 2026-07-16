@@ -22,6 +22,35 @@ export interface CrawlAgencyInput {
   root_domain: string;
 }
 
+export type SchedulePreset = "manual" | "daily" | "twice_weekly" | "weekly";
+
+export interface ScheduleDefault {
+  id: number;
+  preset: SchedulePreset;
+  timezone: string;
+  updated_by: number | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CrawlAgencySchedule {
+  id: number | null;
+  crawl_agency_id: number;
+  inherit_default: boolean;
+  preset: SchedulePreset | null;
+  timezone: string | null;
+  effective_preset: SchedulePreset;
+  effective_timezone: string;
+  next_run_at: string | null;
+  last_enqueued_at: string | null;
+  suspended: boolean;
+  suspension_reason: string | null;
+  circuit: {
+    state: "closed" | "open";
+    consecutive_failures: number;
+  };
+}
+
 export type MarketDataFieldType = "string" | "integer" | "decimal" | "boolean" | "date" | "url" | "array";
 
 export interface MarketDataField {
