@@ -35,14 +35,27 @@ describe("CrawlerOperationsClient", () => {
             discovery_snapshot_id: null,
             created_at: "2026-07-15T12:00:00Z",
             completed_at: null,
+            timeline: [
+              { stage: "queue", status: "completed" },
+              { stage: "discovery", status: "current" },
+            ],
           },
         ]}
       />,
     );
 
     expect(screen.getByText("worker-a")).toBeInTheDocument();
-    expect(screen.getByText("1.0.0")).toBeInTheDocument();
+    expect(screen.getByText(/versão: 1\.0\.0/i)).toBeInTheDocument();
+    expect(screen.getByText(/concurrency: 1/i)).toBeInTheDocument();
+    expect(screen.getByText(/heartbeat/i)).toBeInTheDocument();
     expect(screen.getByText(/45%/)).toBeInTheDocument();
+    expect(screen.getByText("discovery")).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: /filtrar por tipo/i })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /iniciar worker|parar worker/i })).not.toBeInTheDocument();
+  });
+
+  it("shows an explicit empty queue state", () => {
+    render(<CrawlerOperationsClient agencies={[]} contracts={[]} initialOperations={[]} initialWorkers={[]} />);
+    expect(screen.getByText(/nenhuma operação encontrada/i)).toBeInTheDocument();
   });
 });

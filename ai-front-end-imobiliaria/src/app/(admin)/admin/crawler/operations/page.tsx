@@ -5,14 +5,31 @@ import {
   listCrawlerWorkers,
   listMarketDataContracts,
 } from "@/services/crawlerService";
+import type { CrawlerOperationFilters, CrawlerOperationState } from "@/types/crawler";
 
-export default async function CrawlerOperationsPage() {
+interface CrawlerOperationsPageProps {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
+
+const first = (value: string | string[] | undefined) => Array.isArray(value) ? value[0] : value;
+
+export default async function CrawlerOperationsPage({ searchParams }: CrawlerOperationsPageProps) {
+  const query = await searchParams;
+  const filters: CrawlerOperationFilters = {
+    ...(first(query.type) && { type: first(query.type) }),
+    ...(first(query.state) && { state: first(query.state) as CrawlerOperationState }),
+    ...(first(query.crawl_agency_id) && { crawl_agency_id: Number(first(query.crawl_agency_id)) }),
+    ...(first(query.group_id) && { group_id: Number(first(query.group_id)) }),
+    ...(first(query.requested_by) && { requested_by: Number(first(query.requested_by)) }),
+    ...(first(query.from) && { from: first(query.from) }),
+    ...(first(query.to) && { to: first(query.to) }),
+  };
   const [agencies, contracts, operations, workers] = await Promise.all([
     listCrawlAgencies(),
     listMarketDataContracts(),
-    listCrawlerOperations(),
+    listCrawlerOperations(filters),
     listCrawlerWorkers(),
   ]);
 
-  return <CrawlerOperationsClient agencies={agencies} contracts={contracts} initialOperations={operations} initialWorkers={workers} />;
+  return <CrawlerOperationsClient agencies={agencies} contracts={contracts} initialFilters={filters} initialOperations={operations} initialWorkers={workers} />;
 }

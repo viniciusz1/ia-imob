@@ -2,8 +2,10 @@
 
 namespace App\Models\Crawler;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class CrawlerOperation extends Model
@@ -48,5 +50,25 @@ class CrawlerOperation extends Model
     public function discoverySnapshot(): HasOne
     {
         return $this->hasOne(DiscoverySnapshot::class, 'operation_id');
+    }
+
+    public function groups(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            OperationGroup::class,
+            'crawler.operation_group_members',
+            'operation_id',
+            'operation_group_id',
+        )->withPivot('created_at');
+    }
+
+    public function requester(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'requested_by');
+    }
+
+    public function worker(): BelongsTo
+    {
+        return $this->belongsTo(WorkerInstance::class, 'worker_instance_id');
     }
 }

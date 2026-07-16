@@ -21,6 +21,10 @@ import type {
   CrawlAgencySchedule,
   ScheduleDefault,
   SchedulePreset,
+  CrawlerOperationFilters,
+  CrawlerOverview,
+  CrawlerIntegration,
+  CrawlerIntegrationTest,
 } from "@/types/crawler";
 
 const BASE = `${API_PREFIX}/admin/crawler`;
@@ -49,8 +53,23 @@ export async function activateMarketDataContract(id: number): Promise<MarketData
   return response.data.data;
 }
 
-export async function listCrawlerOperations(): Promise<CrawlerOperation[]> {
-  const response = await api.get<Resource<CrawlerOperation[]>>(`${BASE}/operations`);
+export async function listCrawlerOperations(filters: CrawlerOperationFilters = {}): Promise<CrawlerOperation[]> {
+  const response = await api.get<Resource<CrawlerOperation[]>>(`${BASE}/operations`, { params: filters });
+  return response.data.data;
+}
+
+export async function getCrawlerOverview(): Promise<CrawlerOverview> {
+  const response = await api.get<Resource<CrawlerOverview>>(`${BASE}/overview`);
+  return response.data.data;
+}
+
+export async function listCrawlerIntegrations(): Promise<CrawlerIntegration[]> {
+  const response = await api.get<Resource<CrawlerIntegration[]>>(`${BASE}/integrations`);
+  return response.data.data;
+}
+
+export async function testCrawlerIntegration(key: string): Promise<CrawlerIntegrationTest> {
+  const response = await api.post<Resource<CrawlerIntegrationTest>>(`${BASE}/integrations/${key}/test`);
   return response.data.data;
 }
 

@@ -20,13 +20,15 @@ const failed = (id: number): CrawlerOperation => ({
   discovery_snapshot_id: null,
   created_at: "2026-07-15T12:00:00Z",
   completed_at: "2026-07-15T12:10:00Z",
+  equivalent_failure_count: 2,
 });
 
 describe("Crawler operation controls", () => {
   it("groups repeated equivalent failures and exposes individual and batch retry", () => {
     render(<CrawlerOperationsClient agencies={[]} contracts={[]} initialOperations={[failed(1), failed(2)]} initialWorkers={[]} />);
 
-    expect(screen.getAllByText("2 falhas equivalentes")).toHaveLength(2);
+    expect(screen.getByRole("heading", { name: "2 falhas equivalentes" })).toBeInTheDocument();
+    expect(screen.getAllByText(/#1 · production_crawl|#2 · production_crawl/)).toHaveLength(2);
     expect(screen.getAllByRole("button", { name: "Retentar" })).toHaveLength(2);
     expect(screen.getByRole("button", { name: "Retentar selecionadas" })).toBeDisabled();
   });

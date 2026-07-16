@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AdminAgencyController;
 use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\Crawler\CrawlAgencyController;
+use App\Http\Controllers\Api\Crawler\CrawlerIntegrationController;
 use App\Http\Controllers\Api\Crawler\CrawlerOperationControlController;
 use App\Http\Controllers\Api\Crawler\CrawlerOperationController;
 use App\Http\Controllers\Api\Crawler\CrawlerOverviewController;
@@ -79,6 +80,8 @@ Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.view
         Route::get('/quality-policies', [QualityPolicyController::class, 'index']);
         Route::get('/prospects', [ProspectController::class, 'index']);
         Route::get('/crawl-agency-suggestions', [ProspectController::class, 'suggestions']);
+        Route::get('/integrations', [CrawlerIntegrationController::class, 'index']);
+        Route::post('/integrations/{integration}/test', [CrawlerIntegrationController::class, 'test']);
         Route::get('/schedule-default', [CrawlerScheduleController::class, 'default']);
         Route::get('/crawl-agencies/{crawlAgency}/schedule', [CrawlerScheduleController::class, 'showAgency']);
     });

@@ -95,6 +95,10 @@ export interface CrawlerOperation {
   type: string;
   state: CrawlerOperationState;
   crawl_agency_id: number | null;
+  crawl_agency?: { id: number; name: string } | null;
+  requester?: { id: number; name: string } | null;
+  groups?: Array<{ id: number; name: string }>;
+  worker?: { id: number; worker_key: string } | null;
   market_data_contract_version_id: number | null;
   retry_of_operation_id: number | null;
   equivalence_key: string | null;
@@ -105,6 +109,54 @@ export interface CrawlerOperation {
   discovery_snapshot_id: number | null;
   created_at: string;
   completed_at: string | null;
+  timeline?: Array<{
+    stage: "queue" | "discovery" | "profile" | "crawl" | "filter" | "normalization" | "quality" | "publication";
+    status: "pending" | "current" | "completed" | "failed" | "cancelled";
+  }>;
+  equivalent_failure_count?: number;
+}
+
+export interface CrawlerOperationFilters {
+  type?: string;
+  state?: CrawlerOperationState;
+  crawl_agency_id?: number;
+  group_id?: number;
+  requested_by?: number;
+  from?: string;
+  to?: string;
+}
+
+export interface CrawlerAlert {
+  kind: "circuit_open" | "operation_failure" | "quarantined_snapshot" | "worker_unavailable";
+  title: string;
+  detail: string | null;
+  href: string;
+}
+
+export interface CrawlerOverview {
+  agencies: {
+    total: number;
+    lifecycle: Record<CrawlAgencyLifecycle, number>;
+    health: Record<CrawlAgencyHealth, number>;
+  };
+  operations: { active: number; failed: number };
+  open_circuits: number;
+  quarantined_snapshots: number;
+  active_operations: CrawlerOperation[];
+  recent_failures: CrawlerOperation[];
+  alerts: CrawlerAlert[];
+}
+
+export interface CrawlerIntegration {
+  key: string;
+  label: string;
+  availability: "configured" | "unavailable";
+  credential_identifier: string | null;
+}
+
+export interface CrawlerIntegrationTest extends CrawlerIntegration {
+  status: "configuration_valid" | "unavailable";
+  message: string;
 }
 
 export interface OperationGroup {
