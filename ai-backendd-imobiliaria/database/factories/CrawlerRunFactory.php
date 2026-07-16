@@ -12,13 +12,23 @@ class CrawlerRunFactory extends Factory
     public function definition(): array
     {
         return [
-            'source_name' => fake()->slug(),
-            'status' => 'completed',
+            'operation_id' => null,
+            'crawl_agency_id' => null,
+            'discovery_snapshot_id' => null,
+            'extraction_profile_id' => null,
+            'market_data_contract_version_id' => null,
+            'quality_policy_version_id' => null,
+            'technical_state' => 'succeeded',
+            'result_kind' => 'full',
+            'publication_state' => 'published',
+            'publishable' => true,
             'started_at' => now(),
             'completed_at' => now(),
-            'error_message' => null,
-            'properties_count' => fake()->numberBetween(1, 100),
-            'latest' => true,
+            'raw_count' => fake()->numberBetween(1, 100),
+            'normalized_count' => fake()->numberBetween(1, 100),
+            'rejected_count' => 0,
+            'error_count' => 0,
+            'error_summary' => [],
         ];
     }
 }

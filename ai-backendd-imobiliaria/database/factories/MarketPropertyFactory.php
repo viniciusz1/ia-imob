@@ -45,6 +45,9 @@ class MarketPropertyFactory extends Factory
             'andar' => fake()->optional()->word(),
             'posicao_solar' => fake()->optional()->word(),
             'ano_construcao' => fake()->optional()->year(),
+            'payload' => [],
+            'normalization_warnings' => [],
+            'extraction_trace' => [],
         ];
     }
 }

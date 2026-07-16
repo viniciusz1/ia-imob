@@ -10,10 +10,13 @@ class MarketProperty extends Model
 {
     use HasFactory;
 
-    protected $table = 'market_properties';
+    public const UPDATED_AT = null;
+
+    protected $table = 'crawler.market_properties';
 
     protected $fillable = [
         'crawler_run_id',
+        'raw_property_id',
         'tipo',
         'imobiliaria',
         'valor',
@@ -45,6 +48,9 @@ class MarketProperty extends Model
         'andar',
         'posicao_solar',
         'ano_construcao',
+        'payload',
+        'normalization_warnings',
+        'extraction_trace',
     ];
 
     protected function casts(): array
@@ -72,6 +78,9 @@ class MarketProperty extends Model
             'closet' => 'boolean',
             'elevador' => 'boolean',
             'portaria_24h' => 'boolean',
+            'payload' => 'array',
+            'normalization_warnings' => 'array',
+            'extraction_trace' => 'array',
         ];
     }
 
@@ -83,7 +92,8 @@ class MarketProperty extends Model
     public function scopeLatestRun($query)
     {
         return $query->whereHas('crawlerRun', function ($q) {
-            $q->where('status', 'completed')->where('latest', true);
+            $q->where('technical_state', 'succeeded')
+                ->where('publication_state', 'published');
         });
     }
 

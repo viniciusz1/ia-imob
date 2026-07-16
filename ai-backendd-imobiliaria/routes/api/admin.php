@@ -5,10 +5,13 @@ use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\Crawler\CrawlAgencyController;
 use App\Http\Controllers\Api\Crawler\CrawlerOperationController;
 use App\Http\Controllers\Api\Crawler\CrawlerOverviewController;
+use App\Http\Controllers\Api\Crawler\CrawlRunController;
+use App\Http\Controllers\Api\Crawler\CrawlRunRecordController;
 use App\Http\Controllers\Api\Crawler\DiscoverySnapshotController;
 use App\Http\Controllers\Api\Crawler\ExtractionProfileController;
 use App\Http\Controllers\Api\Crawler\ExtractionProfileDecisionController;
 use App\Http\Controllers\Api\Crawler\MarketDataContractController;
+use App\Http\Controllers\Api\Crawler\ProductionCrawlController;
 use App\Http\Controllers\Api\Crawler\ProfileValidationController;
 use App\Http\Controllers\Api\Crawler\SampleUrlSuggestionController;
 use App\Http\Controllers\Api\Crawler\WorkerInstanceController;
@@ -63,6 +66,8 @@ Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.view
         Route::get('/workers', [WorkerInstanceController::class, 'index']);
         Route::get('/crawl-agencies/{crawlAgency}/extraction-profiles', [ExtractionProfileController::class, 'index']);
         Route::get('/profile-validation-reports/{profileValidationReport}', [ProfileValidationController::class, 'show']);
+        Route::get('/crawl-runs/{crawlRun}', [CrawlRunController::class, 'show']);
+        Route::get('/crawl-runs/{crawlRun}/records', [CrawlRunRecordController::class, 'index']);
     });
 
 Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.operations.execute'])
@@ -72,6 +77,7 @@ Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.oper
         Route::post('/crawl-agencies/{crawlAgency}/sample-url-suggestion', SampleUrlSuggestionController::class);
         Route::post('/extraction-profiles/generate', [ExtractionProfileController::class, 'generate']);
         Route::post('/extraction-profiles/{extractionProfile}/validation', [ProfileValidationController::class, 'store']);
+        Route::post('/production-crawls', [ProductionCrawlController::class, 'store']);
     });
 
 Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.profiles.approve'])

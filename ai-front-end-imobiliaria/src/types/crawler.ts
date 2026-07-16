@@ -144,3 +144,42 @@ export interface ProfileValidationReport {
   records: ProfileValidationRecord[];
   created_at: string;
 }
+
+export interface CrawlRun {
+  id: number;
+  operation_id: number;
+  crawl_agency_id: number;
+  discovery_snapshot_id: number | null;
+  extraction_profile_id: number;
+  market_data_contract_version_id: number;
+  quality_policy_version_id: number;
+  technical_state: "running" | "succeeded" | "failed" | "cancelled";
+  result_kind: "full" | "partial";
+  publication_state: "candidate" | "quarantined" | "published";
+  publishable: boolean;
+  counts: { raw: number; normalized: number; rejected: number; errors: number };
+  error_summary: Array<Record<string, unknown>>;
+  started_at: string;
+  completed_at: string | null;
+  created_at: string;
+}
+
+export interface CrawlRunRecord {
+  id: number;
+  url?: string | null;
+  valor?: number | null;
+  cidade?: string | null;
+  bairro?: string | null;
+  payload: Record<string, unknown>;
+  raw_payload?: Record<string, unknown> | null;
+  normalization_warnings?: string[];
+  extraction_trace?: Record<string, string>;
+  errors?: string[];
+  missing_fields?: string[];
+  [key: string]: unknown;
+}
+
+export interface PaginatedCrawlRunRecords {
+  data: CrawlRunRecord[];
+  meta: { current_page: number; last_page: number; per_page: number; total: number };
+}

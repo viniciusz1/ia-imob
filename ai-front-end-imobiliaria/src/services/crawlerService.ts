@@ -10,6 +10,8 @@ import type {
   DiscoverySnapshot,
   ExtractionProfile,
   ProfileValidationReport,
+  CrawlRun,
+  PaginatedCrawlRunRecords,
   WorkerInstance,
 } from "@/types/crawler";
 
@@ -127,6 +129,31 @@ export async function activateExtractionProfile(profileId: number): Promise<Extr
 export async function activateCrawlAgency(id: number): Promise<CrawlAgency> {
   const response = await api.post<Resource<CrawlAgency>>(`${BASE}/crawl-agencies/${id}/activate`);
   return response.data.data;
+}
+
+export interface QueueProductionCrawlPayload {
+  crawl_agency_id: number;
+  discovery_mode: "fresh" | "existing";
+  discovery_snapshot_id?: number;
+  extraction_profile_id?: number;
+}
+
+export async function queueProductionCrawl(payload: QueueProductionCrawlPayload): Promise<CrawlerOperation> {
+  const response = await api.post<Resource<CrawlerOperation>>(`${BASE}/production-crawls`, payload);
+  return response.data.data;
+}
+
+export async function getCrawlRun(id: number): Promise<CrawlRun> {
+  const response = await api.get<Resource<CrawlRun>>(`${BASE}/crawl-runs/${id}`);
+  return response.data.data;
+}
+
+export async function listCrawlRunRecords(
+  runId: number,
+  params: { view: "normalized" | "raw" | "rejected"; search?: string; sort?: string; page?: number; per_page?: number },
+): Promise<PaginatedCrawlRunRecords> {
+  const response = await api.get<PaginatedCrawlRunRecords>(`${BASE}/crawl-runs/${runId}/records`, { params });
+  return response.data;
 }
 
 export async function listCrawlAgencies(): Promise<CrawlAgency[]> {

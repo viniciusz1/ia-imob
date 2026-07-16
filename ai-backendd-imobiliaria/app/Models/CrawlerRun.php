@@ -10,16 +10,26 @@ class CrawlerRun extends Model
 {
     use HasFactory;
 
-    protected $table = 'crawler_runs';
+    protected $table = 'crawler.crawl_runs';
 
     protected $fillable = [
-        'source_name',
-        'status',
+        'operation_id',
+        'crawl_agency_id',
+        'discovery_snapshot_id',
+        'extraction_profile_id',
+        'market_data_contract_version_id',
+        'quality_policy_version_id',
+        'technical_state',
+        'result_kind',
+        'publication_state',
+        'publishable',
         'started_at',
         'completed_at',
-        'error_message',
-        'properties_count',
-        'latest',
+        'raw_count',
+        'normalized_count',
+        'rejected_count',
+        'error_count',
+        'error_summary',
     ];
 
     protected function casts(): array
@@ -27,8 +37,12 @@ class CrawlerRun extends Model
         return [
             'started_at' => 'datetime',
             'completed_at' => 'datetime',
-            'properties_count' => 'integer',
-            'latest' => 'boolean',
+            'publishable' => 'boolean',
+            'raw_count' => 'integer',
+            'normalized_count' => 'integer',
+            'rejected_count' => 'integer',
+            'error_count' => 'integer',
+            'error_summary' => 'array',
         ];
     }
 

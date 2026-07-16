@@ -77,6 +77,7 @@ export function CrawlerOperationsClient({ agencies, contracts, initialOperations
               <Progress value={operation.progress.percentage} />
               <p className="text-sm">{operation.progress.percentage}% · {operation.progress.stage}</p>
               {operation.discovery_snapshot_id && <Link className="text-sm underline" href={`/admin/crawler/discoveries/${operation.discovery_snapshot_id}`}>Inspecionar Snapshot de Discovery</Link>}
+              {typeof operation.result?.crawl_run_id === "number" && <Link className="text-sm underline" href={`/admin/crawler/runs/${operation.result.crawl_run_id}`}>Visualizar dados do crawl</Link>}
             </CardContent>
           </Card>
         ))}
