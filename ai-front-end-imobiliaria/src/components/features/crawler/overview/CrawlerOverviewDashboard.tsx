@@ -32,7 +32,7 @@ export function CrawlerOverviewDashboard({
 
   return <section className="space-y-6">
     <div>
-      <h2 className="text-2xl font-semibold">Operações do Crawler</h2>
+      <h2 className="text-2xl font-semibold">Visão geral</h2>
       <p className="text-muted-foreground">Saúde, fila, qualidade e integrações do Crawler Machine.</p>
     </div>
 

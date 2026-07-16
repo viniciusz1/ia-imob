@@ -22,7 +22,7 @@ describe("CrawlerOverviewPage", () => {
     render(await CrawlerOverviewPage());
 
     expect(
-      screen.getByRole("heading", { name: /operações do crawler/i }),
+      screen.getByRole("heading", { name: /visão geral/i }),
     ).toBeInTheDocument();
     expect(screen.getByText(/^crawl agencies$/i)).toBeInTheDocument();
   });

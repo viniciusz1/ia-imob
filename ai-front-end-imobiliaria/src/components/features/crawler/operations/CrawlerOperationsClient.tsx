@@ -137,7 +137,7 @@ export function CrawlerOperationsClient({ agencies, contracts, initialOperations
   return (
     <section className="space-y-6">
       <div><h2 className="text-2xl font-semibold">Operações</h2><p className="text-muted-foreground">Fila durável do Crawler Machine.</p></div>
-      <Card>
+      <Card className="scroll-mt-16" id="novo-discovery">
         <CardHeader><CardTitle>Novo Discovery</CardTitle></CardHeader>
         <CardContent className="flex flex-wrap gap-3">
           <select aria-label="Crawl Agency" className="rounded-md border bg-transparent px-3" value={agencyId} onChange={(event) => setAgencyId(event.target.value)}>

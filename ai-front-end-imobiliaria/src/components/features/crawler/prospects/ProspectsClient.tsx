@@ -73,7 +73,7 @@ export function ProspectsClient({ initialProspects, initialSuggestions = [] }: {
   return (
     <section className="space-y-6">
       <h2 className="text-2xl font-semibold">Prospecção</h2>
-      <Card>
+      <Card className="scroll-mt-16" id="nova-prospeccao">
         <CardHeader><CardTitle>Nova prospecção por cidade</CardTitle></CardHeader>
         <CardContent className="flex flex-wrap items-end gap-3">
           <div><Label htmlFor="prospect-city">Cidade</Label><Input id="prospect-city" onChange={(event) => setCity(event.target.value)} value={city} /></div>

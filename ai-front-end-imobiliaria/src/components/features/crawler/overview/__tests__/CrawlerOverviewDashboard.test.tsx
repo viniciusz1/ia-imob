@@ -21,7 +21,7 @@ describe("CrawlerOverviewDashboard", () => {
   it("renders the empty operational state", () => {
     render(<CrawlerOverviewDashboard initialOverview={emptyOverview} integrations={[]} />);
 
-    expect(screen.getByRole("heading", { name: /operações do crawler/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /visão geral/i })).toBeInTheDocument();
     expect(screen.getByText(/nenhum alerta operacional/i)).toBeInTheDocument();
     expect(screen.getByText(/nenhuma operação ativa/i)).toBeInTheDocument();
   });
