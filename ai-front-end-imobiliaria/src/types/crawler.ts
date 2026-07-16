@@ -89,3 +89,27 @@ export interface DiscoverySnapshotUrl {
   url: string;
   created_at: string;
 }
+
+export interface DiscoverySnapshot {
+  id: number;
+  operation_id: number;
+  crawl_agency_id: number;
+  url_count: number;
+  content_hash: string;
+  created_at: string;
+}
+
+export interface ExtractionProfile {
+  id: number;
+  crawl_agency_id: number;
+  discovery_snapshot_id: number;
+  market_data_contract_version_id: number;
+  version: number;
+  status: "candidate" | "approved" | "rejected" | "active" | "revalidation_required";
+  sample_url: string;
+  schemas: Record<string, unknown>;
+  strategies: string[];
+  fields: MarketDataField[];
+  parameters: Record<string, unknown>;
+  created_at: string;
+}

@@ -7,6 +7,8 @@ import type {
   MarketDataField,
   CrawlerOperation,
   DiscoverySnapshotUrl,
+  DiscoverySnapshot,
+  ExtractionProfile,
   WorkerInstance,
 } from "@/types/crawler";
 
@@ -65,6 +67,32 @@ export async function listCrawlerWorkers(): Promise<WorkerInstance[]> {
 
 export async function listDiscoverySnapshotUrls(id: number): Promise<DiscoverySnapshotUrl[]> {
   const response = await api.get<Resource<DiscoverySnapshotUrl[]>>(`${BASE}/discovery-snapshots/${id}/urls`);
+  return response.data.data;
+}
+
+export async function listDiscoverySnapshots(agencyId: number): Promise<DiscoverySnapshot[]> {
+  const response = await api.get<Resource<DiscoverySnapshot[]>>(`${BASE}/crawl-agencies/${agencyId}/discovery-snapshots`);
+  return response.data.data;
+}
+
+export async function listExtractionProfiles(agencyId: number): Promise<ExtractionProfile[]> {
+  const response = await api.get<Resource<ExtractionProfile[]>>(`${BASE}/crawl-agencies/${agencyId}/extraction-profiles`);
+  return response.data.data;
+}
+
+export async function queueSampleUrlSuggestion(agencyId: number): Promise<CrawlerOperation> {
+  const response = await api.post<Resource<CrawlerOperation>>(`${BASE}/crawl-agencies/${agencyId}/sample-url-suggestion`);
+  return response.data.data;
+}
+
+export async function queueExtractionProfileGeneration(payload: {
+  crawl_agency_id: number;
+  discovery_snapshot_id: number;
+  market_data_contract_version_id: number;
+  sample_url: string;
+  sample_url_confirmed: true;
+}): Promise<CrawlerOperation> {
+  const response = await api.post<Resource<CrawlerOperation>>(`${BASE}/extraction-profiles/generate`, payload);
   return response.data.data;
 }
 

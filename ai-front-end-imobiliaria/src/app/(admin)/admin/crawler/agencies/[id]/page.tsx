@@ -3,6 +3,8 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getCrawlAgency } from "@/services/crawlerService";
+import { listDiscoverySnapshots, listExtractionProfiles, listMarketDataContracts } from "@/services/crawlerService";
+import { ExtractionProfileGenerator } from "@/components/features/crawler/profiles/ExtractionProfileGenerator";
 
 const sections = [
   "Resumo",
@@ -20,7 +22,13 @@ interface CrawlAgencyDetailPageProps {
 
 export default async function CrawlAgencyDetailPage({ params }: CrawlAgencyDetailPageProps) {
   const { id } = await params;
-  const agency = await getCrawlAgency(Number(id));
+  const agencyId = Number(id);
+  const [agency, snapshots, profiles, contracts] = await Promise.all([
+    getCrawlAgency(agencyId),
+    listDiscoverySnapshots(agencyId),
+    listExtractionProfiles(agencyId),
+    listMarketDataContracts(),
+  ]);
 
   return (
     <section className="space-y-6">
@@ -44,6 +52,16 @@ export default async function CrawlAgencyDetailPage({ params }: CrawlAgencyDetai
           <div><p className="text-sm text-muted-foreground">Domínio</p><p>{agency.root_domain}</p></div>
           <div><p className="text-sm text-muted-foreground">URL base</p><p>{agency.base_url}</p></div>
           <div><p className="text-sm text-muted-foreground">Slug</p><p>{agency.slug}</p></div>
+        </CardContent>
+      </Card>
+      <Card id="onboarding">
+        <CardHeader><CardTitle>Onboarding e Perfil de Extração</CardTitle></CardHeader>
+        <CardContent><ExtractionProfileGenerator agencyId={agency.id} snapshots={snapshots} contracts={contracts} /></CardContent>
+      </Card>
+      <Card id="perfis-de-extração">
+        <CardHeader><CardTitle>Perfis de Extração</CardTitle></CardHeader>
+        <CardContent className="space-y-2">
+          {profiles.map((profile) => <div className="rounded-md border p-3" key={profile.id}>Versão {profile.version} · {profile.status} · {profile.sample_url}</div>)}
         </CardContent>
       </Card>
     </section>
