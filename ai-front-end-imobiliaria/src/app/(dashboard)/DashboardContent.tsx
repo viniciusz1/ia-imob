@@ -16,9 +16,7 @@ export function DashboardContent() {
             return true;
         }
 
-        if (userPermissions === null) {
-            return true;
-        }
+        if (userPermissions === null) return false;
 
         return hasPermission(userPermissions, module.permissions, "any");
     });

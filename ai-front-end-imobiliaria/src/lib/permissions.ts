@@ -13,3 +13,10 @@ export function hasPermission(
 
   return requiredArray.every((permission) => userPermissions.includes(permission));
 }
+
+export function postLoginPath(userPermissions: string[] | null | undefined): string {
+  if (hasPermission(userPermissions, "crawler.view")) return "/admin/crawler";
+  if (hasPermission(userPermissions, "platform.agencies.view")) return "/admin/agencies";
+
+  return "/";
+}

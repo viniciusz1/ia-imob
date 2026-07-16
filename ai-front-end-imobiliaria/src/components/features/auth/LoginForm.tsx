@@ -12,6 +12,7 @@ import { loginSchema, type LoginFormData } from "../../../schemas/authSchemas";
 import { authService } from "../../../services/authService";
 import { markAuthenticatedSession } from "../../../services/authSessionCookie";
 import { useAuthStore } from "../../../store/useAuthStore";
+import { postLoginPath } from "../../../lib/permissions";
 
 import { Button } from "../../ui/button";
 import { Input } from "../../ui/input";
@@ -46,11 +47,12 @@ export function LoginForm() {
 
             // Após o login, buscamos o usuário
             const response = await authService.getUser();
-            setUser(response.data);
+            const userData = response.data.data ?? response.data;
+            setUser(userData);
             markAuthenticatedSession(data.remember);
 
             toast.success("Login efetuado com sucesso!");
-            router.push("/usuarios"); // ou para onde a spec determinar (raiz ou dashboard protegida)
+            router.push(postLoginPath(userData.permissions));
         } catch (error) {
             if (error instanceof AxiosError && error.response?.status === 422) {
                 const backendErrors = error.response.data.errors;

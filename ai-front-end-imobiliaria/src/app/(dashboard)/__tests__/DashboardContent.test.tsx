@@ -39,12 +39,28 @@ describe("DashboardContent", () => {
     expect(screen.queryByRole("link", { name: /usuários/i })).not.toBeInTheDocument();
   });
 
-  it("renders all modules when permissions are still loading", () => {
+  it("keeps protected modules hidden while permissions are still loading", () => {
     useAuthStore.getState().clearAuth();
 
     render(<DashboardContent />);
 
-    expect(screen.getByRole("link", { name: /imóveis/i })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /usuários/i })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /imóveis/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /usuários/i })).not.toBeInTheDocument();
+  });
+
+  it("shows only platform modules to a Crawler Operator", () => {
+    useAuthStore.getState().setUser({
+      id: 4,
+      name: "Platform Admin",
+      email: "platform@imobiliaria.com",
+      permissions: ["crawler.view", "platform.agencies.view"],
+    });
+
+    render(<DashboardContent />);
+
+    expect(screen.getByRole("link", { name: /operações do crawler/i })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /gerenciar imóveis/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /^usuários$/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /^grupos$/i })).not.toBeInTheDocument();
   });
 });

@@ -79,5 +79,8 @@ describe("AppSidebar", () => {
     expect(
       screen.getByRole("link", { name: /operações do crawler/i }),
     ).toHaveAttribute("href", "/admin/crawler");
+    expect(screen.queryByRole("link", { name: /^imóveis$/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /^usuários$/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /^grupos$/i })).not.toBeInTheDocument();
   });
 });

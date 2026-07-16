@@ -13,10 +13,11 @@ import type { RoleFormData } from "@/types/role";
 export const ROLES_QUERY_KEY = ["roles"];
 export const PERMISSIONS_QUERY_KEY = ["permissions"];
 
-export function useRoles() {
+export function useRoles(enabled: boolean = true) {
     return useQuery({
         queryKey: [...ROLES_QUERY_KEY, "all"],
         queryFn: () => getRoles(),
+        enabled,
     });
 }
 
@@ -76,4 +77,3 @@ export function useDeleteRole() {
         },
     });
 }
-

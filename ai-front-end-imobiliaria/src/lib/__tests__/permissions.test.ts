@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { hasPermission } from "../permissions";
+import { hasPermission, postLoginPath } from "../permissions";
 
 describe("hasPermission", () => {
   it("returns true when the user has the required permission", () => {
@@ -34,5 +34,19 @@ describe("hasPermission", () => {
   it("returns false when user permissions are missing", () => {
     expect(hasPermission(null, "properties.view")).toBe(false);
     expect(hasPermission(undefined, "properties.view")).toBe(false);
+  });
+});
+
+describe("postLoginPath", () => {
+  it("prioritizes Crawler Operations for a Crawler Operator", () => {
+    expect(postLoginPath(["crawler.view", "platform.agencies.view"])).toBe("/admin/crawler");
+  });
+
+  it("sends other Platform Admins to Agency administration", () => {
+    expect(postLoginPath(["platform.agencies.view"])).toBe("/admin/agencies");
+  });
+
+  it("keeps Agency users in the regular dashboard", () => {
+    expect(postLoginPath(["properties.view"])).toBe("/");
   });
 });
