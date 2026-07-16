@@ -183,7 +183,14 @@ export async function listCrawlRuns(agencyId: number): Promise<CrawlRun[]> {
 
 export async function listCrawlRunRecords(
   runId: number,
-  params: { view: "normalized" | "raw" | "rejected"; search?: string; sort?: string; page?: number; per_page?: number },
+  params: {
+    view: "normalized" | "raw" | "rejected";
+    search?: string;
+    sort?: string;
+    listing_state?: "new" | "changed" | "unchanged" | "missing" | "removed" | "reappeared";
+    page?: number;
+    per_page?: number;
+  },
 ): Promise<PaginatedCrawlRunRecords> {
   const response = await api.get<PaginatedCrawlRunRecords>(`${BASE}/crawl-runs/${runId}/records`, { params });
   return response.data;

@@ -20,9 +20,16 @@ class CrawlRunRecordController extends Controller
             'sort' => ['nullable', 'string'],
             'per_page' => ['nullable', 'integer', 'min:1', 'max:100'],
             'page' => ['nullable', 'integer', 'min:1'],
+            'listing_state' => ['nullable', Rule::in(['new', 'changed', 'unchanged', 'missing', 'removed', 'reappeared'])],
         ]);
         $view = $input['view'];
-        $query = $this->query($crawlRun->id, $view);
+        $inventoryView = $view === 'normalized' && DB::table('crawler.listing_versions')->where('crawl_run_id', $crawlRun->id)->exists();
+        $query = $this->query($crawlRun->id, $view, $inventoryView);
+        if (isset($input['listing_state'])) {
+            $inventoryView
+                ? $query->where('version.classification', $input['listing_state'])
+                : $query->whereRaw('FALSE');
+        }
         $this->applySearch($query, $view, trim((string) ($input['search'] ?? '')));
         $this->applySort($query, $view, (string) ($input['sort'] ?? '-created_at'));
         $paginator = $query->paginate((int) ($input['per_page'] ?? 25));
@@ -38,9 +45,28 @@ class CrawlRunRecordController extends Controller
         ]);
     }
 
-    private function query(int $runId, string $view): Builder
+    private function query(int $runId, string $view, bool $inventoryView): Builder
     {
         if ($view === 'normalized') {
+            if ($inventoryView) {
+                return DB::table('crawler.listing_versions as version')
+                    ->join('crawler.listing_identities as identity', 'identity.id', '=', 'version.listing_identity_id')
+                    ->leftJoin('crawler.market_properties as market', function ($join): void {
+                        $join->on('market.id', '=', DB::raw('COALESCE(version.market_property_id, identity.current_market_property_id)'));
+                    })
+                    ->leftJoin('crawler.raw_properties as raw', 'raw.id', '=', 'market.raw_property_id')
+                    ->where('version.crawl_run_id', $runId)
+                    ->select(
+                        'market.*',
+                        'raw.payload as raw_payload',
+                        'version.classification as listing_state',
+                        'version.reason as listing_reason',
+                        'version.absence_count',
+                        'identity.listing_key',
+                        'identity.inventory_state',
+                    );
+            }
+
             return DB::table('crawler.market_properties as market')
                 ->leftJoin('crawler.raw_properties as raw', 'raw.id', '=', 'market.raw_property_id')
                 ->where('market.crawler_run_id', $runId)

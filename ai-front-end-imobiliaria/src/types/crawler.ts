@@ -204,6 +204,11 @@ export interface CrawlRunRecord {
   extraction_trace?: Record<string, string>;
   errors?: string[];
   missing_fields?: string[];
+  listing_state?: "new" | "changed" | "unchanged" | "missing" | "removed" | "reappeared";
+  inventory_state?: "active" | "missing" | "removed";
+  absence_count?: number;
+  listing_reason?: string | null;
+  listing_key?: string;
   [key: string]: unknown;
 }
 

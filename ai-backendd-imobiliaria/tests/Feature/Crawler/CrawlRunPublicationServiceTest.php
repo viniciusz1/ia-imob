@@ -55,7 +55,10 @@ class CrawlRunPublicationServiceTest extends TestCase
 
         $this->assertSame('published', $first->refresh()->publication_state);
         $this->assertSame($second->id, $agency->refresh()->current_published_crawl_run_id);
-        $this->assertSame([$secondProperty->id], MarketProperty::query()->latestRun()->pluck('id')->all());
+        $this->assertEqualsCanonicalizing(
+            [$firstProperty->id, $secondProperty->id],
+            MarketProperty::query()->latestRun()->pluck('id')->all(),
+        );
     }
 
     public function test_blocking_quality_failures_quarantine_candidate_and_preserve_previous_publication(): void

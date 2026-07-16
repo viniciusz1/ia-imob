@@ -91,15 +91,11 @@ class MarketProperty extends Model
 
     public function scopeLatestRun($query)
     {
-        return $query->whereHas('crawlerRun', function ($q) {
-            $q->where('technical_state', 'succeeded')
-                ->where('publication_state', 'published')
-                ->whereExists(function ($currentAgency): void {
-                    $currentAgency->selectRaw('1')
-                        ->from('crawler.crawl_agencies as current_agency')
-                        ->whereColumn('current_agency.id', 'crawler.crawl_runs.crawl_agency_id')
-                        ->whereColumn('current_agency.current_published_crawl_run_id', 'crawler.crawl_runs.id');
-                });
+        return $query->whereExists(function ($inventory): void {
+            $inventory->selectRaw('1')
+                ->from('crawler.listing_identities as current_listing')
+                ->whereColumn('current_listing.current_market_property_id', 'crawler.market_properties.id')
+                ->whereIn('current_listing.inventory_state', ['active', 'missing']);
         });
     }
 

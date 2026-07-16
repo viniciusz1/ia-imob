@@ -11,6 +11,8 @@ use Illuminate\Validation\ValidationException;
 
 class CrawlRunPublicationService
 {
+    public function __construct(private readonly ListingInventoryService $inventory) {}
+
     public function evaluate(CrawlerRun $run): QualityGateReport
     {
         return DB::transaction(function () use ($run): QualityGateReport {
@@ -77,6 +79,7 @@ class CrawlRunPublicationService
                 'publishable' => true,
                 'published_at' => now(),
             ]);
+            $this->inventory->applyPublishedSnapshot($lockedRun);
             $agency->update(['current_published_crawl_run_id' => $lockedRun->id]);
 
             return $report;

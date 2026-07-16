@@ -21,10 +21,19 @@ export function CrawlRunDataTable({ runId, initialPage }: CrawlRunDataTableProps
   const [page, setPage] = useState(initialPage);
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("-created_at");
+  const [listingState, setListingState] = useState("");
 
   const load = async (nextView: RunView, nextPage = 1) => {
     setView(nextView);
-    setPage(await listCrawlRunRecords(runId, { view: nextView, search, sort, page: nextPage, per_page: 25 }));
+    const state = listingState as "new" | "changed" | "unchanged" | "missing" | "removed" | "reappeared";
+    setPage(await listCrawlRunRecords(runId, {
+      view: nextView,
+      search,
+      sort,
+      listing_state: nextView === "normalized" && listingState ? state : undefined,
+      page: nextPage,
+      per_page: 25,
+    }));
   };
 
   return (
@@ -40,6 +49,17 @@ export function CrawlRunDataTable({ runId, initialPage }: CrawlRunDataTableProps
           {view === "normalized" && <option value="-valor">Maior valor</option>}
           {view === "normalized" && <option value="valor">Menor valor</option>}
         </select>
+        {view === "normalized" && (
+          <select aria-label="Estado do anúncio" className="rounded-md border bg-transparent px-3" onChange={(event) => setListingState(event.target.value)} value={listingState}>
+            <option value="">Todos os estados</option>
+            <option value="new">Novo</option>
+            <option value="changed">Alterado</option>
+            <option value="unchanged">Inalterado</option>
+            <option value="missing">Ausente</option>
+            <option value="removed">Removido</option>
+            <option value="reappeared">Reapareceu</option>
+          </select>
+        )}
         <Button onClick={() => void load(view)} type="button" variant="outline">Aplicar</Button>
       </div>
       <div className="overflow-x-auto">
@@ -52,6 +72,8 @@ export function CrawlRunDataTable({ runId, initialPage }: CrawlRunDataTableProps
                 <td className="p-2">{record.url ?? [record.bairro, record.cidade].filter(Boolean).join(" · ")}</td>
                 <td className="p-2">{typeof record.valor === "number" ? record.valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) : "—"}</td>
                 <td className="p-2">
+                  {record.listing_state && <p className="font-medium">{record.listing_state === "missing" ? "Ausente" : record.listing_state} · {record.absence_count ?? 0} publicação(ões) ausente(s)</p>}
+                  {record.listing_reason && <p className="text-muted-foreground">Motivo: {record.listing_reason}</p>}
                   <details open>
                     <summary className="cursor-pointer">Ver payload e trace</summary>
                     {record.normalization_warnings?.map((warning) => <p className="text-amber-700" key={warning}>{warning}</p>)}

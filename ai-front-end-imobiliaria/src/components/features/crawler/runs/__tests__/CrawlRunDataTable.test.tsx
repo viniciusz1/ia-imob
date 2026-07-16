@@ -17,6 +17,9 @@ describe("CrawlRunDataTable", () => {
             raw_payload: { valor: "R$ 200.000" },
             normalization_warnings: ["review value"],
             extraction_trace: { valor: "css" },
+            listing_state: "missing",
+            absence_count: 1,
+            listing_reason: "not_observed",
           }],
           meta: { current_page: 1, last_page: 1, per_page: 25, total: 1 },
         }}
@@ -30,5 +33,8 @@ describe("CrawlRunDataTable", () => {
     expect(screen.getByText("review value")).toBeInTheDocument();
     expect(screen.getAllByText(/R\$ 200\.000/)).toHaveLength(2);
     expect(screen.getByText(/"valor": "css"/)).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: "Estado do anúncio" })).toBeInTheDocument();
+    expect(screen.getByText("Ausente · 1 publicação(ões) ausente(s)")).toBeInTheDocument();
+    expect(screen.getByText("Motivo: not_observed")).toBeInTheDocument();
   });
 });
