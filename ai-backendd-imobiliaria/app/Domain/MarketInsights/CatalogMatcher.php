@@ -27,6 +27,7 @@ final class CatalogMatcher
         $unmapped = [];
 
         foreach ($listings as $listing) {
+            $listing = $this->withCanonicalType($listing, $typeIndex);
             $neighborhoodKey = $this->matchNeighborhood($listing, $city, $neighborhoodIndex);
 
             if ($neighborhoodKey === null) {
@@ -42,7 +43,7 @@ final class CatalogMatcher
                 ];
             }
 
-            $matched[$neighborhoodKey]['listings'][] = $this->withCanonicalType($listing, $typeIndex);
+            $matched[$neighborhoodKey]['listings'][] = $listing;
         }
 
         return [

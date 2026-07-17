@@ -10,10 +10,13 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import type { NeighborhoodMetric } from "@/types/offerMap";
+import type { NeighborhoodMetric, OfferMapCoverage } from "@/types/offerMap";
 
 interface NeighborhoodPanelProps {
   neighborhood: NeighborhoodMetric;
+  coverage: OfferMapCoverage;
+  dataDate: string | null;
+  sources: string[];
 }
 
 function formatCurrency(value: number | null): string {
@@ -26,7 +29,12 @@ function formatCurrency(value: number | null): string {
   }).format(value);
 }
 
-export function NeighborhoodPanel({ neighborhood }: NeighborhoodPanelProps) {
+export function NeighborhoodPanel({
+  neighborhood,
+  coverage,
+  dataDate,
+  sources,
+}: NeighborhoodPanelProps) {
   return (
     <Card>
       <CardHeader>
@@ -59,6 +67,18 @@ export function NeighborhoodPanel({ neighborhood }: NeighborhoodPanelProps) {
           </p>
         </div>
 
+        <div className="space-y-2 text-sm">
+          <p className="font-medium">Distribuição por tipo</p>
+          {neighborhood.type_distribution.map((item) => (
+            <div key={item.type} className="flex items-center justify-between gap-3">
+              <span className="text-muted-foreground">{item.type}</span>
+              <span>
+                {item.count} ({item.percent}%)
+              </span>
+            </div>
+          ))}
+        </div>
+
         <Separator />
 
         <div className="space-y-1 text-sm">
@@ -70,6 +90,27 @@ export function NeighborhoodPanel({ neighborhood }: NeighborhoodPanelProps) {
             <span className="text-muted-foreground">P25 - P75:</span>{" "}
             {formatCurrency(neighborhood.p25_price)} -{" "}
             {formatCurrency(neighborhood.p75_price)}
+          </p>
+        </div>
+
+        <div className="rounded-md border p-3 text-sm">
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-muted-foreground">Qualidade da amostra</span>
+            <Badge variant={neighborhood.sample_quality === "adequate" ? "secondary" : "outline"}>
+              {neighborhood.sample_quality === "adequate"
+                ? "Amostra adequada"
+                : "Amostra insuficiente"}
+            </Badge>
+          </div>
+          <p className="mt-2">{neighborhood.sample_size} anúncios no bairro</p>
+          <p className="text-muted-foreground">
+            Cobertura da cidade: {coverage.percent}%
+          </p>
+          <p className="text-muted-foreground">
+            Atualização: {dataDate ? new Date(dataDate).toLocaleString("pt-BR") : "indisponível"}
+          </p>
+          <p className="text-muted-foreground">
+            Fontes: {sources.length > 0 ? sources.join(", ") : "indisponíveis"}
           </p>
         </div>
 
@@ -112,6 +153,11 @@ export function NeighborhoodPanel({ neighborhood }: NeighborhoodPanelProps) {
                   {neighborhood.concentration.ratio.toFixed(2)}
                 </p>
               )}
+              <p className="text-xs text-muted-foreground">
+                A razão compara a participação da tipologia no bairro com sua
+                participação na cidade sob os mesmos filtros. Valores ≥ 1,25 ficam
+                acima do padrão e valores ≤ 0,75 ficam abaixo.
+              </p>
             </div>
           </>
         )}
@@ -121,7 +167,7 @@ export function NeighborhoodPanel({ neighborhood }: NeighborhoodPanelProps) {
         <div className="space-y-2">
           <p className="text-sm font-medium">Anúncios</p>
           <div className="max-h-[240px] space-y-2 overflow-y-auto">
-            {neighborhood.listings.slice(0, 5).map((listing) => (
+            {neighborhood.listings.map((listing) => (
               <div
                 key={listing.id}
                 className="flex items-center justify-between rounded-md border p-2 text-sm"

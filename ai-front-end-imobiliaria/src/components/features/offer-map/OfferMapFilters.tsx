@@ -10,6 +10,14 @@ interface OfferMapFiltersProps {
   onChange: (filters: Partial<OfferMapFilters>) => void;
 }
 
+const PROPERTY_TYPES = [
+  "Casa",
+  "Apartamento",
+  "Geminado",
+  "Terreno",
+  "Sala Comercial",
+] as const;
+
 function NumberInput({
   label,
   value,
@@ -77,6 +85,29 @@ export function OfferMapFilters({ filters, onChange }: OfferMapFiltersProps) {
         />
 
         <div className="space-y-1">
+          <Label className="text-xs text-muted-foreground">Tipo de imóvel</Label>
+          <div className="flex flex-wrap gap-1">
+            {PROPERTY_TYPES.map((type) => (
+              <Button
+                key={type}
+                type="button"
+                variant={filters.tipo?.includes(type) ? "default" : "outline"}
+                size="sm"
+                onClick={() => {
+                  const current = filters.tipo ?? [];
+                  const next = current.includes(type)
+                    ? current.filter((item) => item !== type)
+                    : [...current, type];
+                  onChange({ tipo: next });
+                }}
+              >
+                {type}
+              </Button>
+            ))}
+          </div>
+        </div>
+
+        <div className="space-y-1">
           <Label className="text-xs text-muted-foreground">Quartos</Label>
           <div className="flex gap-1">
             {[1, 2, 3, 4].map((value) => (
@@ -95,7 +126,7 @@ export function OfferMapFilters({ filters, onChange }: OfferMapFiltersProps) {
                   onChange({ quartos: next });
                 }}
               >
-                {value}+
+                {value}
               </Button>
             ))}
           </div>
@@ -120,7 +151,7 @@ export function OfferMapFilters({ filters, onChange }: OfferMapFiltersProps) {
                   onChange({ vagas: next });
                 }}
               >
-                {value}+
+                {value}
               </Button>
             ))}
           </div>

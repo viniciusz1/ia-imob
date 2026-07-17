@@ -89,12 +89,42 @@ export function NeighborhoodComparePanel({
               ))}
             </TableRow>
             <TableRow>
+              <TableCell className="font-medium">Faixa anunciada</TableCell>
+              {neighborhoods.map((neighborhood) => (
+                <TableCell key={neighborhood.name}>
+                  {neighborhood.predominant_price_range ?? "-"}
+                </TableCell>
+              ))}
+            </TableRow>
+            <TableRow>
               <TableCell className="font-medium">Perfil típico</TableCell>
               {neighborhoods.map((neighborhood) => (
                 <TableCell key={neighborhood.name}>
                   {neighborhood.typical_bedrooms ?? "-"} qts /{" "}
                   {neighborhood.typical_garage_spaces ?? "-"} vagas /{" "}
                   {neighborhood.typical_area ?? "-"} m²
+                </TableCell>
+              ))}
+            </TableRow>
+            <TableRow>
+              <TableCell className="font-medium">Concentração relativa</TableCell>
+              {neighborhoods.map((neighborhood) => (
+                <TableCell key={neighborhood.name}>
+                  {neighborhood.concentration?.level === "above"
+                    ? "Acima do padrão"
+                    : neighborhood.concentration?.level === "below"
+                      ? "Abaixo do padrão"
+                      : neighborhood.concentration?.level === "neutral"
+                        ? "Neutra"
+                        : "Amostra insuficiente"}
+                </TableCell>
+              ))}
+            </TableRow>
+            <TableRow>
+              <TableCell className="font-medium">Amostra</TableCell>
+              {neighborhoods.map((neighborhood) => (
+                <TableCell key={neighborhood.name}>
+                  {neighborhood.sample_size} anúncios
                 </TableCell>
               ))}
             </TableRow>

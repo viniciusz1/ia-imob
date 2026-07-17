@@ -1,4 +1,4 @@
-import api, { API_PREFIX } from "./api";
+import api, { API_PREFIX } from "@/services/api";
 import type { OfferMapFilters, OfferMapResponse } from "@/types/offerMap";
 
 export async function getOfferMap(
@@ -35,9 +35,9 @@ export async function getOfferMap(
     params.set("max_area", String(filters.max_area));
   }
 
-  const { data } = await api.get<OfferMapResponse>(
+  const { data } = await api.get<{ data: OfferMapResponse }>(
     `${API_PREFIX}/market-insights/offer-map?${params.toString()}`,
   );
 
-  return data;
+  return data.data;
 }

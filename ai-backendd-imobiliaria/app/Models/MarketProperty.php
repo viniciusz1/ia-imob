@@ -209,6 +209,14 @@ class MarketProperty extends Model
             $query->where('valor', '<=', $filters['max']);
         }
 
+        if (array_key_exists('min_area', $filters)) {
+            $query->where('area', '>=', $filters['min_area']);
+        }
+
+        if (array_key_exists('max_area', $filters)) {
+            $query->where('area', '<=', $filters['max_area']);
+        }
+
         if (! empty($filters['bairro_fuzzy']) || ! empty($filters['proximity_bairros'])) {
             $bairros = array_merge(
                 (array) ($filters['bairro_fuzzy'] ?? []),

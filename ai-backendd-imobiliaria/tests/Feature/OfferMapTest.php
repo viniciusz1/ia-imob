@@ -207,6 +207,37 @@ class OfferMapTest extends TestCase
             });
     }
 
+    public function test_filters_by_area_range(): void
+    {
+        $user = $this->createUserWithPermission();
+
+        $this->createListing(['area' => 60]);
+        $this->createListing(['area' => 100]);
+        $this->createListing(['area' => 140]);
+
+        Sanctum::actingAs($user);
+
+        $this->getJson('/api/v1/market-insights/offer-map?city=Jaragu%C3%A1%20do%20Sul&min_area=80&max_area=120')
+            ->assertOk()
+            ->assertJsonPath('data.total_count', 1)
+            ->assertJsonPath('data.neighborhoods.0.typical_area', 100);
+    }
+
+    public function test_type_filter_uses_the_canonical_catalog_value(): void
+    {
+        $user = $this->createUserWithPermission();
+
+        $this->createListing(['tipo' => 'casa residencial']);
+        $this->createListing(['tipo' => 'Apartamento']);
+
+        Sanctum::actingAs($user);
+
+        $this->getJson('/api/v1/market-insights/offer-map?city=Jaragu%C3%A1%20do%20Sul&tipo[]=Casa')
+            ->assertOk()
+            ->assertJsonPath('data.total_count', 1)
+            ->assertJsonPath('data.neighborhoods.0.predominant_type', 'Casa');
+    }
+
     public function test_calculates_city_share_percent(): void
     {
         $user = $this->createUserWithPermission();
@@ -342,6 +373,57 @@ class OfferMapTest extends TestCase
                 $this->assertSame(3, data_get($centro, 'typical_bedrooms'));
                 $this->assertSame(2, data_get($centro, 'typical_garage_spaces'));
                 $this->assertEqualsWithDelta(90.0, data_get($centro, 'typical_area'), 0.01);
+
+                return true;
+            });
+    }
+
+    public function test_tied_profile_modes_are_returned_as_mixed(): void
+    {
+        $user = $this->createUserWithPermission();
+
+        $this->createListing(['quartos' => 2, 'vagas' => 1]);
+        $this->createListing(['quartos' => 3, 'vagas' => 2]);
+
+        Sanctum::actingAs($user);
+
+        $this->getJson('/api/v1/market-insights/offer-map?city=Jaragu%C3%A1%20do%20Sul')
+            ->assertOk()
+            ->assertJsonPath('data.neighborhoods.0.typical_bedrooms', 'Misto')
+            ->assertJsonPath('data.neighborhoods.0.typical_garage_spaces', 'Misto');
+    }
+
+    public function test_returns_distribution_geometry_coverage_and_run_metadata(): void
+    {
+        $user = $this->createUserWithPermission();
+        $run = CrawlerRun::factory()->create([
+            'source_name' => 'source-a',
+            'completed_at' => '2026-07-15 12:30:00',
+        ]);
+
+        $this->createListing(['crawler_run_id' => $run->id, 'tipo' => 'Casa']);
+        $this->createListing(['crawler_run_id' => $run->id, 'tipo' => 'Apartamento']);
+
+        Sanctum::actingAs($user);
+
+        $response = $this->getJson('/api/v1/market-insights/offer-map?city=Jaragu%C3%A1%20do%20Sul');
+
+        $response->assertOk()
+            ->assertJsonPath('data.data_date', $run->completed_at->toIso8601String())
+            ->assertJsonPath('data.sources.0', 'source-a')
+            ->assertJsonPath('data.coverage.mapped_count', 2)
+            ->assertJsonPath('data.coverage.total_count', 2)
+            ->assertJsonPath('data.coverage.percent', 100)
+            ->assertJsonPath('data.geometry.available', true)
+            ->assertJsonPath('data.geometry.version', '1')
+            ->assertJsonPath('data.geometry.source.license', 'ODbL 1.0')
+            ->assertJsonCount(2, 'data.geometry.features')
+            ->assertJsonPath('data.neighborhoods.0.sample_quality', 'insufficient_sample')
+            ->assertJsonPath('data.neighborhoods.0.type_distribution', function ($distribution) {
+                $distribution = collect($distribution);
+
+                $this->assertSame(1, data_get($distribution->firstWhere('type', 'Casa'), 'count'));
+                $this->assertSame(1, data_get($distribution->firstWhere('type', 'Apartamento'), 'count'));
 
                 return true;
             });

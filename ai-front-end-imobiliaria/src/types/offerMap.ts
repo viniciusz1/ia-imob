@@ -28,6 +28,58 @@ export interface Concentration {
   ratio: number | null;
 }
 
+export interface TypeDistributionItem {
+  type: string;
+  count: number;
+  percent: number;
+}
+
+export type SampleQuality = "adequate" | "insufficient_sample";
+
+export type GeoJsonPosition = [number, number];
+
+export interface GeoJsonPolygon {
+  type: "Polygon";
+  coordinates: GeoJsonPosition[][];
+}
+
+export interface GeoJsonMultiPolygon {
+  type: "MultiPolygon";
+  coordinates: GeoJsonPosition[][][];
+}
+
+export interface NeighborhoodGeometryFeature {
+  type: "Feature";
+  properties: {
+    name: string;
+    osm_type?: string;
+    osm_id?: number;
+  };
+  geometry: GeoJsonPolygon | GeoJsonMultiPolygon;
+}
+
+export interface OfferMapGeometry {
+  available: boolean;
+  version: string | null;
+  source: {
+    name: string;
+    license: string;
+    url: string;
+  } | null;
+  features: NeighborhoodGeometryFeature[];
+}
+
+export interface OfferMapCoverage {
+  mapped_count: number;
+  total_count: number;
+  percent: number;
+}
+
+export interface OfferMapConfidence {
+  level: "adequate" | "low_coverage" | "insufficient_sample";
+  minimum_sample_size: number;
+}
+
 export interface NeighborhoodListing {
   id: number;
   tipo: string;
@@ -55,8 +107,11 @@ export interface NeighborhoodMetric {
   typical_bedrooms: number | string | null;
   typical_garage_spaces: number | string | null;
   typical_area: number | null;
+  type_distribution: TypeDistributionItem[];
+  sample_quality: SampleQuality;
   concentration: Concentration | null;
   sample_size: number;
+  has_geometry: boolean;
   listings: NeighborhoodListing[];
 }
 
@@ -68,5 +123,8 @@ export interface OfferMapResponse {
   price_ranges: PriceRange[];
   data_date: string | null;
   sources: string[];
+  coverage: OfferMapCoverage;
+  confidence: OfferMapConfidence;
+  geometry: OfferMapGeometry;
   filters: Record<string, unknown>;
 }

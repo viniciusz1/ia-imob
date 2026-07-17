@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { OfferMapClient } from "../OfferMapClient";
+import { OfferMapClient } from "@/components/features/offer-map/OfferMapClient";
 import * as offerMapService from "@/services/offerMapService";
 import type { OfferMapResponse } from "@/types/offerMap";
 
@@ -42,8 +42,11 @@ const mockResponse: OfferMapResponse = {
       typical_bedrooms: 2,
       typical_garage_spaces: 1,
       typical_area: 80,
+      type_distribution: [{ type: "Casa", count: 1, percent: 100 }],
+      sample_quality: "insufficient_sample",
       concentration: null,
       sample_size: 1,
+      has_geometry: true,
       listings: [
         {
           id: 1,
@@ -73,8 +76,11 @@ const mockResponse: OfferMapResponse = {
       typical_bedrooms: 3,
       typical_garage_spaces: 2,
       typical_area: 90,
+      type_distribution: [{ type: "Apartamento", count: 1, percent: 100 }],
+      sample_quality: "insufficient_sample",
       concentration: null,
       sample_size: 1,
+      has_geometry: true,
       listings: [
         {
           id: 2,
@@ -99,6 +105,49 @@ const mockResponse: OfferMapResponse = {
   ],
   data_date: "2026-07-13T00:00:00.000Z",
   sources: ["source-a"],
+  coverage: { mapped_count: 2, total_count: 2, percent: 100 },
+  confidence: { level: "insufficient_sample", minimum_sample_size: 10 },
+  geometry: {
+    available: true,
+    version: "1",
+    source: {
+      name: "OpenStreetMap contributors",
+      license: "ODbL 1.0",
+      url: "https://www.openstreetmap.org/copyright",
+    },
+    features: [
+      {
+        type: "Feature",
+        properties: { name: "Centro" },
+        geometry: {
+          type: "Polygon",
+          coordinates: [
+            [
+              [-49.1, -26.49],
+              [-49.08, -26.49],
+              [-49.08, -26.47],
+              [-49.1, -26.49],
+            ],
+          ],
+        },
+      },
+      {
+        type: "Feature",
+        properties: { name: "Vila Lenzi" },
+        geometry: {
+          type: "Polygon",
+          coordinates: [
+            [
+              [-49.11, -26.49],
+              [-49.1, -26.49],
+              [-49.1, -26.47],
+              [-49.11, -26.49],
+            ],
+          ],
+        },
+      },
+    ],
+  },
   filters: {},
 };
 
@@ -140,8 +189,11 @@ describe("OfferMapClient", () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByText(/centro/i)).toBeInTheDocument();
-      expect(screen.getByText(/vila lenzi/i)).toBeInTheDocument();
+      expect(screen.getByText("Centro", { selector: "span" })).toBeInTheDocument();
+      expect(screen.getByText("Vila Lenzi", { selector: "span" })).toBeInTheDocument();
+      expect(
+        screen.getByRole("group", { name: /mapa de oferta de jaraguá do sul/i }),
+      ).toBeInTheDocument();
     });
   });
 
@@ -152,7 +204,7 @@ describe("OfferMapClient", () => {
     fireEvent.change(cityInput, { target: { value: "Jaraguá do Sul" } });
 
     await waitFor(() => {
-      expect(screen.getByText(/centro/i)).toBeInTheDocument();
+      expect(screen.getByText("Centro", { selector: "span" })).toBeInTheDocument();
     });
 
     const layerSelect = screen.getByText(/quantidade de estoque/i);
@@ -170,6 +222,45 @@ describe("OfferMapClient", () => {
     });
   });
 
+  it("applies the property type filter", async () => {
+    renderClient();
+
+    fireEvent.change(screen.getByPlaceholderText(/ex: jaraguá do sul/i), {
+      target: { value: "Jaraguá do Sul" },
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText("Centro", { selector: "span" })).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Casa" }));
+
+    await waitFor(() => {
+      expect(offerMapService.getOfferMap).toHaveBeenLastCalledWith(
+        expect.objectContaining({ tipo: ["Casa"] }),
+        "stock",
+        undefined,
+      );
+    });
+  });
+
+  it("selects a neighborhood through the interactive map", async () => {
+    renderClient();
+
+    fireEvent.change(screen.getByPlaceholderText(/ex: jaraguá do sul/i), {
+      target: { value: "Jaraguá do Sul" },
+    });
+
+    const neighborhood = await screen.findByRole("button", {
+      name: /centro: 1 anúncios/i,
+    });
+    fireEvent.click(neighborhood);
+
+    await waitFor(() => {
+      expect(screen.getByText(/perfil típico/i)).toBeInTheDocument();
+    });
+  });
+
   it("selects a neighborhood and shows the panel", async () => {
     renderClient();
 
@@ -177,7 +268,7 @@ describe("OfferMapClient", () => {
     fireEvent.change(cityInput, { target: { value: "Jaraguá do Sul" } });
 
     await waitFor(() => {
-      expect(screen.getByText(/centro/i)).toBeInTheDocument();
+      expect(screen.getByText("Centro", { selector: "span" })).toBeInTheDocument();
     });
 
     const selectButtons = screen.getAllByRole("button", { name: /selecionar/i });
@@ -196,7 +287,7 @@ describe("OfferMapClient", () => {
     fireEvent.change(cityInput, { target: { value: "Jaraguá do Sul" } });
 
     await waitFor(() => {
-      expect(screen.getByText(/centro/i)).toBeInTheDocument();
+      expect(screen.getByText("Centro", { selector: "span" })).toBeInTheDocument();
     });
 
     const selectButtons = screen.getAllByRole("button", { name: /selecionar/i });

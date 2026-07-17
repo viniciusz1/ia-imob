@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { Map as MapIcon, Loader2 } from "lucide-react";
+import { Database, Loader2, Map as MapIcon, RefreshCw } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -10,10 +10,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { OfferMapFilters } from "./OfferMapFilters";
-import { OfferMapList } from "./OfferMapList";
-import { NeighborhoodPanel } from "./NeighborhoodPanel";
-import { NeighborhoodComparePanel } from "./NeighborhoodComparePanel";
+import { NeighborhoodComparePanel } from "@/components/features/offer-map/NeighborhoodComparePanel";
+import { NeighborhoodPanel } from "@/components/features/offer-map/NeighborhoodPanel";
+import { OfferMapFilters } from "@/components/features/offer-map/OfferMapFilters";
+import { OfferMapGeometryMap } from "@/components/features/offer-map/OfferMapGeometryMap";
+import { OfferMapList } from "@/components/features/offer-map/OfferMapList";
 import { getOfferMap } from "@/services/offerMapService";
 import type {
   OfferMapFilters as OfferMapFiltersType,
@@ -271,22 +272,80 @@ export function OfferMapClient() {
       )}
 
       {!loading && data && (
-        <div className="grid gap-6 lg:grid-cols-3">
-          <div className="lg:col-span-2">
-            <OfferMapList
-              data={data}
-              layer={layer}
-              selected={selected}
-              onToggle={toggleSelection}
-            />
+        <div className="space-y-6">
+          <div className="grid gap-3 md:grid-cols-3">
+            <div className="rounded-lg border bg-card p-3 text-sm">
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <RefreshCw className="h-4 w-4" />
+                Data-base
+              </div>
+              <p className="mt-1 font-medium">
+                {data.data_date
+                  ? new Intl.DateTimeFormat("pt-BR", {
+                      dateStyle: "medium",
+                      timeStyle: "short",
+                    }).format(new Date(data.data_date))
+                  : "Sem execução concluída"}
+              </p>
+            </div>
+            <div className="rounded-lg border bg-card p-3 text-sm">
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <MapIcon className="h-4 w-4" />
+                Cobertura geográfica
+              </div>
+              <p className="mt-1 font-medium">
+                {data.coverage.percent}% ({data.coverage.mapped_count} de{" "}
+                {data.coverage.total_count} anúncios)
+              </p>
+              {data.confidence.level === "low_coverage" && (
+                <p className="mt-1 text-xs text-amber-700">Cobertura baixa para esta leitura.</p>
+              )}
+              {data.confidence.level === "insufficient_sample" && (
+                <p className="mt-1 text-xs text-amber-700">Amostra insuficiente.</p>
+              )}
+            </div>
+            <div className="rounded-lg border bg-card p-3 text-sm">
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Database className="h-4 w-4" />
+                Fontes participantes
+              </div>
+              <p className="mt-1 font-medium">
+                {data.sources.length > 0 ? data.sources.join(", ") : "Nenhuma fonte"}
+              </p>
+            </div>
           </div>
 
-          <div className="space-y-4">
-            {activeNeighborhood && <NeighborhoodPanel neighborhood={activeNeighborhood} />}
+          <OfferMapGeometryMap
+            data={data}
+            layer={layer}
+            selected={selected}
+            onToggle={toggleSelection}
+          />
 
-            {selectedNeighborhoods.length > 1 && (
-              <NeighborhoodComparePanel neighborhoods={selectedNeighborhoods} />
-            )}
+          <div className="grid gap-6 lg:grid-cols-3">
+            <div className="lg:col-span-2">
+              <OfferMapList
+                data={data}
+                layer={layer}
+                selected={selected}
+                onToggle={toggleSelection}
+              />
+            </div>
+
+            <div className="space-y-4">
+              {activeNeighborhood && (
+                <NeighborhoodPanel
+                  coverage={data.coverage}
+                  dataDate={data.data_date}
+                  neighborhood={activeNeighborhood}
+                  sources={data.sources}
+                />
+              )}
+
+              {selectedNeighborhoods.length > 1 && (
+                <NeighborhoodComparePanel neighborhoods={selectedNeighborhoods} />
+              )}
+            </div>
           </div>
         </div>
       )}

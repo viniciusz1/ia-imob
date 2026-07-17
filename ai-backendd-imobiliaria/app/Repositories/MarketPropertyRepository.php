@@ -22,6 +22,7 @@ class MarketPropertyRepository implements MarketPropertyRepositoryInterface
         }
 
         $query = MarketProperty::query()
+            ->with('crawlerRun')
             ->latestRun()
             ->where('quality_status', 'valid')
             ->whereRaw('f_unaccent(cidade) ILIKE f_unaccent(?)', [$canonicalCity->name]);

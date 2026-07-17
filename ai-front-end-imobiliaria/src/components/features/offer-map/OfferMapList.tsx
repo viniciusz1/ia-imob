@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, MapPin } from "lucide-react";
+import { Check, ExternalLink, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -87,6 +87,9 @@ export function OfferMapList({ data, layer, selected, onToggle }: OfferMapListPr
                         ({neighborhood.original_name})
                       </span>
                     )}
+                    {!neighborhood.has_geometry && (
+                      <Badge variant="outline">Sem geometria</Badge>
+                    )}
                   </div>
 
                   <div className="flex flex-wrap items-center gap-2 text-sm">
@@ -148,10 +151,40 @@ export function OfferMapList({ data, layer, selected, onToggle }: OfferMapListPr
         })}
 
         {data.unmapped_listings.length > 0 && (
-          <div className="rounded-lg border border-dashed p-4">
-            <p className="text-sm text-muted-foreground">
-              {data.unmapped_listings.length} anúncio(s) não localizado(s) no mapa
-            </p>
+          <div className="space-y-3 rounded-lg border border-dashed p-4">
+            <div>
+              <p className="font-medium">Não localizados no mapa</p>
+              <p className="text-sm text-muted-foreground">
+                {data.unmapped_listings.length} anúncio(s) preservado(s) nos totais e na cobertura.
+              </p>
+            </div>
+            <div className="max-h-64 space-y-2 overflow-y-auto">
+              {data.unmapped_listings.map((listing) => (
+                <div
+                  key={listing.id}
+                  className="flex items-center justify-between gap-3 rounded-md border p-2 text-sm"
+                >
+                  <div>
+                    <p className="font-medium">{listing.bairro || "Bairro não informado"}</p>
+                    <p className="text-muted-foreground">
+                      {listing.tipo} · {formatCurrency(listing.valor)}
+                    </p>
+                  </div>
+                  {listing.link && (
+                    <Button asChild size="icon" variant="ghost">
+                      <a
+                        aria-label={`Abrir anúncio de ${listing.bairro}`}
+                        href={listing.link}
+                        rel="noopener noreferrer"
+                        target="_blank"
+                      >
+                        <ExternalLink className="h-4 w-4" />
+                      </a>
+                    </Button>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </CardContent>

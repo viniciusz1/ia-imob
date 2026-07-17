@@ -29,6 +29,7 @@ final class OfferMapCalculator
         array $priceRanges,
         array $sources,
         array $filters = [],
+        ?string $dataDate = null,
     ): CityOfferMap {
         $totalCount = array_sum(array_map(fn (array $group) => count($group['listings']), $matchedNeighborhoods));
         $totalCount += count($unmappedListings);
@@ -63,6 +64,8 @@ final class OfferMapCalculator
                 typicalBedrooms: $metrics['typical_bedrooms'],
                 typicalGarageSpaces: $metrics['typical_garage_spaces'],
                 typicalArea: $metrics['typical_area'],
+                typeDistribution: $metrics['type_distribution'],
+                sampleQuality: $metrics['sample_quality'],
                 concentration: $metrics['concentration'],
                 sampleSize: $metrics['sample_size'],
                 listings: $this->toListingSummaries($listings),
@@ -75,7 +78,7 @@ final class OfferMapCalculator
             neighborhoods: $neighborhoodMetrics,
             unmappedListings: $this->toListingSummaries(collect($unmappedListings)),
             priceRanges: $priceRanges,
-            dataDate: $this->resolveDataDate(),
+            dataDate: $dataDate,
             sources: $sources,
             filters: $filters,
         );
@@ -108,6 +111,8 @@ final class OfferMapCalculator
             'typical_bedrooms' => $this->mode($listings->pluck('quartos')->filter(fn ($value) => $value !== null)->all()),
             'typical_garage_spaces' => $this->mode($listings->pluck('vagas')->filter(fn ($value) => $value !== null)->all()),
             'typical_area' => $this->median($listings->pluck('area')->filter(fn ($value) => is_numeric($value) && $value > 0)->all()),
+            'type_distribution' => $this->typeDistribution($listings),
+            'sample_quality' => $count >= self::MIN_NEIGHBORHOOD_SAMPLE ? 'adequate' : 'insufficient_sample',
             'concentration' => $this->concentration($input, $listings, $totalCount, $cityTypeCounts),
             'sample_size' => $count,
         ];
@@ -226,6 +231,32 @@ final class OfferMapCalculator
 
     /**
      * @param  Collection<int, MarketProperty>  $listings
+     * @return array<int, array{type: string, count: int, percent: float}>
+     */
+    private function typeDistribution(Collection $listings): array
+    {
+        $total = $listings->count();
+
+        if ($total === 0) {
+            return [];
+        }
+
+        return $listings
+            ->pluck('tipo')
+            ->filter(fn ($type) => is_string($type) && trim($type) !== '')
+            ->countBy()
+            ->sortDesc()
+            ->map(fn (int $count, string $type) => [
+                'type' => $type,
+                'count' => $count,
+                'percent' => round(($count / $total) * 100, 2),
+            ])
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @param  Collection<int, MarketProperty>  $listings
      * @param  array<string, int>  $cityTypeCounts
      * @return array<string, mixed>|null
      */
@@ -304,10 +335,5 @@ final class OfferMapCalculator
             'link' => $listing->link_imovel,
             'imagem' => $listing->imagem,
         ])->all();
-    }
-
-    private function resolveDataDate(): ?string
-    {
-        return now()->toIso8601String();
     }
 }
