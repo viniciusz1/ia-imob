@@ -14,7 +14,7 @@ class CreateRoleAction
      */
     public function execute(string $name, array $permissions): Role
     {
-        $guard = (string) config('auth.defaults.guard', 'web');
+        $guard = $this->permissionGuard();
 
         $role = Role::create([
             'name' => $name,
@@ -59,5 +59,15 @@ class CreateRoleAction
             ->unique()
             ->values()
             ->all();
+    }
+
+    /**
+     * Fixed guard for Spatie roles/permissions.
+     * auth:sanctum mutates config('auth.defaults.guard') at runtime,
+     * so we always use the guard the tables were seeded with.
+     */
+    private function permissionGuard(): string
+    {
+        return 'web';
     }
 }

@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 class RoleSeeder extends Seeder
@@ -26,5 +27,40 @@ class RoleSeeder extends Seeder
                 'guard_name' => $guard,
             ]);
         }
+
+        $this->seedBrokerPermissions($guard);
+    }
+
+    /**
+     * Assign default permissions to the broker role.
+     */
+    private function seedBrokerPermissions(string $guard): void
+    {
+        $brokerRole = Role::query()
+            ->where('name', 'Corretor')
+            ->where('guard_name', $guard)
+            ->first();
+
+        if (! $brokerRole) {
+            return;
+        }
+
+        $permissionNames = [
+            'properties.view',
+            'properties.create',
+            'properties.edit.self',
+            'properties.delete',
+            'users.edit.self',
+            'valuations.create',
+            'valuations.view',
+            'market_insights.view',
+        ];
+
+        $permissions = Permission::query()
+            ->where('guard_name', $guard)
+            ->whereIn('name', $permissionNames)
+            ->get();
+
+        $brokerRole->syncPermissions($permissions);
     }
 }

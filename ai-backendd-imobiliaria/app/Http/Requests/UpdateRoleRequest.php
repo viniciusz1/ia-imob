@@ -23,7 +23,6 @@ class UpdateRoleRequest extends FormRequest
     public function rules(): array
     {
         $roleId = $this->route('role')->id ?? $this->route('role');
-        $guard = (string) config('auth.defaults.guard', 'web');
 
         return [
             'name' => [
@@ -31,11 +30,20 @@ class UpdateRoleRequest extends FormRequest
                 'string',
                 'max:255',
                 Rule::unique('roles', 'name')
-                    ->where('guard_name', $guard)
+                    ->where('guard_name', $this->permissionGuard())
                     ->ignore($roleId),
             ],
             'permissions' => ['required', 'array'],
             'permissions.*' => ['integer', Rule::exists('permissions', 'id')],
         ];
+    }
+
+    /**
+     * Fixed guard for Spatie roles/permissions.
+     * auth:sanctum mutates config('auth.defaults.guard') at runtime.
+     */
+    private function permissionGuard(): string
+    {
+        return 'web';
     }
 }

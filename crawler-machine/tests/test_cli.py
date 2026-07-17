@@ -22,6 +22,35 @@ def test_run_help_shows_regenerate_flags():
     assert result.exit_code == 0
     assert "--regenerate-discovery" in result.output
     assert "--regenerate-schema" in result.output
+    assert "--enable-llm-fallback" in result.output
+
+
+def test_crawl_help_shows_enable_llm_fallback():
+    """Verifica que --enable-llm-fallback aparece na ajuda do crawl."""
+    result = runner.invoke(app, ["crawl", "--help"])
+    assert result.exit_code == 0
+    assert "--enable-llm-fallback" in result.output
+
+
+def test_run_requires_source_name():
+    """--source-name deve ser obrigatório no comando run."""
+    result = runner.invoke(app, ["run", "https://example.com"])
+    assert result.exit_code != 0
+    assert "--source-name" in result.output or "source-name" in result.output
+
+
+def test_discover_requires_source_name():
+    """--source-name deve ser obrigatório no comando discover."""
+    result = runner.invoke(app, ["discover", "https://example.com"])
+    assert result.exit_code != 0
+    assert "--source-name" in result.output or "source-name" in result.output
+
+
+def test_schema_requires_source_name():
+    """--source-name deve ser obrigatório no comando schema."""
+    result = runner.invoke(app, ["schema", "https://example.com/imovel/1"])
+    assert result.exit_code != 0
+    assert "--source-name" in result.output or "source-name" in result.output
 
 
 def test_schema_help_shows_save_to_db_option():
@@ -39,8 +68,24 @@ def test_normalize_command(tmp_path: Path):
             {
                 "metadata": {"count": 2},
                 "data": [
-                    {"quartos": "3 (sendo 1 suíte)", "valor": "R$ 450.000,00"},
-                    {"quartos": "2", "valor": "R$ 200.000,00"},
+                    {
+                        "bairro": "Centro",
+                        "cidade": "Jaraguá do Sul",
+                        "tipo_imovel": "Apartamento",
+                        "url": "https://example.com/imovel/1",
+                        "imagem": "https://example.com/imovel/1.jpg",
+                        "quartos": "3 (sendo 1 suíte)",
+                        "valor": "R$ 450.000,00",
+                    },
+                    {
+                        "bairro": "Centro",
+                        "cidade": "Jaraguá do Sul",
+                        "tipo_imovel": "Casa",
+                        "url": "https://example.com/imovel/2",
+                        "imagem": "",
+                        "quartos": "2",
+                        "valor": "R$ 200.000,00",
+                    },
                 ],
             }
         )
@@ -84,4 +129,4 @@ def test_normalize_command(tmp_path: Path):
     )
 
     assert result.exit_code == 0, result.output
-    assert "2 registros normalizados" in result.output
+    assert "1 registros normalizados | 1 eliminados" in result.output

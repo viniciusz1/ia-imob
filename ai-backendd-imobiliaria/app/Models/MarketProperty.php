@@ -10,10 +10,12 @@ class MarketProperty extends Model
 {
     use HasFactory;
 
-    protected $table = 'market_properties';
+    protected $table = 'crawler.market_properties';
 
     protected $fillable = [
         'crawler_run_id',
+        'raw_property_id',
+        'source_url',
         'tipo',
         'imobiliaria',
         'valor',
@@ -45,6 +47,8 @@ class MarketProperty extends Model
         'andar',
         'posicao_solar',
         'ano_construcao',
+        'quality_status',
+        'quality_metadata',
     ];
 
     protected function casts(): array
@@ -57,6 +61,7 @@ class MarketProperty extends Model
             'banheiros' => 'integer',
             'vagas' => 'integer',
             'ano_construcao' => 'integer',
+            'quality_metadata' => 'array',
             'aceita_permuta' => 'boolean',
             'financiamento' => 'boolean',
             'piscina' => 'boolean',
@@ -202,6 +207,14 @@ class MarketProperty extends Model
 
         if (! empty($filters['max'])) {
             $query->where('valor', '<=', $filters['max']);
+        }
+
+        if (array_key_exists('min_area', $filters)) {
+            $query->where('area', '>=', $filters['min_area']);
+        }
+
+        if (array_key_exists('max_area', $filters)) {
+            $query->where('area', '<=', $filters['max_area']);
         }
 
         if (! empty($filters['bairro_fuzzy']) || ! empty($filters['proximity_bairros'])) {

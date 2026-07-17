@@ -1,0 +1,1719 @@
+{
+  "metadata": {
+    "rejected_at": "2026-07-07T03:47:32.999112+00:00",
+    "count": 85
+  },
+  "rejected": [
+    {
+      "index": 0,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br",
+        "imagem": "https://ppbxdsyojwqujdrmnxdv.storage.sa-east-1.nhost.run/v1/files/ac3e5002-392e-4dd2-a561-c52ef2cb37bb?w=3840",
+        "valor": 1750000.0
+      },
+      "missing_fields": [
+        "bairro",
+        "cidade",
+        "tipo_imovel"
+      ],
+      "reason": "missing required fields: bairro, cidade, tipo_imovel"
+    },
+    {
+      "index": 1,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/busca",
+        "valor": 2900.0
+      },
+      "missing_fields": [
+        "bairro",
+        "cidade",
+        "tipo_imovel",
+        "imagem"
+      ],
+      "reason": "missing required fields: bairro, cidade, tipo_imovel, imagem"
+    },
+    {
+      "index": 13,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/terreno-area-vila-baependi-jaragua-do-sul-sc-16222",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/6223/iDe5t67668z28f_62236a481f5d156e5.jpg",
+        "tipo_imovel": "Terreno / Área",
+        "quartos": 0,
+        "banheiros": 0,
+        "detalhes": "Excelente oportunidade para alugar um terreno no bairro Vila Baependi, em Jaraguá do Sul. Este espaço é ideal para diversas finalidades, oferecendo flexibilidade para você realizar seus projetos. Não perca a chance de garantir um local privilegiado na cidade!\nTerreno com área de 14m² x 36m² no Bairro Vila Baependi",
+        "bairro": "Vila Baependi",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 14,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/casa-avai-guaramirim-sc-3-quartos-120.00m2-16221",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/6222/i5N6ae_62226a47fec59597e.jpg",
+        "tipo_imovel": "Casa",
+        "quartos": 3,
+        "banheiros": 1,
+        "vagas": 2,
+        "area_privada": 120.0,
+        "detalhes": "A Casa dispõe de:\n\n3 Quartos sendo 1 Suíte\n1 Sala de Estar\n1 Sala de Jantar\n2 Cozinhas\n1 Área de Serviço\n1 Banheiro\n1 Churrasqueira\n2 Vagas de Garagem\n\n*Tem Piscina\n*Acompanha a mobília que está no imóvel\n*Aceita crianças\n*Aceita pet",
+        "bairro": "Avaí",
+        "cidade": "Guaramirim",
+        "piscina": null,
+        "churrasqueira": null,
+        "lavanderia": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 19,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/casa-sao-luis-jaragua-do-sul-sc-3-quartos-142.00m2-16217",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/6218/iyp57rm37r4JH53zv33MI_62186a3ed384864b1.jpg",
+        "tipo_imovel": "Casa",
+        "quartos": 3,
+        "banheiros": 1,
+        "area_privada": 142.0,
+        "detalhes": "A Casa dispõe de:\n\n3 Quartos sendo 1 Suíte\n1 Sala de Estar\n1 Sala de Jantar\n1 Cozinha\n1 Banheiro\n1 Área de Serviço\n1 Churrasqueira\n1 Vaga de Garagem\n\n*Acompanha a mobília que está no imóvel\n*Aceita crianças\n*Aceita 1 pet pequeno porte",
+        "bairro": "São Luís",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "sacada": null,
+        "mobiliado": null,
+        "lavanderia": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 26,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/cobertura-centro-jaragua-do-sul-sc-3-quartos-197.78m2-16218",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/6219/is74457o3_62196a43cd71c438b.jpg",
+        "tipo_imovel": "Cobertura",
+        "quartos": 3,
+        "banheiros": 3,
+        "vagas": 2,
+        "area_privada": 197.0,
+        "area_util": 260.0,
+        "detalhes": "Um imóvel cheio de requinte,personalidade e exclusividade. Conheça está elegante cobertura duplex no coração de Jaraguá do Sul, em uma localização privilegiada, unindo tranquilidade e proximidade as principais escolas particulares, supermercados, clubes, sal?es de beleza... Em seu primeiro pavimento encontra-se toda a área social, com copa, home theater, sala de estar e espaço gourmet integrados, terraço com piscina e uma vista deslumbrante do centro de Jaraguá do Sul, bem como home office, área de serviço e lavabo, subindo pela elegante escada chega-se ao segundo pavimento onde encontram-se duas conformtaveis demi-suites e a ampla e aconchegante suite master. ? imóvel também conta com duas vagas de garager lado a lado e o condomínio oferece área de lazer completa, com briquedoteca, academia, salão de festas e piscina.\n\nO Apartamento dispõe de:\n\n2 Demi-suite\n1 Suite master\n1 Sala de Estar\n1 Escritório\n1 Cozinha\n1 Copa\n1 Área de Serviço\n1 Churrasqueira\n2 Banheiros\n2 Vagas de Garagem\n\nValores sujeitos a alteração sem aviso prévio.",
+        "bairro": "Centro",
+        "cidade": "Jaraguá do Sul",
+        "piscina": null,
+        "churrasqueira": null,
+        "salao_festas": null,
+        "lavanderia": null,
+        "escritorio": null,
+        "elevador": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 31,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/casa-ilha-da-figueira-jaragua-do-sul-sc-4-quartos-115.00m2-14845",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/4846/i197828GErg6C9_48466752dea94e15c.jpg",
+        "tipo_imovel": "Casa",
+        "quartos": 4,
+        "banheiros": 1,
+        "vagas": 2,
+        "area_privada": 115.0,
+        "detalhes": "A casa dispõe de:\n\n4 Quartos, sendo 1 suíte \n1 Sala de estar\n1 Sala de jantar \n1 Cozinha \n1 Churrasqueira \n1 Área de serviço \n1 Banheiro \n1 Lavabo \n2 Vagas de garagem \n\n*  Aceita crianças e 1 animal de pequeno porte.",
+        "bairro": "Ilha da Figueira",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "lavanderia": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 32,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/casa-vila-lenzi-jaragua-do-sul-sc-6-quartos-16216",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/6217/iU78a2STPN5GKP7O5kwF5_62176a3e90339adca.jpg",
+        "tipo_imovel": "Casa",
+        "quartos": 6,
+        "banheiros": 2,
+        "vagas": 2,
+        "area_util": 180.0,
+        "detalhes": "A Casa dispõe de:\n\n6 Quartos\n2 Salas de Estar\n2 Salas de Jantar\n2 Cozinhas\n1 Área de Serviço\n2 Banheiros\n2 Vagas de Garagem\n\n*Aceita crianças\n*Não aceita animais",
+        "bairro": "Vila Lenzi",
+        "cidade": "Jaraguá do Sul",
+        "lavanderia": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 40,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/sala-vila-lenzi-jaragua-do-sul-sc-32.00m2-12755",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/2756/iGZ1v_275668c318c8310af.jpg",
+        "tipo_imovel": "Sala",
+        "quartos": 0,
+        "banheiros": 1,
+        "area_privada": 32.0,
+        "detalhes": "Excelente sala disponível para aluguel na Vila Lenzi, Jaraguá do Sul.\n\n Com uma área privativa de 32 m², essa sala é ideal para o seu negócio, oferecendo um lavabo e espaço para sua sala. \n\nAproveite essa oportunidade e venha conhecer o seu novo espaço de trabalho!",
+        "bairro": "Vila Lenzi",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 55,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/galpao-centenario-jaragua-do-sul-sc-14763",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/4764/i2Mn675BJDy_476467503b65a32a2.jpg",
+        "tipo_imovel": "Galpão",
+        "quartos": 0,
+        "banheiros": 2,
+        "vagas": 10,
+        "area_util": 350.0,
+        "detalhes": "O galpão dispõe de:\n\n2 Salas\n1 Copa \n2 Lavabos \n10 Vagas de estacionamento\n\n*Vai estar desocupado a partir do dia 20/12/2024",
+        "bairro": "Centenário",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 61,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/casa-centro-jaragua-do-sul-sc-181.00m2-14363",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/4364/iCy81tM5_436466e02ec70fe1b.jpg",
+        "tipo_imovel": "Casa",
+        "quartos": 0,
+        "banheiros": 4,
+        "suites": 3,
+        "vagas": 2,
+        "area_privada": 181.0,
+        "detalhes": "A casa dispõe:\n\n3 Suítes\n1 Sala de estar\n1 Sala de jantar\n1 Cozinha\n1 Churrasqueira\n1 Área de serviço\n4 Banheiros\n2 Vagas para garagem \n\n*Móveis:\nCozinha sob medida",
+        "bairro": "Centro",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "sacada": null,
+        "lavanderia": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 63,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/chacara-guamiranga-guaramirim-sc-2-quartos-14309",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/4310/iX8CFcnMZ7UW8jsj_431066c8717e2327b.jpg",
+        "tipo_imovel": "Chácara",
+        "quartos": 2,
+        "banheiros": 2,
+        "area_util": 6020.0,
+        "detalhes": "A chácara dispõe:\n\n2 Quartos\n1 Suíte\n1 Sala de estar\n1 Sala de jantar\n1 Vozinha\n1 Churrasqueira\n1 Área de serviço\n2 Banheiros\n*Vaga para garagem",
+        "bairro": "Guamiranga",
+        "cidade": "Guaramirim",
+        "churrasqueira": null,
+        "lavanderia": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 76,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/apartamento-vila-lalau-jaragua-do-sul-sc-2-quartos-65.75m2-15255",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/5256/i925j4x46gK4_525667e44372db421.jpg",
+        "tipo_imovel": "Apartamento",
+        "quartos": 2,
+        "banheiros": 1,
+        "area_privada": 65.0,
+        "area_util": 103.0,
+        "detalhes": "O Apartamento dispõe de:\n\n2 Quartos sendo 1 Suíte\n1 Sala de Estar\n1 Sala de Jantar\n1 Cozinha\n1 Área de serviço\n1 Churrasqueira\n1 Banheiro\n1 Vaga de garagem\n\nLuz com automação e ligação com a Alexa.",
+        "bairro": "Vila Lalau",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "lavanderia": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 86,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/casa-barra-do-rio-molha-jaragua-do-sul-sc-5-quartos-324.00m2-15608",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/5609/i4H2Y631q4_5609687a94de3fdd1.jpg",
+        "tipo_imovel": "Casa",
+        "quartos": 5,
+        "banheiros": 5,
+        "vagas": 4,
+        "area_privada": 324.0,
+        "detalhes": "A casa dispõe de:\n\n5 Quartos sendo 1 Suite\n2 Salas de Estar\n1 Sala de Jantar \n1 Cozinha \n1 Churrasqueira \n1 Área de Serviço \n5 Banheiros \n1 Lavabo \n4 Vagas de Garagem \n\n* Acompanha moveis sob medida \n\n*Aceita crianças \n* Permite animais de pequeno porte",
+        "bairro": "Barra do Rio Molha",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "sacada": null,
+        "lavanderia": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 87,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/casa-amizade-jaragua-do-sul-sc-5-quartos-182.24m2-15607",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/5608/i7f9Od5581F5V7p9bC_5608687a4a14b6e55.jpg",
+        "tipo_imovel": "Casa",
+        "quartos": 5,
+        "banheiros": 3,
+        "vagas": 2,
+        "area_privada": 182.0,
+        "area_util": 346.0,
+        "detalhes": "A casa dispõe de:\n\n5 Quartos\n1 Sala de estar\n1 Sala de jantar\n1 Cozinha\n1 Área de serviço\n3 Banheiros\n2 Vagas de garagem",
+        "bairro": "Amizade",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "sacada": null,
+        "lavanderia": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 92,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/casa-vila-nova-jaragua-do-sul-sc-3-quartos-242.53m2-12414",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/2415/igA0Drd6_241562f547c58a4f3_jM1YmU2ZTRjNjY2_o_md.jpg",
+        "tipo_imovel": "Casa",
+        "quartos": 3,
+        "banheiros": 3,
+        "vagas": 2,
+        "area_privada": 242.0,
+        "area_util": 526.0,
+        "detalhes": "Ampla casa, com 3 dormitórios, sendo uma suite, sala de estar/ jantar, copa/cozinha, quintal e varanda.",
+        "bairro": "Vila Nova",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "ar_condicionado": null,
+        "lavanderia": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 93,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/chacara-centro-guaramirim-sc-1-quartos-11338",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/1339/i8B0WIe815h2O897vD1Q1_1339611faa263d812_o_md.jpg",
+        "tipo_imovel": "Chácara",
+        "quartos": 1,
+        "banheiros": 1,
+        "area_util": 314970.0,
+        "detalhes": "Linda chácara ampla com construções, lagoas e totalmente cercada.",
+        "bairro": "Centro",
+        "cidade": "Guaramirim"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 101,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/sitio-barra-do-rio-molha-jaragua-do-sul-sc-1-quartos-105400.00m2-10947",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/948/i5V05v9_94860881537d9c0a_o_md.jpg",
+        "tipo_imovel": "Sítio",
+        "quartos": 1,
+        "banheiros": 1,
+        "area_privada": 105400.0,
+        "area_util": 105400.0,
+        "detalhes": "Chácara com diversidade em árvores frutíferas no decorrer do terreno e 08 tanques de peixes.",
+        "bairro": "Barra do Rio Molha",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 105,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/casa-vila-lalau-jaragua-do-sul-sc-3-quartos-148.25m2-12044",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/2045/i119n3954d9o_2045624ef320e4757_o_md.jpg",
+        "tipo_imovel": "Casa",
+        "quartos": 3,
+        "banheiros": 2,
+        "vagas": 2,
+        "area_privada": 148.0,
+        "area_util": 150.0,
+        "detalhes": "Casa em ótima localização no bairro Vila Lalau próximo do Parque Municipal Via Verde, empresa Marisol e Weg II. \n \n\nCom 03 dormitórios sendo 01 suíte, sala de estar e jantar, 02 banheiro, área de serviço, área de festa, quintal, canil e garagem coberta.\n\n\nExcelente acabamento, rebaixamento em gesso com Led.\n\n \nMóveis sob medida: Cozinha, banheiro e dormitórios.\n\nSistema de energia solar.\n\n\nCom total segurança com alarme, câmeras de segurança e portão eletrônico.\n\n\nExcelente oportunidade para negociação.",
+        "bairro": "Vila Lalau",
+        "cidade": "Jaraguá do Sul",
+        "mobiliado": null,
+        "ar_condicionado": null,
+        "lavanderia": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 116,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/galpao-vila-nova-jaragua-do-sul-sc-14139",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/4140/idCLU34T2248QFA3n1_4140692588f042a37.jpg",
+        "tipo_imovel": "Galpão",
+        "quartos": 0,
+        "banheiros": 0,
+        "area_util": 256.0,
+        "detalhes": "Galpão com ótima localização, projeto com possibilidade de adaptação para o seu negócio!\n\nAproveite essa grande oportunidade!",
+        "bairro": "Vila Nova",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 129,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/sala-centro-jaragua-do-sul-sc-266.00m2-13361",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/3362/iwF9OVQdkV2P1_336264dd03a1dacd9_GFiZTJlYWU2OGEw_o_md.jpg",
+        "tipo_imovel": "Sala",
+        "quartos": 0,
+        "banheiros": 2,
+        "vagas": 8,
+        "area_privada": 266.0,
+        "area_util": 350.0,
+        "detalhes": "Sala Comercial Térrea com ótima visibilidade.\n\nCom 01 sala comercial, 02 lavabos e 08 vagas de estacionamento rotativo.\n\n* IPTU Anual.",
+        "bairro": "Centro",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 144,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/sala-rau-jaragua-do-sul-sc-160.00m2-13984",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/3985/iD2V186_39856638e3e2bb6e1_TkyY2Y4NDcyZmEw_o_md.jpg",
+        "tipo_imovel": "Sala",
+        "quartos": 0,
+        "banheiros": 2,
+        "vagas": 4,
+        "area_privada": 160.0,
+        "area_util": 507.0,
+        "detalhes": "Sala Comercial em ótima localização\n\nDispõe de: \n2 salas\n2 lavabos\n4 vagas de garagem\n\nSalas já alugadas, ótima oportunidade para investimento!\n\nAgende sua visita!",
+        "bairro": "Rau",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 146,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/apartamento-rio-hern-schroeder-sc-2-quartos-62.00m2-13890",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/3891/ihrff8t3U96zRxm523_3891660183c72694e_Tk5ZTZiNjMzMzli_o_md.jpg",
+        "tipo_imovel": "Apartamento",
+        "quartos": 2,
+        "banheiros": 1,
+        "area_privada": 62.0,
+        "area_util": 68.0,
+        "detalhes": "Apartamento no bairro Rio Hern\n\nDispõe de:\n2 Quartos\nSala de estar\nCozinha com balcão \nÁrea de serviço\nBanheiro\nChurrasqueira\nSacada\nVaga de garagem\n\nÓtima Oportunidade!",
+        "bairro": "Rio Hern",
+        "cidade": "Schroeder",
+        "churrasqueira": null,
+        "sacada": null,
+        "lavanderia": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 159,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/area-comercial-chico-de-paulo-jaragua-do-sul-sc-159.16m2-12882",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/2883/i49sxdf04x0j_288363ecefb6c5a46_jQxY2UxNTZmMmVm_o_md.jpg",
+        "tipo_imovel": "Área Comercial",
+        "quartos": 0,
+        "banheiros": 0,
+        "area_privada": 159.0,
+        "area_util": 641.0,
+        "detalhes": "Terreno com 482 m² com uma sala comercial de 159 m² com 4 banheiros, garagem e painel solar. \nPossibilidade de fazer duas salas comerciais. \n\nAvalia todas as propostas!",
+        "bairro": "Chico de Paulo",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 166,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/apartamento-santo-antonio-jaragua-do-sul-sc-2-quartos-14004",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/4005/iiP9cY9a_400568fa634d3d9d7.jpg",
+        "tipo_imovel": "Apartamento",
+        "quartos": 2,
+        "banheiros": 1,
+        "area_util": 70.0,
+        "detalhes": "O apartamento dispõe de:\n\n2 Quartos\n1 Sala de estar\n1 Cozinha\n1 Área serviço\n1 Vaga de garagem\n1 Banheiro\n\n* Aceita crianças e animais de pequeno porte",
+        "bairro": "Santo Antônio",
+        "cidade": "Jaraguá do Sul",
+        "sacada": null,
+        "lavanderia": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 167,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/sobrado-barro-branco-massaranduba-sc-2-quartos-250.00m2-16006",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/6007/i6D4b_600769791912c9551.jpg",
+        "tipo_imovel": "Sobrado",
+        "quartos": 2,
+        "banheiros": 1,
+        "area_privada": 250.0,
+        "detalhes": "Excelente residência em meio à tranquilidade de Massaranduba, perfeita para quem busca conforto, espaço e economia no dia a dia.\nCom 250m² de área construída em um amplo terreno de 3.000m², o imóvel oferece ambientes bem distribuídos e integrados:\n\n1 Suíte com closet\n2 Dormitórios\n1 Banheiro social\n1 Lavabo\n\nLiving integrado, trazendo mais amplitude e iluminação natural\nÁrea de festas com churrasqueira, ideal para receber amigos e família\n\n* Ficam no imóvel (porteira fechada parcial):\nMicro-ondas e forno de embutir\nMáquina de lavar e secadora\nAr-condicionado \nFogão embutido de 5 bocas\nGeladeira  Inverter \nTV 55\"\nSofá retrátil sob medida \n\n* Sustentabilidade e economia:\nSistema de energia solar com capacidade de 480 kVA, proporcionando grande redução na conta de energia\nÁgua de poço, garantindo economia e autonomia\n\nUm imóvel completo, que une conforto, lazer, tecnologia e eficiência energética, em um terreno amplo e valorizado.",
+        "bairro": "Barro Branco",
+        "cidade": "Massaranduba",
+        "churrasqueira": null,
+        "lavanderia": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 168,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/casa-barra-do-rio-molha-jaragua-do-sul-sc-2-quartos-14339",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/4340/i45Kv77j6iJ6_434066d70ceab2bd1.jpg",
+        "tipo_imovel": "Casa",
+        "quartos": 2,
+        "banheiros": 1,
+        "vagas": 2,
+        "area_util": 110.0,
+        "detalhes": "A casa dispõe:\n\n2 Quartos\n1 Sala de estar\n1 Sala de jantar\n1 Cozinha\n1 Área de serviço\n1 Banheiro\n2 Vagas para garagem \n\n*Fica toda a mobília",
+        "bairro": "Barra do Rio Molha",
+        "cidade": "Jaraguá do Sul",
+        "lavanderia": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 174,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/casa-nova-brasilia-jaragua-do-sul-sc-3-quartos-85.00m2-15977",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/5978/i884to96119_597869662398824da.jpg",
+        "tipo_imovel": "Casa",
+        "quartos": 3,
+        "banheiros": 1,
+        "vagas": 2,
+        "area_privada": 85.0,
+        "detalhes": "A casa dispõe de:\n\n3 Quartos\n1 Sala de estar\n1 Sala de jantar\n1 Cozinha\n1 Área de serviço\n1 Banheiro\n2 Vagas de garagem\n\n* Fica mobília da cozinha\n\n* Aceita crianças e 1 animal de pequeno porte",
+        "bairro": "Nova Brasília",
+        "cidade": "Jaraguá do Sul",
+        "lavanderia": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 178,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/casa-rio-da-luz-jaragua-do-sul-sc-3-quartos-200.00m2-15946",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/5947/i9O3239WP65N7r659P_594769371ebaf07b4.jpg",
+        "tipo_imovel": "Casa",
+        "quartos": 3,
+        "banheiros": 2,
+        "vagas": 2,
+        "area_privada": 200.0,
+        "detalhes": "A casa dispõe de:\n\n3 Quartos, sendo 1 suíte\n1 Sala de estar\n1 Sala de jantar\n1 Cozinha\n1 Área de serviço\n2 Banheiros\n2 Vagas de garagem\n\n* Fica a mobília que está no imóvel\n* Aceita crianças e 1 animal de porte pequeno.",
+        "bairro": "Rio da Luz",
+        "cidade": "Jaraguá do Sul",
+        "sacada": null,
+        "mobiliado": null,
+        "lavanderia": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 180,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/casa-geminada-tres-rios-do-sul-jaragua-do-sul-sc-2-quartos-95.87m2-15858",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/5859/iq55Z5KUp6_58596908ff677fd35.jpg",
+        "tipo_imovel": "Casa geminada",
+        "quartos": 2,
+        "banheiros": 2,
+        "suites": 2,
+        "vagas": 2,
+        "area_privada": 95.0,
+        "area_util": 118.0,
+        "detalhes": "A casa geminada dispõe de:\n\n2 Quartos sendo 2 Suítes\n1 Sala de estar\n1 Sala de jantar\n1 Cozinha\n1 Churrasqueira\n1 Área de serviço\n2 Banheiros\n1 Lavabo\n2 Vagas de garagem",
+        "bairro": "Três Rios do Sul",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "lavanderia": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 181,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/apartamento-ilha-da-figueira-jaragua-do-sul-sc-1-quartos-70.75m2-14290",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/4291/ib6rvFRFt_429166be0064d7a33.jpg",
+        "tipo_imovel": "Apartamento",
+        "quartos": 1,
+        "banheiros": 2,
+        "area_privada": 70.0,
+        "detalhes": "O apartamento dispõe:\n\n1 Quartos\n1 Suíte\n1 Sala de estar\n1 Sala de jantar\n1 Cozinha\n1 Churrasqueira\n1 área de serviço\n2 Banheiros\n1 Vaga para garagem",
+        "bairro": "Ilha da Figueira",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "sacada": null,
+        "lavanderia": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 183,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/terreno-area-nova-brasilia-jaragua-do-sul-sc-12045",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/2046/iZ1gZiMV4XDkA94k_2046624ee5c0f2850_o_md.jpg",
+        "tipo_imovel": "Terreno / Área",
+        "quartos": 0,
+        "banheiros": 0,
+        "area_util": 475.0,
+        "detalhes": "Terreno em ótima localização no bairro Nova Brasília com 475,50 m².\n\n\nPróximo da Arena Jaraguá",
+        "bairro": "Nova Brasília",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 188,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/apartamento-duplex-ilha-da-figueira-jaragua-do-sul-sc-137.00m2-14534",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/4535/i1V587gY_4535672240aa2749d.jpg",
+        "tipo_imovel": "Apartamento Duplex",
+        "quartos": 0,
+        "banheiros": 2,
+        "suites": 2,
+        "vagas": 3,
+        "area_privada": 137.0,
+        "area_util": 196.0,
+        "detalhes": "Apartamento duplex, localizado no primeiro andar, dispõe de:\n\n2 Suítes\n1 Escritório \n1 Sala de estar\n1 Sala de jantar\n1 Cozinha\n1 Copa\n1 Churrasqueira\n1 Área de serviço\n1 Lavabo\n2 Banheiros \n3 Vagas de garagem",
+        "bairro": "Ilha da Figueira",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "lavanderia": null,
+        "escritorio": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 192,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/terreno-area-vila-rau-jaragua-do-sul-sc-15717",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/5718/i1r4e4_571868adcb4dce554.jpg",
+        "tipo_imovel": "Terreno / Área",
+        "quartos": 0,
+        "banheiros": 0,
+        "area_util": 349.0,
+        "detalhes": "Com uma área total de 349,35 m², este espaço oferece inúmeras possibilidades para construção. \n\nA região é conhecida por seu fácil acesso e conveniência, tornando-se uma excelente escolha tanto para residências quanto para empreendimentos comerciais.\n\n Aproveite essa chance de investir em um local que combina potencial e valorização. \n\nEntre em contato para mais informações e venha conhecer!",
+        "bairro": "Vila Rau",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 194,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/casa-rio-hern-schroeder-sc-3-quartos-15222",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/5223/iSx88m3_522367d973032b246.jpg",
+        "tipo_imovel": "Casa",
+        "quartos": 3,
+        "banheiros": 3,
+        "vagas": 2,
+        "area_util": 196.0,
+        "detalhes": "A casa dispõe de:\n\n3 Quartos sendo 1 Suíte\n1 Sala de Estar\n1 Sala de Jantar\n1 Cozinha\n1 Área de serviço\n1 Churrasqueira\n3 Banheiros\n2 Vagas de Garagem",
+        "bairro": "Rio Hern",
+        "cidade": "Schroeder",
+        "churrasqueira": null,
+        "lavanderia": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 195,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/chacara-rio-da-luz-jaragua-do-sul-sc-4-quartos-15243",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/5244/i528u88lz4z4l5xBChie_524467dd741ae9194.jpg",
+        "tipo_imovel": "Chácara",
+        "quartos": 4,
+        "banheiros": 2,
+        "vagas": 2,
+        "area_util": 114000.0,
+        "detalhes": "A chácara dispõe de:\n\n4 Quartos\n2 Salas de estar\n2 Salas de jantar\n2 Cozinhas\n1 Churrasqueira\n2 Áreas de serviço\n2 Banheiros\n2 Vagas de garagem\n\n*Duas casas no terreno e 1 galpão",
+        "bairro": "Rio da Luz",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "lavanderia": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 200,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/apartamento-ilha-da-figueira-jaragua-do-sul-sc-3-quartos-76.00m2-15686",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/5687/i3A4YBX1n7sNF9pGF44_5687689f9b888471e.jpg",
+        "tipo_imovel": "Apartamento",
+        "quartos": 3,
+        "banheiros": 1,
+        "area_privada": 76.0,
+        "area_util": 95.0,
+        "detalhes": "O apartamento dispõe de:\n\n3 Quartos sendo 1 suíte\n1 Sala de estar\n1 Cozinha\n1 Área de serviço\n1 Banheiro\n1 Vaga de garagem\n\n*Acompanha a mobília do imóvel",
+        "bairro": "Ilha da Figueira",
+        "cidade": "Jaraguá do Sul",
+        "lavanderia": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 204,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/sala-garibaldi-jaragua-do-sul-sc-1-quartos-80.00m2-14872",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/4873/i688wA529Aj9GMU2_487368a6293a78eae.jpg",
+        "tipo_imovel": "Sala",
+        "quartos": 1,
+        "banheiros": 1,
+        "area_privada": 80.0,
+        "detalhes": "O Imovel dispoe de: \n\n1 Quarto \n1 Sala de estar \n1 Cozinha\n1 Área de serviço \n\n* Não permite animais\n* Aceita crianças",
+        "bairro": "Garibaldi",
+        "cidade": "Jaraguá do Sul",
+        "lavanderia": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 205,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/apartamento-itacolomi-balneario-picarras-sc-77.00m2-14542",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/4543/i9m867j664E7V8YOrg2j7_45436723e8c5d0f4e.jpg",
+        "tipo_imovel": "Apartamento",
+        "quartos": 0,
+        "banheiros": 2,
+        "vagas": 2,
+        "area_privada": 77.0,
+        "detalhes": "Apartamentos disponíveis para venda! Espaços aconchegantes, com vistas encantadoras e localizados bem pertinho do mar. Ideais para quem deseja morar ou investir em um ambiente que oferece tranquilidade e bem-estar\n\nSão poucas unidades que restam!\nValores a partir de R$ 1.009.459,00",
+        "bairro": "Itacolomi",
+        "cidade": "Balneário Piçarras"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 208,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/sitio-rio-da-luz-ii-jaragua-do-sul-sc-2-quartos-15688",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/5689/iA7DjE43q8B4G7_568968a3393601fa2.jpg",
+        "tipo_imovel": "Sítio",
+        "quartos": 2,
+        "banheiros": 1,
+        "detalhes": "O imóvel dispõe de: \n\n2 Quartos \n1 Sala de estar\n1 Sala de jantar\n1 Cozinha\n1 Churrasqueira\n1 Área de serviço\n1 Banheiro",
+        "bairro": "Rio da Luz II",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "lavanderia": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 229,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/casa-geminada-vila-lalau-jaragua-do-sul-sc-2-quartos-15408",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/5409/i2Z5a8zpK492989MFdeAs_5409681e1148e31e8.jpg",
+        "tipo_imovel": "Casa geminada",
+        "quartos": 2,
+        "banheiros": 0,
+        "detalhes": "A casa dispõe de:\n\n2 Quartos sendo 1 suíte\n1 Sala de estar\n1 Sala de jantar\n1 Cozinha",
+        "bairro": "Vila Lalau",
+        "cidade": "Jaraguá do Sul",
+        "sacada": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 238,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/apartamento-barra-do-rio-cerro-jaragua-do-sul-sc-3-quartos-113.20m2-15637",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/5638/iCumM2_5638688b67e284986.jpg",
+        "tipo_imovel": "Apartamento",
+        "quartos": 3,
+        "banheiros": 1,
+        "area_privada": 113.0,
+        "area_util": 130.0,
+        "detalhes": "O imóvel dispõe de: \n\n3 Quartos sendo 1 Suite \n1 Sala de Estar \n1 Sala de Jantar \n1 Cozinha \n1 Churrasqueira\n1 Área de serviço \n1 Banheiro\n1 Vaga de Garagem",
+        "bairro": "Barra do Rio Cerro",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "lavanderia": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 245,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/casa-centro-schroeder-sc-2-quartos-94.00m2-15440",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/5441/isERWR81RlG442_5441682f5242176ad.jpg",
+        "tipo_imovel": "Casa",
+        "quartos": 2,
+        "banheiros": 2,
+        "area_privada": 94.0,
+        "area_util": 468.0,
+        "detalhes": "A casa dispõe de:\n\n2 Quartos\n1 Sala de estar\n1 Sala de jantar\n1 Cozinha\n1 Edícula\n1 Churrasqueira\n1 Área de serviço\n2 Banheiros",
+        "bairro": "Centro",
+        "cidade": "Schroeder",
+        "churrasqueira": null,
+        "lavanderia": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 256,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/casa-imigrantes-guaramirim-sc-3-quartos-13874",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/3875/is9pYtPYb5s_387565f833473ced2_jM1MjgyMjhkOGE5_o_md.jpg",
+        "tipo_imovel": "Casa",
+        "quartos": 3,
+        "banheiros": 2,
+        "vagas": 2,
+        "detalhes": "Dispõe de:\n\n03 Quartos\n2 Salas de estar\n01 Sala de jantar\n01 Cozinha\n01 Área de serviço\n02 Banheiros\n01 Churrasqueira\n01 Deposito\n02 Vagas de garagem\n\nÓtima oportunidade!",
+        "bairro": "Imigrantes",
+        "cidade": "Guaramirim",
+        "churrasqueira": null,
+        "lavanderia": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 267,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/terreno-area-agua-verde-jaragua-do-sul-sc-13323",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/3324/ibBxcJ4B_332464cbb2dad10ad_jY4NDMzNzBjNjc4_o_md.jpg",
+        "tipo_imovel": "Terreno / Área",
+        "quartos": 0,
+        "banheiros": 0,
+        "area_util": 450.0,
+        "detalhes": "Terrno bem localizado em ótimo loteamento, terreno amplo para construção de casa médio a alto padrão.\nÓtima oportunidade.",
+        "bairro": "Água Verde",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 280,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/casa-tres-rios-do-sul-jaragua-do-sul-sc-4-quartos-13852",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/3853/i2j95nu91826_385365eb0c88054c5_zBkN2Q2NmI4MWFl_o_md.jpg",
+        "tipo_imovel": "Casa",
+        "quartos": 4,
+        "banheiros": 2,
+        "detalhes": "Duas casas no terreno.\n\nCada uma dispõe de 02 quartos\n01 cozinha\n01 área de serviço\n01 banheiro\n01 área de serviço\n01 vaga de garagem\n\nCada casa com cerca de 70 m² construidas, totalizando aproximadamente 140m². Não averbadas.",
+        "bairro": "Três Rios do Sul",
+        "cidade": "Jaraguá do Sul",
+        "lavanderia": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 286,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/casa-geminada-joao-pessoa-jaragua-do-sul-sc-2-quartos-83.28m2-15714",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/5715/i767ef8Iy1Q492U_571568ac773ebc1db.jpg",
+        "tipo_imovel": "Casa geminada",
+        "quartos": 2,
+        "banheiros": 1,
+        "suites": 2,
+        "area_privada": 83.0,
+        "area_util": 100.0,
+        "detalhes": "O Imóvel dispõe de: \n\n2 Quartos sendo 2 Suítes\n1 Sala de estar \n1 Sala de jantar\n1 Cozinha\n1 Churrasqueira\n1 Área de serviço\n1 Lavabo\n1 Vaga de garagem",
+        "bairro": "João Pessoa",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "lavanderia": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 289,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/casa-joao-pessoa-jaragua-do-sul-sc-2-quartos-105.75m2-16107",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/6108/ile178v1215Q79V1U_610869c2a61a6b704.jpg",
+        "tipo_imovel": "Casa",
+        "quartos": 2,
+        "banheiros": 2,
+        "vagas": 2,
+        "area_privada": 105.0,
+        "area_util": 261.0,
+        "detalhes": "A casa dispõe de:\n\n2 Quartos\n1 Sala de Estar\n1 Cozinha\n1 Área de Serviço\n1 Churrasqueira\n2 Vagas de Garagem\n1 Banheiro",
+        "bairro": "João Pessoa",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "sacada": null,
+        "lavanderia": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 291,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/apartamento-tres-rios-do-norte-jaragua-do-sul-sc-2-quartos-53.00m2-13015",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/3016/iz3G73NVMQYX_301664344b345d1c6_jE4MmYyY2MxM2Mx_o_md.jpg",
+        "tipo_imovel": "Apartamento",
+        "quartos": 2,
+        "banheiros": 1,
+        "area_privada": 53.0,
+        "area_util": 73.0,
+        "detalhes": "Excelente apartamento no bairro Três Rios do Norte.\n\nConta com 2 quartos, sala de estar e jantar, cozinha, área de serviço, banheiro, sacada com churrasqueira e uma vaga de garagem coberta. \n\nFica no imóvel os móveis sob medida. \n\nFinanciável !!!",
+        "bairro": "Três Rios do Norte",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 294,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/apartamento-barra-do-rio-cerro-jaragua-do-sul-sc-3-quartos-90.00m2-16090",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/6091/i6498Q3TQ4962_609169b95255a45a4.jpg",
+        "tipo_imovel": "Apartamento",
+        "quartos": 3,
+        "banheiros": 1,
+        "area_privada": 90.0,
+        "detalhes": "O apartamento dispõe de:\n\n3 Quartos sendo 1 suíte\n1 Sala de estar\n1 Sala de jantar\n1 Cozinha\n1 Churrasqueira\n1 Área de serviço\n1 Banheiro\n1 Vaga de garagem\n\n*Aceita crianças e animal de pequeno porte",
+        "bairro": "Barra do Rio Cerro",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "sacada": null,
+        "lavanderia": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 299,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/predio-centro-pomerode-sc-16049",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/6050/iGuqrY4373s_6050699c6690acdae.jpg",
+        "tipo_imovel": "Prédio",
+        "quartos": null,
+        "banheiros": null,
+        "bairro": "Centro",
+        "cidade": "Pomerode"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 309,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/terreno-area-tres-rios-do-norte-jaragua-do-sul-sc-2-quartos-69.00m2-16037",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/6038/iGa96A89VDc587rj_603869985b1a598cc.jpg",
+        "tipo_imovel": "Terreno / Área",
+        "quartos": 2,
+        "banheiros": 1,
+        "area_privada": 69.0,
+        "area_util": 108.0,
+        "detalhes": "Geminado Completo no Loteamento Paineiras | Jaraguá do Sul\nNão compre apenas paredes, compre economia mensal e conforto pronto. \n* DIFERENCIAL DE ECONOMIA (Energia Solar Inclusa):\nO imóvel já vem com Sistema Fotovoltaico em pleno funcionamento (5 placas + inversor). Você produz sua própria energia e reduz drasticamente a conta de luz desde o primeiro dia.\n* SUÍTE PRONTA PARA O VERÃO:\nDormir bem é prioridade. A suíte principal já conta com Ar-Condicionado 9.000 BTUs instalado. Sem obras, sem sujeira, apenas conforto.\nO Imóvel:\n* 69m² privativos (Terreno de 108m²)\n* 1 Suíte + 1 Quarto + 1 banheiro + sala e cozinha integrada \n* Pé direito alto e acabamento de alto padrão\n* Área de festas com churrasqueira.",
+        "bairro": "Três Rios do Norte",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 317,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/casa-joao-pessoa-jaragua-do-sul-sc-3-quartos-120.00m2-16168",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/6169/i16YJ3668P_61696a0625bb6b52c.jpg",
+        "tipo_imovel": "Casa",
+        "quartos": 3,
+        "banheiros": 2,
+        "area_privada": 120.0,
+        "detalhes": "A Casa dispõe de:\n\n3 Quartos sendo 1 Suíte\n1 Sala de Estar\n1 Sala de Jantar\n1 Cozinha\n1 Área de Serviço\n2 Banheiros\n1 Churrasqueira\n1  Vaga de Garagem\n\n*Aceita crianças\n*Aceita 1 pet pequeno porte",
+        "bairro": "João Pessoa",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "lavanderia": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 324,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/casa-barra-do-rio-cerro-jaragua-do-sul-sc-3-quartos-115.00m2-15583",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/5584/iJ2778OJ95E4Hq_558469fcc73104159.jpg",
+        "tipo_imovel": "Casa",
+        "quartos": 3,
+        "banheiros": 2,
+        "vagas": 2,
+        "area_privada": 115.0,
+        "detalhes": "A casa dispõe de:\n\n3 Quartos\n1 Sala de Estar\n1 Sala de Jantar\n1 Cozinha\n1 Área de Serviço\n2 Banheiros\n1 Churrasqueira\n2 Vaga de Garagem\n\n*Acompanha a mobília que está no imóvel\n*Aceita crianças\n*Aceita animais",
+        "bairro": "Barra do Rio Cerro",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "lavanderia": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 338,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/apartamento-tres-rios-do-sul-jaragua-do-sul-sc-2-quartos-48.17m2-15577",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/5578/i4542HFE6Qg9E_5578686691dd09703.jpg",
+        "tipo_imovel": "Apartamento",
+        "quartos": 2,
+        "banheiros": 1,
+        "area_privada": 48.0,
+        "area_util": 53.0,
+        "detalhes": "O apartamento dispõe de:\n\n2 Quartos\n1 Sala de estar\n1 Sala de jantar\n1 Cozinha\n1 Churrasqueira\n1 Área de serviço\n1 vga de garagem",
+        "bairro": "Três Rios do Sul",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "lavanderia": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 360,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/casa-comercial-vila-baependi-jaragua-do-sul-sc-4-quartos-10961",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/962/i3o4QHS7G41Q_962609036ead300b_o_md.jpg",
+        "tipo_imovel": "Casa comercial",
+        "quartos": 4,
+        "banheiros": 2,
+        "vagas": 6,
+        "detalhes": "Imóvel pode ser residencial ou comercial pois está localizado em uma das principais ruas do bairro. \n\nDispõe de 4 dormitórios, 03 salas, 02 áreas de serviço, 02 banheiros, cozinha com móveis sob medida, área de festa com churrasqueira e 06 vagas de garagem. Possui ainda uma kitnet nos fundos do terreno.",
+        "bairro": "Vila Baependi",
+        "cidade": "Jaraguá do Sul",
+        "lavanderia": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 365,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/apartamento-estrada-nova-jaragua-do-sul-sc-2-quartos-64.47m2-15914",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/5915/i5597f2uVr447_5915691e0a4d3ea05.jpg",
+        "tipo_imovel": "Apartamento",
+        "quartos": 2,
+        "banheiros": 1,
+        "area_privada": 64.0,
+        "detalhes": "O apartamento dispõe de:\n\n2 Quartos\n1 Sala de estar\n1 Sala de jantar\n1 Cozinha\n1 Área de serviço\n1 Vaga de garagem",
+        "bairro": "Estrada Nova",
+        "cidade": "Jaraguá do Sul",
+        "sacada": null,
+        "lavanderia": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 367,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/casa-jaragua-99-jaragua-do-sul-sc-4-quartos-200.00m2-15909",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/5910/i44UE989G7kc6Nlfw85_5910691ccc9e1bcba.jpg",
+        "tipo_imovel": "Casa",
+        "quartos": 4,
+        "banheiros": 4,
+        "vagas": 2,
+        "area_privada": 200.0,
+        "area_util": 531.0,
+        "detalhes": "A casa dispõe de:\n\n4 Quartos sendo 1 Suíte\n1 Sala de estar\n1 Sala de jantar\n1 Cozinha\n1 Churrasqueira\n1Área de serviço\n4 Banheiros\n2 Vagas de garagem",
+        "bairro": "Jaraguá 99",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "sacada": null,
+        "lavanderia": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 370,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/casa-estrada-nova-jaragua-do-sul-sc-3-quartos-120.00m2-15879",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/5880/iOu1g5k_58806913314af0eb4.jpg",
+        "tipo_imovel": "Casa",
+        "quartos": 3,
+        "banheiros": 2,
+        "vagas": 2,
+        "area_privada": 120.0,
+        "area_util": 375.0,
+        "detalhes": "A casa dispõe de:\n\n3 Quartos sendo 1 suíte \n1 Sala de estar\n1 Cozinha\n1 Área de serviço\n1 Banheiro\n2 Vagas de garagem\n \n* Aceita crianças e animais",
+        "bairro": "Estrada Nova",
+        "cidade": "Jaraguá do Sul",
+        "lavanderia": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 371,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/casa-agua-verde-jaragua-do-sul-sc-3-quartos-294.37m2-13280",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/3281/ie48XS5q02Z8Uk3VC7y0S_328164b67c039df55_zk3YjMzOTBlMzQy_o_md.jpg",
+        "tipo_imovel": "Casa",
+        "quartos": 3,
+        "banheiros": 3,
+        "vagas": 4,
+        "area_privada": 294.0,
+        "area_util": 744.0,
+        "detalhes": "Sobrado alto padrão bem localizado, com 03 dormitórios sendo 01 suíte com closet e hidromassagem, 02 salas de estar com lareira, sala de jantar, cozinha toda sob medida e com eletros embutidos e churrasqueira, lavabo, uma ampla sacada com uma bela vista, lavanderia toda equipada, ambientes climatizados, alarme ativado por senha e vaga de garagem para até 03 carros.\n\nFicam na casa as bases das camas, roupeiros, armários embutidos na cozinha e lavanderia, todos os eletros como coktop, geladeira, micro-ondas, forno, maquina de lavar e ar condicionado ficam na casa, mesa de jantar e sofás.",
+        "bairro": "Água Verde",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "sacada": null,
+        "mobiliado": null,
+        "ar_condicionado": null,
+        "lavanderia": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 376,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/apartamento-agua-verde-jaragua-do-sul-sc-2-quartos-67.92m2-15728",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/5729/iz1r5841Z3z_572968b0ba3126d68.jpg",
+        "tipo_imovel": "Apartamento",
+        "quartos": 2,
+        "banheiros": 1,
+        "area_privada": 67.0,
+        "area_util": 90.0,
+        "detalhes": "O imóvel dispõe de: \n\n2 Quartos \n1 Sala de estar\n1 Sala de jantar \n1 Cozinha\n1 Churrasqueira\n1 Área de serviço \n1 Banheiro\n1 Vaga de garagem \n\nFica a cozinha planeja",
+        "bairro": "Água Verde",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "salao_festas": null,
+        "sacada": null,
+        "lavanderia": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 398,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/casa-rau-jaragua-do-sul-sc-2-quartos-240.00m2-13385",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/3386/irf51Z0M88cX_338664e3a59c39278_2Y0ZmM0NjFhMTlj_o_md.jpg",
+        "tipo_imovel": "Casa",
+        "quartos": 2,
+        "banheiros": 2,
+        "vagas": 2,
+        "area_privada": 240.0,
+        "area_util": 1380.0,
+        "detalhes": "Casa em excelente localizada \n\nDispõe de 02 quartos\n01 sala de estar \n01sala de jantar \n01 cozinha \n02 banheiros social\n01  varanda \n01 sacada \n01 lavanderia \nvaga de garagem para até 02 carros\n\nAmplo quintal com piscina e churrasqueira\n\nFicam de móveis o armário da cozinha e roupeiro.\n\nProprietário avalia proposta.\n\nÓtima oportunidade.",
+        "bairro": "Rau",
+        "cidade": "Jaraguá do Sul",
+        "piscina": null,
+        "churrasqueira": null,
+        "sacada": null,
+        "mobiliado": null,
+        "lavanderia": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 412,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/apartamento-joao-pessoa-jaragua-do-sul-sc-2-quartos-65.00m2-15017",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/5018/i361yD4L_50186a2c0f3fc96b5.jpg",
+        "tipo_imovel": "Apartamento",
+        "quartos": 2,
+        "banheiros": 1,
+        "area_privada": 65.0,
+        "detalhes": "O Apartamento dispõe de:\n\n2 Quartos\n1 Sala de Estar\n1 Sala de Jantar\n1 Cozinha\n1 Churrasqueira\n1 Área de Serviço\n1 Banheiro\n1 Vaga de Garagem\n\n*Acompanha a mobília que está no imóvel\n*Aceita crianças\n*Permite 1 pet de pequeno porte",
+        "bairro": "João Pessoa",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "sacada": null,
+        "lavanderia": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 421,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/casa-tres-rios-do-norte-jaragua-do-sul-sc-3-quartos-16193",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/6194/i5V37Jt6mT1161WC4_61946a29b2165ac9b.jpg",
+        "tipo_imovel": "Casa",
+        "quartos": 3,
+        "banheiros": 3,
+        "vagas": 2,
+        "detalhes": "A Casa dispõe de:\n\n3 Quartos sendo 1 Suíte\n1 Sala de Estar\n1 Sala de Jantar\n1 Cozinha\n1 Área de Serviço\n2 Banheiros Sociais\n1 Lavabo\n1 Churrasqueira\n2 Vagas de Garagem\n\n*Acompanha a mobília que está no imóvel\n*Aceita crianças\n*Aceita 1 pet pequeno porte",
+        "bairro": "Três Rios do Norte",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "sacada": null,
+        "lavanderia": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 450,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/casa-geminada-estrada-nova-jaragua-do-sul-sc-3-quartos-126.35m2-13375",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/3376/ijyvsmNTb3SMv29b4522_337668d54adb6b735.jpg",
+        "tipo_imovel": "Casa geminada",
+        "quartos": 3,
+        "banheiros": 2,
+        "vagas": 3,
+        "area_privada": 126.0,
+        "area_util": 131.0,
+        "detalhes": "Geminado com ótimo acabamento.\n\nSuíte + 02 dormitórios, sala de estar, sala de jantar integrada com cozinha, cozinha com churrasqueira e espaço para ilha , banheiro social, varanda, lavanderia e vaga de garagem para até 03 carros.\n\nPorcelanato em todos os ambientes.\nRebaixamento em gesso.\nBanheiro social e banheiro da suíte com box fechado.",
+        "bairro": "Estrada Nova",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "lavanderia": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 453,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/terreno-area-vila-baependi-jaragua-do-sul-sc-1851.07m2-11804",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/1805/i3M35c8627U7_180561f30227c112a_o_md.jpg",
+        "tipo_imovel": "Terreno / Área",
+        "quartos": 0,
+        "banheiros": 0,
+        "area_privada": 1851.0,
+        "area_util": 2294.0,
+        "detalhes": "Que tal morar em um condomínio fechado?\n\nTerreno no Bairro Vila Baependi, um dos bairros mais privilegiados de Jaraguá do Sul. Conta com guarita e segurança 24 horas com ronda. \n\nSão 1.851 m² de área prontos para construção.",
+        "bairro": "Vila Baependi",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 460,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/terreno-area-estrada-nova-jaragua-do-sul-sc-15096",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/5097/iqzzm2X89eaP_509767ace65316b9f.jpg",
+        "tipo_imovel": "Terreno / Área",
+        "quartos": 0,
+        "banheiros": 0,
+        "area_util": 371.0,
+        "detalhes": "Amplo terreno disponível para locação, no bairro Estrada Nova!\nDispõe de mais de 371 m²\n\nNão perca a oportunidade!",
+        "bairro": "Estrada Nova",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 461,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/sala-centro-guaramirim-sc-2-quartos-62.00m2-15058",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/5059/ig6B966P_5059679d1792944cc.jpg",
+        "tipo_imovel": "Sala",
+        "quartos": 2,
+        "banheiros": 1,
+        "area_privada": 62.0,
+        "detalhes": "A sala dispõe de:\n\n2 Salas amplas com 62 m²\n1 Lavabo\n\nAgende sua visita conosco!",
+        "bairro": "Centro",
+        "cidade": "Guaramirim"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 474,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/galpao-amizade-jaragua-do-sul-sc-540.00m2-15007",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/5008/i6g12_5008678964c9cc620.jpg",
+        "tipo_imovel": "Galpão",
+        "quartos": 0,
+        "banheiros": 0,
+        "area_privada": 540.0,
+        "detalhes": "Galpão em ótima localização, com 540 m²!\n\nAgende sua visita conosco!\n\n*Disponível somente para depósito",
+        "bairro": "Amizade",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 485,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/galpao-nova-brasilia-jaragua-do-sul-sc-14484",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/4485/iF6wvW9hF7I99Fb4GH_4485670fca6383424.jpg",
+        "tipo_imovel": "Galpão",
+        "quartos": 0,
+        "banheiros": 0,
+        "area_util": 110.0,
+        "detalhes": "Galpão disponível para locação, em um ótimo bairro\n\nDispõe de:\n1 Lavabo\nEstacionamento \n110 m²\n\n*Aproveite a oportunidade!",
+        "bairro": "Nova Brasília",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 486,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/salao-escolinha-guaramirim-sc-14378",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/4379/izmSC3_437966e31e2acb02c.jpg",
+        "tipo_imovel": "Salão",
+        "quartos": 0,
+        "banheiros": 3,
+        "area_util": 400.0,
+        "detalhes": "O salão dispõe:\n\n3 Salas\n3 Lavabos\n1 Cozinha\n*Estacionamento\n\nNão perca a oportunidade!",
+        "bairro": "Escolinha",
+        "cidade": "Guaramirim"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 507,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/casa-nereu-ramos-jaragua-do-sul-sc-2-quartos-100.00m2-15326",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/5327/ik991hdCe2Tz1_532767f96787a0e48.jpg",
+        "tipo_imovel": "Casa",
+        "quartos": 2,
+        "banheiros": 1,
+        "area_privada": 100.0,
+        "area_util": 100.0,
+        "detalhes": "Casa c/ 2 dormitórios | Sala de estar | Sala de jantar | Cozinha | Lavabo | Área de serviço | Edícula c/ churrasqueira e Garagem.\n\n* Ficam móveis planejados.\n* Casa com sistema de placa solar (6 placas).",
+        "bairro": "Nereu Ramos",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "lavanderia": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 513,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/casa-geminada-santo-antonio-jaragua-do-sul-sc-3-quartos-105.08m2-15774",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/5775/i8j1k26S6z3K8t3c2jl1_577568cc52353dd92.jpg",
+        "tipo_imovel": "Casa geminada",
+        "quartos": 3,
+        "banheiros": 2,
+        "area_privada": 105.0,
+        "area_util": 110.0,
+        "detalhes": "A casa dispõe de:\n\n3 Quartos sendo 1 suíte\n1 Sala de jantar\n1 Sala de estar\n1 Cozinha\n1 Churrasqueira\n1 Área de serviço\n1 Vaga de garagem\n2 Banheiros\n1 Edícula",
+        "bairro": "Santo Antônio",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "lavanderia": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 520,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/terreno-area-czerniewicz-jaragua-do-sul-sc-12419",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/2420/izZ7iuSEB7818KoG6B70_242062fbd58a05dfc_ThiY2UyZTMxYzFh_o_md.jpg",
+        "tipo_imovel": "Terreno / Área",
+        "quartos": 0,
+        "banheiros": 0,
+        "area_util": 685.0,
+        "detalhes": "Terreno com 685,17 m² e ótima localização.",
+        "bairro": "Czerniewicz",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 525,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/terreno-area-nova-barra-velha-barra-velha-sc-361.00m2-15749",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/5750/i2z6s6O3917z4zS_575068c058981df8d.jpg",
+        "tipo_imovel": "Terreno / Área",
+        "quartos": 0,
+        "banheiros": 0,
+        "area_privada": 361.0,
+        "area_util": 361.0,
+        "detalhes": "Excelente oportunidade para adquirir um terreno em Nova Barra Velha! \n\nCom área total de 361 m², este lote está situado em uma localização privilegiada, perfeita para construir a casa dos seus sonhos ou um investimento. \n\nAproveite essa chance de realizar seu projeto na charmosa Barra Velha!",
+        "bairro": "Nova Barra Velha",
+        "cidade": "Barra Velha"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 548,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/casa-rio-cerro-i-jaragua-do-sul-sc-3-quartos-168.45m2-15139",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/5140/iEtN44_514067bf163bd5fd1.jpg",
+        "tipo_imovel": "Casa",
+        "quartos": 3,
+        "banheiros": 3,
+        "area_privada": 168.0,
+        "area_util": 531.0,
+        "detalhes": "A Casa dispõe de:\n\n03 Quartos sendo 1 suíte\n1 Sala de Estar\n1 Sala de Jantar\n1 Cozinha\n1 Churrasqueira\n1 Banheiro\n1 Edícula",
+        "bairro": "Rio Cerro I",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 552,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/casa-vila-lenzi-jaragua-do-sul-sc-5-quartos-190.00m2-15070",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/5071/i7t2m23ykGH7_507167a27eb821420.jpg",
+        "tipo_imovel": "Casa",
+        "quartos": 5,
+        "banheiros": 2,
+        "area_privada": 190.0,
+        "area_util": 774.0,
+        "detalhes": "A casa dispõe de:\n\n5 Quartos\n1 Sala de estar\n1 Sala de jantar\n2 Cozinhas\n1 Churrasqueira\n2 Banheiros\n1 Área de serviço\n1 Vaga de garagem",
+        "bairro": "Vila Lenzi",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "lavanderia": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 553,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/casa-rau-jaragua-do-sul-sc-6-quartos-14347",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/4348/iW1rF1H7XDnb6W33_434866d994d76cbf8.jpg",
+        "tipo_imovel": "Casa",
+        "quartos": 6,
+        "banheiros": 3,
+        "vagas": 4,
+        "area_util": 1488.0,
+        "detalhes": "Duas casas no mesmo terreno disponível para venda!\n\nDispõe de:\n\n6 Quartos\n1 Suíte\n2 Salas de estar\n2 Salas de jantar\n2 Cozinhas\n2 Áreas de serviços\n3 Banheiros\n4 Vagas para garagem",
+        "bairro": "Rau",
+        "cidade": "Jaraguá do Sul",
+        "sacada": null,
+        "lavanderia": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 554,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/terreno-area-sao-luis-jaragua-do-sul-sc-14145",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/4146/i8GAL873D3f7d27f_4146668c534049820.jpg",
+        "tipo_imovel": "Terreno / Área",
+        "quartos": 0,
+        "banheiros": 0,
+        "area_util": 360.0,
+        "detalhes": "Terreno disponível, em ótima localização\n\nAproveite a oportunidade!",
+        "bairro": "São Luís",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 572,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/terreno-area-rio-da-luz-jaragua-do-sul-sc-15590",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/5591/i835S6o_5591686faca5428e2.jpg",
+        "tipo_imovel": "Terreno / Área",
+        "quartos": 0,
+        "banheiros": 0,
+        "area_util": 200.0,
+        "detalhes": "Oportunidade de alugar um terreno localizado bairro Rio da Luz, em Jaraguá do Sul. \nCom uma área total de 200 m², este espaço é ideal para quem busca um local estratégico para os mais diversos usos.\n\nAproveite a excelente localização e as facilidades que a região oferece. \nEntre em contato e saiba mais!",
+        "bairro": "Rio da Luz",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 584,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/terreno-area-centenario-jaragua-do-sul-sc-15516",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/5517/i684n38_55176842ed50b2f65.jpg",
+        "tipo_imovel": "Terreno / Área",
+        "quartos": 0,
+        "banheiros": 0,
+        "area_util": 466.0,
+        "detalhes": "Terreno com área total 466m² com excelente localização \n\n*Ótima oportunidade para investimento\n\n*Agende sua visita conosco",
+        "bairro": "Centenário",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 585,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/casa-agua-verde-jaragua-do-sul-sc-6-quartos-368.52m2-12993",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/2994/iLbPM25_2994642b07a2cdd6a_WM0N2JjMjUwNmFh_o_md.jpg",
+        "tipo_imovel": "Casa",
+        "quartos": 6,
+        "banheiros": 3,
+        "vagas": 3,
+        "area_privada": 368.0,
+        "area_util": 760.0,
+        "detalhes": "Casa com amplo espaço no terreno com 6 quartos, sala de estar e jantar, cozinha, banheiro social, área de festa com churrasqueira e lavabo.\n\nSemi-Mobiliada!!!\n\nCasa aos fundos com 58,56m².",
+        "bairro": "Água Verde",
+        "cidade": "Jaraguá do Sul",
+        "churrasqueira": null,
+        "sacada": null,
+        "lavanderia": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 601,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/casa-jaragua-esquerdo-jaragua-do-sul-sc-3-quartos-192.00m2-15405",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/5406/izuBRPj6qv5wgj7aT7_5406681df6d604d5e.jpg",
+        "tipo_imovel": "Casa",
+        "quartos": 3,
+        "banheiros": 2,
+        "vagas": 2,
+        "area_privada": 192.0,
+        "area_util": 520.0,
+        "detalhes": "A casa dispõe de:\n\n3 Quartos\n1 Sala de estar\n1 Cozinha\n1 Churrasqueira\n1 Área de serviço\n2 Banheiros\n2 Vagas de garagem\n\n*Permite crianças\n*Aceita animal de pequeno porte",
+        "bairro": "Jaraguá Esquerdo",
+        "cidade": "Jaraguá do Sul",
+        "lavanderia": null
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 617,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/terreno-area-tres-rios-do-sul-jaragua-do-sul-sc-12824",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/2825/i8751eq935a_282563ca9ab68381c_zhmOTgzMGI4NDQz_o_md.jpg",
+        "tipo_imovel": "Terreno / Área",
+        "quartos": 0,
+        "banheiros": 0,
+        "area_util": 5850.0,
+        "detalhes": "Terreno com área total de 5850m².",
+        "bairro": "Três Rios do Sul",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    },
+    {
+      "index": 618,
+      "record": {
+        "url": "https://chaleimobiliaria.com.br/imovel/terreno-area-barra-do-rio-cerro-jaragua-do-sul-sc-12452",
+        "imagem": "https://cdn.vistahost.com.br/chale32079/vista.imobi/fotos/2453/iimx1M6724j8Q99C4Bn1o_245363091be7a0266_GJjNTEwNWFhNDUw_o_md.jpg",
+        "tipo_imovel": "Terreno / Área",
+        "quartos": 0,
+        "banheiros": 0,
+        "area_util": 1402.0,
+        "detalhes": "Excelente terreno com àrea total de 1402 m²\n\n* IPTU Anual",
+        "bairro": "Barra do Rio Cerro",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    }
+  ]
+}

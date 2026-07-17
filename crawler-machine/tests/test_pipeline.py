@@ -25,7 +25,10 @@ class FakeSchemaGenerator:
 
     async def generate(self, sample_url: str) -> dict[str, Any]:
         self.sample_url = sample_url
-        return self.schema
+        return {
+            "metadata": {"sample_url": sample_url},
+            "schemas": {"xpath": self.schema, "css": self.schema},
+        }
 
 
 class FakeCrawler:
@@ -40,8 +43,25 @@ class FakeCrawler:
         return self.data, self.errors
 
 
+def _complete_record(**overrides: Any) -> dict[str, Any]:
+    record = {
+        "bairro": "Centro",
+        "cidade": "Jaraguá do Sul",
+        "valor": 450_000,
+        "tipo_imovel": "Apartamento",
+        "url": "https://example.com/imovel/1",
+        "imagem": "https://example.com/imovel/1.jpg",
+        "quartos": 3,
+    }
+    record.update(overrides)
+    return record
+
+
 def make_fake_crawler(schema: dict[str, Any]) -> FakeCrawler:
-    return FakeCrawler(data=[{"quartos": 3}, {"quartos": 2}], errors=[])
+    return FakeCrawler(
+        data=[_complete_record(quartos=3), _complete_record(quartos=2, url="https://example.com/imovel/2")],
+        errors=[],
+    )
 
 
 @pytest.fixture
@@ -85,6 +105,7 @@ async def test_pipeline_runs_all_steps_and_saves_artifacts(config, output):
         discoverer=discoverer,
         schema_generator=schema_generator,
         crawler_factory=make_fake_crawler,
+        source_name="example",
     )
 
     result = await pipeline.run(
@@ -92,8 +113,30 @@ async def test_pipeline_runs_all_steps_and_saves_artifacts(config, output):
         sample_url="https://example.com/imovel/1",
     )
 
-    assert result.normalized == [{"quartos": 3}, {"quartos": 2}]
+    assert result.normalized == [
+        {
+            "bairro": "Centro",
+            "cidade": "Jaraguá do Sul",
+            "valor": 450_000,
+            "tipo_imovel": "Apartamento",
+            "url": "https://example.com/imovel/1",
+            "imagem": "https://example.com/imovel/1.jpg",
+            "quartos": 3,
+            "_quality": {"valid": True, "warnings": []},
+        },
+        {
+            "bairro": "Centro",
+            "cidade": "Jaraguá do Sul",
+            "valor": 450_000,
+            "tipo_imovel": "Apartamento",
+            "url": "https://example.com/imovel/2",
+            "imagem": "https://example.com/imovel/1.jpg",
+            "quartos": 2,
+            "_quality": {"valid": True, "warnings": []},
+        },
+    ]
     assert result.errors == []
+    assert result.rejected == []
     assert result.run_id is None
     assert schema_generator.sample_url == "https://example.com/imovel/1"
 
@@ -101,6 +144,12 @@ async def test_pipeline_runs_all_steps_and_saves_artifacts(config, output):
     assert output.schema.exists()
     assert output.raw.exists()
     assert output.normalized.exists()
+    assert output.rejected.exists()
+    assert output.quality_report.exists()
+
+    quality_report = json.loads(output.quality_report.read_text())
+    assert quality_report["exterminated_count"] == 0
+    assert quality_report["extermination_reasons"] == {}
 
     discovered = json.loads(output.discovered.read_text())
     assert discovered["urls"] == [
@@ -109,7 +158,8 @@ async def test_pipeline_runs_all_steps_and_saves_artifacts(config, output):
     ]
 
     schema = json.loads(output.schema.read_text())
-    assert schema["schema"] == {"name": "Imovel", "baseSelector": "//body"}
+    assert schema["schemas"]["xpath"] == {"name": "Imovel", "baseSelector": "//body"}
+    assert schema["schemas"]["css"] == {"name": "Imovel", "baseSelector": "//body"}
 
 
 @pytest.mark.anyio
@@ -132,7 +182,7 @@ async def test_pipeline_saves_to_sink_when_configured(config, output):
         output=output,
         discoverer=discoverer,
         schema_generator=schema_generator,
-        crawler_factory=lambda schema: FakeCrawler([{"quartos": 3}], []),
+        crawler_factory=lambda schema: FakeCrawler([_complete_record(quartos=3)], []),
         sink=sink,
         source_name="imob-test",
     )
@@ -142,10 +192,24 @@ async def test_pipeline_saves_to_sink_when_configured(config, output):
         sample_url="https://example.com/imovel/1",
     )
 
-    assert result.normalized == [{"quartos": 3}]
+    raw_record = _complete_record(quartos=3)
+    normalized_record = {
+        **raw_record,
+        "quartos": 3,
+        "_quality": {"valid": True, "warnings": []},
+    }
+
+    assert result.normalized == [normalized_record]
+    assert result.rejected == []
     assert result.run_id == 7
     sink.start_run.assert_called_once_with("imob-test")
-    sink.save_run.assert_called_once_with("imob-test", [{"quartos": 3}], [])
+    assert sink.save_schema_run.call_count == 2
+    sink.save_run.assert_called_once_with(
+        "imob-test",
+        [raw_record],
+        [normalized_record],
+        [],
+    )
 
 
 @pytest.mark.anyio
@@ -159,6 +223,7 @@ async def test_pipeline_uses_sample_url_when_provided(config, output):
         discoverer=discoverer,
         schema_generator=schema_generator,
         crawler_factory=lambda schema: FakeCrawler([], []),
+        source_name="example",
     )
 
     await pipeline.run("https://example.com", sample_url="https://example.com/imovel/especial")
@@ -186,7 +251,7 @@ async def test_pipeline_reuses_discovery_from_sink(config, output):
         output=output,
         discoverer=discoverer,
         schema_generator=schema_generator,
-        crawler_factory=lambda schema: FakeCrawler([{"quartos": 3}], []),
+        crawler_factory=lambda schema: FakeCrawler([_complete_record(quartos=3)], []),
         sink=sink,
         source_name="imob-test",
     )
@@ -197,7 +262,9 @@ async def test_pipeline_reuses_discovery_from_sink(config, output):
         regenerate_discovery=False,
     )
 
-    assert result.normalized == [{"quartos": 3}]
+    assert result.normalized == [
+        {**_complete_record(quartos=3), "_quality": {"valid": True, "warnings": []}}
+    ]
     sink.load_latest_discovery.assert_called_once_with("imob-test")
     # discoverer NÃO foi chamado porque usamos o cache
     assert discoverer.urls == ["https://should-not-be-called.com"]  # untouched
@@ -220,7 +287,7 @@ async def test_pipeline_regenerate_discovery_ignores_cache(config, output):
         output=output,
         discoverer=discoverer,
         schema_generator=schema_generator,
-        crawler_factory=lambda schema: FakeCrawler([{"quartos": 4}], []),
+        crawler_factory=lambda schema: FakeCrawler([_complete_record(quartos=4)], []),
         sink=sink,
         source_name="imob-test",
     )
@@ -231,7 +298,9 @@ async def test_pipeline_regenerate_discovery_ignores_cache(config, output):
         regenerate_discovery=True,
     )
 
-    assert result.normalized == [{"quartos": 4}]
+    assert result.normalized == [
+        {**_complete_record(quartos=4), "_quality": {"valid": True, "warnings": []}}
+    ]
     # load_latest_discovery NÃO foi chamado porque regenerate=True
     sink.load_latest_discovery.assert_not_called()
 
@@ -253,7 +322,7 @@ async def test_pipeline_reuses_schema_from_sink(config, output):
         output=output,
         discoverer=discoverer,
         schema_generator=schema_generator,
-        crawler_factory=lambda schema: FakeCrawler([{"quartos": 5}], []),
+        crawler_factory=lambda schema: FakeCrawler([_complete_record(quartos=5)], []),
         sink=sink,
         source_name="imob-test",
     )
@@ -264,7 +333,9 @@ async def test_pipeline_reuses_schema_from_sink(config, output):
         regenerate_schema=False,
     )
 
-    assert result.normalized == [{"quartos": 5}]
+    assert result.normalized == [
+        {**_complete_record(quartos=5), "_quality": {"valid": True, "warnings": []}}
+    ]
     sink.load_latest_schema.assert_called_once_with("imob-test")
     # o schema_generator.generate não foi chamado
     assert schema_generator.sample_url is None
@@ -287,7 +358,7 @@ async def test_pipeline_regenerate_schema_ignores_cache(config, output):
         output=output,
         discoverer=discoverer,
         schema_generator=schema_generator,
-        crawler_factory=lambda schema: FakeCrawler([{"quartos": 6}], []),
+        crawler_factory=lambda schema: FakeCrawler([_complete_record(quartos=6)], []),
         sink=sink,
         source_name="imob-test",
     )
@@ -298,7 +369,9 @@ async def test_pipeline_regenerate_schema_ignores_cache(config, output):
         regenerate_schema=True,
     )
 
-    assert result.normalized == [{"quartos": 6}]
+    assert result.normalized == [
+        {**_complete_record(quartos=6), "_quality": {"valid": True, "warnings": []}}
+    ]
     # load_latest_schema NÃO foi chamado
     sink.load_latest_schema.assert_not_called()
     assert schema_generator.sample_url == "https://example.com/imovel/fresh"
@@ -329,3 +402,66 @@ async def test_pipeline_errors_without_sample_url_and_no_cached_schema(config, o
             "https://example.com",
             sample_url=None,
         )
+
+
+@pytest.mark.anyio
+async def test_pipeline_exterminator_rejects_incomplete_records(config, output):
+    """Registros sem campos obrigatórios são rejeitados antes da normalização."""
+    discoverer = FakeDiscoverer(["https://example.com/imovel/1"])
+    schema_generator = FakeSchemaGenerator({"name": "Imovel"})
+
+    pipeline = Pipeline(
+        config=config,
+        output=output,
+        discoverer=discoverer,
+        schema_generator=schema_generator,
+        crawler_factory=lambda schema: FakeCrawler(
+            data=[
+                _complete_record(quartos=3),
+                {"quartos": 2},  # incompleto
+                _complete_record(quartos=4, imagem=""),  # imagem vazia
+            ],
+            errors=[],
+        ),
+        source_name="example",
+    )
+
+    result = await pipeline.run(
+        "https://example.com",
+        sample_url="https://example.com/imovel/1",
+    )
+
+    assert len(result.normalized) == 1
+    assert len(result.rejected) == 2
+    assert result.rejected[0].missing_fields == ["bairro", "cidade", "valor", "tipo_imovel", "url", "imagem"]
+    assert result.rejected[1].missing_fields == ["imagem"]
+
+    assert output.rejected.exists()
+    rejected_payload = json.loads(output.rejected.read_text())
+    assert rejected_payload["metadata"]["count"] == 2
+
+    quality_report = json.loads(output.quality_report.read_text())
+    assert quality_report["exterminated_count"] == 2
+    assert quality_report["extermination_reasons"] == {
+        "bairro": 1,
+        "cidade": 1,
+        "valor": 1,
+        "tipo_imovel": 1,
+        "url": 1,
+        "imagem": 2,
+    }
+
+
+@pytest.mark.anyio
+async def test_pipeline_requires_source_name(config, output):
+    """Pipeline deve exigir source_name explicitamente."""
+    pipeline = Pipeline(
+        config=config,
+        output=output,
+        discoverer=FakeDiscoverer([]),
+        schema_generator=FakeSchemaGenerator({"name": "Imovel"}),
+        crawler_factory=lambda schema: FakeCrawler([], []),
+    )
+
+    with pytest.raises(ValueError, match="source_name"):
+        await pipeline.run("https://example.com")

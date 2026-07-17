@@ -5,14 +5,29 @@
     "api_key_env": "DEEPSEEK_API_KEY"
   },
   "crawler": {
-    "page_timeout": 30000,
-    "max_concurrent": 20,
+    "page_timeout": 60000,
+    "max_concurrent": 10,
     "chunk_size": 50,
     "chunk_delay": 1.0,
-    "headless": true
+    "headless": true,
+    "wait_until": "domcontentloaded",
+    "enable_stealth": true,
+    "cache_mode": "ENABLED",
+    "mean_delay": 0.5,
+    "max_range": 1.0,
+    "retry_attempts": 3,
+    "retry_base_delay": 2.0,
+    "enable_fit_markdown_regex": true,
+    "enable_fit_markdown_llm": false,
+    "enable_llm_fallback": false
   },
   "discovery": {
-    "max_urls": 100000
+    "max_urls": 5000,
+    "listing_patterns": [
+      "/imovel/",
+      "\\/(comprar|alugar|vender)\\/",
+      "\\/(apartamento|casa|terreno|sobrado|sala-comercial|loft|chacara|rural)-"
+    ]
   },
   "fields": [
     {

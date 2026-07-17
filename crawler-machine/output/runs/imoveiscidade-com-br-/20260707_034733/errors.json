@@ -1,0 +1,323 @@
+{
+  "metadata": {
+    "count": 79
+  },
+  "errors": [
+    {
+      "url": "https://imoveiscidade.com.br/imovel/galpao-ilha-da-figueira-guaramirim-sc-494m2-GA0090",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/galpao-nova-esperanca-guaramirim-sc-700m2-GA0031",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/casa-tifa-martins-jaragua-do-sul-sc-2-quartos-1119",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/terreno-tifa-martins-jaragua-do-sul-sc-TE0087",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/casa-vila-lalau-jaragua-do-sul-sc-3-quartos-200m2-CA0651",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/apartamento-czerniewicz-jaragua-do-sul-sc-3-quartos-100m2-AP0646",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/salasconjuntos-centro-jaragua-do-sul-sc-710m2-SA0230",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/apartamento-centro-jaragua-do-sul-sc-3-quartos-135m2-AP0962",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/galpao-caixa-dagua-guaramirim-sc-3600m2-GA0006",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/galpao-tres-rios-do-norte-jaragua-do-sul-sc-500m2-1086",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/casa-amizade-jaragua-do-sul-sc-2-quartos-97m2-CA0411",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/terreno-ilha-da-figueira-jaragua-do-sul-sc-TE0045",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/salasconjuntos-rau-jaragua-do-sul-sc-160m2-SA0240",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/casa-jaragua-99-jaragua-do-sul-sc-3-quartos-270m2-CA0306",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/terreno-amizade-jaragua-do-sul-sc-TE0025",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/apartamento-rau-jaragua-do-sul-sc-3-quartos-83m2-AP0011",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/casa-barra-do-rio-cerro-jaragua-do-sul-sc-1-quartos-1489",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/casa-tres-rios-do-norte-jaragua-do-sul-sc-4-quartos-200m2-1485",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/casa-barra-do-rio-cerro-jaragua-do-sul-sc-1-quartos-1252",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/casa-barra-do-rio-cerro-jaragua-do-sul-sc-1-quartos-1249",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/casa-barra-do-rio-cerro-jaragua-do-sul-sc-1-quartos-1196",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/casa-joao-pessoa-jaragua-do-sul-sc-2-quartos-145m2-CA0276",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/apartamento-jaragua-esquerdo-jaragua-do-sul-sc-2-quartos-80m2-AP0571",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/apartamento-joao-pessoa-jaragua-do-sul-sc-2-quartos-48m2-AP0558",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/apartamento-vila-nova-jaragua-do-sul-sc-2-quartos-79m2-AP0183",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/apartamento-imigrantes-guaramirim-sc-2-quartos-1232",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/casa-rau-jaragua-do-sul-sc-2-quartos-CA0482",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/casa-vila-lenzi-jaragua-do-sul-sc-3-quartos-120.42m2-1477",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/apartamento-czerniewicz-jaragua-do-sul-sc-3-quartos-91m2-AP1031",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/apartamento-centro-jaragua-do-sul-sc-3-quartos-199.45m2-1476",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/apartamento-centro-jaragua-do-sul-sc-3-quartos-203.55m2-1475",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/terreno-jaragua-esquerdo-jaragua-do-sul-sc-TE0056",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/terreno-centro-jaragua-do-sul-sc-TE0002",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/casa-centro-jaragua-do-sul-sc-3-quartos-194.06m2-CA0083",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/terreno-centro-schroeder-sc-TE0001",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/casa-comercial-rio-cerro-ii-jaragua-do-sul-sc-6-quartos-750m2-CA0019",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/casa-centro-jaragua-do-sul-sc-3-quartos-193.42m2-CA0118",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/chacara-itoupava-acu-schroeder-sc-CH0010",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/casa-tres-rios-do-norte-jaragua-do-sul-sc-3-quartos-197.57m2-CA0308",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/terreno-barra-do-rio-molha-jaragua-do-sul-sc-TE0053",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/salasconjuntos-centro-jaragua-do-sul-sc-79.06m2-SA0108",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/casa-barra-do-rio-cerro-jaragua-do-sul-sc-6-quartos-260m2-CA0269",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/salasconjuntos-barra-do-rio-molha-jaragua-do-sul-sc-800m2-SA0169",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/apartamento-centro-jaragua-do-sul-sc-2-quartos-81.03m2-AP0111",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/terreno-nova-brasilia-jaragua-do-sul-sc-TE0023",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/chacara-itoupava-acu-schroeder-sc-CH0007",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/chacara-itoupava-acu-schroeder-sc-CH0008",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/apartamento-jaragua-esquerdo-jaragua-do-sul-sc-1222",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/casa-centro-jaragua-do-sul-sc-3-quartos-250m2-CA0169",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/casa-ilha-da-figueira-jaragua-do-sul-sc-3-quartos-156m2-CA0572",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/apartamento-czerniewicz-jaragua-do-sul-sc-3-quartos-100m2-AP0667",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/casa-comercial-ilha-da-figueira-jaragua-do-sul-sc-105m2-1451",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/casa-comercial-ilha-da-figueira-jaragua-do-sul-sc-180m2-1450",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/casa-comercial-ilha-da-figueira-jaragua-do-sul-sc-270m2-1449",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/salasconjuntos-nova-brasilia-jaragua-do-sul-sc-120m2-SA0324",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/casa-ilha-da-figueira-jaragua-do-sul-sc-4-quartos-128m2-1429",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/galpao-czerniewicz-jaragua-do-sul-sc-200m2-1425",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/apartamento-centro-jaragua-do-sul-sc-2-quartos-70m2-AP0757",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/salasconjuntos-centro-jaragua-do-sul-sc-45m2-1376",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/galpao-rio-da-luz-jaragua-do-sul-sc-1200m2-1374",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/salasconjuntos-centro-jaragua-do-sul-sc-130m2-1205",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/salasconjuntos-centro-jaragua-do-sul-sc-40m2-SA0105",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/salasconjuntos-centro-jaragua-do-sul-sc-340m2-SA0235",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/salasconjuntos-vila-lalau-jaragua-do-sul-sc-480m2-SA0304",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/galpao-avai-guaramirim-sc-1363",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/galpao-joao-pessoa-jaragua-do-sul-sc-1245",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/apartamento-jaragua-99-jaragua-do-sul-sc-2-quartos-38m2-1162",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/casa-tres-rios-do-norte-jaragua-do-sul-sc-3-quartos-CA0508",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/casa-czerniewicz-jaragua-do-sul-sc-3-quartos-1301",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/casa-barra-do-rio-cerro-jaragua-do-sul-sc-3-quartos-230m2-CA0636",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/apartamento-czerniewicz-jaragua-do-sul-sc-1-quartos-90m2-AP0334",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/apartamento-imigrantes-guaramirim-sc-2-quartos-1231",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/casa-nova-brasilia-jaragua-do-sul-sc-2-quartos-65m2-1384",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/casa-amizade-jaragua-do-sul-sc-2-quartos-50m2-CA0574",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/apartamento-barra-do-rio-cerro-jaragua-do-sul-sc-2-quartos-78.33m2-AP0528",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/apartamento-nova-brasilia-jaragua-do-sul-sc-3-quartos-93.19m2-AP0396",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/casa-baependi-jaragua-do-sul-sc-4-quartos-190m2-CA0170",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/terreno-jaragua-esquerdo-jaragua-do-sul-sc-TE0010",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    },
+    {
+      "url": "https://imoveiscidade.com.br/imovel/terreno-barra-do-rio-cerro-jaragua-do-sul-sc-1381",
+      "error": "Blocked by anti-bot protection: HTTP 429 Too Many Requests"
+    }
+  ]
+}

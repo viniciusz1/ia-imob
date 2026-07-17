@@ -1,0 +1,162 @@
+{
+  "metadata": {
+    "sample_url": "",
+    "generated_at": "2026-07-07T23:23:23.360255+00:00"
+  },
+  "schema": {
+    "name": "Property Details",
+    "fields": [
+      {
+        "name": "url",
+        "type": "attribute",
+        "selector": "//meta[@property='og:url']/@content",
+        "attribute": "content"
+      },
+      {
+        "name": "imagem",
+        "type": "attribute",
+        "selector": "//a[@data-fancybox='gallery'][@data-index='0']/img",
+        "attribute": "data-src"
+      },
+      {
+        "name": "tipo_imovel",
+        "type": "regex",
+        "pattern": "^(\\w+)",
+        "selector": "//h1[@class='titulo-principal']"
+      },
+      {
+        "name": "quartos",
+        "type": "regex",
+        "pattern": "(\\d+)",
+        "selector": "//div[contains(@class,'icon_detalhes') and not(contains(@class,'hide'))]/p[contains(text(),'quarto')]"
+      },
+      {
+        "name": "banheiros",
+        "type": "regex",
+        "pattern": "(\\d+)",
+        "selector": "//div[contains(@class,'icon_detalhes') and not(contains(@class,'hide'))]/p[contains(text(),'banheiro')]"
+      },
+      {
+        "name": "suites",
+        "type": "regex",
+        "pattern": "(\\d+)",
+        "selector": "//div[contains(@class,'icon_detalhes') and contains(@class,'hide')]/p[contains(text(),'Suíte')]"
+      },
+      {
+        "name": "vagas",
+        "type": "regex",
+        "pattern": "(\\d+)",
+        "selector": "//div[contains(@class,'icon_detalhes') and not(contains(@class,'hide'))]/p[contains(text(),'Vaga')]"
+      },
+      {
+        "name": "valor",
+        "type": "text",
+        "selector": "//p[@class='preco-imovel-mobile']"
+      },
+      {
+        "name": "area_privada",
+        "type": "regex",
+        "pattern": "([\\d,]+)",
+        "selector": "//div[contains(@class,'icon_detalhes') and not(contains(@class,'hide'))]/p[contains(text(),'m²')]"
+      },
+      {
+        "name": "area_util",
+        "type": "regex",
+        "pattern": "([\\d,]+)",
+        "selector": "//div[contains(@class,'icon_detalhes') and contains(@class,'hide')]/p[contains(text(),'m²')]"
+      },
+      {
+        "name": "detalhes",
+        "type": "text",
+        "selector": "//p[@class='descricao']"
+      },
+      {
+        "name": "bairro",
+        "type": "text",
+        "selector": "//ol[@class='breadcrumb']/li[3]/a"
+      },
+      {
+        "name": "cidade",
+        "type": "regex",
+        "pattern": ",\\s*([^,]+?)\\s*-\\s*SC",
+        "selector": "//p[@class='sub-titulo']"
+      },
+      {
+        "name": "piscina",
+        "type": "text",
+        "selector": "//p[@class='descricao'][contains(., 'Piscina')]"
+      },
+      {
+        "name": "churrasqueira",
+        "type": "text",
+        "selector": "//p[@class='descricao'][contains(., 'churrasqueira')]"
+      },
+      {
+        "name": "academia",
+        "type": "text",
+        "selector": "//p[@class='descricao'][contains(., 'Academia')]"
+      },
+      {
+        "name": "salao_festas",
+        "type": "text",
+        "selector": "//p[@class='descricao'][contains(., 'Salão de festa')]"
+      },
+      {
+        "name": "playground",
+        "type": "text",
+        "selector": "//p[@class='descricao'][contains(., 'Pracinha')]"
+      },
+      {
+        "name": "sacada",
+        "type": "text",
+        "selector": "//p[@class='descricao'][contains(., 'Sacada')]"
+      },
+      {
+        "name": "mobiliado",
+        "type": "text",
+        "selector": "//p[@class='descricao'][contains(., 'móveis')]"
+      },
+      {
+        "name": "ar_condicionado",
+        "type": "text",
+        "selector": "//li[contains(@class,'extras-active') and contains(., 'Ar condicionado')]"
+      },
+      {
+        "name": "lavanderia",
+        "type": "text",
+        "selector": "//p[@class='descricao'][contains(., 'área de serviço')]"
+      },
+      {
+        "name": "escritorio",
+        "type": "text",
+        "selector": "//li[contains(@class,'extras-active') and contains(., 'Escritório')]"
+      },
+      {
+        "name": "closet",
+        "type": "text",
+        "selector": "//li[contains(@class,'extras-active') and contains(., 'Closet')]"
+      },
+      {
+        "name": "elevador",
+        "type": "text",
+        "selector": "//p[@class='descricao'][contains(., 'Elevador')]"
+      },
+      {
+        "name": "portaria_24h",
+        "type": "text",
+        "selector": "//p[@class='descricao'][contains(., 'Portaria')]"
+      },
+      {
+        "name": "aceita_permuta",
+        "type": "text",
+        "selector": "//*[contains(text(),'Aceita permuta')]"
+      },
+      {
+        "name": "financiamento",
+        "type": "text",
+        "selector": "//*[contains(text(),'Financiamento')]"
+      }
+    ],
+    "baseSelector": "//body"
+  }
+}

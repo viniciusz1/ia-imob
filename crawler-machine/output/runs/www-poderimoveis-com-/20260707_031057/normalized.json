@@ -1,0 +1,141 @@
+{
+  "metadata": {
+    "normalized_at": "2026-07-07T03:18:55.230337+00:00",
+    "count": 8
+  },
+  "data": [
+    {
+      "url": "https://www.poderimoveis.com/imoveis/venda",
+      "imagem": "https://fotos1.casasoftportais.net.br/indicadordeimoveis/imobiliarias/11751/fotos/medio480x360/1006211751/13518511751.jpg",
+      "tipo_imovel": "Terreno",
+      "valor": 120000.0,
+      "area_privada": 480.0,
+      "detalhes": "Lote de Esquina à Venda na Praia do Ervino em São Francisco do Sul. Excelente oportunidade para quem busca investir ou construir no litoral norte catarinense. Terreno de esquina, plano, localizado em região em constante desenvolvimento, com fácil acesso e ótima valorização. Características do imóvel: Medidas: 20 x 24 metros ( 480 m²) Aproximadamente 900 metros do mar Região tranquila e em plena expansão urbana Documentação: Escritura pública Registro em cartório Ideal para quem procura um lote no litoral, seja para moradia, casa de veraneio ou investimento com excelente custo-benefício. Poder",
+      "bairro": "Ervino",
+      "cidade": "Sao Francisco do Sul",
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "cidade fora do catálogo: Sao Francisco do Sul"
+        ]
+      }
+    },
+    {
+      "url": "https://www.poderimoveis.com/imoveis/venda",
+      "imagem": "https://fotos1.casasoftportais.net.br/indicadordeimoveis/imobiliarias/11751/fotos/medio480x360/1001711751/13429111751.jpg",
+      "tipo_imovel": "Apartamento",
+      "quartos": 2,
+      "valor": 130000.0,
+      "area_privada": 48.4,
+      "detalhes": "Apartamento em Guaramirim com 48,4m². O imóvel dispõe de: 02 quartos 01 Banheiro Salas Conjugadas Cozinha Área de serviço 01 Vaga de Garagem Edu",
+      "bairro": "Corticeira",
+      "cidade": "Guaramirim",
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "cidade fora do catálogo: Guaramirim"
+        ]
+      }
+    },
+    {
+      "url": "https://www.poderimoveis.com/imoveis/venda",
+      "imagem": "https://fotos1.casasoftportais.net.br/indicadordeimoveis/imobiliarias/11751/fotos/medio480x360/985311751/13183611751.jpg",
+      "tipo_imovel": "Terreno",
+      "valor": 145000.0,
+      "area_privada": 301.0,
+      "detalhes": "Terreno no bairro Vila Izabel em Corupá Lotes a partir de 301,00 m2 Com 12 metros de frente para rua principal Próximo ao Seminario de Corupá Poder.",
+      "bairro": "Vila Izabel",
+      "cidade": "Corupa",
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "cidade fora do catálogo: Corupa"
+        ]
+      }
+    },
+    {
+      "url": "https://www.poderimoveis.com/imoveis/venda",
+      "imagem": "https://fotos1.casasoftportais.net.br/indicadordeimoveis/imobiliarias/11751/fotos/medio480x360/1007211751/13532511751.jpg",
+      "tipo_imovel": "Apartamento",
+      "quartos": 2,
+      "valor": 150000.0,
+      "area_privada": 48.4,
+      "detalhes": "Apartamento no bairro Corticeira em Guaramirim com 48,4m². O imóvel dispõe de: 02 quartos 01 Banheiro Salas Conjugadas Cozinha Área de serviço 01 Vaga de Garagem Edu",
+      "bairro": "Corticeira",
+      "cidade": "Guaramirim",
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "cidade fora do catálogo: Guaramirim"
+        ]
+      }
+    },
+    {
+      "url": "https://www.poderimoveis.com/imoveis/venda",
+      "imagem": "https://fotos1.casasoftportais.net.br/indicadordeimoveis/imobiliarias/11751/fotos/medio480x360/1007411751/13534411751.jpg",
+      "tipo_imovel": "Apartamento",
+      "quartos": 2,
+      "valor": 150000.0,
+      "area_privada": 48.4,
+      "detalhes": "Apartamento em Guaramirim com 48,4m². O imóvel dispõe de: 02 quartos 01 Banheiro Salas Conjugadas Cozinha Área de serviço 01 Vaga de Garagem Edu",
+      "bairro": "Corticeira",
+      "cidade": "Guaramirim",
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "cidade fora do catálogo: Guaramirim"
+        ]
+      }
+    },
+    {
+      "url": "https://www.poderimoveis.com/imoveis/venda",
+      "imagem": "https://fotos1.casasoftportais.net.br/indicadordeimoveis/imobiliarias/11751/fotos/medio480x360/970511751/13004111751.jpg",
+      "tipo_imovel": "Terreno",
+      "valor": 160000.0,
+      "area_privada": 300.0,
+      "detalhes": "Terreno no bairro Caixa d'água na cidade de Guaramirim/SC. Loteamento Residencial Fiori Área com 301,59m² Frente de 12,42m LD 21,70m LE 21,90m R$160.000,00 Fran",
+      "bairro": "Caixa D' Agua",
+      "cidade": "Guaramirim",
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "cidade fora do catálogo: Guaramirim"
+        ]
+      }
+    },
+    {
+      "url": "https://www.poderimoveis.com/imoveis/venda",
+      "imagem": "https://fotos1.casasoftportais.net.br/indicadordeimoveis/imobiliarias/11751/fotos/medio480x360/970611751/13004411751.jpg",
+      "tipo_imovel": "Terreno",
+      "valor": 160000.0,
+      "area_privada": 306.3,
+      "detalhes": "Terreno no bairro Caixa d'água na cidade de Guaramirim/SC Loteamento Residencial Fiori Área com 306,59m2 Frente de 12,42 LD 24,00 LE 24,00 R$160.000,00 Fran",
+      "bairro": "Caixa D' Agua",
+      "cidade": "Guaramirim",
+      "_quality": {
+        "valid": false,
+        "warnings": [
+          "cidade fora do catálogo: Guaramirim"
+        ]
+      }
+    },
+    {
+      "url": "https://www.poderimoveis.com/imoveis/venda",
+      "imagem": "https://fotos1.casasoftportais.net.br/indicadordeimoveis/imobiliarias/11751/fotos/medio480x360/956611751/12791811751.jpg",
+      "tipo_imovel": "Apartamento",
+      "quartos": 2,
+      "valor": 168000.0,
+      "area_privada": 42.0,
+      "area_util": 42.06,
+      "detalhes": "Apartamento no Bairro Nereu Ramos em Jaragua´ do Sul, com 42,06 m² privativo. Residencial Parque Jaragua´ Configuração: 02 quartos, sala de estar, banheiro, lavanderia, cozinha. 01 Vaga de estacionamento. Playground Apto muito bem cuidado e perfeito para voce^ que quer sair do aluguel. Aceita financiamento banca´rio. Lu.",
+      "bairro": "Ribeirao Cavalo",
+      "cidade": "Jaraguá do Sul",
+      "lavanderia": null,
+      "financiamento": null,
+      "_quality": {
+        "valid": true,
+        "warnings": []
+      }
+    }
+  ]
+}

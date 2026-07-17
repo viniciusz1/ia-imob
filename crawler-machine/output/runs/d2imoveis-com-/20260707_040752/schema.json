@@ -1,0 +1,192 @@
+{
+  "metadata": {
+    "sample_url": "https://d2imoveis.com/1473",
+    "generated_at": "2026-07-07T04:17:40.724393+00:00"
+  },
+  "schema": {
+    "name": "Property Detail",
+    "baseSelector": "//body",
+    "baseFields": [],
+    "fields": [
+      {
+        "name": "url",
+        "selector": ".//input[@name='MEN_PAGE']",
+        "type": "attribute",
+        "attribute": "value"
+      },
+      {
+        "name": "imagem",
+        "selector": ".//div[contains(@class,'fotorama__active')]//div[@data-img]",
+        "type": "attribute",
+        "attribute": "data-img",
+        "transform": "strip"
+      },
+      {
+        "name": "tipo_imovel",
+        "selector": ".//tr[@class='category']/td[@class='Value']",
+        "type": "regex",
+        "pattern": "»\\s*(.+)"
+      },
+      {
+        "name": "quartos",
+        "selector": ".//tr[@class='bedroom']/td[@class='Value']",
+        "type": "regex",
+        "pattern": "(\\d+)"
+      },
+      {
+        "name": "banheiros",
+        "selector": ".//tr[@class='bathroom']/td[@class='Value']",
+        "type": "regex",
+        "pattern": "(\\d+)"
+      },
+      {
+        "name": "suites",
+        "selector": ".//tr[@class='bedroom']/td[@class='Value']",
+        "type": "regex",
+        "pattern": "(\\d+)\\s*suíte"
+      },
+      {
+        "name": "sala",
+        "selector": ".//div[contains(@class,'ImovelDesc')]//div[@class='TextBox']",
+        "type": "regex",
+        "pattern": "(\\d+)\\s*salas?"
+      },
+      {
+        "name": "vagas",
+        "selector": ".//tr[@class='garage']/td[@class='Value']",
+        "type": "regex",
+        "pattern": "(\\d+)"
+      },
+      {
+        "name": "ano",
+        "selector": ".//div[contains(@class,'ImovelDesc')]//div[@class='TextBox']",
+        "type": "regex",
+        "pattern": "(\\b(19|20)\\d{2}\\b)"
+      },
+      {
+        "name": "valor",
+        "selector": ".//div[contains(@class,'ImovelDesc')]//div[@class='TextBox']",
+        "type": "regex",
+        "pattern": "R\\$\\s*([\\d\\.]+,\\d{2})",
+        "transform": "strip"
+      },
+      {
+        "name": "area_privada",
+        "selector": ".//tr[@class='area_private']/td[@class='Value']",
+        "type": "regex",
+        "pattern": "([\\d,.]+)\\s*m²"
+      },
+      {
+        "name": "area_util",
+        "selector": ".//tr[contains(@class,'area_util')]/td[@class='Value']",
+        "type": "regex",
+        "pattern": "([\\d,.]+)\\s*m²"
+      },
+      {
+        "name": "detalhes",
+        "selector": ".//div[contains(@class,'ImovelDesc')]//div[@class='TextBox']",
+        "type": "text"
+      },
+      {
+        "name": "bairro",
+        "selector": ".//div[contains(@class,'ImovelLocalizacao')]//tr[td[contains(text(),'Bairro')]]/td[contains(@class,'Value')]",
+        "type": "text"
+      },
+      {
+        "name": "cidade",
+        "selector": ".//div[contains(@class,'ImovelLocalizacao')]//tr[td[contains(text(),'Cidade')]]/td[contains(@class,'Value')]",
+        "type": "text"
+      },
+      {
+        "name": "piscina",
+        "selector": ".//div[contains(@class,'ImovelDesc')]//div[@class='TextBox']",
+        "type": "regex",
+        "pattern": "(?i)(piscina)"
+      },
+      {
+        "name": "churrasqueira",
+        "selector": ".//div[contains(@class,'ImovelDesc')]//div[@class='TextBox']",
+        "type": "regex",
+        "pattern": "(?i)(churrasqueira)"
+      },
+      {
+        "name": "academia",
+        "selector": ".//div[contains(@class,'ImovelDesc')]//div[@class='TextBox']",
+        "type": "regex",
+        "pattern": "(?i)(academia)"
+      },
+      {
+        "name": "salao_festas",
+        "selector": ".//div[contains(@class,'ImovelDesc')]//div[@class='TextBox']",
+        "type": "regex",
+        "pattern": "(?i)(salão|salao de festas)"
+      },
+      {
+        "name": "playground",
+        "selector": ".//div[contains(@class,'ImovelDesc')]//div[@class='TextBox']",
+        "type": "regex",
+        "pattern": "(?i)(playground)"
+      },
+      {
+        "name": "sacada",
+        "selector": ".//div[contains(@class,'ImovelDesc')]//div[@class='TextBox']",
+        "type": "regex",
+        "pattern": "(?i)(sacada)"
+      },
+      {
+        "name": "mobiliado",
+        "selector": ".//div[contains(@class,'ImovelDesc')]//div[@class='TextBox']",
+        "type": "regex",
+        "pattern": "(?i)(mobiliado)"
+      },
+      {
+        "name": "ar_condicionado",
+        "selector": ".//div[contains(@class,'ImovelDesc')]//div[@class='TextBox']",
+        "type": "regex",
+        "pattern": "(?i)(ar\\s*condicionado)"
+      },
+      {
+        "name": "lavanderia",
+        "selector": ".//div[contains(@class,'ImovelDesc')]//div[@class='TextBox']",
+        "type": "regex",
+        "pattern": "(?i)(lavanderia)"
+      },
+      {
+        "name": "escritorio",
+        "selector": ".//div[contains(@class,'ImovelDesc')]//div[@class='TextBox']",
+        "type": "regex",
+        "pattern": "(?i)(escritório|escritorio)"
+      },
+      {
+        "name": "closet",
+        "selector": ".//div[contains(@class,'ImovelDesc')]//div[@class='TextBox']",
+        "type": "regex",
+        "pattern": "(?i)(closet)"
+      },
+      {
+        "name": "elevador",
+        "selector": ".//div[contains(@class,'ImovelDesc')]//div[@class='TextBox']",
+        "type": "regex",
+        "pattern": "(?i)(elevador)"
+      },
+      {
+        "name": "portaria_24h",
+        "selector": ".//div[contains(@class,'ImovelDesc')]//div[@class='TextBox']",
+        "type": "regex",
+        "pattern": "(?i)(portaria\\s*24h|portaria 24 horas)"
+      },
+      {
+        "name": "aceita_permuta",
+        "selector": ".//div[contains(@class,'ImovelDesc')]//div[@class='TextBox']",
+        "type": "regex",
+        "pattern": "(?i)(permuta)"
+      },
+      {
+        "name": "financiamento",
+        "selector": ".//div[contains(@class,'ImovelDesc')]//div[@class='TextBox']",
+        "type": "regex",
+        "pattern": "(?i)(financiamento)"
+      }
+    ]
+  }
+}

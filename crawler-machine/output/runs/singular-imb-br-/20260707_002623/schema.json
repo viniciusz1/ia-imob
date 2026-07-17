@@ -1,0 +1,183 @@
+{
+  "metadata": {
+    "sample_url": "https://singular.imb.br/imovel/venda/apartamentos/jaragua-do-sul/sao-luis/490",
+    "generated_at": "2026-07-07T01:27:09.677150+00:00"
+  },
+  "schema": {
+    "name": "PropertyDetail",
+    "baseSelector": "//div[@id='__next']",
+    "fields": [
+      {
+        "name": "url",
+        "selector": ".//nav[contains(@class, 'MuiBreadcrumbs-root')]//ol/li[not(contains(@class, 'MuiBreadcrumbs-separator'))][last()]/a",
+        "type": "attribute",
+        "attribute": "href"
+      },
+      {
+        "name": "imagem",
+        "selector": ".//div[contains(@class, 'SlickCarousel')]//img",
+        "type": "attribute",
+        "attribute": "src"
+      },
+      {
+        "name": "tipo_imovel",
+        "selector": ".//h1[contains(@class, 'ObjectTitle__')]",
+        "type": "regex",
+        "pattern": "^(\\w+)"
+      },
+      {
+        "name": "quartos",
+        "selector": ".//div[contains(@class, 'IconifiedCharacteristics__')]//div[contains(., 'quartos')]",
+        "type": "text"
+      },
+      {
+        "name": "sala",
+        "selector": ".//div[contains(@class, 'IconifiedCharacteristics__')]//div[contains(., 'sala')]",
+        "type": "text"
+      },
+      {
+        "name": "banheiros",
+        "selector": ".//div[contains(@class, 'IconifiedCharacteristics__')]//div[contains(., 'banheiro')]",
+        "type": "text"
+      },
+      {
+        "name": "suites",
+        "selector": ".//div[contains(@class, 'ParagraphIcon__Title') and text()='Descrição do imóvel']/following-sibling::div[1]",
+        "type": "regex",
+        "pattern": "(su[íi]te)"
+      },
+      {
+        "name": "vagas",
+        "selector": ".//div[contains(@class, 'IconifiedCharacteristics__')]//div[contains(., 'vaga')]",
+        "type": "text"
+      },
+      {
+        "name": "ano",
+        "selector": ".//div[contains(@class, 'IconifiedCharacteristics__')]//div[contains(., 'Construído em')]",
+        "type": "regex",
+        "pattern": "(\\d{4})"
+      },
+      {
+        "name": "valor",
+        "selector": ".//h6[contains(@class, 'MuiTypography-subtitle1')]",
+        "type": "text"
+      },
+      {
+        "name": "area_privada",
+        "selector": ".//div[contains(@class, 'IconifiedCharacteristics__')]//div[contains(., 'm²')]",
+        "type": "regex",
+        "pattern": "(\\d+\\.?\\d*)"
+      },
+      {
+        "name": "area_util",
+        "selector": ".//p[contains(@class, 'MuiTypography-body1') and contains(., 'Área útil')]",
+        "type": "regex",
+        "pattern": "(\\d+\\.?\\d*)"
+      },
+      {
+        "name": "detalhes",
+        "selector": ".//div[contains(@class, 'ParagraphIcon__Title') and text()='Descrição do imóvel']/following-sibling::div[1]",
+        "type": "text"
+      },
+      {
+        "name": "bairro",
+        "selector": ".//nav[contains(@class, 'MuiBreadcrumbs-root')]//ol/li[not(contains(@class, 'MuiBreadcrumbs-separator'))][last()]/a",
+        "type": "text"
+      },
+      {
+        "name": "cidade",
+        "selector": ".//nav[contains(@class, 'MuiBreadcrumbs-root')]//ol/li[not(contains(@class, 'MuiBreadcrumbs-separator'))][last()-1]/a",
+        "type": "text"
+      },
+      {
+        "name": "piscina",
+        "selector": ".//div[contains(@class, 'ParagraphIcon__Title') and text()='Descrição do imóvel']/following-sibling::div[1]",
+        "type": "regex",
+        "pattern": "(Piscina)"
+      },
+      {
+        "name": "churrasqueira",
+        "selector": ".//div[contains(@class, 'ParagraphIcon__Title') and text()='Descrição do imóvel']/following-sibling::div[1]",
+        "type": "regex",
+        "pattern": "(churrasqueira)"
+      },
+      {
+        "name": "academia",
+        "selector": ".//div[contains(@class, 'ParagraphIcon__Title') and text()='Descrição do imóvel']/following-sibling::div[1]",
+        "type": "regex",
+        "pattern": "(academia)"
+      },
+      {
+        "name": "salao_festas",
+        "selector": ".//div[contains(@class, 'ParagraphIcon__Title') and text()='Descrição do imóvel']/following-sibling::div[1]",
+        "type": "regex",
+        "pattern": "(Salões)"
+      },
+      {
+        "name": "playground",
+        "selector": ".//div[contains(@class, 'ParagraphIcon__Title') and text()='Descrição do imóvel']/following-sibling::div[1]",
+        "type": "regex",
+        "pattern": "(Playground)"
+      },
+      {
+        "name": "sacada",
+        "selector": ".//div[contains(@class, 'ParagraphIcon__Title') and text()='Descrição do imóvel']/following-sibling::div[1]",
+        "type": "regex",
+        "pattern": "(Sacada)"
+      },
+      {
+        "name": "mobiliado",
+        "selector": ".//div[contains(@class, 'ParagraphIcon__Title') and text()='Descrição do imóvel']/following-sibling::div[1]",
+        "type": "regex",
+        "pattern": "(mobiliad)"
+      },
+      {
+        "name": "ar_condicionado",
+        "selector": ".//div[contains(@class, 'ParagraphIcon__Title') and text()='Descrição do imóvel']/following-sibling::div[1]",
+        "type": "regex",
+        "pattern": "(ar condicionado)"
+      },
+      {
+        "name": "lavanderia",
+        "selector": ".//div[contains(@class, 'IconifiedCharacteristics__')]//div[contains(., 'lavanderia')]",
+        "type": "text"
+      },
+      {
+        "name": "escritorio",
+        "selector": ".//div[contains(@class, 'ParagraphIcon__Title') and text()='Descrição do imóvel']/following-sibling::div[1]",
+        "type": "regex",
+        "pattern": "(escrit[oó]rio)"
+      },
+      {
+        "name": "closet",
+        "selector": ".//div[contains(@class, 'ParagraphIcon__Title') and text()='Descrição do imóvel']/following-sibling::div[1]",
+        "type": "regex",
+        "pattern": "(closet)"
+      },
+      {
+        "name": "elevador",
+        "selector": ".//div[contains(@class, 'ParagraphIcon__Title') and text()='Descrição do imóvel']/following-sibling::div[1]",
+        "type": "regex",
+        "pattern": "(elevador)"
+      },
+      {
+        "name": "portaria_24h",
+        "selector": ".//div[contains(@class, 'ParagraphIcon__Title') and text()='Descrição do imóvel']/following-sibling::div[1]",
+        "type": "regex",
+        "pattern": "(24h|24 horas)"
+      },
+      {
+        "name": "aceita_permuta",
+        "selector": ".//div[contains(@class, 'ParagraphIcon__Title') and normalize-space()='Imóvel']/following-sibling::div[1]",
+        "type": "regex",
+        "pattern": "(permuta)"
+      },
+      {
+        "name": "financiamento",
+        "selector": ".//div[contains(@class, 'ParagraphIcon__Title') and normalize-space()='Imóvel']/following-sibling::div[1]",
+        "type": "regex",
+        "pattern": "(financiamento)"
+      }
+    ]
+  }
+}

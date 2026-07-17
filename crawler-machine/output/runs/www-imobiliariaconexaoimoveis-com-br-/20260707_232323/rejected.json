@@ -1,0 +1,101 @@
+{
+  "metadata": {
+    "rejected_at": "2026-07-07T23:25:28.141135+00:00",
+    "count": 5
+  },
+  "rejected": [
+    {
+      "index": 0,
+      "record": {
+        "url": "https://www.imobiliariaconexaoimoveis.com.br/anuncie-seu-imovel",
+        "aceita_permuta": null,
+        "financiamento": null
+      },
+      "missing_fields": [
+        "bairro",
+        "cidade",
+        "valor",
+        "tipo_imovel",
+        "imagem"
+      ],
+      "reason": "missing required fields: bairro, cidade, valor, tipo_imovel, imagem"
+    },
+    {
+      "index": 1,
+      "record": {
+        "url": "https://www.imobiliariaconexaoimoveis.com.br/sobre",
+        "tipo_imovel": "Conexão"
+      },
+      "missing_fields": [
+        "bairro",
+        "cidade",
+        "valor",
+        "imagem"
+      ],
+      "reason": "missing required fields: bairro, cidade, valor, imagem"
+    },
+    {
+      "index": 21,
+      "record": {
+        "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-geminada-para-venda-no-bairro-beira-rio/248",
+        "imagem": "https://cdn.imoview.com.br/conexaocorretora/Imoveis/248/202510282347188602.jpg?1769460796",
+        "tipo_imovel": "Casa",
+        "quartos": 2,
+        "banheiros": 1,
+        "suites": 0,
+        "vagas": 1,
+        "valor": 335500.0,
+        "area_privada": 67.0,
+        "area_util": 0.0,
+        "detalhes": "CASA GEMINADA PARA VENDA GUARAMIRIM \n  \n  Bairro Beira Rio, GuaramirimSC\n  \n  Casa geminada com 2 dormitório, banheiro social, cozinha, sala de estar e área de serviço.\n  Vaga para 1 carro! \n  Com área nos fundos! \n  \n  R$335.500,00\n  Aceita financiamento!",
+        "bairro": "Beira Rio",
+        "lavanderia": null
+      },
+      "missing_fields": [
+        "cidade"
+      ],
+      "reason": "missing required fields: cidade"
+    },
+    {
+      "index": 69,
+      "record": {
+        "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/casa-para-venda-no-bairro-vila-lalau/376",
+        "imagem": "https://cdn.imoview.com.br/conexaocorretora/Imoveis/376/202601031038192294.jpeg?1769462631",
+        "tipo_imovel": "Casa",
+        "quartos": 3,
+        "banheiros": 2,
+        "suites": 0,
+        "vagas": 1,
+        "valor": 650000.0,
+        "area_privada": 127.0,
+        "area_util": 0.0,
+        "detalhes": "Casa localizada no bairro Vila Lalau, Jaraguá do Sul.\n  \n  R$ 650.000,00 - Aceita financiamento\n  \n   127m de área privativa\n   03 quartos\n   02 banheiros\n   01 vagas de garagem\n  Nos resguardamos de possíveis alteração de características, de valores e condições de pagamento sem prévia comunicação! Consultar disponibilidade, características e tabela de preços atualizadas com um de nossos corretores!\n  \n  Faça-nos uma visita!\n  R. Manoel Francisco da Costa, 161. Sala 02 - Vieira, Jaraguá do Sul - SC.\n  \n  Converse com um de nossos corretores!\n  47 3051-1000 \n   - Proximidades:  Bares e Restaurantes,  Escola,  Farmácia,  Supermercado,",
+        "bairro": "Vila Lalau"
+      },
+      "missing_fields": [
+        "cidade"
+      ],
+      "reason": "missing required fields: cidade"
+    },
+    {
+      "index": 70,
+      "record": {
+        "url": "https://www.imobiliariaconexaoimoveis.com.br/imovel/apartamento-para-venda-no-bairro-joao-pessoa/373",
+        "imagem": "https://cdn.imoview.com.br/conexaocorretora/Imoveis/373/202601051009304928.jpeg?1769462591",
+        "tipo_imovel": "Apartamento",
+        "quartos": 3,
+        "banheiros": 2,
+        "vagas": 1,
+        "valor": 650000.0,
+        "area_privada": 134.93,
+        "area_util": 0.0,
+        "detalhes": "Apartamento localizado no bairro João Pessoa, Jaraguá do sul.\n  A partir de R$ 650.000,00 - Aceita financiamento\n  \n   134,93m de área privativa\n   03 quartos, sendo 1 suíte\n   02 banheiro\n   01 vaga de garagem \n   Churrasqueira na sacada\n      Lavandeira\n  \n  \n  Nos resguardamos de possíveis alteração de características, de valores e condições de pagamento sem prévia comunicação! Consultar disponibilidade, características e tabela de preços atualizadas com um de nossos corretores!\n  \n  Faça-nos uma visita!\n  R. Manoel Francisco da Costa, 161. Sala 02 - Vieira, Jaraguá do Sul - SC.\n  \n  Converse com um de nossos corretores!\n  47 3051-1000\n   - Proximidades:  Bares e Restaurantes,  Escola,  Farmácia,  Supermercado,",
+        "bairro": "João Pessoa"
+      },
+      "missing_fields": [
+        "cidade"
+      ],
+      "reason": "missing required fields: cidade"
+    }
+  ]
+}

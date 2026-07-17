@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use Database\Seeders\PermissionSeeder;
+use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -40,5 +42,23 @@ class AuthUserPermissionsTest extends TestCase
                 'valuations.create',
                 'valuations.view',
             ]);
+    }
+
+    public function test_broker_user_response_includes_market_insights_permission(): void
+    {
+        $this->seed(PermissionSeeder::class);
+        $this->seed(RoleSeeder::class);
+
+        $role = Role::query()->where('name', 'Corretor')->firstOrFail();
+        $user = User::factory()->create();
+        $user->assignRole($role);
+
+        $this->actingAs($user)
+            ->getJson('/api/v1/user')
+            ->assertOk()
+            ->assertJsonPath(
+                'data.permissions',
+                fn ($permissions) => in_array('market_insights.view', $permissions, true)
+            );
     }
 }

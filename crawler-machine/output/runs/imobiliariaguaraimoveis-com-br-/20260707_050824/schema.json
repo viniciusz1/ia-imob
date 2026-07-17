@@ -1,0 +1,164 @@
+{
+  "metadata": {
+    "sample_url": "https://imobiliariaguaraimoveis.com.br/imovel-venda-em-bananal-do-sul-guaramirim",
+    "generated_at": "2026-07-07T05:16:20.920174+00:00"
+  },
+  "schema": {
+    "name": "Detalhes do Imóvel",
+    "baseSelector": "/html/body",
+    "fields": [
+      {
+        "name": "url",
+        "selector": ".//input[@name='MEN_PAGE']",
+        "type": "attribute",
+        "attribute": "value"
+      },
+      {
+        "name": "imagem",
+        "selector": ".//div[contains(@class,'fotorama')]//div[@data-img]",
+        "type": "attribute",
+        "attribute": "data-img"
+      },
+      {
+        "name": "tipo_imovel",
+        "selector": ".//tr[@class='category']/td[contains(@class,'Value')]",
+        "type": "text"
+      },
+      {
+        "name": "quartos",
+        "selector": ".//tr[@class='bedroom']/td[contains(@class,'Value')]",
+        "type": "text"
+      },
+      {
+        "name": "sala",
+        "selector": ".//tr[td[contains(., 'Sala')]]/td[2]",
+        "type": "text"
+      },
+      {
+        "name": "banheiros",
+        "selector": ".//tr[@class='bathroom']/td[contains(@class,'Value')]",
+        "type": "text"
+      },
+      {
+        "name": "suites",
+        "selector": ".//tr[td[contains(., 'Suíte') or contains(., 'Suite')]]/td[2]",
+        "type": "text"
+      },
+      {
+        "name": "vagas",
+        "selector": ".//tr[@class='garage']/td[contains(@class,'Value')]",
+        "type": "text"
+      },
+      {
+        "name": "ano",
+        "selector": ".//tr[td[contains(., 'Ano')]]/td[2]",
+        "type": "text"
+      },
+      {
+        "name": "valor",
+        "selector": ".//tr[@class='Venda']//span[contains(@class,'value')]",
+        "type": "text"
+      },
+      {
+        "name": "area_util",
+        "selector": ".//tr[@class='area_useful']/td[contains(@class,'Value')]",
+        "type": "text"
+      },
+      {
+        "name": "area_privada",
+        "selector": ".//tr[@class='area_useful']/td[contains(@class,'Value')]",
+        "type": "text"
+      },
+      {
+        "name": "detalhes",
+        "selector": ".//div[@class='TextBox']",
+        "type": "text"
+      },
+      {
+        "name": "bairro",
+        "selector": ".//tr[td[contains(text(),'Bairro:')]]/td[contains(@class,'Value')]",
+        "type": "text"
+      },
+      {
+        "name": "cidade",
+        "selector": ".//tr[td[contains(text(),'Cidade:')]]/td[contains(@class,'Value')]",
+        "type": "text"
+      },
+      {
+        "name": "piscina",
+        "selector": ".//tr[td[contains(., 'Piscina')]]/td[2]",
+        "type": "text"
+      },
+      {
+        "name": "churrasqueira",
+        "selector": ".//tr[td[contains(., 'Churrasqueira')]]/td[2]",
+        "type": "text"
+      },
+      {
+        "name": "academia",
+        "selector": ".//tr[td[contains(., 'Academia')]]/td[2]",
+        "type": "text"
+      },
+      {
+        "name": "salao_festas",
+        "selector": ".//tr[td[contains(., 'Salão de Festas')]]/td[2]",
+        "type": "text"
+      },
+      {
+        "name": "playground",
+        "selector": ".//tr[td[contains(., 'Playground')]]/td[2]",
+        "type": "text"
+      },
+      {
+        "name": "sacada",
+        "selector": ".//tr[td[contains(., 'Sacada')]]/td[2]",
+        "type": "text"
+      },
+      {
+        "name": "mobiliado",
+        "selector": ".//tr[td[contains(., 'Mobiliado')]]/td[2]",
+        "type": "text"
+      },
+      {
+        "name": "ar_condicionado",
+        "selector": ".//tr[td[contains(., 'Ar Condicionado')]]/td[2]",
+        "type": "text"
+      },
+      {
+        "name": "lavanderia",
+        "selector": ".//tr[td[contains(., 'Lavanderia')]]/td[2]",
+        "type": "text"
+      },
+      {
+        "name": "escritorio",
+        "selector": ".//tr[td[contains(., 'Escritório')]]/td[2]",
+        "type": "text"
+      },
+      {
+        "name": "closet",
+        "selector": ".//tr[td[contains(., 'Closet')]]/td[2]",
+        "type": "text"
+      },
+      {
+        "name": "elevador",
+        "selector": ".//tr[td[contains(., 'Elevador')]]/td[2]",
+        "type": "text"
+      },
+      {
+        "name": "portaria_24h",
+        "selector": ".//tr[td[contains(., 'Portaria 24h') or contains(., 'Portaria 24 horas')]]/td[2]",
+        "type": "text"
+      },
+      {
+        "name": "aceita_permuta",
+        "selector": ".//tr[td[contains(., 'Permuta')]]/td[2]",
+        "type": "text"
+      },
+      {
+        "name": "financiamento",
+        "selector": ".//tr[td[contains(., 'Financiamento')]]/td[2]",
+        "type": "text"
+      }
+    ]
+  }
+}

@@ -18,7 +18,7 @@ class RoleController extends Controller
 {
     public function index(ManageRolesRequest $request): AnonymousResourceCollection
     {
-        $guard = (string) config('auth.defaults.guard', 'web');
+        $guard = $this->permissionGuard();
 
         return RoleResource::collection(
             Role::with('permissions')
@@ -67,7 +67,17 @@ class RoleController extends Controller
 
     private function ensureRoleGuard(Role $role): void
     {
-        $guard = (string) config('auth.defaults.guard', 'web');
-        abort_if($role->guard_name !== $guard, 404, 'Grupo não encontrado.');
+        abort_if($role->guard_name !== $this->permissionGuard(), 404, 'Grupo não encontrado.');
+    }
+
+    /**
+     * Return the fixed guard used for Spatie roles/permissions.
+     *
+     * auth:sanctum mutates config('auth.defaults.guard') at runtime,
+     * so we use the guard the permission tables were seeded with.
+     */
+    private function permissionGuard(): string
+    {
+        return 'web';
     }
 }

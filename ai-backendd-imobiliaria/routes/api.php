@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\MarketInsightController;
 use App\Http\Controllers\Api\PermissionController;
 use App\Http\Controllers\Api\RoleController;
 use Illuminate\Support\Facades\Route;
@@ -26,6 +27,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('valuations', \App\Http\Controllers\Api\ValuationController::class)->only(['index', 'store', 'show']);
     Route::get('market-properties/filters', [\App\Http\Controllers\Api\MarketPropertyController::class, 'filters']);
     Route::apiResource('market-properties', \App\Http\Controllers\Api\MarketPropertyController::class);
+
+    Route::get('market-insights/offer-map', [MarketInsightController::class, 'offerMap'])
+        ->middleware('can:market_insights.view');
 
     // Property Images
     Route::post('properties/{property}/images', [\App\Http\Controllers\Api\PropertyImageController::class, 'store']);
@@ -53,6 +57,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/subscriptions/{id}', [\App\Http\Controllers\Api\SubscriptionController::class, 'destroy']);
 
     require __DIR__.'/api/user_routes.php';
+});
+
+// Platform Admin API (auth:sanctum + platform permissions)
+Route::prefix('admin')->group(function () {
+    require __DIR__.'/api/admin.php';
 });
 
 // White-Label Public Site API (unauthenticated, agency resolved from host)

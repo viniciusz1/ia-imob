@@ -12,12 +12,18 @@ class PermissionController extends Controller
 {
     public function index(IndexPermissionRequest $request): AnonymousResourceCollection
     {
-        $guard = (string) config('auth.defaults.guard', 'web');
-
         return PermissionResource::collection(
             Permission::query()
-                ->where('guard_name', $guard)
+                ->where('guard_name', $this->permissionGuard())
                 ->get()
         );
+    }
+
+    /**
+     * Fixed guard for Spatie permissions (auth:sanctum mutates the default guard at runtime).
+     */
+    private function permissionGuard(): string
+    {
+        return 'web';
     }
 }

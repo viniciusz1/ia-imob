@@ -1,0 +1,26 @@
+{
+  "metadata": {
+    "rejected_at": "2026-07-07T04:23:08.158394+00:00",
+    "count": 1
+  },
+  "rejected": [
+    {
+      "index": 130,
+      "record": {
+        "url": "https://d2imoveis.com/vega-jaragua-jaragua-esquerdo",
+        "imagem": "https://img.apre.me/BcFRCoAgDADQ2_xTSZvpx84SNlMWYqMIr997TDoBPd0T2lDDFVeSCY5eaHqZWnw9Xcw_xBT2nlV4yKM2oce0LbYNKV2_gwRWh0j8Aw.jpg",
+        "tipo_imovel": "Apartamento",
+        "quartos": 2,
+        "banheiros": 1,
+        "vagas": 1,
+        "area_privada": 46.79,
+        "bairro": "Jaraguá Esquerdo",
+        "cidade": "Jaraguá do Sul"
+      },
+      "missing_fields": [
+        "valor"
+      ],
+      "reason": "missing required fields: valor"
+    }
+  ]
+}
