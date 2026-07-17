@@ -129,6 +129,36 @@ class QualityPolicyApiTest extends TestCase
         ])->assertUnprocessable();
     }
 
+    public function test_quality_index_consolidates_quarantined_and_exceptionally_published_snapshots(): void
+    {
+        $agency = $this->agency('quality-index');
+        foreach ([100, 100, 100] as $count) {
+            app(CrawlRunPublicationService::class)->evaluate($this->candidate($agency, $count, 100));
+        }
+
+        $exceptionallyPublished = $this->candidate($agency, 40, 100);
+        app(CrawlRunPublicationService::class)->evaluate($exceptionallyPublished);
+        $this->actingAs($this->admin)->postJson("/api/v1/admin/crawler/crawl-runs/{$exceptionallyPublished->id}/exceptional-publication", [
+            'reason' => 'Operator verified the seasonal inventory directly with the agency.',
+        ])->assertCreated();
+
+        $quarantined = $this->candidate($agency, 20, 100);
+        app(CrawlRunPublicationService::class)->evaluate($quarantined);
+
+        $this->actingAs($this->admin)
+            ->getJson('/api/v1/admin/crawler/quality-snapshots')
+            ->assertOk()
+            ->assertJsonCount(2, 'data')
+            ->assertJsonPath('data.0.id', $quarantined->id)
+            ->assertJsonPath('data.0.publication_state', 'quarantined')
+            ->assertJsonPath('data.1.id', $exceptionallyPublished->id)
+            ->assertJsonPath('data.1.publication_state', 'published')
+            ->assertJsonPath(
+                'data.1.exceptional_publication.reason',
+                'Operator verified the seasonal inventory directly with the agency.'
+            );
+    }
+
     private function agency(string $suffix): CrawlAgency
     {
         return CrawlAgency::query()->create([

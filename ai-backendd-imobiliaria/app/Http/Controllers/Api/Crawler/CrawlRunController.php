@@ -10,6 +10,20 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class CrawlRunController extends Controller
 {
+    public function quality(): AnonymousResourceCollection
+    {
+        return CrawlRunResource::collection(
+            CrawlerRun::query()
+                ->where(function ($query): void {
+                    $query->where('publication_state', 'quarantined')
+                        ->orWhereHas('exceptionalPublication');
+                })
+                ->with(['qualityReport', 'exceptionalPublication'])
+                ->latest('id')
+                ->get()
+        );
+    }
+
     public function index(CrawlAgency $crawlAgency): AnonymousResourceCollection
     {
         return CrawlRunResource::collection(

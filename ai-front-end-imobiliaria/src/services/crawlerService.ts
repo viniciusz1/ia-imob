@@ -207,6 +207,11 @@ export async function listCrawlRuns(agencyId: number): Promise<CrawlRun[]> {
   return response.data.data;
 }
 
+export async function listQualitySnapshots(): Promise<CrawlRun[]> {
+  const response = await api.get<Resource<CrawlRun[]>>(`${BASE}/quality-snapshots`);
+  return response.data.data;
+}
+
 export async function listQualityPolicies(): Promise<QualityPolicy[]> {
   const response = await api.get<Resource<QualityPolicy[]>>(`${BASE}/quality-policies`);
   return response.data.data;

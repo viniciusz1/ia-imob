@@ -22,7 +22,7 @@ export function CrawlerOverviewDashboard({
     { label: "Operações ativas", value: initialOverview.operations.active, href: "/admin/crawler/operations?state=running" },
     { label: "Falhas", value: initialOverview.operations.failed, href: "/admin/crawler/operations?state=failed" },
     { label: "Circuitos abertos", value: initialOverview.open_circuits, href: "#alertas" },
-    { label: "Snapshots em quarentena", value: initialOverview.quarantined_snapshots, href: "#alertas" },
+    { label: "Snapshots em quarentena", value: initialOverview.quarantined_snapshots, href: "/admin/crawler/quality" },
   ];
 
   const testIntegration = async (integration: CrawlerIntegration) => {

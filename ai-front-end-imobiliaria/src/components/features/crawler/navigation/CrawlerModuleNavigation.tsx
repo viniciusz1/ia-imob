@@ -7,6 +7,7 @@ import {
   Plus,
   Search,
   Settings,
+  ShieldCheck,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -48,6 +49,12 @@ const navigationItems = [
       `${moduleRoot}/operations`,
       `${moduleRoot}/discoveries`,
     ].some((prefix) => pathname.startsWith(prefix)),
+  },
+  {
+    label: "Qualidade",
+    href: `${moduleRoot}/quality`,
+    icon: ShieldCheck,
+    isActive: (pathname: string) => pathname.startsWith(`${moduleRoot}/quality`),
   },
   {
     label: "Configurações",

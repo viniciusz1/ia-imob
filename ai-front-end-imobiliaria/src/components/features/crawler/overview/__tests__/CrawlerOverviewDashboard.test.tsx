@@ -24,6 +24,7 @@ describe("CrawlerOverviewDashboard", () => {
     expect(screen.getByRole("heading", { name: /visão geral/i })).toBeInTheDocument();
     expect(screen.getByText(/nenhum alerta operacional/i)).toBeInTheDocument();
     expect(screen.getByText(/nenhuma operação ativa/i)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /snapshots em quarentena/i })).toHaveAttribute("href", "/admin/crawler/quality");
   });
 
   it("links degraded alerts and shows only sanitized integration identifiers", () => {

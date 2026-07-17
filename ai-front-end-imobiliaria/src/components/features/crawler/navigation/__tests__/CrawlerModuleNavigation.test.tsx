@@ -31,6 +31,7 @@ describe("CrawlerModuleNavigation", () => {
     expect(screen.getByRole("link", { name: "Prospecção" })).toHaveAttribute("href", "/admin/crawler/prospects");
     expect(screen.getByRole("link", { name: "Crawl Agencies" })).toHaveAttribute("href", "/admin/crawler/agencies");
     expect(screen.getByRole("link", { name: "Operações" })).toHaveAttribute("href", "/admin/crawler/operations");
+    expect(screen.getByRole("link", { name: "Qualidade" })).toHaveAttribute("href", "/admin/crawler/quality");
     expect(screen.getByRole("link", { name: "Configurações" })).toHaveAttribute("href", "/admin/crawler/settings");
   });
 
@@ -50,6 +51,15 @@ describe("CrawlerModuleNavigation", () => {
 
     expect(screen.getByRole("link", { name: "Operações" })).toHaveAttribute("aria-current", "page");
     expect(screen.getByRole("link", { name: "Crawl Agencies" })).not.toHaveAttribute("aria-current");
+  });
+
+  it("marks Quality active throughout the quality workflow", () => {
+    mocks.pathname = "/admin/crawler/quality";
+
+    render(<CrawlerModuleNavigation />);
+
+    expect(screen.getByRole("link", { name: "Qualidade" })).toHaveAttribute("aria-current", "page");
+    expect(screen.getByRole("link", { name: "Operações" })).not.toHaveAttribute("aria-current");
   });
 
   it("shows overview actions allowed by the operator permissions", () => {
