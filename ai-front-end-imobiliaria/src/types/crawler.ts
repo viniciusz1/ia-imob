@@ -207,9 +207,11 @@ export interface ExtractionProfile {
   fields: MarketDataField[];
   parameters: Record<string, unknown>;
   decided_by: number | null;
+  decider?: { id: number; name: string } | null;
   decided_at: string | null;
   decision_reason: string | null;
   activated_by: number | null;
+  activator?: { id: number; name: string } | null;
   activated_at: string | null;
   latest_validation_report: ProfileValidationReport | null;
   created_at: string;
@@ -236,8 +238,13 @@ export interface ProfileValidationReport {
   blocking_failures: string[];
   warnings: string[];
   eligible: boolean;
-  records: ProfileValidationRecord[];
+  records?: ProfileValidationRecord[];
   created_at: string;
+}
+
+export interface PaginatedProfileValidationRecords {
+  data: ProfileValidationRecord[];
+  meta: { current_page: number; last_page: number; per_page: number; total: number };
 }
 
 export interface CrawlRun {

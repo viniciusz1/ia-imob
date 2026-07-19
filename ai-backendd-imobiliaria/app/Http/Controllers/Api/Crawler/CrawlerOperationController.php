@@ -72,4 +72,27 @@ class CrawlerOperationController extends Controller
     {
         return new CrawlerOperationResource($operation->load(['discoverySnapshot', 'crawlAgency', 'groups', 'requester', 'worker']));
     }
+
+    public function profileWorkflow(CrawlAgency $crawlAgency): AnonymousResourceCollection
+    {
+        $query = CrawlerOperation::query()
+            ->with(['discoverySnapshot', 'crawlAgency', 'groups', 'requester', 'worker'])
+            ->where('crawl_agency_id', $crawlAgency->id)
+            ->whereIn('type', ['sample_url_suggestion', 'profile_generation', 'profile_validation']);
+        $active = (clone $query)
+            ->whereIn('state', ['queued', 'running', 'cancellation_requested'])
+            ->get();
+        $recentTerminal = (clone $query)
+            ->whereIn('state', ['failed', 'cancelled'])
+            ->latest('created_at')
+            ->limit(10)
+            ->get();
+        $operations = $active
+            ->concat($recentTerminal)
+            ->unique('id')
+            ->sortByDesc('created_at')
+            ->values();
+
+        return CrawlerOperationResource::collection($operations);
+    }
 }

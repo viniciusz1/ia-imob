@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { queueProductionCrawl } from "@/services/crawlerService";
+import { crawlerOperationErrorMessage } from "../crawlerOperationFeedback";
 
 interface ProductionCrawlPanelProps {
   agencyId: number;
@@ -22,14 +23,18 @@ export function ProductionCrawlPanel({ agencyId, snapshots, profiles }: Producti
 
   const queue = async () => {
     if (!profileId) return;
-    const operation = await queueProductionCrawl({
-      crawl_agency_id: agencyId,
-      discovery_mode: discovery === "fresh" ? "fresh" : "existing",
-      ...(discovery === "fresh" ? {} : { discovery_snapshot_id: Number(discovery) }),
-      extraction_profile_id: Number(profileId),
-    });
-    setOperationId(operation.id);
-    toast.success(`Crawl #${operation.id} enfileirado.`);
+    try {
+      const operation = await queueProductionCrawl({
+        crawl_agency_id: agencyId,
+        discovery_mode: discovery === "fresh" ? "fresh" : "existing",
+        ...(discovery === "fresh" ? {} : { discovery_snapshot_id: Number(discovery) }),
+        extraction_profile_id: Number(profileId),
+      });
+      setOperationId(operation.id);
+      toast.success(`Crawl enfileirado como operação #${operation.id}.`);
+    } catch (error) {
+      toast.error(crawlerOperationErrorMessage(error, "Não foi possível enfileirar o crawl."));
+    }
   };
 
   return (
@@ -45,8 +50,8 @@ export function ProductionCrawlPanel({ agencyId, snapshots, profiles }: Producti
         </select>
       </div>
       <div className="flex flex-wrap items-center gap-3">
-        <Button disabled={!profileId || operationId !== null} onClick={queue} type="button">{operationId ? `Crawl #${operationId} enfileirado` : "Rodar Crawl"}</Button>
-        <Link className="text-sm underline" href="#onboarding">Gerar novo Discovery ou Perfil</Link>
+        <Button className="cursor-pointer disabled:cursor-not-allowed" disabled={!profileId || operationId !== null} onClick={() => void queue()} type="button">{operationId ? `Crawl #${operationId} enfileirado` : "Rodar Crawl"}</Button>
+        <Link className="cursor-pointer text-sm underline" href={`/admin/crawler/agencies/${agencyId}/discoveries`}>Gerar novo Discovery ou Perfil</Link>
       </div>
     </div>
   );

@@ -10,6 +10,7 @@ import type {
   DiscoverySnapshot,
   ExtractionProfile,
   ProfileValidationReport,
+  PaginatedProfileValidationRecords,
   CrawlRun,
   PaginatedCrawlRunRecords,
   OperationGroup,
@@ -55,6 +56,11 @@ export async function activateMarketDataContract(id: number): Promise<MarketData
 
 export async function listCrawlerOperations(filters: CrawlerOperationFilters = {}): Promise<CrawlerOperation[]> {
   const response = await api.get<Resource<CrawlerOperation[]>>(`${BASE}/operations`, { params: filters });
+  return response.data.data;
+}
+
+export async function listProfileWorkflowOperations(agencyId: number): Promise<CrawlerOperation[]> {
+  const response = await api.get<Resource<CrawlerOperation[]>>(`${BASE}/crawl-agencies/${agencyId}/profile-workflow-operations`);
   return response.data.data;
 }
 
@@ -161,6 +167,19 @@ export async function queueProfileValidation(profileId: number): Promise<Crawler
 export async function getProfileValidationReport(id: number): Promise<ProfileValidationReport> {
   const response = await api.get<Resource<ProfileValidationReport>>(`${BASE}/profile-validation-reports/${id}`);
   return response.data.data;
+}
+
+export async function getProfileValidationRecords(
+  agencyId: number,
+  profileId: number,
+  reportId: number,
+  params: { filter: "all" | "issues"; search: string; page: number; per_page: number },
+): Promise<PaginatedProfileValidationRecords> {
+  const response = await api.get<PaginatedProfileValidationRecords>(
+    `${BASE}/crawl-agencies/${agencyId}/extraction-profiles/${profileId}/profile-validation-reports/${reportId}/records`,
+    { params },
+  );
+  return response.data;
 }
 
 export async function decideExtractionProfile(

@@ -19,7 +19,7 @@ class ExtractionProfileController extends Controller
     {
         return ExtractionProfileResource::collection(
             ExtractionProfile::query()
-                ->with('validationReports.records')
+                ->with(['latestValidationReport', 'decider', 'activator'])
                 ->where('crawl_agency_id', $crawlAgency->id)
                 ->orderByDesc('version')
                 ->get()

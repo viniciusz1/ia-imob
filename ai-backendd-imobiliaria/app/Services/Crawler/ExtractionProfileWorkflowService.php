@@ -11,7 +11,10 @@ use Illuminate\Validation\ValidationException;
 
 class ExtractionProfileWorkflowService
 {
-    public function __construct(private readonly DistributedSnapshotSampler $sampler) {}
+    public function __construct(
+        private readonly DistributedSnapshotSampler $sampler,
+        private readonly CrawlerOperationService $operations,
+    ) {}
 
     public function queueValidation(ExtractionProfile $profile, User $requester): CrawlerOperation
     {
@@ -27,13 +30,11 @@ class ExtractionProfileWorkflowService
             throw ValidationException::withMessages(['discovery_snapshot_id' => 'The Discovery Snapshot has no URLs.']);
         }
 
-        return CrawlerOperation::query()->create([
-            'type' => 'profile_validation',
-            'state' => 'queued',
-            'requested_by' => $requester->id,
-            'crawl_agency_id' => $profile->crawl_agency_id,
-            'market_data_contract_version_id' => $profile->market_data_contract_version_id,
-            'plan' => [
+        return $this->operations->queueEquivalent(
+            type: 'profile_validation',
+            agencyId: $profile->crawl_agency_id,
+            contractId: $profile->market_data_contract_version_id,
+            plan: [
                 'version' => 1,
                 'type' => 'profile_validation',
                 'crawl_agency_id' => $profile->crawl_agency_id,
@@ -48,7 +49,8 @@ class ExtractionProfileWorkflowService
                     'required_field_coverage' => 0.90,
                 ],
             ],
-        ])->refresh();
+            requester: $requester,
+        );
     }
 
     public function decide(ExtractionProfile $profile, string $decision, string $reason, User $actor): ExtractionProfile
@@ -62,8 +64,8 @@ class ExtractionProfileWorkflowService
             ->latest('id')
             ->first();
 
-        if ($decision === 'approved' && ! $report?->eligible) {
-            throw ValidationException::withMessages(['decision' => 'The latest validation report is not eligible for approval.']);
+        if ($decision === 'approved' && $report === null) {
+            throw ValidationException::withMessages(['decision' => 'A validation report is required before approval.']);
         }
 
         $profile->update([

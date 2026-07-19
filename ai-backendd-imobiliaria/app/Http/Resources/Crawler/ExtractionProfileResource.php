@@ -22,15 +22,23 @@ class ExtractionProfileResource extends JsonResource
             'fields' => $this->fields,
             'parameters' => $this->parameters,
             'decided_by' => $this->decided_by,
+            'decider' => $this->whenLoaded('decider', fn () => $this->decider === null ? null : [
+                'id' => $this->decider->id,
+                'name' => $this->decider->name,
+            ]),
             'decided_at' => $this->decided_at,
             'decision_reason' => $this->decision_reason,
             'activated_by' => $this->activated_by,
+            'activator' => $this->whenLoaded('activator', fn () => $this->activator === null ? null : [
+                'id' => $this->activator->id,
+                'name' => $this->activator->name,
+            ]),
             'activated_at' => $this->activated_at,
             'latest_validation_report' => $this->when(
-                $this->relationLoaded('validationReports'),
-                fn () => $this->validationReports->isEmpty()
+                $this->relationLoaded('latestValidationReport'),
+                fn () => $this->latestValidationReport === null
                     ? null
-                    : new ProfileValidationReportResource($this->validationReports->sortByDesc('id')->first()),
+                    : new ProfileValidationReportResource($this->latestValidationReport),
             ),
             'created_at' => $this->created_at,
         ];

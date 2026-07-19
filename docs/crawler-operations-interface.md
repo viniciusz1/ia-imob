@@ -39,7 +39,7 @@ Agendamentos sempre geram discovery novo e usam o Perfil de Extração ativo.
 
 Um Perfil de Extração Candidato deve passar por um Crawl de Validação com até 20 URLs distribuídas pelo Snapshot de Discovery selecionado, ou todas quando houver menos de 20. A revisão exibe cobertura por campo, valores brutos e normalizados e erros de extração por URL.
 
-O perfil fica elegível para aprovação quando ao menos 80% das URLs geram registros normalizados válidos, cada campo obrigatório da versão fixada do Contrato de Dados de Mercado atinge 90% de cobertura antes do filtro e não há falha bloqueante. Alertas continuam visíveis, mas permitem decisão humana. Elegibilidade nunca aprova nem ativa automaticamente o perfil, e resultados de validação nunca são publicados como dados de mercado.
+A recomendação técnica é ao menos 80% das URLs com registros normalizados válidos, cada campo obrigatório da versão fixada do Contrato de Dados de Mercado com 90% de cobertura antes do filtro e nenhuma Falha Crítica de Validação. Abaixo da recomendação, inclusive quando houver Falhas Críticas de Validação, um Platform Admin pode aprovar explicitamente o perfil com justificativa preservada. Essas falhas exigem revisão humana, mas não são Falhas Bloqueantes do Portão de Qualidade de produção. A recomendação nunca aprova nem ativa automaticamente o perfil, e resultados de validação nunca são publicados como dados de mercado.
 
 ## Dados de um Crawl Run
 

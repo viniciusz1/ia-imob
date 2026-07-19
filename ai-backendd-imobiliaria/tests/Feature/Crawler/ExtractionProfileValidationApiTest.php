@@ -8,6 +8,7 @@ use App\Models\Crawler\DiscoverySnapshot;
 use App\Models\Crawler\DiscoverySnapshotUrl;
 use App\Models\Crawler\ExtractionProfile;
 use App\Models\Crawler\MarketDataContractVersion;
+use App\Models\Crawler\ProfileValidationRecord;
 use App\Models\Crawler\ProfileValidationReport;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -39,7 +40,7 @@ class ExtractionProfileValidationApiTest extends TestCase
             'valid_record_count' => 15,
             'valid_ratio' => 0.75,
             'required_field_coverage' => ['title' => 1.0],
-            'blocking_failures' => [],
+            'blocking_failures' => ['no_valid_records'],
             'warnings' => ['one normalization warning'],
             'eligible' => false,
         ]);
@@ -47,23 +48,15 @@ class ExtractionProfileValidationApiTest extends TestCase
         $this->actingAs($admin)
             ->postJson("/api/v1/admin/crawler/extraction-profiles/{$profile->id}/decision", [
                 'decision' => 'approved',
-                'reason' => 'Looks acceptable.',
-            ])
-            ->assertUnprocessable();
-
-        $report->update([
-            'valid_record_count' => 16,
-            'valid_ratio' => 0.80,
-            'eligible' => true,
-        ]);
-
-        $this->actingAs($admin)
-            ->postJson("/api/v1/admin/crawler/extraction-profiles/{$profile->id}/decision", [
-                'decision' => 'approved',
-                'reason' => 'Evidence reviewed despite the warning.',
+                'reason' => 'Abaixo da recomendação, mas aprovado após revisão humana.',
             ])
             ->assertOk()
             ->assertJsonPath('data.status', 'approved');
+
+        $profile->refresh();
+        $this->assertSame($admin->id, $profile->decided_by);
+        $this->assertNotNull($profile->decided_at);
+        $this->assertSame('Abaixo da recomendação, mas aprovado após revisão humana.', $profile->decision_reason);
 
         $this->actingAs($admin)
             ->postJson("/api/v1/admin/crawler/extraction-profiles/{$profile->id}/activate")
@@ -83,6 +76,186 @@ class ExtractionProfileValidationApiTest extends TestCase
             ->postJson("/api/v1/admin/crawler/crawl-agencies/{$agency->id}/activate")
             ->assertOk()
             ->assertJsonPath('data.lifecycle_state', 'active');
+    }
+
+    public function test_profile_summaries_omit_evidence_and_records_are_inspected_on_demand(): void
+    {
+        [$admin, $agency, , , $profile] = $this->fixtures();
+        $operation = CrawlerOperation::query()->create([
+            'type' => 'profile_validation',
+            'state' => 'succeeded',
+            'requested_by' => $admin->id,
+            'crawl_agency_id' => $agency->id,
+            'plan' => ['extraction_profile_id' => $profile->id],
+        ]);
+        $report = ProfileValidationReport::query()->create([
+            'operation_id' => $operation->id,
+            'extraction_profile_id' => $profile->id,
+            'sampled_url_count' => 4,
+            'valid_record_count' => 2,
+            'valid_ratio' => 0.5,
+            'required_field_coverage' => ['title' => 1.0],
+            'blocking_failures' => ['low_valid_ratio'],
+            'warnings' => [],
+            'eligible' => false,
+        ]);
+
+        foreach ([
+            ['url' => 'https://validation.example.com/property/valid', 'is_valid' => true, 'errors' => []],
+            ['url' => 'https://validation.example.com/property/missing-title', 'is_valid' => false, 'errors' => ['title_missing']],
+            ['url' => 'https://validation.example.com/property/missing-price', 'is_valid' => false, 'errors' => ['price_missing']],
+        ] as $record) {
+            ProfileValidationRecord::query()->create([
+                'profile_validation_report_id' => $report->id,
+                'url' => $record['url'],
+                'raw_data' => ['title' => 'Raw title'],
+                'normalized_data' => $record['is_valid'] ? ['title' => 'Raw title'] : null,
+                'errors' => $record['errors'],
+                'field_presence' => ['title' => true],
+                'is_valid' => $record['is_valid'],
+            ]);
+        }
+        ProfileValidationRecord::query()->create([
+            'profile_validation_report_id' => $report->id,
+            'url' => 'https://validation.example.com/property/normalization-warning',
+            'raw_data' => ['title' => 'Raw title'],
+            'normalized_data' => ['title' => 'Raw title', '_quality' => ['valid' => true, 'warnings' => ['title_trimmed']]],
+            'errors' => [],
+            'field_presence' => ['title' => true],
+            'is_valid' => true,
+        ]);
+
+        $this->actingAs($admin)
+            ->getJson("/api/v1/admin/crawler/crawl-agencies/{$agency->id}/extraction-profiles")
+            ->assertOk()
+            ->assertJsonPath('data.0.latest_validation_report.id', $report->id)
+            ->assertJsonMissingPath('data.0.latest_validation_report.records');
+
+        $otherOperation = CrawlerOperation::query()->create([
+            'type' => 'profile_validation',
+            'state' => 'succeeded',
+            'requested_by' => $admin->id,
+            'crawl_agency_id' => $agency->id,
+            'plan' => ['extraction_profile_id' => $profile->id],
+        ]);
+        $otherReport = ProfileValidationReport::query()->create([
+            'operation_id' => $otherOperation->id,
+            'extraction_profile_id' => $profile->id,
+            'sampled_url_count' => 1,
+            'valid_record_count' => 0,
+            'valid_ratio' => 0,
+            'required_field_coverage' => ['title' => 0],
+            'blocking_failures' => ['no_valid_records'],
+            'warnings' => [],
+            'eligible' => false,
+        ]);
+        ProfileValidationRecord::query()->create([
+            'profile_validation_report_id' => $otherReport->id,
+            'url' => 'https://other.example.com/missing-secret',
+            'raw_data' => ['title' => 'Must not leak'],
+            'normalized_data' => null,
+            'errors' => ['title_missing'],
+            'field_presence' => ['title' => false],
+            'is_valid' => false,
+        ]);
+
+        $this->actingAs($admin)
+            ->getJson("/api/v1/admin/crawler/crawl-agencies/{$agency->id}/extraction-profiles/{$profile->id}/profile-validation-reports/{$report->id}/records?filter=issues&search=missing&per_page=1")
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.is_valid', false)
+            ->assertJsonPath('meta.total', 2)
+            ->assertJsonPath('meta.per_page', 1)
+            ->assertJsonMissing(['missing-secret']);
+
+        $this->actingAs($admin)
+            ->getJson("/api/v1/admin/crawler/crawl-agencies/{$agency->id}/extraction-profiles/{$profile->id}/profile-validation-reports/{$report->id}/records?filter=issues&per_page=20")
+            ->assertOk()
+            ->assertJsonPath('meta.total', 3);
+
+        $otherAgency = CrawlAgency::query()->create([
+            'name' => 'Other Source',
+            'slug' => 'other-source',
+            'base_url' => 'https://other.example.com',
+            'root_domain' => 'other.example.com',
+        ]);
+        $this->actingAs($admin)
+            ->getJson("/api/v1/admin/crawler/crawl-agencies/{$otherAgency->id}/extraction-profiles/{$profile->id}/profile-validation-reports/{$report->id}/records")
+            ->assertNotFound();
+
+        $otherProfile = $profile->replicate();
+        $otherProfileOperation = CrawlerOperation::query()->create([
+            'type' => 'profile_generation',
+            'state' => 'succeeded',
+            'requested_by' => $admin->id,
+            'crawl_agency_id' => $agency->id,
+            'plan' => ['sample_url' => $profile->sample_url],
+        ]);
+        $otherProfile->created_by_operation_id = $otherProfileOperation->id;
+        $otherProfile->version = 2;
+        $otherProfile->save();
+        $this->actingAs($admin)
+            ->getJson("/api/v1/admin/crawler/crawl-agencies/{$agency->id}/extraction-profiles/{$otherProfile->id}/profile-validation-reports/{$report->id}/records")
+            ->assertNotFound();
+    }
+
+    public function test_evidence_requires_authentication(): void
+    {
+        [, , , , $profile] = $this->fixtures();
+        $report = ProfileValidationReport::query()->create([
+            'operation_id' => $profile->created_by_operation_id,
+            'extraction_profile_id' => $profile->id,
+            'sampled_url_count' => 0,
+            'valid_record_count' => 0,
+            'valid_ratio' => 0,
+            'required_field_coverage' => [],
+            'blocking_failures' => [],
+            'warnings' => [],
+            'eligible' => false,
+        ]);
+
+        $this->getJson("/api/v1/admin/crawler/crawl-agencies/{$profile->crawl_agency_id}/extraction-profiles/{$profile->id}/profile-validation-reports/{$report->id}/records")
+            ->assertUnauthorized();
+    }
+
+    public function test_approval_requires_a_report_and_a_non_blank_auditable_reason(): void
+    {
+        [$admin, , , , $profile] = $this->fixtures();
+
+        $this->actingAs($admin)
+            ->postJson("/api/v1/admin/crawler/extraction-profiles/{$profile->id}/decision", [
+                'decision' => 'approved',
+                'reason' => 'Revisado pelo operador.',
+            ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('decision');
+
+        $operation = CrawlerOperation::query()->create([
+            'type' => 'profile_validation',
+            'state' => 'succeeded',
+            'requested_by' => $admin->id,
+            'crawl_agency_id' => $profile->crawl_agency_id,
+            'plan' => ['extraction_profile_id' => $profile->id],
+        ]);
+        ProfileValidationReport::query()->create([
+            'operation_id' => $operation->id,
+            'extraction_profile_id' => $profile->id,
+            'sampled_url_count' => 1,
+            'valid_record_count' => 0,
+            'valid_ratio' => 0,
+            'required_field_coverage' => ['title' => 0],
+            'blocking_failures' => ['no_valid_records'],
+            'warnings' => [],
+            'eligible' => false,
+        ]);
+
+        $this->actingAs($admin)
+            ->postJson("/api/v1/admin/crawler/extraction-profiles/{$profile->id}/decision", [
+                'decision' => 'approved',
+                'reason' => '   ',
+            ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('reason');
     }
 
     public function test_incompatible_contract_requires_revalidation_without_changing_lifecycle(): void

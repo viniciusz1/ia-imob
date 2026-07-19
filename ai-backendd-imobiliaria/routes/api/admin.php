@@ -65,6 +65,7 @@ Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.view
         Route::get('/overview', CrawlerOverviewController::class);
         Route::get('/crawl-agencies', [CrawlAgencyController::class, 'index']);
         Route::get('/crawl-agencies/{crawlAgency}', [CrawlAgencyController::class, 'show']);
+        Route::get('/crawl-agencies/{crawlAgency}/profile-workflow-operations', [CrawlerOperationController::class, 'profileWorkflow']);
         Route::get('/market-data-contracts', [MarketDataContractController::class, 'index']);
         Route::get('/operations', [CrawlerOperationController::class, 'index']);
         Route::get('/operations/{operation}', [CrawlerOperationController::class, 'show']);
@@ -73,6 +74,7 @@ Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.view
         Route::get('/workers', [WorkerInstanceController::class, 'index']);
         Route::get('/crawl-agencies/{crawlAgency}/extraction-profiles', [ExtractionProfileController::class, 'index']);
         Route::get('/profile-validation-reports/{profileValidationReport}', [ProfileValidationController::class, 'show']);
+        Route::get('/crawl-agencies/{crawlAgency}/extraction-profiles/{extractionProfile}/profile-validation-reports/{profileValidationReport}/records', [ProfileValidationController::class, 'records']);
         Route::get('/quality-snapshots', [CrawlRunController::class, 'quality']);
         Route::get('/crawl-runs/{crawlRun}', [CrawlRunController::class, 'show']);
         Route::get('/crawl-agencies/{crawlAgency}/crawl-runs', [CrawlRunController::class, 'index']);

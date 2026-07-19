@@ -7,6 +7,7 @@ use App\Models\Crawler\CrawlerOperation;
 use App\Models\Crawler\DiscoverySnapshot;
 use App\Models\Crawler\MarketDataContractVersion;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 class CrawlerOperationService
 {
@@ -34,18 +35,18 @@ class CrawlerOperationService
 
     public function queueSampleUrlSuggestion(CrawlAgency $agency, User $requester): CrawlerOperation
     {
-        return CrawlerOperation::query()->create([
-            'type' => 'sample_url_suggestion',
-            'state' => 'queued',
-            'requested_by' => $requester->id,
-            'crawl_agency_id' => $agency->id,
-            'plan' => [
+        return $this->queueEquivalent(
+            type: 'sample_url_suggestion',
+            agencyId: $agency->id,
+            contractId: null,
+            plan: [
                 'version' => 1,
                 'type' => 'sample_url_suggestion',
                 'crawl_agency_id' => $agency->id,
                 'base_url' => $agency->base_url,
             ],
-        ])->refresh();
+            requester: $requester,
+        );
     }
 
     public function queueProfileGeneration(
@@ -61,13 +62,11 @@ class CrawlerOperationService
             ]);
         }
 
-        return CrawlerOperation::query()->create([
-            'type' => 'profile_generation',
-            'state' => 'queued',
-            'requested_by' => $requester->id,
-            'crawl_agency_id' => $agency->id,
-            'market_data_contract_version_id' => $contract->id,
-            'plan' => [
+        return $this->queueEquivalent(
+            type: 'profile_generation',
+            agencyId: $agency->id,
+            contractId: $contract->id,
+            plan: [
                 'version' => 1,
                 'type' => 'profile_generation',
                 'crawl_agency_id' => $agency->id,
@@ -77,6 +76,41 @@ class CrawlerOperationService
                 'market_data_contract_version_id' => $contract->id,
                 'contract_fields' => $contract->fields,
             ],
-        ])->refresh();
+            requester: $requester,
+        );
+    }
+
+    public function queueEquivalent(
+        string $type,
+        int $agencyId,
+        ?int $contractId,
+        array $plan,
+        User $requester,
+    ): CrawlerOperation {
+        $equivalenceKey = hash('sha256', json_encode($plan, JSON_THROW_ON_ERROR));
+
+        return DB::transaction(function () use ($agencyId, $contractId, $equivalenceKey, $plan, $requester, $type): CrawlerOperation {
+            DB::statement('SELECT pg_advisory_xact_lock(?)', [$agencyId]);
+            $existing = CrawlerOperation::query()
+                ->where('type', $type)
+                ->where('crawl_agency_id', $agencyId)
+                ->where('equivalence_key', $equivalenceKey)
+                ->whereIn('state', ['queued', 'running', 'cancellation_requested'])
+                ->first();
+
+            if ($existing !== null) {
+                return $existing;
+            }
+
+            return CrawlerOperation::query()->create([
+                'type' => $type,
+                'state' => 'queued',
+                'requested_by' => $requester->id,
+                'crawl_agency_id' => $agencyId,
+                'market_data_contract_version_id' => $contractId,
+                'equivalence_key' => $equivalenceKey,
+                'plan' => $plan,
+            ])->refresh();
+        });
     }
 }

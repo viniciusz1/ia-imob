@@ -93,16 +93,6 @@ function actionsForPath(pathname: string) {
     return [registerAgencyAction];
   }
 
-  if (pathname === `${moduleRoot}/operations`) {
-    return [{
-      label: "Enfileirar discovery",
-      href: `${moduleRoot}/operations#novo-discovery`,
-      permission: "crawler.operations.execute",
-      icon: Plus,
-      variant: "default" as const,
-    }];
-  }
-
   return [];
 }
 

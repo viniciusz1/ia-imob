@@ -87,7 +87,7 @@ describe("CrawlerModuleNavigation", () => {
     expect(screen.queryByRole("link", { name: "Cadastrar agência" })).not.toBeInTheDocument();
   });
 
-  it("shows the discovery action only to operators who can execute operations", () => {
+  it("does not offer discovery creation from the global operations queue", () => {
     mocks.pathname = "/admin/crawler/operations";
     useAuthStore.getState().setUser({
       id: 3,
@@ -98,9 +98,6 @@ describe("CrawlerModuleNavigation", () => {
 
     render(<CrawlerModuleNavigation />);
 
-    expect(screen.getByRole("link", { name: "Enfileirar discovery" })).toHaveAttribute(
-      "href",
-      "/admin/crawler/operations#novo-discovery",
-    );
+    expect(screen.queryByRole("link", { name: "Enfileirar discovery" })).not.toBeInTheDocument();
   });
 });
