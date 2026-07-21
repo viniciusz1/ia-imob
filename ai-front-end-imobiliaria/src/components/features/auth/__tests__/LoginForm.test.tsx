@@ -41,7 +41,15 @@ describe("LoginForm", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     useAuthStore.getState().clearAuth();
-    vi.mocked(authService.login).mockResolvedValue(axiosResponse({ user: {} }));
+    vi.mocked(authService.login).mockResolvedValue(axiosResponse({
+      user: {
+        id: 4,
+        name: "Platform Admin",
+        email: "platform@imobiliaria.com",
+        is_platform_admin: true,
+        permissions: ["crawler.view", "platform.agencies.view"],
+      },
+    }));
   });
 
   it("unwraps the user resource and sends a Crawler Operator to Crawler Operations", async () => {
@@ -50,6 +58,7 @@ describe("LoginForm", () => {
         id: 4,
         name: "Platform Admin",
         email: "platform@imobiliaria.com",
+        is_platform_admin: true,
         permissions: ["crawler.view", "platform.agencies.view"],
       },
     }));

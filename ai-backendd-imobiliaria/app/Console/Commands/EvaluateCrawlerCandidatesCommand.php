@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Models\CrawlerRun;
 use App\Services\Crawler\CrawlRunPublicationService;
 use Illuminate\Console\Command;
 
@@ -14,11 +13,11 @@ class EvaluateCrawlerCandidatesCommand extends Command
 
     public function handle(CrawlRunPublicationService $publication): int
     {
-        CrawlRun::query()
+        \App\Models\CrawlerRun::query()
             ->where('publication_state', 'candidate')
             ->whereNotNull('completed_at')
             ->orderBy('id')
-            ->each(fn (CrawlerRun $run) => $publication->evaluate($run));
+            ->each(fn (\App\Models\CrawlerRun $run) => $publication->evaluate($run));
 
         return self::SUCCESS;
     }

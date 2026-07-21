@@ -39,14 +39,30 @@ describe("hasPermission", () => {
 
 describe("postLoginPath", () => {
   it("prioritizes Crawler Operations for a Crawler Operator", () => {
-    expect(postLoginPath(["crawler.view", "platform.agencies.view"])).toBe("/admin/crawler");
+    expect(postLoginPath({
+      is_platform_admin: true,
+      permissions: ["crawler.view", "platform.agencies.view"],
+    })).toBe("/admin/crawler");
   });
 
   it("sends other Platform Admins to Agency administration", () => {
-    expect(postLoginPath(["platform.agencies.view"])).toBe("/admin/agencies");
+    expect(postLoginPath({
+      is_platform_admin: true,
+      permissions: ["platform.agencies.view"],
+    })).toBe("/admin/agencies");
   });
 
   it("keeps Agency users in the regular dashboard", () => {
-    expect(postLoginPath(["properties.view"])).toBe("/");
+    expect(postLoginPath({
+      is_platform_admin: false,
+      permissions: ["properties.view"],
+    })).toBe("/");
+  });
+
+  it("ignores stale platform permissions for an Agency user", () => {
+    expect(postLoginPath({
+      is_platform_admin: false,
+      permissions: ["crawler.view", "platform.agencies.view"],
+    })).toBe("/");
   });
 });

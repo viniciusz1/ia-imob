@@ -60,10 +60,13 @@ describe("AdminLayout auth guard", () => {
     it("shows admin content after verifying a valid session", async () => {
         vi.mocked(authService.getUser).mockResolvedValueOnce(
             axiosResponse({
-                id: 1,
-                name: "Admin",
-                email: "admin@example.com",
-                permissions: ["platform.agencies.view"],
+                data: {
+                    id: 1,
+                    name: "Platform Admin",
+                    email: "platform@example.com",
+                    is_platform_admin: true,
+                    permissions: ["platform.agencies.view"],
+                },
             }),
         );
 
@@ -82,10 +85,13 @@ describe("AdminLayout auth guard", () => {
         mocks.pathname = "/admin/crawler";
         vi.mocked(authService.getUser).mockResolvedValueOnce(
             axiosResponse({
-                id: 1,
-                name: "Crawler Operator",
-                email: "crawler@example.com",
-                permissions: ["crawler.view"],
+                data: {
+                    id: 1,
+                    name: "Crawler Operator",
+                    email: "crawler@example.com",
+                    is_platform_admin: true,
+                    permissions: ["crawler.view"],
+                },
             }),
         );
 
@@ -111,10 +117,13 @@ describe("AdminLayout auth guard", () => {
     it("redirects to dashboard when user lacks platform permission", async () => {
         vi.mocked(authService.getUser).mockResolvedValueOnce(
             axiosResponse({
-                id: 1,
-                name: "User",
-                email: "user@example.com",
-                permissions: ["properties.view"],
+                data: {
+                    id: 1,
+                    name: "User",
+                    email: "user@example.com",
+                    is_platform_admin: false,
+                    permissions: ["properties.view"],
+                },
             }),
         );
 
@@ -123,5 +132,27 @@ describe("AdminLayout auth guard", () => {
         await waitFor(() => {
             expect(mocks.replace).toHaveBeenCalledWith("/");
         });
+    });
+
+    it("redirects an Agency Admin with stale crawler permission", async () => {
+        mocks.pathname = "/admin/crawler";
+        vi.mocked(authService.getUser).mockResolvedValueOnce(
+            axiosResponse({
+                data: {
+                    id: 1,
+                    name: "Agency Admin",
+                    email: "admin@example.com",
+                    is_platform_admin: false,
+                    permissions: ["crawler.view"],
+                },
+            }),
+        );
+
+        renderAdmin();
+
+        await waitFor(() => {
+            expect(mocks.replace).toHaveBeenCalledWith("/");
+        });
+        expect(screen.queryByTestId("admin-content")).not.toBeInTheDocument();
     });
 });

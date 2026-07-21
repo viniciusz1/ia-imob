@@ -181,6 +181,7 @@ describe("ValuationsClient", () => {
       id: 1,
       name: "Corretor",
       email: "corretor@example.com",
+      is_platform_admin: false,
       permissions: ["valuations.create", "valuations.view"],
     });
     globalThis.ResizeObserver = class ResizeObserver {
@@ -266,6 +267,7 @@ describe("ValuationsClient", () => {
       id: 1,
       name: "Corretor",
       email: "corretor@example.com",
+      is_platform_admin: false,
       permissions: ["properties.view"],
     });
     vi.mocked(valuationService.getValuations).mockResolvedValue(paginated([]));

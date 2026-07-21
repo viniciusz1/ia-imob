@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CrawlRunDataTable } from "@/components/features/crawler/runs/CrawlRunDataTable";
+import { QualityEvaluationPanel } from "@/components/features/crawler/runs/QualityEvaluationPanel";
 import { getCrawlRun, listCrawlRunRecords } from "@/services/crawlerService";
 import { ExceptionalPublicationPanel } from "@/components/features/crawler/runs/ExceptionalPublicationPanel";
 
@@ -28,14 +29,9 @@ export default async function CrawlRunPage({ params }: CrawlRunPageProps) {
       </div>
       <Card>
         <CardHeader><CardTitle>Evidências de qualidade</CardTitle></CardHeader>
-        <CardContent className="space-y-2">
-          <p>Contrato v{run.market_data_contract_version_id} · Política v{run.quality_policy_version_id}</p>
-          {run.quality_report?.blockers.map((blocker) => <p className="text-destructive" key={blocker}>{blocker}</p>)}
-          {run.quality_report?.warnings.map((warning) => <p className="text-amber-700" key={warning}>{warning}</p>)}
-          {!run.quality_report && <p className="text-muted-foreground">Aguardando avaliação do portão de qualidade.</p>}
-        </CardContent>
+        <CardContent><QualityEvaluationPanel initialRun={run} /></CardContent>
       </Card>
-      <ExceptionalPublicationPanel initialRun={run} />
+      <ExceptionalPublicationPanel initialRun={run} key={run.quality_report?.id ?? "pending"} />
       <Card>
         <CardHeader><CardTitle>Dados persistidos</CardTitle></CardHeader>
         <CardContent><CrawlRunDataTable initialPage={initialPage} runId={run.id} /></CardContent>

@@ -63,6 +63,7 @@ class CrawlerOperationController extends Controller
             CrawlAgency::query()->findOrFail($request->integer('crawl_agency_id')),
             MarketDataContractVersion::query()->findOrFail($request->integer('market_data_contract_version_id')),
             $request->user(),
+            $request->validated('discovery_policy'),
         );
 
         return new CrawlerOperationResource($operation);

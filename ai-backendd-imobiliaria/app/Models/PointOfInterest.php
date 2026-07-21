@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class PointOfInterest extends Model
 {
+    protected $table = 'points_of_interest';
+
     protected $fillable = [
         'osm_type',
         'osm_id',

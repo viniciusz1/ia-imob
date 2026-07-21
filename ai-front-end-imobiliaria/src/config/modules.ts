@@ -16,6 +16,7 @@ export interface DashboardModule {
   href: string;
   icon: LucideIcon;
   permissions: string[];
+  platformOnly?: boolean;
   dashboard?: {
     title: string;
     description: string;
@@ -90,6 +91,7 @@ export const dashboardModules: DashboardModule[] = [
     href: "/admin/crawler",
     icon: Radar,
     permissions: ["crawler.view"],
+    platformOnly: true,
     dashboard: {
       title: "Operações do Crawler",
       description: "Gerencie Crawl Agencies, execuções e publicação de dados de mercado.",

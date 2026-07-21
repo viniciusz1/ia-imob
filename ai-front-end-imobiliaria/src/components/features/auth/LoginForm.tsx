@@ -52,7 +52,7 @@ export function LoginForm() {
             markAuthenticatedSession(data.remember);
 
             toast.success("Login efetuado com sucesso!");
-            router.push(postLoginPath(userData.permissions));
+            router.push(postLoginPath(userData));
         } catch (error) {
             if (error instanceof AxiosError && error.response?.status === 422) {
                 const backendErrors = error.response.data.errors;

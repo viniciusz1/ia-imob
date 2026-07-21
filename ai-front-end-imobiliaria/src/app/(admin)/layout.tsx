@@ -51,7 +51,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         }
 
         const perms = Array.isArray(user?.permissions) ? user.permissions : null;
-        if (!hasPermission(perms, requiredPermission)) {
+        if (user?.is_platform_admin !== true || !hasPermission(perms, requiredPermission)) {
             router.replace("/");
         }
     }, [isChecking, isAuthenticated, user, router, requiredPermission]);
@@ -66,7 +66,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
     if (!isAuthenticated) return null;
     const perms = Array.isArray(user?.permissions) ? user.permissions : null;
-    if (!hasPermission(perms, requiredPermission)) return null;
+    if (user?.is_platform_admin !== true || !hasPermission(perms, requiredPermission)) return null;
 
     return (
         <div className="min-h-screen bg-background">

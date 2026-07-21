@@ -16,6 +16,7 @@ describe("DashboardContent", () => {
       id: 1,
       name: "Admin",
       email: "admin@example.com",
+      is_platform_admin: false,
       permissions: ["properties.view", "users.view"],
     });
 
@@ -30,6 +31,7 @@ describe("DashboardContent", () => {
       id: 1,
       name: "Admin",
       email: "admin@example.com",
+      is_platform_admin: false,
       permissions: ["properties.view"],
     });
 
@@ -53,6 +55,7 @@ describe("DashboardContent", () => {
       id: 4,
       name: "Platform Admin",
       email: "platform@imobiliaria.com",
+      is_platform_admin: true,
       permissions: ["crawler.view", "platform.agencies.view"],
     });
 
@@ -62,5 +65,19 @@ describe("DashboardContent", () => {
     expect(screen.queryByRole("link", { name: /gerenciar imóveis/i })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /^usuários$/i })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /^grupos$/i })).not.toBeInTheDocument();
+  });
+
+  it("hides platform modules from an Agency Admin with stale permissions", () => {
+    useAuthStore.getState().setUser({
+      id: 1,
+      name: "Agency Admin",
+      email: "admin@example.com",
+      is_platform_admin: false,
+      permissions: ["crawler.view"],
+    });
+
+    render(<DashboardContent />);
+
+    expect(screen.queryByRole("link", { name: /operações do crawler/i })).not.toBeInTheDocument();
   });
 });

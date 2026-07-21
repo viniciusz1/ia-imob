@@ -41,6 +41,7 @@ const navItems = [
         href: "/",
         icon: LayoutDashboard,
         permissions: [],
+        platformOnly: false,
     },
     ...dashboardModules,
 ];
@@ -58,6 +59,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
     const [isLoggingOut, setIsLoggingOut] = useState(false);
     const userPermissions = Array.isArray(user?.permissions) ? user.permissions : null;
     const visibleNavItems = navItems.filter((item) => {
+        if (item.platformOnly && user?.is_platform_admin !== true) return false;
         if (item.permissions.length === 0) return true;
         if (userPermissions === null) return false;
 

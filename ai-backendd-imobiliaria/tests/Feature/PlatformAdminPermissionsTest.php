@@ -100,6 +100,7 @@ class PlatformAdminPermissionsTest extends TestCase
             ->getJson('/api/v1/user');
 
         $response->assertStatus(200);
+        $response->assertJsonPath('data.is_platform_admin', true);
 
         $permissions = $response->json('data.permissions');
 
@@ -119,6 +120,7 @@ class PlatformAdminPermissionsTest extends TestCase
             ->getJson('/api/v1/user');
 
         $response->assertStatus(200);
+        $response->assertJsonPath('data.is_platform_admin', false);
 
         $permissions = $response->json('data.permissions');
 
@@ -126,5 +128,23 @@ class PlatformAdminPermissionsTest extends TestCase
         foreach (['platform.agencies.view', 'platform.agencies.create', 'platform.agencies.update', 'platform.agencies.deactivate'] as $perm) {
             $this->assertNotContains($perm, $permissions ?? [], "Agency user must not have platform permission [{$perm}]");
         }
+    }
+
+    public function test_seeded_agency_admin_excludes_platform_and_crawler_permissions(): void
+    {
+        $agencyAdmin = \App\Models\User::query()
+            ->where('username', 'admin')
+            ->firstOrFail();
+
+        $this->assertNotNull($agencyAdmin->agency_id);
+
+        $forbiddenPermissions = $agencyAdmin->getAllPermissions()
+            ->pluck('name')
+            ->filter(fn (string $permission): bool => str_starts_with($permission, 'platform.')
+                || str_starts_with($permission, 'crawler.'))
+            ->values()
+            ->all();
+
+        $this->assertSame([], $forbiddenPermissions);
     }
 }

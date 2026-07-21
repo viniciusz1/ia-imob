@@ -29,6 +29,16 @@ class CrawlRunPublicationServiceTest extends TestCase
         $this->admin = User::query()->where('email', 'platform@imobiliaria.com')->firstOrFail();
     }
 
+    public function test_evaluate_candidates_command_publishes_a_completed_candidate(): void
+    {
+        $agency = $this->agency('command');
+        $candidate = $this->candidate($agency, 2, 1);
+
+        $this->artisan('crawler:evaluate-candidates')->assertSuccessful();
+
+        $this->assertSame('published', $candidate->refresh()->publication_state);
+    }
+
     public function test_approved_candidate_atomically_replaces_only_the_current_pointer(): void
     {
         $agency = $this->agency('publish');

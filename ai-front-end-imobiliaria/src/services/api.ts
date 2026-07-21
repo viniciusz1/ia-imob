@@ -6,9 +6,16 @@ export const API_PREFIX = "/api/v1";
 
 // Pega a origem do backend. As rotas web do Sanctum usam a raiz do backend,
 // enquanto as rotas JSON passam pelo prefixo versionado em API_PREFIX.
-const backendUrl = process.env.NEXT_PUBLIC_API_URL
-    ? process.env.NEXT_PUBLIC_API_URL.replace(/\/api(?:\/v\d+)?\/?$/, "")
+const configuredBackendUrl = process.env.BACKEND_URL ?? process.env.NEXT_PUBLIC_API_URL;
+const backendUrl = typeof window === "undefined"
+    ? (configuredBackendUrl ?? "http://localhost").replace(/\/api(?:\/v\d+)?\/?$/, "")
     : "";
+
+function frontendOrigin(): string {
+    if (process.env.FRONTEND_URL) return process.env.FRONTEND_URL;
+    if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
+    return "http://localhost:3000";
+}
 
 const api = axios.create({
     baseURL: backendUrl,
@@ -46,7 +53,7 @@ api.interceptors.request.use(async (config) => {
             if (cookieString) {
                 config.headers.Cookie = cookieString;
                 // Sanctum requires Referer or Origin to treat the request as stateful:
-                config.headers.Referer = "http://localhost:3000";
+                config.headers.Referer = frontendOrigin();
             }
         } catch {
             // Ignorado, apenas significa que não estamos num contexto Next SSR

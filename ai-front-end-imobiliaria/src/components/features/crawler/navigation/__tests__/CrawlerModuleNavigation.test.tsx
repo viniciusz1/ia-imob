@@ -20,6 +20,7 @@ describe("CrawlerModuleNavigation", () => {
       id: 1,
       name: "Crawler Viewer",
       email: "viewer@example.com",
+      is_platform_admin: true,
       permissions: ["crawler.view"],
     });
   });
@@ -67,6 +68,7 @@ describe("CrawlerModuleNavigation", () => {
       id: 2,
       name: "Crawler Manager",
       email: "manager@example.com",
+      is_platform_admin: true,
       permissions: [
         "crawler.view",
         "crawler.prospects.manage",
@@ -93,6 +95,7 @@ describe("CrawlerModuleNavigation", () => {
       id: 3,
       name: "Crawler Executor",
       email: "executor@example.com",
+      is_platform_admin: true,
       permissions: ["crawler.view", "crawler.operations.execute"],
     });
 

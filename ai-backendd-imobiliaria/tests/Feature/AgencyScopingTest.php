@@ -37,7 +37,7 @@ class AgencyScopingTest extends TestCase
 
         Sanctum::actingAs($userA);
 
-        $response = $this->getJson('/api/properties');
+        $response = $this->getJson('/api/v1/properties');
 
         $response->assertOk()->assertJsonCount(2, 'data');
     }
@@ -50,7 +50,7 @@ class AgencyScopingTest extends TestCase
 
         Sanctum::actingAs($user);
 
-        $response = $this->postJson('/api/properties', [
+        $response = $this->postJson('/api/v1/properties', [
             'reference_code' => 'TEN-0001',
             'title' => 'Apartamento do agency',
             'property_type' => 'apartamento',

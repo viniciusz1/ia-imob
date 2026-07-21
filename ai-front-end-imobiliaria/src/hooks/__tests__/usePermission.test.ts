@@ -10,6 +10,7 @@ describe("usePermission", () => {
       id: 1,
       name: "Admin",
       email: "admin@example.com",
+      is_platform_admin: false,
       permissions: ["properties.view"],
     });
 
@@ -23,6 +24,7 @@ describe("usePermission", () => {
       id: 1,
       name: "Admin",
       email: "admin@example.com",
+      is_platform_admin: false,
       permissions: ["properties.view"],
     });
 
@@ -36,6 +38,7 @@ describe("usePermission", () => {
       id: 1,
       name: "Admin",
       email: "admin@example.com",
+      is_platform_admin: false,
       permissions: ["valuations.view"],
     });
 

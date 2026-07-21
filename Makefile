@@ -20,11 +20,16 @@ PYTHON  := $(VENV)/bin/python
 PIP     := $(VENV)/bin/pip
 PYTEST  := $(VENV)/bin/pytest
 
+# ---- Crawler worker options --------------------------------------
+WORKER_KEY     ?= local-dev
+WORKER_VERSION ?= dev
+WORKER_ARGS    ?=
+
 .DEFAULT_GOAL := help
 .PHONY: help \
         up start \
         install install-backend install-frontend install-crawler \
-        dev-backend dev-frontend \
+        dev-backend dev-frontend worker worker-crawler dev-crawler \
         test test-backend test-frontend test-crawler \
         lint lint-backend lint-frontend format-backend \
         build build-frontend \
@@ -72,6 +77,7 @@ help: ## Show this help
 	echo ""; \
 	printf "\033[1mScraper / crawler-machine\033[0m\n"; \
 	print_target install-crawler; \
+	print_target worker; \
 	print_target test-crawler; \
 	echo ""
 
@@ -149,6 +155,9 @@ lint-frontend: ## Lint the frontend with ESLint
 install-crawler: ## Create the crawler-machine venv and install requirements
 	test -d $(VENV) || python3 -m venv $(VENV)
 	$(PIP) install -r $(CRAWLER_DIR)/requirements.txt
+
+worker worker-crawler dev-crawler: ## Start a Python crawler worker (override WORKER_KEY, WORKER_VERSION, or WORKER_ARGS)
+	cd $(CRAWLER_DIR) && .venv/bin/python -m crawler_machine worker --worker-key "$(WORKER_KEY)" --version "$(WORKER_VERSION)" $(WORKER_ARGS)
 
 test-crawler: ## Run the crawler-machine test suite
 	cd $(CRAWLER_DIR) && ../$(PYTHON) -m pytest tests

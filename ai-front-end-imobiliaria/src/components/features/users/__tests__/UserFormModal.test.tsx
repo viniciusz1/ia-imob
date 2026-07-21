@@ -32,6 +32,7 @@ describe('UserFormModal', () => {
             id: 1,
             name: 'Admin',
             email: 'admin@example.com',
+            is_platform_admin: false,
             permissions: ['roles.manage'],
         });
         vi.mocked(useRoles).mockReturnValue({
@@ -60,6 +61,7 @@ describe('UserFormModal', () => {
             id: 4,
             name: 'Platform Admin',
             email: 'platform@imobiliaria.com',
+            is_platform_admin: true,
             permissions: ['crawler.view'],
         });
         vi.mocked(useRoles).mockReturnValue({

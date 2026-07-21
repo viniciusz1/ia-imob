@@ -4,6 +4,7 @@ export interface User {
     id: number;
     name: string;
     email: string;
+    is_platform_admin: boolean;
     permissions?: string[];
     [key: string]: unknown;
 }

@@ -122,6 +122,39 @@ class QualityPolicyApiTest extends TestCase
         ])->assertUnprocessable();
     }
 
+    public function test_operator_can_evaluate_a_completed_candidate_manually_and_the_endpoint_is_idempotent(): void
+    {
+        $agency = $this->agency('manual-evaluation');
+        $candidate = $this->candidate($agency, 10, 10);
+
+        Role::query()->where('name', 'Platform Admin')->firstOrFail()
+            ->revokePermissionTo('crawler.operations.execute');
+        $this->actingAs($this->admin)
+            ->postJson("/api/v1/admin/crawler/crawl-runs/{$candidate->id}/quality-evaluation")
+            ->assertForbidden();
+
+        $this->admin->givePermissionTo('crawler.operations.execute');
+        $endpoint = "/api/v1/admin/crawler/crawl-runs/{$candidate->id}/quality-evaluation";
+        $this->actingAs($this->admin)
+            ->postJson($endpoint)
+            ->assertOk()
+            ->assertJsonPath('data.publication_state', 'published')
+            ->assertJsonPath('data.quality_report.verdict', 'approved');
+
+        $this->actingAs($this->admin)
+            ->postJson($endpoint)
+            ->assertOk()
+            ->assertJsonPath('data.quality_report.verdict', 'approved');
+        $this->assertDatabaseCount('crawler.quality_gate_reports', 1);
+
+        $unfinished = $this->candidate($agency, 5, 5);
+        $unfinished->update(['completed_at' => null]);
+        $this->actingAs($this->admin)
+            ->postJson("/api/v1/admin/crawler/crawl-runs/{$unfinished->id}/quality-evaluation")
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['completed_at']);
+    }
+
     public function test_quality_index_consolidates_quarantined_and_exceptionally_published_snapshots(): void
     {
         $agency = $this->agency('quality-index');

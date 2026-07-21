@@ -221,6 +221,11 @@ export async function getCrawlRun(id: number): Promise<CrawlRun> {
   return response.data.data;
 }
 
+export async function evaluateCrawlRunQuality(id: number): Promise<CrawlRun> {
+  const response = await api.post<Resource<CrawlRun>>(`${BASE}/crawl-runs/${id}/quality-evaluation`);
+  return response.data.data;
+}
+
 export async function listCrawlRuns(agencyId: number): Promise<CrawlRun[]> {
   const response = await api.get<Resource<CrawlRun[]>>(`${BASE}/crawl-agencies/${agencyId}/crawl-runs`);
   return response.data.data;

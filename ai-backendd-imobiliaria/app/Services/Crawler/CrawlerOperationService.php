@@ -15,21 +15,28 @@ class CrawlerOperationService
         CrawlAgency $agency,
         MarketDataContractVersion $contract,
         User $requester,
+        ?array $discoveryPolicy = null,
     ): CrawlerOperation {
+        $plan = [
+            'version' => 1,
+            'type' => 'discovery',
+            'crawl_agency_id' => $agency->id,
+            'base_url' => $agency->base_url,
+            'root_domain' => $agency->root_domain,
+            'market_data_contract_version_id' => $contract->id,
+        ];
+
+        if ($discoveryPolicy !== null) {
+            $plan['discovery_policy'] = $discoveryPolicy;
+        }
+
         return CrawlerOperation::query()->create([
             'type' => 'discovery',
             'state' => 'queued',
             'requested_by' => $requester->id,
             'crawl_agency_id' => $agency->id,
             'market_data_contract_version_id' => $contract->id,
-            'plan' => [
-                'version' => 1,
-                'type' => 'discovery',
-                'crawl_agency_id' => $agency->id,
-                'base_url' => $agency->base_url,
-                'root_domain' => $agency->root_domain,
-                'market_data_contract_version_id' => $contract->id,
-            ],
+            'plan' => $plan,
         ])->refresh();
     }
 

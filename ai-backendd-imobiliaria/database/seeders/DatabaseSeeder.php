@@ -58,13 +58,17 @@ class DatabaseSeeder extends Seeder
             'has_broker_page' => true,
         ]);
 
-        // Assign all permissions to the 'Administrador' role
+        // Agency Admins must never inherit platform-level capabilities.
         $adminRole = \Spatie\Permission\Models\Role::where('name', 'Administrador')
             ->where('guard_name', $guard)
             ->first();
 
         $adminRole?->syncPermissions(
-            \Spatie\Permission\Models\Permission::where('guard_name', $guard)->get()
+            \Spatie\Permission\Models\Permission::query()
+                ->where('guard_name', $guard)
+                ->where('name', 'not like', 'platform.%')
+                ->where('name', 'not like', 'crawler.%')
+                ->get()
         );
 
         // Assign the role to the admin user

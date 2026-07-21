@@ -25,6 +25,9 @@ class CrawlRunPublicationService
             if ($lockedRun->publication_state !== 'candidate') {
                 throw ValidationException::withMessages(['publication_state' => 'Only candidate snapshots can be evaluated.']);
             }
+            if ($lockedRun->completed_at === null) {
+                throw ValidationException::withMessages(['completed_at' => 'Only completed snapshots can be evaluated.']);
+            }
 
             $agency = CrawlAgency::query()->lockForUpdate()->findOrFail($lockedRun->crawl_agency_id);
             $discovered = (int) DB::table('crawler.discovery_snapshots')
