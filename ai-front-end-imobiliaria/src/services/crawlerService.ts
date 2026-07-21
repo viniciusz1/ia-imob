@@ -84,14 +84,26 @@ export async function getCrawlerOperation(id: number): Promise<CrawlerOperation>
   return response.data.data;
 }
 
+export type DiscoverySource = "sitemap" | "cc" | "wayback" | "crt" | "probe" | "robots" | "feed" | "homepage";
+
+export interface DiscoveryPolicy {
+  sources: DiscoverySource[];
+  max_urls: number;
+  include_subdomains: boolean;
+  use_browser_for_homepage: boolean;
+  query?: string;
+}
+
 export async function queueDiscoveryOperation(
   crawlAgencyId: number,
   contractId: number,
+  discoveryPolicy: DiscoveryPolicy,
 ): Promise<CrawlerOperation> {
   const response = await api.post<Resource<CrawlerOperation>>(`${BASE}/operations`, {
     type: "discovery",
     crawl_agency_id: crawlAgencyId,
     market_data_contract_version_id: contractId,
+    discovery_policy: discoveryPolicy,
   });
   return response.data.data;
 }
