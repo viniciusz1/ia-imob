@@ -43,13 +43,7 @@ class ExtractionProfileApiTest extends TestCase
             'base_url' => 'https://profile.example.com',
             'root_domain' => 'profile.example.com',
         ]);
-        $contract = MarketDataContractVersion::query()->create([
-            'version' => 1,
-            'status' => 'active',
-            'fields' => [['name' => 'title', 'type' => 'string', 'required' => true, 'normalization' => ['trim']]],
-            'affected_agency_ids' => [],
-            'created_by' => $admin->id,
-        ]);
+        $contract = MarketDataContractVersion::query()->where('status', 'active')->sole();
         $discoveryOperation = CrawlerOperation::query()->create([
             'type' => 'discovery',
             'state' => 'succeeded',

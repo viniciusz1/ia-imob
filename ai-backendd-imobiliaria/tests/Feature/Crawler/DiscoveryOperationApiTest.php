@@ -53,6 +53,34 @@ class DiscoveryOperationApiTest extends TestCase
             ->assertJsonMissingPath('data.plan.database_password');
     }
 
+    public function test_operator_preserves_the_selected_domain_mapper_policy_in_the_discovery_plan(): void
+    {
+        $this->seed();
+        $admin = User::query()->where('email', 'platform@imobiliaria.com')->firstOrFail();
+        $agency = CrawlAgency::query()->create([
+            'name' => 'Policy Source', 'slug' => 'policy-source',
+            'base_url' => 'https://policy.example.com', 'root_domain' => 'policy.example.com',
+        ]);
+        $contract = \App\Models\Crawler\MarketDataContractVersion::query()->where('status', 'active')->sole();
+
+        $this->actingAs($admin)->postJson('/api/v1/admin/crawler/operations', [
+            'type' => 'discovery', 'crawl_agency_id' => $agency->id,
+            'market_data_contract_version_id' => $contract->id,
+            'discovery_policy' => [
+                'sources' => ['sitemap', 'robots', 'homepage'],
+                'max_urls' => 250,
+                'include_subdomains' => false,
+                'use_browser_for_homepage' => true,
+                'query' => 'apartamentos',
+                'probe_paths' => ['/imoveis'],
+            ],
+        ])->assertCreated()
+            ->assertJsonPath('data.plan.discovery_policy.sources', ['sitemap', 'robots', 'homepage'])
+            ->assertJsonPath('data.plan.discovery_policy.max_urls', 250)
+            ->assertJsonPath('data.plan.discovery_policy.include_subdomains', false)
+            ->assertJsonPath('data.plan.discovery_policy.use_browser_for_homepage', true);
+    }
+
     public function test_operator_reads_paginated_snapshot_urls_and_sanitized_worker_health(): void
     {
         $this->seed();

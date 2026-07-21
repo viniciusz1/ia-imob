@@ -25,7 +25,7 @@ const failed = (id: number): CrawlerOperation => ({
 
 describe("Crawler operation controls", () => {
   it("groups repeated equivalent failures and exposes individual and batch retry", () => {
-    render(<CrawlerOperationsClient agencies={[]} contracts={[]} initialOperations={[failed(1), failed(2)]} initialWorkers={[]} />);
+    render(<CrawlerOperationsClient agencies={[]} initialOperations={[failed(1), failed(2)]} initialWorkers={[]} />);
 
     expect(screen.getByRole("heading", { name: "2 falhas equivalentes" })).toBeInTheDocument();
     expect(screen.getAllByText(/#1 · production_crawl|#2 · production_crawl/)).toHaveLength(2);

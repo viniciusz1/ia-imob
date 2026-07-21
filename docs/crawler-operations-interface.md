@@ -35,6 +35,17 @@ Durante onboarding, sugestões de URL de amostra são obtidas exclusivamente por
 
 Agendamentos sempre geram discovery novo e usam o Perfil de Extração ativo.
 
+### Política de Discovery
+
+Ao enfileirar um Discovery, o Crawler Operator define uma Política de Discovery exclusiva daquela Operação do Crawler e preservada no seu plano imutável.
+
+- A interface permite selecionar uma ou mais fontes nativas do `DomainMapper` do Crawl4AI: `sitemap`, `cc`, `wayback`, `crt`, `probe`, `robots`, `feed` e `homepage`.
+- O atalho **Todas as fontes nativas** seleciona essas oito fontes; Estratégias de Discovery Customizadas nunca entram automaticamente e precisam ser escolhidas explicitamente.
+- As opções avançadas seguras incluem limite de URLs, inclusão de subdomínios, browser para home com JavaScript, consulta/relevância e caminhos ou subdomínios adicionais. Concorrência, limite de requisições, cache, diretórios locais e logs permanecem definidos pela plataforma.
+- Estratégias Customizadas são registradas, versionadas e auditáveis pela plataforma; o Crawler Operator não cria código ou parâmetros arbitrários na interface.
+- O Snapshot de Discovery preserva a Contribuição de Discovery: total de URLs por origem e as fontes/estratégias que contribuíram para cada URL. A lista de URLs pode ser filtrada pela origem.
+- A primeira versão não inclui presets reutilizáveis por Crawl Agency.
+
 ## Validação de Perfil de Extração
 
 Um Perfil de Extração Candidato deve passar por um Crawl de Validação com até 20 URLs distribuídas pelo Snapshot de Discovery selecionado, ou todas quando houver menos de 20. A revisão exibe cobertura por campo, valores brutos e normalizados e erros de extração por URL.

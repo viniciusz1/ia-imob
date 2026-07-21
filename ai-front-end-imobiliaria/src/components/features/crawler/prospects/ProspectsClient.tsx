@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
   decideProspect,
   previewProspectingRequery,
@@ -19,6 +20,7 @@ import {
   type ProspectingRequeryPreview,
 } from "@/services/crawlerService";
 import type { CrawlAgencySuggestion, Prospect } from "@/types/crawler";
+import { crawlerOperationErrorMessage } from "../crawlerOperationFeedback";
 
 export function ProspectsClient({ initialProspects, initialSuggestions = [] }: { initialProspects: Prospect[]; initialSuggestions?: CrawlAgencySuggestion[] }) {
   const [prospects, setProspects] = useState(initialProspects);
@@ -33,6 +35,9 @@ export function ProspectsClient({ initialProspects, initialSuggestions = [] }: {
   const [reasons, setReasons] = useState<Record<number, string>>({});
   const [cityFilter, setCityFilter] = useState("");
   const [operationFilter, setOperationFilter] = useState("");
+  const [selected, setSelected] = useState<number[]>([]);
+  const [batchReason, setBatchReason] = useState("");
+  const [isDeciding, setIsDeciding] = useState(false);
   const filtered = useMemo(() => prospects.filter((prospect) =>
     (!reviewFilter || prospect.review_state === reviewFilter)
     && (!classificationFilter || prospect.automatic_classification === classificationFilter)
@@ -61,8 +66,28 @@ export function ProspectsClient({ initialProspects, initialSuggestions = [] }: {
     toast.success(`Grupo #${group.id} com ${group.member_count} cidades enfileirado.`);
   };
   const decide = async (prospect: Prospect, decision: "approved" | "rejected") => {
-    const updated = await decideProspect(prospect.id, decision, reasons[prospect.id] ?? "");
-    setProspects((current) => current.map((item) => item.id === updated.id ? updated : item));
+    try {
+      const updated = await decideProspect(prospect.id, decision, reasons[prospect.id] ?? "");
+      setProspects((current) => current.map((item) => item.id === updated.id ? updated : item));
+      toast.success(`Prospect ${decision === "approved" ? "aprovado" : "rejeitado"}.`);
+    } catch (error) {
+      toast.error(crawlerOperationErrorMessage(error, "Não foi possível registrar a decisão."));
+    }
+  };
+  const decideSelected = async (decision: "approved" | "rejected") => {
+    const targets = filtered.filter((prospect) => selected.includes(prospect.id) && prospect.review_state === "pending");
+    if (targets.length === 0 || !batchReason.trim()) return;
+    setIsDeciding(true);
+    try {
+      const updated = await Promise.all(targets.map((prospect) => decideProspect(prospect.id, decision, batchReason)));
+      setProspects((current) => current.map((prospect) => updated.find((item) => item.id === prospect.id) ?? prospect));
+      setSelected([]);
+      toast.success(`${updated.length} prospecção(ões) ${decision === "approved" ? "aprovada(s)" : "rejeitada(s)"}.`);
+    } catch (error) {
+      toast.error(crawlerOperationErrorMessage(error, "Não foi possível concluir a decisão em lote."));
+    } finally {
+      setIsDeciding(false);
+    }
   };
   const promote = async (prospect: Prospect) => {
     const result = await promoteProspect(prospect.id);
@@ -95,25 +120,10 @@ export function ProspectsClient({ initialProspects, initialSuggestions = [] }: {
           <option value="">Todas as classificações</option><option value="candidate">Candidatos</option><option value="rejected">Rejeitados automaticamente</option>
         </select>
       </div>
-      <div className="space-y-3">
-        {filtered.map((prospect) => (
-          <Card key={prospect.id}>
-            <CardContent className="space-y-3 pt-6">
-              <div className="flex flex-wrap items-center gap-2"><p className="font-medium">{prospect.name}</p><Badge>{prospect.automatic_classification}</Badge><Badge variant="outline">{prospect.review_state}</Badge></div>
-              <p>{prospect.city}/{prospect.state} · {prospect.root_domain ?? "sem domínio"}</p>
-              {prospect.automatic_reason && <p>{prospect.automatic_reason}</p>}
-              {prospect.review_reason && <p>Decisão humana: {prospect.review_reason}</p>}
-              <Input aria-label={`Motivo para ${prospect.name}`} onChange={(event) => setReasons((current) => ({ ...current, [prospect.id]: event.target.value }))} placeholder="Justificativa da revisão" value={reasons[prospect.id] ?? ""} />
-              <div className="flex gap-2">
-                <Button disabled={(reasons[prospect.id] ?? "").trim().length < 10} onClick={() => void decide(prospect, "approved")} size="sm">Aprovar</Button>
-                <Button disabled={(reasons[prospect.id] ?? "").trim().length < 10} onClick={() => void decide(prospect, "rejected")} size="sm" variant="outline">Rejeitar</Button>
-                {prospect.review_state === "approved" && !prospect.promoted_crawl_agency_id && <Button onClick={() => void promote(prospect)} size="sm" variant="secondary">Promover para Crawl Agency</Button>}
-                {prospect.promoted_crawl_agency_id && <Link className="text-sm underline" href={`/admin/crawler/agencies/${prospect.promoted_crawl_agency_id}`}>Abrir onboarding</Link>}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      <Card><CardHeader><CardTitle>Revisão de prospecções</CardTitle></CardHeader><CardContent className="space-y-4">
+        <div className="flex flex-wrap items-end gap-3 rounded-md border bg-muted/30 p-3"><div className="min-w-64 flex-1"><Label htmlFor="batch-prospect-reason">Motivo da decisão em lote</Label><Input id="batch-prospect-reason" onChange={(event) => setBatchReason(event.target.value)} placeholder="Ex.: sites revisados manualmente" value={batchReason} /></div><Button disabled={!selected.length || !batchReason.trim() || isDeciding} onClick={() => void decideSelected("approved")}>Aprovar selecionadas ({selected.length})</Button><Button disabled={!selected.length || !batchReason.trim() || isDeciding} onClick={() => void decideSelected("rejected")} variant="outline">Rejeitar selecionadas</Button></div>
+        <Table><TableHeader><TableRow><TableHead><Checkbox aria-label="Selecionar todas as pendentes" checked={filtered.filter((prospect) => prospect.review_state === "pending").length > 0 && filtered.filter((prospect) => prospect.review_state === "pending").every((prospect) => selected.includes(prospect.id))} onCheckedChange={(checked) => setSelected(checked === true ? filtered.filter((prospect) => prospect.review_state === "pending").map((prospect) => prospect.id) : [])} /></TableHead><TableHead>Prospect</TableHead><TableHead>Localização</TableHead><TableHead>Classificação</TableHead><TableHead>Revisão</TableHead><TableHead>Decisão</TableHead></TableRow></TableHeader><TableBody>{filtered.map((prospect) => <TableRow data-state={selected.includes(prospect.id) ? "selected" : undefined} key={prospect.id}><TableCell><Checkbox aria-label={`Selecionar ${prospect.name}`} checked={selected.includes(prospect.id)} disabled={prospect.review_state !== "pending"} onCheckedChange={(checked) => setSelected((current) => checked === true ? [...current, prospect.id] : current.filter((id) => id !== prospect.id))} /></TableCell><TableCell><p className="font-medium">{prospect.name}</p><p className="max-w-64 truncate text-xs text-muted-foreground">{prospect.root_domain ?? "sem domínio"}</p>{prospect.automatic_reason && <p className="max-w-64 truncate text-xs text-amber-700">{prospect.automatic_reason}</p>}</TableCell><TableCell>{prospect.city}/{prospect.state}</TableCell><TableCell><Badge>{prospect.automatic_classification}</Badge></TableCell><TableCell><Badge variant="outline">{prospect.review_state}</Badge></TableCell><TableCell><div className="flex flex-wrap gap-2"><Input aria-label={`Motivo para ${prospect.name}`} className="w-48" onChange={(event) => setReasons((current) => ({ ...current, [prospect.id]: event.target.value }))} placeholder="Motivo" value={reasons[prospect.id] ?? ""} />{prospect.review_state === "pending" && <><Button disabled={!(reasons[prospect.id] ?? "").trim()} onClick={() => void decide(prospect, "approved")} size="sm">Aprovar</Button><Button disabled={!(reasons[prospect.id] ?? "").trim()} onClick={() => void decide(prospect, "rejected")} size="sm" variant="outline">Rejeitar</Button></>}{prospect.review_state === "approved" && !prospect.promoted_crawl_agency_id && <Button onClick={() => void promote(prospect)} size="sm" variant="secondary">Promover</Button>}{prospect.promoted_crawl_agency_id && <Link className="text-sm underline" href={`/admin/crawler/agencies/${prospect.promoted_crawl_agency_id}`}>Onboarding</Link>}</div></TableCell></TableRow>)}</TableBody></Table>
+      </CardContent></Card>
       {initialSuggestions.length > 0 && (
         <Card>
           <CardHeader><CardTitle>Sugestões para Crawl Agencies existentes</CardTitle></CardHeader>

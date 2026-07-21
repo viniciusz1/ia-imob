@@ -27,13 +27,6 @@ class CrawlRunPublicationServiceTest extends TestCase
         parent::setUp();
         $this->seed();
         $this->admin = User::query()->where('email', 'platform@imobiliaria.com')->firstOrFail();
-        MarketDataContractVersion::query()->create([
-            'version' => 1,
-            'status' => 'active',
-            'fields' => [],
-            'affected_agency_ids' => [],
-            'created_by' => $this->admin->id,
-        ]);
     }
 
     public function test_approved_candidate_atomically_replaces_only_the_current_pointer(): void

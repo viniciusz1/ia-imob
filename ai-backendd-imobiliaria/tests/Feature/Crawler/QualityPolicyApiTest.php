@@ -25,13 +25,6 @@ class QualityPolicyApiTest extends TestCase
         parent::setUp();
         $this->seed();
         $this->admin = User::query()->where('email', 'platform@imobiliaria.com')->firstOrFail();
-        MarketDataContractVersion::query()->create([
-            'version' => 1,
-            'status' => 'active',
-            'fields' => [],
-            'affected_agency_ids' => [],
-            'created_by' => $this->admin->id,
-        ]);
     }
 
     public function test_policy_follows_draft_validating_active_and_active_rules_are_immutable(): void

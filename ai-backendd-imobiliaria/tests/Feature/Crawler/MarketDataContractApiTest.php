@@ -22,16 +22,18 @@ class MarketDataContractApiTest extends TestCase
             'root_domain' => 'affected.example.com',
         ])->assertCreated();
 
+        $legacyFields = \App\Models\Crawler\MarketDataContractVersion::query()
+            ->where('status', 'active')
+            ->sole()
+            ->fields;
+
         $first = $this->actingAs($admin)
             ->postJson('/api/v1/admin/crawler/market-data-contracts', [
-                'fields' => [
-                    ['name' => 'title', 'type' => 'string', 'required' => true, 'normalization' => ['trim']],
-                    ['name' => 'price', 'type' => 'decimal', 'required' => true, 'normalization' => ['currency_brl']],
-                ],
+                'fields' => [...$legacyFields, ['name' => 'title', 'type' => 'string', 'required' => false, 'normalization' => ['trim']]],
             ])
             ->assertCreated()
             ->assertJsonPath('data.status', 'draft')
-            ->assertJsonPath('data.version', 1)
+            ->assertJsonPath('data.version', 2)
             ->json('data');
 
         $this->actingAs($admin)
@@ -46,14 +48,10 @@ class MarketDataContractApiTest extends TestCase
 
         $second = $this->actingAs($admin)
             ->postJson('/api/v1/admin/crawler/market-data-contracts', [
-                'fields' => [
-                    ['name' => 'title', 'type' => 'string', 'required' => true, 'normalization' => ['trim']],
-                    ['name' => 'price', 'type' => 'decimal', 'required' => true, 'normalization' => ['currency_brl']],
-                    ['name' => 'city', 'type' => 'string', 'required' => true, 'normalization' => ['trim']],
-                ],
+                'fields' => [...$legacyFields, ['name' => 'title', 'type' => 'string', 'required' => false, 'normalization' => ['trim']], ['name' => 'reference_code', 'type' => 'string', 'required' => true, 'normalization' => ['trim']]],
             ])
             ->assertCreated()
-            ->assertJsonPath('data.version', 2)
+            ->assertJsonPath('data.version', 3)
             ->json('data');
 
         $this->actingAs($admin)
@@ -71,6 +69,7 @@ class MarketDataContractApiTest extends TestCase
             ->getJson('/api/v1/admin/crawler/market-data-contracts')
             ->assertOk()
             ->assertJsonPath('data.0.status', 'active')
-            ->assertJsonPath('data.1.status', 'superseded');
+            ->assertJsonPath('data.1.status', 'superseded')
+            ->assertJsonPath('data.2.status', 'superseded');
     }
 }

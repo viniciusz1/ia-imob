@@ -3,7 +3,6 @@ import {
   listCrawlAgencies,
   listCrawlerOperations,
   listCrawlerWorkers,
-  listMarketDataContracts,
 } from "@/services/crawlerService";
 import type { CrawlerOperationFilters, CrawlerOperationState } from "@/types/crawler";
 
@@ -24,12 +23,11 @@ export default async function CrawlerOperationsPage({ searchParams }: CrawlerOpe
     ...(first(query.from) && { from: first(query.from) }),
     ...(first(query.to) && { to: first(query.to) }),
   };
-  const [agencies, contracts, operations, workers] = await Promise.all([
+  const [agencies, operations, workers] = await Promise.all([
     listCrawlAgencies(),
-    listMarketDataContracts(),
     listCrawlerOperations(filters),
     listCrawlerWorkers(),
   ]);
 
-  return <CrawlerOperationsClient agencies={agencies} contracts={contracts} initialFilters={filters} initialOperations={operations} initialWorkers={workers} />;
+  return <CrawlerOperationsClient agencies={agencies} initialFilters={filters} initialOperations={operations} initialWorkers={workers} />;
 }

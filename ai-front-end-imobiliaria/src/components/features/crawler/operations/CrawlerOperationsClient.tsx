@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -16,31 +17,26 @@ import {
   createOperationGroup,
   getCrawlerOperation,
   listCrawlerOperations,
-  queueDiscoveryOperation,
   retryCrawlerOperation,
 } from "@/services/crawlerService";
 import type {
   CrawlAgency,
   CrawlerOperation,
-  MarketDataContract,
   WorkerInstance,
   CrawlerOperationFilters,
 } from "@/types/crawler";
 import { crawlerPollInterval } from "./crawlerPolling";
+import { crawlerOperationErrorMessage } from "../crawlerOperationFeedback";
 
 interface CrawlerOperationsClientProps {
   agencies: CrawlAgency[];
-  contracts: MarketDataContract[];
   initialOperations: CrawlerOperation[];
   initialWorkers: WorkerInstance[];
   initialFilters?: CrawlerOperationFilters;
 }
 
-export function CrawlerOperationsClient({ agencies, contracts, initialOperations, initialWorkers, initialFilters = {} }: CrawlerOperationsClientProps) {
+export function CrawlerOperationsClient({ agencies, initialOperations, initialWorkers, initialFilters = {} }: CrawlerOperationsClientProps) {
   const [operations, setOperations] = useState(initialOperations);
-  const [agencyId, setAgencyId] = useState(agencies[0]?.id.toString() ?? "");
-  const activeContracts = contracts.filter((contract) => contract.status === "active");
-  const [contractId, setContractId] = useState(activeContracts[0]?.id.toString() ?? "");
   const [selected, setSelected] = useState<number[]>([]);
   const [filters, setFilters] = useState({
     type: initialFilters.type ?? "",
@@ -75,20 +71,26 @@ export function CrawlerOperationsClient({ agencies, contracts, initialOperations
     };
   }, [operations]);
 
-  const queueDiscovery = async () => {
-    if (!agencyId || !contractId) return;
-    const operation = await queueDiscoveryOperation(Number(agencyId), Number(contractId));
-    setOperations((current) => [operation, ...current]);
-  };
-
   const replaceOperation = (updated: CrawlerOperation) => {
     setOperations((current) => current.map((operation) => operation.id === updated.id ? updated : operation));
   };
 
-  const cancel = async (id: number) => replaceOperation(await cancelCrawlerOperation(id));
+  const cancel = async (id: number) => {
+    try {
+      replaceOperation(await cancelCrawlerOperation(id));
+      toast.success(`Cancelamento da operação #${id} solicitado.`);
+    } catch (error) {
+      toast.error(crawlerOperationErrorMessage(error, `Não foi possível cancelar a operação #${id}.`));
+    }
+  };
   const retry = async (id: number) => {
-    const operation = await retryCrawlerOperation(id);
-    setOperations((current) => current.some((item) => item.id === operation.id) ? current : [operation, ...current]);
+    try {
+      const operation = await retryCrawlerOperation(id);
+      setOperations((current) => current.some((item) => item.id === operation.id) ? current : [operation, ...current]);
+      toast.success(`Retentativa enfileirada como operação #${operation.id}.`);
+    } catch (error) {
+      toast.error(crawlerOperationErrorMessage(error, `Não foi possível retentar a operação #${id}.`));
+    }
   };
   const batch = async (action: "cancel" | "retry") => {
     const eligible = operations.filter((operation) => selected.includes(operation.id) && (
@@ -137,20 +139,6 @@ export function CrawlerOperationsClient({ agencies, contracts, initialOperations
   return (
     <section className="space-y-6">
       <div><h2 className="text-2xl font-semibold">Operações</h2><p className="text-muted-foreground">Fila durável do Crawler Machine.</p></div>
-      <Card className="scroll-mt-16" id="novo-discovery">
-        <CardHeader><CardTitle>Novo Discovery</CardTitle></CardHeader>
-        <CardContent className="flex flex-wrap gap-3">
-          <select aria-label="Crawl Agency" className="rounded-md border bg-transparent px-3" value={agencyId} onChange={(event) => setAgencyId(event.target.value)}>
-            <option value="">Selecione a Crawl Agency</option>
-            {agencies.map((agency) => <option key={agency.id} value={agency.id}>{agency.name}</option>)}
-          </select>
-          <select aria-label="Contrato de dados" className="rounded-md border bg-transparent px-3" value={contractId} onChange={(event) => setContractId(event.target.value)}>
-            <option value="">Selecione o contrato ativo</option>
-            {activeContracts.map((contract) => <option key={contract.id} value={contract.id}>Versão {contract.version}</option>)}
-          </select>
-          <Button disabled={!agencyId || !contractId} onClick={queueDiscovery}>Enfileirar Discovery</Button>
-        </CardContent>
-      </Card>
       <Card>
         <CardHeader><CardTitle>Filtros da fila global</CardTitle></CardHeader>
         <CardContent className="grid gap-3 md:grid-cols-3 xl:grid-cols-4">

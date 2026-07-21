@@ -36,13 +36,6 @@ class ListingInventoryServiceTest extends TestCase
             'root_domain' => 'inventory.example.com',
             'lifecycle_state' => 'active',
         ]);
-        MarketDataContractVersion::query()->create([
-            'version' => 1,
-            'status' => 'active',
-            'fields' => [],
-            'affected_agency_ids' => [],
-            'created_by' => $this->admin->id,
-        ]);
     }
 
     public function test_listing_key_prefers_external_id_and_canonicalizes_url_fallback(): void

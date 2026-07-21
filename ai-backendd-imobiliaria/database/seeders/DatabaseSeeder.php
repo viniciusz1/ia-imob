@@ -44,6 +44,8 @@ class DatabaseSeeder extends Seeder
             $platformAdmin->assignRole($platformAdminRole);
         }
 
+        $this->call(LegacyMarketDataContractSeeder::class);
+
         // Create admin user and assign it to a variable
         $adminUser = User::factory()->create([
             'name' => 'Administrador',

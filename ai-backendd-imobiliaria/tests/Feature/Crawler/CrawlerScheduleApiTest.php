@@ -128,13 +128,7 @@ class CrawlerScheduleApiTest extends TestCase
             'root_domain' => "{$suffix}.schedule.example.com",
             'lifecycle_state' => 'active',
         ]);
-        $contract = MarketDataContractVersion::query()->create([
-            'version' => ((int) MarketDataContractVersion::query()->max('version')) + 1,
-            'status' => 'active',
-            'fields' => [['name' => 'url', 'type' => 'url', 'required' => true, 'normalization' => []]],
-            'affected_agency_ids' => [],
-            'created_by' => $this->admin->id,
-        ]);
+        $contract = MarketDataContractVersion::query()->where('status', 'active')->sole();
         $discovery = CrawlerOperation::query()->create([
             'type' => 'discovery', 'state' => 'succeeded', 'requested_by' => $this->admin->id,
             'crawl_agency_id' => $agency->id, 'plan' => [],

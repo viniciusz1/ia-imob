@@ -8,7 +8,6 @@ describe("CrawlerOperationsClient", () => {
     render(
       <CrawlerOperationsClient
         agencies={[]}
-        contracts={[]}
         initialWorkers={[
           {
             id: 1,
@@ -55,7 +54,7 @@ describe("CrawlerOperationsClient", () => {
   });
 
   it("shows an explicit empty queue state", () => {
-    render(<CrawlerOperationsClient agencies={[]} contracts={[]} initialOperations={[]} initialWorkers={[]} />);
+    render(<CrawlerOperationsClient agencies={[]} initialOperations={[]} initialWorkers={[]} />);
     expect(screen.getByText(/nenhuma operação encontrada/i)).toBeInTheDocument();
   });
 });

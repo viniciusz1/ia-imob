@@ -16,7 +16,7 @@ class ProspectDecisionRequest extends FormRequest
     {
         return [
             'decision' => ['required', Rule::in(['approved', 'rejected'])],
-            'reason' => ['required', 'string', 'min:10', 'max:2000'],
+            'reason' => ['required', 'string', 'min:1', 'max:2000'],
         ];
     }
 }
