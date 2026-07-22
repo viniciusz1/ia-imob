@@ -211,6 +211,7 @@ final class MarketValuationCalculator
             ->latestRun()
             ->where('quartos', $input->bedrooms)
             ->where('vagas', $input->garageSpaces)
+            ->orderBy('id')
             ->get();
 
         $matched = $properties->filter(function (MarketProperty $property) use ($input, $cities, $neighborhoods, $relaxBathrooms): bool {

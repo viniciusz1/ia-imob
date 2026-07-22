@@ -1,9 +1,10 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { type FieldPath, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
+import { isAxiosError } from "axios";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,11 +32,13 @@ import { Separator } from "@/components/ui/separator";
 import { useCreateUser, useUpdateUser } from "@/hooks/useUsers";
 import {
     createUserSchema,
+    UserFormInput,
     userFormSchema,
     UserFormValues,
 } from "@/schemas/userSchema";
 import { User } from "@/types/user";
 import { useRoles } from "@/hooks/useRoles";
+import { usePermission } from "@/hooks/usePermission";
 
 // =============================================================================
 // Props
@@ -94,10 +97,10 @@ export function UserFormModal({
     const createMutation = useCreateUser();
     const updateMutation = useUpdateUser(initialData?.id || 0);
 
-    const { data: roles, isLoading: isLoadingRoles } = useRoles();
+    const canManageRoles = usePermission("roles.manage");
+    const { data: roles, isLoading: isLoadingRoles } = useRoles(open && canManageRoles);
 
-    const form = useForm<UserFormValues>({
-        // @ts-expect-error Zod effects type mismatch between schemas
+    const form = useForm<UserFormInput, unknown, UserFormValues>({
         resolver: zodResolver(isEditing ? userFormSchema : createUserSchema),
         defaultValues: getDefaultValues(initialData),
     });
@@ -125,11 +128,13 @@ export function UserFormModal({
             }
 
             onOpenChange(false);
-        } catch (error: any) {
-            if (error.response?.status === 422 && error.response.data?.errors) {
+        } catch (error: unknown) {
+            if (isAxiosError<{ errors?: Record<string, string[]>; message?: string }>(error)
+                && error.response?.status === 422
+                && error.response.data?.errors) {
                 const errors = error.response.data.errors;
                 Object.keys(errors).forEach((key) => {
-                    form.setError(key as any, {
+                    form.setError(key as FieldPath<UserFormInput>, {
                         type: "server",
                         message: errors[key][0],
                     });
@@ -137,7 +142,7 @@ export function UserFormModal({
                 toast.error("Por favor, verifique os campos destacados.");
             } else {
                 toast.error(
-                    error.response?.data?.message ||
+                    (isAxiosError<{ message?: string }>(error) && error.response?.data?.message) ||
                     "Ocorreu um erro ao salvar o usuário."
                 );
             }
@@ -161,7 +166,7 @@ export function UserFormModal({
                 </DialogHeader>
 
                 <form
-                    onSubmit={form.handleSubmit(onSubmit as any)}
+                    onSubmit={form.handleSubmit(onSubmit)}
                     className="flex flex-col flex-1 overflow-hidden"
                 >
                     <div className="flex-1 overflow-y-auto px-6">

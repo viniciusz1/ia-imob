@@ -26,6 +26,26 @@ class DatabaseSeeder extends Seeder
             AgencyDemoSeeder::class,
         ]);
 
+        $platformAdmin = User::factory()->create([
+            'agency_id' => null,
+            'name' => 'Platform Admin',
+            'email' => 'platform@imobiliaria.com',
+            'username' => 'platform-admin',
+            'phone' => '(11) 99999-0099',
+            'person_type' => 'F',
+        ]);
+
+        $platformAdminRole = \Spatie\Permission\Models\Role::query()
+            ->where('name', 'Platform Admin')
+            ->where('guard_name', $guard)
+            ->first();
+
+        if ($platformAdminRole) {
+            $platformAdmin->assignRole($platformAdminRole);
+        }
+
+        $this->call(LegacyMarketDataContractSeeder::class);
+
         // Create admin user and assign it to a variable
         $adminUser = User::factory()->create([
             'name' => 'Administrador',
@@ -38,13 +58,17 @@ class DatabaseSeeder extends Seeder
             'has_broker_page' => true,
         ]);
 
-        // Assign all permissions to the 'Administrador' role
+        // Agency Admins must never inherit platform-level capabilities.
         $adminRole = \Spatie\Permission\Models\Role::where('name', 'Administrador')
             ->where('guard_name', $guard)
             ->first();
 
         $adminRole?->syncPermissions(
-            \Spatie\Permission\Models\Permission::where('guard_name', $guard)->get()
+            \Spatie\Permission\Models\Permission::query()
+                ->where('guard_name', $guard)
+                ->where('name', 'not like', 'platform.%')
+                ->where('name', 'not like', 'crawler.%')
+                ->get()
         );
 
         // Assign the role to the admin user

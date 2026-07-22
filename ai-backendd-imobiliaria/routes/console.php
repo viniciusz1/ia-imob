@@ -2,7 +2,14 @@
 
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schedule;
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
+
+Schedule::command('crawler:ensure-partitions --months=3')->daily();
+Schedule::command('crawler:expire-operation-leases')->everyMinute();
+Schedule::command('crawler:evaluate-candidates')->everyMinute();
+Schedule::command('crawler:update-circuits')->everyMinute()->withoutOverlapping();
+Schedule::command('crawler:dispatch-schedules')->everyMinute()->withoutOverlapping();

@@ -6,21 +6,17 @@ import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
-    Bot,
     Building2,
-    Calculator,
-    CreditCard,
-    Globe,
     LayoutDashboard,
     Loader2,
     LogOut,
-    ShieldCheck,
-    Users,
 } from "lucide-react";
 
 import { authService } from "@/services/authService";
 import { clearAuthenticatedSession } from "@/services/authSessionCookie";
 import { useAuthStore } from "@/store/useAuthStore";
+import { dashboardModules } from "@/config/modules";
+import { hasPermission } from "@/lib/permissions";
 import {
     Sidebar,
     SidebarContent,
@@ -44,43 +40,10 @@ const navItems = [
         title: "Dashboard",
         href: "/",
         icon: LayoutDashboard,
+        permissions: [],
+        platformOnly: false,
     },
-    {
-        title: "Imóveis",
-        href: "/properties",
-        icon: Building2,
-    },
-    {
-        title: "Usuários",
-        href: "/usuarios",
-        icon: Users,
-    },
-    {
-        title: "Grupos",
-        href: "/grupos",
-        icon: ShieldCheck,
-    },
-    {
-        title: "Buscador com IA",
-        href: "/ai-searcher",
-        icon: Bot,
-    },
-    {
-        title: "Avaliar imóvel",
-        href: "/avaliacoes",
-        icon: Calculator,
-        permissions: ["valuations.create", "valuations.view"],
-    },
-    {
-        title: "Plano & Assinatura",
-        href: "/billing",
-        icon: CreditCard,
-    },
-    {
-        title: "Configurações do site",
-        href: "/configuracoes-do-site",
-        icon: Globe,
-    },
+    ...dashboardModules,
 ];
 
 // ---------------------------------------------------------------------------
@@ -96,15 +59,11 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
     const [isLoggingOut, setIsLoggingOut] = useState(false);
     const userPermissions = Array.isArray(user?.permissions) ? user.permissions : null;
     const visibleNavItems = navItems.filter((item) => {
-        if (!("permissions" in item) || !item.permissions) {
-            return true;
-        }
+        if (item.platformOnly && user?.is_platform_admin !== true) return false;
+        if (item.permissions.length === 0) return true;
+        if (userPermissions === null) return false;
 
-        if (userPermissions === null) {
-            return true;
-        }
-
-        return item.permissions.some((permission) => userPermissions.includes(permission));
+        return hasPermission(userPermissions, item.permissions, "any");
     });
 
     const handleLogout = async () => {

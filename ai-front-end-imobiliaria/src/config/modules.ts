@@ -4,6 +4,7 @@ import {
   Calculator,
   CreditCard,
   Globe,
+  Radar,
   ShieldCheck,
   Users,
   type LucideIcon,
@@ -15,6 +16,7 @@ export interface DashboardModule {
   href: string;
   icon: LucideIcon;
   permissions: string[];
+  platformOnly?: boolean;
   dashboard?: {
     title: string;
     description: string;
@@ -27,7 +29,7 @@ export const dashboardModules: DashboardModule[] = [
     title: "Imóveis",
     href: "/properties",
     icon: Building2,
-    permissions: [],
+    permissions: ["properties.view"],
     dashboard: {
       title: "Gerenciar imóveis",
       description: "Cadastre, edite e acompanhe seus imóveis.",
@@ -52,7 +54,7 @@ export const dashboardModules: DashboardModule[] = [
     title: "Buscador com IA",
     href: "/ai-searcher",
     icon: Bot,
-    permissions: [],
+    permissions: ["properties.view"],
     dashboard: {
       title: "Buscar com IA",
       description: "Encontre imóveis usando linguagem natural.",
@@ -81,6 +83,18 @@ export const dashboardModules: DashboardModule[] = [
     title: "Configurações do site",
     href: "/configuracoes-do-site",
     icon: Globe,
-    permissions: ["site_settings.view"],
+    permissions: ["properties.view"],
+  },
+  {
+    id: "crawler-operations",
+    title: "Operações do Crawler",
+    href: "/admin/crawler",
+    icon: Radar,
+    permissions: ["crawler.view"],
+    platformOnly: true,
+    dashboard: {
+      title: "Operações do Crawler",
+      description: "Gerencie Crawl Agencies, execuções e publicação de dados de mercado.",
+    },
   },
 ];

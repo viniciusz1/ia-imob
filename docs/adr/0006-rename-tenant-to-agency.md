@@ -4,6 +4,6 @@ We use `Agency` as the canonical name for the platform customer that owns users,
 
 ## Consequences
 
-- Scraping-oriented agencies must remain explicitly named **Source Agencies** to avoid collision with customer Agencies.
+- Scraping-oriented agencies must remain explicitly named **Crawl Agencies** to avoid collision with customer Agencies.
 - Platform Admin users may be agency-less; Agency users remain scoped by `agency_id`.
 - The migration touched model names, relationship names, table names, foreign keys, API payloads, frontend permission checks, docs, and tests in one coordinated change.

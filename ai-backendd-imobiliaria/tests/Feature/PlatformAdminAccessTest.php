@@ -41,6 +41,17 @@ class PlatformAdminAccessTest extends TestCase
         $response->assertStatus(403);
     }
 
+    public function test_agency_user_is_denied_even_when_given_platform_permission_directly(): void
+    {
+        $agency = Agency::factory()->create();
+        $agencyAdmin = User::factory()->for($agency)->create();
+        $agencyAdmin->givePermissionTo('platform.agencies.view');
+
+        $this->actingAs($agencyAdmin)
+            ->getJson('/api/v1/admin/ping')
+            ->assertForbidden();
+    }
+
     public function test_unauthenticated_user_cannot_access_admin_endpoint(): void
     {
         $response = $this->getJson('/api/v1/admin/ping');

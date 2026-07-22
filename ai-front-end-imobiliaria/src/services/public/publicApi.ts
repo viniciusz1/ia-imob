@@ -14,7 +14,7 @@ import { hasPropertySlug } from "./types";
 const PUBLIC_API_PREFIX = "/api/v1/public";
 
 function backendOrigin(): string {
-    const raw = process.env.NEXT_PUBLIC_API_URL ?? "";
+    const raw = process.env.BACKEND_URL ?? process.env.NEXT_PUBLIC_API_URL ?? "http://localhost";
     return raw.replace(/\/api(?:\/v\d+)?\/?$/, "");
 }
 

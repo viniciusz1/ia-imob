@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Agency;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class AdminAgencyRegistrationTest extends TestCase
@@ -20,6 +21,7 @@ class AdminAgencyRegistrationTest extends TestCase
     public function test_platform_admin_can_register_agency_with_initial_admin(): void
     {
         $platformAdmin = User::where('email', 'platform@imobiliaria.com')->first();
+        Role::query()->where('name', 'Administrador')->firstOrFail()->syncPermissions([]);
 
         $response = $this->actingAs($platformAdmin)
             ->postJson('/api/v1/admin/agencies', [
@@ -33,7 +35,6 @@ class AdminAgencyRegistrationTest extends TestCase
                     'name' => 'João Admin',
                     'email' => 'joao@acme.com',
                     'username' => 'joaoadmin',
-                    'phone' => '(11) 99999-0001',
                     'password' => 'password123',
                     'password_confirmation' => 'password123',
                 ],
@@ -45,6 +46,7 @@ class AdminAgencyRegistrationTest extends TestCase
         $this->assertDatabaseHas('agencies', [
             'name' => 'Acme Imóveis',
             'slug' => 'acme',
+            'is_active' => true,
         ]);
 
         $agency = Agency::where('slug', 'acme')->first();
@@ -53,6 +55,7 @@ class AdminAgencyRegistrationTest extends TestCase
         $this->assertDatabaseHas('users', [
             'email' => 'joao@acme.com',
             'username' => 'joaoadmin',
+            'phone' => '(00) 00000-0000',
             'agency_id' => $agency->id,
         ]);
 
@@ -63,6 +66,11 @@ class AdminAgencyRegistrationTest extends TestCase
             $adminUser->hasRole('Administrador'),
             'Initial admin must have Administrador role'
         );
+        $this->assertTrue($adminUser->can('properties.view'));
+        $this->assertTrue($adminUser->can('users.view'));
+        $this->assertTrue($adminUser->can('roles.manage'));
+        $this->assertFalse($adminUser->can('platform.agencies.view'));
+        $this->assertFalse($adminUser->can('crawler.view'));
 
         // AgencySiteSettings were created
         $this->assertDatabaseHas('agency_site_settings', [

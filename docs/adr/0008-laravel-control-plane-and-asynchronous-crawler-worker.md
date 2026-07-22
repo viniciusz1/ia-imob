@@ -1,0 +1,9 @@
+# Laravel control plane and asynchronous Crawler Machine worker
+
+Laravel is the control plane for Crawler Machine operations: it authenticates Platform Admins, accepts operational commands, records their requested state, and exposes progress and results to the interface. Crawler Machine runs as a separate asynchronous worker that claims and executes those commands, so long crawls do not run inside HTTP requests and can survive browser disconnects or frontend restarts. This separation adds worker deployment and dispatch infrastructure, but avoids coupling Laravel request lifetimes and its runtime environment to Python crawling dependencies.
+
+Every asynchronous request is represented by one durable **Crawler Operation** with its requester, target, immutable parameter snapshot, progress, and outcome. Discovery, schema, crawl, and prospecting records are technical results linked to that operation rather than independent control mechanisms; this gives the interface one consistent model for history, cancellation, and retries.
+
+Crawler Operations follow a monotonic lifecycle: `queued -> running -> succeeded | failed`, with cooperative cancellation represented by `cancellation_requested -> cancelled`. Terminal operations are immutable, timeouts are classified failures, and a retry creates a new operation linked to its predecessor instead of reopening history. Pausing applies to a Crawl Agency or schedule, not to an operation already running.
+
+Crawler Machine remains a separately deployed, continuously running Python service rather than being embedded in Laravel. The interface observes worker health, software version, and last heartbeat, but does not start, stop, deploy, or update worker processes; those remain infrastructure responsibilities. The initial deployment may use one worker instance, while the dispatch contract supports multiple instances without changing Laravel or the interface.

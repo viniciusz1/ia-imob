@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted
+Accepted; decision 2 is superseded by ADR 0012 and decision 5 is superseded by ADR 0010.
 
 ## Context
 

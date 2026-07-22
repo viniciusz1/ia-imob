@@ -36,6 +36,7 @@ class AuthUserPermissionsTest extends TestCase
         $response = $this->actingAs($user)->getJson('/api/v1/user');
 
         $response->assertOk()
+            ->assertJsonPath('data.is_platform_admin', false)
             ->assertJsonPath('data.permissions', [
                 'valuations.create',
                 'valuations.view',

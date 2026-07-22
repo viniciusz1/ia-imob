@@ -6,14 +6,14 @@ The public, search-engine-facing storefront where a real estate agency's own pub
 
 **Agency**:
 A real estate agency that is a paying customer of the platform. First-class entity that owns its Users, Properties, leads, brand/site settings, and is the billing entity.
-_Avoid_: Agency, Imobiliária (ambiguous — see Source Agency), client, account, customer
+_Avoid_: Agency, Imobiliária (ambiguous — see Crawl Agency), client, account, customer
 
 **Broker**:
 A CRM `User` (a property-seller/agent) belonging to exactly one Agency. Lists and sells properties and may appear on the Agency's public site via a personal profile (photo, CRECI, social links).
 _Avoid_: User (too generic in public context), realtor, salesperson
 
-**Source Agency**:
-A real estate company whose website is scraped for listings by the [Crawler Machine](../../../crawler-machine/CONTEXT.md). A Source Agency is *not* an Agency and never publishes to a white-label site.
+**Crawl Agency**:
+A real estate company whose website is scraped for listings by the [Crawler Machine](../../../crawler-machine/CONTEXT.md). A Crawl Agency is *not* an Agency and never publishes to a white-label site.
 _Avoid_: Agency, Agency, customer
 
 **Final Client**:
@@ -49,4 +49,4 @@ _Avoid_: Contact, inquiry, message
 
 ## Flagged ambiguities
 
-- "Imobiliária" means two different things across contexts: in Crawler Machine it is a **Source Agency** (a scrape target); here it is an **Agency** (a paying customer who publishes). These never overlap.
+- "Imobiliária" means two different things across contexts: in Crawler Machine it is a **Crawl Agency** (a scrape target); here it is an **Agency** (a paying customer who publishes). These never overlap.

@@ -13,3 +13,16 @@ export function hasPermission(
 
   return requiredArray.every((permission) => userPermissions.includes(permission));
 }
+
+interface AuthorizationSubject {
+  is_platform_admin: boolean;
+  permissions?: string[] | null;
+}
+
+export function postLoginPath(user: AuthorizationSubject): string {
+  if (!user.is_platform_admin) return "/";
+  if (hasPermission(user.permissions, "crawler.view")) return "/admin/crawler";
+  if (hasPermission(user.permissions, "platform.agencies.view")) return "/admin/agencies";
+
+  return "/";
+}

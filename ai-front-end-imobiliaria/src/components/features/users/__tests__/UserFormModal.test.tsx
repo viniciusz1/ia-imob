@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { UserFormModal } from '../UserFormModal';
 import { useRoles } from '@/hooks/useRoles';
+import { useAuthStore } from '@/store/useAuthStore';
 
 // Mock hooks
 vi.mock('@/hooks/useRoles', () => ({
@@ -23,16 +24,24 @@ global.ResizeObserver = class ResizeObserver {
 describe('UserFormModal', () => {
     beforeEach(() => {
         vi.clearAllMocks();
+        useAuthStore.getState().clearAuth();
     });
 
     it('deve renderizar os grupos de forma dinâmica consumindo do hook useRoles', () => {
-        (useRoles as any).mockReturnValue({
+        useAuthStore.getState().setUser({
+            id: 1,
+            name: 'Admin',
+            email: 'admin@example.com',
+            is_platform_admin: false,
+            permissions: ['roles.manage'],
+        });
+        vi.mocked(useRoles).mockReturnValue({
             data: [
                 { id: 10, name: 'Admin Supremo' },
                 { id: 20, name: 'Corretor VIP' },
             ],
             isLoading: false,
-        });
+        } as ReturnType<typeof useRoles>);
 
         render(<UserFormModal open={true} onOpenChange={vi.fn()} initialData={null} />);
 
@@ -44,5 +53,24 @@ describe('UserFormModal', () => {
         // Verifica se carregou sem erros e o campo Grupo do Usuário existe
         const groupLabel = screen.getByText('Grupo do Usuário *');
         expect(groupLabel).toBeInTheDocument();
+        expect(useRoles).toHaveBeenCalledWith(true);
+    });
+
+    it('não carrega grupos quando o modal está fechado ou sem permissão', () => {
+        useAuthStore.getState().setUser({
+            id: 4,
+            name: 'Platform Admin',
+            email: 'platform@imobiliaria.com',
+            is_platform_admin: true,
+            permissions: ['crawler.view'],
+        });
+        vi.mocked(useRoles).mockReturnValue({
+            data: undefined,
+            isLoading: false,
+        } as ReturnType<typeof useRoles>);
+
+        render(<UserFormModal open={false} onOpenChange={vi.fn()} initialData={null} />);
+
+        expect(useRoles).toHaveBeenCalledWith(false);
     });
 });

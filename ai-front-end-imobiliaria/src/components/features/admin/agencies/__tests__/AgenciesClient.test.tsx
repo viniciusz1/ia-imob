@@ -46,8 +46,9 @@ const mockAgencies: AgencySummary[] = [
 function setUserPermissions(permissions: string[]) {
     useAuthStore.getState().setUser({
         id: 1,
-        name: "Admin",
-        email: "admin@example.com",
+        name: "Platform Admin",
+        email: "platform@example.com",
+        is_platform_admin: true,
         permissions,
     });
 }

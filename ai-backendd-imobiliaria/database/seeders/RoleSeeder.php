@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 class RoleSeeder extends Seeder
@@ -18,6 +19,7 @@ class RoleSeeder extends Seeder
         $roles = [
             'Administrador',
             'Corretor',
+            'Platform Admin',
         ];
 
         foreach ($roles as $roleName) {
@@ -26,5 +28,33 @@ class RoleSeeder extends Seeder
                 'guard_name' => $guard,
             ]);
         }
+
+        $agencyAdmin = Role::query()
+            ->where('name', 'Administrador')
+            ->where('guard_name', $guard)
+            ->firstOrFail();
+
+        $agencyAdmin->syncPermissions(
+            Permission::query()
+                ->where('guard_name', $guard)
+                ->where('name', 'not like', 'platform.%')
+                ->where('name', 'not like', 'crawler.%')
+                ->get()
+        );
+
+        $platformAdmin = Role::query()
+            ->where('name', 'Platform Admin')
+            ->where('guard_name', $guard)
+            ->firstOrFail();
+
+        $platformAdmin->syncPermissions(
+            Permission::query()
+                ->where('guard_name', $guard)
+                ->where(function ($query): void {
+                    $query->where('name', 'like', 'platform.%')
+                        ->orWhere('name', 'like', 'crawler.%');
+                })
+                ->get()
+        );
     }
 }

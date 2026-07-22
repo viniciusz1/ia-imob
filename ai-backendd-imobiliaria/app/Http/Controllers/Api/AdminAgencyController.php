@@ -12,6 +12,7 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\DB;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 class AdminAgencyController extends Controller
@@ -82,6 +83,7 @@ class AdminAgencyController extends Controller
             $agency = Agency::create([
                 'name' => $validated['agency']['name'],
                 'slug' => $validated['agency']['slug'],
+                'is_active' => true,
             ]);
 
             $admin = User::create([
@@ -89,7 +91,7 @@ class AdminAgencyController extends Controller
                 'name' => $validated['admin']['name'],
                 'email' => $validated['admin']['email'],
                 'username' => $validated['admin']['username'],
-                'phone' => $validated['admin']['phone'] ?? null,
+                'phone' => $validated['admin']['phone'] ?? '(00) 00000-0000',
                 'password' => $validated['admin']['password'],
                 'person_type' => 'F',
                 'is_active' => true,
@@ -98,8 +100,18 @@ class AdminAgencyController extends Controller
             // Assign Agency Admin role. The role must use the same guard as the User
             // model (web), even when the request is authenticated via Sanctum.
             $guard = 'web';
-            Role::firstOrCreate(['name' => 'Administrador', 'guard_name' => $guard]);
-            $admin->assignRole('Administrador');
+            $agencyAdminRole = Role::firstOrCreate([
+                'name' => 'Administrador',
+                'guard_name' => $guard,
+            ]);
+            $agencyAdminRole->syncPermissions(
+                Permission::query()
+                    ->where('guard_name', $guard)
+                    ->where('name', 'not like', 'platform.%')
+                    ->where('name', 'not like', 'crawler.%')
+                    ->get()
+            );
+            $admin->assignRole($agencyAdminRole);
 
             // Create default site settings
             AgencySiteSettings::create([

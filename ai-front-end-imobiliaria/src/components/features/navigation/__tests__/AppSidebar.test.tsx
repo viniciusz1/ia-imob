@@ -45,6 +45,7 @@ describe("AppSidebar", () => {
       id: 1,
       name: "Corretor",
       email: "corretor@example.com",
+      is_platform_admin: false,
       permissions: ["valuations.create"],
     });
 
@@ -58,11 +59,45 @@ describe("AppSidebar", () => {
       id: 1,
       name: "Corretor",
       email: "corretor@example.com",
+      is_platform_admin: false,
       permissions: ["properties.view"],
     });
 
     renderSidebar();
 
     expect(screen.queryByRole("link", { name: /avaliar imóvel/i })).not.toBeInTheDocument();
+  });
+
+  it("shows Operações do Crawler only with crawler view permission", () => {
+    useAuthStore.getState().setUser({
+      id: 1,
+      name: "Platform Admin",
+      email: "platform@example.com",
+      is_platform_admin: true,
+      permissions: ["crawler.view"],
+    });
+
+    renderSidebar();
+
+    expect(
+      screen.getByRole("link", { name: /operações do crawler/i }),
+    ).toHaveAttribute("href", "/admin/crawler");
+    expect(screen.queryByRole("link", { name: /^imóveis$/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /^usuários$/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /^grupos$/i })).not.toBeInTheDocument();
+  });
+
+  it("hides Crawler Operations from an Agency Admin with stale permission", () => {
+    useAuthStore.getState().setUser({
+      id: 1,
+      name: "Agency Admin",
+      email: "admin@example.com",
+      is_platform_admin: false,
+      permissions: ["crawler.view"],
+    });
+
+    renderSidebar();
+
+    expect(screen.queryByRole("link", { name: /operações do crawler/i })).not.toBeInTheDocument();
   });
 });

@@ -1,0 +1,7 @@
+# Store all managed Crawler Machine artifacts in Postgres
+
+Postgres is the system of record for every managed crawler datum and artifact, including control-plane entities, structured raw records, normalized snapshots, discovery/profile payloads, HTML evidence, quality reports, errors, and diagnostic bundles. Worker-local files are temporary processing scratch and are never a durable source. This replaces the optional Postgres sink for interface-managed operations and deliberately accepts database growth and retention/partitioning work in exchange for one transactional, queryable store without object-storage infrastructure. Secret values remain the sole explicit exception and stay in the deployment environment or secret manager under ADR 0011.
+
+High-volume append-oriented tables are time-partitioned from their creation, but the initial system applies no automatic deletion or retention expiry. All partitions remain indefinitely until a future explicit retention decision is made; partitioning prepares that future maintenance without prejudging it.
+
+`raw_properties`, `market_properties`, crawler artifacts, and technical logs use monthly range partitions by `created_at`. Mutable or lower-volume tables such as Crawl Agencies, Prospects, Crawler Operations, Extraction Profiles, quality policies, and schedules remain unpartitioned. Laravel owns partition DDL, creates future monthly partitions ahead of time, and keeps a `DEFAULT` partition as a safety net; no scheduled process drops partitions.

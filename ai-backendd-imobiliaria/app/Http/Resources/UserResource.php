@@ -21,6 +21,7 @@ class UserResource extends JsonResource
             'username' => $this->username,
             'phone' => $this->phone,
             'role_id' => $this->roles->first()?->id,
+            'is_platform_admin' => $this->agency_id === null,
             'permissions' => $this->getAllPermissions()
                 ->pluck('name')
                 ->sort()

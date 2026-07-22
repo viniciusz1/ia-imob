@@ -19,7 +19,7 @@ export const userFormSchema = z
         person_type: z.enum(["F", "J"], {
             message: "Tipo de pessoa é obrigatório",
         }),
-        avatar: z.any().optional(),
+        avatar: z.custom<File | null>().optional(),
 
         // -- Profissional --
         creci: z.string().optional().or(z.literal("")),
@@ -110,6 +110,7 @@ export const userFormSchema = z
     );
 
 export type UserFormValues = z.infer<typeof userFormSchema>;
+export type UserFormInput = z.input<typeof userFormSchema>;
 
 // Schema para criação (senha obrigatória)
 export const createUserSchema = userFormSchema.refine(
