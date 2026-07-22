@@ -29,6 +29,19 @@ class RoleSeeder extends Seeder
             ]);
         }
 
+        $agencyAdmin = Role::query()
+            ->where('name', 'Administrador')
+            ->where('guard_name', $guard)
+            ->firstOrFail();
+
+        $agencyAdmin->syncPermissions(
+            Permission::query()
+                ->where('guard_name', $guard)
+                ->where('name', 'not like', 'platform.%')
+                ->where('name', 'not like', 'crawler.%')
+                ->get()
+        );
+
         $platformAdmin = Role::query()
             ->where('name', 'Platform Admin')
             ->where('guard_name', $guard)
