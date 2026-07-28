@@ -7,6 +7,7 @@ use App\Models\Crawler\DiscoverySnapshot;
 use App\Models\Crawler\ExtractionProfile;
 use App\Models\Crawler\OnboardingExecution;
 use App\Models\Crawler\ProfileValidationReport;
+use App\Models\CrawlerRun;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
@@ -15,6 +16,7 @@ class OnboardingExecutionCoordinator
     public function __construct(
         private readonly CrawlerOperationService $operations,
         private readonly ExtractionProfileWorkflowService $profiles,
+        private readonly CrawlRunPublicationService $publication,
     ) {}
 
     public function reconcilePending(): int
@@ -62,6 +64,14 @@ class OnboardingExecutionCoordinator
             }
 
             if (in_array($operation->state, ['failed', 'cancelled'], true)) {
+                if ($locked->current_step === 'first_production') {
+                    return $this->requireAttention(
+                        $locked,
+                        'first_production_failed',
+                        $operation->error_message ?? 'The first production failed and can be retried.',
+                    );
+                }
+
                 return $this->requireAttention(
                     $locked,
                     'child_operation_failed',
@@ -73,6 +83,7 @@ class OnboardingExecutionCoordinator
                 'discovery' => $this->advanceAfterDiscovery($locked, $operation),
                 'profile_generation' => $this->advanceAfterProfileGeneration($locked, $operation),
                 'profile_validation' => $this->pauseForApproval($locked, $operation),
+                'first_production' => $this->completeFirstProduction($locked, $operation),
                 default => $this->loadForRead($locked),
             };
         });
@@ -281,6 +292,45 @@ class OnboardingExecutionCoordinator
         return $this->loadForRead($execution->refresh());
     }
 
+    private function completeFirstProduction(
+        OnboardingExecution $execution,
+        CrawlerOperation $operation,
+    ): OnboardingExecution {
+        $run = CrawlerRun::query()
+            ->where('operation_id', $operation->id)
+            ->first();
+        if ($run === null) {
+            return $this->requireAttention(
+                $execution,
+                'first_production_run_missing',
+                'The first production succeeded without a persisted Crawl Run.',
+            );
+        }
+
+        $this->publication->evaluate($run);
+        $run->refresh();
+        if (! in_array($run->publication_state, ['published', 'quarantined'], true)) {
+            return $this->requireAttention(
+                $execution,
+                'quality_gate_incomplete',
+                'The first production is still awaiting its Quality Gate.',
+            );
+        }
+
+        $execution->update([
+            'state' => 'completed',
+            'current_step' => 'quality_gate',
+            'first_production_crawl_run_id' => $run->id,
+            'paused_at' => null,
+            'completed_at' => now(),
+            'attention_code' => null,
+            'attention_message' => null,
+        ]);
+        $execution->onboardingPlan()->update(['status' => 'completed']);
+
+        return $this->loadForRead($execution->refresh());
+    }
+
     private function selectSampleUrl(DiscoverySnapshot $snapshot, string $rootDomain): ?string
     {
         foreach ($snapshot->urls()->orderBy('id')->pluck('url') as $url) {
@@ -307,6 +357,9 @@ class OnboardingExecutionCoordinator
             'discoveryPolicy',
             'extractionPolicy',
             'discoverySnapshot',
+            'extractionProfile',
+            'profileValidationReport',
+            'firstProductionCrawlRun.qualityReport',
             'operations' => fn ($query) => $query->orderBy('id'),
         ]);
     }

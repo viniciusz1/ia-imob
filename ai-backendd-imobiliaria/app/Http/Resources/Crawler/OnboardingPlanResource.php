@@ -19,6 +19,7 @@ class OnboardingPlanResource extends JsonResource
             'steps' => $this->steps,
             'execution_model_version_id' => $this->execution_model_version_id,
             'manual_configuration' => $this->manual_configuration,
+            'first_production_discovery_mode' => $this->first_production_discovery_mode,
             'execution_model' => $this->whenLoaded(
                 'executionModel',
                 fn () => $this->executionModel === null

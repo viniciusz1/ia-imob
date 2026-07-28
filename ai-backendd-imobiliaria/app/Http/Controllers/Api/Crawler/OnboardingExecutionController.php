@@ -4,10 +4,13 @@ namespace App\Http\Controllers\Api\Crawler;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Crawler\ActOnboardingExecutionRequest;
+use App\Http\Requests\Crawler\ApproveOnboardingExecutionRequest;
+use App\Http\Requests\Crawler\StartOnboardingFirstProductionRequest;
 use App\Http\Resources\Crawler\OnboardingExecutionResource;
 use App\Models\Crawler\CrawlAgency;
 use App\Models\Crawler\OnboardingExecution;
 use App\Services\Crawler\ManualOnboardingExecutionService;
+use App\Services\Crawler\OnboardingCompletionService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
@@ -61,6 +64,34 @@ class OnboardingExecutionController extends Controller
         );
     }
 
+    public function approve(
+        ApproveOnboardingExecutionRequest $request,
+        OnboardingExecution $onboardingExecution,
+        OnboardingCompletionService $service,
+    ): OnboardingExecutionResource {
+        return new OnboardingExecutionResource(
+            $service->approve(
+                $onboardingExecution,
+                $request->validated('reason'),
+                $request->user(),
+            ),
+        );
+    }
+
+    public function firstProduction(
+        StartOnboardingFirstProductionRequest $request,
+        OnboardingExecution $onboardingExecution,
+        OnboardingCompletionService $service,
+    ): OnboardingExecutionResource {
+        return new OnboardingExecutionResource(
+            $service->startFirstProduction(
+                $onboardingExecution,
+                $request->validated('discovery_mode'),
+                $request->user(),
+            ),
+        );
+    }
+
     private function relations(): array
     {
         return [
@@ -69,6 +100,9 @@ class OnboardingExecutionController extends Controller
             'discoveryPolicy',
             'extractionPolicy',
             'discoverySnapshot',
+            'extractionProfile',
+            'profileValidationReport',
+            'firstProductionCrawlRun.qualityReport',
             'operations' => fn ($query) => $query->orderBy('id'),
         ];
     }

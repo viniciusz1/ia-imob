@@ -19,6 +19,7 @@ class CrawlAgencyResource extends JsonResource
             'health_state' => $this->health_state,
             'revalidation_required' => $this->revalidation_required,
             'current_published_crawl_run_id' => $this->current_published_crawl_run_id,
+            'active_discovery_policy_version_id' => $this->active_discovery_policy_version_id,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

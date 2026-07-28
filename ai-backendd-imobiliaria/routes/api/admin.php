@@ -120,6 +120,7 @@ Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.oper
         Route::put('/crawl-agencies/{crawlAgency}/onboarding-plan', [OnboardingPlanController::class, 'update']);
         Route::post('/crawl-agencies/{crawlAgency}/onboarding-plan/confirm', [OnboardingPlanController::class, 'confirm']);
         Route::post('/onboarding-executions/{onboardingExecution}/actions', [OnboardingExecutionController::class, 'act']);
+        Route::post('/onboarding-executions/{onboardingExecution}/first-production', [OnboardingExecutionController::class, 'firstProduction']);
     });
 
 Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.operations.cancel'])
@@ -134,6 +135,17 @@ Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.prof
     ->group(function () {
         Route::post('/extraction-profiles/{extractionProfile}/decision', [ExtractionProfileDecisionController::class, 'decide']);
         Route::post('/extraction-profiles/{extractionProfile}/activate', [ExtractionProfileDecisionController::class, 'activate']);
+    });
+
+Route::middleware([
+    'auth:sanctum',
+    EnsurePlatformAdmin::class,
+    'can:crawler.profiles.approve',
+    'can:crawler.agencies.activate',
+])
+    ->prefix('crawler')
+    ->group(function () {
+        Route::post('/onboarding-executions/{onboardingExecution}/approve', [OnboardingExecutionController::class, 'approve']);
     });
 
 Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.prospects.manage'])

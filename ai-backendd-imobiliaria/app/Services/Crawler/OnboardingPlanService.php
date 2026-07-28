@@ -32,6 +32,8 @@ class OnboardingPlanService
             'manual_configuration' => $data['conduction'] === 'manual'
                 ? $data['manual_configuration']
                 : null,
+            'first_production_discovery_mode' => $data['first_production_discovery_mode']
+                ?? 'fresh',
         ]);
 
         return $plan->refresh()->load('executionModel');
@@ -91,6 +93,7 @@ class OnboardingPlanService
                 'discovery_snapshot_id' => $selection['discovery_snapshot_id'],
                 'market_data_contract_version_id' => $contract->id,
                 'resolved_configuration' => $resolvedConfiguration,
+                'first_production_discovery_mode' => $lockedPlan->first_production_discovery_mode,
                 'sample_url' => $selection['sample_url'],
                 'sample_url_selection' => $selection['sample_url_selection'],
                 'created_by' => $actor->id,

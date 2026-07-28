@@ -6,6 +6,7 @@ use App\Models\Crawler\CrawlAgency;
 use App\Models\Crawler\CrawlerOperation;
 use App\Models\Crawler\DiscoverySnapshot;
 use App\Models\Crawler\ExtractionProfile;
+use App\Models\Crawler\OnboardingExecution;
 use App\Models\Crawler\QualityPolicyVersion;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -13,6 +14,10 @@ use Illuminate\Validation\ValidationException;
 
 class ProductionCrawlService
 {
+    public function __construct(
+        private readonly CrawlerOperationService $operations,
+    ) {}
+
     public function queue(array $input, User $requester): CrawlerOperation
     {
         $agency = CrawlAgency::query()->findOrFail($input['crawl_agency_id']);
@@ -113,5 +118,155 @@ class ProductionCrawlService
                 'plan' => $plan,
             ])->refresh();
         });
+    }
+
+    public function queueFirstProduction(
+        OnboardingExecution $execution,
+        string $discoveryMode,
+        User $requester,
+        int $attempt,
+    ): CrawlerOperation {
+        if (
+            $execution->approved_at === null
+            || $execution->extraction_profile_id === null
+            || ! in_array($discoveryMode, ['fresh', 'validation_snapshot'], true)
+        ) {
+            throw ValidationException::withMessages([
+                'onboarding_execution' => 'Approve the onboarding before its first production.',
+            ]);
+        }
+
+        $agency = CrawlAgency::query()->findOrFail($execution->crawl_agency_id);
+        $profile = ExtractionProfile::query()
+            ->whereKey($execution->extraction_profile_id)
+            ->where('crawl_agency_id', $agency->id)
+            ->where('status', 'active')
+            ->first();
+        if ($profile === null || $agency->lifecycle_state !== 'active') {
+            throw ValidationException::withMessages([
+                'onboarding_execution' => 'The approved profile and Crawl Agency must be active.',
+            ]);
+        }
+
+        $contract = $profile->contract()->firstOrFail();
+        if (
+            $contract->status !== 'active'
+            || (int) $contract->id !== (int) $execution->market_data_contract_version_id
+        ) {
+            throw ValidationException::withMessages([
+                'market_data_contract_version_id' => 'The onboarding contract is no longer active.',
+            ]);
+        }
+
+        $discoveryPolicy = data_get(
+            $execution->resolved_configuration,
+            'discovery_policy',
+        );
+        $extractionPolicy = data_get(
+            $execution->resolved_configuration,
+            'extraction_policy',
+        );
+        if (
+            ! is_array($discoveryPolicy)
+            || ! is_array($extractionPolicy)
+            || (int) ($discoveryPolicy['id'] ?? 0)
+                !== (int) $agency->active_discovery_policy_version_id
+        ) {
+            throw ValidationException::withMessages([
+                'discovery_policy_version_id' => 'The approved Discovery Policy is not active.',
+            ]);
+        }
+
+        $discovery = $this->firstProductionDiscovery(
+            $execution,
+            $agency,
+            $discoveryMode,
+        );
+        $qualityPolicy = QualityPolicyVersion::query()
+            ->where('status', 'active')
+            ->latest('version')
+            ->firstOrFail();
+        $plan = [
+            'version' => 1,
+            'type' => 'production_crawl',
+            'trigger' => 'onboarding_first_production',
+            'crawl_agency_id' => $agency->id,
+            'onboarding_execution_id' => $execution->id,
+            'discovery' => $discovery,
+            'discovery_policy' => $discoveryPolicy,
+            'extraction_policy' => $extractionPolicy,
+            'extraction_profile' => [
+                'id' => $profile->id,
+                'version' => $profile->version,
+                'schemas' => $profile->schemas,
+                'strategies' => $profile->strategies,
+                'fields' => $profile->fields,
+                'parameters' => $profile->parameters,
+            ],
+            'market_data_contract' => [
+                'id' => $contract->id,
+                'version' => $contract->version,
+                'fields' => $contract->fields,
+            ],
+            'quality_policy' => [
+                'id' => $qualityPolicy->id,
+                'version' => $qualityPolicy->version,
+                'rules' => $qualityPolicy->rules,
+            ],
+        ];
+
+        $operation = $this->operations->queueEquivalent(
+            type: 'production_crawl',
+            agencyId: $agency->id,
+            contractId: $contract->id,
+            plan: $plan,
+            requester: $requester,
+            onboardingExecution: $execution,
+            onboardingStep: 'first_production',
+            attempt: $attempt,
+        );
+        if ($attempt > 1 && $operation->retry_of_operation_id === null) {
+            $previous = $execution->operations()
+                ->where('onboarding_step', 'first_production')
+                ->where('attempt', '<', $attempt)
+                ->latest('attempt')
+                ->first();
+            if ($previous !== null) {
+                $operation->update(['retry_of_operation_id' => $previous->id]);
+            }
+        }
+
+        return $operation->refresh();
+    }
+
+    private function firstProductionDiscovery(
+        OnboardingExecution $execution,
+        CrawlAgency $agency,
+        string $mode,
+    ): array {
+        if ($mode === 'fresh') {
+            return [
+                'mode' => 'fresh',
+                'requested_mode' => 'fresh',
+                'base_url' => $agency->base_url,
+            ];
+        }
+
+        $snapshot = DiscoverySnapshot::query()
+            ->whereKey($execution->discovery_snapshot_id)
+            ->where('crawl_agency_id', $agency->id)
+            ->first();
+        if ($snapshot === null) {
+            throw ValidationException::withMessages([
+                'discovery_mode' => 'The validation Discovery Snapshot is unavailable.',
+            ]);
+        }
+
+        return [
+            'mode' => 'existing',
+            'requested_mode' => 'validation_snapshot',
+            'snapshot_id' => $snapshot->id,
+            'urls' => $snapshot->urls()->orderBy('id')->pluck('url')->all(),
+        ];
     }
 }

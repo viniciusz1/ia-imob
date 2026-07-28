@@ -27,6 +27,10 @@ class OnboardingExecutionResource extends JsonResource
             'extraction_policy_version_id' => $this->extraction_policy_version_id,
             'discovery_snapshot_id' => $this->discovery_snapshot_id,
             'market_data_contract_version_id' => $this->market_data_contract_version_id,
+            'extraction_profile_id' => $this->extraction_profile_id,
+            'profile_validation_report_id' => $this->profile_validation_report_id,
+            'first_production_discovery_mode' => $this->first_production_discovery_mode,
+            'first_production_crawl_run_id' => $this->first_production_crawl_run_id,
             'resolved_configuration' => $this->resolved_configuration,
             'sample_url' => $this->sample_url,
             'sample_url_selection' => $this->sample_url_selection,
@@ -34,6 +38,22 @@ class OnboardingExecutionResource extends JsonResource
                 'code' => $this->attention_code,
                 'message' => $this->attention_message,
             ],
+            'approval' => $this->approved_at === null ? null : [
+                'approved_by' => $this->approved_by,
+                'approved_at' => $this->approved_at,
+                'reason' => $this->approval_reason,
+            ],
+            'first_production' => $this->whenLoaded(
+                'firstProductionCrawlRun',
+                fn () => $this->firstProductionCrawlRun === null ? null : [
+                    'crawl_run_id' => $this->firstProductionCrawlRun->id,
+                    'technical_state' => $this->firstProductionCrawlRun->technical_state,
+                    'publication_state' => $this->firstProductionCrawlRun->publication_state,
+                    'quality_verdict' => $this->firstProductionCrawlRun->relationLoaded('qualityReport')
+                        ? $this->firstProductionCrawlRun->qualityReport?->verdict
+                        : null,
+                ],
+            ),
             'steps' => $this->steps($operations),
             'operations' => $operations->map(fn ($operation): array => [
                 'id' => $operation->id,
@@ -59,11 +79,14 @@ class OnboardingExecutionResource extends JsonResource
                 'queued' => 'wait_for_coordinator',
                 'running' => 'wait_for_current_operation',
                 'awaiting_manual_step' => $this->manualNextAction(),
-                'requires_attention' => $this->conduction === 'manual'
-                    && $this->attention_code === 'child_operation_failed'
-                    ? 'retry_failed_operation'
-                    : 'review_attention',
                 'awaiting_approval' => 'decide_onboarding',
+                'awaiting_first_production' => 'start_first_production',
+                'requires_attention' => $this->attention_code === 'first_production_failed'
+                    ? 'retry_first_production'
+                    : ($this->conduction === 'manual'
+                        && $this->attention_code === 'child_operation_failed'
+                        ? 'retry_failed_operation'
+                        : 'review_attention'),
                 default => null,
             },
             'started_at' => $this->started_at,
@@ -77,8 +100,8 @@ class OnboardingExecutionResource extends JsonResource
     private function steps(Collection $operations): array
     {
         $keys = $this->conduction === 'manual'
-            ? ['discovery', 'sample_url_confirmation', 'profile_generation', 'profile_validation', 'approval']
-            : ['discovery', 'profile_generation', 'profile_validation', 'approval'];
+            ? ['discovery', 'sample_url_confirmation', 'profile_generation', 'profile_validation', 'approval', 'first_production', 'quality_gate']
+            : ['discovery', 'profile_generation', 'profile_validation', 'approval', 'first_production', 'quality_gate'];
         $currentIndex = array_search($this->current_step, $keys, true);
         $currentIndex = $currentIndex === false ? 0 : $currentIndex;
 
@@ -88,9 +111,15 @@ class OnboardingExecutionResource extends JsonResource
                 ->sortByDesc('attempt')
                 ->first();
             $state = match (true) {
+                $key === 'quality_gate'
+                    && $this->firstProductionCrawlRun?->publication_state === 'published' => 'published',
+                $key === 'quality_gate'
+                    && $this->firstProductionCrawlRun?->publication_state === 'quarantined' => 'quarantined',
                 $operation !== null && $operation->state === 'succeeded' => 'completed',
                 $operation !== null => $operation->state,
                 $key === 'approval' && $this->state === 'awaiting_approval' => 'awaiting_approval',
+                $key === 'first_production'
+                    && $this->state === 'awaiting_first_production' => 'awaiting_first_production',
                 $index < $currentIndex => 'completed',
                 $index === $currentIndex && $this->state === 'requires_attention' => 'requires_attention',
                 $index === $currentIndex && $this->state === 'queued' => 'queued',

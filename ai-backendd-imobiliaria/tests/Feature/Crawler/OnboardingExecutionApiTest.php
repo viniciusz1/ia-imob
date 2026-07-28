@@ -42,15 +42,24 @@ class OnboardingExecutionApiTest extends TestCase
                 'name' => 'Portais com sitemap e JSON-LD',
                 'conduction' => 'automated',
                 'execution_model_version_id' => $model['id'],
+                'first_production_discovery_mode' => 'validation_snapshot',
             ])
             ->assertOk()
             ->assertJsonPath('data.name', 'Portais com sitemap e JSON-LD')
-            ->assertJsonPath('data.conduction', 'automated');
+            ->assertJsonPath('data.conduction', 'automated')
+            ->assertJsonPath(
+                'data.first_production_discovery_mode',
+                'validation_snapshot',
+            );
 
         $first = $this->actingAs($this->admin)
             ->postJson("/api/v1/admin/crawler/crawl-agencies/{$agency->id}/onboarding-plan/confirm")
             ->assertCreated()
             ->assertJsonPath('data.state', 'queued')
+            ->assertJsonPath(
+                'data.first_production_discovery_mode',
+                'validation_snapshot',
+            )
             ->assertJsonPath('data.next_action', 'wait_for_coordinator')
             ->assertJsonCount(0, 'data.operations')
             ->json('data');

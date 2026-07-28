@@ -21,6 +21,7 @@ class OnboardingExecution extends Model
             'started_at' => 'datetime',
             'paused_at' => 'datetime',
             'completed_at' => 'datetime',
+            'approved_at' => 'datetime',
         ];
     }
 
@@ -57,6 +58,29 @@ class OnboardingExecution extends Model
     public function discoverySnapshot(): BelongsTo
     {
         return $this->belongsTo(DiscoverySnapshot::class);
+    }
+
+    public function extractionProfile(): BelongsTo
+    {
+        return $this->belongsTo(ExtractionProfile::class);
+    }
+
+    public function profileValidationReport(): BelongsTo
+    {
+        return $this->belongsTo(ProfileValidationReport::class);
+    }
+
+    public function firstProductionCrawlRun(): BelongsTo
+    {
+        return $this->belongsTo(
+            \App\Models\CrawlerRun::class,
+            'first_production_crawl_run_id',
+        );
+    }
+
+    public function approver(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'approved_by');
     }
 
     public function operations(): HasMany
