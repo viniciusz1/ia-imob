@@ -185,6 +185,18 @@ export interface DiscoverySnapshotUrl {
   created_at: string;
 }
 
+export type DiscoverySnapshotUrlPageSize = 20 | 30 | 100;
+
+export interface PaginatedDiscoverySnapshotUrls {
+  data: DiscoverySnapshotUrl[];
+  meta: {
+    current_page: number;
+    last_page: number;
+    per_page: DiscoverySnapshotUrlPageSize;
+    total: number;
+  };
+}
+
 export interface DiscoverySnapshot {
   id: number;
   operation_id: number;

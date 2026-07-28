@@ -49,7 +49,7 @@ describe("useCrawlerOperationPolling", () => {
       { initialProps: { tracked: [operation()] } },
     );
 
-    await act(async () => { await vi.advanceTimersByTimeAsync(3_000); });
+    await act(async () => { await vi.advanceTimersByTimeAsync(5_000); });
     expect(getCrawlerOperation).toHaveBeenCalledTimes(1);
 
     visibility = "hidden";

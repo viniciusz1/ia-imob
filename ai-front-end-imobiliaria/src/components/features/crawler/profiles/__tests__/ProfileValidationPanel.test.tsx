@@ -142,7 +142,7 @@ describe("ProfileValidationPanel", () => {
     vi.mocked(getProfileValidationReport).mockResolvedValue(profile.latest_validation_report!);
     render(<ProfileValidationPanel agencyLifecycle="onboarding" initialOperations={[operation()]} initialProfile={{ ...profile, latest_validation_report: null }} />);
 
-    await act(async () => { await vi.advanceTimersByTimeAsync(3000); });
+    await act(async () => { await vi.advanceTimersByTimeAsync(5000); });
     expect(screen.getByText(/última validação/i)).toBeInTheDocument();
     expect(screen.getByText("Concluída")).toBeInTheDocument();
   });

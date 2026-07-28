@@ -6,6 +6,7 @@ import { useCallback, useMemo, useState } from "react";
 import { CrawlerOperationStatus } from "@/components/features/crawler/CrawlerOperationStatus";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { PrototypeSwitcher } from "@/components/ui/PrototypeSwitcher";
 import {
   activateCrawlAgency,
   activateExtractionProfile,
@@ -24,6 +25,7 @@ import { crawlerOperationErrorMessage } from "../crawlerOperationFeedback";
 import { isActiveCrawlerOperation, useCrawlerOperationPolling } from "../useCrawlerOperationPolling";
 import { ExtractionProfileGenerator } from "./ExtractionProfileGenerator";
 import { ProfileValidationPanel } from "./ProfileValidationPanel";
+import type { SampleUrlPrototypeVariant } from "./SampleUrlPickerPrototype";
 
 interface ExtractionProfilesWorkspaceProps {
   agency: CrawlAgency;
@@ -31,6 +33,7 @@ interface ExtractionProfilesWorkspaceProps {
   initialOperations: CrawlerOperation[];
   initialProfiles: ExtractionProfile[];
   snapshots: DiscoverySnapshot[];
+  prototypeVariant?: SampleUrlPrototypeVariant;
 }
 
 const profileOperationTypes = ["sample_url_suggestion", "profile_generation", "profile_validation"];
@@ -78,11 +81,14 @@ export function ExtractionProfilesWorkspace({
   initialOperations,
   initialProfiles,
   snapshots,
+  prototypeVariant,
 }: ExtractionProfilesWorkspaceProps) {
   const [lifecycle, setLifecycle] = useState(agency.lifecycle_state);
   const [operations, setOperations] = useState(initialOperations);
   const [profiles, setProfiles] = useState(initialProfiles);
-  const [generationOpen, setGenerationOpen] = useState(false);
+  const [generationOpen, setGenerationOpen] = useState(() => (
+    nextAction(agency.lifecycle_state, snapshots, initialProfiles, initialOperations).kind === "generate"
+  ));
   const [decisionProfileId, setDecisionProfileId] = useState<number | null>(null);
   const [pendingAction, setPendingAction] = useState<"validate" | "activate-profile" | "activate-agency" | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
@@ -164,13 +170,12 @@ export function ExtractionProfilesWorkspace({
 
   return (
     <div className="space-y-6">
-      <Card className="border-primary/40 bg-primary/5" aria-labelledby="profiles-next-action">
+      {action.kind !== "generate" && <Card className="border-primary/40 bg-primary/5" aria-labelledby="profiles-next-action">
         <CardHeader>
           <CardTitle id="profiles-next-action">Próxima ação</CardTitle>
           <CardDescription>
             {action.kind === "operation" && "Acompanhe a operação atual antes de iniciar uma ação equivalente."}
             {action.kind === "discovery" && "Esta Crawl Agency precisa de um Snapshot de Discovery antes que um perfil reproduzível possa ser gerado."}
-            {action.kind === "generate" && "O Discovery está pronto. Prepare a URL de amostra e gere um Perfil de Extração Candidato."}
             {action.kind === "validate" && `O Perfil v${action.profile.version} ainda precisa passar pelo Crawl de Validação.`}
             {action.kind === "decide" && `O relatório do Perfil v${action.profile.version} está disponível para uma decisão humana justificada.`}
             {action.kind === "activate-profile" && `O Perfil v${action.profile.version} foi aprovado e pode ser ativado.`}
@@ -181,8 +186,6 @@ export function ExtractionProfilesWorkspace({
         <CardContent className="space-y-3">
           {action.kind === "operation" && <CrawlerOperationStatus agencyId={agency.id} operation={action.operation} />}
           {action.kind === "discovery" && <Button asChild><Link data-primary-action="true" href={`/admin/crawler/agencies/${agency.id}/discoveries`}>Criar Discovery</Link></Button>}
-          {action.kind === "generate" && !generationOpen && <Button data-primary-action="true" onClick={() => setGenerationOpen(true)} type="button">Preparar geração</Button>}
-          {action.kind === "generate" && generationOpen && <p className="text-sm">Conclua o formulário de geração aberto abaixo.</p>}
           {action.kind === "validate" && <Button data-primary-action="true" disabled={pendingAction !== null} onClick={() => void validate(action.profile)} type="button">{pendingAction === "validate" ? "Enfileirando validação…" : "Rodar Crawl de Validação"}</Button>}
           {action.kind === "decide" && decisionProfileId !== action.profile.id && <Button data-primary-action="true" onClick={() => setDecisionProfileId(action.profile.id)} type="button">Registrar decisão</Button>}
           {action.kind === "decide" && decisionProfileId === action.profile.id && <p className="text-sm">Registre a aprovação ou rejeição no histórico do perfil abaixo.</p>}
@@ -191,14 +194,14 @@ export function ExtractionProfilesWorkspace({
           {actionError && <p className="text-sm text-destructive" role="alert">{actionError}</p>}
           {action.kind !== "operation" && terminalOperation && <CrawlerOperationStatus agencyId={agency.id} operation={terminalOperation} />}
         </CardContent>
-      </Card>
+      </Card>}
 
       <Card>
         <CardHeader className="flex-row items-center justify-between gap-3">
-          <div><CardTitle>Gerar Perfil Candidato</CardTitle><CardDescription>Fluxo alternativo para criar uma nova versão.</CardDescription></div>
+          <div><CardTitle>Gerar Perfil Candidato</CardTitle><CardDescription>{action.kind === "generate" ? "Prepare a URL de amostra e gere o primeiro Perfil de Extração Candidato." : "Fluxo alternativo para criar uma nova versão."}</CardDescription></div>
           {action.kind !== "generate" && <Button onClick={() => setGenerationOpen((current) => !current)} type="button" variant="outline">{generationOpen ? "Ocultar formulário" : "Mostrar formulário"}</Button>}
         </CardHeader>
-        {generationOpen && <CardContent><ExtractionProfileGenerator agencyId={agency.id} contracts={contracts} initialOperations={operations} onOperationChange={updateOperation} onProfilesChanged={reloadProfiles} primaryAction={action.kind === "generate"} snapshots={snapshots} /></CardContent>}
+        {generationOpen && <CardContent><ExtractionProfileGenerator agencyId={agency.id} contracts={contracts} initialOperations={operations} onOperationChange={updateOperation} onProfilesChanged={reloadProfiles} primaryAction={action.kind === "generate"} prototypeVariant={prototypeVariant} snapshots={snapshots} /></CardContent>}
       </Card>
 
       <Card>
@@ -223,6 +226,7 @@ export function ExtractionProfilesWorkspace({
             ))}
         </CardContent>
       </Card>
+      {prototypeVariant && <PrototypeSwitcher current={prototypeVariant} variants={[{ key: "A", name: "Lista inline" }, { key: "B", name: "Escolha da origem" }, { key: "C", name: "Busca em modal" }]} />}
     </div>
   );
 }

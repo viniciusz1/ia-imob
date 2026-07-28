@@ -156,10 +156,9 @@ describe("ExtractionProfilesWorkspace next action", () => {
 
   it("opens generation when Discovery exists without a pending or active profile", () => {
     renderWorkspace();
-    expectOnePrimaryAction(/preparar geração/i);
-    expect(screen.queryByTestId("profile-generator")).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: /preparar geração/i }));
     expect(screen.getByTestId("profile-generator")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /preparar geração/i })).not.toBeInTheDocument();
+    expect(screen.queryByText("Próxima ação")).not.toBeInTheDocument();
     expect(document.querySelectorAll('[data-primary-action="true"]')).toHaveLength(0);
   });
 

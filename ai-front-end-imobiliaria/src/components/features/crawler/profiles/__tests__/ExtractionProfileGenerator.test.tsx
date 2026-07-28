@@ -166,7 +166,7 @@ describe("ExtractionProfileGenerator", () => {
     }));
     render(<ExtractionProfileGenerator agencyId={42} contracts={[contract]} initialOperations={[operation()]} onProfilesChanged={onProfilesChanged} snapshots={[snapshot]} />);
 
-    await act(async () => { await vi.advanceTimersByTimeAsync(3000); });
+    await act(async () => { await vi.advanceTimersByTimeAsync(5000); });
     expect(onProfilesChanged).toHaveBeenCalledOnce();
     expect(screen.getByText("Concluída")).toBeInTheDocument();
   });
@@ -183,7 +183,7 @@ describe("ExtractionProfileGenerator", () => {
     render(<ExtractionProfileGenerator agencyId={42} contracts={[contract]} initialOperations={[suggestion]} initialSampleUrl="https://agency.example.com/antigo" snapshots={[snapshot]} />);
     fireEvent.click(screen.getByRole("checkbox", { name: /confirmo a url/i }));
 
-    await act(async () => { await vi.advanceTimersByTimeAsync(3000); });
+    await act(async () => { await vi.advanceTimersByTimeAsync(5000); });
     expect(screen.getByLabelText("URL de amostra")).toHaveValue("https://agency.example.com/imovel/sugerido");
     expect(screen.getByRole("checkbox", { name: /confirmo a url/i })).not.toBeChecked();
   });

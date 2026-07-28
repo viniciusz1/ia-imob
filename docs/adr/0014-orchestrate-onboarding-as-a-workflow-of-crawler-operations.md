@@ -1,0 +1,3 @@
+# Orchestrate onboarding as a workflow of Crawler Operations
+
+An Onboarding Execution is a stateful parent workflow that presents one continuous timeline while coordinating separate Crawler Operations for discovery, profile generation, validation, and the first production crawl. The same workflow supports manual conduction, where each step awaits an operator command, and automated conduction, where a pinned Onboarding Execution Model advances steps until human intervention. It pauses without occupying a worker while awaiting a decision and, when a child fails, remains resumable in a requires-attention state while a linked retry replaces only that failed attempt; unlike an Operation Group, the workflow owns sequencing and continuation between its children.

@@ -7,10 +7,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import type { CrawlAgency, CrawlAgencySchedule, CrawlerOperation, CrawlRun, ExtractionProfile } from "@/types/crawler";
+import type { CrawlAgency, CrawlAgencySchedule, CrawlerOperation, CrawlRun, DiscoverySnapshot, ExtractionProfile } from "@/types/crawler";
 
 import { isActiveCrawlerOperation, useCrawlerOperationPolling } from "../useCrawlerOperationPolling";
 import { CrawlAgencyContextHeader } from "./CrawlAgencyContextHeader";
+import { CrawlAgencyOnboardingProgress } from "./CrawlAgencyOnboardingProgress";
 
 interface CrawlAgencyWorkspaceClientProps {
   agency: CrawlAgency;
@@ -18,6 +19,7 @@ interface CrawlAgencyWorkspaceClientProps {
   profiles: ExtractionProfile[];
   runs: CrawlRun[];
   schedule: CrawlAgencySchedule;
+  snapshots: DiscoverySnapshot[];
 }
 
 function readiness(agency: CrawlAgency, profiles: ExtractionProfile[], runs: CrawlRun[]) {
@@ -31,7 +33,7 @@ function readiness(agency: CrawlAgency, profiles: ExtractionProfile[], runs: Cra
   return { label: "Apta para produção", detail: "Perfil e dados vigentes estão disponíveis.", href: "crawls", action: "Rodar crawl manual" };
 }
 
-export function CrawlAgencyWorkspaceClient({ agency, initialOperations, profiles, runs, schedule }: CrawlAgencyWorkspaceClientProps) {
+export function CrawlAgencyWorkspaceClient({ agency, initialOperations, profiles, runs, schedule, snapshots }: CrawlAgencyWorkspaceClientProps) {
   const [operations, setOperations] = useState(initialOperations);
   const activeOperation = operations.find(isActiveCrawlerOperation);
   const publishedRun = runs.find((run) => run.publication_state === "published");
@@ -50,6 +52,8 @@ export function CrawlAgencyWorkspaceClient({ agency, initialOperations, profiles
   return <section className="space-y-6">
     <CrawlAgencyContextHeader agency={agency} area="Visão geral" description="Estado operacional, prontidão e atividade recente desta fonte." />
     <div className="flex flex-wrap gap-2"><Badge variant="outline">{agency.lifecycle_state}</Badge><Badge variant="secondary">Saúde: {agency.health_state}</Badge><Badge variant={agency.revalidation_required ? "destructive" : "outline"}>{state.label}</Badge></div>
+
+    <CrawlAgencyOnboardingProgress agency={agency} profiles={profiles} snapshots={snapshots} />
 
     <Card className="border-primary/30 bg-primary/5"><CardHeader><CardTitle>Próxima ação recomendada</CardTitle><CardDescription>{state.detail}</CardDescription></CardHeader><CardContent><Button asChild className="cursor-pointer"><Link href={`${root}/${state.href}`}>{state.action}</Link></Button></CardContent></Card>
 

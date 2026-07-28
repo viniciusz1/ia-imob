@@ -14,7 +14,7 @@ export default async function DiscoverySnapshotPage({ params }: DiscoverySnapsho
   return (
     <section className="space-y-4">
       <Link className="text-sm underline" href="/admin/crawler/operations">Voltar para Operações</Link>
-      <Card><CardHeader><CardTitle>Snapshot de Discovery #{id}</CardTitle></CardHeader><CardContent><ul className="divide-y">{urls.map((item) => <li className="break-all py-2" key={item.id}>{item.url}</li>)}</ul></CardContent></Card>
+      <Card><CardHeader><CardTitle>Snapshot de Discovery #{id}</CardTitle></CardHeader><CardContent><ul className="divide-y">{urls.data.map((item) => <li className="break-all py-2" key={item.id}>{item.url}</li>)}</ul></CardContent></Card>
     </section>
   );
 }

@@ -6,8 +6,9 @@ import type {
   MarketDataContract,
   MarketDataField,
   CrawlerOperation,
-  DiscoverySnapshotUrl,
   DiscoverySnapshot,
+  DiscoverySnapshotUrlPageSize,
+  PaginatedDiscoverySnapshotUrls,
   ExtractionProfile,
   ProfileValidationReport,
   PaginatedProfileValidationRecords,
@@ -140,9 +141,15 @@ export async function actOnOperationGroup(
   return response.data.data;
 }
 
-export async function listDiscoverySnapshotUrls(id: number): Promise<DiscoverySnapshotUrl[]> {
-  const response = await api.get<Resource<DiscoverySnapshotUrl[]>>(`${BASE}/discovery-snapshots/${id}/urls`);
-  return response.data.data;
+export async function listDiscoverySnapshotUrls(
+  id: number,
+  page = 1,
+  perPage: DiscoverySnapshotUrlPageSize = 20,
+): Promise<PaginatedDiscoverySnapshotUrls> {
+  const response = await api.get<PaginatedDiscoverySnapshotUrls>(`${BASE}/discovery-snapshots/${id}/urls`, {
+    params: { page, per_page: perPage },
+  });
+  return response.data;
 }
 
 export async function listDiscoverySnapshots(agencyId: number): Promise<DiscoverySnapshot[]> {

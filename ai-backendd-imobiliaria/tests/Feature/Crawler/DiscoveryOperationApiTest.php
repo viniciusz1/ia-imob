@@ -101,13 +101,15 @@ class DiscoveryOperationApiTest extends TestCase
         $snapshot = DiscoverySnapshot::query()->create([
             'operation_id' => $operation->id,
             'crawl_agency_id' => $agency->id,
-            'url_count' => 2,
+            'url_count' => 21,
             'content_hash' => str_repeat('a', 64),
         ]);
-        $snapshot->urls()->createMany([
-            ['url' => 'https://worker.example.com/imovel/1', 'url_hash' => str_repeat('1', 64)],
-            ['url' => 'https://worker.example.com/imovel/2', 'url_hash' => str_repeat('2', 64)],
-        ]);
+        $snapshot->urls()->createMany(
+            collect(range(1, 21))->map(fn (int $index): array => [
+                'url' => "https://worker.example.com/imovel/{$index}",
+                'url_hash' => hash('sha256', "https://worker.example.com/imovel/{$index}"),
+            ])->all()
+        );
         WorkerInstance::query()->create([
             'worker_key' => 'worker-prod-a',
             'version' => '1.0.0',
@@ -117,11 +119,23 @@ class DiscoveryOperationApiTest extends TestCase
         ]);
 
         $this->actingAs($admin)
-            ->getJson("/api/v1/admin/crawler/discovery-snapshots/{$snapshot->id}/urls?per_page=1&page=2")
+            ->getJson("/api/v1/admin/crawler/discovery-snapshots/{$snapshot->id}/urls?page=2")
             ->assertOk()
             ->assertJsonCount(1, 'data')
-            ->assertJsonPath('data.0.url', 'https://worker.example.com/imovel/2')
-            ->assertJsonPath('meta.total', 2);
+            ->assertJsonPath('data.0.url', 'https://worker.example.com/imovel/21')
+            ->assertJsonPath('meta.current_page', 2)
+            ->assertJsonPath('meta.per_page', 20)
+            ->assertJsonPath('meta.total', 21);
+
+        $this->actingAs($admin)
+            ->getJson("/api/v1/admin/crawler/discovery-snapshots/{$snapshot->id}/urls?per_page=30")
+            ->assertOk()
+            ->assertJsonPath('meta.per_page', 30);
+
+        $this->actingAs($admin)
+            ->getJson("/api/v1/admin/crawler/discovery-snapshots/{$snapshot->id}/urls?per_page=25")
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('per_page');
 
         $this->actingAs($admin)
             ->getJson('/api/v1/admin/crawler/workers')

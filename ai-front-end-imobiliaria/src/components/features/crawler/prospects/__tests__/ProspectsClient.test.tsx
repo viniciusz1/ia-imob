@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { ProspectsClient } from "../ProspectsClient";
@@ -40,12 +40,15 @@ describe("ProspectsClient", () => {
     expect(screen.getByLabelText("Cidade")).toBeInTheDocument();
     expect(screen.getByLabelText("UF")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Prospectar cidade" })).toBeInTheDocument();
-    expect(screen.getByLabelText(/cidades em lote/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/reconsultar domínios conhecidos/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/filtrar operação/i)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Várias cidades" }));
+
+    expect(screen.getByLabelText("Lista de cidades")).toBeInTheDocument();
+    expect(screen.getByLabelText(/incluir domínios já conhecidos/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/filtrar por operação/i)).toBeInTheDocument();
     expect(screen.getByText("no_website")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Aprovar" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Rejeitar" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Aprovar Sem site" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Rejeitar Sem site" })).toBeInTheDocument();
     expect(screen.getByText("Sugestões para Crawl Agencies existentes")).toBeInTheDocument();
     expect(screen.getByText(/Suggested Name/)).toBeInTheDocument();
   });
