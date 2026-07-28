@@ -27,6 +27,12 @@ import type {
   CrawlerOverview,
   CrawlerIntegration,
   CrawlerIntegrationTest,
+  DiscoveryStrategy,
+  DiscoveryPolicyConfiguration,
+  DiscoveryPolicyVersion,
+  ExtractionPolicyVersion,
+  ExtractionStrategy,
+  OnboardingExecutionModelVersion,
 } from "@/types/crawler";
 
 const BASE = `${API_PREFIX}/admin/crawler`;
@@ -272,6 +278,153 @@ export async function validateQualityPolicy(id: number): Promise<QualityPolicy> 
 
 export async function activateQualityPolicy(id: number): Promise<QualityPolicy> {
   const response = await api.post<Resource<QualityPolicy>>(`${BASE}/quality-policies/${id}/activate`);
+  return response.data.data;
+}
+
+export async function listDiscoveryStrategies(): Promise<DiscoveryStrategy[]> {
+  const response = await api.get<Resource<DiscoveryStrategy[]>>(`${BASE}/discovery-strategies`);
+  return response.data.data;
+}
+
+export async function createDiscoveryStrategy(payload: {
+  key: string;
+  label: string;
+  safety_status: DiscoveryStrategy["safety_status"];
+}): Promise<DiscoveryStrategy> {
+  const response = await api.post<Resource<DiscoveryStrategy>>(`${BASE}/discovery-strategies`, payload);
+  return response.data.data;
+}
+
+export async function listDiscoveryPolicyVersions(): Promise<DiscoveryPolicyVersion[]> {
+  const response = await api.get<Resource<DiscoveryPolicyVersion[]>>(`${BASE}/discovery-policy-versions`);
+  return response.data.data;
+}
+
+export async function createDiscoveryPolicyVersion(payload: {
+  name: string;
+  strategies: string[];
+  configuration: DiscoveryPolicyConfiguration;
+}): Promise<DiscoveryPolicyVersion> {
+  const response = await api.post<Resource<DiscoveryPolicyVersion>>(`${BASE}/discovery-policy-versions`, payload);
+  return response.data.data;
+}
+
+export async function updateDiscoveryPolicyVersion(
+  id: number,
+  payload: { strategies: string[]; configuration: DiscoveryPolicyConfiguration },
+): Promise<DiscoveryPolicyVersion> {
+  const response = await api.put<Resource<DiscoveryPolicyVersion>>(`${BASE}/discovery-policy-versions/${id}`, payload);
+  return response.data.data;
+}
+
+export async function publishDiscoveryPolicyVersion(id: number): Promise<DiscoveryPolicyVersion> {
+  const response = await api.post<Resource<DiscoveryPolicyVersion>>(`${BASE}/discovery-policy-versions/${id}/publish`);
+  return response.data.data;
+}
+
+export async function createDiscoveryPolicyVersionFrom(id: number): Promise<DiscoveryPolicyVersion> {
+  const response = await api.post<Resource<DiscoveryPolicyVersion>>(`${BASE}/discovery-policy-versions/${id}/versions`);
+  return response.data.data;
+}
+
+export async function archiveDiscoveryPolicyVersion(id: number): Promise<DiscoveryPolicyVersion> {
+  const response = await api.post<Resource<DiscoveryPolicyVersion>>(`${BASE}/discovery-policy-versions/${id}/archive`);
+  return response.data.data;
+}
+
+export async function listExtractionPolicyVersions(): Promise<ExtractionPolicyVersion[]> {
+  const response = await api.get<Resource<ExtractionPolicyVersion[]>>(`${BASE}/extraction-policy-versions`);
+  return response.data.data;
+}
+
+export async function createExtractionPolicyVersion(payload: {
+  name: string;
+  strategies: ExtractionStrategy[];
+  configuration: Record<string, unknown>;
+}): Promise<ExtractionPolicyVersion> {
+  const response = await api.post<Resource<ExtractionPolicyVersion>>(`${BASE}/extraction-policy-versions`, payload);
+  return response.data.data;
+}
+
+export async function updateExtractionPolicyVersion(
+  id: number,
+  payload: { strategies: ExtractionStrategy[]; configuration: Record<string, unknown> },
+): Promise<ExtractionPolicyVersion> {
+  const response = await api.put<Resource<ExtractionPolicyVersion>>(`${BASE}/extraction-policy-versions/${id}`, payload);
+  return response.data.data;
+}
+
+export async function publishExtractionPolicyVersion(id: number): Promise<ExtractionPolicyVersion> {
+  const response = await api.post<Resource<ExtractionPolicyVersion>>(`${BASE}/extraction-policy-versions/${id}/publish`);
+  return response.data.data;
+}
+
+export async function createExtractionPolicyVersionFrom(id: number): Promise<ExtractionPolicyVersion> {
+  const response = await api.post<Resource<ExtractionPolicyVersion>>(`${BASE}/extraction-policy-versions/${id}/versions`);
+  return response.data.data;
+}
+
+export async function archiveExtractionPolicyVersion(id: number): Promise<ExtractionPolicyVersion> {
+  const response = await api.post<Resource<ExtractionPolicyVersion>>(`${BASE}/extraction-policy-versions/${id}/archive`);
+  return response.data.data;
+}
+
+export async function listOnboardingExecutionModelVersions(): Promise<OnboardingExecutionModelVersion[]> {
+  const response = await api.get<Resource<OnboardingExecutionModelVersion[]>>(`${BASE}/onboarding-execution-model-versions`);
+  return response.data.data;
+}
+
+export async function createOnboardingExecutionModelVersion(payload: {
+  name: string;
+  discovery_policy_version_id: number;
+  extraction_policy_version_id: number;
+}): Promise<OnboardingExecutionModelVersion> {
+  const response = await api.post<Resource<OnboardingExecutionModelVersion>>(
+    `${BASE}/onboarding-execution-model-versions`,
+    payload,
+  );
+  return response.data.data;
+}
+
+export async function updateOnboardingExecutionModelVersion(
+  id: number,
+  payload: {
+    discovery_policy_version_id: number;
+    extraction_policy_version_id: number;
+  },
+): Promise<OnboardingExecutionModelVersion> {
+  const response = await api.put<Resource<OnboardingExecutionModelVersion>>(
+    `${BASE}/onboarding-execution-model-versions/${id}`,
+    payload,
+  );
+  return response.data.data;
+}
+
+export async function publishOnboardingExecutionModelVersion(id: number): Promise<OnboardingExecutionModelVersion> {
+  const response = await api.post<Resource<OnboardingExecutionModelVersion>>(
+    `${BASE}/onboarding-execution-model-versions/${id}/publish`,
+  );
+  return response.data.data;
+}
+
+export async function createOnboardingExecutionModelVersionFrom(id: number): Promise<OnboardingExecutionModelVersion> {
+  const response = await api.post<Resource<OnboardingExecutionModelVersion>>(
+    `${BASE}/onboarding-execution-model-versions/${id}/versions`,
+  );
+  return response.data.data;
+}
+
+export async function archiveOnboardingExecutionModelVersion(id: number): Promise<OnboardingExecutionModelVersion> {
+  const response = await api.post<Resource<OnboardingExecutionModelVersion>>(
+    `${BASE}/onboarding-execution-model-versions/${id}/archive`,
+  );
+  return response.data.data;
+}
+
+export async function makeOnboardingExecutionModelDefault(id: number): Promise<OnboardingExecutionModelVersion> {
+  const response = await api.post<Resource<OnboardingExecutionModelVersion>>(
+    `${BASE}/onboarding-execution-model-versions/${id}/default`,
+  );
   return response.data.data;
 }
 

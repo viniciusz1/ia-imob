@@ -4,7 +4,6 @@ namespace Tests\Feature\Crawler;
 
 use App\Models\Crawler\CrawlAgency;
 use App\Models\Crawler\CrawlerOperation;
-use App\Models\Crawler\DiscoveryPolicyVersion;
 use App\Models\Crawler\DiscoverySnapshot;
 use App\Models\Crawler\DiscoverySnapshotUrl;
 use App\Models\Crawler\ExtractionProfile;
@@ -69,9 +68,18 @@ class OnboardingExecutionApiTest extends TestCase
 
         $execution = OnboardingExecution::query()->findOrFail($first['id']);
         $frozen = $execution->resolved_configuration;
-        DiscoveryPolicyVersion::query()
-            ->findOrFail($model['discovery_policy_version_id'])
-            ->update(['configuration' => ['max_depth' => 99]]);
+        $draft = $this->actingAs($this->admin)
+            ->postJson(
+                "/api/v1/admin/crawler/discovery-policy-versions/{$model['discovery_policy_version_id']}/versions",
+            )
+            ->assertCreated()
+            ->json('data');
+        $this->actingAs($this->admin)
+            ->putJson("/api/v1/admin/crawler/discovery-policy-versions/{$draft['id']}", [
+                'strategies' => ['sitemap'],
+                'configuration' => ['max_urls' => 99],
+            ])
+            ->assertOk();
 
         $this->assertSame($frozen, $execution->refresh()->resolved_configuration);
         $this->assertSame($model['id'], $execution->execution_model_version_id);
@@ -308,21 +316,27 @@ class OnboardingExecutionApiTest extends TestCase
         $discovery = $this->actingAs($this->admin)
             ->postJson('/api/v1/admin/crawler/discovery-policy-versions', [
                 'name' => "{$name} discovery",
-                'strategies' => ['sitemap', 'link_crawl'],
-                'configuration' => ['max_depth' => 3],
+                'strategies' => ['sitemap', 'homepage'],
+                'configuration' => ['max_urls' => 1000],
             ])
             ->assertCreated()
             ->json('data');
+        $this->actingAs($this->admin)
+            ->postJson("/api/v1/admin/crawler/discovery-policy-versions/{$discovery['id']}/publish")
+            ->assertOk();
         $extraction = $this->actingAs($this->admin)
             ->postJson('/api/v1/admin/crawler/extraction-policy-versions', [
                 'name' => "{$name} extraction",
-                'strategies' => ['json_ld', 'xpath'],
-                'configuration' => ['fallback_order' => ['json_ld', 'xpath']],
+                'strategies' => ['xpath', 'css'],
+                'configuration' => [],
             ])
             ->assertCreated()
             ->json('data');
+        $this->actingAs($this->admin)
+            ->postJson("/api/v1/admin/crawler/extraction-policy-versions/{$extraction['id']}/publish")
+            ->assertOk();
 
-        return $this->actingAs($this->admin)
+        $model = $this->actingAs($this->admin)
             ->postJson('/api/v1/admin/crawler/onboarding-execution-model-versions', [
                 'name' => $name,
                 'discovery_policy_version_id' => $discovery['id'],
@@ -332,6 +346,11 @@ class OnboardingExecutionApiTest extends TestCase
             ->assertJsonPath('data.discovery_policy_version_id', $discovery['id'])
             ->assertJsonPath('data.extraction_policy_version_id', $extraction['id'])
             ->json('data');
+        $this->actingAs($this->admin)
+            ->postJson("/api/v1/admin/crawler/onboarding-execution-model-versions/{$model['id']}/publish")
+            ->assertOk();
+
+        return $model;
     }
 
     private function configuredExecution(

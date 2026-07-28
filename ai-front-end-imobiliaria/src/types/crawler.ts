@@ -308,6 +308,84 @@ export interface QualityPolicy {
   created_at: string;
 }
 
+export type OnboardingCatalogStatus = "draft" | "available" | "archived";
+
+export interface DiscoveryStrategy {
+  id: number;
+  key: string;
+  label: string;
+  kind: "native" | "custom";
+  safety_status: "safe" | "blocked";
+  active: boolean;
+  created_by: number | null;
+  created_at: string;
+}
+
+export interface DiscoveryPolicyConfiguration {
+  max_urls?: number;
+  include_subdomains?: boolean;
+  use_browser_for_homepage?: boolean;
+  query?: string | null;
+  score_threshold?: number;
+  probe_paths?: string[];
+  common_subdomains?: string[];
+}
+
+export interface DiscoveryPolicyVersion {
+  id: number;
+  policy_key: string;
+  name: string;
+  version: number;
+  status: OnboardingCatalogStatus;
+  strategies: string[];
+  configuration: DiscoveryPolicyConfiguration;
+  mutable: boolean;
+  model_reference_count: number;
+  active_model_reference_count: number;
+  created_by: number;
+  created_at: string;
+}
+
+export type ExtractionStrategy =
+  | "xpath"
+  | "css"
+  | "fit_markdown_regex"
+  | "fit_markdown_llm"
+  | "llm_full_html";
+
+export interface ExtractionPolicyVersion {
+  id: number;
+  policy_key: string;
+  name: string;
+  version: number;
+  status: OnboardingCatalogStatus;
+  strategies: ExtractionStrategy[];
+  configuration: Record<string, unknown>;
+  mutable: boolean;
+  model_reference_count: number;
+  active_model_reference_count: number;
+  created_by: number;
+  created_at: string;
+}
+
+export interface OnboardingExecutionModelVersion {
+  id: number;
+  model_key: string;
+  name: string;
+  version: number;
+  status: OnboardingCatalogStatus;
+  is_default: boolean;
+  mutable: boolean;
+  discovery_policy_version_id: number;
+  discovery_policy: DiscoveryPolicyVersion;
+  extraction_policy_version_id: number;
+  extraction_policy: ExtractionPolicyVersion;
+  plan_reference_count: number;
+  execution_reference_count: number;
+  created_by: number;
+  created_at: string;
+}
+
 export interface Prospect {
   id: number;
   root_domain: string | null;

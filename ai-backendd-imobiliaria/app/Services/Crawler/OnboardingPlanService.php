@@ -87,6 +87,7 @@ class OnboardingPlanService
                     'name' => $model->discoveryPolicy->name,
                     'version' => $model->discoveryPolicy->version,
                     'strategies' => $model->discoveryPolicy->strategies,
+                    'sources' => $model->discoveryPolicy->strategies,
                     'configuration' => $model->discoveryPolicy->configuration,
                 ],
                 'extraction_policy' => [

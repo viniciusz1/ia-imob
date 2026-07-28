@@ -11,9 +11,12 @@ class OnboardingExecutionModelVersionResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'model_key' => $this->model_key,
             'name' => $this->name,
             'version' => $this->version,
             'status' => $this->status,
+            'is_default' => $this->is_default,
+            'mutable' => $this->status === 'draft',
             'discovery_policy_version_id' => $this->discovery_policy_version_id,
             'discovery_policy' => $this->whenLoaded(
                 'discoveryPolicy',
@@ -25,6 +28,8 @@ class OnboardingExecutionModelVersionResource extends JsonResource
                 fn () => new ExtractionPolicyVersionResource($this->extractionPolicy),
             ),
             'created_by' => $this->created_by,
+            'plan_reference_count' => (int) ($this->plan_reference_count ?? 0),
+            'execution_reference_count' => (int) ($this->execution_reference_count ?? 0),
             'created_at' => $this->created_at,
         ];
     }

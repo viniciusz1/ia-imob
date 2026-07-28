@@ -6,7 +6,7 @@ use App\Models\Crawler\DiscoveryStrategy;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class StoreDiscoveryPolicyVersionRequest extends FormRequest
+class UpdateDiscoveryPolicyVersionRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -16,7 +16,6 @@ class StoreDiscoveryPolicyVersionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:160'],
             'strategies' => ['required', 'array', 'min:1'],
             'strategies.*' => [
                 'required',

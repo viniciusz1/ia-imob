@@ -7,7 +7,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 
-class StoreExtractionPolicyVersionRequest extends FormRequest
+class UpdateExtractionPolicyVersionRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -17,7 +17,6 @@ class StoreExtractionPolicyVersionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:160'],
             'strategies' => ['required', 'array', 'min:1'],
             'strategies.*' => [
                 'required',
