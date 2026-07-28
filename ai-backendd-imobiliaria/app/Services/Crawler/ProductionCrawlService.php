@@ -85,6 +85,10 @@ class ProductionCrawlService
                 'rules' => $policy->rules,
             ],
         ];
+        $extractionPolicy = data_get($profile->parameters, 'extraction_policy');
+        if (is_array($extractionPolicy)) {
+            $plan['extraction_policy'] = $extractionPolicy;
+        }
         $equivalenceKey = hash('sha256', json_encode($plan, JSON_THROW_ON_ERROR));
 
         return DB::transaction(function () use ($agency, $contract, $equivalenceKey, $plan, $requester): CrawlerOperation {

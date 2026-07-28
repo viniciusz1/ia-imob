@@ -62,6 +62,38 @@ class ProductionCrawlApiTest extends TestCase
             ->assertJsonPath('data.plan.extraction_profile.id', $activeProfile->id);
     }
 
+    public function test_plan_preserves_the_profile_fixed_extraction_policy_version(): void
+    {
+        [$admin, $agency, $snapshot, , $approvedProfile] = $this->fixtures();
+        $fixedPolicy = [
+            'id' => '019c-fixed-policy-version',
+            'name' => 'CSS with final LLM',
+            'version' => 4,
+            'source' => 'versioned_policy',
+            'strategies' => ['css', 'llm_full_html'],
+            'configuration' => [],
+        ];
+        $approvedProfile->update([
+            'parameters' => ['extraction_policy' => $fixedPolicy],
+        ]);
+
+        $response = $this->actingAs($admin)
+            ->postJson('/api/v1/admin/crawler/production-crawls', [
+                'crawl_agency_id' => $agency->id,
+                'discovery_mode' => 'existing',
+                'discovery_snapshot_id' => $snapshot->id,
+                'extraction_profile_id' => $approvedProfile->id,
+            ])
+            ->assertCreated()
+            ->assertJsonPath('data.plan.extraction_policy.id', $fixedPolicy['id'])
+            ->assertJsonPath('data.plan.extraction_policy.version', 4)
+            ->assertJsonPath('data.plan.extraction_policy.strategies.0', 'css')
+            ->assertJsonPath('data.plan.extraction_policy.strategies.1', 'llm_full_html');
+
+        $operation = CrawlerOperation::query()->findOrFail($response->json('data.id'));
+        $this->assertEquals($fixedPolicy, $operation->plan['extraction_policy']);
+    }
+
     public function test_plan_rejects_discovery_or_profile_from_another_crawl_agency(): void
     {
         [$admin, $agency] = $this->fixtures();
