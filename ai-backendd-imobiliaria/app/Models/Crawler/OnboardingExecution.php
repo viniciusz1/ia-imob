@@ -54,6 +54,11 @@ class OnboardingExecution extends Model
         return $this->belongsTo(MarketDataContractVersion::class, 'market_data_contract_version_id');
     }
 
+    public function discoverySnapshot(): BelongsTo
+    {
+        return $this->belongsTo(DiscoverySnapshot::class);
+    }
+
     public function operations(): HasMany
     {
         return $this->hasMany(CrawlerOperation::class);

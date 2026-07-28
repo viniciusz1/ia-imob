@@ -87,7 +87,11 @@ class CrawlerOperationService
             'discovery_snapshot_id' => $snapshot->id,
             'sample_url' => $sampleUrl,
             'sample_url_confirmed' => true,
-            'sample_url_confirmation_source' => $onboardingExecution === null ? 'operator' : 'automated_onboarding_selection',
+            'sample_url_confirmation_source' => match ($onboardingExecution?->conduction) {
+                'automated' => 'automated_onboarding_selection',
+                'manual' => 'manual_onboarding_operator',
+                default => 'operator',
+            },
             'market_data_contract_version_id' => $contract->id,
             'contract_fields' => $contract->fields,
         ];

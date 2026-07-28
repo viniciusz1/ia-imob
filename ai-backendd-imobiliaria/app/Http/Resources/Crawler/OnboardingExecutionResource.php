@@ -25,6 +25,7 @@ class OnboardingExecutionResource extends JsonResource
             'execution_model_version_id' => $this->execution_model_version_id,
             'discovery_policy_version_id' => $this->discovery_policy_version_id,
             'extraction_policy_version_id' => $this->extraction_policy_version_id,
+            'discovery_snapshot_id' => $this->discovery_snapshot_id,
             'market_data_contract_version_id' => $this->market_data_contract_version_id,
             'resolved_configuration' => $this->resolved_configuration,
             'sample_url' => $this->sample_url,
@@ -40,6 +41,7 @@ class OnboardingExecutionResource extends JsonResource
                 'state' => $operation->state,
                 'step' => $operation->onboarding_step,
                 'attempt' => $operation->attempt,
+                'retry_of_operation_id' => $operation->retry_of_operation_id,
                 'progress' => [
                     'stage' => $operation->stage,
                     'percentage' => $operation->progress_percentage,
@@ -56,7 +58,11 @@ class OnboardingExecutionResource extends JsonResource
             'next_action' => match ($this->state) {
                 'queued' => 'wait_for_coordinator',
                 'running' => 'wait_for_current_operation',
-                'requires_attention' => 'review_attention',
+                'awaiting_manual_step' => $this->manualNextAction(),
+                'requires_attention' => $this->conduction === 'manual'
+                    && $this->attention_code === 'child_operation_failed'
+                    ? 'retry_failed_operation'
+                    : 'review_attention',
                 'awaiting_approval' => 'decide_onboarding',
                 default => null,
             },
@@ -70,7 +76,9 @@ class OnboardingExecutionResource extends JsonResource
 
     private function steps(Collection $operations): array
     {
-        $keys = ['discovery', 'profile_generation', 'profile_validation', 'approval'];
+        $keys = $this->conduction === 'manual'
+            ? ['discovery', 'sample_url_confirmation', 'profile_generation', 'profile_validation', 'approval']
+            : ['discovery', 'profile_generation', 'profile_validation', 'approval'];
         $currentIndex = array_search($this->current_step, $keys, true);
         $currentIndex = $currentIndex === false ? 0 : $currentIndex;
 
@@ -96,5 +104,18 @@ class OnboardingExecutionResource extends JsonResource
                 'attempt' => $operation?->attempt,
             ];
         })->all();
+    }
+
+    private function manualNextAction(): ?string
+    {
+        return match ($this->current_step) {
+            'discovery' => 'run_discovery',
+            'sample_url_confirmation' => $this->attention_code === 'validation_rejected'
+                ? 'correct_sample_url'
+                : 'confirm_sample_url',
+            'profile_generation' => 'run_profile_generation',
+            'profile_validation' => 'run_profile_validation',
+            default => null,
+        };
     }
 }

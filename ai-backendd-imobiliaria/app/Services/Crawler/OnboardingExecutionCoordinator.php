@@ -172,6 +172,7 @@ class OnboardingExecutionCoordinator
         }
 
         $execution->update([
+            'discovery_snapshot_id' => $snapshot->id,
             'current_step' => 'profile_generation',
             'sample_url' => $sampleUrl,
             'sample_url_selection' => [
@@ -181,6 +182,20 @@ class OnboardingExecutionCoordinator
                 'selected_at' => now()->toIso8601String(),
             ],
         ]);
+        if ($execution->conduction === 'manual') {
+            $execution->update([
+                'state' => 'awaiting_manual_step',
+                'current_step' => 'sample_url_confirmation',
+                'paused_at' => now(),
+                'sample_url_selection' => [
+                    ...$execution->sample_url_selection,
+                    'confirmed' => false,
+                ],
+            ]);
+
+            return $this->loadForRead($execution->refresh());
+        }
+
         $execution->refresh()->load(['crawlAgency', 'contract']);
         $this->queueCurrentStep($execution);
 
@@ -200,6 +215,15 @@ class OnboardingExecutionCoordinator
         }
 
         $execution->update(['current_step' => 'profile_validation']);
+        if ($execution->conduction === 'manual') {
+            $execution->update([
+                'state' => 'awaiting_manual_step',
+                'paused_at' => now(),
+            ]);
+
+            return $this->loadForRead($execution->refresh());
+        }
+
         $execution->refresh()->load(['crawlAgency', 'contract']);
         $this->queueCurrentStep($execution);
 
@@ -210,12 +234,25 @@ class OnboardingExecutionCoordinator
         OnboardingExecution $execution,
         CrawlerOperation $operation,
     ): OnboardingExecution {
-        if (! ProfileValidationReport::query()->where('operation_id', $operation->id)->exists()) {
+        $report = ProfileValidationReport::query()->where('operation_id', $operation->id)->first();
+        if ($report === null) {
             return $this->requireAttention(
                 $execution,
                 'validation_report_missing',
                 'Validation succeeded without a persisted Validation Report.',
             );
+        }
+
+        if ($execution->conduction === 'manual' && ! $report->eligible) {
+            $execution->update([
+                'state' => 'awaiting_manual_step',
+                'current_step' => 'sample_url_confirmation',
+                'paused_at' => now(),
+                'attention_code' => 'validation_rejected',
+                'attention_message' => 'Validation was rejected. Correct the sample URL to generate a new profile attempt.',
+            ]);
+
+            return $this->loadForRead($execution->refresh());
         }
 
         $execution->update([
@@ -269,6 +306,7 @@ class OnboardingExecutionCoordinator
             'executionModel',
             'discoveryPolicy',
             'extractionPolicy',
+            'discoverySnapshot',
             'operations' => fn ($query) => $query->orderBy('id'),
         ]);
     }

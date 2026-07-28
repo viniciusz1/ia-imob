@@ -119,12 +119,14 @@ Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.oper
         Route::post('/operation-groups/{operationGroup}/actions', [OperationGroupController::class, 'action']);
         Route::put('/crawl-agencies/{crawlAgency}/onboarding-plan', [OnboardingPlanController::class, 'update']);
         Route::post('/crawl-agencies/{crawlAgency}/onboarding-plan/confirm', [OnboardingPlanController::class, 'confirm']);
+        Route::post('/onboarding-executions/{onboardingExecution}/actions', [OnboardingExecutionController::class, 'act']);
     });
 
 Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.operations.cancel'])
     ->prefix('crawler')
     ->group(function () {
         Route::post('/operations/{operation}/cancel', [CrawlerOperationControlController::class, 'cancel']);
+        Route::post('/onboarding-executions/{onboardingExecution}/cancel', [OnboardingExecutionController::class, 'cancel']);
     });
 
 Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.profiles.approve'])
@@ -168,6 +170,7 @@ Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.poli
         Route::post('/onboarding-execution-model-versions/{onboardingExecutionModelVersion}/versions', [OnboardingExecutionModelVersionController::class, 'newVersion']);
         Route::post('/onboarding-execution-model-versions/{onboardingExecutionModelVersion}/archive', [OnboardingExecutionModelVersionController::class, 'archive']);
         Route::post('/onboarding-execution-model-versions/{onboardingExecutionModelVersion}/default', [OnboardingExecutionModelVersionController::class, 'makeDefault']);
+        Route::post('/crawl-agencies/{crawlAgency}/onboarding-plan/save-inline-policy', [OnboardingPlanController::class, 'saveInlinePolicy']);
     });
 
 Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.snapshots.publish_exceptionally'])

@@ -16,6 +16,7 @@ class OnboardingPlan extends Model
     {
         return [
             'steps' => 'array',
+            'manual_configuration' => 'array',
             'confirmed_at' => 'datetime',
         ];
     }
@@ -23,6 +24,11 @@ class OnboardingPlan extends Model
     public function executionModel(): BelongsTo
     {
         return $this->belongsTo(OnboardingExecutionModelVersion::class, 'execution_model_version_id');
+    }
+
+    public function crawlAgency(): BelongsTo
+    {
+        return $this->belongsTo(CrawlAgency::class);
     }
 
     public function executions(): HasMany

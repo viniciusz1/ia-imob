@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\Api\Crawler;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Crawler\ActOnboardingExecutionRequest;
 use App\Http\Resources\Crawler\OnboardingExecutionResource;
 use App\Models\Crawler\CrawlAgency;
 use App\Models\Crawler\OnboardingExecution;
+use App\Services\Crawler\ManualOnboardingExecutionService;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class OnboardingExecutionController extends Controller
@@ -28,6 +31,36 @@ class OnboardingExecutionController extends Controller
         );
     }
 
+    public function act(
+        ActOnboardingExecutionRequest $request,
+        OnboardingExecution $onboardingExecution,
+        ManualOnboardingExecutionService $service,
+    ): OnboardingExecutionResource {
+        return new OnboardingExecutionResource(
+            $service->act(
+                $onboardingExecution,
+                $request->validated('action'),
+                $request->validated('sample_url'),
+                $request->user(),
+            ),
+        );
+    }
+
+    public function cancel(
+        Request $request,
+        OnboardingExecution $onboardingExecution,
+        ManualOnboardingExecutionService $service,
+    ): OnboardingExecutionResource {
+        return new OnboardingExecutionResource(
+            $service->act(
+                $onboardingExecution,
+                'cancel',
+                null,
+                $request->user(),
+            ),
+        );
+    }
+
     private function relations(): array
     {
         return [
@@ -35,6 +68,7 @@ class OnboardingExecutionController extends Controller
             'executionModel',
             'discoveryPolicy',
             'extractionPolicy',
+            'discoverySnapshot',
             'operations' => fn ($query) => $query->orderBy('id'),
         ];
     }
