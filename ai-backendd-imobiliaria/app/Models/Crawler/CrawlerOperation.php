@@ -21,6 +21,9 @@ class CrawlerOperation extends Model
         'plan',
         'retry_of_operation_id',
         'equivalence_key',
+        'onboarding_execution_id',
+        'onboarding_step',
+        'attempt',
     ];
 
     protected function casts(): array
@@ -34,6 +37,7 @@ class CrawlerOperation extends Model
             'completed_at' => 'datetime',
             'cancellation_requested_at' => 'datetime',
             'timed_out_at' => 'datetime',
+            'attempt' => 'integer',
         ];
     }
 
@@ -65,6 +69,11 @@ class CrawlerOperation extends Model
     public function requester(): BelongsTo
     {
         return $this->belongsTo(User::class, 'requested_by');
+    }
+
+    public function onboardingExecution(): BelongsTo
+    {
+        return $this->belongsTo(OnboardingExecution::class);
     }
 
     public function worker(): BelongsTo

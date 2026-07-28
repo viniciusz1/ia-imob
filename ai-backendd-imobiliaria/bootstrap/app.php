@@ -16,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
         App\Console\Commands\ImportPointsOfInterestCommand::class,
         App\Console\Commands\EnsureCrawlerPartitionsCommand::class,
         App\Console\Commands\ExpireCrawlerOperationLeasesCommand::class,
+        App\Console\Commands\ReconcileOnboardingExecutionsCommand::class,
         App\Console\Commands\EvaluateCrawlerCandidatesCommand::class,
         App\Console\Commands\DispatchCrawlerSchedulesCommand::class,
         App\Console\Commands\UpdateCrawlerCircuitsCommand::class,

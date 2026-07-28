@@ -33,6 +33,9 @@ class CrawlerOperationResource extends JsonResource
             'market_data_contract_version_id' => $this->market_data_contract_version_id,
             'retry_of_operation_id' => $this->retry_of_operation_id,
             'equivalence_key' => $this->equivalence_key,
+            'onboarding_execution_id' => $this->onboarding_execution_id,
+            'onboarding_step' => $this->onboarding_step,
+            'attempt' => $this->attempt,
             'plan' => $this->plan,
             'progress' => [
                 'stage' => $this->stage,

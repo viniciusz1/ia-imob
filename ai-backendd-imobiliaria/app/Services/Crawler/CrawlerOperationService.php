@@ -6,6 +6,7 @@ use App\Models\Crawler\CrawlAgency;
 use App\Models\Crawler\CrawlerOperation;
 use App\Models\Crawler\DiscoverySnapshot;
 use App\Models\Crawler\MarketDataContractVersion;
+use App\Models\Crawler\OnboardingExecution;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
@@ -16,6 +17,9 @@ class CrawlerOperationService
         MarketDataContractVersion $contract,
         User $requester,
         ?array $discoveryPolicy = null,
+        ?OnboardingExecution $onboardingExecution = null,
+        ?string $onboardingStep = null,
+        int $attempt = 1,
     ): CrawlerOperation {
         $plan = [
             'version' => 1,
@@ -37,6 +41,9 @@ class CrawlerOperationService
             'crawl_agency_id' => $agency->id,
             'market_data_contract_version_id' => $contract->id,
             'plan' => $plan,
+            'onboarding_execution_id' => $onboardingExecution?->id,
+            'onboarding_step' => $onboardingStep,
+            'attempt' => $attempt,
         ])->refresh();
     }
 
@@ -62,6 +69,10 @@ class CrawlerOperationService
         MarketDataContractVersion $contract,
         string $sampleUrl,
         User $requester,
+        ?array $extractionPolicy = null,
+        ?OnboardingExecution $onboardingExecution = null,
+        ?string $onboardingStep = null,
+        int $attempt = 1,
     ): CrawlerOperation {
         if ($snapshot->crawl_agency_id !== $agency->id) {
             throw \Illuminate\Validation\ValidationException::withMessages([
@@ -69,21 +80,30 @@ class CrawlerOperationService
             ]);
         }
 
+        $plan = [
+            'version' => 1,
+            'type' => 'profile_generation',
+            'crawl_agency_id' => $agency->id,
+            'discovery_snapshot_id' => $snapshot->id,
+            'sample_url' => $sampleUrl,
+            'sample_url_confirmed' => true,
+            'sample_url_confirmation_source' => $onboardingExecution === null ? 'operator' : 'automated_onboarding_selection',
+            'market_data_contract_version_id' => $contract->id,
+            'contract_fields' => $contract->fields,
+        ];
+        if ($extractionPolicy !== null) {
+            $plan['extraction_policy'] = $extractionPolicy;
+        }
+
         return $this->queueEquivalent(
             type: 'profile_generation',
             agencyId: $agency->id,
             contractId: $contract->id,
-            plan: [
-                'version' => 1,
-                'type' => 'profile_generation',
-                'crawl_agency_id' => $agency->id,
-                'discovery_snapshot_id' => $snapshot->id,
-                'sample_url' => $sampleUrl,
-                'sample_url_confirmed' => true,
-                'market_data_contract_version_id' => $contract->id,
-                'contract_fields' => $contract->fields,
-            ],
+            plan: $plan,
             requester: $requester,
+            onboardingExecution: $onboardingExecution,
+            onboardingStep: $onboardingStep,
+            attempt: $attempt,
         );
     }
 
@@ -93,15 +113,23 @@ class CrawlerOperationService
         ?int $contractId,
         array $plan,
         User $requester,
+        ?OnboardingExecution $onboardingExecution = null,
+        ?string $onboardingStep = null,
+        int $attempt = 1,
     ): CrawlerOperation {
         $equivalenceKey = hash('sha256', json_encode($plan, JSON_THROW_ON_ERROR));
 
-        return DB::transaction(function () use ($agencyId, $contractId, $equivalenceKey, $plan, $requester, $type): CrawlerOperation {
+        return DB::transaction(function () use ($agencyId, $attempt, $contractId, $equivalenceKey, $onboardingExecution, $onboardingStep, $plan, $requester, $type): CrawlerOperation {
             DB::statement('SELECT pg_advisory_xact_lock(?)', [$agencyId]);
             $existing = CrawlerOperation::query()
                 ->where('type', $type)
                 ->where('crawl_agency_id', $agencyId)
                 ->where('equivalence_key', $equivalenceKey)
+                ->when(
+                    $onboardingExecution === null,
+                    fn ($query) => $query->whereNull('onboarding_execution_id'),
+                    fn ($query) => $query->where('onboarding_execution_id', $onboardingExecution->id),
+                )
                 ->whereIn('state', ['queued', 'running', 'cancellation_requested'])
                 ->first();
 
@@ -117,6 +145,9 @@ class CrawlerOperationService
                 'market_data_contract_version_id' => $contractId,
                 'equivalence_key' => $equivalenceKey,
                 'plan' => $plan,
+                'onboarding_execution_id' => $onboardingExecution?->id,
+                'onboarding_step' => $onboardingStep,
+                'attempt' => $attempt,
             ])->refresh();
         });
     }

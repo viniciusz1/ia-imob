@@ -4,6 +4,7 @@ namespace App\Services\Crawler;
 
 use App\Models\Crawler\CrawlerOperation;
 use App\Models\Crawler\ExtractionProfile;
+use App\Models\Crawler\OnboardingExecution;
 use App\Models\Crawler\ProfileValidationReport;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -16,8 +17,14 @@ class ExtractionProfileWorkflowService
         private readonly CrawlerOperationService $operations,
     ) {}
 
-    public function queueValidation(ExtractionProfile $profile, User $requester): CrawlerOperation
-    {
+    public function queueValidation(
+        ExtractionProfile $profile,
+        User $requester,
+        ?array $extractionPolicy = null,
+        ?OnboardingExecution $onboardingExecution = null,
+        ?string $onboardingStep = null,
+        int $attempt = 1,
+    ): CrawlerOperation {
         if (! in_array($profile->status, ['candidate', 'revalidation_required'], true)) {
             throw ValidationException::withMessages(['status' => 'Only candidate profiles can be validated.']);
         }
@@ -30,26 +37,34 @@ class ExtractionProfileWorkflowService
             throw ValidationException::withMessages(['discovery_snapshot_id' => 'The Discovery Snapshot has no URLs.']);
         }
 
+        $plan = [
+            'version' => 1,
+            'type' => 'profile_validation',
+            'crawl_agency_id' => $profile->crawl_agency_id,
+            'extraction_profile_id' => $profile->id,
+            'discovery_snapshot_id' => $profile->discovery_snapshot_id,
+            'market_data_contract_version_id' => $profile->market_data_contract_version_id,
+            'urls' => $sample,
+            'schemas' => $profile->schemas,
+            'fields' => $profile->fields,
+            'thresholds' => [
+                'valid_ratio' => 0.80,
+                'required_field_coverage' => 0.90,
+            ],
+        ];
+        if ($extractionPolicy !== null) {
+            $plan['extraction_policy'] = $extractionPolicy;
+        }
+
         return $this->operations->queueEquivalent(
             type: 'profile_validation',
             agencyId: $profile->crawl_agency_id,
             contractId: $profile->market_data_contract_version_id,
-            plan: [
-                'version' => 1,
-                'type' => 'profile_validation',
-                'crawl_agency_id' => $profile->crawl_agency_id,
-                'extraction_profile_id' => $profile->id,
-                'discovery_snapshot_id' => $profile->discovery_snapshot_id,
-                'market_data_contract_version_id' => $profile->market_data_contract_version_id,
-                'urls' => $sample,
-                'schemas' => $profile->schemas,
-                'fields' => $profile->fields,
-                'thresholds' => [
-                    'valid_ratio' => 0.80,
-                    'required_field_coverage' => 0.90,
-                ],
-            ],
+            plan: $plan,
             requester: $requester,
+            onboardingExecution: $onboardingExecution,
+            onboardingStep: $onboardingStep,
+            attempt: $attempt,
         );
     }
 

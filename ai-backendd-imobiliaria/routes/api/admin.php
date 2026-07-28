@@ -14,6 +14,9 @@ use App\Http\Controllers\Api\Crawler\DiscoverySnapshotController;
 use App\Http\Controllers\Api\Crawler\ExtractionProfileController;
 use App\Http\Controllers\Api\Crawler\ExtractionProfileDecisionController;
 use App\Http\Controllers\Api\Crawler\MarketDataContractController;
+use App\Http\Controllers\Api\Crawler\OnboardingExecutionController;
+use App\Http\Controllers\Api\Crawler\OnboardingPlanController;
+use App\Http\Controllers\Api\Crawler\OnboardingPolicyController;
 use App\Http\Controllers\Api\Crawler\OperationGroupController;
 use App\Http\Controllers\Api\Crawler\ProductionCrawlController;
 use App\Http\Controllers\Api\Crawler\ProfileValidationController;
@@ -87,6 +90,12 @@ Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.view
         Route::post('/integrations/{integration}/test', [CrawlerIntegrationController::class, 'test']);
         Route::get('/schedule-default', [CrawlerScheduleController::class, 'default']);
         Route::get('/crawl-agencies/{crawlAgency}/schedule', [CrawlerScheduleController::class, 'showAgency']);
+        Route::get('/discovery-policy-versions', [OnboardingPolicyController::class, 'discoveryPolicies']);
+        Route::get('/extraction-policy-versions', [OnboardingPolicyController::class, 'extractionPolicies']);
+        Route::get('/onboarding-execution-model-versions', [OnboardingPolicyController::class, 'executionModels']);
+        Route::get('/crawl-agencies/{crawlAgency}/onboarding-plan', [OnboardingPlanController::class, 'show']);
+        Route::get('/crawl-agencies/{crawlAgency}/onboarding-executions', [OnboardingExecutionController::class, 'index']);
+        Route::get('/onboarding-executions/{onboardingExecution}', [OnboardingExecutionController::class, 'show']);
     });
 
 Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.operations.execute'])
@@ -101,6 +110,8 @@ Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.oper
         Route::post('/operations/{operation}/retry', [CrawlerOperationControlController::class, 'retry']);
         Route::post('/operation-groups', [OperationGroupController::class, 'store']);
         Route::post('/operation-groups/{operationGroup}/actions', [OperationGroupController::class, 'action']);
+        Route::put('/crawl-agencies/{crawlAgency}/onboarding-plan', [OnboardingPlanController::class, 'update']);
+        Route::post('/crawl-agencies/{crawlAgency}/onboarding-plan/confirm', [OnboardingPlanController::class, 'confirm']);
     });
 
 Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.operations.cancel'])
@@ -133,6 +144,9 @@ Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.poli
         Route::post('/quality-policies/{qualityPolicy}/validate', [QualityPolicyController::class, 'validatePolicy']);
         Route::post('/quality-policies/{qualityPolicy}/activate', [QualityPolicyController::class, 'activate']);
         Route::post('/quality-reports/{qualityReport}/exceptions', [QualityDecisionController::class, 'exception']);
+        Route::post('/discovery-policy-versions', [OnboardingPolicyController::class, 'storeDiscoveryPolicy']);
+        Route::post('/extraction-policy-versions', [OnboardingPolicyController::class, 'storeExtractionPolicy']);
+        Route::post('/onboarding-execution-model-versions', [OnboardingPolicyController::class, 'storeExecutionModel']);
     });
 
 Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.snapshots.publish_exceptionally'])
