@@ -4,6 +4,7 @@ namespace Tests\Feature\Crawler;
 
 use App\Models\Crawler\CrawlAgency;
 use App\Models\Crawler\CrawlerOperation;
+use App\Models\Crawler\DiscoveryPolicyVersion;
 use App\Models\Crawler\DiscoverySnapshot;
 use App\Models\Crawler\ExtractionProfile;
 use App\Models\Crawler\MarketDataContractVersion;
@@ -11,6 +12,7 @@ use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class CrawlerScheduleApiTest extends TestCase
@@ -35,7 +37,7 @@ class CrawlerScheduleApiTest extends TestCase
     public function test_timezone_inheritance_override_and_due_dispatch_create_normal_fresh_crawl(): void
     {
         CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-07-15 10:00:00 UTC'));
-        [$agency, $profile] = $this->activeAgency('scheduled');
+        [$agency, $profile, $activeDiscoveryPolicy] = $this->activeAgency('scheduled');
 
         $this->actingAs($this->admin)->putJson('/api/v1/admin/crawler/schedule-default', [
             'preset' => 'daily',
@@ -46,6 +48,8 @@ class CrawlerScheduleApiTest extends TestCase
         ])->assertOk()
             ->assertJsonPath('data.effective_preset', 'daily')
             ->assertJsonPath('data.effective_timezone', 'America/Sao_Paulo')
+            ->assertJsonPath('data.discovery_policy.id', $activeDiscoveryPolicy->id)
+            ->assertJsonPath('data.discovery_policy.source', 'agency_active')
             ->assertJsonPath('data.next_run_at', '2026-07-16T06:00:00.000000Z')
             ->json('data');
 
@@ -53,6 +57,14 @@ class CrawlerScheduleApiTest extends TestCase
         $this->artisan('crawler:dispatch-schedules')->assertSuccessful();
         $operation = CrawlerOperation::query()->where('type', 'production_crawl')->firstOrFail();
         $this->assertSame('fresh', $operation->plan['discovery']['mode']);
+        $this->assertSame(
+            $activeDiscoveryPolicy->id,
+            $operation->plan['discovery_policy']['id'],
+        );
+        $this->assertSame(
+            'agency_active',
+            $operation->plan['discovery_policy']['source'],
+        );
         $this->assertSame($profile->id, $operation->plan['extraction_profile']['id']);
         $this->assertSame('scheduled', $operation->plan['trigger']);
 
@@ -156,7 +168,19 @@ class CrawlerScheduleApiTest extends TestCase
             'fields' => $contract->fields,
             'parameters' => [],
         ]);
+        $activeDiscoveryPolicy = DiscoveryPolicyVersion::query()->create([
+            'policy_key' => (string) Str::uuid(),
+            'name' => "Schedule discovery {$suffix}",
+            'version' => 1,
+            'status' => 'available',
+            'strategies' => ['sitemap'],
+            'configuration' => ['max_urls' => 500],
+            'created_by' => $this->admin->id,
+        ]);
+        $agency->update([
+            'active_discovery_policy_version_id' => $activeDiscoveryPolicy->id,
+        ]);
 
-        return [$agency, $profile];
+        return [$agency->refresh(), $profile, $activeDiscoveryPolicy];
     }
 }

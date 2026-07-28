@@ -20,7 +20,10 @@ class CrawlerScheduleDispatcher
         $default = ScheduleDefault::query()->findOrFail(1);
         $fallbackUser = User::query()->where('email', 'platform@imobiliaria.com')->first()
             ?? User::query()->firstOrFail();
-        CrawlAgency::query()->where('lifecycle_state', 'active')->where('revalidation_required', false)
+        CrawlAgency::query()
+            ->where('lifecycle_state', 'active')
+            ->where('revalidation_required', false)
+            ->whereNotNull('active_discovery_policy_version_id')
             ->each(function (CrawlAgency $agency) use ($default, $fallbackUser): void {
                 CrawlAgencySchedule::query()->firstOrCreate(
                     ['crawl_agency_id' => $agency->id],
@@ -38,7 +41,12 @@ class CrawlerScheduleDispatcher
             ->orderBy('id')->each(function (CrawlAgencySchedule $schedule) use (&$dispatched, $default): void {
                 $agency = CrawlAgency::query()->findOrFail($schedule->crawl_agency_id);
                 $circuitOpen = CrawlAgencyCircuit::query()->where('crawl_agency_id', $agency->id)->where('state', 'open')->exists();
-                if ($agency->lifecycle_state !== 'active' || $agency->revalidation_required || $circuitOpen) {
+                if (
+                    $agency->lifecycle_state !== 'active'
+                    || $agency->revalidation_required
+                    || $agency->active_discovery_policy_version_id === null
+                    || $circuitOpen
+                ) {
                     return;
                 }
                 $preset = $schedule->inherit_default ? $default->preset : $schedule->preset;

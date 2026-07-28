@@ -52,4 +52,12 @@ class DiscoveryPolicyVersion extends Model
             'discovery_policy_version_id',
         );
     }
+
+    public function activeCrawlAgencies(): HasMany
+    {
+        return $this->hasMany(
+            CrawlAgency::class,
+            'active_discovery_policy_version_id',
+        );
+    }
 }

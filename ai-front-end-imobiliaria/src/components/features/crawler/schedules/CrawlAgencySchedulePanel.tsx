@@ -7,11 +7,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { usePermission } from "@/hooks/usePermission";
 import { updateCrawlAgencySchedule } from "@/services/crawlerService";
 import type { CrawlAgencySchedule, SchedulePreset } from "@/types/crawler";
 import { SchedulePresetFields, schedulePresetLabels } from "./SchedulePresetFields";
 
 export function CrawlAgencySchedulePanel({ initialSchedule }: { initialSchedule: CrawlAgencySchedule }) {
+  const canManage = usePermission("crawler.schedules.manage");
   const [schedule, setSchedule] = useState(initialSchedule);
   const [inheritDefault, setInheritDefault] = useState(initialSchedule.inherit_default);
   const [preset, setPreset] = useState<SchedulePreset>(initialSchedule.preset ?? initialSchedule.effective_preset);
@@ -40,10 +42,17 @@ export function CrawlAgencySchedulePanel({ initialSchedule }: { initialSchedule:
       <Badge variant={schedule.suspended ? "destructive" : "secondary"}>{schedule.suspended ? "Suspenso" : "Ativo"}</Badge>
     </CardHeader>
     <CardContent className="space-y-4">
+      <div className="rounded-md border bg-muted/20 p-3">
+        <p className="text-sm text-muted-foreground">Discovery dos crawls agendados</p>
+        {schedule.discovery_policy
+          ? <p className="font-medium">{schedule.discovery_policy.name} · v{schedule.discovery_policy.version} · sempre gera snapshot novo</p>
+          : <p className="font-medium text-destructive">Sem Política de Discovery Ativa; nenhum crawl será agendado.</p>}
+      </div>
       <div className="flex items-center gap-2">
         <input
           aria-label="Herdar padrão da plataforma"
           checked={inheritDefault}
+          disabled={!canManage}
           id="inherit-schedule"
           onChange={(event) => setInheritDefault(event.target.checked)}
           type="checkbox"
@@ -52,7 +61,7 @@ export function CrawlAgencySchedulePanel({ initialSchedule }: { initialSchedule:
       </div>
       {schedule.inherit_default && <p>Herdando padrão da plataforma: {schedulePresetLabels[schedule.effective_preset]} · {schedule.effective_timezone}</p>}
       <SchedulePresetFields
-        disabled={inheritDefault}
+        disabled={inheritDefault || !canManage}
         onPresetChange={setPreset}
         onTimezoneChange={setTimezone}
         preset={preset}
@@ -62,7 +71,7 @@ export function CrawlAgencySchedulePanel({ initialSchedule }: { initialSchedule:
       />
       <p>Próxima execução: {nextRun}</p>
       {schedule.suspended && <p className="text-sm text-destructive">Suspenso após 3 falhas consecutivas de produção. Crawls manuais continuam disponíveis.</p>}
-      <Button onClick={() => void save()} type="button">Salvar agendamento</Button>
+      {canManage && <Button onClick={() => void save()} type="button">Salvar agendamento</Button>}
     </CardContent>
   </Card>;
 }

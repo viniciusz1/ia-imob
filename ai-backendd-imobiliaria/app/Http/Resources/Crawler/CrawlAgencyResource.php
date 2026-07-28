@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Crawler;
 
+use App\Support\Crawler\DiscoveryPolicyPlan;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -20,6 +21,15 @@ class CrawlAgencyResource extends JsonResource
             'revalidation_required' => $this->revalidation_required,
             'current_published_crawl_run_id' => $this->current_published_crawl_run_id,
             'active_discovery_policy_version_id' => $this->active_discovery_policy_version_id,
+            'active_discovery_policy' => $this->whenLoaded(
+                'activeDiscoveryPolicy',
+                fn () => $this->activeDiscoveryPolicy === null
+                    ? null
+                    : DiscoveryPolicyPlan::fromVersion(
+                        $this->activeDiscoveryPolicy,
+                        'agency_active',
+                    ),
+            ),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

@@ -4,11 +4,13 @@ namespace App\Services\Crawler;
 
 use App\Models\Crawler\CrawlAgency;
 use App\Models\Crawler\CrawlerOperation;
+use App\Models\Crawler\DiscoveryPolicyVersion;
 use App\Models\Crawler\DiscoverySnapshot;
 use App\Models\Crawler\ExtractionProfile;
 use App\Models\Crawler\OnboardingExecution;
 use App\Models\Crawler\QualityPolicyVersion;
 use App\Models\User;
+use App\Support\Crawler\DiscoveryPolicyPlan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -57,6 +59,7 @@ class ProductionCrawlService
             ]);
         }
         $policy = QualityPolicyVersion::query()->where('status', 'active')->latest('version')->firstOrFail();
+        $discoveryPolicy = $this->resolveDiscoveryPolicy($agency, $input);
         $discovery = $snapshot === null
             ? ['mode' => 'fresh', 'base_url' => $agency->base_url]
             : [
@@ -71,6 +74,7 @@ class ProductionCrawlService
             'trigger' => $input['trigger'] ?? 'manual',
             'crawl_agency_id' => $agency->id,
             'discovery' => $discovery,
+            'discovery_policy' => $discoveryPolicy,
             'extraction_profile' => [
                 'id' => $profile->id,
                 'version' => $profile->version,
@@ -118,6 +122,30 @@ class ProductionCrawlService
                 'plan' => $plan,
             ])->refresh();
         });
+    }
+
+    private function resolveDiscoveryPolicy(
+        CrawlAgency $agency,
+        array $input,
+    ): array {
+        $requestedId = $input['discovery_policy_version_id'] ?? null;
+        $policyId = $requestedId ?? $agency->active_discovery_policy_version_id;
+        $policy = DiscoveryPolicyVersion::query()
+            ->whereKey($policyId)
+            ->where('status', 'available')
+            ->first();
+        if ($policy === null) {
+            throw ValidationException::withMessages([
+                'discovery_policy_version_id' => 'An available active Discovery Policy is required.',
+            ]);
+        }
+
+        $source = $requestedId !== null
+            && (int) $requestedId !== (int) $agency->active_discovery_policy_version_id
+                ? 'manual_override'
+                : 'agency_active';
+
+        return DiscoveryPolicyPlan::fromVersion($policy, $source);
     }
 
     public function queueFirstProduction(

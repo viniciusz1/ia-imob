@@ -237,11 +237,23 @@ export interface QueueProductionCrawlPayload {
   crawl_agency_id: number;
   discovery_mode: "fresh" | "existing";
   discovery_snapshot_id?: number;
+  discovery_policy_version_id?: number;
   extraction_profile_id?: number;
 }
 
 export async function queueProductionCrawl(payload: QueueProductionCrawlPayload): Promise<CrawlerOperation> {
   const response = await api.post<Resource<CrawlerOperation>>(`${BASE}/production-crawls`, payload);
+  return response.data.data;
+}
+
+export async function activateCrawlAgencyDiscoveryPolicy(
+  crawlAgencyId: number,
+  sourcePolicyVersionId: number,
+): Promise<CrawlAgency> {
+  const response = await api.post<Resource<CrawlAgency>>(
+    `${BASE}/crawl-agencies/${crawlAgencyId}/active-discovery-policy`,
+    { source_policy_version_id: sourcePolicyVersionId, confirmed: true },
+  );
   return response.data.data;
 }
 

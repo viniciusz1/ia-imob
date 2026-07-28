@@ -6,7 +6,7 @@ use App\Models\Crawler\DiscoveryPolicyVersion;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class QueueProductionCrawlRequest extends FormRequest
+class ActivateCrawlAgencyDiscoveryPolicyRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -16,16 +16,13 @@ class QueueProductionCrawlRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'crawl_agency_id' => ['required', 'integer'],
-            'discovery_mode' => ['required', Rule::in(['fresh', 'existing'])],
-            'discovery_snapshot_id' => ['nullable', 'integer', 'required_if:discovery_mode,existing'],
-            'extraction_profile_id' => ['nullable', 'integer'],
-            'discovery_policy_version_id' => [
-                'nullable',
+            'source_policy_version_id' => [
+                'required',
                 'integer',
                 Rule::exists(DiscoveryPolicyVersion::class, 'id')
                     ->where('status', 'available'),
             ],
+            'confirmed' => ['required', 'accepted'],
         ];
     }
 }

@@ -308,6 +308,10 @@ class OnboardingFirstProductionApiTest extends TestCase
             $execution->resolved_configuration['discovery_policy']['source'],
         );
         $this->assertSame(
+            $saved['id'],
+            $execution->resolved_configuration['discovery_policy']['id'],
+        );
+        $this->assertSame(
             'onboarding',
             $execution->crawlAgency->refresh()->lifecycle_state,
         );

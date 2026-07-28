@@ -222,6 +222,11 @@ class OnboardingPolicyCatalogService
     public function archiveDiscoveryPolicy(DiscoveryPolicyVersion $version): DiscoveryPolicyVersion
     {
         $this->ensureArchivable($version, 'Discovery Policy');
+        if ($version->activeCrawlAgencies()->exists()) {
+            throw ValidationException::withMessages([
+                'status' => 'Replace this active Discovery Policy before archiving it.',
+            ]);
+        }
         if ($version->executionModels()->whereIn('status', ['draft', 'available'])->exists()) {
             throw ValidationException::withMessages([
                 'status' => 'Archive dependent Onboarding Models before archiving this Discovery Policy.',

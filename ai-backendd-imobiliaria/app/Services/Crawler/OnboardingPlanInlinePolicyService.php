@@ -50,6 +50,11 @@ class OnboardingPlanInlinePolicyService
                     ($kind === 'discovery'
                         ? 'discovery_policy_version_id'
                         : 'extraction_policy_version_id') => $policy->id,
+                    'resolved_configuration' => $this->bindPolicyVersion(
+                        $execution->resolved_configuration,
+                        $kind,
+                        $policy,
+                    ),
                 ]);
             }
 
@@ -111,5 +116,22 @@ class OnboardingPlanInlinePolicyService
         }
 
         return $point;
+    }
+
+    private function bindPolicyVersion(
+        array $configuration,
+        string $kind,
+        DiscoveryPolicyVersion|ExtractionPolicyVersion $policy,
+    ): array {
+        $key = "{$kind}_policy";
+        $configuration[$key] = [
+            ...$configuration[$key],
+            'id' => $policy->id,
+            'name' => $policy->name,
+            'version' => $policy->version,
+            'saved_as_policy' => true,
+        ];
+
+        return $configuration;
     }
 }

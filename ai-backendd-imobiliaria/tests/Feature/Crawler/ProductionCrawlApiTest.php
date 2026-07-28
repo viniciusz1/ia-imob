@@ -4,6 +4,7 @@ namespace Tests\Feature\Crawler;
 
 use App\Models\Crawler\CrawlAgency;
 use App\Models\Crawler\CrawlerOperation;
+use App\Models\Crawler\DiscoveryPolicyVersion;
 use App\Models\Crawler\DiscoverySnapshot;
 use App\Models\Crawler\DiscoverySnapshotUrl;
 use App\Models\Crawler\ExtractionProfile;
@@ -11,6 +12,7 @@ use App\Models\Crawler\MarketDataContractVersion;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class ProductionCrawlApiTest extends TestCase
@@ -49,7 +51,7 @@ class ProductionCrawlApiTest extends TestCase
 
     public function test_manual_plan_defaults_to_fresh_discovery_and_active_profile(): void
     {
-        [$admin, $agency, , $activeProfile] = $this->fixtures();
+        [$admin, $agency, , $activeProfile, , $activeDiscoveryPolicy] = $this->fixtures();
 
         $this->actingAs($admin)
             ->postJson('/api/v1/admin/crawler/production-crawls', [
@@ -59,7 +61,104 @@ class ProductionCrawlApiTest extends TestCase
             ->assertCreated()
             ->assertJsonPath('data.plan.discovery.mode', 'fresh')
             ->assertJsonPath('data.plan.discovery.base_url', $agency->base_url)
+            ->assertJsonPath('data.plan.discovery_policy.id', $activeDiscoveryPolicy->id)
+            ->assertJsonPath('data.plan.discovery_policy.source', 'agency_active')
             ->assertJsonPath('data.plan.extraction_profile.id', $activeProfile->id);
+    }
+
+    public function test_manual_override_is_operation_only_and_can_explicitly_create_a_new_active_version(): void
+    {
+        [$admin, $agency, , , , $activeDiscoveryPolicy] = $this->fixtures('override');
+        $override = DiscoveryPolicyVersion::query()->create([
+            'policy_key' => (string) Str::uuid(),
+            'name' => 'Override discovery',
+            'version' => 1,
+            'status' => 'available',
+            'strategies' => ['homepage', 'robots'],
+            'configuration' => ['max_urls' => 250],
+            'created_by' => $admin->id,
+        ]);
+
+        $operation = $this->actingAs($admin)
+            ->postJson('/api/v1/admin/crawler/production-crawls', [
+                'crawl_agency_id' => $agency->id,
+                'discovery_mode' => 'fresh',
+                'discovery_policy_version_id' => $override->id,
+            ])
+            ->assertCreated()
+            ->assertJsonPath('data.plan.discovery_policy.id', $override->id)
+            ->assertJsonPath('data.plan.discovery_policy.source', 'manual_override')
+            ->json('data');
+
+        $this->assertSame(
+            $activeDiscoveryPolicy->id,
+            $agency->refresh()->active_discovery_policy_version_id,
+        );
+
+        $this->actingAs($admin)
+            ->postJson(
+                "/api/v1/admin/crawler/crawl-agencies/{$agency->id}/active-discovery-policy",
+                [
+                    'source_policy_version_id' => $override->id,
+                    'confirmed' => false,
+                ],
+            )
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('confirmed');
+
+        $activated = $this->actingAs($admin)
+            ->postJson(
+                "/api/v1/admin/crawler/crawl-agencies/{$agency->id}/active-discovery-policy",
+                [
+                    'source_policy_version_id' => $override->id,
+                    'confirmed' => true,
+                ],
+            )
+            ->assertOk()
+            ->assertJsonPath('data.active_discovery_policy.name', $override->name)
+            ->assertJsonPath('data.active_discovery_policy.version', 2)
+            ->assertJsonPath('data.active_discovery_policy.source', 'agency_active')
+            ->json('data.active_discovery_policy');
+
+        $this->assertNotSame($override->id, $activated['id']);
+        $this->assertSame(
+            $activated['id'],
+            $agency->refresh()->active_discovery_policy_version_id,
+        );
+        $this->assertSame(
+            $override->id,
+            CrawlerOperation::query()->findOrFail($operation['id'])
+                ->plan['discovery_policy']['id'],
+        );
+
+        $this->actingAs($admin)
+            ->postJson('/api/v1/admin/crawler/production-crawls', [
+                'crawl_agency_id' => $agency->id,
+                'discovery_mode' => 'fresh',
+            ])
+            ->assertCreated()
+            ->assertJsonPath('data.plan.discovery_policy.id', $activated['id'])
+            ->assertJsonPath('data.plan.discovery_policy.source', 'agency_active');
+
+        $this->actingAs($admin)
+            ->postJson("/api/v1/admin/crawler/discovery-policy-versions/{$override->id}/archive")
+            ->assertOk()
+            ->assertJsonPath('data.status', 'archived');
+        $this->actingAs($admin)
+            ->postJson(
+                "/api/v1/admin/crawler/crawl-agencies/{$agency->id}/active-discovery-policy",
+                [
+                    'source_policy_version_id' => $override->id,
+                    'confirmed' => true,
+                ],
+            )
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('source_policy_version_id');
+
+        $this->actingAs($admin)
+            ->postJson("/api/v1/admin/crawler/discovery-policy-versions/{$activated['id']}/archive")
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('status');
     }
 
     public function test_plan_preserves_the_profile_fixed_extraction_policy_version(): void
@@ -282,7 +381,26 @@ class ProductionCrawlApiTest extends TestCase
             'fields' => $contract->fields,
             'parameters' => [],
         ]);
+        $activeDiscoveryPolicy = DiscoveryPolicyVersion::query()->create([
+            'policy_key' => (string) Str::uuid(),
+            'name' => "Production discovery {$suffix}",
+            'version' => 1,
+            'status' => 'available',
+            'strategies' => ['sitemap', 'homepage'],
+            'configuration' => ['max_urls' => 500],
+            'created_by' => $admin->id,
+        ]);
+        $agency->update([
+            'active_discovery_policy_version_id' => $activeDiscoveryPolicy->id,
+        ]);
 
-        return [$admin, $agency, $snapshot, $activeProfile, $approvedProfile];
+        return [
+            $admin,
+            $agency->refresh(),
+            $snapshot,
+            $activeProfile,
+            $approvedProfile,
+            $activeDiscoveryPolicy,
+        ];
     }
 }

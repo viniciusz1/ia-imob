@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AdminAgencyController;
 use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\Crawler\CrawlAgencyController;
+use App\Http\Controllers\Api\Crawler\CrawlAgencyDiscoveryPolicyController;
 use App\Http\Controllers\Api\Crawler\CrawlerIntegrationController;
 use App\Http\Controllers\Api\Crawler\CrawlerOperationControlController;
 use App\Http\Controllers\Api\Crawler\CrawlerOperationController;
@@ -183,6 +184,7 @@ Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.poli
         Route::post('/onboarding-execution-model-versions/{onboardingExecutionModelVersion}/archive', [OnboardingExecutionModelVersionController::class, 'archive']);
         Route::post('/onboarding-execution-model-versions/{onboardingExecutionModelVersion}/default', [OnboardingExecutionModelVersionController::class, 'makeDefault']);
         Route::post('/crawl-agencies/{crawlAgency}/onboarding-plan/save-inline-policy', [OnboardingPlanController::class, 'saveInlinePolicy']);
+        Route::post('/crawl-agencies/{crawlAgency}/active-discovery-policy', [CrawlAgencyDiscoveryPolicyController::class, 'store']);
     });
 
 Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.snapshots.publish_exceptionally'])

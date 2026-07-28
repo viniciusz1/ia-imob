@@ -7,6 +7,7 @@ use App\Models\Crawler\CrawlAgencyCircuit;
 use App\Models\Crawler\CrawlAgencySchedule;
 use App\Models\Crawler\ScheduleDefault;
 use App\Models\User;
+use App\Support\Crawler\DiscoveryPolicyPlan;
 use Carbon\CarbonImmutable;
 
 class CrawlerScheduleService
@@ -49,6 +50,7 @@ class CrawlerScheduleService
         $schedule ??= CrawlAgencySchedule::query()->where('crawl_agency_id', $agency->id)->first();
         $inherit = $schedule?->inherit_default ?? true;
         $circuit = CrawlAgencyCircuit::query()->where('crawl_agency_id', $agency->id)->first();
+        $agency->loadMissing('activeDiscoveryPolicy');
 
         return [
             'id' => $schedule?->id,
@@ -60,6 +62,12 @@ class CrawlerScheduleService
             'effective_timezone' => $inherit ? $default->timezone : $schedule?->timezone,
             'next_run_at' => $schedule?->next_run_at,
             'last_enqueued_at' => $schedule?->last_enqueued_at,
+            'discovery_policy' => $agency->activeDiscoveryPolicy === null
+                ? null
+                : DiscoveryPolicyPlan::fromVersion(
+                    $agency->activeDiscoveryPolicy,
+                    'agency_active',
+                ),
             'suspended' => $circuit?->state === 'open',
             'suspension_reason' => $circuit?->reason,
             'circuit' => [

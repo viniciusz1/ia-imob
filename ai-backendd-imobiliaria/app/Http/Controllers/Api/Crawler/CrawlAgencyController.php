@@ -21,6 +21,7 @@ class CrawlAgencyController extends Controller
 
         return CrawlAgencyResource::collection(
             CrawlAgency::query()
+                ->with('activeDiscoveryPolicy')
                 ->when($search !== '', function ($query) use ($search): void {
                     $query->where(function ($query) use ($search): void {
                         $query->where('name', 'ilike', "%{$search}%")
@@ -38,12 +39,12 @@ class CrawlAgencyController extends Controller
     {
         $crawlAgency = CrawlAgency::query()->create($request->validated());
 
-        return new CrawlAgencyResource($crawlAgency->refresh());
+        return new CrawlAgencyResource($crawlAgency->refresh()->load('activeDiscoveryPolicy'));
     }
 
     public function show(CrawlAgency $crawlAgency): CrawlAgencyResource
     {
-        return new CrawlAgencyResource($crawlAgency);
+        return new CrawlAgencyResource($crawlAgency->load('activeDiscoveryPolicy'));
     }
 
     public function transition(
@@ -57,20 +58,25 @@ class CrawlAgencyController extends Controller
             abort_unless($request->user()->can('crawler.agencies.activate'), 403);
         }
 
-        return new CrawlAgencyResource($lifecycle->transition($crawlAgency, $target));
+        return new CrawlAgencyResource(
+            $lifecycle->transition($crawlAgency, $target)->load('activeDiscoveryPolicy'),
+        );
     }
 
     public function activate(
         CrawlAgency $crawlAgency,
         CrawlAgencyLifecycleService $lifecycle,
     ): CrawlAgencyResource {
-        return new CrawlAgencyResource($lifecycle->transition($crawlAgency, CrawlAgencyLifecycle::Active));
+        return new CrawlAgencyResource(
+            $lifecycle->transition($crawlAgency, CrawlAgencyLifecycle::Active)
+                ->load('activeDiscoveryPolicy'),
+        );
     }
 
     public function update(UpdateCrawlAgencyRequest $request, CrawlAgency $crawlAgency): CrawlAgencyResource
     {
         $crawlAgency->update($request->validated());
 
-        return new CrawlAgencyResource($crawlAgency->refresh());
+        return new CrawlAgencyResource($crawlAgency->refresh()->load('activeDiscoveryPolicy'));
     }
 }

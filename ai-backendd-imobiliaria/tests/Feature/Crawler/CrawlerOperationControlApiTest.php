@@ -4,11 +4,13 @@ namespace Tests\Feature\Crawler;
 
 use App\Models\Crawler\CrawlAgency;
 use App\Models\Crawler\CrawlerOperation;
+use App\Models\Crawler\DiscoveryPolicyVersion;
 use App\Models\Crawler\DiscoverySnapshot;
 use App\Models\Crawler\ExtractionProfile;
 use App\Models\Crawler\MarketDataContractVersion;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class CrawlerOperationControlApiTest extends TestCase
@@ -143,8 +145,20 @@ class CrawlerOperationControlApiTest extends TestCase
             'fields' => $contract->fields,
             'parameters' => [],
         ]);
+        $discoveryPolicy = DiscoveryPolicyVersion::query()->create([
+            'policy_key' => (string) Str::uuid(),
+            'name' => "Control discovery {$suffix}",
+            'version' => 1,
+            'status' => 'available',
+            'strategies' => ['sitemap', 'homepage'],
+            'configuration' => ['max_urls' => 500],
+            'created_by' => $this->admin->id,
+        ]);
+        $agency->update([
+            'active_discovery_policy_version_id' => $discoveryPolicy->id,
+        ]);
 
-        return [$agency, $profile];
+        return [$agency->refresh(), $profile];
     }
 
     private function operation(CrawlAgency $agency, ExtractionProfile $profile, string $state, array $extra = []): CrawlerOperation

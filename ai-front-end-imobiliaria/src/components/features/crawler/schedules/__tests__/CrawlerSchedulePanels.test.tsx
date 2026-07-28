@@ -16,6 +16,14 @@ describe("crawler schedule panels", () => {
       effective_timezone: "America/Sao_Paulo",
       next_run_at: "2026-07-16T06:00:00Z",
       last_enqueued_at: "2026-07-15T06:00:00Z",
+      discovery_policy: {
+        id: 21,
+        name: "Discovery ativo",
+        version: 2,
+        source: "agency_active",
+        strategies: ["sitemap", "homepage"],
+        configuration: { max_urls: 500 },
+      },
       suspended: true,
       suspension_reason: "three_consecutive_production_failures",
       circuit: { state: "open", consecutive_failures: 3 },
@@ -24,6 +32,7 @@ describe("crawler schedule panels", () => {
     expect(screen.getByText(/herdando padrão da plataforma/i)).toBeInTheDocument();
     expect(screen.getByText(/próxima execução/i)).toHaveTextContent("16/07/2026");
     expect(screen.getByText(/suspenso após 3 falhas consecutivas/i)).toBeInTheDocument();
+    expect(screen.getByText(/Discovery ativo · v2/)).toHaveTextContent("sempre gera snapshot novo");
     expect(screen.getByRole("checkbox", { name: /herdar padrão/i })).toBeChecked();
   });
 

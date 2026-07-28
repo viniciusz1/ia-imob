@@ -12,6 +12,7 @@ export interface CrawlAgency {
   revalidation_required: boolean;
   current_published_crawl_run_id: number | null;
   active_discovery_policy_version_id?: number | null;
+  active_discovery_policy?: ResolvedOnboardingPolicy | null;
   created_at: string;
   updated_at: string;
 }
@@ -44,6 +45,7 @@ export interface CrawlAgencySchedule {
   effective_timezone: string;
   next_run_at: string | null;
   last_enqueued_at: string | null;
+  discovery_policy: ResolvedOnboardingPolicy | null;
   suspended: boolean;
   suspension_reason: string | null;
   circuit: {
@@ -439,7 +441,7 @@ export interface ResolvedOnboardingPolicy {
   id: number | null;
   name: string;
   version: number | null;
-  source: "catalog" | "point_configuration";
+  source: "catalog" | "point_configuration" | "agency_active" | "manual_override";
   strategies: string[];
   configuration: Record<string, unknown>;
 }
