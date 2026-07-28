@@ -284,6 +284,43 @@ class OnboardingFirstProductionApiTest extends TestCase
         $this->assertNull(
             $execution->crawlAgency->active_discovery_policy_version_id,
         );
+
+        $saved = $this->actingAs($this->admin)
+            ->postJson(
+                "/api/v1/admin/crawler/crawl-agencies/{$execution->crawl_agency_id}/onboarding-plan/save-inline-policy",
+                [
+                    'kind' => 'discovery',
+                    'name' => 'Point discovery explicitly activated',
+                    'confirmed' => true,
+                ],
+            )
+            ->assertCreated()
+            ->assertJsonPath('data.status', 'available')
+            ->assertJsonPath('data.strategies.0', 'sitemap')
+            ->json('data');
+
+        $this->assertSame(
+            $saved['id'],
+            $execution->refresh()->discovery_policy_version_id,
+        );
+        $this->assertSame(
+            'point_configuration',
+            $execution->resolved_configuration['discovery_policy']['source'],
+        );
+        $this->assertSame(
+            'onboarding',
+            $execution->crawlAgency->refresh()->lifecycle_state,
+        );
+
+        $this->actingAs($this->admin)
+            ->postJson("/api/v1/admin/crawler/onboarding-executions/{$execution->id}/approve")
+            ->assertOk()
+            ->assertJsonPath('data.state', 'awaiting_first_production');
+
+        $this->assertSame(
+            $saved['id'],
+            $execution->crawlAgency->refresh()->active_discovery_policy_version_id,
+        );
     }
 
     private function awaitingApproval(

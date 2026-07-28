@@ -7,15 +7,37 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import type { CrawlAgency, CrawlAgencySchedule, CrawlerOperation, CrawlRun, DiscoverySnapshot, ExtractionProfile } from "@/types/crawler";
+import type {
+  CrawlAgency,
+  CrawlAgencySchedule,
+  CrawlerOperation,
+  CrawlRun,
+  DiscoveryPolicyVersion,
+  DiscoverySnapshot,
+  DiscoveryStrategy,
+  ExtractionPolicyVersion,
+  ExtractionProfile,
+  OnboardingExecution,
+  OnboardingExecutionModelVersion,
+  OnboardingPlan,
+} from "@/types/crawler";
 
 import { isActiveCrawlerOperation, useCrawlerOperationPolling } from "../useCrawlerOperationPolling";
 import { CrawlAgencyContextHeader } from "./CrawlAgencyContextHeader";
 import { CrawlAgencyOnboardingProgress } from "./CrawlAgencyOnboardingProgress";
+import { OnboardingExecutionTimeline } from "./OnboardingExecutionTimeline";
+import { OnboardingPlanBuilder } from "./OnboardingPlanBuilder";
+import { useOnboardingExecutionPolling } from "./useOnboardingExecutionPolling";
 
 interface CrawlAgencyWorkspaceClientProps {
   agency: CrawlAgency;
+  discoveryPolicies: DiscoveryPolicyVersion[];
+  discoveryStrategies: DiscoveryStrategy[];
+  executions: OnboardingExecution[];
+  extractionPolicies: ExtractionPolicyVersion[];
   initialOperations: CrawlerOperation[];
+  models: OnboardingExecutionModelVersion[];
+  onboardingPlan: OnboardingPlan | null;
   profiles: ExtractionProfile[];
   runs: CrawlRun[];
   schedule: CrawlAgencySchedule;
@@ -33,16 +55,44 @@ function readiness(agency: CrawlAgency, profiles: ExtractionProfile[], runs: Cra
   return { label: "Apta para produção", detail: "Perfil e dados vigentes estão disponíveis.", href: "crawls", action: "Rodar crawl manual" };
 }
 
-export function CrawlAgencyWorkspaceClient({ agency, initialOperations, profiles, runs, schedule, snapshots }: CrawlAgencyWorkspaceClientProps) {
+export function CrawlAgencyWorkspaceClient({
+  agency,
+  discoveryPolicies,
+  discoveryStrategies,
+  executions: initialExecutions,
+  extractionPolicies,
+  initialOperations,
+  models,
+  onboardingPlan,
+  profiles,
+  runs,
+  schedule,
+  snapshots,
+}: CrawlAgencyWorkspaceClientProps) {
   const [operations, setOperations] = useState(initialOperations);
+  const [executions, setExecutions] = useState(initialExecutions);
   const activeOperation = operations.find(isActiveCrawlerOperation);
+  const execution = executions[0] ?? null;
+  const displayedAgency = useMemo(
+    () => execution?.approval && agency.lifecycle_state === "onboarding"
+      ? { ...agency, lifecycle_state: "active" as const }
+      : agency,
+    [agency, execution?.approval],
+  );
   const publishedRun = runs.find((run) => run.publication_state === "published");
   const quarantinedRun = runs.find((run) => run.publication_state === "quarantined");
-  const state = useMemo(() => readiness(agency, profiles, runs), [agency, profiles, runs]);
+  const state = useMemo(() => readiness(displayedAgency, profiles, runs), [displayedAgency, profiles, runs]);
 
   useCrawlerOperationPolling({
     operations: activeOperation ? [activeOperation] : [],
     onOperation: (updated) => setOperations((current) => current.map((operation) => operation.id === updated.id ? updated : operation)),
+  });
+  useOnboardingExecutionPolling({
+    execution,
+    onExecution: (updated) => setExecutions((current) => {
+      const remaining = current.filter((item) => item.id !== updated.id);
+      return [updated, ...remaining];
+    }),
   });
 
   const formatDate = (value: string | null) => value === null ? "—" : new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short" }).format(new Date(value));
@@ -50,12 +100,27 @@ export function CrawlAgencyWorkspaceClient({ agency, initialOperations, profiles
   const recent = operations.slice(0, 5);
 
   return <section className="space-y-6">
-    <CrawlAgencyContextHeader agency={agency} area="Visão geral" description="Estado operacional, prontidão e atividade recente desta fonte." />
-    <div className="flex flex-wrap gap-2"><Badge variant="outline">{agency.lifecycle_state}</Badge><Badge variant="secondary">Saúde: {agency.health_state}</Badge><Badge variant={agency.revalidation_required ? "destructive" : "outline"}>{state.label}</Badge></div>
+    <CrawlAgencyContextHeader agency={displayedAgency} area="Visão geral" description="Estado operacional, prontidão e atividade recente desta fonte." />
+    <div className="flex flex-wrap gap-2"><Badge variant="outline">{displayedAgency.lifecycle_state}</Badge><Badge variant="secondary">Saúde: {displayedAgency.health_state}</Badge><Badge variant={displayedAgency.revalidation_required ? "destructive" : "outline"}>{state.label}</Badge></div>
 
-    <CrawlAgencyOnboardingProgress agency={agency} profiles={profiles} snapshots={snapshots} />
+    {onboardingPlan?.status === "draft" && execution?.state !== "completed" && (
+      <OnboardingPlanBuilder
+        agency={agency}
+        discoveryPolicies={discoveryPolicies}
+        discoveryStrategies={discoveryStrategies}
+        extractionPolicies={extractionPolicies}
+        models={models}
+        onConfirmed={(confirmed) => setExecutions((current) => [confirmed, ...current.filter((item) => item.id !== confirmed.id)])}
+        plan={onboardingPlan}
+        snapshots={snapshots}
+      />
+    )}
 
-    <Card className="border-primary/30 bg-primary/5"><CardHeader><CardTitle>Próxima ação recomendada</CardTitle><CardDescription>{state.detail}</CardDescription></CardHeader><CardContent><Button asChild className="cursor-pointer"><Link href={`${root}/${state.href}`}>{state.action}</Link></Button></CardContent></Card>
+    {execution && <OnboardingExecutionTimeline execution={execution} history={executions} onExecution={(updated) => setExecutions((current) => [updated, ...current.filter((item) => item.id !== updated.id)])} />}
+
+    {!onboardingPlan && <CrawlAgencyOnboardingProgress agency={agency} profiles={profiles} snapshots={snapshots} />}
+
+    {!onboardingPlan && <Card className="border-primary/30 bg-primary/5"><CardHeader><CardTitle>Próxima ação recomendada</CardTitle><CardDescription>{state.detail}</CardDescription></CardHeader><CardContent><Button asChild className="cursor-pointer"><Link href={`${root}/${state.href}`}>{state.action}</Link></Button></CardContent></Card>}
 
     <div className="grid gap-4 lg:grid-cols-3">
       <Card><CardHeader><CardTitle>Operação atual</CardTitle></CardHeader><CardContent className="space-y-3">

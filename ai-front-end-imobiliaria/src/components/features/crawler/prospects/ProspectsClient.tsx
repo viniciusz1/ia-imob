@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Check, Filter, MapPin, RotateCcw, Search, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -36,6 +37,7 @@ const reviewLabels: Record<Prospect["review_state"], string> = {
 };
 
 export function ProspectsClient({ initialProspects, initialSuggestions = [] }: { initialProspects: Prospect[]; initialSuggestions?: CrawlAgencySuggestion[] }) {
+  const router = useRouter();
   const [prospects, setProspects] = useState(initialProspects);
   const [prospectingMode, setProspectingMode] = useState<"single" | "batch">("single");
   const [city, setCity] = useState("");
@@ -131,7 +133,8 @@ export function ProspectsClient({ initialProspects, initialSuggestions = [] }: {
   const promote = async (prospect: Prospect) => {
     const result = await promoteProspect(prospect.id);
     setProspects((current) => current.map((item) => item.id === prospect.id ? { ...item, promoted_crawl_agency_id: result.crawl_agency.id } : item));
-    toast.success("Crawl Agency criada em onboarding.");
+    toast.success("Crawl Agency e Plano de Onboarding em rascunho criados.");
+    router.push(`/admin/crawler/agencies/${result.crawl_agency.id}`);
   };
 
   return (

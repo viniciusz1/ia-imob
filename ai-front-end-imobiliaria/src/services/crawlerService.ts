@@ -33,6 +33,10 @@ import type {
   ExtractionPolicyVersion,
   ExtractionStrategy,
   OnboardingExecutionModelVersion,
+  OnboardingExecution,
+  OnboardingExecutionAction,
+  OnboardingPlan,
+  OnboardingPlanInput,
 } from "@/types/crawler";
 
 const BASE = `${API_PREFIX}/admin/crawler`;
@@ -424,6 +428,89 @@ export async function archiveOnboardingExecutionModelVersion(id: number): Promis
 export async function makeOnboardingExecutionModelDefault(id: number): Promise<OnboardingExecutionModelVersion> {
   const response = await api.post<Resource<OnboardingExecutionModelVersion>>(
     `${BASE}/onboarding-execution-model-versions/${id}/default`,
+  );
+  return response.data.data;
+}
+
+export async function getOnboardingPlan(crawlAgencyId: number): Promise<OnboardingPlan> {
+  const response = await api.get<Resource<OnboardingPlan>>(`${BASE}/crawl-agencies/${crawlAgencyId}/onboarding-plan`);
+  return response.data.data;
+}
+
+export async function updateOnboardingPlan(
+  crawlAgencyId: number,
+  payload: OnboardingPlanInput,
+): Promise<OnboardingPlan> {
+  const response = await api.put<Resource<OnboardingPlan>>(
+    `${BASE}/crawl-agencies/${crawlAgencyId}/onboarding-plan`,
+    payload,
+  );
+  return response.data.data;
+}
+
+export async function confirmOnboardingPlan(crawlAgencyId: number): Promise<OnboardingExecution> {
+  const response = await api.post<Resource<OnboardingExecution>>(
+    `${BASE}/crawl-agencies/${crawlAgencyId}/onboarding-plan/confirm`,
+  );
+  return response.data.data;
+}
+
+export async function saveOnboardingPointConfiguration(
+  crawlAgencyId: number,
+  kind: "discovery" | "extraction",
+  name: string,
+): Promise<DiscoveryPolicyVersion | ExtractionPolicyVersion> {
+  const response = await api.post<Resource<DiscoveryPolicyVersion | ExtractionPolicyVersion>>(
+    `${BASE}/crawl-agencies/${crawlAgencyId}/onboarding-plan/save-inline-policy`,
+    { kind, name, confirmed: true },
+  );
+  return response.data.data;
+}
+
+export async function listOnboardingExecutions(crawlAgencyId: number): Promise<OnboardingExecution[]> {
+  const response = await api.get<Resource<OnboardingExecution[]>>(
+    `${BASE}/crawl-agencies/${crawlAgencyId}/onboarding-executions`,
+  );
+  return response.data.data;
+}
+
+export async function getOnboardingExecution(id: number): Promise<OnboardingExecution> {
+  const response = await api.get<Resource<OnboardingExecution>>(`${BASE}/onboarding-executions/${id}`);
+  return response.data.data;
+}
+
+export async function actOnboardingExecution(
+  id: number,
+  action: OnboardingExecutionAction,
+  sampleUrl?: string,
+): Promise<OnboardingExecution> {
+  const response = await api.post<Resource<OnboardingExecution>>(
+    `${BASE}/onboarding-executions/${id}/actions`,
+    { action, ...(sampleUrl ? { sample_url: sampleUrl } : {}) },
+  );
+  return response.data.data;
+}
+
+export async function cancelOnboardingExecution(id: number): Promise<OnboardingExecution> {
+  const response = await api.post<Resource<OnboardingExecution>>(`${BASE}/onboarding-executions/${id}/cancel`);
+  return response.data.data;
+}
+
+export async function approveOnboardingExecution(id: number, reason?: string): Promise<OnboardingExecution> {
+  const response = await api.post<Resource<OnboardingExecution>>(
+    `${BASE}/onboarding-executions/${id}/approve`,
+    reason?.trim() ? { reason: reason.trim() } : {},
+  );
+  return response.data.data;
+}
+
+export async function startOnboardingFirstProduction(
+  id: number,
+  discoveryMode?: OnboardingExecution["first_production_discovery_mode"],
+): Promise<OnboardingExecution> {
+  const response = await api.post<Resource<OnboardingExecution>>(
+    `${BASE}/onboarding-executions/${id}/first-production`,
+    discoveryMode ? { discovery_mode: discoveryMode } : {},
   );
   return response.data.data;
 }

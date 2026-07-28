@@ -167,7 +167,7 @@ export function CrawlerOperationsClient({ agencies, initialOperations, initialWo
       <div className="space-y-3">
         {operations.length === 0 && <Card><CardContent className="pt-6">Nenhuma operação encontrada.</CardContent></Card>}
         {operations.map((operation) => (
-          <Card key={operation.id}>
+          <Card id={`operation-${operation.id}`} key={operation.id}>
             <CardContent className="space-y-2 pt-6">
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2"><Checkbox aria-label={`Selecionar operação ${operation.id}`} checked={selected.includes(operation.id)} onCheckedChange={(checked) => setSelected((current) => checked === true ? [...current, operation.id] : current.filter((id) => id !== operation.id))} /><p>#{operation.id} · {operation.type}</p></div>

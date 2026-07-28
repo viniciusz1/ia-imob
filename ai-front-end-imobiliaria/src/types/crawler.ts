@@ -11,6 +11,7 @@ export interface CrawlAgency {
   health_state: CrawlAgencyHealth;
   revalidation_required: boolean;
   current_published_crawl_run_id: number | null;
+  active_discovery_policy_version_id?: number | null;
   created_at: string;
   updated_at: string;
 }
@@ -386,6 +387,166 @@ export interface OnboardingExecutionModelVersion {
   created_at: string;
 }
 
+export type OnboardingConduction = "manual" | "automated";
+export type FirstProductionDiscoveryMode = "fresh" | "validation_snapshot";
+
+export interface OnboardingPointConfiguration<TStrategy extends string = string> {
+  strategies: TStrategy[];
+  configuration: Record<string, unknown>;
+}
+
+export interface ManualOnboardingConfiguration {
+  discovery: {
+    mode: "fresh" | "existing";
+    discovery_snapshot_id?: number | null;
+    policy_version_id?: number | null;
+    point_configuration?: OnboardingPointConfiguration<string> | null;
+  };
+  extraction: {
+    policy_version_id?: number | null;
+    point_configuration?: OnboardingPointConfiguration<ExtractionStrategy> | null;
+  };
+}
+
+export interface OnboardingPlan {
+  id: number;
+  prospect_id: number;
+  crawl_agency_id: number;
+  name: string | null;
+  conduction: OnboardingConduction | null;
+  status: "draft" | "in_progress" | "completed";
+  steps: Array<{ key: string; state: string }>;
+  execution_model_version_id: number | null;
+  execution_model: OnboardingExecutionModelVersion | null;
+  manual_configuration: ManualOnboardingConfiguration | null;
+  first_production_discovery_mode: FirstProductionDiscoveryMode;
+  confirmed_by: number | null;
+  confirmed_at: string | null;
+  created_by: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface OnboardingPlanInput {
+  name: string;
+  conduction: OnboardingConduction;
+  execution_model_version_id?: number | null;
+  manual_configuration?: ManualOnboardingConfiguration | null;
+  first_production_discovery_mode: FirstProductionDiscoveryMode;
+}
+
+export interface ResolvedOnboardingPolicy {
+  id: number | null;
+  name: string;
+  version: number | null;
+  source: "catalog" | "point_configuration";
+  strategies: string[];
+  configuration: Record<string, unknown>;
+}
+
+export type OnboardingExecutionState =
+  | "queued"
+  | "running"
+  | "awaiting_manual_step"
+  | "requires_attention"
+  | "awaiting_approval"
+  | "awaiting_first_production"
+  | "completed"
+  | "cancelled";
+
+export type OnboardingExecutionStepKey =
+  | "discovery"
+  | "sample_url_confirmation"
+  | "profile_generation"
+  | "profile_validation"
+  | "approval"
+  | "first_production"
+  | "quality_gate";
+
+export type OnboardingExecutionAction =
+  | "run_discovery"
+  | "confirm_sample_url"
+  | "run_profile_generation"
+  | "run_profile_validation"
+  | "correct_sample_url";
+
+export interface OnboardingExecutionOperation {
+  id: number;
+  type: string;
+  state: CrawlerOperationState;
+  step: OnboardingExecutionStepKey;
+  attempt: number;
+  retry_of_operation_id: number | null;
+  progress: {
+    stage: string;
+    percentage: number;
+    message: string | null;
+  };
+  result: Record<string, unknown> | null;
+  error: { code: string; message: string } | null;
+  created_at: string;
+  completed_at: string | null;
+}
+
+export interface OnboardingExecution {
+  id: number;
+  onboarding_plan_id: number;
+  crawl_agency_id: number;
+  name: string;
+  conduction: OnboardingConduction;
+  state: OnboardingExecutionState;
+  current_step: OnboardingExecutionStepKey;
+  execution_model_version_id: number | null;
+  discovery_policy_version_id: number | null;
+  extraction_policy_version_id: number | null;
+  discovery_snapshot_id: number | null;
+  market_data_contract_version_id: number;
+  extraction_profile_id: number | null;
+  profile_validation_report_id: number | null;
+  first_production_discovery_mode: FirstProductionDiscoveryMode;
+  first_production_crawl_run_id: number | null;
+  resolved_configuration: {
+    version: number;
+    execution_model: { id: number; name: string; version: number } | null;
+    discovery: { mode: "fresh" | "existing"; discovery_snapshot_id?: number | null };
+    discovery_policy: ResolvedOnboardingPolicy;
+    extraction_policy: ResolvedOnboardingPolicy;
+    market_data_contract: { id: number; version: number; fields: MarketDataField[] };
+  };
+  sample_url: string | null;
+  sample_url_selection: Record<string, unknown> | null;
+  attention: { code: string; message: string | null } | null;
+  approval: { approved_by: number; approved_at: string; reason: string | null } | null;
+  first_production: {
+    crawl_run_id: number;
+    technical_state: CrawlRun["technical_state"];
+    publication_state: CrawlRun["publication_state"];
+    quality_verdict: "approved" | "blocked" | null;
+  } | null;
+  steps: Array<{
+    key: OnboardingExecutionStepKey;
+    state: string;
+    operation_id: number | null;
+    attempt: number | null;
+  }>;
+  operations: OnboardingExecutionOperation[];
+  next_action:
+    | OnboardingExecutionAction
+    | "wait_for_coordinator"
+    | "wait_for_current_operation"
+    | "decide_onboarding"
+    | "start_first_production"
+    | "retry_first_production"
+    | "retry_failed_operation"
+    | "review_attention"
+    | null;
+  started_at: string | null;
+  paused_at: string | null;
+  completed_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Prospect {
   id: number;
   root_domain: string | null;
@@ -412,7 +573,7 @@ export interface Prospect {
 
 export interface ProspectPromotion {
   crawl_agency: CrawlAgency;
-  onboarding_plan: { id: number; status: "draft" | "in_progress" | "completed"; steps: Array<{ key: string; state: string }> };
+  onboarding_plan: Pick<OnboardingPlan, "id" | "status" | "steps">;
 }
 
 export interface CrawlAgencySuggestion {
