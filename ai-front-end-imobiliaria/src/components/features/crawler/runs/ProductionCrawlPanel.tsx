@@ -27,6 +27,7 @@ export function ProductionCrawlPanel({ agency: initialAgency, discoveryPolicies:
   const [discovery, setDiscovery] = useState("fresh");
   const [policyId, setPolicyId] = useState(agency.active_discovery_policy_version_id?.toString() ?? "");
   const [profileId, setProfileId] = useState(activeProfile?.id.toString() ?? "");
+  const [onlyNewUrls, setOnlyNewUrls] = useState(false);
   const [operationId, setOperationId] = useState<number | null>(null);
   const [confirmActivation, setConfirmActivation] = useState(false);
   const [activating, setActivating] = useState(false);
@@ -45,6 +46,7 @@ export function ProductionCrawlPanel({ agency: initialAgency, discoveryPolicies:
         crawl_agency_id: agency.id,
         discovery_mode: discovery === "fresh" ? "fresh" : "existing",
         ...(discovery === "fresh" ? {} : { discovery_snapshot_id: Number(discovery) }),
+        ...(discovery !== "fresh" && onlyNewUrls ? { only_new_urls: true } : {}),
         ...(isOverride ? { discovery_policy_version_id: Number(policyId) } : {}),
         extraction_profile_id: Number(profileId),
       });
@@ -101,7 +103,7 @@ export function ProductionCrawlPanel({ agency: initialAgency, discoveryPolicies:
         ) : <p className="font-medium text-destructive">Nenhuma política ativa. Crawls com discovery novo estão bloqueados.</p>}
       </div>
       <div className="grid gap-3 md:grid-cols-2">
-        <select aria-label="Discovery do crawl" className="rounded-md border bg-transparent px-3 py-2" disabled={!canExecute || operationId !== null} onChange={(event) => setDiscovery(event.target.value)} value={discovery}>
+        <select aria-label="Discovery do crawl" className="rounded-md border bg-transparent px-3 py-2" disabled={!canExecute || operationId !== null} onChange={(event) => { setDiscovery(event.target.value); if (event.target.value === "fresh") setOnlyNewUrls(false); }} value={discovery}>
           <option value="fresh">Gerar novo Discovery</option>
           {snapshots.map((snapshot) => <option key={snapshot.id} value={snapshot.id}>Usar Snapshot #{snapshot.id} · {snapshot.url_count} URLs</option>)}
         </select>
@@ -110,6 +112,15 @@ export function ProductionCrawlPanel({ agency: initialAgency, discoveryPolicies:
           {usableProfiles.map((profile) => <option key={profile.id} value={profile.id}>v{profile.version} · {profile.status}</option>)}
         </select>
       </div>
+      {discovery !== "fresh" && (
+        <div className="flex items-start gap-2 rounded-lg border bg-muted/20 p-4">
+          <Checkbox checked={onlyNewUrls} disabled={!canExecute || operationId !== null} id="manual-crawl-only-new-urls" onCheckedChange={(checked) => setOnlyNewUrls(checked === true)} />
+          <div className="space-y-1">
+            <Label className="font-normal" htmlFor="manual-crawl-only-new-urls">Somente URLs ainda não importadas</Label>
+            <p className="text-xs text-muted-foreground">Compara o snapshot com o histórico desta Crawl Agency antes de criar a operação.</p>
+          </div>
+        </div>
+      )}
       {discovery === "fresh" && (
         <div className="space-y-2">
           <Label htmlFor="manual-crawl-discovery-policy">Política para esta operação</Label>

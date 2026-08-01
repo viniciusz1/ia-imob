@@ -241,6 +241,7 @@ export interface QueueProductionCrawlPayload {
   discovery_snapshot_id?: number;
   discovery_policy_version_id?: number;
   extraction_profile_id?: number;
+  only_new_urls?: boolean;
 }
 
 export async function queueProductionCrawl(payload: QueueProductionCrawlPayload): Promise<CrawlerOperation> {

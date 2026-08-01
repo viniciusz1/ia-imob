@@ -49,6 +49,61 @@ class ProductionCrawlApiTest extends TestCase
         $this->assertNotSame($activeProfile->id, $operation->plan['extraction_profile']['id']);
     }
 
+    public function test_manual_existing_snapshot_can_exclude_urls_already_imported_by_the_agency(): void
+    {
+        [$admin, $agency, $snapshot, $profile] = $this->fixtures('only-new');
+        $newUrl = "{$agency->base_url}/property/2";
+        DiscoverySnapshotUrl::query()->create([
+            'discovery_snapshot_id' => $snapshot->id,
+            'url' => $newUrl,
+            'url_hash' => hash('sha256', $newUrl),
+        ]);
+
+        $previousOperation = CrawlerOperation::query()->create([
+            'type' => 'production_crawl',
+            'state' => 'succeeded',
+            'requested_by' => $admin->id,
+            'crawl_agency_id' => $agency->id,
+            'market_data_contract_version_id' => $profile->market_data_contract_version_id,
+            'plan' => ['version' => 1],
+        ]);
+        $runId = DB::table('crawler.crawl_runs')->insertGetId([
+            'operation_id' => $previousOperation->id,
+            'crawl_agency_id' => $agency->id,
+            'discovery_snapshot_id' => $snapshot->id,
+            'extraction_profile_id' => $profile->id,
+            'market_data_contract_version_id' => $profile->market_data_contract_version_id,
+            'quality_policy_version_id' => DB::table('crawler.quality_policy_versions')->value('id'),
+            'technical_state' => 'succeeded',
+            'result_kind' => 'full',
+            'publication_state' => 'published',
+            'publishable' => true,
+            'started_at' => now(),
+            'completed_at' => now(),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        DB::table('crawler.market_properties')->insert([
+            'crawler_run_id' => $runId,
+            'link_imovel' => "{$agency->base_url}/property/1",
+            'payload' => json_encode(['link_imovel' => "{$agency->base_url}/property/1"]),
+            'normalization_warnings' => json_encode([]),
+            'extraction_trace' => json_encode([]),
+            'created_at' => now(),
+        ]);
+
+        $this->actingAs($admin)
+            ->postJson('/api/v1/admin/crawler/production-crawls', [
+                'crawl_agency_id' => $agency->id,
+                'discovery_mode' => 'existing',
+                'discovery_snapshot_id' => $snapshot->id,
+                'only_new_urls' => true,
+            ])
+            ->assertCreated()
+            ->assertJsonPath('data.plan.discovery.only_new_urls', true)
+            ->assertJsonPath('data.plan.discovery.urls', [$newUrl]);
+    }
+
     public function test_manual_plan_defaults_to_fresh_discovery_and_active_profile(): void
     {
         [$admin, $agency, , $activeProfile, , $activeDiscoveryPolicy] = $this->fixtures();

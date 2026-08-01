@@ -129,6 +129,29 @@ describe("ProductionCrawlPanel", () => {
     }));
   });
 
+  it("can limit a historical snapshot crawl to URLs not imported yet", async () => {
+    render(
+      <ProductionCrawlPanel
+        agency={agency}
+        discoveryPolicies={[activePolicy]}
+        profiles={[{ id: 7, version: 1, status: "active", sample_url: "https://example.com/1" }]}
+        snapshots={[{ id: 5, url_count: 30, created_at: "2026-07-15T12:00:00Z" }]}
+      />,
+    );
+
+    fireEvent.change(screen.getByRole("combobox", { name: /discovery do crawl/i }), { target: { value: "5" } });
+    fireEvent.click(screen.getByLabelText(/somente urls ainda não importadas/i));
+    fireEvent.click(screen.getByRole("button", { name: /rodar crawl/i }));
+
+    await waitFor(() => expect(mockedQueue).toHaveBeenCalledWith({
+      crawl_agency_id: 42,
+      discovery_mode: "existing",
+      discovery_snapshot_id: 5,
+      extraction_profile_id: 7,
+      only_new_urls: true,
+    }));
+  });
+
   it("keeps an override operation-only and requires explicit confirmation to create a new active version", async () => {
     render(
       <ProductionCrawlPanel

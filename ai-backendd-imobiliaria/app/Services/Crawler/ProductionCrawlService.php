@@ -62,11 +62,11 @@ class ProductionCrawlService
         $discoveryPolicy = $this->resolveDiscoveryPolicy($agency, $input);
         $discovery = $snapshot === null
             ? ['mode' => 'fresh', 'base_url' => $agency->base_url]
-            : [
-                'mode' => 'existing',
-                'snapshot_id' => $snapshot->id,
-                'urls' => $snapshot->urls()->orderBy('id')->pluck('url')->all(),
-            ];
+            : $this->existingSnapshotDiscovery(
+                $snapshot,
+                $agency,
+                (bool) ($input['only_new_urls'] ?? false),
+            );
 
         $plan = [
             'version' => 1,
@@ -146,6 +146,38 @@ class ProductionCrawlService
                 : 'agency_active';
 
         return DiscoveryPolicyPlan::fromVersion($policy, $source);
+    }
+
+    private function existingSnapshotDiscovery(
+        DiscoverySnapshot $snapshot,
+        CrawlAgency $agency,
+        bool $onlyNewUrls,
+    ): array {
+        $urls = $snapshot->urls()->orderBy('id');
+        if ($onlyNewUrls) {
+            $urls->whereNotExists(function ($query) use ($agency): void {
+                $query->selectRaw('1')
+                    ->from('crawler.market_properties as imported_property')
+                    ->join(
+                        'crawler.crawl_runs as imported_run',
+                        'imported_run.id',
+                        '=',
+                        'imported_property.crawler_run_id',
+                    )
+                    ->whereColumn(
+                        'imported_property.link_imovel',
+                        'crawler.discovery_snapshot_urls.url',
+                    )
+                    ->where('imported_run.crawl_agency_id', $agency->id);
+            });
+        }
+
+        return [
+            'mode' => 'existing',
+            'snapshot_id' => $snapshot->id,
+            ...($onlyNewUrls ? ['only_new_urls' => true] : []),
+            'urls' => $urls->pluck('url')->all(),
+        ];
     }
 
     public function queueFirstProduction(

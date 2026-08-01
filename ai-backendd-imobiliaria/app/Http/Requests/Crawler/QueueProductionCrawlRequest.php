@@ -19,6 +19,7 @@ class QueueProductionCrawlRequest extends FormRequest
             'crawl_agency_id' => ['required', 'integer'],
             'discovery_mode' => ['required', Rule::in(['fresh', 'existing'])],
             'discovery_snapshot_id' => ['nullable', 'integer', 'required_if:discovery_mode,existing'],
+            'only_new_urls' => ['sometimes', 'boolean', 'prohibited_unless:discovery_mode,existing'],
             'extraction_profile_id' => ['nullable', 'integer'],
             'discovery_policy_version_id' => [
                 'nullable',
