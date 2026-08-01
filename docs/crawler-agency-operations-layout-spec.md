@@ -34,10 +34,11 @@ Isso produz três problemas:
 - Discoveries, Perfis de Extração, Crawls de produção, qualidade/publicação e agendamento dessa fonte.
 - Feedback de sucesso, progresso e erro ao iniciar, cancelar, retentar ou decidir operações dentro do módulo Crawler.
 - Estados de interação: cursor, hover, foco visível, estado pressionado e indisponibilidade.
+- Exibição e bloqueio preventivo de Estratégias de Discovery que não possuam capacidade correspondente anunciada pelo worker.
 
 ### Fora do escopo
 
-- Alterar o pipeline, critérios de qualidade, permissões, workers ou o protocolo de dispatch.
+- Alterar o pipeline, critérios de qualidade, permissões, ciclo de vida dos workers ou o protocolo de dispatch, exceto pelo contrato mínimo de anúncio e validação das estratégias suportadas.
 - Alterar a navegação ou os componentes compartilhados de módulos não-Crawler.
 - Criar notificações externas, WebSocket ou SSE; o polling existente continua sendo a forma de atualização.
 - Redesenhar a Visão Geral global, Prospecção, Políticas ou Contrato de Dados de Mercado.
@@ -57,6 +58,7 @@ Substituir a navegação por âncoras por abas reais ou rotas aninhadas. A recom
 
 ```text
 /admin/crawler/agencies/:agencyId                 Visão geral
+/admin/crawler/agencies/:agencyId/onboarding      Execuções de Onboarding
 /admin/crawler/agencies/:agencyId/discoveries     Discoveries
 /admin/crawler/agencies/:agencyId/profiles        Perfis de Extração
 /admin/crawler/agencies/:agencyId/crawls          Crawls e qualidade
@@ -70,6 +72,7 @@ Uma URL de detalhe de recurso deve preservar o vínculo com a Crawl Agency:
 /admin/crawler/agencies/:agencyId/discoveries/:snapshotId
 /admin/crawler/agencies/:agencyId/profiles/:profileId
 /admin/crawler/agencies/:agencyId/crawls/:runId
+/admin/crawler/agencies/:agencyId/onboarding/:executionId
 ```
 
 O detalhe de uma operação pode continuar em rota global, mas toda origem contextual deve oferecer `Abrir na fila global`, já filtrada pela Crawl Agency.
@@ -79,6 +82,7 @@ O detalhe de uma operação pode continuar em rota global, mas toda origem conte
 | Área | Responde | Contém | Não contém |
 | --- | --- | --- | --- |
 | Visão geral | O que requer ação agora? | estado, alertas, operação atual, dados publicados e atividade recente | listas completas ou formulários extensos |
+| Execuções de Onboarding | Como a fonte foi preparada e como retomar ou substituir o fluxo atual? | execução atual, histórico de execuções, configuração fixada, timeline, Operações do Crawler filhas e controles de recuperação | operações avulsas sem vínculo com onboarding |
 | Discoveries | Quais URLs foram descobertas? | criação, snapshots imutáveis, contagem, origem e inspeção de URLs | geração ou validação de perfil |
 | Perfis de Extração | Qual configuração orienta a extração? | versões, schemas, estratégias, campos, validações e decisões | dados de produção publicados |
 | Crawls e qualidade | O que a produção gerou e pode publicar? | execução, resultado técnico, qualidade, candidato/publicado/quarentena | configuração de schema |
@@ -127,6 +131,8 @@ Usar três cartões, com a mesma altura visual, abaixo da faixa:
 
 Quando não houver operação, o cartão deve dizer `Nenhuma operação em andamento` e informar a capacidade, por exemplo `Crawl livre para iniciar`. Quando houver operação equivalente pendente ou em andamento, explicar a Exclusividade de Crawl em vez de deixar o botão falhar silenciosamente.
 
+Quando uma Execução de Onboarding exigir atenção, a Visão geral mostra seu identificador, a etapa, um resumo legível da falha, uma única ação primária contextual e o link `Abrir Onboarding`. A ação primária pode retentar a etapa falha, mas a adoção de artefatos, a substituição ou o cancelamento da execução e o histórico completo pertencem à área de Execuções de Onboarding.
+
 ### Alertas e atividade recente
 
 - Exibir no máximo cinco alertas acionáveis: revalidação necessária, perfil pendente, falha recorrente, circuito aberto, snapshot em quarentena, agendamento suspenso e dados publicados antigos.
@@ -147,6 +153,46 @@ Apresentar uma trilha de cinco etapas somente quando a Crawl Agency estiver em `
 - Etapas futuras mostram por que estão bloqueadas.
 - Artefatos prontos permanecem acessíveis por links: `Ver Discovery`, `Ver configuração do perfil`, `Inspecionar evidência de validação`.
 - Resultados do Crawl de Validação não são apresentados como dados vigentes ou resultado de produção.
+
+### Área de Execuções de Onboarding
+
+A área de Onboarding é a superfície completa de controle e auditoria do fluxo. Ela apresenta a execução atual e todas as anteriores separadamente, abre cada execução em uma URL compartilhável e preserva a relação entre cada etapa e suas Operações do Crawler filhas.
+
+A execução atual ocupa um cartão operacional completo. Abaixo dela, o histórico aparece em uma tabela compacta, ordenada da mais recente para a mais antiga, com ID e nome, condução e modelo/versão, estado e última etapa alcançada, início, término e responsável. Cada linha abre a timeline imutável da execução; múltiplas timelines completas não são renderizadas simultaneamente na listagem.
+
+Enquanto a Crawl Agency permanecer em `onboarding`, cada execução histórica oferece `Usar configuração como base`. A ação abre o configurador de nova execução ou substituição sem alterar o estado atual, copia a configuração histórica e destaca modelos, políticas ou estratégias que deixaram de estar disponíveis; referências inválidas precisam ser substituídas antes da confirmação.
+
+Controles de recuperação, adoção de artefatos, cancelamento e configuração de uma execução substituta ficam nesta área. A Visão geral não duplica esses controles; oferece somente a ação primária segura para o estado atual e um link para abrir o contexto completo.
+
+`Nova execução` e `Substituir execução` existem somente enquanto a Crawl Agency permanece em `onboarding`. Uma execução concluída é histórico imutável e, depois da ativação, mudanças técnicas usam o fluxo separado de revalidação em vez de criar outro onboarding.
+
+O configurador de uma execução substituta começa com uma cópia editável da configuração fixada da execução atual. A pessoa pode alterar condução, modelo, políticas, configurações pontuais e Snapshot de Discovery. Antes da confirmação, a interface apresenta as diferenças e deixa explícito que a execução atual permanece intacta; somente a confirmação final cancela a anterior e inicia a nova.
+
+A configuração substituta é persistida como um Plano de Onboarding em rascunho separado. Existe no máximo um rascunho substituto por Crawl Agency; ele pode ser salvo, retomado ou descartado sem afetar a execução vigente. Criá-lo a partir da execução atual ou de uma execução histórica apenas define sua configuração inicial.
+
+A execução sucessora começa exclusivamente conforme o novo Plano. Etapas concluídas e artefatos da predecessora não são transportados implicitamente; um Snapshot ou outro artefato anterior só é reutilizado quando o Plano o seleciona de forma explícita e registra essa escolha na linhagem.
+
+Se a execução substituída tiver uma Operação do Crawler em andamento, a confirmação solicita seu cancelamento e entra em `Aguardando cancelamento`. A nova execução começa somente depois de o worker confirmar `cancelled`; quando não há operação ativa, a troca pode ser imediata. As duas execuções nunca processam simultaneamente.
+
+A execução encerrada pela troca preserva seu estado terminal com motivo `replaced` e mostra `Substituída pela execução #N`; a sucessora mostra `Substitui a execução #N`. As duas timelines oferecem navegação recíproca e não apresentam a substituição como um cancelamento comum.
+
+Quando o Discovery da execução atual falhar, a recuperação oferece `Retentar etapa com falha` e `Usar Snapshot existente`. A lista de adoção contém somente Snapshots da mesma Crawl Agency, produzidos por uma Operação de Discovery bem-sucedida, com ao menos uma URL de Amostra elegível, e somente enquanto nenhuma etapa posterior da execução tiver começado. A elegibilidade da URL exige HTTP(S), domínio pertencente à Crawl Agency e caminho diferente da página inicial. Cada opção mostra idade, quantidade de URLs, fontes e Operação do Crawler de origem; snapshots antigos recebem aviso, mas não são bloqueados. O backend valida a elegibilidade e registra a adoção, e uma execução automatizada retoma o avanço automático depois dela.
+
+A adoção possui dois pontos de entrada para o mesmo comando: `Usar Snapshot existente` na etapa falha e `Usar no onboarding atual` em cada Snapshot elegível na área de Discoveries. A segunda ação aparece somente quando existe uma Execução de Onboarding compatível parada no Discovery. Ambas abrem a mesma confirmação, identificando a execução, a operação falha e o Snapshot escolhido.
+
+A confirmação registra automaticamente responsável, horário, Snapshot e Operação de origem, Operação falha substituída e configuração de Discovery originalmente fixada. Uma observação pode ser informada, mas não é obrigatória.
+
+A Operação do Crawler que produziu o Snapshot adotado permanece avulsa e não é reclassificada retroativamente como filha do onboarding. A timeline registra um evento de adoção e oferece links para o Snapshot, sua Operação de origem e a tentativa substituída.
+
+Quando ainda não houver um Snapshot adequado, a recuperação oferece `Criar Discovery personalizado`. A ação abre a área de Discoveries preservando o contexto da Execução de Onboarding e permite novas Operações do Crawler avulsas. Cada resultado elegível oferece `Usar Snapshot #N e continuar`; nenhum resultado é adotado automaticamente, e tentativas malsucedidas ou não escolhidas permanecem no histórico operacional.
+
+As permissões seguem a granularidade existente: `crawler.view` consulta histórico e timelines; `crawler.operations.execute` retenta etapas e adota Snapshots; `crawler.operations.cancel` cancela execuções; uma substituição exige simultaneamente execução e cancelamento. `crawler.policies.manage` continua obrigatório para criar ou publicar políticas, mas não para selecionar uma versão já disponível.
+
+O backend classifica a falha e fornece as ações de recuperação permitidas, sua prioridade e uma justificativa legível; o frontend não infere recuperabilidade a partir do texto técnico. Falhas transitórias priorizam `Retentar etapa`. Falhas de configuração, como uma fonte de Discovery inválida, priorizam `Usar Snapshot existente` ou `Configurar execução substituta`; `Retentar etapa` permanece como ação secundária para o caso de o ambiente ou worker ter sido corrigido depois da falha.
+
+Suporte da Estratégia e Disponibilidade do Worker são comunicados separadamente. Estratégias sem implementação declarada não podem publicar políticas nem confirmar novas execuções. A indisponibilidade temporária de um worker compatível não invalida a configuração: a Operação do Crawler permanece enfileirada com a explicação `Aguardando worker compatível` e oferece os controles normais de acompanhamento e cancelamento.
+
+O manifesto de capacidades anunciado pelo worker em seu registro é a fonte de verdade para tipos de operação e estratégias executáveis. O catálogo Laravel governa rótulo, seleção, segurança e bloqueio, mas não pode declarar suporte técnico. O último manifesto conhecido sustenta o Suporte da Estratégia; heartbeat e saúde determinam somente a Disponibilidade do Worker.
 
 ### Operação cotidiana de agência ativa
 
@@ -257,12 +303,13 @@ O backend permanece como fonte de verdade para permissões, exclusividade de cra
 2. A tela explica a próxima ação e o motivo quando a agência não está apta para produção ou publicação.
 3. Discoveries, Perfis, Crawls/qualidade, Agendamento e Configuração possuem superfícies separadas e URLs compartilháveis.
 4. A fila global permanece a fonte de ações transversais; o detalhe mostra apenas a atividade da agência e links de saída contextualizados.
-5. Todo botão habilitado, link, aba, `summary` expansível e card inteiramente clicável usa cursor `pointer`, foco visível e feedback de hover. Elementos estáticos não fingem ser clicáveis.
-6. Cada ação assíncrona mostra estado pendente, impede submissão duplicada e comunica sucesso somente após a API aceitar o comando.
-7. Cada falha de operação ou decisão mostra mensagem humana, preserva a intenção preenchida e oferece diagnóstico ou próxima ação quando possível.
-8. Operações ativas atualizam progresso, etapa, percentual, itens processados/total e heartbeat por polling; estados terminais são comunicados corretamente.
-9. A validação de perfil permanece distinta de dados de produção, e a publicação permanece distinta do sucesso técnico de um crawl.
-10. A implementação mantém permissões granulares, navegação por teclado e comportamento responsivo: o trilho de contexto fica abaixo do conteúdo principal em telas menores.
+5. Execuções de Onboarding e Operações do Crawler são apresentadas em níveis distintos: a área de Onboarding lista as execuções e cada detalhe apresenta suas operações filhas sem confundir suas identidades.
+6. Todo botão habilitado, link, aba, `summary` expansível e card inteiramente clicável usa cursor `pointer`, foco visível e feedback de hover. Elementos estáticos não fingem ser clicáveis.
+7. Cada ação assíncrona mostra estado pendente, impede submissão duplicada e comunica sucesso somente após a API aceitar o comando.
+8. Cada falha de operação ou decisão mostra mensagem humana, preserva a intenção preenchida e oferece diagnóstico ou próxima ação quando possível.
+9. Operações ativas atualizam progresso, etapa, percentual, itens processados/total e heartbeat por polling; estados terminais são comunicados corretamente.
+10. A validação de perfil permanece distinta de dados de produção, e a publicação permanece distinta do sucesso técnico de um crawl.
+11. A implementação mantém permissões granulares, navegação por teclado e comportamento responsivo: o trilho de contexto fica abaixo do conteúdo principal em telas menores.
 
 ## Fatiamento recomendado
 

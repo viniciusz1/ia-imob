@@ -1,0 +1,3 @@
+# Use worker capability manifests as execution authority
+
+Each Crawler Machine worker advertises a capability manifest containing its executable operation types and strategy keys when it registers, and Laravel persists the last known manifest as the authority for technical support. Administrative catalog metadata may label, organize, or block a strategy but cannot prove its implementation; policies and new executions require declared support, while current worker health controls only immediate availability and may leave a supported operation queued awaiting a compatible worker. This couples publication checks to deployed capability manifests, but prevents configurations accepted by Laravel from failing later because the Python worker does not implement them.
