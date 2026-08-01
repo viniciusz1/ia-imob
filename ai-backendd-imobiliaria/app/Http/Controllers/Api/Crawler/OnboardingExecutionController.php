@@ -96,6 +96,7 @@ class OnboardingExecutionController extends Controller
     {
         return [
             'crawlAgency',
+            'creator',
             'executionModel',
             'discoveryPolicy',
             'extractionPolicy',

@@ -42,4 +42,13 @@ describe("CrawlAgencyContextHeader", () => {
     expect(discoveries).toHaveFocus();
     expect(discoveries).toHaveAttribute("href", "/admin/crawler/agencies/42/discoveries");
   });
+
+  it("links to the dedicated Onboarding area", () => {
+    render(<CrawlAgencyContextHeader agency={agency} area="Visão geral" />);
+
+    expect(screen.getByRole("link", { name: "Onboarding" })).toHaveAttribute(
+      "href",
+      "/admin/crawler/agencies/42/onboarding",
+    );
+  });
 });

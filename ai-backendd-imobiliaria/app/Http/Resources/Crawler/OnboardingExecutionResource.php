@@ -32,6 +32,10 @@ class OnboardingExecutionResource extends JsonResource
             'profile_validation_report_id' => $this->profile_validation_report_id,
             'first_production_discovery_mode' => $this->first_production_discovery_mode,
             'first_production_crawl_run_id' => $this->first_production_crawl_run_id,
+            'created_by' => $this->whenLoaded('creator', fn () => [
+                'id' => $this->creator->id,
+                'name' => $this->creator->name,
+            ]),
             'resolved_configuration' => $this->resolved_configuration,
             'sample_url' => $this->sample_url,
             'sample_url_selection' => $this->sample_url_selection,

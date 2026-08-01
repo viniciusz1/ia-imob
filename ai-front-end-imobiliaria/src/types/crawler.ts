@@ -540,6 +540,7 @@ export interface OnboardingExecution {
   profile_validation_report_id: number | null;
   first_production_discovery_mode: FirstProductionDiscoveryMode;
   first_production_crawl_run_id: number | null;
+  created_by: { id: number; name: string };
   resolved_configuration: {
     version: number;
     execution_model: { id: number; name: string; version: number } | null;

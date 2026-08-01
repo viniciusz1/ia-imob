@@ -40,6 +40,7 @@ function execution(overrides: Partial<OnboardingExecution> = {}): OnboardingExec
     profile_validation_report_id: 41,
     first_production_discovery_mode: "fresh",
     first_production_crawl_run_id: null,
+    created_by: { id: 1, name: "Approver" },
     resolved_configuration: {
       version: 1,
       execution_model: { id: 13, name: "Modelo", version: 1 },

@@ -294,6 +294,37 @@ class OnboardingExecutionApiTest extends TestCase
             ->assertForbidden();
     }
 
+    public function test_execution_history_is_newest_first_and_identifies_its_creator(): void
+    {
+        [$agency] = $this->promoteProspect('history');
+        $older = $this->configuredExecution($agency, 'Older execution');
+        $older->forceFill([
+            'state' => 'cancelled',
+            'completed_at' => now()->subDay(),
+            'created_at' => now()->subDay(),
+            'updated_at' => now()->subDay(),
+        ])->save();
+        $operator = User::factory()->create(['name' => 'Crawler Operator']);
+        $attributes = $older->getAttributes();
+        unset($attributes['id'], $attributes['created_at'], $attributes['updated_at']);
+        $attributes['name'] = 'Newer execution';
+        $attributes['state'] = 'completed';
+        $attributes['completed_at'] = now();
+        $attributes['created_by'] = $operator->id;
+        $newer = OnboardingExecution::query()->create($attributes);
+
+        $viewer = User::factory()->create(['agency_id' => null]);
+        $viewer->givePermissionTo(Permission::findByName('crawler.view', 'web'));
+
+        $this->actingAs($viewer)
+            ->getJson("/api/v1/admin/crawler/crawl-agencies/{$agency->id}/onboarding-executions")
+            ->assertOk()
+            ->assertJsonPath('data.0.id', $newer->id)
+            ->assertJsonPath('data.0.created_by.id', $operator->id)
+            ->assertJsonPath('data.0.created_by.name', 'Crawler Operator')
+            ->assertJsonPath('data.1.id', $older->id);
+    }
+
     public function test_configuration_failure_exposes_human_recovery_options(): void
     {
         [$agency] = $this->promoteProspect('invalid-source');

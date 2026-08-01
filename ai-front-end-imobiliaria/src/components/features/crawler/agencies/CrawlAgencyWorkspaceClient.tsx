@@ -25,7 +25,7 @@ import type {
 import { isActiveCrawlerOperation, useCrawlerOperationPolling } from "../useCrawlerOperationPolling";
 import { CrawlAgencyContextHeader } from "./CrawlAgencyContextHeader";
 import { CrawlAgencyOnboardingProgress } from "./CrawlAgencyOnboardingProgress";
-import { OnboardingExecutionTimeline } from "./OnboardingExecutionTimeline";
+import { OnboardingExecutionSummaryCard } from "./OnboardingExecutionSummaryCard";
 import { OnboardingPlanBuilder } from "./OnboardingPlanBuilder";
 import { useOnboardingExecutionPolling } from "./useOnboardingExecutionPolling";
 
@@ -116,7 +116,7 @@ export function CrawlAgencyWorkspaceClient({
       />
     )}
 
-    {execution && <OnboardingExecutionTimeline execution={execution} history={executions} onExecution={(updated) => setExecutions((current) => [updated, ...current.filter((item) => item.id !== updated.id)])} />}
+    {execution && <OnboardingExecutionSummaryCard agencyId={agency.id} execution={execution} />}
 
     {!onboardingPlan && <CrawlAgencyOnboardingProgress agency={agency} profiles={profiles} snapshots={snapshots} />}
 
