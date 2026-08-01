@@ -31,6 +31,7 @@ export const authService = {
      * Efetua o logout revogando a sessão no backend
      */
     async logout() {
+        await this.csrfCookie();
         return api.post(`${API_PREFIX}/logout`);
     },
 
