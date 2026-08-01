@@ -567,8 +567,11 @@ export async function listProspects(params: {
   state?: string;
   review_state?: Prospect["review_state"];
   automatic_classification?: Prospect["automatic_classification"];
+  per_page?: number;
 } = {}): Promise<Prospect[]> {
-  const response = await api.get<Resource<Prospect[]>>(`${BASE}/prospects`, { params });
+  const response = await api.get<Resource<Prospect[]>>(`${BASE}/prospects`, {
+    params: { per_page: 100, ...params },
+  });
   return response.data.data;
 }
 

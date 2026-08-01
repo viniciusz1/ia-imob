@@ -26,4 +26,28 @@ class DistributedSnapshotSamplerTest extends TestCase
         $this->assertCount(20, array_unique($sample));
         $this->assertGreaterThan(40, array_search($sample[10], $urls, true));
     }
+
+    public function test_it_prioritizes_detail_urls_when_the_reference_is_a_detail_page(): void
+    {
+        $categories = array_map(
+            fn (int $index): string => "https://example.com/imoveis/venda/categoria-{$index}",
+            range(1, 30),
+        );
+        $details = array_map(
+            fn (int $index): string => "https://example.com/imovel/casa-{$index}",
+            range(1, 30),
+        );
+        $urls = array_merge($categories, $details);
+
+        $sample = (new DistributedSnapshotSampler)->sample(
+            $urls,
+            20,
+            'https://example.com/imovel/casa-selecionada',
+        );
+
+        $this->assertCount(20, $sample);
+        foreach ($sample as $url) {
+            $this->assertStringContainsString('/imovel/', $url);
+        }
+    }
 }

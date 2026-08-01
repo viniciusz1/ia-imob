@@ -190,7 +190,7 @@ class OnboardingExecutionCoordinator
             'current_step' => 'profile_generation',
             'sample_url' => $sampleUrl,
             'sample_url_selection' => [
-                'method' => 'first_eligible_snapshot_url_by_id',
+                'method' => 'preferred_detail_snapshot_url',
                 'discovery_snapshot_id' => $snapshot->id,
                 'url' => $sampleUrl,
                 'selected_at' => now()->toIso8601String(),
@@ -336,6 +336,7 @@ class OnboardingExecutionCoordinator
 
     private function selectSampleUrl(DiscoverySnapshot $snapshot, string $rootDomain): ?string
     {
+        $eligible = [];
         foreach ($snapshot->urls()->orderBy('id')->pluck('url') as $url) {
             $parts = parse_url($url);
             $scheme = strtolower((string) ($parts['scheme'] ?? ''));
@@ -345,11 +346,39 @@ class OnboardingExecutionCoordinator
             $belongsToAgency = $host === $normalizedRoot || str_ends_with($host, ".{$normalizedRoot}");
 
             if (in_array($scheme, ['http', 'https'], true) && $belongsToAgency && ! in_array($path, ['', '/'], true)) {
-                return $url;
+                $eligible[] = [
+                    'url' => $url,
+                    'score' => $this->sampleUrlScore($parts),
+                ];
             }
         }
 
-        return null;
+        usort($eligible, fn (array $left, array $right): int => $right['score'] <=> $left['score']);
+
+        return $eligible[0]['url'] ?? null;
+    }
+
+    private function sampleUrlScore(array $parts): int
+    {
+        $path = strtolower((string) ($parts['path'] ?? ''));
+        $query = strtolower((string) ($parts['query'] ?? ''));
+
+        if (
+            preg_match('~/(?:imovel|property)/~', $path) === 1
+            || preg_match('~/\d{3,}/?$~', $path) === 1
+            || preg_match('/(?:^|&)imovel=\d+(?:&|$)/', $query) === 1
+        ) {
+            return 100;
+        }
+
+        if (
+            preg_match('~/(?:imoveis|lista-de-imoveis)(?:/|$)~', $path) === 1
+            || str_contains($query, 'pagina=busca')
+        ) {
+            return 0;
+        }
+
+        return 50;
     }
 
     private function loadForRead(OnboardingExecution $execution): OnboardingExecution

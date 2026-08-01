@@ -31,7 +31,7 @@ class ExtractionProfileWorkflowService
 
         $snapshot = $profile->discoverySnapshot()->firstOrFail();
         $urls = $snapshot->urls()->orderBy('id')->pluck('url')->all();
-        $sample = $this->sampler->sample($urls);
+        $sample = $this->sampler->sample($urls, 20, $profile->sample_url);
 
         if ($sample === []) {
             throw ValidationException::withMessages(['discovery_snapshot_id' => 'The Discovery Snapshot has no URLs.']);

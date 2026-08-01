@@ -188,6 +188,14 @@ class OnboardingExecutionResource extends JsonResource
             ];
         }
 
+        if ($this->attention_code === 'eligible_sample_url_missing') {
+            return [
+                'category' => 'configuration',
+                'message' => 'O Discovery concluído não contém uma URL de imóvel elegível. Use outro Snapshot ou execute um Discovery personalizado.',
+                'actions' => $this->discoveryRecoveryActions(),
+            ];
+        }
+
         if ($this->attention_code !== 'child_operation_failed') {
             return [
                 'category' => 'unknown',

@@ -56,7 +56,7 @@ class ProximityResolverTest extends TestCase
 
         $this->app->instance(LlmProvider::class, new class implements LlmProvider
         {
-            public function chat(array $messages, array $responseFormat = []): string
+            public function chat(array $messages, array $responseFormat = [], array $options = []): string
             {
                 return '{"tipo":["Apartamento"],"proximity":{"reference":"centro","city":"Jaraguá do Sul","radius_hint":"perto"}}';
             }

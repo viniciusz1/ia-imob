@@ -153,7 +153,7 @@ class OnboardingExecutionApiTest extends TestCase
 
         $execution = $coordinator->reconcile($execution);
         $this->assertSame("{$agency->base_url}/property/selected-first", $execution->sample_url);
-        $this->assertSame('first_eligible_snapshot_url_by_id', $execution->sample_url_selection['method']);
+        $this->assertSame('preferred_detail_snapshot_url', $execution->sample_url_selection['method']);
         $generation = CrawlerOperation::query()
             ->where('onboarding_execution_id', $execution->id)
             ->where('onboarding_step', 'profile_generation')
@@ -214,6 +214,37 @@ class OnboardingExecutionApiTest extends TestCase
             ->assertJsonMissingPath('data.operations.0.plan');
     }
 
+    public function test_coordinator_prefers_a_property_detail_url_over_a_search_page(): void
+    {
+        [$agency] = $this->promoteProspect('preferred-detail');
+        $execution = $this->configuredExecution($agency, 'Preferred detail model');
+        $coordinator = app(OnboardingExecutionCoordinator::class);
+        $coordinator->reconcile($execution);
+        $discovery = $execution->operations()->where('onboarding_step', 'discovery')->sole();
+        $snapshot = DiscoverySnapshot::query()->create([
+            'operation_id' => $discovery->id,
+            'crawl_agency_id' => $agency->id,
+            'url_count' => 2,
+            'content_hash' => str_repeat('f', 64),
+        ]);
+        foreach ([
+            "{$agency->base_url}/imoveis/venda/apartamento/jaragua-do-sul",
+            "{$agency->base_url}/2494",
+        ] as $url) {
+            DiscoverySnapshotUrl::query()->create([
+                'discovery_snapshot_id' => $snapshot->id,
+                'url' => $url,
+                'url_hash' => hash('sha256', $url),
+            ]);
+        }
+        $this->succeed($discovery, ['discovery_snapshot_id' => $snapshot->id]);
+
+        $execution = $coordinator->reconcile($execution);
+
+        $this->assertSame("{$agency->base_url}/2494", $execution->sample_url);
+        $this->assertSame('preferred_detail_snapshot_url', $execution->sample_url_selection['method']);
+    }
+
     public function test_missing_sample_or_failed_child_requires_attention_without_erasing_completed_work(): void
     {
         [$agency] = $this->promoteProspect();
@@ -242,6 +273,15 @@ class OnboardingExecutionApiTest extends TestCase
         $this->assertSame('eligible_sample_url_missing', $execution->attention_code);
         $this->assertSame('succeeded', $discovery->refresh()->state);
         $this->assertDatabaseCount('crawler.operations', 1);
+
+        $this->actingAs($this->admin)
+            ->getJson("/api/v1/admin/crawler/onboarding-executions/{$execution->id}")
+            ->assertOk()
+            ->assertJsonCount(2, 'data.recovery_actions')
+            ->assertJsonPath('data.recovery_actions.0.key', 'use_existing_discovery_snapshot')
+            ->assertJsonPath('data.recovery_actions.0.enabled', true)
+            ->assertJsonPath('data.recovery_actions.1.key', 'create_custom_discovery')
+            ->assertJsonPath('data.recovery_actions.1.enabled', true);
 
         [$otherAgency] = $this->promoteProspect('failure');
         $failedExecution = $this->configuredExecution($otherAgency, 'Failure model');
@@ -522,6 +562,55 @@ class OnboardingExecutionApiTest extends TestCase
             ->where('onboarding_execution_id', $execution->id)
             ->where('onboarding_step', 'discovery')
             ->count());
+    }
+
+    public function test_automated_execution_adopts_a_snapshot_after_successful_discovery_has_no_sample(): void
+    {
+        [$agency] = $this->promoteProspect('adopt-after-empty');
+        $execution = $this->configuredExecution($agency, 'Empty Discovery adoption model');
+        $coordinator = app(OnboardingExecutionCoordinator::class);
+        $coordinator->reconcile($execution);
+        $completed = $execution->operations()->sole();
+        $emptySnapshot = DiscoverySnapshot::query()->create([
+            'operation_id' => $completed->id,
+            'crawl_agency_id' => $agency->id,
+            'url_count' => 0,
+            'content_hash' => str_repeat('0', 64),
+        ]);
+        $this->succeed($completed, ['discovery_snapshot_id' => $emptySnapshot->id]);
+        $coordinator->reconcile($execution);
+
+        $sourceOperation = CrawlerOperation::query()->create([
+            'type' => 'discovery',
+            'state' => 'succeeded',
+            'requested_by' => $this->admin->id,
+            'crawl_agency_id' => $agency->id,
+            'market_data_contract_version_id' => $execution->market_data_contract_version_id,
+            'plan' => ['discovery_policy' => ['strategies' => ['sitemap']]],
+            'completed_at' => now(),
+        ]);
+        $snapshot = DiscoverySnapshot::query()->create([
+            'operation_id' => $sourceOperation->id,
+            'crawl_agency_id' => $agency->id,
+            'url_count' => 1,
+            'content_hash' => str_repeat('1', 64),
+        ]);
+        DiscoverySnapshotUrl::query()->create([
+            'discovery_snapshot_id' => $snapshot->id,
+            'url' => "{$agency->base_url}/imovel/123",
+            'url_hash' => hash('sha256', "{$agency->base_url}/imovel/123"),
+        ]);
+
+        $this->actingAs($this->admin)
+            ->postJson("/api/v1/admin/crawler/onboarding-executions/{$execution->id}/adopt-discovery-snapshot", [
+                'discovery_snapshot_id' => $snapshot->id,
+            ])
+            ->assertOk()
+            ->assertJsonPath('data.discovery_adoption.replaced_operation_id', $completed->id)
+            ->assertJsonPath('data.current_step', 'profile_generation')
+            ->assertJsonPath('data.state', 'running');
+
+        $this->assertSame('succeeded', $completed->refresh()->state);
     }
 
     public function test_discovery_adoption_rejects_a_snapshot_whose_source_operation_belongs_to_another_agency(): void

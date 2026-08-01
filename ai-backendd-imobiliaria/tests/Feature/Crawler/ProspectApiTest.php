@@ -62,6 +62,19 @@ class ProspectApiTest extends TestCase
         $this->assertSame($this->admin->id, $prospect->reviewed_by);
     }
 
+    public function test_operator_can_request_a_larger_prospect_review_page(): void
+    {
+        foreach (range(1, 20) as $index) {
+            $this->prospect("review-{$index}.example.com");
+        }
+
+        $this->actingAs($this->admin)
+            ->getJson('/api/v1/admin/crawler/prospects?per_page=100')
+            ->assertOk()
+            ->assertJsonCount(20, 'data')
+            ->assertJsonPath('meta.per_page', 100);
+    }
+
     public function test_approved_prospect_promotes_transactionally_to_onboarding_without_external_operations(): void
     {
         $prospect = $this->prospect('promote.example.com', 'approved');

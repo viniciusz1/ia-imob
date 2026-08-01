@@ -75,7 +75,7 @@ class OnboardingDiscoveryAdoptionService
             }
             $replacedOperation = $locked->operations()
                 ->where('onboarding_step', 'discovery')
-                ->whereIn('state', ['failed', 'cancelled'])
+                ->whereIn('state', ['failed', 'cancelled', 'succeeded'])
                 ->latest('attempt')
                 ->firstOrFail();
 

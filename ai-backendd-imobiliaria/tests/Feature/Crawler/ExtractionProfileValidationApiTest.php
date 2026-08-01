@@ -78,6 +78,35 @@ class ExtractionProfileValidationApiTest extends TestCase
             ->assertJsonPath('data.lifecycle_state', 'active');
     }
 
+    public function test_validation_plan_prioritizes_urls_matching_the_detail_profile(): void
+    {
+        [$admin, , , $snapshot, $profile] = $this->fixtures();
+        $snapshot->urls()->delete();
+        foreach (range(1, 30) as $index) {
+            foreach ([
+                "https://validation.example.com/imoveis/venda/categoria-{$index}",
+                "https://validation.example.com/imovel/casa-{$index}",
+            ] as $url) {
+                DiscoverySnapshotUrl::query()->create([
+                    'discovery_snapshot_id' => $snapshot->id,
+                    'url' => $url,
+                    'url_hash' => hash('sha256', $url),
+                ]);
+            }
+        }
+        $profile->update(['sample_url' => 'https://validation.example.com/imovel/casa-selecionada']);
+
+        $urls = $this->actingAs($admin)
+            ->postJson("/api/v1/admin/crawler/extraction-profiles/{$profile->id}/validation")
+            ->assertCreated()
+            ->assertJsonCount(20, 'data.plan.urls')
+            ->json('data.plan.urls');
+
+        foreach ($urls as $url) {
+            $this->assertStringContainsString('/imovel/', $url);
+        }
+    }
+
     public function test_profile_summaries_omit_evidence_and_records_are_inspected_on_demand(): void
     {
         [$admin, $agency, , , $profile] = $this->fixtures();

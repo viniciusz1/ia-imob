@@ -5,6 +5,7 @@ import {
   adoptOnboardingDiscoverySnapshot,
   listCrawlAgenciesPage,
   listOnboardingDiscoverySnapshotCandidates,
+  listProspects,
 } from "../crawlerService";
 
 vi.mock("../api", () => ({
@@ -32,6 +33,15 @@ describe("crawlerService pagination", () => {
       params: { page: 2, search: "seculus.net" },
     });
     expect(result).toEqual(response);
+  });
+
+  it("loads enough prospects for the review workspace", async () => {
+    vi.mocked(api.get).mockResolvedValue({ data: { data: [] } });
+
+    await expect(listProspects()).resolves.toEqual([]);
+    expect(api.get).toHaveBeenCalledWith("/api/v1/admin/crawler/prospects", {
+      params: { per_page: 100 },
+    });
   });
 
   it("loads adoption candidates for the current Onboarding execution", async () => {

@@ -23,6 +23,8 @@ class ProspectController extends Controller
 {
     public function index(Request $request): AnonymousResourceCollection
     {
+        $perPage = min(100, max(1, $request->integer('per_page', 15)));
+
         return ProspectResource::collection(
             Prospect::query()
                 ->when($request->filled('city'), fn ($query) => $query->where('city', $request->query('city')))
@@ -38,7 +40,7 @@ class ProspectController extends Controller
                     });
                 })
                 ->latest('id')
-                ->paginate()
+                ->paginate($perPage)
         );
     }
 
