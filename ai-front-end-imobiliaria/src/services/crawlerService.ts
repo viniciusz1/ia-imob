@@ -634,7 +634,9 @@ export async function listCrawlRunRecords(
 }
 
 export async function listCrawlAgencies(): Promise<CrawlAgency[]> {
-  const response = await api.get<Resource<CrawlAgency[]>>(`${BASE}/crawl-agencies`);
+  const response = await api.get<Resource<CrawlAgency[]>>(`${BASE}/crawl-agencies`, {
+    params: { per_page: 100 },
+  });
   return response.data.data;
 }
 

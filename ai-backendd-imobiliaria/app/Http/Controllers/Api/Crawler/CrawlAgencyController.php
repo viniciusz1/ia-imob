@@ -18,6 +18,7 @@ class CrawlAgencyController extends Controller
     public function index(Request $request): AnonymousResourceCollection
     {
         $search = trim((string) $request->query('search', ''));
+        $perPage = min(100, max(1, $request->integer('per_page', 15)));
 
         return CrawlAgencyResource::collection(
             CrawlAgency::query()
@@ -31,7 +32,7 @@ class CrawlAgencyController extends Controller
                 ->when($request->filled('lifecycle_state'), fn ($query) => $query->where('lifecycle_state', $request->query('lifecycle_state')))
                 ->when($request->filled('health_state'), fn ($query) => $query->where('health_state', $request->query('health_state')))
                 ->orderBy('name')
-                ->paginate()
+                ->paginate($perPage)
         );
     }
 

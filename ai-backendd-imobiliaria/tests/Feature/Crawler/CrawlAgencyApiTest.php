@@ -141,4 +141,22 @@ class CrawlAgencyApiTest extends TestCase
             ->assertJsonCount(1, 'data')
             ->assertJsonPath('data.0.name', 'Beta Norte');
     }
+
+    public function test_operator_can_request_a_larger_agency_page_for_global_controls(): void
+    {
+        foreach (range(1, 20) as $index) {
+            CrawlAgency::query()->create([
+                'name' => "Agency {$index}",
+                'slug' => "agency-{$index}",
+                'base_url' => "https://agency-{$index}.example.com",
+                'root_domain' => "agency-{$index}.example.com",
+            ]);
+        }
+
+        $this->actingAs($this->platformAdmin)
+            ->getJson('/api/v1/admin/crawler/crawl-agencies?per_page=100')
+            ->assertOk()
+            ->assertJsonCount(20, 'data')
+            ->assertJsonPath('meta.per_page', 100);
+    }
 }

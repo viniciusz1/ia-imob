@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import api from "../api";
 import {
   adoptOnboardingDiscoverySnapshot,
+  listCrawlAgencies,
   listCrawlAgenciesPage,
   listOnboardingDiscoverySnapshotCandidates,
   listProspects,
@@ -33,6 +34,15 @@ describe("crawlerService pagination", () => {
       params: { page: 2, search: "seculus.net" },
     });
     expect(result).toEqual(response);
+  });
+
+  it("loads enough agencies for global operation controls", async () => {
+    vi.mocked(api.get).mockResolvedValue({ data: { data: [] } });
+
+    await expect(listCrawlAgencies()).resolves.toEqual([]);
+    expect(api.get).toHaveBeenCalledWith("/api/v1/admin/crawler/crawl-agencies", {
+      params: { per_page: 100 },
+    });
   });
 
   it("loads enough prospects for the review workspace", async () => {
