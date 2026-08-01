@@ -13,6 +13,7 @@ class OnboardingExecutionResource extends JsonResource
         $operations = $this->relationLoaded('operations')
             ? $this->operations
             : collect();
+        $recovery = $this->recovery($operations);
 
         return [
             'id' => $this->id,
@@ -36,7 +37,8 @@ class OnboardingExecutionResource extends JsonResource
             'sample_url_selection' => $this->sample_url_selection,
             'attention' => $this->attention_code === null ? null : [
                 'code' => $this->attention_code,
-                'message' => $this->attention_message,
+                'category' => $recovery['category'],
+                'message' => $recovery['message'],
             ],
             'approval' => $this->approved_at === null ? null : [
                 'approved_by' => $this->approved_by,
@@ -75,18 +77,14 @@ class OnboardingExecutionResource extends JsonResource
                 'created_at' => $operation->created_at,
                 'completed_at' => $operation->completed_at,
             ])->values(),
+            'recovery_actions' => $recovery['actions'],
             'next_action' => match ($this->state) {
                 'queued' => 'wait_for_coordinator',
                 'running' => 'wait_for_current_operation',
                 'awaiting_manual_step' => $this->manualNextAction(),
                 'awaiting_approval' => 'decide_onboarding',
                 'awaiting_first_production' => 'start_first_production',
-                'requires_attention' => $this->attention_code === 'first_production_failed'
-                    ? 'retry_first_production'
-                    : ($this->conduction === 'manual'
-                        && $this->attention_code === 'child_operation_failed'
-                        ? 'retry_failed_operation'
-                        : 'review_attention'),
+                'requires_attention' => data_get($recovery, 'actions.0.key', 'review_attention'),
                 default => null,
             },
             'started_at' => $this->started_at,
@@ -146,5 +144,108 @@ class OnboardingExecutionResource extends JsonResource
             'profile_validation' => 'run_profile_validation',
             default => null,
         };
+    }
+
+    private function recovery(Collection $operations): array
+    {
+        if ($this->state !== 'requires_attention') {
+            return [
+                'category' => null,
+                'message' => $this->attention_message,
+                'actions' => [],
+            ];
+        }
+
+        if ($this->attention_code === 'first_production_failed') {
+            return [
+                'category' => 'unknown',
+                'message' => 'A primeira produção falhou. Consulte os detalhes técnicos antes de tentar novamente.',
+                'actions' => [[
+                    'key' => 'retry_first_production',
+                    'priority' => 'primary',
+                    'enabled' => true,
+                    'reason' => 'Uma nova tentativa preservará o resultado original.',
+                ]],
+            ];
+        }
+
+        if ($this->attention_code !== 'child_operation_failed') {
+            return [
+                'category' => 'unknown',
+                'message' => $this->attention_message,
+                'actions' => [[
+                    'key' => 'review_attention',
+                    'priority' => 'primary',
+                    'enabled' => true,
+                    'reason' => 'Revise o diagnóstico técnico antes de continuar.',
+                ]],
+            ];
+        }
+
+        $operation = $operations
+            ->where('onboarding_step', $this->current_step)
+            ->whereIn('state', ['failed', 'cancelled'])
+            ->sortByDesc('attempt')
+            ->first();
+        $errorCode = strtolower((string) $operation?->error_code);
+        $errorMessage = (string) $operation?->error_message;
+        $configurationFailure = in_array($errorCode, [
+            'invalid_configuration',
+            'invalid_discovery_source',
+            'invalid_discovery_sources',
+        ], true) || str_contains(strtolower($errorMessage), 'invalid source(s)');
+        $transientFailure = in_array($errorCode, [
+            'connection_error',
+            'http_error',
+            'lease_expired',
+            'network_error',
+            'operation_timeout',
+            'worker_timeout',
+        ], true);
+
+        if ($configurationFailure) {
+            return [
+                'category' => 'configuration',
+                'message' => 'A configuração de Discovery usa uma fonte sem suporte do worker. Revise a configuração antes de tentar novamente.',
+                'actions' => [
+                    [
+                        'key' => 'review_configuration',
+                        'priority' => 'primary',
+                        'enabled' => true,
+                        'reason' => 'A mesma configuração tende a repetir esta falha.',
+                    ],
+                    [
+                        'key' => 'retry_failed_operation',
+                        'priority' => 'secondary',
+                        'enabled' => true,
+                        'reason' => 'Retente sem alterar as entradas somente depois de corrigir ou atualizar o worker.',
+                    ],
+                ],
+            ];
+        }
+
+        if ($transientFailure) {
+            return [
+                'category' => 'transient',
+                'message' => 'A etapa falhou por um problema transitório e pode ser retentada.',
+                'actions' => [[
+                    'key' => 'retry_failed_operation',
+                    'priority' => 'primary',
+                    'enabled' => true,
+                    'reason' => 'A nova tentativa preservará as mesmas entradas.',
+                ]],
+            ];
+        }
+
+        return [
+            'category' => 'unknown',
+            'message' => 'A etapa falhou. Consulte os detalhes técnicos antes de tentar novamente.',
+            'actions' => [[
+                'key' => 'retry_failed_operation',
+                'priority' => 'primary',
+                'enabled' => true,
+                'reason' => 'A retentativa preserva as entradas e a tentativa original.',
+            ]],
+        ];
     }
 }

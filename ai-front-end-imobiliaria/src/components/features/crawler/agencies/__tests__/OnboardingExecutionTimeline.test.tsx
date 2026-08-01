@@ -74,6 +74,7 @@ function execution(overrides: Partial<OnboardingExecution> = {}): OnboardingExec
       created_at: "2026-07-27T12:00:00Z",
       completed_at: "2026-07-27T12:01:00Z",
     }],
+    recovery_actions: [],
     next_action: "decide_onboarding",
     started_at: "2026-07-27T12:00:00Z",
     paused_at: "2026-07-27T12:10:00Z",
@@ -130,7 +131,13 @@ describe("OnboardingExecutionTimeline", () => {
     const failed = execution({
       state: "requires_attention",
       current_step: "discovery",
-      attention: { code: "child_operation_failed", message: "O Discovery falhou." },
+      attention: { code: "child_operation_failed", category: "unknown", message: "O Discovery falhou." },
+      recovery_actions: [{
+        key: "retry_failed_operation",
+        priority: "primary",
+        enabled: true,
+        reason: "A retentativa preserva as entradas e a tentativa original.",
+      }],
       next_action: "retry_failed_operation",
       steps: [
         { key: "discovery", state: "requires_attention", operation_id: 101, attempt: 1 },
@@ -182,6 +189,148 @@ describe("OnboardingExecutionTimeline", () => {
     await waitFor(() => expect(retryCrawlerOperation).toHaveBeenCalledWith(101));
     expect(getOnboardingExecution).toHaveBeenCalledWith(91);
     expect(onExecution).toHaveBeenCalledWith(resumed);
+  });
+
+  it("prioritizes reviewing a fixed configuration while keeping retry available", () => {
+    const failed = execution({
+      state: "requires_attention",
+      current_step: "discovery",
+      attention: {
+        code: "child_operation_failed",
+        category: "configuration",
+        message: "A configuração de Discovery usa uma fonte sem suporte do worker. Revise a configuração antes de tentar novamente.",
+      },
+      recovery_actions: [
+        {
+          key: "review_configuration",
+          priority: "primary",
+          enabled: true,
+          reason: "A mesma configuração tende a repetir esta falha.",
+        },
+        {
+          key: "retry_failed_operation",
+          priority: "secondary",
+          enabled: true,
+          reason: "Retente sem alterar as entradas somente depois de corrigir ou atualizar o worker.",
+        },
+      ],
+      next_action: "review_configuration",
+      resolved_configuration: {
+        ...execution().resolved_configuration,
+        discovery_policy: {
+          id: 11,
+          name: "Discovery incompatível",
+          version: 1,
+          source: "catalog",
+          strategies: ["contract_discoverer_abc", "sitemap"],
+          configuration: { max_urls: 100 },
+        },
+      },
+      steps: [
+        { key: "discovery", state: "requires_attention", operation_id: 101, attempt: 1 },
+        { key: "profile_generation", state: "pending", operation_id: null, attempt: null },
+        { key: "profile_validation", state: "pending", operation_id: null, attempt: null },
+        { key: "approval", state: "pending", operation_id: null, attempt: null },
+        { key: "first_production", state: "pending", operation_id: null, attempt: null },
+        { key: "quality_gate", state: "pending", operation_id: null, attempt: null },
+      ],
+      operations: [{
+        id: 101,
+        type: "discovery",
+        state: "failed",
+        step: "discovery",
+        attempt: 1,
+        retry_of_operation_id: null,
+        progress: { stage: "discovery", percentage: 10, message: "Falha" },
+        result: null,
+        error: {
+          code: "discovery_failed",
+          message: "Invalid source(s): {'contract_discoverer_abc'}.",
+        },
+        created_at: "2026-07-27T12:00:00Z",
+        completed_at: "2026-07-27T12:01:00Z",
+      }],
+    });
+
+    render(<OnboardingExecutionTimeline execution={failed} history={[failed]} onExecution={vi.fn()} />);
+
+    expect(screen.getByText(/configuração de Discovery usa uma fonte sem suporte/i)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Revisar configuração fixada" }));
+    expect(screen.getByRole("region", { name: "Configuração fixada do Discovery" })).toHaveTextContent("contract_discoverer_abc");
+    expect(screen.getByRole("button", { name: "Retentar etapa com falha" })).toBeInTheDocument();
+  });
+
+  it("keeps the worker error behind technical details", () => {
+    const failed = execution({
+      state: "requires_attention",
+      current_step: "discovery",
+      attention: {
+        code: "child_operation_failed",
+        category: "unknown",
+        message: "A etapa falhou. Consulte os detalhes técnicos antes de tentar novamente.",
+      },
+      recovery_actions: [{
+        key: "retry_failed_operation",
+        priority: "primary",
+        enabled: true,
+        reason: "A retentativa preserva as entradas e a tentativa original.",
+      }],
+      next_action: "retry_failed_operation",
+      operations: [{
+        id: 101,
+        type: "discovery",
+        state: "failed",
+        step: "discovery",
+        attempt: 1,
+        retry_of_operation_id: null,
+        progress: { stage: "discovery", percentage: 10, message: "Falha" },
+        result: null,
+        error: { code: "discovery_failed", message: "Raw worker traceback" },
+        created_at: "2026-07-27T12:00:00Z",
+        completed_at: "2026-07-27T12:01:00Z",
+      }],
+    });
+
+    render(<OnboardingExecutionTimeline execution={failed} history={[failed]} onExecution={vi.fn()} />);
+
+    const summary = screen.getByText("Ver detalhes técnicos");
+    const details = summary.closest("details");
+    expect(details).not.toHaveAttribute("open");
+    expect(details).toHaveTextContent("discovery_failed: Raw worker traceback");
+
+    fireEvent.click(summary);
+    expect(details).toHaveAttribute("open");
+  });
+
+  it("keeps recovery controls read-only without execution permission", () => {
+    useAuthStore.getState().setUser({
+      id: 2,
+      name: "Viewer",
+      email: "viewer@example.com",
+      is_platform_admin: false,
+      permissions: ["crawler.view"],
+    });
+    const failed = execution({
+      state: "requires_attention",
+      current_step: "discovery",
+      attention: {
+        code: "child_operation_failed",
+        category: "transient",
+        message: "A etapa falhou por um problema transitório e pode ser retentada.",
+      },
+      recovery_actions: [{
+        key: "retry_failed_operation",
+        priority: "primary",
+        enabled: true,
+        reason: "A nova tentativa preservará as mesmas entradas.",
+      }],
+      next_action: "retry_failed_operation",
+    });
+
+    render(<OnboardingExecutionTimeline execution={failed} history={[failed]} onExecution={vi.fn()} />);
+
+    expect(screen.getByText(/somente leitura/i)).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Retentar etapa com falha" })).not.toBeInTheDocument();
   });
 
   it("starts or retries first production with an operation-only discovery override", async () => {

@@ -490,6 +490,21 @@ export type OnboardingExecutionAction =
   | "run_profile_validation"
   | "correct_sample_url";
 
+export type OnboardingRecoveryCategory = "transient" | "configuration" | "unknown";
+
+export type OnboardingRecoveryActionKey =
+  | "review_configuration"
+  | "retry_failed_operation"
+  | "retry_first_production"
+  | "review_attention";
+
+export interface OnboardingRecoveryAction {
+  key: OnboardingRecoveryActionKey;
+  priority: "primary" | "secondary";
+  enabled: boolean;
+  reason: string;
+}
+
 export interface OnboardingExecutionOperation {
   id: number;
   type: string;
@@ -535,7 +550,11 @@ export interface OnboardingExecution {
   };
   sample_url: string | null;
   sample_url_selection: Record<string, unknown> | null;
-  attention: { code: string; message: string | null } | null;
+  attention: {
+    code: string;
+    category: OnboardingRecoveryCategory | null;
+    message: string | null;
+  } | null;
   approval: { approved_by: number; approved_at: string; reason: string | null } | null;
   first_production: {
     crawl_run_id: number;
@@ -550,6 +569,7 @@ export interface OnboardingExecution {
     attempt: number | null;
   }>;
   operations: OnboardingExecutionOperation[];
+  recovery_actions: OnboardingRecoveryAction[];
   next_action:
     | OnboardingExecutionAction
     | "wait_for_coordinator"
@@ -558,6 +578,7 @@ export interface OnboardingExecution {
     | "start_first_production"
     | "retry_first_production"
     | "retry_failed_operation"
+    | "review_configuration"
     | "review_attention"
     | null;
   started_at: string | null;

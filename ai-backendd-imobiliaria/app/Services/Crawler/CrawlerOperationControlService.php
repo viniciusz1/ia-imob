@@ -57,6 +57,15 @@ class CrawlerOperationControlService
             $attempt = 1;
             if ($locked->onboarding_execution_id !== null) {
                 $execution = $locked->onboardingExecution()->lockForUpdate()->firstOrFail();
+                $activeAttempt = $execution->operations()
+                    ->where('onboarding_step', $locked->onboarding_step)
+                    ->where('attempt', '>', $locked->attempt)
+                    ->whereIn('state', ['queued', 'running', 'cancellation_requested'])
+                    ->latest('attempt')
+                    ->first();
+                if ($activeAttempt !== null) {
+                    return $activeAttempt;
+                }
                 if (
                     $execution->state !== 'requires_attention'
                     || $execution->current_step !== $locked->onboarding_step

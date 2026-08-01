@@ -143,7 +143,12 @@ function OperationAttempt({ execution, operation }: { execution: OnboardingExecu
         {operation.progress.stage} · {operation.progress.percentage}%{operation.progress.message ? ` · ${operation.progress.message}` : ""}
       </p>
       {operation.retry_of_operation_id && <p className="text-xs text-muted-foreground">Retentativa da operação #{operation.retry_of_operation_id}</p>}
-      {operation.error && <p className="text-sm text-destructive">{operation.error.code}: {operation.error.message}</p>}
+      {operation.error && (
+        <details className="text-sm">
+          <summary className="cursor-pointer text-muted-foreground">Ver detalhes técnicos</summary>
+          <p className="mt-2 break-words text-destructive">{operation.error.code}: {operation.error.message}</p>
+        </details>
+      )}
       <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm">
         <Link className="underline" href="/admin/crawler/operations">Abrir fila global</Link>
         <Link className="underline" href={detailHref}>Ver detalhes da operação</Link>
@@ -170,6 +175,7 @@ export function OnboardingExecutionTimeline({
   const [productionMode, setProductionMode] = useState<FirstProductionDiscoveryMode>(
     execution.first_production_discovery_mode,
   );
+  const [showDiscoveryConfiguration, setShowDiscoveryConfiguration] = useState(false);
   const [pending, setPending] = useState(false);
   const operationsByStep = useMemo(
     () => execution.operations.reduce<Partial<Record<OnboardingExecutionStepKey, OnboardingExecutionOperation[]>>>(
@@ -235,6 +241,12 @@ export function OnboardingExecutionTimeline({
   };
 
   const action = execution.next_action;
+  const retryRecovery = execution.recovery_actions.find(
+    (recoveryAction) => recoveryAction.key === "retry_failed_operation",
+  );
+  const reviewConfigurationRecovery = execution.recovery_actions.find(
+    (recoveryAction) => recoveryAction.key === "review_configuration",
+  );
   const needsDiscoveryPolicy = action === "decide_onboarding"
     && execution.discovery_policy_version_id === null
     && execution.resolved_configuration.discovery_policy.source === "point_configuration";
@@ -317,6 +329,22 @@ export function OnboardingExecutionTimeline({
 
             {action === "review_attention" && <p className="text-sm text-muted-foreground">Revise a mensagem e as tentativas preservadas antes de decidir como corrigir a configuração.</p>}
 
+            {reviewConfigurationRecovery?.enabled && canExecute && (
+              <div className="space-y-3">
+                <Button disabled={pending} onClick={() => setShowDiscoveryConfiguration((visible) => !visible)} type="button">
+                  Revisar configuração fixada
+                </Button>
+                <p className="text-sm text-muted-foreground">{reviewConfigurationRecovery.reason}</p>
+                {showDiscoveryConfiguration && (
+                  <section aria-label="Configuração fixada do Discovery" className="space-y-2 rounded-md border bg-background p-3 text-sm">
+                    <p><span className="font-medium">Política:</span> {execution.resolved_configuration.discovery_policy.name}</p>
+                    <p><span className="font-medium">Versão:</span> {execution.resolved_configuration.discovery_policy.version ?? "pontual"}</p>
+                    <p><span className="font-medium">Fontes:</span> {execution.resolved_configuration.discovery_policy.strategies.join(", ") || "Nenhuma"}</p>
+                  </section>
+                )}
+              </div>
+            )}
+
             {manualAction && canExecute && (
               <>
                 {["confirm_sample_url", "correct_sample_url"].includes(manualAction) && (
@@ -374,7 +402,12 @@ export function OnboardingExecutionTimeline({
               </>
             )}
 
-            {action === "retry_failed_operation" && canExecute && <Button disabled={pending} onClick={retryFailedOperation} type="button"><RotateCcw />Retentar etapa com falha</Button>}
+            {(action === "retry_failed_operation" || retryRecovery?.enabled) && canExecute && (
+              <div className="space-y-2">
+                <Button disabled={pending} onClick={retryFailedOperation} type="button" variant={retryRecovery?.priority === "secondary" ? "outline" : "default"}><RotateCcw />Retentar etapa com falha</Button>
+                {retryRecovery?.reason && <p className="text-sm text-muted-foreground">{retryRecovery.reason}</p>}
+              </div>
+            )}
           </section>
         )}
 

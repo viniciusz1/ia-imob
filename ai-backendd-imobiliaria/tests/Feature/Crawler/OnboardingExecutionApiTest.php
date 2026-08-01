@@ -258,6 +258,11 @@ class OnboardingExecutionApiTest extends TestCase
         $this->assertSame('requires_attention', $failedExecution->state);
         $this->assertSame('child_operation_failed', $failedExecution->attention_code);
         $this->assertSame('failed', $failedChild->refresh()->state);
+
+        $this->actingAs($this->admin)
+            ->getJson("/api/v1/admin/crawler/onboarding-executions/{$failedExecution->id}")
+            ->assertOk()
+            ->assertJsonPath('data.next_action', 'retry_failed_operation');
     }
 
     public function test_catalog_and_execution_endpoints_respect_existing_permissions(): void
@@ -287,6 +292,101 @@ class OnboardingExecutionApiTest extends TestCase
                 'execution_model_version_id' => 1,
             ])
             ->assertForbidden();
+    }
+
+    public function test_configuration_failure_exposes_human_recovery_options(): void
+    {
+        [$agency] = $this->promoteProspect('invalid-source');
+        $execution = $this->configuredExecution($agency, 'Invalid source model');
+        $coordinator = app(OnboardingExecutionCoordinator::class);
+        $coordinator->reconcile($execution);
+
+        $failed = $execution->operations()->sole();
+        $failed->forceFill([
+            'state' => 'failed',
+            'error_code' => 'discovery_failed',
+            'error_message' => "Invalid source(s): {'contract_discoverer_abc'}. Valid: {'sitemap', 'robots'}",
+            'completed_at' => now(),
+        ])->save();
+        $coordinator->reconcile($execution);
+
+        $this->actingAs($this->admin)
+            ->getJson("/api/v1/admin/crawler/onboarding-executions/{$execution->id}")
+            ->assertOk()
+            ->assertJsonPath('data.attention.category', 'configuration')
+            ->assertJsonPath(
+                'data.attention.message',
+                'A configuração de Discovery usa uma fonte sem suporte do worker. Revise a configuração antes de tentar novamente.',
+            )
+            ->assertJsonPath('data.recovery_actions.0.key', 'review_configuration')
+            ->assertJsonPath('data.recovery_actions.0.priority', 'primary')
+            ->assertJsonPath('data.recovery_actions.0.enabled', true)
+            ->assertJsonPath('data.recovery_actions.1.key', 'retry_failed_operation')
+            ->assertJsonPath('data.recovery_actions.1.priority', 'secondary')
+            ->assertJsonPath('data.recovery_actions.1.enabled', true);
+    }
+
+    public function test_transient_failure_prioritizes_retry(): void
+    {
+        [$agency] = $this->promoteProspect('worker-timeout');
+        $execution = $this->configuredExecution($agency, 'Transient failure model');
+        $coordinator = app(OnboardingExecutionCoordinator::class);
+        $coordinator->reconcile($execution);
+
+        $failed = $execution->operations()->sole();
+        $failed->forceFill([
+            'state' => 'failed',
+            'error_code' => 'worker_timeout',
+            'error_message' => 'Lease expired after 60 seconds at worker-17.',
+            'completed_at' => now(),
+        ])->save();
+        $coordinator->reconcile($execution);
+
+        $this->actingAs($this->admin)
+            ->getJson("/api/v1/admin/crawler/onboarding-executions/{$execution->id}")
+            ->assertOk()
+            ->assertJsonPath('data.attention.category', 'transient')
+            ->assertJsonPath(
+                'data.attention.message',
+                'A etapa falhou por um problema transitório e pode ser retentada.',
+            )
+            ->assertJsonPath('data.next_action', 'retry_failed_operation')
+            ->assertJsonCount(1, 'data.recovery_actions')
+            ->assertJsonPath('data.recovery_actions.0.key', 'retry_failed_operation')
+            ->assertJsonPath('data.recovery_actions.0.priority', 'primary');
+    }
+
+    public function test_repeated_retry_returns_the_existing_active_attempt(): void
+    {
+        [$agency] = $this->promoteProspect('idempotent-retry');
+        $execution = $this->configuredExecution($agency, 'Idempotent retry model');
+        $coordinator = app(OnboardingExecutionCoordinator::class);
+        $coordinator->reconcile($execution);
+
+        $failed = $execution->operations()->sole();
+        $failed->forceFill([
+            'state' => 'failed',
+            'error_code' => 'worker_timeout',
+            'error_message' => 'The worker timed out.',
+            'completed_at' => now(),
+        ])->save();
+        $coordinator->reconcile($execution);
+
+        $firstRetry = $this->actingAs($this->admin)
+            ->postJson("/api/v1/admin/crawler/operations/{$failed->id}/retry")
+            ->assertCreated()
+            ->json('data');
+
+        $repeatedRetry = $this->actingAs($this->admin)
+            ->postJson("/api/v1/admin/crawler/operations/{$failed->id}/retry")
+            ->assertOk()
+            ->json('data');
+
+        $this->assertSame($firstRetry['id'], $repeatedRetry['id']);
+        $this->assertSame(2, CrawlerOperation::query()
+            ->where('onboarding_execution_id', $execution->id)
+            ->count());
+        $this->assertSame('running', $execution->refresh()->state);
     }
 
     private function promoteProspect(string $suffix = 'success'): array
