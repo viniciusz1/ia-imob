@@ -9,9 +9,12 @@ set -e
 ROOT_DIR="$(cd "$(dirname "$0")" && pwd)"
 BACKEND_DIR="$ROOT_DIR/ai-backendd-imobiliaria"
 FRONTEND_DIR="$ROOT_DIR/ai-front-end-imobiliaria"
+CRAWLER_DIR="$ROOT_DIR/crawler-machine"
 
 BACKEND_LOG="$BACKEND_DIR/backend-dev.log"
 FRONTEND_LOG="$FRONTEND_DIR/frontend-dev.log"
+SCHEDULER_LOG="$BACKEND_DIR/scheduler-dev.log"
+CRAWLER_LOG="$CRAWLER_DIR/worker-dev.log"
 
 # Cores
 GREEN='\033[0;32m'
@@ -37,6 +40,16 @@ cleanup() {
     if [ -n "$FRONTEND_PID" ] && kill -0 "$FRONTEND_PID" 2>/dev/null; then
         kill "$FRONTEND_PID" 2>/dev/null
         echo -e "${GREEN}✅ Frontend encerrado.${NC}"
+    fi
+
+    if [ -n "$SCHEDULER_PID" ] && kill -0 "$SCHEDULER_PID" 2>/dev/null; then
+        kill "$SCHEDULER_PID" 2>/dev/null
+        echo -e "${GREEN}✅ Scheduler encerrado.${NC}"
+    fi
+
+    if [ -n "$CRAWLER_WORKER_PID" ] && kill -0 "$CRAWLER_WORKER_PID" 2>/dev/null; then
+        kill "$CRAWLER_WORKER_PID" 2>/dev/null
+        echo -e "${GREEN}✅ Worker do crawler encerrado.${NC}"
     fi
 
     # Para o backend (Sail)
@@ -128,10 +141,44 @@ echo -e "${GREEN}✅ Backend pronto!${NC}"
 echo ""
 
 # ------------------------------------
-# 2. FRONTEND (Next.js)
+# 2. SCHEDULER (Laravel)
 # ------------------------------------
 echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo -e "${GREEN}  [2/2] 🖥️  Iniciando Frontend (Next.js)${NC}"
+echo -e "${GREEN}  [2/4] ⏱️  Iniciando Scheduler do Laravel${NC}"
+echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo ""
+
+./vendor/bin/sail artisan schedule:work > "$SCHEDULER_LOG" 2>&1 &
+SCHEDULER_PID=$!
+echo -e "${GREEN}✅ Scheduler iniciado.${NC}"
+echo ""
+
+# ------------------------------------
+# 3. CRAWLER WORKER (Python)
+# ------------------------------------
+echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${GREEN}  [3/4] 🕷️  Iniciando Worker do Crawler${NC}"
+echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo ""
+
+if [ -x "$CRAWLER_DIR/.venv/bin/python" ] && [ -f "$CRAWLER_DIR/.env" ]; then
+    (
+        cd "$CRAWLER_DIR"
+        .venv/bin/python -m crawler_machine worker --worker-key local-dev --version dev
+    ) > "$CRAWLER_LOG" 2>&1 &
+    CRAWLER_WORKER_PID=$!
+    echo -e "${GREEN}✅ Worker do crawler iniciado.${NC}"
+else
+    echo -e "${YELLOW}⚠️  Worker não iniciado: configure crawler-machine/.env e instale crawler-machine/.venv.${NC}"
+    echo -e "${YELLOW}   Use: make install-crawler && make worker${NC}"
+fi
+echo ""
+
+# ------------------------------------
+# 4. FRONTEND (Next.js)
+# ------------------------------------
+echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${GREEN}  [4/4] 🖥️  Iniciando Frontend (Next.js)${NC}"
 echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
 
@@ -179,6 +226,8 @@ echo -e "  🖥️  Frontend → http://localhost:3000"
 echo ""
 echo -e "  📋 Logs:"
 echo -e "     Backend  → \$SAIL logs -f  (no diretório do backend)"
+echo -e "     Scheduler → $SCHEDULER_LOG"
+echo -e "     Crawler   → $CRAWLER_LOG"
 echo -e "     Frontend → $FRONTEND_LOG"
 echo ""
 echo -e "${YELLOW}  Pressione Ctrl+C para encerrar tudo.${NC}"

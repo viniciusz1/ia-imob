@@ -84,7 +84,7 @@ help: ## Show this help
 # ==================================================
 #  Full stack
 # ==================================================
-up start: ## Start backend (Sail) + frontend together via start.sh
+up start: ## Start backend, scheduler, crawler worker (when configured), and frontend via start.sh
 	./start.sh
 
 install: install-backend install-frontend install-crawler ## Install dependencies for every component
