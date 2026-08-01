@@ -3,6 +3,7 @@ import type {
   CrawlAgency,
   CrawlAgencyInput,
   CrawlAgencyLifecycle,
+  PaginatedCrawlAgencies,
   MarketDataContract,
   MarketDataField,
   CrawlerOperation,
@@ -607,6 +608,13 @@ export async function listCrawlRunRecords(
 export async function listCrawlAgencies(): Promise<CrawlAgency[]> {
   const response = await api.get<Resource<CrawlAgency[]>>(`${BASE}/crawl-agencies`);
   return response.data.data;
+}
+
+export async function listCrawlAgenciesPage(
+  params: { page?: number; search?: string } = {},
+): Promise<PaginatedCrawlAgencies> {
+  const response = await api.get<PaginatedCrawlAgencies>(`${BASE}/crawl-agencies`, { params });
+  return response.data;
 }
 
 export async function getCrawlAgency(id: number): Promise<CrawlAgency> {

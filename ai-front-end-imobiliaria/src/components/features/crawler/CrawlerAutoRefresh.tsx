@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export const CRAWLER_REFRESH_INTERVAL_MS = 5_000;
 const CRAWLER_REFRESH_INTERVAL_SECONDS = CRAWLER_REFRESH_INTERVAL_MS / 1_000;
@@ -9,15 +9,18 @@ const CRAWLER_REFRESH_INTERVAL_SECONDS = CRAWLER_REFRESH_INTERVAL_MS / 1_000;
 export function CrawlerAutoRefresh() {
   const router = useRouter();
   const [secondsUntilRefresh, setSecondsUntilRefresh] = useState(CRAWLER_REFRESH_INTERVAL_SECONDS);
+  const secondsUntilRefreshRef = useRef(CRAWLER_REFRESH_INTERVAL_SECONDS);
 
   useEffect(() => {
     const interval = window.setInterval(() => {
-      setSecondsUntilRefresh((current) => {
-        if (current > 1) return current - 1;
+      const nextSeconds = secondsUntilRefreshRef.current > 1
+        ? secondsUntilRefreshRef.current - 1
+        : CRAWLER_REFRESH_INTERVAL_SECONDS;
 
-        router.refresh();
-        return CRAWLER_REFRESH_INTERVAL_SECONDS;
-      });
+      secondsUntilRefreshRef.current = nextSeconds;
+      setSecondsUntilRefresh(nextSeconds);
+
+      if (nextSeconds === CRAWLER_REFRESH_INTERVAL_SECONDS) router.refresh();
     }, 1_000);
 
     return () => window.clearInterval(interval);

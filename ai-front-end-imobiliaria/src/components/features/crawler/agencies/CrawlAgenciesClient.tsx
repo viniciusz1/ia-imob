@@ -1,34 +1,72 @@
 "use client";
 
+import type { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { type FormEvent, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { DataTable } from "@/components/ui/data-table";
 import { Input } from "@/components/ui/input";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import type { CrawlAgency } from "@/types/crawler";
 
 interface CrawlAgenciesClientProps {
   initialAgencies: CrawlAgency[];
+  initialSearch: string;
+  pageCount: number;
 }
 
-export function CrawlAgenciesClient({ initialAgencies }: CrawlAgenciesClientProps) {
-  const [search, setSearch] = useState("");
-  const filteredAgencies = useMemo(() => {
-    const normalized = search.trim().toLocaleLowerCase("pt-BR");
-    if (!normalized) return initialAgencies;
+const columns: ColumnDef<CrawlAgency>[] = [
+  {
+    accessorKey: "name",
+    header: "Nome",
+    cell: ({ row }) => (
+      <Link className="font-medium underline-offset-4 hover:underline" href={`/admin/crawler/agencies/${row.original.id}`}>
+        {row.original.name}
+      </Link>
+    ),
+  },
+  { accessorKey: "root_domain", header: "Domínio" },
+  {
+    accessorKey: "lifecycle_state",
+    header: "Lifecycle",
+    cell: ({ row }) => <Badge variant="outline">{row.original.lifecycle_state}</Badge>,
+  },
+  {
+    accessorKey: "health_state",
+    header: "Saúde",
+    cell: ({ row }) => <Badge variant="secondary">{row.original.health_state}</Badge>,
+  },
+];
 
-    return initialAgencies.filter((agency) =>
-      `${agency.name} ${agency.root_domain}`.toLocaleLowerCase("pt-BR").includes(normalized),
-    );
-  }, [initialAgencies, search]);
+export function CrawlAgenciesClient({ initialAgencies, initialSearch, pageCount }: CrawlAgenciesClientProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [search, setSearch] = useState(initialSearch);
+
+  function applySearch(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const params = new URLSearchParams(searchParams.toString());
+    const normalizedSearch = search.trim();
+
+    params.delete("page");
+    if (normalizedSearch === "") params.delete("search");
+    else params.set("search", normalizedSearch);
+
+    const query = params.toString();
+    router.push(query === "" ? pathname : `${pathname}?${query}`);
+  }
+
+  function clearSearch() {
+    setSearch("");
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("page");
+    params.delete("search");
+    const query = params.toString();
+    router.push(query === "" ? pathname : `${pathname}?${query}`);
+  }
 
   return (
     <section className="space-y-4">
@@ -44,37 +82,26 @@ export function CrawlAgenciesClient({ initialAgencies }: CrawlAgenciesClientProp
         </Link>
       </div>
 
-      <Input
-        aria-label="Filtrar Crawl Agencies"
-        placeholder="Nome ou domínio"
-        value={search}
-        onChange={(event) => setSearch(event.target.value)}
-      />
+      <form className="flex gap-2" onSubmit={applySearch}>
+        <Input
+          aria-label="Filtrar Crawl Agencies"
+          onChange={(event) => setSearch(event.target.value)}
+          placeholder="Nome ou domínio"
+          type="search"
+          value={search}
+        />
+        <Button type="submit">Buscar</Button>
+        {(search !== "" || initialSearch !== "") && (
+          <Button onClick={clearSearch} type="button" variant="outline">Limpar</Button>
+        )}
+      </form>
 
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Nome</TableHead>
-            <TableHead>Domínio</TableHead>
-            <TableHead>Lifecycle</TableHead>
-            <TableHead>Saúde</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {filteredAgencies.map((agency) => (
-            <TableRow key={agency.id}>
-              <TableCell>
-                <Link className="font-medium underline-offset-4 hover:underline" href={`/admin/crawler/agencies/${agency.id}`}>
-                  {agency.name}
-                </Link>
-              </TableCell>
-              <TableCell>{agency.root_domain}</TableCell>
-              <TableCell><Badge variant="outline">{agency.lifecycle_state}</Badge></TableCell>
-              <TableCell><Badge variant="secondary">{agency.health_state}</Badge></TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+      <DataTable
+        columns={columns}
+        data={initialAgencies}
+        emptyMessage="Nenhuma Crawl Agency encontrada."
+        pageCount={pageCount}
+      />
     </section>
   );
 }
