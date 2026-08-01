@@ -263,10 +263,12 @@ class ManualOnboardingExecutionService
     {
         return $execution->load([
             'crawlAgency',
+            'creator',
             'executionModel',
             'discoveryPolicy',
             'extractionPolicy',
             'discoverySnapshot',
+            'discoveryAdoption.actor',
             'operations' => fn ($query) => $query->orderBy('id'),
         ]);
     }

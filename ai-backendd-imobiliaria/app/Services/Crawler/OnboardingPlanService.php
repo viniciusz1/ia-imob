@@ -340,9 +340,11 @@ class OnboardingPlanService
     {
         return [
             'crawlAgency',
+            'creator',
             'executionModel',
             'discoveryPolicy',
             'extractionPolicy',
+            'discoveryAdoption.actor',
             'operations',
         ];
     }

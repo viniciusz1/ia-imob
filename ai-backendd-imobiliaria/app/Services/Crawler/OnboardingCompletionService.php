@@ -210,10 +210,12 @@ class OnboardingCompletionService
     ): OnboardingExecution {
         return $execution->load([
             'crawlAgency',
+            'creator',
             'executionModel',
             'discoveryPolicy',
             'extractionPolicy',
             'discoverySnapshot',
+            'discoveryAdoption.actor',
             'extractionProfile',
             'profileValidationReport',
             'firstProductionCrawlRun.qualityReport',

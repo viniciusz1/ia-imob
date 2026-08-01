@@ -15,6 +15,7 @@ export function onboardingExecution(
     discovery_policy_version_id: 11,
     extraction_policy_version_id: 12,
     discovery_snapshot_id: null,
+    discovery_adoption: null,
     market_data_contract_version_id: 1,
     extraction_profile_id: null,
     profile_validation_report_id: null,

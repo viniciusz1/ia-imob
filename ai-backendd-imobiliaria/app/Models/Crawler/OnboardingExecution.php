@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class OnboardingExecution extends Model
 {
@@ -86,6 +87,11 @@ class OnboardingExecution extends Model
     public function operations(): HasMany
     {
         return $this->hasMany(CrawlerOperation::class);
+    }
+
+    public function discoveryAdoption(): HasOne
+    {
+        return $this->hasOne(OnboardingDiscoveryAdoption::class, 'onboarding_execution_id');
     }
 
     public function creator(): BelongsTo

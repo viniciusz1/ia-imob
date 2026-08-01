@@ -27,6 +27,21 @@ class OnboardingExecutionResource extends JsonResource
             'discovery_policy_version_id' => $this->discovery_policy_version_id,
             'extraction_policy_version_id' => $this->extraction_policy_version_id,
             'discovery_snapshot_id' => $this->discovery_snapshot_id,
+            'discovery_adoption' => $this->whenLoaded(
+                'discoveryAdoption',
+                fn () => $this->discoveryAdoption === null ? null : [
+                    'discovery_snapshot_id' => $this->discoveryAdoption->discovery_snapshot_id,
+                    'source_operation_id' => $this->discoveryAdoption->source_operation_id,
+                    'replaced_operation_id' => $this->discoveryAdoption->replaced_operation_id,
+                    'adopted_by' => $this->discoveryAdoption->relationLoaded('actor') ? [
+                        'id' => $this->discoveryAdoption->actor->id,
+                        'name' => $this->discoveryAdoption->actor->name,
+                    ] : null,
+                    'original_discovery_configuration' => $this->discoveryAdoption->original_discovery_configuration,
+                    'note' => $this->discoveryAdoption->note,
+                    'adopted_at' => $this->discoveryAdoption->adopted_at,
+                ],
+            ),
             'market_data_contract_version_id' => $this->market_data_contract_version_id,
             'extraction_profile_id' => $this->extraction_profile_id,
             'profile_validation_report_id' => $this->profile_validation_report_id,
@@ -211,7 +226,7 @@ class OnboardingExecutionResource extends JsonResource
             return [
                 'category' => 'configuration',
                 'message' => 'A configuração de Discovery usa uma fonte sem suporte do worker. Revise a configuração antes de tentar novamente.',
-                'actions' => [
+                'actions' => array_merge([
                     [
                         'key' => 'review_configuration',
                         'priority' => 'primary',
@@ -224,7 +239,7 @@ class OnboardingExecutionResource extends JsonResource
                         'enabled' => true,
                         'reason' => 'Retente sem alterar as entradas somente depois de corrigir ou atualizar o worker.',
                     ],
-                ],
+                ], $this->discoveryRecoveryActions()),
             ];
         }
 
@@ -232,24 +247,46 @@ class OnboardingExecutionResource extends JsonResource
             return [
                 'category' => 'transient',
                 'message' => 'A etapa falhou por um problema transitório e pode ser retentada.',
-                'actions' => [[
+                'actions' => array_merge([[
                     'key' => 'retry_failed_operation',
                     'priority' => 'primary',
                     'enabled' => true,
                     'reason' => 'A nova tentativa preservará as mesmas entradas.',
-                ]],
+                ]], $this->discoveryRecoveryActions()),
             ];
         }
 
         return [
             'category' => 'unknown',
             'message' => 'A etapa falhou. Consulte os detalhes técnicos antes de tentar novamente.',
-            'actions' => [[
+            'actions' => array_merge([[
                 'key' => 'retry_failed_operation',
                 'priority' => 'primary',
                 'enabled' => true,
                 'reason' => 'A retentativa preserva as entradas e a tentativa original.',
-            ]],
+            ]], $this->discoveryRecoveryActions()),
+        ];
+    }
+
+    private function discoveryRecoveryActions(): array
+    {
+        if ($this->current_step !== 'discovery') {
+            return [];
+        }
+
+        return [
+            [
+                'key' => 'use_existing_discovery_snapshot',
+                'priority' => 'secondary',
+                'enabled' => true,
+                'reason' => 'Adote o resultado de um Discovery independente concluído com sucesso.',
+            ],
+            [
+                'key' => 'create_custom_discovery',
+                'priority' => 'secondary',
+                'enabled' => true,
+                'reason' => 'Execute um Discovery personalizado e use o Snapshot resultante para continuar.',
+            ],
         ];
     }
 }

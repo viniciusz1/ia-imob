@@ -419,6 +419,59 @@ class ManualOnboardingExecutionApiTest extends TestCase
             ->assertJsonPath('data.next_action', 'run_profile_generation');
     }
 
+    public function test_manual_execution_adopts_an_independent_discovery_and_pauses_for_sample_confirmation(): void
+    {
+        [$agency] = $this->promoteProspect('adopt');
+        $execution = $this->confirmInlineManualPlan($agency, 'Adoption manual');
+        $coordinator = app(OnboardingExecutionCoordinator::class);
+
+        $this->actingAs($this->admin)
+            ->postJson("/api/v1/admin/crawler/onboarding-executions/{$execution->id}/actions", [
+                'action' => 'run_discovery',
+            ])
+            ->assertOk();
+        $failed = $execution->operations()->sole();
+        $failed->forceFill([
+            'state' => 'failed',
+            'error_code' => 'discovery_failed',
+            'error_message' => 'O Discovery configurado falhou.',
+            'completed_at' => now(),
+        ])->save();
+        $coordinator->reconcile($execution);
+
+        $sourceOperation = CrawlerOperation::query()->create([
+            'type' => 'discovery',
+            'state' => 'succeeded',
+            'requested_by' => $this->admin->id,
+            'crawl_agency_id' => $agency->id,
+            'plan' => ['discovery_policy' => ['strategies' => ['sitemap']]],
+            'completed_at' => now(),
+        ]);
+        $snapshot = $this->snapshotFor(
+            $sourceOperation,
+            $agency,
+            ["{$agency->base_url}/imovel/adotado"],
+        );
+
+        $this->actingAs($this->admin)
+            ->postJson("/api/v1/admin/crawler/onboarding-executions/{$execution->id}/adopt-discovery-snapshot", [
+                'discovery_snapshot_id' => $snapshot->id,
+            ])
+            ->assertOk()
+            ->assertJsonPath('data.state', 'awaiting_manual_step')
+            ->assertJsonPath('data.current_step', 'sample_url_confirmation')
+            ->assertJsonPath('data.next_action', 'confirm_sample_url')
+            ->assertJsonPath('data.sample_url', "{$agency->base_url}/imovel/adotado")
+            ->assertJsonPath('data.discovery_adoption.discovery_snapshot_id', $snapshot->id);
+
+        $this->assertDatabaseMissing('crawler.operations', [
+            'onboarding_execution_id' => $execution->id,
+            'onboarding_step' => 'profile_generation',
+        ]);
+        $this->assertSame('failed', $failed->refresh()->state);
+        $this->assertNull($sourceOperation->refresh()->onboarding_execution_id);
+    }
+
     private function confirmInlineManualPlan(
         CrawlAgency $agency,
         string $name,

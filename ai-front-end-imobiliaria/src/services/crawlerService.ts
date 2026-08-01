@@ -36,6 +36,7 @@ import type {
   OnboardingExecutionModelVersion,
   OnboardingExecution,
   OnboardingExecutionAction,
+  OnboardingDiscoverySnapshotCandidate,
   OnboardingPlan,
   OnboardingPlanInput,
 } from "@/types/crawler";
@@ -489,6 +490,30 @@ export async function listOnboardingExecutions(crawlAgencyId: number): Promise<O
 
 export async function getOnboardingExecution(id: number): Promise<OnboardingExecution> {
   const response = await api.get<Resource<OnboardingExecution>>(`${BASE}/onboarding-executions/${id}`);
+  return response.data.data;
+}
+
+export async function listOnboardingDiscoverySnapshotCandidates(
+  id: number,
+): Promise<OnboardingDiscoverySnapshotCandidate[]> {
+  const response = await api.get<Resource<OnboardingDiscoverySnapshotCandidate[]>>(
+    `${BASE}/onboarding-executions/${id}/discovery-snapshot-candidates`,
+  );
+  return response.data.data;
+}
+
+export async function adoptOnboardingDiscoverySnapshot(
+  id: number,
+  discoverySnapshotId: number,
+  note?: string,
+): Promise<OnboardingExecution> {
+  const response = await api.post<Resource<OnboardingExecution>>(
+    `${BASE}/onboarding-executions/${id}/adopt-discovery-snapshot`,
+    {
+      discovery_snapshot_id: discoverySnapshotId,
+      ...(note?.trim() ? { note: note.trim() } : {}),
+    },
+  );
   return response.data.data;
 }
 

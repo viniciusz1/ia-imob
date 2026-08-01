@@ -104,6 +104,7 @@ Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.view
         Route::get('/crawl-agencies/{crawlAgency}/onboarding-plan', [OnboardingPlanController::class, 'show']);
         Route::get('/crawl-agencies/{crawlAgency}/onboarding-executions', [OnboardingExecutionController::class, 'index']);
         Route::get('/onboarding-executions/{onboardingExecution}', [OnboardingExecutionController::class, 'show']);
+        Route::get('/onboarding-executions/{onboardingExecution}/discovery-snapshot-candidates', [OnboardingExecutionController::class, 'discoverySnapshotCandidates']);
     });
 
 Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.operations.execute'])
@@ -122,6 +123,7 @@ Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.oper
         Route::post('/crawl-agencies/{crawlAgency}/onboarding-plan/confirm', [OnboardingPlanController::class, 'confirm']);
         Route::post('/onboarding-executions/{onboardingExecution}/actions', [OnboardingExecutionController::class, 'act']);
         Route::post('/onboarding-executions/{onboardingExecution}/first-production', [OnboardingExecutionController::class, 'firstProduction']);
+        Route::post('/onboarding-executions/{onboardingExecution}/adopt-discovery-snapshot', [OnboardingExecutionController::class, 'adoptDiscoverySnapshot']);
     });
 
 Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.operations.cancel'])

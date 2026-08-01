@@ -3,6 +3,7 @@
 namespace App\Services\Crawler;
 
 use App\Models\Crawler\CrawlerOperation;
+use App\Models\Crawler\OnboardingExecution;
 use App\Models\Crawler\OperationGroup;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -32,6 +33,11 @@ class CrawlerOperationControlService
     public function retry(CrawlerOperation $operation, User $requester): CrawlerOperation
     {
         return DB::transaction(function () use ($operation, $requester): CrawlerOperation {
+            $execution = $operation->onboarding_execution_id === null
+                ? null
+                : OnboardingExecution::query()
+                    ->lockForUpdate()
+                    ->findOrFail($operation->onboarding_execution_id);
             $locked = CrawlerOperation::query()->lockForUpdate()->findOrFail($operation->id);
             if (! in_array($locked->state, ['failed', 'cancelled'], true)) {
                 throw ValidationException::withMessages(['state' => 'Only failed or cancelled operations can be retried.']);
@@ -56,7 +62,11 @@ class CrawlerOperationControlService
 
             $attempt = 1;
             if ($locked->onboarding_execution_id !== null) {
-                $execution = $locked->onboardingExecution()->lockForUpdate()->firstOrFail();
+                if ($execution === null || $execution->id !== $locked->onboarding_execution_id) {
+                    throw ValidationException::withMessages([
+                        'state' => 'The onboarding execution changed while preparing the retry.',
+                    ]);
+                }
                 $activeAttempt = $execution->operations()
                     ->where('onboarding_step', $locked->onboarding_step)
                     ->where('attempt', '>', $locked->attempt)

@@ -121,12 +121,15 @@ class OnboardingExecutionCoordinator
 
     private function queueProfileGeneration(OnboardingExecution $execution, User $requester): CrawlerOperation
     {
-        $discoveryOperation = $execution->operations()
-            ->where('onboarding_step', 'discovery')
-            ->where('state', 'succeeded')
-            ->latest('attempt')
-            ->firstOrFail();
-        $snapshot = DiscoverySnapshot::query()->where('operation_id', $discoveryOperation->id)->firstOrFail();
+        $snapshot = $execution->discovery_snapshot_id === null
+            ? DiscoverySnapshot::query()
+                ->where('operation_id', $execution->operations()
+                    ->where('onboarding_step', 'discovery')
+                    ->where('state', 'succeeded')
+                    ->latest('attempt')
+                    ->value('id'))
+                ->firstOrFail()
+            : DiscoverySnapshot::query()->findOrFail($execution->discovery_snapshot_id);
 
         return $this->operations->queueProfileGeneration(
             $execution->crawlAgency,
@@ -353,10 +356,12 @@ class OnboardingExecutionCoordinator
     {
         return $execution->load([
             'crawlAgency',
+            'creator',
             'executionModel',
             'discoveryPolicy',
             'extractionPolicy',
             'discoverySnapshot',
+            'discoveryAdoption.actor',
             'extractionProfile',
             'profileValidationReport',
             'firstProductionCrawlRun.qualityReport',

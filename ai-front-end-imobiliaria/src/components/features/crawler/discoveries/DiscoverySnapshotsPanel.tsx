@@ -1,14 +1,22 @@
 "use client";
 
 import { ChevronDown, ExternalLink, LoaderCircle } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { usePermission } from "@/hooks/usePermission";
 import { listDiscoverySnapshotUrls } from "@/services/crawlerService";
-import type { DiscoverySnapshot, DiscoverySnapshotUrlPageSize, PaginatedDiscoverySnapshotUrls } from "@/types/crawler";
+import type { DiscoverySnapshot, DiscoverySnapshotUrlPageSize, OnboardingDiscoverySnapshotCandidate, OnboardingExecution, PaginatedDiscoverySnapshotUrls } from "@/types/crawler";
+
+import { AdoptDiscoverySnapshotButton } from "../agencies/AdoptDiscoverySnapshotButton";
 
 interface DiscoverySnapshotsPanelProps {
+  onboardingRecovery?: {
+    candidates: OnboardingDiscoverySnapshotCandidate[];
+    executionId: number;
+  };
   snapshots: DiscoverySnapshot[];
 }
 
@@ -25,9 +33,11 @@ function formatDate(value: string) {
   return new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "medium" }).format(new Date(value));
 }
 
-export function DiscoverySnapshotsPanel({ snapshots }: DiscoverySnapshotsPanelProps) {
+export function DiscoverySnapshotsPanel({ onboardingRecovery, snapshots }: DiscoverySnapshotsPanelProps) {
+  const canExecute = usePermission("crawler.operations.execute");
   const [expandedSnapshotId, setExpandedSnapshotId] = useState<number | null>(null);
   const [urlStates, setUrlStates] = useState<Partial<Record<number, SnapshotUrlsState>>>({});
+  const [continuedExecution, setContinuedExecution] = useState<OnboardingExecution | null>(null);
 
   const loadUrls = async (snapshotId: number, page = 1, perPage: DiscoverySnapshotUrlPageSize = 20) => {
     setUrlStates((current) => ({
@@ -74,8 +84,21 @@ export function DiscoverySnapshotsPanel({ snapshots }: DiscoverySnapshotsPanelPr
 
   return (
     <div className="space-y-3">
+      {onboardingRecovery && (
+        <aside className="space-y-2 rounded-md border border-primary/30 bg-primary/5 p-3">
+          <p className="font-medium">Continuar Execução de Onboarding #{onboardingRecovery.executionId}</p>
+          <p className="text-sm text-muted-foreground">Escolha um Snapshot elegível abaixo. A execução personalizada continuará independente e o resultado adotado ficará auditado no Onboarding.</p>
+          {!canExecute && <p className="text-sm text-muted-foreground">Somente leitura: você não pode adotar um Snapshot.</p>}
+          {continuedExecution && (
+            <Link className="inline-flex text-sm underline" href={`/admin/crawler/agencies/${continuedExecution.crawl_agency_id}/onboarding/${continuedExecution.id}`}>
+              Abrir Onboarding #{continuedExecution.id}
+            </Link>
+          )}
+        </aside>
+      )}
       {snapshots.map((snapshot) => {
         const expanded = expandedSnapshotId === snapshot.id;
+        const adoptionCandidate = onboardingRecovery?.candidates.find((candidate) => candidate.id === snapshot.id);
         const urlState = urlStates[snapshot.id];
         const loadedPage = urlState?.page;
         const refreshing = urlState?.status === "refreshing";
@@ -101,6 +124,19 @@ export function DiscoverySnapshotsPanel({ snapshots }: DiscoverySnapshotsPanelPr
                 <ChevronDown aria-hidden="true" className={`size-4 transition-transform ${expanded ? "rotate-180" : ""}`} />
               </span>
             </button>
+
+            {onboardingRecovery && adoptionCandidate && canExecute && (
+              <div className="space-y-2 border-t bg-primary/5 p-3">
+                {adoptionCandidate.adoption.sample_url && (
+                  <p className="break-all text-sm"><span className="font-medium">URL de Amostra:</span> {adoptionCandidate.adoption.sample_url}</p>
+                )}
+                <AdoptDiscoverySnapshotButton
+                  candidate={adoptionCandidate}
+                  executionId={onboardingRecovery.executionId}
+                  onAdopted={setContinuedExecution}
+                />
+              </div>
+            )}
 
             {expanded && (
               <div aria-busy={urlState?.status === "loading" || urlState?.status === "refreshing"} className="border-t" id={panelId}>

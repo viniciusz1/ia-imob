@@ -4,13 +4,17 @@ namespace App\Http\Controllers\Api\Crawler;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Crawler\ActOnboardingExecutionRequest;
+use App\Http\Requests\Crawler\AdoptOnboardingDiscoverySnapshotRequest;
 use App\Http\Requests\Crawler\ApproveOnboardingExecutionRequest;
 use App\Http\Requests\Crawler\StartOnboardingFirstProductionRequest;
 use App\Http\Resources\Crawler\OnboardingExecutionResource;
 use App\Models\Crawler\CrawlAgency;
+use App\Models\Crawler\DiscoverySnapshot;
 use App\Models\Crawler\OnboardingExecution;
 use App\Services\Crawler\ManualOnboardingExecutionService;
 use App\Services\Crawler\OnboardingCompletionService;
+use App\Services\Crawler\OnboardingDiscoveryAdoptionService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
@@ -32,6 +36,15 @@ class OnboardingExecutionController extends Controller
         return new OnboardingExecutionResource(
             $onboardingExecution->load($this->relations()),
         );
+    }
+
+    public function discoverySnapshotCandidates(
+        OnboardingExecution $onboardingExecution,
+        OnboardingDiscoveryAdoptionService $service,
+    ): JsonResponse {
+        return response()->json([
+            'data' => $service->candidates($onboardingExecution),
+        ]);
     }
 
     public function act(
@@ -92,6 +105,25 @@ class OnboardingExecutionController extends Controller
         );
     }
 
+    public function adoptDiscoverySnapshot(
+        AdoptOnboardingDiscoverySnapshotRequest $request,
+        OnboardingExecution $onboardingExecution,
+        OnboardingDiscoveryAdoptionService $service,
+    ): OnboardingExecutionResource {
+        $snapshot = DiscoverySnapshot::query()->findOrFail(
+            $request->integer('discovery_snapshot_id'),
+        );
+
+        return new OnboardingExecutionResource(
+            $service->adopt(
+                $onboardingExecution,
+                $snapshot,
+                $request->user(),
+                $request->validated('note'),
+            ),
+        );
+    }
+
     private function relations(): array
     {
         return [
@@ -101,6 +133,7 @@ class OnboardingExecutionController extends Controller
             'discoveryPolicy',
             'extractionPolicy',
             'discoverySnapshot',
+            'discoveryAdoption.actor',
             'extractionProfile',
             'profileValidationReport',
             'firstProductionCrawlRun.qualityReport',

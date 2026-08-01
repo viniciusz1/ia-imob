@@ -31,6 +31,7 @@ import type {
 } from "@/types/crawler";
 
 import { crawlerOperationErrorMessage } from "../crawlerOperationFeedback";
+import { OnboardingDiscoveryRecovery } from "./OnboardingDiscoveryRecovery";
 
 const STEP_LABELS: Record<OnboardingExecutionStepKey, string> = {
   discovery: "Discovery",
@@ -247,6 +248,12 @@ export function OnboardingExecutionTimeline({
   const reviewConfigurationRecovery = execution.recovery_actions.find(
     (recoveryAction) => recoveryAction.key === "review_configuration",
   );
+  const useExistingDiscoveryRecovery = execution.recovery_actions.find(
+    (recoveryAction) => recoveryAction.key === "use_existing_discovery_snapshot",
+  );
+  const createCustomDiscoveryRecovery = execution.recovery_actions.find(
+    (recoveryAction) => recoveryAction.key === "create_custom_discovery",
+  );
   const needsDiscoveryPolicy = action === "decide_onboarding"
     && execution.discovery_policy_version_id === null
     && execution.resolved_configuration.discovery_policy.source === "point_configuration";
@@ -291,6 +298,27 @@ export function OnboardingExecutionTimeline({
           <p className="font-medium">Etapa atual: {STEP_LABELS[execution.current_step]}</p>
           <p className="mt-1 text-sm text-muted-foreground">{stateMessage(execution)}</p>
         </section>
+
+        {execution.discovery_adoption && (
+          <section aria-label="Auditoria da adoção do Discovery" className="space-y-2 rounded-lg border border-emerald-600/30 bg-emerald-500/5 p-4">
+            <h3 className="font-medium">Discovery adotado para continuar</h3>
+            <p className="text-sm">
+              Snapshot #{execution.discovery_adoption.discovery_snapshot_id} · Operação independente #{execution.discovery_adoption.source_operation_id}
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Este resultado substituiu o resultado da Operação #{execution.discovery_adoption.replaced_operation_id}; a tentativa original permanece preservada.
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Adotado por {execution.discovery_adoption.adopted_by?.name ?? "operador não identificado"} em {new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short" }).format(new Date(execution.discovery_adoption.adopted_at))}.
+            </p>
+            {execution.discovery_adoption.note && <p className="rounded-md border bg-background p-2 text-sm">{execution.discovery_adoption.note}</p>}
+            <details className="text-sm">
+              <summary className="cursor-pointer text-muted-foreground">Ver configuração original do Discovery</summary>
+              <p className="mt-2">Política: {execution.discovery_adoption.original_discovery_configuration.name}</p>
+              <p>Fontes: {execution.discovery_adoption.original_discovery_configuration.strategies.join(", ") || "Nenhuma"}</p>
+            </details>
+          </section>
+        )}
 
         <ol aria-label="Timeline da Execução de Onboarding" className="space-y-4">
           {execution.steps.map((step, index) => {
@@ -400,6 +428,15 @@ export function OnboardingExecutionTimeline({
                   {action === "retry_first_production" ? "Retentar primeira produção" : "Executar primeira produção"}
                 </Button>
               </>
+            )}
+
+            {(useExistingDiscoveryRecovery?.enabled || createCustomDiscoveryRecovery?.enabled) && canExecute && (
+              <OnboardingDiscoveryRecovery
+                createCustomEnabled={createCustomDiscoveryRecovery?.enabled ?? false}
+                execution={execution}
+                onExecution={onExecution}
+                useExistingEnabled={useExistingDiscoveryRecovery?.enabled ?? false}
+              />
             )}
 
             {(action === "retry_failed_operation" || retryRecovery?.enabled) && canExecute && (

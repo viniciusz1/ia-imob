@@ -227,6 +227,15 @@ export interface DiscoverySnapshot {
   created_at: string;
 }
 
+export interface OnboardingDiscoverySnapshotCandidate extends DiscoverySnapshot {
+  adoption: {
+    eligible: boolean;
+    reason: string | null;
+    sample_url: string | null;
+    age_warning: string | null;
+  };
+}
+
 export interface ExtractionProfile {
   id: number;
   crawl_agency_id: number;
@@ -496,7 +505,9 @@ export type OnboardingRecoveryActionKey =
   | "review_configuration"
   | "retry_failed_operation"
   | "retry_first_production"
-  | "review_attention";
+  | "review_attention"
+  | "use_existing_discovery_snapshot"
+  | "create_custom_discovery";
 
 export interface OnboardingRecoveryAction {
   key: OnboardingRecoveryActionKey;
@@ -535,6 +546,15 @@ export interface OnboardingExecution {
   discovery_policy_version_id: number | null;
   extraction_policy_version_id: number | null;
   discovery_snapshot_id: number | null;
+  discovery_adoption: {
+    discovery_snapshot_id: number;
+    source_operation_id: number;
+    replaced_operation_id: number;
+    adopted_by: { id: number; name: string } | null;
+    original_discovery_configuration: ResolvedOnboardingPolicy;
+    note: string | null;
+    adopted_at: string;
+  } | null;
   market_data_contract_version_id: number;
   extraction_profile_id: number | null;
   profile_validation_report_id: number | null;

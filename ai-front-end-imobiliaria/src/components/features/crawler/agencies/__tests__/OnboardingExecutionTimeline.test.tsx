@@ -2,8 +2,10 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
+  adoptOnboardingDiscoverySnapshot,
   approveOnboardingExecution,
   getOnboardingExecution,
+  listOnboardingDiscoverySnapshotCandidates,
   retryCrawlerOperation,
   saveOnboardingPointConfiguration,
   startOnboardingFirstProduction,
@@ -15,8 +17,10 @@ import { OnboardingExecutionTimeline } from "../OnboardingExecutionTimeline";
 
 vi.mock("@/services/crawlerService", () => ({
   actOnboardingExecution: vi.fn(),
+  adoptOnboardingDiscoverySnapshot: vi.fn(),
   approveOnboardingExecution: vi.fn(),
   getOnboardingExecution: vi.fn(),
+  listOnboardingDiscoverySnapshotCandidates: vi.fn(),
   retryCrawlerOperation: vi.fn(),
   saveOnboardingPointConfiguration: vi.fn(),
   startOnboardingFirstProduction: vi.fn(),
@@ -35,6 +39,7 @@ function execution(overrides: Partial<OnboardingExecution> = {}): OnboardingExec
     discovery_policy_version_id: 11,
     extraction_policy_version_id: 12,
     discovery_snapshot_id: 21,
+    discovery_adoption: null,
     market_data_contract_version_id: 1,
     extraction_profile_id: 31,
     profile_validation_report_id: 41,
@@ -88,6 +93,7 @@ function execution(overrides: Partial<OnboardingExecution> = {}): OnboardingExec
 
 describe("OnboardingExecutionTimeline", () => {
   beforeEach(() => {
+    vi.clearAllMocks();
     useAuthStore.getState().setUser({
       id: 1,
       name: "Approver",
@@ -190,6 +196,162 @@ describe("OnboardingExecutionTimeline", () => {
     await waitFor(() => expect(retryCrawlerOperation).toHaveBeenCalledWith(101));
     expect(getOnboardingExecution).toHaveBeenCalledWith(91);
     expect(onExecution).toHaveBeenCalledWith(resumed);
+  });
+
+  it("offers an existing Snapshot or a custom Discovery to recover the Discovery step", () => {
+    const failed = execution({
+      state: "requires_attention",
+      current_step: "discovery",
+      attention: { code: "child_operation_failed", category: "unknown", message: "O Discovery falhou." },
+      recovery_actions: [
+        {
+          key: "retry_failed_operation",
+          priority: "primary",
+          enabled: true,
+          reason: "Retentar com as mesmas entradas.",
+        },
+        {
+          key: "use_existing_discovery_snapshot",
+          priority: "secondary",
+          enabled: true,
+          reason: "Usar um resultado independente.",
+        },
+        {
+          key: "create_custom_discovery",
+          priority: "secondary",
+          enabled: true,
+          reason: "Criar um Discovery personalizado.",
+        },
+      ],
+      next_action: "retry_failed_operation",
+    });
+
+    render(<OnboardingExecutionTimeline execution={failed} history={[failed]} onExecution={vi.fn()} />);
+
+    expect(screen.getByRole("button", { name: "Usar Snapshot existente" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Criar Discovery personalizado" })).toHaveAttribute(
+      "href",
+      "/admin/crawler/agencies/42/discoveries?onboarding_execution_id=91",
+    );
+  });
+
+  it("explains candidate eligibility and adopts the selected Snapshot after confirmation", async () => {
+    const failed = execution({
+      state: "requires_attention",
+      current_step: "discovery",
+      attention: { code: "child_operation_failed", category: "unknown", message: "O Discovery falhou." },
+      recovery_actions: [
+        {
+          key: "use_existing_discovery_snapshot",
+          priority: "secondary",
+          enabled: true,
+          reason: "Usar um resultado independente.",
+        },
+      ],
+      next_action: "retry_failed_operation",
+    });
+    const resumed = execution({
+      discovery_snapshot_id: 33,
+      state: "running",
+      current_step: "profile_generation",
+      next_action: "wait_for_current_operation",
+    });
+    vi.mocked(listOnboardingDiscoverySnapshotCandidates).mockResolvedValue([
+      {
+        id: 33,
+        operation_id: 78,
+        crawl_agency_id: 42,
+        url_count: 36,
+        content_hash: "eligible",
+        created_at: "2026-08-01T13:44:36Z",
+        adoption: {
+          eligible: true,
+          reason: null,
+          sample_url: "https://litoral.example.com/imovel/1",
+          age_warning: "Snapshot criado há mais de 30 dias; confirme se as URLs ainda representam o site atual.",
+        },
+      },
+      {
+        id: 32,
+        operation_id: 77,
+        crawl_agency_id: 42,
+        url_count: 0,
+        content_hash: "blocked",
+        created_at: "2026-08-01T13:43:43Z",
+        adoption: {
+          eligible: false,
+          reason: "A Operação do Crawler de origem não terminou com sucesso.",
+          sample_url: null,
+          age_warning: null,
+        },
+      },
+    ]);
+    vi.mocked(adoptOnboardingDiscoverySnapshot).mockResolvedValue(resumed);
+    const onExecution = vi.fn();
+
+    render(<OnboardingExecutionTimeline execution={failed} history={[failed]} onExecution={onExecution} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Usar Snapshot existente" }));
+    await waitFor(() => expect(listOnboardingDiscoverySnapshotCandidates).toHaveBeenCalledWith(91));
+    expect(await screen.findByText("https://litoral.example.com/imovel/1")).toBeInTheDocument();
+    expect(screen.getByText(/mais de 30 dias/)).toBeInTheDocument();
+    expect(screen.getByText("A Operação do Crawler de origem não terminou com sucesso.")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Usar Snapshot #32" })).toBeDisabled();
+
+    fireEvent.click(screen.getByRole("button", { name: "Usar Snapshot #33" }));
+    fireEvent.change(screen.getByLabelText("Nota da adoção"), { target: { value: "URLs revisadas" } });
+    fireEvent.click(screen.getByRole("button", { name: "Confirmar adoção do Snapshot #33" }));
+
+    await waitFor(() => expect(adoptOnboardingDiscoverySnapshot).toHaveBeenCalledWith(91, 33, "URLs revisadas"));
+    expect(onExecution).toHaveBeenCalledWith(resumed);
+  });
+
+  it("keeps the adopted Discovery origin visible in the execution audit trail", () => {
+    const adopted = execution({
+      discovery_snapshot_id: 33,
+      discovery_adoption: {
+        discovery_snapshot_id: 33,
+        source_operation_id: 78,
+        replaced_operation_id: 101,
+        adopted_by: { id: 1, name: "Approver" },
+        original_discovery_configuration: execution().resolved_configuration.discovery_policy,
+        note: "URLs revisadas antes da continuação.",
+        adopted_at: "2026-08-01T14:00:00Z",
+      },
+    });
+
+    render(<OnboardingExecutionTimeline execution={adopted} history={[adopted]} onExecution={vi.fn()} />);
+
+    expect(screen.getByText("Discovery adotado para continuar")).toBeInTheDocument();
+    expect(screen.getByText(/Snapshot #33.*Operação independente #78/)).toBeInTheDocument();
+    expect(screen.getByText(/substituiu o resultado da Operação #101/)).toBeInTheDocument();
+    expect(screen.getByText("URLs revisadas antes da continuação.")).toBeInTheDocument();
+  });
+
+  it("retries loading Snapshot candidates without closing the recovery panel", async () => {
+    const failed = execution({
+      state: "requires_attention",
+      current_step: "discovery",
+      recovery_actions: [{
+        key: "use_existing_discovery_snapshot",
+        priority: "secondary",
+        enabled: true,
+        reason: "Usar um resultado independente.",
+      }],
+      next_action: "retry_failed_operation",
+    });
+    vi.mocked(listOnboardingDiscoverySnapshotCandidates)
+      .mockRejectedValueOnce(new Error("Network unavailable"))
+      .mockResolvedValueOnce([]);
+
+    render(<OnboardingExecutionTimeline execution={failed} history={[failed]} onExecution={vi.fn()} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Usar Snapshot existente" }));
+    expect(await screen.findByText("Não foi possível carregar os Snapshots.")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Tentar novamente" }));
+
+    await waitFor(() => expect(listOnboardingDiscoverySnapshotCandidates).toHaveBeenCalledTimes(2));
+    expect(await screen.findByText("Nenhum Snapshot desta Crawl Agency está disponível.")).toBeInTheDocument();
   });
 
   it("prioritizes reviewing a fixed configuration while keeping retry available", () => {

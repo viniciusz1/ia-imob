@@ -1,12 +1,15 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { listDiscoverySnapshotUrls } from "@/services/crawlerService";
-import type { DiscoverySnapshot, PaginatedDiscoverySnapshotUrls } from "@/types/crawler";
+import { adoptOnboardingDiscoverySnapshot, listDiscoverySnapshotUrls } from "@/services/crawlerService";
+import { useAuthStore } from "@/store/useAuthStore";
+import type { DiscoverySnapshot, OnboardingDiscoverySnapshotCandidate, PaginatedDiscoverySnapshotUrls } from "@/types/crawler";
+import { onboardingExecution } from "../../agencies/__tests__/onboardingExecutionFixture";
 
 import { DiscoverySnapshotsPanel } from "../DiscoverySnapshotsPanel";
 
 vi.mock("@/services/crawlerService", () => ({
+  adoptOnboardingDiscoverySnapshot: vi.fn(),
   listDiscoverySnapshotUrls: vi.fn(),
 }));
 
@@ -15,8 +18,38 @@ const snapshots: DiscoverySnapshot[] = [
   { id: 9, operation_id: 19, crawl_agency_id: 7, url_count: 1, content_hash: "def", created_at: "2026-07-22T22:55:40Z" },
 ];
 
+const adoptionCandidates: OnboardingDiscoverySnapshotCandidate[] = [
+  {
+    ...snapshots[0],
+    adoption: {
+      eligible: true,
+      reason: null,
+      sample_url: "https://macroimoveis.com/imovel/123",
+      age_warning: null,
+    },
+  },
+  {
+    ...snapshots[1],
+    adoption: {
+      eligible: false,
+      reason: "A Operação do Crawler de origem não terminou com sucesso.",
+      sample_url: null,
+      age_warning: null,
+    },
+  },
+];
+
 describe("DiscoverySnapshotsPanel", () => {
-  beforeEach(() => vi.clearAllMocks());
+  beforeEach(() => {
+    vi.clearAllMocks();
+    useAuthStore.getState().setUser({
+      id: 1,
+      name: "Operator",
+      email: "operator@example.com",
+      is_platform_admin: true,
+      permissions: ["crawler.view", "crawler.operations.execute"],
+    });
+  });
 
   it("loads and displays a Snapshot URL table inside the Crawl Agency", async () => {
     vi.mocked(listDiscoverySnapshotUrls).mockResolvedValue({
@@ -109,5 +142,39 @@ describe("DiscoverySnapshotsPanel", () => {
       meta: { current_page: 2, last_page: 2, per_page: 20, total: 21 },
     });
     expect(await screen.findByRole("link", { name: /macroimoveis.com\/imovel\/21/i })).toBeInTheDocument();
+  });
+
+  it("uses the same adoption command after a custom Discovery finishes", async () => {
+    const continued = onboardingExecution({
+      discovery_snapshot_id: 10,
+      state: "running",
+      current_step: "profile_generation",
+    });
+    vi.mocked(adoptOnboardingDiscoverySnapshot).mockResolvedValue(continued);
+
+    render(
+      <DiscoverySnapshotsPanel
+        onboardingRecovery={{ candidates: adoptionCandidates, executionId: 91 }}
+        snapshots={snapshots}
+      />,
+    );
+
+    expect(screen.getByText("Continuar Execução de Onboarding #91")).toBeInTheDocument();
+    expect(screen.getByText("A Operação do Crawler de origem não terminou com sucesso.")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Usar Snapshot #9" })).toBeDisabled();
+
+    fireEvent.click(screen.getByRole("button", { name: "Usar Snapshot #10" }));
+    fireEvent.change(screen.getByLabelText("Nota da adoção"), { target: { value: "Discovery personalizado revisado" } });
+    fireEvent.click(screen.getByRole("button", { name: "Confirmar adoção do Snapshot #10" }));
+
+    await waitFor(() => expect(adoptOnboardingDiscoverySnapshot).toHaveBeenCalledWith(
+      91,
+      10,
+      "Discovery personalizado revisado",
+    ));
+    expect(screen.getByRole("link", { name: "Abrir Onboarding #91" })).toHaveAttribute(
+      "href",
+      "/admin/crawler/agencies/42/onboarding/91",
+    );
   });
 });

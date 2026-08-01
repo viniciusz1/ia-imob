@@ -354,7 +354,13 @@ class OnboardingExecutionApiTest extends TestCase
             ->assertJsonPath('data.recovery_actions.0.enabled', true)
             ->assertJsonPath('data.recovery_actions.1.key', 'retry_failed_operation')
             ->assertJsonPath('data.recovery_actions.1.priority', 'secondary')
-            ->assertJsonPath('data.recovery_actions.1.enabled', true);
+            ->assertJsonPath('data.recovery_actions.1.enabled', true)
+            ->assertJsonPath('data.recovery_actions.2.key', 'use_existing_discovery_snapshot')
+            ->assertJsonPath('data.recovery_actions.2.priority', 'secondary')
+            ->assertJsonPath('data.recovery_actions.2.enabled', true)
+            ->assertJsonPath('data.recovery_actions.3.key', 'create_custom_discovery')
+            ->assertJsonPath('data.recovery_actions.3.priority', 'secondary')
+            ->assertJsonPath('data.recovery_actions.3.enabled', true);
     }
 
     public function test_transient_failure_prioritizes_retry(): void
@@ -382,9 +388,11 @@ class OnboardingExecutionApiTest extends TestCase
                 'A etapa falhou por um problema transitório e pode ser retentada.',
             )
             ->assertJsonPath('data.next_action', 'retry_failed_operation')
-            ->assertJsonCount(1, 'data.recovery_actions')
+            ->assertJsonCount(3, 'data.recovery_actions')
             ->assertJsonPath('data.recovery_actions.0.key', 'retry_failed_operation')
-            ->assertJsonPath('data.recovery_actions.0.priority', 'primary');
+            ->assertJsonPath('data.recovery_actions.0.priority', 'primary')
+            ->assertJsonPath('data.recovery_actions.1.key', 'use_existing_discovery_snapshot')
+            ->assertJsonPath('data.recovery_actions.2.key', 'create_custom_discovery');
     }
 
     public function test_repeated_retry_returns_the_existing_active_attempt(): void
@@ -418,6 +426,224 @@ class OnboardingExecutionApiTest extends TestCase
             ->where('onboarding_execution_id', $execution->id)
             ->count());
         $this->assertSame('running', $execution->refresh()->state);
+    }
+
+    public function test_automated_execution_adopts_an_independent_discovery_snapshot_and_continues(): void
+    {
+        [$agency] = $this->promoteProspect('adopt-snapshot');
+        $execution = $this->configuredExecution($agency, 'Adoption model');
+        $coordinator = app(OnboardingExecutionCoordinator::class);
+        $coordinator->reconcile($execution);
+        $failed = $execution->operations()->sole();
+        $failed->forceFill([
+            'state' => 'failed',
+            'error_code' => 'discovery_failed',
+            'error_message' => 'The pinned Discovery failed.',
+            'completed_at' => now(),
+        ])->save();
+        $coordinator->reconcile($execution);
+
+        $sourceOperation = CrawlerOperation::query()->create([
+            'type' => 'discovery',
+            'state' => 'succeeded',
+            'requested_by' => $this->admin->id,
+            'crawl_agency_id' => $agency->id,
+            'market_data_contract_version_id' => $execution->market_data_contract_version_id,
+            'plan' => ['discovery_policy' => ['strategies' => ['sitemap']]],
+            'completed_at' => now(),
+        ]);
+        $snapshot = DiscoverySnapshot::query()->create([
+            'operation_id' => $sourceOperation->id,
+            'crawl_agency_id' => $agency->id,
+            'url_count' => 2,
+            'content_hash' => str_repeat('a', 64),
+        ]);
+        foreach (["{$agency->base_url}/", "{$agency->base_url}/imovel/123"] as $url) {
+            DiscoverySnapshotUrl::query()->create([
+                'discovery_snapshot_id' => $snapshot->id,
+                'url' => $url,
+                'url_hash' => hash('sha256', $url),
+            ]);
+        }
+
+        $this->actingAs($this->admin)
+            ->postJson("/api/v1/admin/crawler/onboarding-executions/{$execution->id}/adopt-discovery-snapshot", [
+                'discovery_snapshot_id' => $snapshot->id,
+                'note' => 'Discovery validado manualmente.',
+            ])
+            ->assertOk()
+            ->assertJsonPath('data.discovery_snapshot_id', $snapshot->id)
+            ->assertJsonPath('data.sample_url', "{$agency->base_url}/imovel/123")
+            ->assertJsonPath('data.current_step', 'profile_generation')
+            ->assertJsonPath('data.state', 'running')
+            ->assertJsonPath('data.discovery_adoption.discovery_snapshot_id', $snapshot->id)
+            ->assertJsonPath('data.discovery_adoption.source_operation_id', $sourceOperation->id)
+            ->assertJsonPath('data.discovery_adoption.replaced_operation_id', $failed->id)
+            ->assertJsonPath('data.discovery_adoption.adopted_by.id', $this->admin->id)
+            ->assertJsonPath('data.discovery_adoption.note', 'Discovery validado manualmente.');
+
+        $this->assertDatabaseHas('crawler.onboarding_discovery_adoptions', [
+            'onboarding_execution_id' => $execution->id,
+            'discovery_snapshot_id' => $snapshot->id,
+            'source_operation_id' => $sourceOperation->id,
+            'replaced_operation_id' => $failed->id,
+            'adopted_by' => $this->admin->id,
+            'note' => 'Discovery validado manualmente.',
+        ]);
+        $this->assertNull($sourceOperation->refresh()->onboarding_execution_id);
+        $this->assertDatabaseHas('crawler.operations', [
+            'onboarding_execution_id' => $execution->id,
+            'onboarding_step' => 'profile_generation',
+            'state' => 'queued',
+            'attempt' => 1,
+        ]);
+        $this->assertSame('failed', $failed->refresh()->state);
+
+        $this->actingAs($this->admin)
+            ->postJson("/api/v1/admin/crawler/onboarding-executions/{$execution->id}/adopt-discovery-snapshot", [
+                'discovery_snapshot_id' => $snapshot->id,
+                'note' => 'Comando repetido pelo operador.',
+            ])
+            ->assertOk()
+            ->assertJsonPath('data.discovery_snapshot_id', $snapshot->id)
+            ->assertJsonPath('data.current_step', 'profile_generation');
+
+        $this->assertDatabaseCount('crawler.onboarding_discovery_adoptions', 1);
+        $this->assertSame(1, CrawlerOperation::query()
+            ->where('onboarding_execution_id', $execution->id)
+            ->where('onboarding_step', 'profile_generation')
+            ->count());
+
+        $this->actingAs($this->admin)
+            ->postJson("/api/v1/admin/crawler/operations/{$failed->id}/retry")
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('state');
+        $this->assertSame(1, CrawlerOperation::query()
+            ->where('onboarding_execution_id', $execution->id)
+            ->where('onboarding_step', 'discovery')
+            ->count());
+    }
+
+    public function test_discovery_adoption_rejects_a_snapshot_whose_source_operation_belongs_to_another_agency(): void
+    {
+        [$agency] = $this->promoteProspect('adopt-target');
+        [$otherAgency] = $this->promoteProspect('adopt-source');
+        $execution = $this->configuredExecution($agency, 'Adoption ownership model');
+        $coordinator = app(OnboardingExecutionCoordinator::class);
+        $coordinator->reconcile($execution);
+        $failed = $execution->operations()->sole();
+        $failed->forceFill([
+            'state' => 'failed',
+            'error_code' => 'discovery_failed',
+            'error_message' => 'The pinned Discovery failed.',
+            'completed_at' => now(),
+        ])->save();
+        $coordinator->reconcile($execution);
+
+        $sourceOperation = CrawlerOperation::query()->create([
+            'type' => 'discovery',
+            'state' => 'succeeded',
+            'requested_by' => $this->admin->id,
+            'crawl_agency_id' => $otherAgency->id,
+            'market_data_contract_version_id' => $execution->market_data_contract_version_id,
+            'plan' => [],
+        ]);
+        $snapshot = DiscoverySnapshot::query()->create([
+            'operation_id' => $sourceOperation->id,
+            'crawl_agency_id' => $agency->id,
+            'url_count' => 1,
+            'content_hash' => str_repeat('b', 64),
+        ]);
+        DiscoverySnapshotUrl::query()->create([
+            'discovery_snapshot_id' => $snapshot->id,
+            'url' => "{$agency->base_url}/imovel/123",
+            'url_hash' => hash('sha256', "{$agency->base_url}/imovel/123"),
+        ]);
+
+        $this->actingAs($this->admin)
+            ->postJson("/api/v1/admin/crawler/onboarding-executions/{$execution->id}/adopt-discovery-snapshot", [
+                'discovery_snapshot_id' => $snapshot->id,
+            ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('discovery_snapshot_id');
+
+        $this->assertDatabaseCount('crawler.onboarding_discovery_adoptions', 0);
+        $this->assertSame('requires_attention', $execution->refresh()->state);
+    }
+
+    public function test_discovery_adoption_candidates_explain_eligibility_and_snapshot_age(): void
+    {
+        [$agency] = $this->promoteProspect('adoption-candidates');
+        $execution = $this->configuredExecution($agency, 'Adoption candidates model');
+        $coordinator = app(OnboardingExecutionCoordinator::class);
+        $coordinator->reconcile($execution);
+        $failed = $execution->operations()->sole();
+        $failed->forceFill([
+            'state' => 'failed',
+            'error_code' => 'discovery_failed',
+            'error_message' => 'The pinned Discovery failed.',
+            'completed_at' => now(),
+        ])->save();
+        $coordinator->reconcile($execution);
+
+        $eligibleOperation = CrawlerOperation::query()->create([
+            'type' => 'discovery',
+            'state' => 'succeeded',
+            'requested_by' => $this->admin->id,
+            'crawl_agency_id' => $agency->id,
+            'market_data_contract_version_id' => $execution->market_data_contract_version_id,
+            'plan' => [],
+        ]);
+        $eligibleSnapshot = DiscoverySnapshot::query()->create([
+            'operation_id' => $eligibleOperation->id,
+            'crawl_agency_id' => $agency->id,
+            'url_count' => 1,
+            'content_hash' => str_repeat('c', 64),
+            'created_at' => now()->subDays(45),
+        ]);
+        DiscoverySnapshotUrl::query()->create([
+            'discovery_snapshot_id' => $eligibleSnapshot->id,
+            'url' => "{$agency->base_url}/imovel/elegivel",
+            'url_hash' => hash('sha256', "{$agency->base_url}/imovel/elegivel"),
+        ]);
+
+        $failedOperation = CrawlerOperation::query()->create([
+            'type' => 'discovery',
+            'state' => 'failed',
+            'requested_by' => $this->admin->id,
+            'crawl_agency_id' => $agency->id,
+            'market_data_contract_version_id' => $execution->market_data_contract_version_id,
+            'plan' => [],
+        ]);
+        $ineligibleSnapshot = DiscoverySnapshot::query()->create([
+            'operation_id' => $failedOperation->id,
+            'crawl_agency_id' => $agency->id,
+            'url_count' => 1,
+            'content_hash' => str_repeat('d', 64),
+        ]);
+        DiscoverySnapshotUrl::query()->create([
+            'discovery_snapshot_id' => $ineligibleSnapshot->id,
+            'url' => "{$agency->base_url}/imovel/parcial",
+            'url_hash' => hash('sha256', "{$agency->base_url}/imovel/parcial"),
+        ]);
+
+        $this->actingAs($this->admin)
+            ->getJson("/api/v1/admin/crawler/onboarding-executions/{$execution->id}/discovery-snapshot-candidates")
+            ->assertOk()
+            ->assertJsonCount(2, 'data')
+            ->assertJsonPath('data.0.id', $ineligibleSnapshot->id)
+            ->assertJsonPath('data.0.adoption.eligible', false)
+            ->assertJsonPath(
+                'data.0.adoption.reason',
+                'A Operação do Crawler de origem não terminou com sucesso.',
+            )
+            ->assertJsonPath('data.1.id', $eligibleSnapshot->id)
+            ->assertJsonPath('data.1.adoption.eligible', true)
+            ->assertJsonPath('data.1.adoption.sample_url', "{$agency->base_url}/imovel/elegivel")
+            ->assertJsonPath(
+                'data.1.adoption.age_warning',
+                'Snapshot criado há mais de 30 dias; confirme se as URLs ainda representam o site atual.',
+            );
     }
 
     private function promoteProspect(string $suffix = 'success'): array
