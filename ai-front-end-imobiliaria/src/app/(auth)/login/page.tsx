@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export default function LoginPage() {
     return (
-        <div className="w-full animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div className="w-full animate-in fade-in slide-in-from-bottom-3 duration-500 motion-reduce:animate-none">
             <LoginForm />
         </div>
     );

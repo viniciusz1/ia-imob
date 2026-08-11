@@ -52,7 +52,7 @@ export function RolesDataTable({ data, pageCount, onEdit, onDelete }: RolesDataT
 
     return (
         <div className="space-y-4">
-            <div className="rounded-md border bg-white">
+            <div className="rounded-md border bg-card text-card-foreground">
                 <Table>
                     <TableHeader>
                         {table.getHeaderGroups().map((headerGroup) => (
