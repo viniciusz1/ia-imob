@@ -9,7 +9,7 @@ interface AdminErrorProps {
 
 export default function AdminError({ error, reset }: AdminErrorProps) {
     return (
-        <div className="container mx-auto py-8">
+        <div className="mx-auto max-w-2xl">
             <div className="rounded-md border border-red-200 bg-red-50 p-6 text-red-700">
                 <h2 className="text-lg font-semibold mb-2">Erro ao carregar a página</h2>
                 <p className="text-sm mb-4">

@@ -85,7 +85,7 @@ export default function AdminNewAgencyPage() {
     };
 
     return (
-        <div className="container mx-auto py-8 max-w-2xl">
+        <div className="mx-auto max-w-2xl">
             <Card>
                 <CardHeader>
                     <CardTitle>Nova Agência</CardTitle>

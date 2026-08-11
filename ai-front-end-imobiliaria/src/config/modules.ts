@@ -4,6 +4,7 @@ import {
   Calculator,
   CreditCard,
   Globe,
+  Landmark,
   Radar,
   ShieldCheck,
   Users,
@@ -84,6 +85,18 @@ export const dashboardModules: DashboardModule[] = [
     href: "/configuracoes-do-site",
     icon: Globe,
     permissions: ["properties.view"],
+  },
+  {
+    id: "platform-agencies",
+    title: "Administração da Plataforma",
+    href: "/admin",
+    icon: Landmark,
+    permissions: ["platform.agencies.view"],
+    platformOnly: true,
+    dashboard: {
+      title: "Administração da Plataforma",
+      description: "Cadastre imobiliárias clientes e controle o acesso delas à plataforma.",
+    },
   },
   {
     id: "crawler-operations",

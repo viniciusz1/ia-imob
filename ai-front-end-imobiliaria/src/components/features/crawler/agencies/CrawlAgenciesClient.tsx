@@ -34,7 +34,7 @@ export function CrawlAgenciesClient({ initialAgencies }: CrawlAgenciesClientProp
     <section className="space-y-4">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-semibold">Crawl Agencies</h2>
+          <h2 className="text-lg font-semibold">Crawl Agencies</h2>
           <p className="text-muted-foreground">
             Fontes globais de dados de mercado, independentes das Agencies clientes.
           </p>

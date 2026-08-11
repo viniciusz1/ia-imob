@@ -38,18 +38,25 @@ describe("hasPermission", () => {
 });
 
 describe("postLoginPath", () => {
-  it("prioritizes Crawler Operations for a Crawler Operator", () => {
+  it("sends a Platform Admin to the platform overview", () => {
     expect(postLoginPath({
       is_platform_admin: true,
       permissions: ["crawler.view", "platform.agencies.view"],
-    })).toBe("/admin/crawler");
+    })).toBe("/admin");
   });
 
-  it("sends other Platform Admins to Agency administration", () => {
+  it("sends a Platform Admin holding only Agency permissions to the overview", () => {
     expect(postLoginPath({
       is_platform_admin: true,
       permissions: ["platform.agencies.view"],
-    })).toBe("/admin/agencies");
+    })).toBe("/admin");
+  });
+
+  it("sends a Crawler Operator without Agency permissions straight to the Crawler", () => {
+    expect(postLoginPath({
+      is_platform_admin: true,
+      permissions: ["crawler.view"],
+    })).toBe("/admin/crawler");
   });
 
   it("keeps Agency users in the regular dashboard", () => {
