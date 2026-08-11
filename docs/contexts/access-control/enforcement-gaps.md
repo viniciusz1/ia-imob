@@ -2,19 +2,23 @@
 
 Points where the code does not enforce the model documented in [CONTEXT.md](./CONTEXT.md). Each entry is verifiable in the referenced file, not a hypothesis. Recorded so that work touching access control does not mistake current behavior for intended behavior.
 
-Verified against `main` at commit `690aa92` (2026-08-10).
+Verified against `main` at commit `690aa92` (2026-08-10). Gaps 1, 2 and 5 were closed after that; their entries record what was done and what is left.
 
-## 1. `User` is not an Agency-Owned Record
+## 1. `User` is not an Agency-Owned Record — *narrowed*
 
-`app/Models/User.php:16` does not apply `BelongsToAgency`, so **Agency Scope never runs on users**. `UserRepository::list()` (`app/Repositories/UserRepository.php:15`) filters by id, name, username, team, active and online — never by `agency_id`. `GET /users` therefore returns users of every Agency, and `findById()` resolves any user by id across Agencies.
+`app/Models/User.php` still does not apply `BelongsToAgency`, so **Agency Scope never runs on users**. The boundary is instead applied explicitly by `UserRepository::constrainToCurrentAgency()`, which every read in that repository passes through: an Agency user sees their own Agency's users, an agency-less actor sees the agency-less ones, and a query with no actor (CLI, seeders) is unconstrained — the same rule `AgencyScope` uses.
 
-Only three models are Agency-Owned today: `Property`, `PropertyValuation`, `Lead`. `AgencySiteSettings`, `SavedFilter`, and `AgencySubscription` carry `agency_id` without the scope, and rely on their controllers to filter.
+The global scope was deliberately not applied to `User`. `BelongsToAgency::currentAgencyId()` calls `auth()->user()`, and the session guard resolves the authenticated user *by querying the User model*; a global scope on `User` would re-enter the guard mid-resolution and recurse. Closing this properly means either a recursion-safe override on `User` or keeping the boundary explicit as it is now.
 
-## 2. `UserPolicy` authorizes everything
+What remains: any future code path that queries `User` outside `UserRepository` is unscoped, and single-record access relies on `UserPolicy` (gap 2) rather than the query layer. `AgencySiteSettings`, `SavedFilter`, and `AgencySubscription` still carry `agency_id` without a scope and rely on their controllers to filter. Only `Property`, `PropertyValuation` and `Lead` are Agency-Owned by scope.
 
-Every method in `app/Policies/UserPolicy.php` returns `true` — `viewAny` (:9), `view` (:14), `create` (:19), `update` (:24), `delete` (:29). The user Form Requests do delegate to the policy correctly (`StoreUserRequest`, `UpdateUserRequest`, `IndexUserRequest`, `ShowUserRequest`, `DestroyUserRequest`), so the wiring is right and the decision is the hole.
+## 2. `UserPolicy` authorizes everything — *closed*
 
-Consequence: the seeded `users.view`, `users.create`, `users.edit.self`, `users.edit.all`, `users.delete` Permissions are **not enforced anywhere**. Combined with gap 1, any authenticated user can read, create, edit and delete any user of any Agency, including Platform Admins. `users.edit.self` in particular has no code path distinguishing it from `users.edit.all`.
+Every method used to return `true`, so the seeded `users.*` Permissions were enforced nowhere and any authenticated user could read, create, edit and delete any user of any Agency.
+
+`app/Policies/UserPolicy.php` now requires the matching Permission *and* a shared Agency for every single-user decision, distinguishes `users.edit.self` from `users.edit.all`, and refuses self-deletion (which could otherwise lock an Agency out of its own workspace). A Platform Admin shares an Agency with nobody and therefore administers no Agency's users, matching the split documented in [CONTEXT.md](./CONTEXT.md).
+
+`tests/Feature/UserAgencyIsolationTest.php` locks the boundary.
 
 ## 3. The Group Catalog is shared but not treated as shared
 
@@ -31,11 +35,13 @@ Consequence: the seeded `users.view`, `users.create`, `users.edit.self`, `users.
 
 Escalation to the Admin Area is still blocked: the **Admin Area Gate** (`EnsurePlatformAdmin`) rejects any user with a non-null `agency_id` before the `can:` check runs, so an Agency User holding `crawler.view` still gets 403. The practical damage is therefore confined to (a) a confusing UI that advertises capabilities the Agency cannot use, and (b) a Group that silently becomes privileged if a Platform Admin is ever assigned it.
 
-## 5. `EnsureAgencyIsActive` is dead code
+## 5. `EnsureAgencyIsActive` is dead code — *closed*
 
-`app/Http/Middleware/EnsureAgencyIsActive.php` is not registered in `bootstrap/app.php` and is not attached to any route — it is referenced nowhere but its own definition. `AuthService::attemptLogin` checks only `user.is_active`, never the Agency's.
+The middleware existed but was registered nowhere, so deactivating an Agency blocked only the **White-Label Public Site**; its users kept working in the CRM normally.
 
-Consequence: deactivating an Agency currently blocks only the **White-Label Public Site** (via `ResolvePublicAgency`, which does check `is_active`). The Agency's users keep logging into the CRM and keep working normally, which contradicts **Deactivated Agency** as a state that "blocks use while preserving data".
+It now runs on the authenticated API group in `routes/api.php`, after `auth:sanctum` so the user is resolved before the check. Platform Admins belong to no Agency and pass through.
+
+The regression test for this was passing for the wrong reason: it asserted 403 for a user of a deactivated Agency who had no permission for the endpoint either, so it would have passed with the middleware absent — as it in fact did. It now grants the permission first, and a companion test covers the Platform Admin exemption.
 
 ## 6. Agency registration rewrites a shared Group
 
@@ -56,6 +62,6 @@ Closing gap 3 is a fork in the road, and the rest of the gaps read differently d
 - **Per-Agency Group Catalog** — enable the Spatie teams feature with `agency_id` as the team key, or add an explicit `agency_id` to `roles` plus scoping in `RoleController`. Groups become Agency-scoped; name uniqueness becomes per-Agency; gaps 3, 4 and 6 dissolve.
 - **Keep one platform-wide catalog** — then `roles.manage` is a platform-level capability, must be removed from **Grupo Administrador**, and the CRM's Grupos screen becomes read-only for Agency Admins.
 
-Gaps 1, 2 and 5 are independent of that choice and are enforcement bugs under either branch.
+Gaps 1, 2 and 5 were independent of that choice and have been addressed; gap 1 is narrowed rather than closed.
 
 Per `AGENTS.md`, any change here must move together: the permission seeders/migrations, the backend authorization, the **Serialized Permission Contract**, and the frontend checks that consume it.

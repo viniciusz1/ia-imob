@@ -5,14 +5,14 @@ namespace Tests\Feature;
 use App\Models\Agency;
 use App\Models\User;
 use App\Services\UserService;
-use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
- * Locks ADR 0001: every User belongs to exactly one Agency. Regression for the
- * NOT NULL violation on property_valuations.agency_id that surfaced when a
- * agency-less user (created without an agency) tried to create a valuation.
+ * Locks ADR 0001: an Agency user belongs to exactly one Agency, inherited from
+ * whoever created them. Regression for the NOT NULL violation on
+ * property_valuations.agency_id that surfaced when an agency-less user tried to
+ * create a valuation.
  */
 class UserAgencyAssignmentTest extends TestCase
 {
@@ -35,10 +35,17 @@ class UserAgencyAssignmentTest extends TestCase
         $this->assertSame($agency->id, $created->agency_id);
     }
 
-    public function test_database_rejects_a_user_without_a_agency(): void
+    /**
+     * ADR 0001 makes Agency users belong to exactly one Agency but leaves
+     * Platform Admins agency-less, and
+     * 2026_06_13_213400_make_agency_id_nullable_for_platform_admins reopened
+     * the column for exactly that. An agency-less user is therefore a Platform
+     * Admin, not a broken record.
+     */
+    public function test_an_agency_less_user_is_a_platform_admin(): void
     {
-        $this->expectException(QueryException::class);
+        $platformAdmin = User::factory()->create(['agency_id' => null]);
 
-        User::factory()->create(['agency_id' => null]);
+        $this->assertNull($platformAdmin->fresh()->agency_id);
     }
 }

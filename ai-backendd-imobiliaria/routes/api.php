@@ -3,13 +3,17 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\PermissionController;
 use App\Http\Controllers\Api\RoleController;
+use App\Http\Middleware\EnsureAgencyIsActive;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['throttle:5,1'])->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
 });
 
-Route::middleware('auth:sanctum')->group(function () {
+// EnsureAgencyIsActive runs after authentication so a Deactivated Agency loses
+// the CRM, not just its public site. Platform Admins belong to no Agency and
+// pass straight through.
+Route::middleware(['auth:sanctum', EnsureAgencyIsActive::class])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', [AuthController::class, 'user']);
     Route::post('/ping', [AuthController::class, 'ping']);
