@@ -27,11 +27,11 @@ export function CrawlAgencyContextHeader({ agency, area, description }: CrawlAge
 
       <div className="space-y-3 border-l-4 border-primary pl-4">
         <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          <h1 className="text-2xl font-semibold">{agency.name}</h1>
+          <h1 className="text-lg font-semibold">{agency.name}</h1>
           <span className="text-sm text-muted-foreground">{agency.root_domain}</span>
         </div>
         <div>
-          <h2 className="text-xl font-semibold">{area}</h2>
+          <h2 className="text-base font-semibold">{area}</h2>
           {description && <p className="text-muted-foreground">{description}</p>}
         </div>
       </div>

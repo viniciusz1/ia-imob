@@ -14,6 +14,8 @@ class UserRepository
     {
         $query = $this->model->newQuery()->with('roles:id,name');
 
+        $this->constrainToCurrentAgency($query);
+
         if (isset($filters['id'])) {
             $query->where('id', $filters['id']);
         }
@@ -48,7 +50,39 @@ class UserRepository
 
     public function findById(int $id): ?User
     {
-        return $this->model->with('roles:id,name')->find($id);
+        $query = $this->model->newQuery()->with('roles:id,name');
+
+        $this->constrainToCurrentAgency($query);
+
+        return $query->find($id);
+    }
+
+    /**
+     * Restrict a user query to the authenticated actor's own Agency.
+     *
+     * `users` has an `agency_id` but no Agency Scope, so every read path has to
+     * apply the boundary itself. An agency-less actor (a Platform Admin) sees
+     * the other agency-less users rather than everyone: you see the users of
+     * your own scope, never another Agency's.
+     *
+     * With no actor at all — CLI, seeders — no constraint is applied, matching
+     * how AgencyScope treats an unresolvable Agency.
+     */
+    private function constrainToCurrentAgency(Builder $query): void
+    {
+        $actor = auth()->user();
+
+        if ($actor === null) {
+            return;
+        }
+
+        if ($actor->agency_id === null) {
+            $query->whereNull('users.agency_id');
+
+            return;
+        }
+
+        $query->where('users.agency_id', $actor->agency_id);
     }
 
     public function create(array $data): User

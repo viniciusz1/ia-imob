@@ -4,6 +4,7 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { PlatformAdminNavigation } from "@/components/features/admin/navigation/PlatformAdminNavigation";
 import { authService } from "@/services/authService";
 import { clearAuthenticatedSession } from "@/services/authSessionCookie";
 import { hasPermission } from "@/lib/permissions";
@@ -69,11 +70,30 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     if (user?.is_platform_admin !== true || !hasPermission(perms, requiredPermission)) return null;
 
     return (
-        <div className="min-h-screen bg-background">
-            <header className="border-b px-6 py-4">
-                <h1 className="text-xl font-semibold">Administração da Plataforma</h1>
-            </header>
-            <main className="p-6">{children}</main>
+        <div className="min-h-screen bg-background md:grid md:grid-cols-[232px_1fr]">
+            <aside className="border-b bg-sidebar md:sticky md:top-0 md:flex md:h-svh md:flex-col md:border-b-0 md:border-r">
+                <div className="flex items-center gap-2.5 px-5 pt-4">
+                    <span
+                        aria-hidden="true"
+                        className="grid size-7 shrink-0 place-items-center rounded-lg bg-sidebar-primary text-xs font-bold text-sidebar-primary-foreground"
+                    >
+                        PA
+                    </span>
+                    <span className="flex flex-col leading-tight">
+                        <span className="text-sm font-semibold">Plataforma</span>
+                        <span className="text-xs text-muted-foreground">Administração</span>
+                    </span>
+                </div>
+
+                <PlatformAdminNavigation />
+            </aside>
+
+            {/* p-6 is the Admin Area gutter every page inherits. The Crawler module
+                cancels it with -mx-6 -mt-6 so its header and tab bar can span edge
+                to edge, so this padding must stay on <main>. */}
+            <div className="flex min-w-0 flex-col">
+                <main className="flex-1 p-6">{children}</main>
+            </div>
         </div>
     );
 }

@@ -56,7 +56,7 @@ export function CrawlerQualityDashboard({ runs }: { runs: CrawlRun[] }) {
   return (
     <section className="space-y-6">
       <div>
-        <h2 className="text-2xl font-semibold">Qualidade</h2>
+        <h2 className="text-lg font-semibold">Qualidade</h2>
         <p className="text-muted-foreground">
           Revise evidências bloqueantes e acompanhe decisões excepcionais sem alterar o histórico de qualidade.
         </p>

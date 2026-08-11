@@ -57,5 +57,10 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+    // Next internals and static assets served from /public are skipped: they
+    // are not host-aware and must never hit the auth gate or the agency
+    // rewrite (an image request would otherwise redirect to /login).
+    matcher: [
+        "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|avif|ico|woff|woff2|ttf)$).*)",
+    ],
 };

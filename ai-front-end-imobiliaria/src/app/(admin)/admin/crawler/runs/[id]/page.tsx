@@ -23,7 +23,7 @@ export default async function CrawlRunPage({ params }: CrawlRunPageProps) {
     <section className="space-y-6">
       <Link className="text-sm underline" href={`/admin/crawler/agencies/${run.crawl_agency_id}`}>Voltar para Crawl Agency</Link>
       <div className="flex flex-wrap items-center gap-3">
-        <h2 className="text-2xl font-semibold">Crawl Run #{run.id}</h2>
+        <h2 className="text-lg font-semibold">Crawl Run #{run.id}</h2>
         <Badge variant="outline">{run.technical_state}</Badge>
         <Badge variant={run.result_kind === "partial" ? "destructive" : "secondary"}>{run.result_kind === "partial" ? "Resultado parcial · não publicável" : run.publication_state}</Badge>
       </div>

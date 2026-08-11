@@ -101,14 +101,14 @@ function nextReviewStatus(status: ComparableReviewStatus): ComparableReviewStatu
 
 function reviewStatusClassName(status: ComparableReviewStatus): string {
   if (status === "approved") {
-    return "border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100";
+    return "border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 dark:hover:bg-emerald-950/70";
   }
 
   if (status === "rejected") {
-    return "border-red-200 bg-red-50 text-red-700 hover:bg-red-100";
+    return "border-red-200 bg-red-50 text-red-700 hover:bg-red-100 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300 dark:hover:bg-red-950/70";
   }
 
-  return "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100";
+  return "border-border bg-muted text-muted-foreground hover:bg-muted/70";
 }
 
 function comparableReviewsFrom(candidates: ComparableCandidate[]): ComparableReview[] | null {
@@ -819,7 +819,7 @@ function ComparableReviewPanel({
             type="button"
             variant="outline"
             size="sm"
-            className="border-red-200 text-red-700 hover:bg-red-50"
+            className="border-red-200 text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-300 dark:hover:bg-red-950/40"
             onClick={() => onMarkSelected("rejected")}
             disabled={selectedCount === 0}
           >

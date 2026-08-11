@@ -138,7 +138,7 @@ export function CrawlerOperationsClient({ agencies, initialOperations, initialWo
 
   return (
     <section className="space-y-6">
-      <div><h2 className="text-2xl font-semibold">Operações</h2><p className="text-muted-foreground">Fila durável do Crawler Machine.</p></div>
+      <div><h2 className="text-lg font-semibold">Operações</h2><p className="text-muted-foreground">Fila durável do Crawler Machine.</p></div>
       <Card>
         <CardHeader><CardTitle>Filtros da fila global</CardTitle></CardHeader>
         <CardContent className="grid gap-3 md:grid-cols-3 xl:grid-cols-4">

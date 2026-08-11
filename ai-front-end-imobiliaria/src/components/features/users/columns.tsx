@@ -58,8 +58,8 @@ export function getColumns(onEdit: (user: User) => void): ColumnDef<User>[] {
                         variant="outline"
                         className={
                             isOnline
-                                ? "text-green-600 border-green-600"
-                                : "text-gray-500"
+                                ? "text-green-600 border-green-600 dark:text-green-400 dark:border-green-400"
+                                : "text-muted-foreground"
                         }
                     >
                         {isOnline ? "Online" : "Offline"}

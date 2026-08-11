@@ -72,7 +72,7 @@ export function MarketDataContractsClient({ initialContracts }: MarketDataContra
   return (
     <section className="space-y-4">
       <div>
-        <h2 className="text-2xl font-semibold">Contrato de Dados de Mercado</h2>
+        <h2 className="text-lg font-semibold">Contrato de Dados de Mercado</h2>
         <p className="text-muted-foreground">Versões ativas são imutáveis e permanecem consultáveis.</p>
       </div>
       <Card>

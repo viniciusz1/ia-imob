@@ -7,13 +7,7 @@ import { Edit, Power, PowerOff, Plus } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
     Table,
     TableBody,
@@ -29,6 +23,7 @@ import {
     useDeactivateAgency,
 } from "@/hooks/useAdminAgencies";
 import { usePermission } from "@/hooks/usePermission";
+import { AdminPageHeader } from "@/components/features/admin/AdminPageHeader";
 import { AgencyFormModal } from "./AgencyFormModal";
 import type { AgencySummary } from "@/services/adminApi";
 
@@ -100,29 +95,21 @@ export function AgenciesClient({ initialData }: AgenciesClientProps) {
     };
 
     return (
-        <div className="container mx-auto py-8">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight">Agências</h1>
-                    <p className="text-muted-foreground mt-1">
-                        Gerencie as imobiliárias cadastradas na plataforma.
-                    </p>
-                </div>
-                <Button asChild>
-                    <Link href="/admin/agencies/new">
-                        <Plus className="mr-2 h-4 w-4" />
-                        Nova Agência
-                    </Link>
-                </Button>
-            </div>
+        <div className="flex flex-col gap-6">
+            <AdminPageHeader
+                actions={(
+                    <Button asChild>
+                        <Link href="/admin/agencies/new">
+                            <Plus className="mr-2 h-4 w-4" />
+                            Nova agência
+                        </Link>
+                    </Button>
+                )}
+                description="Gerencie as imobiliárias cadastradas na plataforma."
+                title="Agências"
+            />
 
             <Card>
-                <CardHeader>
-                    <CardTitle>Listagem</CardTitle>
-                    <CardDescription>
-                        Visualize, edite e controle o status das agências.
-                    </CardDescription>
-                </CardHeader>
                 <CardContent>
                     {isLoading && <AgenciesTableSkeleton />}
                     {error && (

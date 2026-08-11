@@ -52,7 +52,7 @@ describe("LoginForm", () => {
     }));
   });
 
-  it("unwraps the user resource and sends a Crawler Operator to Crawler Operations", async () => {
+  it("unwraps the user resource and sends a Platform Admin to the platform overview", async () => {
     vi.mocked(authService.getUser).mockResolvedValue(axiosResponse({
       data: {
         id: 4,
@@ -76,6 +76,31 @@ describe("LoginForm", () => {
       expect(useAuthStore.getState().user?.permissions).toContain("crawler.view");
     });
     expect(useAuthStore.getState().user?.email).toBe("platform@imobiliaria.com");
-    expect(mocks.push).toHaveBeenCalledWith("/admin/crawler");
+    expect(mocks.push).toHaveBeenCalledWith("/admin");
+  });
+
+  it("sends a Crawler Operator without Agency permissions to Crawler Operations", async () => {
+    vi.mocked(authService.getUser).mockResolvedValue(axiosResponse({
+      data: {
+        id: 5,
+        name: "Crawler Operator",
+        email: "crawler@imobiliaria.com",
+        is_platform_admin: true,
+        permissions: ["crawler.view"],
+      },
+    }));
+
+    render(<LoginForm />);
+    fireEvent.change(screen.getByLabelText(/usuário ou e-mail/i), {
+      target: { value: "crawler@imobiliaria.com" },
+    });
+    fireEvent.change(screen.getByLabelText(/^senha$/i), {
+      target: { value: "password" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /entrar no sistema/i }));
+
+    await waitFor(() => {
+      expect(mocks.push).toHaveBeenCalledWith("/admin/crawler");
+    });
   });
 });

@@ -23,11 +23,28 @@ class AgencyDeactivationBlocksAccessTest extends TestCase
         $agency = Agency::factory()->create(['is_active' => false]);
         $user = User::factory()->for($agency)->create();
 
-        // CRM endpoint should be blocked for users of deactivated agencies
+        // The permission is granted on purpose: without it the 403 would come
+        // from the missing permission and the test would pass whether or not
+        // deactivation blocks anything.
+        $user->givePermissionTo('properties.view');
+
         $response = $this->actingAs($user)
             ->getJson('/api/v1/properties');
 
         $response->assertStatus(403);
+    }
+
+    public function test_platform_admin_is_not_blocked_by_a_deactivated_agency(): void
+    {
+        $platformAdmin = User::factory()->create(['agency_id' => null]);
+        $platformAdmin->givePermissionTo('platform.agencies.view');
+
+        Agency::factory()->create(['is_active' => false]);
+
+        $response = $this->actingAs($platformAdmin)
+            ->getJson('/api/v1/admin/agencies');
+
+        $response->assertStatus(200);
     }
 
     public function test_active_agency_user_can_access_crm(): void
