@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\MarketProperty;
+use App\Services\Crawler\PropertyTypeCatalog;
 use Illuminate\Http\Request;
 
 class MarketPropertyController extends Controller
@@ -75,6 +76,7 @@ class MarketPropertyController extends Controller
         $tipos = (clone $baseQuery)
             ->whereNotNull('tipo')
             ->where('tipo', '!=', '')
+            ->whereIn('tipo', array_column(PropertyTypeCatalog::entries(), 'name'))
             ->distinct()
             ->orderBy('tipo')
             ->pluck('tipo');

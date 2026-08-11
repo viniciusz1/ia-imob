@@ -25,6 +25,7 @@ class ProductionSeeder extends Seeder
         $this->call([
             PermissionSeeder::class,
             RoleSeeder::class,
+            CrawlerPropertyTypeSeeder::class,
             SystemEnumSeeder::class,
             FeatureSeeder::class,
             SubscriptionPlanSeeder::class,

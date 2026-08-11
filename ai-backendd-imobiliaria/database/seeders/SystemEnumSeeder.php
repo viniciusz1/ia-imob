@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\SystemEnum;
+use App\Services\Crawler\PropertyTypeCatalog;
 use Illuminate\Database\Seeder;
 
 class SystemEnumSeeder extends Seeder
@@ -15,14 +16,7 @@ class SystemEnumSeeder extends Seeder
         $enums = [
             [
                 'tag' => 'property_types',
-                'data' => [
-                    ['value' => 'apartamento', 'label' => 'Apartamento'],
-                    ['value' => 'casa', 'label' => 'Casa'],
-                    ['value' => 'sobrado', 'label' => 'Sobrado'],
-                    ['value' => 'terreno', 'label' => 'Terreno'],
-                    ['value' => 'comercial', 'label' => 'Comercial'],
-                    ['value' => 'rural', 'label' => 'Rural'],
-                ],
+                'data' => PropertyTypeCatalog::systemEnumOptions(),
             ],
             [
                 'tag' => 'property_purposes',

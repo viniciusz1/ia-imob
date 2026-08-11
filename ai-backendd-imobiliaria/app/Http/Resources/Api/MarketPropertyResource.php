@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Api;
 
+use App\Services\Crawler\PropertyTypeCatalog;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -12,7 +13,7 @@ class MarketPropertyResource extends JsonResource
         return [
             'id' => $this->id,
             'image' => $this->imagem ?: '',
-            'tipo' => $this->tipo ?: '',
+            'tipo' => PropertyTypeCatalog::canonicalNameFor($this->tipo) ?? 'Imóvel',
             'preco' => (float) $this->valor ?: 0,
             'bairro' => $this->bairro ?: '',
             'cidade' => $this->cidade ?: '',

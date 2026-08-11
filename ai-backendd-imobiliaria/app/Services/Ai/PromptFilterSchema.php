@@ -2,26 +2,10 @@
 
 namespace App\Services\Ai;
 
+use App\Services\Crawler\PropertyTypeCatalog;
+
 final class PromptFilterSchema
 {
-    private const VALID_TYPES = [
-        'Apartamento',
-        'Casa',
-        'Cobertura',
-        'Terreno',
-        'Comercial',
-        'Kitnet',
-        'Studio',
-        'Loft',
-        'Sobrado',
-        'Galpão',
-        'Barracão',
-        'Sala',
-        'Sala Comercial',
-        'Loja',
-        'Ponto Comercial',
-    ];
-
     private const VALID_RADIUS_HINTS = [
         'muito_perto',
         'perto',
@@ -63,7 +47,7 @@ final class PromptFilterSchema
                     'type' => 'array',
                     'items' => [
                         'type' => 'string',
-                        'enum' => self::VALID_TYPES,
+                        'enum' => self::validTypes(),
                     ],
                 ],
                 'locations' => [
@@ -143,7 +127,7 @@ final class PromptFilterSchema
 
     public static function validTypes(): array
     {
-        return self::VALID_TYPES;
+        return array_column(PropertyTypeCatalog::entries(), 'name');
     }
 
     public static function validRadiusHints(): array

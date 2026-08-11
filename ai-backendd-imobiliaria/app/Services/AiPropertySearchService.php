@@ -5,13 +5,14 @@ namespace App\Services;
 use App\Models\AiParseCache;
 use App\Models\MarketProperty;
 use App\Services\Ai\Providers\LlmProvider;
+use App\Services\Crawler\PropertyTypeCatalog;
 use App\Services\Overpass\ProximityResolver;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class AiPropertySearchService
 {
-    public const SCHEMA_VERSION = '1.1.0';
+    public const SCHEMA_VERSION = '1.2.0';
 
     private const VALID_SORTS = ['price_asc', 'price_desc', 'area_asc', 'area_desc', 'newest'];
 
@@ -30,12 +31,12 @@ class AiPropertySearchService
         private readonly ProximityResolver $proximityResolver,
     ) {}
 
-    private const SYSTEM_PROMPT = <<<'PROMPT'
+    private const SYSTEM_PROMPT_TEMPLATE = <<<'PROMPT'
 You are a property search assistant for a Brazilian real estate platform. Extract structured search filters from the user's natural language query in Portuguese.
 
 Available filter fields — return ONLY the fields mentioned by the user. Use EXACT values from the lists below when a match is found:
 
-- tipo: array of property types. Valid values: "Apartamento", "Casa", "Cobertura", "Terreno", "Comercial", "Kitnet", "Studio", "Loft", "Sobrado", "Galpão", "Barracão", "Sala", "Sala Comercial", "Loja", "Ponto Comercial"
+- tipo: array of property types. Valid values: {{PROPERTY_TYPES}}
 - bairro: array of neighborhood names mentioned (can be partial)
 - cidade: array of city names mentioned (can be partial)
 - locations: array of objects {"bairro": string, "cidade": string}. Use this only for explicit bairro+city filters mentioned by the user.
@@ -279,7 +280,16 @@ PROMPT;
         }
 
         if (! empty($filters['tipo']) && is_array($filters['tipo'])) {
-            $normalized['tipo'] = $filters['tipo'];
+            $normalizedTypes = array_values(array_unique(array_filter(array_map(
+                static fn (mixed $type): ?string => is_string($type)
+                    ? PropertyTypeCatalog::canonicalNameFor($type)
+                    : null,
+                $filters['tipo'],
+            ))));
+
+            if ($normalizedTypes !== []) {
+                $normalized['tipo'] = $normalizedTypes;
+            }
         }
 
         if (! empty($locations)) {
@@ -369,7 +379,15 @@ PROMPT;
 
     private function buildSystemPrompt(?string $contextCity): string
     {
-        return self::SYSTEM_PROMPT
+        $propertyTypes = implode(', ', array_map(
+            static fn (array $entry): string => json_encode(
+                $entry['name'],
+                JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE,
+            ),
+            PropertyTypeCatalog::entries(),
+        ));
+
+        return str_replace('{{PROPERTY_TYPES}}', $propertyTypes, self::SYSTEM_PROMPT_TEMPLATE)
             ."\n\nContext city: ".($contextCity ?: 'none');
     }
 
