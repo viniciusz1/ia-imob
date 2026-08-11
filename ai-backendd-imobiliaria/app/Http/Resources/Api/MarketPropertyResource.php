@@ -16,7 +16,7 @@ class MarketPropertyResource extends JsonResource
             'preco' => (float) $this->valor ?: 0,
             'bairro' => $this->bairro ?: '',
             'cidade' => $this->cidade ?: '',
-            'imobiliaria' => $this->imobiliaria ?: '',
+            'imobiliaria' => $this->crawlerRun?->crawlAgency?->name ?: '',
             'quartos' => (int) $this->quartos ?: 0,
             'suites' => (int) $this->suites ?: 0,
             'banheiros' => (int) $this->banheiros ?: 0,

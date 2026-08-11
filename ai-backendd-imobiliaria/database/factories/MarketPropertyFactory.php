@@ -46,7 +46,6 @@ class MarketPropertyFactory extends Factory
         return [
             'crawler_run_id' => CrawlerRun::factory(),
             'tipo' => 'Casa',
-            'imobiliaria' => fake()->company(),
             'valor' => fake()->randomFloat(2, 100000, 2000000),
             'bairro' => fake()->word(),
             'cidade' => fake()->city(),

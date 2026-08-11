@@ -304,7 +304,6 @@ class ProductionCrawlApiTest extends TestCase
                 'crawler_run_id' => $runId,
                 'raw_property_id' => $rawId,
                 'tipo' => 'Casa',
-                'imobiliaria' => $agency->name,
                 'valor' => $value,
                 'bairro' => 'Centro',
                 'cidade' => 'Joinville',

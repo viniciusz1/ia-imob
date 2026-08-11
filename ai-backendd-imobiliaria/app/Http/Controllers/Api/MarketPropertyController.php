@@ -10,7 +10,7 @@ class MarketPropertyController extends Controller
 {
     public function index(Request $request)
     {
-        $query = MarketProperty::query()->latestRun();
+        $query = MarketProperty::query()->latestRun()->with(['crawlerRun.crawlAgency']);
 
         $filters = [
             'tipo' => $request->input('tipo'),
@@ -94,11 +94,13 @@ class MarketPropertyController extends Controller
             ->pluck('cidade');
 
         $imobiliarias = (clone $baseQuery)
-            ->whereNotNull('imobiliaria')
-            ->where('imobiliaria', '!=', '')
+            ->join('crawler.crawl_runs as run', 'run.id', '=', 'crawler.market_properties.crawler_run_id')
+            ->join('crawler.crawl_agencies as agency', 'agency.id', '=', 'run.crawl_agency_id')
+            ->whereNotNull('agency.name')
+            ->where('agency.name', '!=', '')
             ->distinct()
-            ->orderBy('imobiliaria')
-            ->pluck('imobiliaria');
+            ->orderBy('agency.name')
+            ->pluck('agency.name');
 
         $quartos = (clone $baseQuery)
             ->whereNotNull('quartos')

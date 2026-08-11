@@ -461,7 +461,7 @@ PROMPT;
 
     private function paginateFilters(array $filters, int $perPage, string $sort, int $page)
     {
-        $query = MarketProperty::query()->latestRun();
+        $query = MarketProperty::query()->latestRun()->with(['crawlerRun.crawlAgency']);
         $query->applyFilters($filters);
         $this->applySort($query, $sort);
 

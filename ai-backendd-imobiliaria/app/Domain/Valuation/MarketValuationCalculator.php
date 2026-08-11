@@ -209,6 +209,7 @@ final class MarketValuationCalculator
 
         $properties = MarketProperty::query()
             ->latestRun()
+            ->with(['crawlerRun.crawlAgency'])
             ->where('quartos', $input->bedrooms)
             ->where('vagas', $input->garageSpaces)
             ->orderBy('id')
@@ -277,7 +278,7 @@ final class MarketValuationCalculator
             'area' => $area,
             'price' => $price,
             'price_per_square_meter' => $price / $area,
-            'agency' => $property->imobiliaria,
+            'agency' => $property->crawlerRun?->crawlAgency?->name,
             'link' => $property->link_imovel,
         ];
     }

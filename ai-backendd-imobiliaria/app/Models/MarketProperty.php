@@ -18,7 +18,6 @@ class MarketProperty extends Model
         'crawler_run_id',
         'raw_property_id',
         'tipo',
-        'imobiliaria',
         'valor',
         'bairro',
         'cidade',
@@ -114,7 +113,9 @@ class MarketProperty extends Model
         }
 
         if (! empty($filters['imobiliaria'])) {
-            $query->whereIn('imobiliaria', (array) $filters['imobiliaria']);
+            $query->whereHas('crawlerRun.crawlAgency', function ($q) use ($filters): void {
+                $q->whereIn('name', (array) $filters['imobiliaria']);
+            });
         }
 
         if (! empty($filters['locations'])) {

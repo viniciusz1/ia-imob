@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\Models\Crawler\CrawlAgency;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
@@ -54,6 +56,11 @@ class CrawlerRun extends Model
     public function marketProperties(): HasMany
     {
         return $this->hasMany(MarketProperty::class);
+    }
+
+    public function crawlAgency(): BelongsTo
+    {
+        return $this->belongsTo(CrawlAgency::class, 'crawl_agency_id');
     }
 
     public function qualityReport(): HasOne
