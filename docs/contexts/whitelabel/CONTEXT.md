@@ -50,3 +50,4 @@ _Avoid_: Contact, inquiry, message
 ## Flagged ambiguities
 
 - "Imobiliária" means two different things across contexts: in Crawler Machine it is a **Crawl Agency** (a scrape target); here it is an **Agency** (a paying customer who publishes). These never overlap.
+- A **White-Label Site** serves unauthenticated visitors, so the Agency it reads is established from the request host, not from a session. That is the **Agency Host Override** in [Access Control](../access-control/CONTEXT.md) — the only place the platform sets a Current Agency without a logged-in user, and the reason host resolution is a data-isolation boundary and not just routing.

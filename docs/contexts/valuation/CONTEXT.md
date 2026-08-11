@@ -2,6 +2,8 @@
 
 Estimates the market value of a property from its characteristics and comparable market properties.
 
+**Avaliar Imóvel** and **Consultar Avaliações** are CRM Permissions and a **Avaliação Salva** is an Agency-Owned Record; both concepts are defined in [Access Control](../access-control/CONTEXT.md). A saved valuation is readable only within the Agency that created it.
+
 ## Language
 
 **Avaliação de Mercado (Market Valuation)**:

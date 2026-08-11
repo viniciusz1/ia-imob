@@ -2,11 +2,13 @@
 
 Internal system administration for managing the platform's customer Agencies and platform-level access. This context is separate from an Agency's own CRM administration.
 
+How the Platform Admin / Agency Admin distinction is actually enforced — Agency membership, Grupos, Permissões, and the Admin Area Gate — belongs to [Access Control](../access-control/CONTEXT.md). Use its terms rather than restating them here.
+
 ## Language
 
 **Platform Admin**:
-An internal platform user who can manage Agencies, global market-data sources, and platform-level operations across the system. A Platform Admin does not belong to an Agency by default.
-_Avoid_: Agency Admin, Broker, Agency user
+An internal platform user who can manage Agencies, global market-data sources, and platform-level operations across the system. A Platform Admin does not belong to an Agency by default — in practice, belonging to no Agency is what identifies one.
+_Avoid_: Agency Admin, Broker, Agency user, Grupo Platform Admin (the Group of that name is not the same thing)
 
 **Crawler Operator**:
 A Platform Admin acting within Crawler Operations whose authority is limited by explicit permissions for viewing, operating, approving, exceptional publishing, scheduling, and policy management.
@@ -42,4 +44,6 @@ _Avoid_: CRM dashboard, agency settings, backoffice
 - An **Agency Admin** belongs to exactly one **Agency**.
 - A **Platform Admin** is not an **Agency Admin** unless explicitly assigned to an Agency.
 - **Agency Registration** creates one **Agency** and one **Initial Agency Admin** together.
-- The **Admin Area** is only for **Platform Admins** and is separate from the Agency-scoped CRM.
+- The **Admin Area** is only for **Platform Admins** and is separate from the Agency-scoped CRM. Entry is decided by the [Access Control](../access-control/CONTEXT.md) **Admin Area Gate**: belonging to no Agency *and* holding the operation's **Platform Permission**.
+- A **Crawler Operator**'s authority is a set of **Platform Permissions**; granting or narrowing it is a change to the **Group Catalog**, which is platform-wide.
+- **Agency Registration** assigns the **Grupo Administrador** to the **Initial Agency Admin**; that Group is shared across all Agencies, so its Permissions are not an Agency-level decision.
