@@ -5,10 +5,13 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RegisterAgencyRequest;
 use App\Http\Requests\UpdateAgencyRequest;
+use App\Http\Requests\UpdateMarketSearchAllowanceRequest;
 use App\Http\Resources\AgencyResource;
 use App\Models\Agency;
+use App\Models\AgencyConfiguration;
 use App\Models\AgencySiteSettings;
 use App\Models\User;
+use App\Services\MarketSearchQuotaService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\DB;
@@ -24,7 +27,7 @@ class AdminAgencyController extends Controller
     public function index(): AnonymousResourceCollection
     {
         return AgencyResource::collection(
-            Agency::query()->orderBy('name')->get()
+            Agency::query()->with('configuration')->orderBy('name')->get()
         );
     }
 
@@ -32,8 +35,26 @@ class AdminAgencyController extends Controller
      * Inspect a single Agency's details.
      * Gated by platform.agencies.view in the route definition.
      */
-    public function show(Agency $agency): AgencyResource
+    public function show(Agency $agency, MarketSearchQuotaService $quota): AgencyResource
     {
+        $agency->loadMissing('configuration');
+        $agency->setAttribute('market_search_usage_summary', $quota->summary($agency));
+
+        return new AgencyResource($agency);
+    }
+
+    public function updateMarketSearchAllowance(
+        UpdateMarketSearchAllowanceRequest $request,
+        Agency $agency,
+        MarketSearchQuotaService $quota,
+    ): AgencyResource {
+        $agency->configuration()->updateOrCreate([], [
+            'market_search_weekly_limit' => $request->integer('limit'),
+        ]);
+
+        $agency = $agency->fresh('configuration');
+        $agency->setAttribute('market_search_usage_summary', $quota->summary($agency));
+
         return new AgencyResource($agency);
     }
 
@@ -116,6 +137,11 @@ class AdminAgencyController extends Controller
             // Create default site settings
             AgencySiteSettings::create([
                 'agency_id' => $agency->id,
+            ]);
+
+            AgencyConfiguration::create([
+                'agency_id' => $agency->id,
+                'market_search_weekly_limit' => AgencyConfiguration::DEFAULT_MARKET_SEARCH_WEEKLY_LIMIT,
             ]);
 
             return [$agency, $admin];

@@ -10,6 +10,16 @@ export interface AgencySummary {
     owner_user_id: number | null;
     created_at: string | null;
     updated_at: string | null;
+    market_search_weekly_limit: number;
+    market_search_usage?: MarketSearchUsage;
+}
+
+export interface MarketSearchUsage {
+    limit: number;
+    used: number;
+    remaining: number;
+    week_started_on: string;
+    resets_at: string;
 }
 
 export interface RegisterAgencyPayload {
@@ -54,6 +64,14 @@ export interface AgencyUpdatePayload {
 
 export async function updateAgency(id: number, payload: AgencyUpdatePayload): Promise<AgencySummary> {
     const { data } = await api.put<{ data: AgencySummary }>(`${BASE}/agencies/${id}`, payload);
+    return data.data;
+}
+
+export async function updateMarketSearchAllowance(id: number, limit: number): Promise<AgencySummary> {
+    const { data } = await api.put<{ data: AgencySummary }>(
+        `${BASE}/agencies/${id}/market-search-allowance`,
+        { limit }
+    );
     return data.data;
 }
 

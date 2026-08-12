@@ -44,6 +44,8 @@ npm test
 
 Use PHP 8.2+ and Laravel conventions in the backend: PSR-4 classes, singular Eloquent models, `*Controller`, `*Service`, `*Request`, and `*Resource` suffixes. Run Pint before committing PHP changes.
 
+Never reference PHP classes through fully qualified inline names inside executable code, such as `return \App\Http\Resources\Api\MarketPropertyResource::collection(...)`. Import every class with a `use` statement at the top of the file and reference it by its short class name.
+
 Use TypeScript and React conventions in the frontend: PascalCase components, camelCase hooks/services, and `use*` hook names. Prefer the `@/` alias for imports from `src`. Shared primitives belong in `src/components/ui`; domain workflows belong in `src/components/features`.
 
 Never use the TypeScript `any` type in frontend code, including tests, mocks, API clients, component props, and form handlers. Prefer precise domain types, generated/inferred schema types, generics, `unknown` with narrowing, or small local interfaces for test doubles and external payloads.

@@ -2,71 +2,92 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exceptions\MarketSearchAllowanceExceeded;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Api\MarketPropertyResource;
 use App\Models\MarketProperty;
 use App\Services\Crawler\PropertyTypeCatalog;
+use App\Services\MarketSearchQuotaService;
 use Illuminate\Http\Request;
 
 class MarketPropertyController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request, MarketSearchQuotaService $quota)
     {
-        $query = MarketProperty::query()->latestRun()->with(['crawlerRun.crawlAgency']);
+        $request->validate([
+            'page' => ['sometimes', 'integer', 'min:1'],
+            'per_page' => ['sometimes', 'integer', 'min:1', 'max:21'],
+        ]);
 
-        $filters = [
-            'tipo' => $request->input('tipo'),
-            'bairro' => $request->input('bairro'),
-            'cidade' => $request->input('cidade'),
-            'imobiliaria' => $request->input('imobiliaria'),
-            'quartos' => $request->input('quartos'),
-            'quartos_plus' => $request->filled('quartos_plus'),
-            'suites' => $request->input('suites'),
-            'suites_plus' => $request->filled('suites_plus'),
-            'banheiros' => $request->input('banheiros'),
-            'banheiros_plus' => $request->filled('banheiros_plus'),
-            'vagas' => $request->input('vagas'),
-            'vagas_plus' => $request->filled('vagas_plus'),
-            'piscina' => $request->filled('piscina'),
-            'churrasqueira' => $request->filled('churrasqueira'),
-            'academia' => $request->filled('academia'),
-            'salao_festas' => $request->filled('salao_festas'),
-            'playground' => $request->filled('playground'),
-            'sacada' => $request->filled('sacada'),
-            'mobiliado' => $request->filled('mobiliado'),
-            'ar_condicionado' => $request->filled('ar_condicionado'),
-            'lavanderia' => $request->filled('lavanderia'),
-            'escritorio' => $request->filled('escritorio'),
-            'closet' => $request->filled('closet'),
-            'elevador' => $request->filled('elevador'),
-            'portaria_24h' => $request->filled('portaria_24h'),
-            'aceita_permuta' => $request->filled('aceita_permuta'),
-            'financiamento' => $request->filled('financiamento'),
-            'min' => $request->input('min'),
-            'max' => $request->input('max'),
-            'descricao' => $request->input('descricao'),
-        ];
+        $agency = $request->user()?->agency;
+        abort_if($agency === null, 403, 'O IA Searcher exige uma Agência.');
 
-        $query->applyFilters($filters);
+        try {
+            return $quota->execute($agency, function () use ($request) {
+                $query = MarketProperty::query()->latestRun()->with(['crawlerRun.crawlAgency']);
 
-        if ($request->filled('sort')) {
-            match ($request->input('sort')) {
-                'price_asc' => $query->orderBy('valor', 'asc')->orderBy('id', 'desc'),
-                'price_desc' => $query->orderBy('valor', 'desc')->orderBy('id', 'desc'),
-                'area_asc' => $query->orderBy('area', 'asc')->orderBy('id', 'desc'),
-                'area_desc' => $query->orderBy('area', 'desc')->orderBy('id', 'desc'),
-                default => $query->orderBy('id', 'desc'),
-            };
-        } elseif ($request->filled('ordem')) {
-            $direction = strtolower($request->input('ordem')) === 'desc' ? 'desc' : 'asc';
-            $query->orderBy('valor', $direction);
-        } else {
-            $query->orderBy('id', 'desc');
+                $filters = [
+                    'tipo' => $request->input('tipo'),
+                    'bairro' => $request->input('bairro'),
+                    'cidade' => $request->input('cidade'),
+                    'imobiliaria' => $request->input('imobiliaria'),
+                    'quartos' => $request->input('quartos'),
+                    'quartos_plus' => $request->filled('quartos_plus'),
+                    'suites' => $request->input('suites'),
+                    'suites_plus' => $request->filled('suites_plus'),
+                    'banheiros' => $request->input('banheiros'),
+                    'banheiros_plus' => $request->filled('banheiros_plus'),
+                    'vagas' => $request->input('vagas'),
+                    'vagas_plus' => $request->filled('vagas_plus'),
+                    'piscina' => $request->filled('piscina'),
+                    'churrasqueira' => $request->filled('churrasqueira'),
+                    'academia' => $request->filled('academia'),
+                    'salao_festas' => $request->filled('salao_festas'),
+                    'playground' => $request->filled('playground'),
+                    'sacada' => $request->filled('sacada'),
+                    'mobiliado' => $request->filled('mobiliado'),
+                    'ar_condicionado' => $request->filled('ar_condicionado'),
+                    'lavanderia' => $request->filled('lavanderia'),
+                    'escritorio' => $request->filled('escritorio'),
+                    'closet' => $request->filled('closet'),
+                    'elevador' => $request->filled('elevador'),
+                    'portaria_24h' => $request->filled('portaria_24h'),
+                    'aceita_permuta' => $request->filled('aceita_permuta'),
+                    'financiamento' => $request->filled('financiamento'),
+                    'min' => $request->input('min'),
+                    'max' => $request->input('max'),
+                    'descricao' => $request->input('descricao'),
+                ];
+
+                $query->applyFilters($filters);
+
+                if ($request->filled('sort')) {
+                    match ($request->input('sort')) {
+                        'price_asc' => $query->orderBy('valor', 'asc')->orderBy('id', 'desc'),
+                        'price_desc' => $query->orderBy('valor', 'desc')->orderBy('id', 'desc'),
+                        'area_asc' => $query->orderBy('area', 'asc')->orderBy('id', 'desc'),
+                        'area_desc' => $query->orderBy('area', 'desc')->orderBy('id', 'desc'),
+                        default => $query->orderBy('id', 'desc'),
+                    };
+                } elseif ($request->filled('ordem')) {
+                    $direction = strtolower($request->input('ordem')) === 'desc' ? 'desc' : 'asc';
+                    $query->orderBy('valor', $direction);
+                } else {
+                    $query->orderBy('id', 'desc');
+                }
+
+                $perPage = $request->integer('per_page', 20);
+                $properties = $query->paginate($perPage);
+
+                return MarketPropertyResource::collection($properties)->response();
+            });
+        } catch (MarketSearchAllowanceExceeded $exception) {
+            return response()->json([
+                'message' => $exception->getMessage(),
+                'code' => 'market_search_allowance_exhausted',
+                'allowance' => $exception->allowance,
+            ], 429);
         }
-
-        $perPage = $request->input('per_page', 20);
-        $properties = $query->paginate($perPage);
-
-        return \App\Http\Resources\Api\MarketPropertyResource::collection($properties);
     }
 
     public function filters()

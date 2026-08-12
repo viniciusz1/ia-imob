@@ -28,7 +28,11 @@ class AdminAgencyDetailTest extends TestCase
         $response->assertStatus(200)
             ->assertJsonPath('data.id', $agency->id)
             ->assertJsonPath('data.name', 'Acme Imóveis')
-            ->assertJsonPath('data.slug', 'acme');
+            ->assertJsonPath('data.slug', 'acme')
+            ->assertJsonPath('data.market_search_weekly_limit', 100)
+            ->assertJsonPath('data.market_search_usage.limit', 100)
+            ->assertJsonPath('data.market_search_usage.used', 0)
+            ->assertJsonPath('data.market_search_usage.remaining', 100);
     }
 
     public function test_agency_detail_returns_404_for_nonexistent_agency(): void

@@ -53,9 +53,19 @@ class Agency extends Model
         return $this->hasMany(AgencyDomain::class);
     }
 
+    public function configuration(): HasOne
+    {
+        return $this->hasOne(AgencyConfiguration::class);
+    }
+
     public function subscriptions(): HasMany
     {
         return $this->hasMany(AgencySubscription::class);
+    }
+
+    public function marketSearchUsages(): HasMany
+    {
+        return $this->hasMany(AgencyMarketSearchUsage::class);
     }
 
     /**

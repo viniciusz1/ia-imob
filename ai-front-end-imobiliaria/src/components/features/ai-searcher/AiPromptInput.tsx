@@ -7,6 +7,10 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import type { AiSearchResponse, AiParsedFilter, SortMode } from "./types";
 import api, { API_PREFIX } from "@/services/api";
+import {
+  getMarketSearchErrorMessage,
+  isMarketSearchAllowanceExceeded,
+} from "./marketSearchError";
 
 function parseFiltersToLabels(filters: Record<string, unknown>): AiParsedFilter[] {
   const labels: AiParsedFilter[] = [];
@@ -101,9 +105,19 @@ interface AiPromptInputProps {
   isLoading: boolean;
   sort: SortMode;
   large?: boolean;
+  disabled?: boolean;
+  onAllowanceExhausted?: (message: string) => void;
 }
 
-export function AiPromptInput({ onResults, onLoadingChange, isLoading, sort, large }: AiPromptInputProps) {
+export function AiPromptInput({
+  onResults,
+  onLoadingChange,
+  isLoading,
+  sort,
+  large,
+  disabled = false,
+  onAllowanceExhausted,
+}: AiPromptInputProps) {
   const [prompt, setPrompt] = useState("");
   const [activeFilters, setActiveFilters] = useState<AiParsedFilter[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -128,12 +142,11 @@ export function AiPromptInput({ onResults, onLoadingChange, isLoading, sort, lar
       setActiveFilters(parseFiltersToLabels(data.filters));
       onResults(data, trimmed);
     } catch (err: unknown) {
-      const error = err as { response?: { data?: { error?: string; message?: string } } };
-      const message =
-        error?.response?.data?.error ||
-        error?.response?.data?.message ||
-        "Erro ao processar a busca. Tente novamente.";
+      const message = getMarketSearchErrorMessage(err);
       setError(message);
+      if (isMarketSearchAllowanceExceeded(err)) {
+        onAllowanceExhausted?.(message);
+      }
     } finally {
       onLoadingChange(false);
     }
@@ -153,9 +166,9 @@ export function AiPromptInput({ onResults, onLoadingChange, isLoading, sort, lar
               onChange={(e) => setPrompt(e.target.value)}
               placeholder='Ex: "Apartamento de 3 quartos no bairro Amizade com piscina"'
               className={`w-full pl-10 pr-12 text-base ${large ? "h-16 text-lg" : "h-12"}`}
-              disabled={isLoading}
+              disabled={isLoading || disabled}
             />
-            {prompt && !isLoading && (
+            {prompt && !isLoading && !disabled && (
               <button
                 type="submit"
                 className="absolute right-2 top-1/2 -translate-y-1/2 size-8 flex items-center justify-center rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"

@@ -58,6 +58,7 @@ Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:platform.age
 // Update endpoints: gated by platform.agencies.update
 Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:platform.agencies.update'])->group(function () {
     Route::put('/agencies/{agency}', [AdminAgencyController::class, 'update']);
+    Route::put('/agencies/{agency}/market-search-allowance', [AdminAgencyController::class, 'updateMarketSearchAllowance']);
 });
 
 // Status endpoints: gated by platform.agencies.deactivate

@@ -5,6 +5,7 @@
 - [Crawler Machine](./crawler-machine/CONTEXT.md) — extracts real estate property listings from agency websites and persists them to Postgres.
 - [White-Label Public Site](./docs/contexts/whitelabel/CONTEXT.md) — public, SEO-facing storefront where an Agency's published properties are shown to final clients.
 - [Property Valuation](./docs/contexts/valuation/CONTEXT.md) — estimates a property's market value from its characteristics and comparable market properties.
+- [AI Searcher](./docs/contexts/ai-searcher/CONTEXT.md) — lets Agency Users search the platform's market-wide property inventory through natural-language or conventional filters.
 - [Platform Administration](./docs/contexts/platform-administration/CONTEXT.md) — internal system administration for managing Agencies and platform-level access.
 - [Access Control](./docs/contexts/access-control/CONTEXT.md) — cross-cutting Agency data isolation and the Group/Permission model every other context is gated by.
 

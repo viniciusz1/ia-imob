@@ -11,6 +11,7 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import { getAgency } from "@/services/adminApi";
+import { AgencySearchAllowanceCard } from "@/components/features/admin/agencies/AgencySearchAllowanceCard";
 
 interface AdminAgencyDetailPageProps {
     params: Promise<{ id: string }>;
@@ -26,7 +27,7 @@ export default async function AdminAgencyDetailPage({ params }: AdminAgencyDetai
     const agency = await getAgency(Number(id));
 
     return (
-        <div className="mx-auto max-w-2xl">
+        <div className="mx-auto max-w-2xl space-y-4">
             <Button variant="ghost" asChild className="mb-4 pl-0">
                 <Link href="/admin/agencies">
                     <ArrowLeft className="mr-2 h-4 w-4" />
@@ -71,6 +72,8 @@ export default async function AdminAgencyDetailPage({ params }: AdminAgencyDetai
                     </dl>
                 </CardContent>
             </Card>
+
+            <AgencySearchAllowanceCard agency={agency} />
         </div>
     );
 }

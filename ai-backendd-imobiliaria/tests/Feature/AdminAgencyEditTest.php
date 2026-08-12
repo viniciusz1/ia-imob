@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Agency;
+use App\Models\AgencyConfiguration;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -52,6 +53,46 @@ class AdminAgencyEditTest extends TestCase
             ]);
 
         $response->assertStatus(403);
+    }
+
+    public function test_platform_admin_can_update_market_search_allowance_without_resetting_usage(): void
+    {
+        $platformAdmin = User::where('email', 'platform@imobiliaria.com')->first();
+        $agency = Agency::factory()->create();
+        AgencyConfiguration::create([
+            'agency_id' => $agency->id,
+            'market_search_weekly_limit' => 100,
+        ]);
+        $broker = User::factory()->for($agency)->create();
+
+        $this->actingAs($broker)->getJson('/api/v1/market-properties')->assertOk();
+
+        $this->actingAs($platformAdmin)
+            ->putJson("/api/v1/admin/agencies/{$agency->id}/market-search-allowance", [
+                'limit' => 150,
+            ])
+            ->assertOk()
+            ->assertJsonPath('data.market_search_weekly_limit', 150)
+            ->assertJsonPath('data.market_search_usage.used', 1)
+            ->assertJsonPath('data.market_search_usage.remaining', 149);
+
+        $this->assertDatabaseHas('agency_configurations', [
+            'agency_id' => $agency->id,
+            'market_search_weekly_limit' => 150,
+        ]);
+    }
+
+    public function test_market_search_allowance_rejects_negative_values(): void
+    {
+        $platformAdmin = User::where('email', 'platform@imobiliaria.com')->first();
+        $agency = Agency::factory()->create();
+
+        $this->actingAs($platformAdmin)
+            ->putJson("/api/v1/admin/agencies/{$agency->id}/market-search-allowance", [
+                'limit' => -1,
+            ])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors('limit');
     }
 
     public function test_validation_rejects_invalid_update(): void

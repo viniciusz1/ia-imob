@@ -16,6 +16,10 @@ import { PropertyCard } from "./PropertyCard";
 import { PropertyFilters } from "./PropertyFilters";
 import { AiPromptInput } from "./AiPromptInput";
 import {
+  getMarketSearchErrorMessage,
+  isMarketSearchAllowanceExceeded,
+} from "./marketSearchError";
+import {
   type AiSearcherProperty,
   type AiSearcherFiltersState,
   type SearchMode,
@@ -142,6 +146,8 @@ export function AiSearcherClient() {
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchError, setSearchError] = useState<string | null>(null);
+  const [allowanceExhausted, setAllowanceExhausted] = useState(false);
 
   const [aiLoading, setAiLoading] = useState(false);
   const [aiPage, setAiPage] = useState(1);
@@ -174,9 +180,10 @@ export function AiSearcherClient() {
           : "newest";
 
   const fetchAiResults = useCallback(async (prompt: string, page: number, perPage: number, sort: SortMode = sortOrder) => {
-    if (!prompt.trim()) return;
+    if (!prompt.trim() || allowanceExhausted) return;
 
     setAiLoading(true);
+    setSearchError(null);
     try {
       const payload: {
         prompt: string;
@@ -215,15 +222,18 @@ export function AiSearcherClient() {
       aiFiltersRef.current = data.filters;
       aiApproximateRef.current = approximate;
       aiRelaxedFiltersRef.current = relaxedFilters;
-    } catch (error) {
-      console.error("Erro ao buscar com IA:", error);
+    } catch (error: unknown) {
+      setSearchError(getMarketSearchErrorMessage(error));
+      if (isMarketSearchAllowanceExceeded(error)) {
+        setAllowanceExhausted(true);
+      }
     } finally {
       setAiLoading(false);
     }
-  }, [sortOrder]);
+  }, [allowanceExhausted, sortOrder]);
 
   useEffect(() => {
-    if (!isAiMode) {
+    if (!isAiMode && !allowanceExhausted) {
       async function fetchProperties() {
         setIsLoading(true);
         try {
@@ -232,10 +242,7 @@ export function AiSearcherClient() {
             queryParams.set("page", queryParams.get("pagina")!);
             queryParams.delete("pagina");
           }
-          if (!queryParams.has("per_page")) {
-            const _perPage = queryParams.get("per_page") ?? "21";
-            queryParams.set("per_page", _perPage);
-          }
+          queryParams.set("per_page", "21");
 
           const response = await api.get(`${API_PREFIX}/market-properties?${queryParams.toString()}`);
 
@@ -277,23 +284,26 @@ export function AiSearcherClient() {
           setProperties(data);
           setTotalPages(response.data.meta?.last_page || 1);
           setTotalItems(response.data.meta?.total || 0);
-        } catch (error) {
-          console.error("Erro ao buscar imóveis:", error);
+          setSearchError(null);
+        } catch (error: unknown) {
+          setSearchError(getMarketSearchErrorMessage(error));
+          if (isMarketSearchAllowanceExceeded(error)) {
+            setAllowanceExhausted(true);
+          }
         } finally {
           setIsLoading(false);
         }
       }
       fetchProperties();
     }
-  }, [searchParams, isAiMode]);
+  }, [allowanceExhausted, searchParams, isAiMode]);
 
   const filtersFromUrl = useMemo(
     () => buildFilterStateFromUrl(searchParams),
     [searchParams]
   );
 
-  const perPageParam = Number(searchParams.get("per_page") ?? "21");
-  const perPage = [21, 51, 99].includes(perPageParam) ? perPageParam : 21;
+  const perPage = 21;
 
   const effectivePage = Math.min(Math.max(effectiveModePage, 1), Math.max(totalPages, 1));
 
@@ -320,6 +330,7 @@ export function AiSearcherClient() {
   function handleModeChange(mode: string) {
     if (!mode) return;
     const newMode = mode as SearchMode;
+    if (!allowanceExhausted) setSearchError(null);
     pushSearchParams((nextParams) => {
       if (newMode === "ai") {
         nextParams.delete("mode");
@@ -332,6 +343,8 @@ export function AiSearcherClient() {
   }
 
   function handleAiResults(response: AiSearchResponse, prompt: string) {
+    setSearchError(null);
+    setAllowanceExhausted(false);
     setProperties(response.data);
     setTotalPages(response.meta.last_page);
     setTotalItems(response.meta.total);
@@ -452,24 +465,6 @@ export function AiSearcherClient() {
     [fetchAiResults, pushSearchParams, searchParams, isAiMode, perPage]
   );
 
-  const handlePerPageChange = useCallback(
-    (value: string) => {
-      if (isAiMode) {
-        const newPerPage = Number(value);
-        fetchAiResults(aiPromptRef.current, 1, newPerPage, sortOrder);
-        return;
-      }
-      pushSearchParams(() => {
-        const current = new URLSearchParams(searchParams.toString());
-        const result = new URLSearchParams(current.toString());
-        result.set("per_page", value);
-        result.delete("pagina");
-        return result;
-      });
-    },
-    [fetchAiResults, pushSearchParams, searchParams, isAiMode, sortOrder]
-  );
-
   const handlePageChange = useCallback(
     (page: number) => {
       if (isAiMode) {
@@ -574,6 +569,11 @@ export function AiSearcherClient() {
             isLoading={aiLoading}
             sort={sortOrder}
             large
+            disabled={allowanceExhausted}
+            onAllowanceExhausted={(message) => {
+              setSearchError(message);
+              setAllowanceExhausted(true);
+            }}
           />
         </div>
       </div>
@@ -603,7 +603,8 @@ export function AiSearcherClient() {
 
       <div className="flex flex-col lg:flex-row gap-8">
         {!isAiMode && (
-          <aside
+          <fieldset
+            disabled={allowanceExhausted}
             className="lg:w-80 shrink-0"
           >
             <PropertyFilters
@@ -612,7 +613,7 @@ export function AiSearcherClient() {
               initialState={filtersFromUrl}
               onFilterStateChange={handleFilterStateChange}
             />
-          </aside>
+          </fieldset>
         )}
 
         <main className="flex-1 min-w-0">
@@ -623,6 +624,11 @@ export function AiSearcherClient() {
                 onLoadingChange={handleAiLoadingChange}
                 isLoading={aiLoading}
                 sort={sortOrder}
+                disabled={allowanceExhausted}
+                onAllowanceExhausted={(message) => {
+                  setSearchError(message);
+                  setAllowanceExhausted(true);
+                }}
               />
             </div>
           )}
@@ -650,7 +656,7 @@ export function AiSearcherClient() {
                   >
                     Ordenar por:
                   </label>
-                  <Select value={sortOrder} onValueChange={handleSortChange}>
+                  <Select value={sortOrder} onValueChange={handleSortChange} disabled={allowanceExhausted}>
                     <SelectTrigger id="sort-select" className="w-[200px] cursor-pointer">
                       <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
@@ -664,24 +670,6 @@ export function AiSearcherClient() {
                   </Select>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <label
-                    htmlFor="per-page-select"
-                    className="text-sm text-muted-foreground whitespace-nowrap cursor-pointer"
-                  >
-                    Itens por página:
-                  </label>
-                  <Select value={String(perPage)} onValueChange={handlePerPageChange}>
-                    <SelectTrigger id="per-page-select" className="w-[90px] cursor-pointer">
-                      <SelectValue placeholder="21" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="21" className="cursor-pointer">21</SelectItem>
-                      <SelectItem value="51" className="cursor-pointer">51</SelectItem>
-                      <SelectItem value="99" className="cursor-pointer">99</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
               </div>
             </div>
           )}
@@ -712,7 +700,7 @@ export function AiSearcherClient() {
                   >
                     Ordenar por:
                   </label>
-                  <Select value={sortOrder} onValueChange={handleSortChange}>
+                  <Select value={sortOrder} onValueChange={handleSortChange} disabled={allowanceExhausted}>
                     <SelectTrigger id="ai-sort-select" className="w-[200px] cursor-pointer">
                       <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
@@ -743,6 +731,12 @@ export function AiSearcherClient() {
             </div>
           )}
 
+          {searchError && (
+            <div role="alert" className="mb-6 rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+              {searchError}
+            </div>
+          )}
+
           <div
             className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"
           >
@@ -765,7 +759,7 @@ export function AiSearcherClient() {
             <div className="mt-8 flex justify-center items-center gap-2">
               <Button
                 onClick={() => handlePageChange(effectivePage - 1)}
-                disabled={effectivePage === 1}
+                disabled={allowanceExhausted || effectivePage === 1}
                 variant="outline"
                 className="flex items-center gap-1 cursor-pointer"
               >
@@ -788,6 +782,7 @@ export function AiSearcherClient() {
                           variant={
                             effectivePage === page ? "default" : "outline"
                           }
+                          disabled={allowanceExhausted}
                           className="min-w-[40px] cursor-pointer"
                         >
                           {page}
@@ -813,7 +808,7 @@ export function AiSearcherClient() {
 
               <Button
                 onClick={() => handlePageChange(effectivePage + 1)}
-                disabled={effectivePage === totalPages}
+                disabled={allowanceExhausted || effectivePage === totalPages}
                 variant="outline"
                 className="flex items-center gap-1 cursor-pointer"
               >
