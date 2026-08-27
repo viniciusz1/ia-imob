@@ -115,6 +115,56 @@ class OnboardingExecutionApiTest extends TestCase
         $this->assertDatabaseCount('crawler.onboarding_executions', 1);
     }
 
+    public function test_active_onboarding_prevents_a_parallel_standalone_profile_validation(): void
+    {
+        [$agency] = $this->promoteProspect('validation-owner');
+        $execution = $this->configuredExecution($agency, 'Validation owner');
+        $discovery = CrawlerOperation::query()->create([
+            'type' => 'discovery',
+            'state' => 'succeeded',
+            'requested_by' => $this->admin->id,
+            'crawl_agency_id' => $agency->id,
+            'plan' => ['base_url' => $agency->base_url],
+        ]);
+        $snapshot = DiscoverySnapshot::query()->create([
+            'operation_id' => $discovery->id,
+            'crawl_agency_id' => $agency->id,
+            'url_count' => 1,
+            'content_hash' => str_repeat('a', 64),
+        ]);
+        DiscoverySnapshotUrl::query()->create([
+            'discovery_snapshot_id' => $snapshot->id,
+            'url' => "{$agency->base_url}/property/1",
+            'url_hash' => hash('sha256', "{$agency->base_url}/property/1"),
+        ]);
+        $generation = CrawlerOperation::query()->create([
+            'type' => 'profile_generation',
+            'state' => 'succeeded',
+            'requested_by' => $this->admin->id,
+            'crawl_agency_id' => $agency->id,
+            'market_data_contract_version_id' => $execution->market_data_contract_version_id,
+            'plan' => ['sample_url' => "{$agency->base_url}/property/1"],
+        ]);
+        $profile = ExtractionProfile::query()->create([
+            'crawl_agency_id' => $agency->id,
+            'discovery_snapshot_id' => $snapshot->id,
+            'market_data_contract_version_id' => $execution->market_data_contract_version_id,
+            'created_by_operation_id' => $generation->id,
+            'version' => 1,
+            'status' => 'candidate',
+            'sample_url' => "{$agency->base_url}/property/1",
+            'schemas' => [],
+            'strategies' => ['xpath'],
+            'fields' => $execution->resolved_configuration['market_data_contract']['fields'],
+            'parameters' => [],
+        ]);
+
+        $this->actingAs($this->admin)
+            ->postJson("/api/v1/admin/crawler/extraction-profiles/{$profile->id}/validation")
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('onboarding_execution');
+    }
+
     public function test_coordinator_advances_once_per_step_and_stops_at_awaiting_approval(): void
     {
         [$agency] = $this->promoteProspect();

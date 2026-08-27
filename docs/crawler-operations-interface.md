@@ -52,6 +52,8 @@ Um Perfil de Extração Candidato deve passar por um Crawl de Validação com at
 
 A recomendação técnica é ao menos 80% das URLs com registros normalizados válidos, cada campo obrigatório da versão fixada do Contrato de Dados de Mercado com 90% de cobertura antes do filtro e nenhuma Falha Crítica de Validação. Abaixo da recomendação, inclusive quando houver Falhas Críticas de Validação, um Platform Admin pode aprovar explicitamente o perfil com justificativa preservada. Essas falhas exigem revisão humana, mas não são Falhas Bloqueantes do Portão de Qualidade de produção. A recomendação nunca aprova nem ativa automaticamente o perfil, e resultados de validação nunca são publicados como dados de mercado.
 
+A área **Perfis de Extração** não exibe uma faixa separada de “Próxima ação”. Cada perfil apresenta seu estado e suas próprias ações contextuais na listagem. Versões `approved` oferecem **Ativar Perfil de Extração** diretamente no cartão; ao ativar uma versão, o perfil anteriormente ativo volta a `approved`. Quando a Crawl Agency ainda está em onboarding, o perfil `active` oferece **Ativar Crawl Agency** no mesmo local. A seção antes denominada “Versões do perfil” usa o título **Perfis de Extração**.
+
 ## Dados de um Crawl Run
 
 Cada Crawl Run possui a ação **Visualizar dados** com três visões somente leitura:

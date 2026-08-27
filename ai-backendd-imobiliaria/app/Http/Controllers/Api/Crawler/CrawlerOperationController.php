@@ -25,6 +25,7 @@ class CrawlerOperationController extends Controller
             'requested_by' => ['nullable', 'integer'],
             'from' => ['nullable', 'date'],
             'to' => ['nullable', 'date', 'after_or_equal:from'],
+            'per_page' => ['nullable', 'integer', 'min:1', 'max:100'],
         ]);
         $query = CrawlerOperation::query()
             ->with(['discoverySnapshot', 'crawlAgency', 'groups', 'requester', 'worker'])
@@ -37,7 +38,7 @@ class CrawlerOperationController extends Controller
             ->when($filters['to'] ?? null, fn ($query, $to) => $query->where('created_at', '<=', $to));
         $operations = $query
             ->orderByDesc('created_at')
-            ->paginate()
+            ->paginate((int) ($filters['per_page'] ?? 15))
             ->withQueryString();
         $equivalentFailureCounts = CrawlerOperation::query()
             ->where('state', 'failed')

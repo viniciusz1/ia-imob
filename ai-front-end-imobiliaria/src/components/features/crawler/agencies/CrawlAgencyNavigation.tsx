@@ -10,7 +10,8 @@ const items = [
   { label: "Onboarding", suffix: "/onboarding" },
   { label: "Discoveries", suffix: "/discoveries" },
   { label: "Perfis de Extração", suffix: "/profiles" },
-  { label: "Crawls e qualidade", suffix: "/crawls" },
+  { label: "Crawls", suffix: "/crawls" },
+  { label: "Qualidade", suffix: "/quality" },
   { label: "Agendamento", suffix: "/schedule" },
   { label: "Configuração", suffix: "/settings" },
 ];

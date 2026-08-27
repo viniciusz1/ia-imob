@@ -119,6 +119,7 @@ export function PropertyFilters(
   const [filterOptions, setFilterOptions] = useState<AiSearcherFiltersOptions>({
     tipos: [],
     bairros: [],
+    bairros_por_cidade: {},
     cidades: [],
     imobiliarias: [],
     quartos: [],
@@ -171,12 +172,28 @@ export function PropertyFilters(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialStateKey]);
 
-  const { tipos, bairros, cidades, imobiliarias } = filterOptions;
+  const {
+    tipos,
+    bairros,
+    bairros_por_cidade: bairrosPorCidade,
+    cidades,
+    imobiliarias,
+  } = filterOptions;
+
+  const bairrosDisponiveis = useMemo(() => {
+    if (filterState.selectedCidades.length === 0 || Object.keys(bairrosPorCidade).length === 0) {
+      return bairros;
+    }
+
+    return [...new Set(
+      filterState.selectedCidades.flatMap((cidade) => bairrosPorCidade[cidade] ?? [])
+    )].sort((left, right) => left.localeCompare(right, "pt-BR"));
+  }, [bairros, bairrosPorCidade, filterState.selectedCidades]);
 
   const filteredTipos = tipos.filter((t) =>
     t.toLowerCase().includes(searchTipo.toLowerCase())
   );
-  const filteredBairros = bairros.filter((b) =>
+  const filteredBairros = bairrosDisponiveis.filter((b) =>
     b.toLowerCase().includes(searchBairro.toLowerCase())
   );
   const filteredCidades = cidades.filter((c) =>
@@ -207,6 +224,24 @@ export function PropertyFilters(
       setFilterState((prev) => ({ ...prev, [key]: !prev[key] }));
     },
     []
+  );
+
+  const updateSelectedCidades = useCallback(
+    (getNextCidades: (current: string[]) => string[]) => {
+      setFilterState((prev) => {
+        const selectedCidades = getNextCidades(prev.selectedCidades);
+        const bairrosValidos = selectedCidades.length === 0 || Object.keys(bairrosPorCidade).length === 0
+          ? bairros
+          : selectedCidades.flatMap((cidade) => bairrosPorCidade[cidade] ?? []);
+
+        return {
+          ...prev,
+          selectedCidades,
+          selectedBairros: prev.selectedBairros.filter((bairro) => bairrosValidos.includes(bairro)),
+        };
+      });
+    },
+    [bairros, bairrosPorCidade]
   );
 
   const commitFilterState = useCallback(
@@ -535,16 +570,15 @@ export function PropertyFilters(
                 items={filteredCidades}
                 selectedItems={selectedCidades}
                 idPrefix="cidade"
-                onToggle={(val, checked) =>
-                  handleToggle("selectedCidades", val, checked)
-                }
+                onToggle={(val, checked) => {
+                  updateSelectedCidades((current) => checked
+                    ? [...new Set([...current, val])]
+                    : current.filter((cidade) => cidade !== val));
+                }}
                 onSelectAll={(items, select) => {
-                  setFilterState((prev) => ({
-                    ...prev,
-                    selectedCidades: select
-                      ? [...new Set([...prev.selectedCidades, ...items])]
-                      : prev.selectedCidades.filter((c) => !items.includes(c)),
-                  }));
+                  updateSelectedCidades((current) => select
+                    ? [...new Set([...current, ...items])]
+                    : current.filter((cidade) => !items.includes(cidade)));
                 }}
                 emptyMessage="Nenhuma cidade encontrada"
               />

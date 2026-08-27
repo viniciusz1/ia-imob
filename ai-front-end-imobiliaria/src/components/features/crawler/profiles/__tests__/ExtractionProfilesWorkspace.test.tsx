@@ -1,11 +1,6 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import {
-  activateCrawlAgency,
-  activateExtractionProfile,
-  queueProfileValidation,
-} from "@/services/crawlerService";
 import type {
   CrawlAgency,
   CrawlerOperation,
@@ -17,11 +12,8 @@ import type {
 import { ExtractionProfilesWorkspace } from "../ExtractionProfilesWorkspace";
 
 vi.mock("@/services/crawlerService", () => ({
-  activateCrawlAgency: vi.fn(),
-  activateExtractionProfile: vi.fn(),
   getCrawlerOperation: vi.fn(),
   listExtractionProfiles: vi.fn(),
-  queueProfileValidation: vi.fn(),
 }));
 
 vi.mock("../ExtractionProfileGenerator", () => ({
@@ -29,7 +21,23 @@ vi.mock("../ExtractionProfileGenerator", () => ({
 }));
 
 vi.mock("../ProfileValidationPanel", () => ({
-  ProfileValidationPanel: ({ initialProfile }: { initialProfile: ExtractionProfile }) => <div data-testid="profile-version">Perfil v{initialProfile.version}</div>,
+  ProfileValidationPanel: ({
+    initialProfile,
+    onProfileChange,
+  }: {
+    initialProfile: ExtractionProfile;
+    onProfileChange?: (profile: ExtractionProfile) => void;
+  }) => (
+    <div>
+      <div data-testid="profile-version">Perfil v{initialProfile.version}</div>
+      <div data-testid={`profile-status-${initialProfile.id}`}>{initialProfile.status}</div>
+      {initialProfile.status === "approved" && (
+        <button onClick={() => onProfileChange?.({ ...initialProfile, status: "active" })} type="button">
+          Ativar Perfil v{initialProfile.version}
+        </button>
+      )}
+    </div>
+  ),
 }));
 
 const agency: CrawlAgency = {
@@ -139,84 +147,49 @@ function renderWorkspace(options: {
   );
 }
 
-function expectOnePrimaryAction(name: RegExp) {
-  expect(screen.getByRole("button", { name })).toHaveAttribute("data-primary-action", "true");
-  expect(document.querySelectorAll('[data-primary-action="true"]')).toHaveLength(1);
-}
-
-describe("ExtractionProfilesWorkspace next action", () => {
+describe("ExtractionProfilesWorkspace", () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it("directs to Discovery when the prerequisite is missing", () => {
+  it("removes the next-action band and directs to Discovery from the generator card", () => {
     renderWorkspace({ snapshots: [] });
-    expect(screen.getByText(/precisa de um snapshot de discovery/i)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /criar discovery/i })).toHaveAttribute("data-primary-action", "true");
-    expect(document.querySelectorAll('[data-primary-action="true"]')).toHaveLength(1);
+
+    expect(screen.queryByText("Próxima ação")).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /criar discovery/i })).toHaveAttribute("href", "/admin/crawler/agencies/42/discoveries");
   });
 
   it("opens generation when Discovery exists without a pending or active profile", () => {
     renderWorkspace();
     expect(screen.getByTestId("profile-generator")).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /preparar geração/i })).not.toBeInTheDocument();
     expect(screen.queryByText("Próxima ação")).not.toBeInTheDocument();
-    expect(document.querySelectorAll('[data-primary-action="true"]')).toHaveLength(0);
   });
 
-  it("queues validation for a candidate without a report", async () => {
-    vi.mocked(queueProfileValidation).mockResolvedValue({ ...operation(), state: "queued" });
-    renderWorkspace({ profiles: [profile("candidate")] });
-    expectOnePrimaryAction(/rodar crawl de validação/i);
-    fireEvent.click(screen.getByRole("button", { name: /rodar crawl de validação/i }));
-    await waitFor(() => expect(queueProfileValidation).toHaveBeenCalledWith(9));
-    expect(await screen.findByText(/operação #55/i)).toBeInTheDocument();
-  });
-
-  it("opens the decision as the only primary action when a report exists", () => {
-    renderWorkspace({ profiles: [profile("candidate", true)] });
-    expectOnePrimaryAction(/registrar decisão/i);
-    fireEvent.click(screen.getByRole("button", { name: /registrar decisão/i }));
-    expect(document.querySelectorAll('[data-primary-action="true"]')).toHaveLength(0);
-    expect(screen.getByText(/registre a aprovação ou rejeição no histórico/i)).toBeInTheDocument();
-  });
-
-  it("activates an approved profile", async () => {
-    vi.mocked(activateExtractionProfile).mockResolvedValue(profile("active", true));
+  it("labels the versioned list as Perfis de Extração", () => {
     renderWorkspace({ profiles: [profile("approved", true)] });
-    expectOnePrimaryAction(/ativar perfil de extração/i);
-    fireEvent.click(screen.getByRole("button", { name: /ativar perfil de extração/i }));
-    await waitFor(() => expect(activateExtractionProfile).toHaveBeenCalledWith(9));
+
+    expect(screen.getByText("Perfis de Extração")).toBeInTheDocument();
+    expect(screen.queryByText("Versões do perfil")).not.toBeInTheDocument();
   });
 
-  it("activates an onboarding agency after its profile is active", async () => {
-    vi.mocked(activateCrawlAgency).mockResolvedValue({ ...agency, lifecycle_state: "active" });
-    renderWorkspace({ profiles: [profile("active", true)] });
-    expectOnePrimaryAction(/ativar crawl agency/i);
-    fireEvent.click(screen.getByRole("button", { name: /ativar crawl agency/i }));
-    await waitFor(() => expect(activateCrawlAgency).toHaveBeenCalledWith(42));
+  it("does not render a separate operation or next-action card", () => {
+    renderWorkspace({ operations: [operation()], profiles: [profile("candidate")] });
+
+    expect(screen.queryByText("Próxima ação")).not.toBeInTheDocument();
+    expect(screen.queryByText(/operação #55/i)).not.toBeInTheDocument();
   });
 
-  it("shows readiness without inventing a CTA when no human action is pending", () => {
-    renderWorkspace({ currentAgency: { ...agency, lifecycle_state: "active" }, profiles: [profile("active", true)] });
-    expect(screen.getByText(/nenhuma ação humana pendente/i)).toBeInTheDocument();
-    expect(document.querySelectorAll('[data-primary-action="true"]')).toHaveLength(0);
-  });
-
-  it("does not discard an active profile when a newer rejected version exists", () => {
+  it("updates the selected profile and demotes the previously active version in the list", () => {
     renderWorkspace({
       currentAgency: { ...agency, lifecycle_state: "active" },
-      profiles: [{ ...profile("rejected", true), id: 10, version: 2 }, profile("active", true)],
+      profiles: [
+        { ...profile("approved", true), id: 10, version: 2 },
+        { ...profile("active", true), id: 9, version: 1 },
+      ],
     });
 
-    expect(screen.getByText(/nenhuma ação humana pendente/i)).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /preparar geração/i })).not.toBeInTheDocument();
-  });
+    fireEvent.click(screen.getByRole("button", { name: "Ativar Perfil v2" }));
 
-  it("replaces duplicate actions with active operation tracking", () => {
-    renderWorkspace({ operations: [operation()], profiles: [profile("candidate")] });
-    expect(screen.getByText(/operação #55/i)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /abrir na fila global/i })).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /rodar crawl de validação/i })).not.toBeInTheDocument();
-    expect(document.querySelectorAll('[data-primary-action="true"]')).toHaveLength(0);
+    expect(screen.getByTestId("profile-status-10")).toHaveTextContent("active");
+    expect(screen.getByTestId("profile-status-9")).toHaveTextContent("approved");
   });
 
   it("orders the history from the newest version", () => {

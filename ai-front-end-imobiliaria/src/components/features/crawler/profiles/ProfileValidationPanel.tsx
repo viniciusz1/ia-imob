@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -12,7 +13,6 @@ import {
   activateExtractionProfile,
   decideExtractionProfile,
   getProfileValidationReport,
-  queueProfileValidation,
 } from "@/services/crawlerService";
 import type {
   CrawlAgencyLifecycle,
@@ -31,7 +31,6 @@ interface ProfileValidationPanelProps {
   initiallyExpanded?: boolean;
   initialProfile: ExtractionProfile;
   initialOperations?: CrawlerOperation[];
-  hideWorkflowActions?: boolean;
   onLifecycleChange?: (lifecycle: CrawlAgencyLifecycle) => void;
   onOperationChange?: (operation: CrawlerOperation) => void;
   onProfileChange?: (profile: ExtractionProfile) => void;
@@ -89,7 +88,6 @@ export function ProfileValidationPanel({
   initiallyExpanded = false,
   initialProfile,
   initialOperations = [],
-  hideWorkflowActions = false,
   onLifecycleChange,
   onOperationChange,
   onProfileChange,
@@ -144,20 +142,6 @@ export function ProfileValidationPanel({
   const updateProfile = (updated: ExtractionProfile) => {
     setProfile(updated);
     onProfileChange?.(updated);
-  };
-
-  const validate = async () => {
-    setActionError(null);
-    try {
-      const queued = await queueProfileValidation(profile.id);
-      setOperation(queued);
-      onOperationChange?.(queued);
-      toast.success(`Crawl de Validação enfileirado como operação #${queued.id}.`);
-    } catch (error) {
-      const message = crawlerOperationErrorMessage(error, "Não foi possível iniciar o Crawl de Validação.");
-      setActionError(message);
-      toast.error(message);
-    }
   };
 
   const decide = async (decision: "approved" | "rejected") => {
@@ -216,7 +200,11 @@ export function ProfileValidationPanel({
           <p className="text-sm text-muted-foreground">Criado em {formatDate(profile.created_at)} · Discovery #{profile.discovery_snapshot_id} · Contrato #{profile.market_data_contract_version_id}</p>
           {report && <p className="text-sm text-muted-foreground">Última validação em {formatDate(report.created_at)} · {Math.round(report.valid_ratio * 100)}% de registros válidos</p>}
         </div>
-        {!hideWorkflowActions && canDecide && <Button disabled={operationActive} onClick={() => void validate()} type="button" variant="outline">{operationActive ? "Validação em andamento" : "Rodar Crawl de Validação"}</Button>}
+        <div className="flex flex-wrap gap-2">
+          {canDecide && !operationActive && <Button asChild variant="outline"><Link href={`/admin/crawler/agencies/${profile.crawl_agency_id}/crawls`}>Validar em Crawls</Link></Button>}
+          {profile.status === "approved" && <Button disabled={pendingAction !== null} onClick={() => void activateProfile()} type="button">{pendingAction === "activate-profile" ? "Ativando Perfil…" : "Ativar Perfil de Extração"}</Button>}
+          {profile.status === "active" && lifecycle === "onboarding" && <Button disabled={pendingAction !== null} onClick={() => void activateAgency()} type="button">{pendingAction === "activate-agency" ? "Ativando Crawl Agency…" : "Ativar Crawl Agency"}</Button>}
+        </div>
       </header>
 
       {operation && <CrawlerOperationStatus agencyId={profile.crawl_agency_id} operation={operation} />}
@@ -251,8 +239,6 @@ export function ProfileValidationPanel({
         {(profile.activator || profile.activated_at) && <section className="space-y-1 rounded-md border p-3 text-sm"><h4 className="font-semibold">Ativação registrada</h4><p>{profile.activator?.name ?? (profile.activated_by ? `Usuário #${profile.activated_by}` : "Responsável não informado")} · {formatDate(profile.activated_at)}</p></section>}
       </div>}
 
-      {!hideWorkflowActions && profile.status === "approved" && <Button disabled={pendingAction !== null} onClick={() => void activateProfile()} type="button">{pendingAction === "activate-profile" ? "Ativando Perfil…" : "Ativar Perfil"}</Button>}
-      {!hideWorkflowActions && profile.status === "active" && lifecycle === "onboarding" && <Button disabled={pendingAction !== null} onClick={() => void activateAgency()} type="button">{pendingAction === "activate-agency" ? "Ativando Crawl Agency…" : "Ativar Crawl Agency"}</Button>}
     </article>
   );
 }

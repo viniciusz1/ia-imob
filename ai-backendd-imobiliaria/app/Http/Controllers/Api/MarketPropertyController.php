@@ -116,6 +116,19 @@ class MarketPropertyController extends Controller
             ->orderBy('cidade')
             ->pluck('cidade');
 
+        $bairrosPorCidade = (clone $baseQuery)
+            ->whereNotNull('cidade')
+            ->where('cidade', '!=', '')
+            ->whereNotNull('bairro')
+            ->where('bairro', '!=', '')
+            ->select(['cidade', 'bairro'])
+            ->distinct()
+            ->orderBy('cidade')
+            ->orderBy('bairro')
+            ->get()
+            ->groupBy('cidade')
+            ->map(fn ($properties) => $properties->pluck('bairro')->values());
+
         $imobiliarias = (clone $baseQuery)
             ->join('crawler.crawl_runs as run', 'run.id', '=', 'crawler.market_properties.crawler_run_id')
             ->join('crawler.crawl_agencies as agency', 'agency.id', '=', 'run.crawl_agency_id')
@@ -156,6 +169,7 @@ class MarketPropertyController extends Controller
         return response()->json([
             'tipos' => $tipos,
             'bairros' => $bairros,
+            'bairros_por_cidade' => $bairrosPorCidade,
             'cidades' => $cidades,
             'imobiliarias' => $imobiliarias,
             'quartos' => $quartos,

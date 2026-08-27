@@ -115,6 +115,9 @@ Regeneração assistida pelos erros e comparação automática entre versões fi
 
 - O plano manual permite gerar ou escolher um Discovery Snapshot da mesma Crawl Agency e usar o perfil ativo, outra versão aprovada ou iniciar a geração de um candidato.
 - Um candidato precisa concluir validação e aprovação antes de um crawl de produção separado.
+- Perfis aprovados são ativados diretamente na listagem **Perfis de Extração**; a área não mantém uma faixa separada de “Próxima ação”, e ativar uma versão substitui explicitamente o perfil ativo anterior.
+- A área de Crawls inicia validação e produção em fluxos separados e reúne o histórico técnico; a área de Qualidade trata exclusivamente snapshots de produção, Portão de Qualidade, quarentena e publicação.
+- Uma validação coordenada por Execução de Onboarding não pode ser iniciada em paralelo pela área de Crawls; a interface explica o bloqueio e direciona ao Onboarding.
 - Agendamentos sempre geram discovery novo e usam o perfil ativo.
 - Três falhas consecutivas de produção abrem o circuito e suspendem agendamentos. Um crawl manual bem-sucedido fecha o circuito.
 - Operações fixam as versões de discovery, perfil, contrato e política; nenhuma troca ocorre durante a execução.
@@ -122,11 +125,12 @@ Regeneração assistida pelos erros e comparação automática entre versões fi
 ### Qualidade e publicação
 
 1. Um crawl técnico bem-sucedido cria um Snapshot Candidato.
-2. O Portão de Qualidade aplica a versão fixada da política.
+2. O Portão de Qualidade aplica automaticamente a versão fixada da política após a conclusão técnica.
 3. Aprovação publica atomicamente; reprovação cria Snapshot em Quarentena e mantém a publicação anterior.
-4. Produção pode publicar automaticamente quando passa. Publicação excepcional exige Crawl Agency ativa, permissão específica, responsável, data e justificativa.
-5. Falhas bloqueantes de onboarding não aceitam exceção.
-6. Ativar contrato incompatível marca fontes como `revalidation_required`, suspende schedules e impede publicação sob o contrato anterior.
+4. Falha técnica da avaliação mantém o Snapshot Candidato pendente para retentativa; não o põe em quarentena e bloqueia nova produção da mesma Crawl Agency até sua resolução.
+5. Publicação excepcional exige revisão no detalhe, Crawl Agency ativa, permissão específica, responsável, data e justificativa.
+6. Falhas bloqueantes de onboarding não aceitam exceção.
+7. Ativar contrato incompatível marca fontes como `revalidation_required`, suspende schedules e impede publicação sob o contrato anterior.
 
 ## API administrativa inicial
 

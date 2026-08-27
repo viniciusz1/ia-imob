@@ -9,6 +9,7 @@ use App\Models\Crawler\DiscoverySnapshot;
 use App\Models\Crawler\DiscoverySnapshotUrl;
 use App\Models\Crawler\ExtractionProfile;
 use App\Models\Crawler\MarketDataContractVersion;
+use App\Models\CrawlerRun;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -25,7 +26,7 @@ class ProductionCrawlApiTest extends TestCase
         $this->seed();
     }
 
-    public function test_manual_plan_pins_existing_discovery_approved_profile_contract_and_policy(): void
+    public function test_manual_plan_pins_existing_discovery_approved_profile_and_contract(): void
     {
         [$admin, $agency, $snapshot, $activeProfile, $approvedProfile] = $this->fixtures();
 
@@ -47,6 +48,26 @@ class ProductionCrawlApiTest extends TestCase
         $operation = CrawlerOperation::query()->findOrFail($response->json('data.id'));
         $this->assertEquals($approvedProfile->schemas, $operation->plan['extraction_profile']['schemas']);
         $this->assertNotSame($activeProfile->id, $operation->plan['extraction_profile']['id']);
+    }
+
+    public function test_manual_existing_snapshot_does_not_require_an_active_discovery_policy(): void
+    {
+        [$admin, $agency, $snapshot, , $approvedProfile] = $this->fixtures('existing-without-policy');
+        $agency->update(['active_discovery_policy_version_id' => null]);
+
+        $response = $this->actingAs($admin)
+            ->postJson('/api/v1/admin/crawler/production-crawls', [
+                'crawl_agency_id' => $agency->id,
+                'discovery_mode' => 'existing',
+                'discovery_snapshot_id' => $snapshot->id,
+                'extraction_profile_id' => $approvedProfile->id,
+            ])
+            ->assertCreated()
+            ->assertJsonPath('data.plan.discovery.mode', 'existing')
+            ->assertJsonPath('data.plan.discovery.snapshot_id', $snapshot->id)
+            ->assertJsonPath('data.plan.extraction_profile.id', $approvedProfile->id);
+
+        $this->assertArrayNotHasKey('discovery_policy', $response->json('data.plan'));
     }
 
     public function test_manual_existing_snapshot_can_exclude_urls_already_imported_by_the_agency(): void
@@ -262,6 +283,43 @@ class ProductionCrawlApiTest extends TestCase
             ])
             ->assertUnprocessable()
             ->assertJsonValidationErrors(['discovery_snapshot_id', 'extraction_profile_id']);
+    }
+
+    public function test_new_production_is_blocked_while_a_candidate_snapshot_awaits_quality(): void
+    {
+        [$admin, $agency, $snapshot, $profile] = $this->fixtures('pending-quality');
+        $operation = CrawlerOperation::query()->create([
+            'type' => 'production_crawl',
+            'state' => 'succeeded',
+            'requested_by' => $admin->id,
+            'crawl_agency_id' => $agency->id,
+            'market_data_contract_version_id' => $profile->market_data_contract_version_id,
+            'plan' => ['version' => 1],
+        ]);
+        CrawlerRun::query()->create([
+            'operation_id' => $operation->id,
+            'crawl_agency_id' => $agency->id,
+            'discovery_snapshot_id' => $snapshot->id,
+            'extraction_profile_id' => $profile->id,
+            'market_data_contract_version_id' => $profile->market_data_contract_version_id,
+            'quality_policy_version_id' => DB::table('crawler.quality_policy_versions')->where('status', 'active')->value('id'),
+            'technical_state' => 'succeeded',
+            'result_kind' => 'full',
+            'publication_state' => 'candidate',
+            'publishable' => false,
+            'started_at' => now(),
+            'completed_at' => now(),
+        ]);
+
+        $this->actingAs($admin)
+            ->postJson('/api/v1/admin/crawler/production-crawls', [
+                'crawl_agency_id' => $agency->id,
+                'discovery_mode' => 'existing',
+                'discovery_snapshot_id' => $snapshot->id,
+                'extraction_profile_id' => $profile->id,
+            ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('crawl_agency_id');
     }
 
     public function test_run_records_are_paginated_filtered_sorted_and_expose_evidence(): void

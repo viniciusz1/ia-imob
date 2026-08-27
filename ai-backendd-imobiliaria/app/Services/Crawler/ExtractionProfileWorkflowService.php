@@ -29,6 +29,15 @@ class ExtractionProfileWorkflowService
             throw ValidationException::withMessages(['status' => 'Only candidate profiles can be validated.']);
         }
 
+        if ($onboardingExecution === null && OnboardingExecution::query()
+            ->where('crawl_agency_id', $profile->crawl_agency_id)
+            ->whereNotIn('state', ['completed', 'cancelled'])
+            ->exists()) {
+            throw ValidationException::withMessages([
+                'onboarding_execution' => 'This validation is controlled by the active Onboarding Execution.',
+            ]);
+        }
+
         $snapshot = $profile->discoverySnapshot()->firstOrFail();
         $urls = $snapshot->urls()->orderBy('id')->pluck('url')->all();
         $sample = $this->sampler->sample($urls, 20, $profile->sample_url);

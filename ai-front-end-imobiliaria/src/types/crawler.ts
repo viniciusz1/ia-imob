@@ -145,6 +145,7 @@ export interface CrawlerOperationFilters {
   requested_by?: number;
   from?: string;
   to?: string;
+  per_page?: number;
 }
 
 export interface CrawlerAlert {

@@ -1,7 +1,13 @@
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { decideExtractionProfile, getCrawlerOperation, getProfileValidationReport } from "@/services/crawlerService";
+import {
+  activateCrawlAgency,
+  activateExtractionProfile,
+  decideExtractionProfile,
+  getCrawlerOperation,
+  getProfileValidationReport,
+} from "@/services/crawlerService";
 import type { CrawlerOperation, ExtractionProfile } from "@/types/crawler";
 
 import { ProfileValidationPanel } from "../ProfileValidationPanel";
@@ -88,6 +94,44 @@ describe("ProfileValidationPanel", () => {
     expect(screen.getByText("candidate")).toBeInTheDocument();
   });
 
+  it("activates an approved profile directly from the profile list", async () => {
+    const approved = { ...profile, status: "approved" as const };
+    vi.mocked(activateExtractionProfile).mockResolvedValue({
+      ...approved,
+      status: "active",
+      activated_by: 1,
+      activated_at: "2026-07-16T13:00:00Z",
+    });
+    render(<ProfileValidationPanel agencyLifecycle="active" initialProfile={approved} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Ativar Perfil de Extração" }));
+
+    await waitFor(() => expect(activateExtractionProfile).toHaveBeenCalledWith(9));
+    expect(screen.getByText("Ativo")).toBeInTheDocument();
+  });
+
+  it("keeps agency activation on the active profile after removing the next-action band", async () => {
+    vi.mocked(activateCrawlAgency).mockResolvedValue({
+      id: 42,
+      name: "Imóveis Exemplo",
+      slug: "imoveis-exemplo",
+      base_url: "https://agency.example.com",
+      root_domain: "agency.example.com",
+      lifecycle_state: "active",
+      health_state: "unknown",
+      revalidation_required: false,
+      current_published_crawl_run_id: null,
+      created_at: "2026-07-15T12:00:00Z",
+      updated_at: "2026-07-16T13:00:00Z",
+    });
+    render(<ProfileValidationPanel agencyLifecycle="onboarding" initialProfile={{ ...profile, status: "active" }} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Ativar Crawl Agency" }));
+
+    await waitFor(() => expect(activateCrawlAgency).toHaveBeenCalledWith(42));
+    expect(screen.queryByRole("button", { name: "Ativar Crawl Agency" })).not.toBeInTheDocument();
+  });
+
   it("presents critical validation failures without blocking justified approval", () => {
     render(<ProfileValidationPanel agencyLifecycle="onboarding" initialProfile={profile} />);
     fireEvent.click(screen.getByRole("button", { name: /ver detalhes do perfil v1/i }));
@@ -111,7 +155,7 @@ describe("ProfileValidationPanel", () => {
 
     expect(screen.getByText(/operação #55/i)).toBeInTheDocument();
     expect(screen.getByText(/validando urls/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /validação em andamento/i })).toBeDisabled();
+    expect(screen.queryByRole("link", { name: /validar em crawls/i })).not.toBeInTheDocument();
   });
 
   it.each([

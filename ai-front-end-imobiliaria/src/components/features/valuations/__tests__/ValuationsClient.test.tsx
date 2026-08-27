@@ -200,6 +200,7 @@ describe("ValuationsClient", () => {
     vi.mocked(marketPropertyService.getMarketPropertyFilters).mockResolvedValue({
       tipos: ["casa", "apartamento"],
       bairros: ["Centro", "Vila Lalau"],
+      bairros_por_cidade: { "Jaraguá do Sul": ["Centro", "Vila Lalau"] },
       cidades: ["Jaraguá do Sul"],
       imobiliarias: [],
       quartos: [3],

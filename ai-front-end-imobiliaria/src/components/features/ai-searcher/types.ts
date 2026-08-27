@@ -55,6 +55,7 @@ export interface AiSearcherFiltersState {
 export interface AiSearcherFiltersOptions {
   tipos: string[];
   bairros: string[];
+  bairros_por_cidade: Record<string, string[]>;
   cidades: string[];
   imobiliarias: string[];
   quartos: number[];

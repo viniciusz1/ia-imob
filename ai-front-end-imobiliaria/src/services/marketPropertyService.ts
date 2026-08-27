@@ -3,6 +3,7 @@ import api, { API_PREFIX } from "./api";
 export interface MarketPropertyFiltersResponse {
   tipos: string[];
   bairros: string[];
+  bairros_por_cidade: Record<string, string[]>;
   cidades: string[];
   imobiliarias: string[];
   quartos: number[];

@@ -61,7 +61,8 @@ Substituir a navegação por âncoras por abas reais ou rotas aninhadas. A recom
 /admin/crawler/agencies/:agencyId/onboarding      Execuções de Onboarding
 /admin/crawler/agencies/:agencyId/discoveries     Discoveries
 /admin/crawler/agencies/:agencyId/profiles        Perfis de Extração
-/admin/crawler/agencies/:agencyId/crawls          Crawls e qualidade
+/admin/crawler/agencies/:agencyId/crawls          Crawls
+/admin/crawler/agencies/:agencyId/quality         Qualidade
 /admin/crawler/agencies/:agencyId/schedule        Agendamento e segurança
 /admin/crawler/agencies/:agencyId/settings        Configuração administrativa
 ```
@@ -84,8 +85,9 @@ O detalhe de uma operação pode continuar em rota global, mas toda origem conte
 | Visão geral | O que requer ação agora? | estado, alertas, operação atual, dados publicados e atividade recente | listas completas ou formulários extensos |
 | Execuções de Onboarding | Como a fonte foi preparada e como retomar ou substituir o fluxo atual? | execução atual, histórico de execuções, configuração fixada, timeline, Operações do Crawler filhas e controles de recuperação | operações avulsas sem vínculo com onboarding |
 | Discoveries | Quais URLs foram descobertas? | criação, snapshots imutáveis, contagem, origem e inspeção de URLs | geração ou validação de perfil |
-| Perfis de Extração | Qual configuração orienta a extração? | versões, schemas, estratégias, campos, validações e decisões | dados de produção publicados |
-| Crawls e qualidade | O que a produção gerou e pode publicar? | execução, resultado técnico, qualidade, candidato/publicado/quarentena | configuração de schema |
+| Perfis de Extração | Qual configuração orienta a extração? | versões, schemas, estratégias, campos, estado da validação e decisões | início de Crawl de Validação ou dados de produção publicados |
+| Crawls | O que foi executado e qual foi o resultado técnico? | início separado de validação e produção, histórico unificado, progresso, métricas e evidências | decisão sobre Perfil de Extração ou decisão de publicação |
+| Qualidade | O que a produção pode publicar e o que requer revisão? | avaliação do Portão de Qualidade, Snapshot Publicado, quarentena, histórico e Publicação Excepcional | Crawl de Validação ou configuração de perfil |
 | Agendamento e segurança | Quando a fonte volta a rodar e está protegida? | frequência, origem do preset, próxima execução, circuito e suspensão | estado administrativo |
 | Configuração | Quem é a fonte e ela está autorizada? | URL base, domínio, lifecycle e ações administrativas autorizadas | operações cotidianas |
 
@@ -203,6 +205,22 @@ O foco passa a ser:
 1. executar ou acompanhar um crawl;
 2. revisar qualidade e publicação;
 3. ajustar agendamento e resolver circuito/alertas.
+
+## Crawls e Qualidade
+
+As áreas de Crawls e Qualidade são rotas distintas. Crawls apresenta dois fluxos visivelmente separados: **Validar Perfil de Extração** e **Executar Crawl de Produção**. O histórico cronológico é único, pode ser filtrado por tipo e abre detalhes compartilháveis; um crawl de produção mostra apenas o estado resumido do Portão de Qualidade e oferece link para Qualidade.
+
+O comando de Crawl de Validação existe somente em Crawls. Perfis de Extração mostra o estado e oferece `Validar em Crawls`; aprovação, rejeição e ativação continuam pertencendo ao perfil. Quando uma Execução de Onboarding ativa coordena a validação, Crawls mostra a execução e a etapa, desabilita o comando com uma explicação acessível e oferece `Abrir Onboarding`. Não cria uma validação avulsa paralela.
+
+Na rota de Perfis de Extração, não existe uma faixa própria de `Próxima ação`. A listagem se chama **Perfis de Extração** e concentra as ações por versão: cada perfil `approved` oferece `Ativar Perfil de Extração`, permitindo escolher diretamente qual versão orientará os próximos crawls. A ativação rebaixa o perfil ativo anterior para `approved`. Se a fonte ainda estiver em onboarding, o perfil `active` oferece `Ativar Crawl Agency`. A ausência de Snapshot de Discovery é explicada no cartão de geração, com link para criar o Discovery.
+
+O formulário seleciona por padrão o Perfil de Extração elegível mais recente e permite escolher outro perfil `candidate` ou `revalidation_required`. Mostra versão, data, Snapshot de Discovery e Contrato de Dados de Mercado. Perfis aprovados, ativos ou rejeitados não são elegíveis, e um perfil com validação em andamento não aceita outra. A ausência de Política de Qualidade não bloqueia a validação de perfil; bloqueia somente a produção.
+
+Qualidade começa pelo que requer ação: avaliação automática pendente ou falha e Snapshots em Quarentena. Em seguida mostra o Snapshot Publicado vigente e o histórico de qualidade. A avaliação automática roda depois de toda produção concluída: aprovação publica, reprovação põe em quarentena e falha técnica mantém o Snapshot Candidato pendente para retentativa. Enquanto existir esse candidato pendente, novas produções da mesma Crawl Agency ficam bloqueadas com link `Resolver em Qualidade`; Crawls de Validação continuam permitidos. Não existe descarte de Snapshot Candidato.
+
+A Publicação Excepcional não acontece na listagem. A pessoa revisa as evidências no detalhe da produção e, com permissão específica, registra justificativa e confirmação. Usuários com `crawler.view` consultam ambas as áreas em modo somente leitura; as permissões existentes continuam controlando execução, aprovação e publicação excepcional.
+
+O vocabulário da interface separa os controles: validação usa `Resultado da validação`, `Dentro/Fora da recomendação` e `Falha Crítica de Validação`; produção usa `Portão de Qualidade`, `Aprovado/Reprovado`, `Falha Bloqueante` e `Alerta de Qualidade`. Resultados de validação nunca recebem estados de publicação.
 
 ## Especificação de interação e aparência clicável
 

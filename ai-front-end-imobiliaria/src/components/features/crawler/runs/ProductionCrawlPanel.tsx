@@ -15,11 +15,13 @@ import { crawlerOperationErrorMessage } from "../crawlerOperationFeedback";
 interface ProductionCrawlPanelProps {
   agency: CrawlAgency;
   discoveryPolicies: DiscoveryPolicyVersion[];
+  hasActiveQualityPolicy?: boolean;
+  pendingCandidateRunId?: number | null;
   snapshots: Array<{ id: number; url_count: number; created_at: string }>;
   profiles: Array<{ id: number; version: number; status: string; sample_url: string }>;
 }
 
-export function ProductionCrawlPanel({ agency: initialAgency, discoveryPolicies: initialPolicies, snapshots, profiles }: ProductionCrawlPanelProps) {
+export function ProductionCrawlPanel({ agency: initialAgency, discoveryPolicies: initialPolicies, hasActiveQualityPolicy = true, pendingCandidateRunId = null, snapshots, profiles }: ProductionCrawlPanelProps) {
   const [agency, setAgency] = useState(initialAgency);
   const [discoveryPolicies, setDiscoveryPolicies] = useState(initialPolicies.filter((policy) => policy.status === "available"));
   const usableProfiles = profiles.filter((profile) => ["active", "approved"].includes(profile.status));
@@ -38,9 +40,10 @@ export function ProductionCrawlPanel({ agency: initialAgency, discoveryPolicies:
   const isOverride = discovery === "fresh"
     && selectedPolicy !== undefined
     && selectedPolicy.id !== activePolicyId;
+  const requiresDiscoveryPolicy = discovery === "fresh";
 
   const queue = async () => {
-    if (!profileId || !policyId) return;
+    if (!profileId || (requiresDiscoveryPolicy && !policyId)) return;
     try {
       const operation = await queueProductionCrawl({
         crawl_agency_id: agency.id,
@@ -93,6 +96,8 @@ export function ProductionCrawlPanel({ agency: initialAgency, discoveryPolicies:
 
   return (
     <div className="space-y-5">
+      {!hasActiveQualityPolicy && <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4"><p className="font-medium text-destructive">Nenhuma Política de Qualidade ativa</p><p className="text-sm text-muted-foreground">Crawls de Produção estão bloqueados até que uma política seja ativada. Crawls de Validação continuam disponíveis.</p><Link className="text-sm underline" href="/admin/crawler/settings">Configurar Política de Qualidade</Link></div>}
+      {pendingCandidateRunId !== null && <div className="rounded-lg border border-amber-300 bg-amber-50/60 p-4"><p className="font-medium">Snapshot Candidato aguardando Qualidade</p><p className="text-sm text-muted-foreground">Resolva a avaliação do Snapshot #{pendingCandidateRunId} antes de iniciar outra produção.</p><Link className="text-sm underline" href={`/admin/crawler/agencies/${agency.id}/quality`}>Resolver em Qualidade</Link></div>}
       <div className="rounded-lg border bg-muted/20 p-4">
         <p className="text-sm text-muted-foreground">Política de Discovery Ativa</p>
         {agency.active_discovery_policy ? (
@@ -143,7 +148,7 @@ export function ProductionCrawlPanel({ agency: initialAgency, discoveryPolicies:
         </div>
       )}
       <div className="flex flex-wrap items-center gap-3">
-        {canExecute && <Button className="cursor-pointer disabled:cursor-not-allowed" disabled={!profileId || !policyId || operationId !== null} onClick={() => void queue()} type="button">{operationId ? `Crawl #${operationId} enfileirado` : "Rodar Crawl"}</Button>}
+        {canExecute && <Button className="cursor-pointer disabled:cursor-not-allowed" disabled={!profileId || (requiresDiscoveryPolicy && !policyId) || !hasActiveQualityPolicy || pendingCandidateRunId !== null || operationId !== null} onClick={() => void queue()} type="button">{operationId ? `Crawl #${operationId} enfileirado` : "Rodar Crawl"}</Button>}
         <Link className="cursor-pointer text-sm underline" href={`/admin/crawler/agencies/${agency.id}/discoveries`}>Gerar novo Discovery ou Perfil</Link>
       </div>
     </div>
