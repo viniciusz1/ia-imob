@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\NewPropertyModuleInterestController;
 use App\Http\Controllers\Api\PermissionController;
 use App\Http\Controllers\Api\RoleController;
 use App\Http\Middleware\EnsureAgencyIsActive;
@@ -40,6 +41,10 @@ Route::middleware(['auth:sanctum', EnsureAgencyIsActive::class])->group(function
     // Enums & Features
     Route::get('enums', [\App\Http\Controllers\Api\SystemEnumController::class, 'index']);
     Route::get('features', [\App\Http\Controllers\Api\FeatureController::class, 'index']);
+
+    // New Properties discovery entry (interest validation only)
+    Route::get('new-properties/interest', [NewPropertyModuleInterestController::class, 'show']);
+    Route::put('new-properties/interest', [NewPropertyModuleInterestController::class, 'store']);
 
     // Saved Filters (Authenticated, user-scoped)
     Route::apiResource('saved-filters', \App\Http\Controllers\Api\SavedFilterController::class);

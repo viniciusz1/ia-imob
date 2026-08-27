@@ -68,6 +68,34 @@ describe("AppSidebar", () => {
     expect(screen.queryByRole("link", { name: /avaliar imóvel/i })).not.toBeInTheDocument();
   });
 
+  it("shows Novos imóveis only to users with property access", () => {
+    useAuthStore.getState().setUser({
+      id: 1,
+      name: "Corretor",
+      email: "corretor@example.com",
+      is_platform_admin: false,
+      permissions: ["properties.view"],
+    });
+
+    renderSidebar();
+
+    expect(screen.getByRole("link", { name: /novos imóveis/i })).toHaveAttribute("href", "/novos-imoveis");
+  });
+
+  it("hides Novos imóveis from a Platform Admin with a stale property permission", () => {
+    useAuthStore.getState().setUser({
+      id: 4,
+      name: "Platform Admin",
+      email: "platform@example.com",
+      is_platform_admin: true,
+      permissions: ["properties.view"],
+    });
+
+    renderSidebar();
+
+    expect(screen.queryByRole("link", { name: /novos imóveis/i })).not.toBeInTheDocument();
+  });
+
   it("shows Operações do Crawler only with crawler view permission", () => {
     useAuthStore.getState().setUser({
       id: 1,
