@@ -1,9 +1,9 @@
 # Definição de Novos Imóveis e Oportunidades
 
-**Status:** definição funcional e técnica
+**Status:** definição concluída e protótipo funcional validado localmente
 
 **Entrega:** 27/08/2026
-**Implementação de código nesta etapa:** nenhuma
+**Implementação de código nesta etapa:** API e visualização inicial
 
 ## Objetivo
 
@@ -16,7 +16,16 @@ As flags são independentes:
 - pode possuir as duas flags;
 - pode não possuir nenhuma delas.
 
-Esta etapa não cria tabelas, endpoints ou componentes de interface. Ela estabelece o contrato que orientará as próximas entregas.
+Esta definição estabelece o contrato que orientará as próximas entregas. Depois da validação das regras, foi criada uma primeira versão funcional para demonstrar o fluxo com os dados do backup.
+
+## Estado da implementação em 27/08/2026
+
+- `GET /api/v1/new-properties` classifica os anúncios dos últimos Snapshots Publicados;
+- a consulta compara Listing Identities com os snapshots publicados da mesma origem nos 30 dias anteriores;
+- a oportunidade usa a fórmula de preço por metro quadrado e mediana definida neste documento;
+- `/novos-imoveis` agrupa os cards pela Imobiliária de Origem e permite filtrar as duas flags;
+- a interface limita a quantidade inicial de cards renderizados e permite carregar mais;
+- preferências, alertas, paginação de API e deduplicação entre origens continuam fora do escopo.
 
 ## Linguagem do domínio
 
@@ -266,7 +275,7 @@ flowchart TD
 - [x] A visualização agrupada por Imobiliária de Origem foi esboçada.
 - [x] Situações sem dados suficientes foram definidas.
 
-## Fora do escopo desta entrega
+## Fora do escopo da definição original
 
 - migrations ou alteração de banco de dados;
 - implementação da consulta histórica;

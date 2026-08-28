@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\NewPropertiesController;
 use App\Http\Controllers\Api\PermissionController;
 use App\Http\Controllers\Api\RoleController;
 use App\Http\Middleware\EnsureAgencyIsActive;
@@ -30,6 +31,7 @@ Route::middleware(['auth:sanctum', EnsureAgencyIsActive::class])->group(function
     Route::apiResource('valuations', \App\Http\Controllers\Api\ValuationController::class)->only(['index', 'store', 'show']);
     Route::get('market-properties/filters', [\App\Http\Controllers\Api\MarketPropertyController::class, 'filters']);
     Route::apiResource('market-properties', \App\Http\Controllers\Api\MarketPropertyController::class);
+    Route::get('new-properties', NewPropertiesController::class);
 
     // Property Images
     Route::post('properties/{property}/images', [\App\Http\Controllers\Api\PropertyImageController::class, 'store']);
