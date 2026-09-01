@@ -55,6 +55,8 @@ Se não houver Snapshot Publicado anterior na janela, nenhum anúncio recebe aut
 - a tela mostra, por imobiliária, exatamente qual histórico foi usado na classificação;
 - testes automatizados cobrem ausência de histórico, limite exato de 30 dias, isolamento entre imobiliárias, exclusão de snapshots não publicados e alterações no mesmo anúncio.
 
+As capturas do antes e depois e o roteiro simples de apresentação estão em [Evidências da preparação do histórico](../../evidence/new-properties-history/README.md).
+
 ## Linguagem do domínio
 
 **Imobiliária de Origem (Crawl Agency)**:
