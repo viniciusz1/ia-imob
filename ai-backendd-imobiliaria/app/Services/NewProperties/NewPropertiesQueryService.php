@@ -3,22 +3,19 @@
 namespace App\Services\NewProperties;
 
 use App\Domain\Valuation\TextNormalizer;
-use App\Models\Crawler\ListingVersion;
 use App\Models\CrawlerRun;
 use App\Models\MarketProperty;
 use App\Services\Crawler\PropertyTypeCatalog;
-use Carbon\CarbonImmutable;
-use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Collection;
 
 class NewPropertiesQueryService
 {
-    private const HISTORY_DAYS = 30;
-
     private const MINIMUM_COMPARABLES = 5;
 
     private const OPPORTUNITY_THRESHOLD_PERCENT = 15.0;
+
+    public function __construct(private readonly PublishedListingHistoryService $history) {}
 
     /**
      * @return array{groups: list<array<string, mixed>>, meta: array<string, mixed>}
@@ -40,9 +37,7 @@ class NewPropertiesQueryService
             ];
         }
 
-        $historyRuns = $this->historyRuns($currentRuns);
-        $historyByAgency = $historyRuns->groupBy('crawl_agency_id');
-        $historyFirstSeenByRun = $this->historyFirstSeenByRun($historyRuns);
+        $histories = $this->history->forCurrentRuns($currentRuns);
         $properties = $this->currentObservedProperties($currentRuns->pluck('id')->all());
         $propertiesByRun = $properties->groupBy('crawler_run_id');
         $comparableCutoff = $currentRuns->max(
@@ -53,22 +48,10 @@ class NewPropertiesQueryService
 
         foreach ($currentRuns as $run) {
             $runProperties = $propertiesByRun->get($run->id, collect());
-            $agencyHistory = $historyByAgency->get($run->crawl_agency_id, collect())
-                ->filter(fn (CrawlerRun $history): bool => $this->isInsideHistoryWindow($history, $run))
-                ->values();
-            $historyCount = $agencyHistory->count();
-            $windowStart = $run->published_at->copy()->subDays(self::HISTORY_DAYS);
-            $historyFirstSeen = [];
-
-            foreach ($agencyHistory as $historyRun) {
-                foreach ($historyFirstSeenByRun[$historyRun->id] ?? [] as $identityId => $publishedAt) {
-                    $known = $historyFirstSeen[$identityId] ?? null;
-
-                    if ($known === null || $publishedAt->lessThan($known)) {
-                        $historyFirstSeen[$identityId] = $publishedAt;
-                    }
-                }
-            }
+            $history = $histories->get((int) $run->id);
+            $historySummary = $history['summary'];
+            $historyFirstSeen = $history['first_seen_by_identity'];
+            $historyCount = $historySummary['snapshot_count'];
 
             $classified = [];
 
@@ -94,7 +77,7 @@ class NewPropertiesQueryService
                     'purpose' => $this->purpose($property),
                     'is_new' => $isNew,
                     'new_reason' => $newReason,
-                    'history_window_start' => $windowStart->toISOString(),
+                    'history_window_start' => $historySummary['window_start'],
                     'history_snapshot_count' => $historyCount,
                     'first_seen_in_current_window_at' => ($firstSeen ?? $run->published_at)->toISOString(),
                     ...$opportunity,
@@ -117,11 +100,7 @@ class NewPropertiesQueryService
                     'new' => $newCount,
                     'opportunities' => $opportunityCount,
                 ],
-                'history' => [
-                    'status' => $historyCount > 0 ? 'sufficient' : 'insufficient',
-                    'snapshot_count' => $historyCount,
-                    'window_start' => $windowStart->toISOString(),
-                ],
+                'history' => $historySummary,
                 'properties' => array_values(array_filter(
                     $classified,
                     fn (array $property): bool => $property['is_new'] || $property['is_opportunity'],
@@ -159,72 +138,6 @@ class NewPropertiesQueryService
                 'crawler.crawl_runs.*',
                 'current_agency.name as crawl_agency_name',
             ]);
-    }
-
-    /**
-     * @param  EloquentCollection<int, CrawlerRun>  $currentRuns
-     * @return EloquentCollection<int, CrawlerRun>
-     */
-    private function historyRuns(EloquentCollection $currentRuns): EloquentCollection
-    {
-        $earliestCutoff = $currentRuns
-            ->map(fn (CrawlerRun $run): CarbonInterface => $run->published_at->copy()->subDays(self::HISTORY_DAYS))
-            ->min();
-        $latestPublication = $currentRuns->max('published_at');
-
-        return CrawlerRun::query()
-            ->whereIn('crawl_agency_id', $currentRuns->pluck('crawl_agency_id')->unique()->all())
-            ->where('publication_state', 'published')
-            ->whereNotNull('published_at')
-            ->where('published_at', '>=', $earliestCutoff)
-            ->where('published_at', '<=', $latestPublication)
-            ->whereNotIn('id', $currentRuns->pluck('id')->all())
-            ->orderBy('published_at')
-            ->get(['id', 'crawl_agency_id', 'published_at']);
-    }
-
-    private function isInsideHistoryWindow(CrawlerRun $history, CrawlerRun $current): bool
-    {
-        return $history->published_at->greaterThanOrEqualTo(
-            $current->published_at->copy()->subDays(self::HISTORY_DAYS),
-        ) && $history->published_at->lessThan($current->published_at);
-    }
-
-    /**
-     * @param  EloquentCollection<int, CrawlerRun>  $historyRuns
-     * @return array<int, array<int, CarbonImmutable>>
-     */
-    private function historyFirstSeenByRun(EloquentCollection $historyRuns): array
-    {
-        if ($historyRuns->isEmpty()) {
-            return [];
-        }
-
-        $runsById = $historyRuns->keyBy('id');
-        $firstSeen = [];
-        $versions = ListingVersion::query()
-            ->whereIn('crawl_run_id', $historyRuns->pluck('id')->all())
-            ->whereNotNull('market_property_id')
-            ->where('classification', '!=', 'removed')
-            ->get(['listing_identity_id', 'crawl_run_id']);
-
-        foreach ($versions as $version) {
-            $run = $runsById->get($version->crawl_run_id);
-            if ($run === null) {
-                continue;
-            }
-
-            $runId = (int) $run->id;
-            $identityId = (int) $version->listing_identity_id;
-            $publishedAt = CarbonImmutable::instance($run->published_at);
-            $known = $firstSeen[$runId][$identityId] ?? null;
-
-            if ($known === null || $publishedAt->lessThan($known)) {
-                $firstSeen[$runId][$identityId] = $publishedAt;
-            }
-        }
-
-        return $firstSeen;
     }
 
     /**

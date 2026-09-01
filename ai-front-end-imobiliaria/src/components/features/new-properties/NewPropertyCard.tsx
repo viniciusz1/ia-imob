@@ -163,6 +163,19 @@ export function NewPropertyCard({ property, publishedAt }: NewPropertyCardProps)
           )}
         </div>
 
+        {property.is_new && (
+          <div className="rounded-lg border border-sky-200 bg-sky-50 p-3 text-sky-900 dark:border-sky-900 dark:bg-sky-950/40 dark:text-sky-100">
+            <p className="text-sm font-medium">Por que é novo?</p>
+            <p className="mt-1.5 text-xs leading-5">
+              A identidade estável deste anúncio não apareceu em {property.history_snapshot_count}{" "}
+              {property.history_snapshot_count === 1
+                ? "snapshot publicado anterior"
+                : "snapshots publicados anteriores"}{" "}
+              da janela de 30 dias.
+            </p>
+          </div>
+        )}
+
         {property.is_opportunity && (
           <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-emerald-900 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-100">
             <div className="flex items-center justify-between gap-3">

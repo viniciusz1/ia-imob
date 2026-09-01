@@ -2,7 +2,16 @@
 
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Building2, CalendarClock, Loader2, RefreshCw, Sparkles, TrendingDown } from "lucide-react";
+import {
+  Building2,
+  CalendarClock,
+  Fingerprint,
+  History,
+  Loader2,
+  RefreshCw,
+  Sparkles,
+  TrendingDown,
+} from "lucide-react";
 
 import { NewPropertyCard } from "./NewPropertyCard";
 import { Badge } from "@/components/ui/badge";
@@ -33,6 +42,19 @@ function formatDate(value: string | null): string {
   }).format(new Date(value));
 }
 
+function formatDay(value: string): string {
+  return new Intl.DateTimeFormat("pt-BR", {
+    dateStyle: "short",
+    timeZone: "America/Sao_Paulo",
+  }).format(new Date(value));
+}
+
+function historySnapshotIds(snapshotIds: number[]): string {
+  if (snapshotIds.length === 0) return "Nenhum snapshot anterior";
+
+  return snapshotIds.map((snapshotId) => `#${snapshotId}`).join(", ");
+}
+
 function matchesFilter(property: NewPropertyItem, filter: NewPropertyFlagFilter): boolean {
   if (filter === "new") return property.is_new;
   if (filter === "opportunity") return property.is_opportunity;
@@ -58,6 +80,7 @@ function NewPropertiesSkeleton() {
 function AgencyGroup({ group }: { group: NewPropertyAgencyGroup }) {
   const [visibleCount, setVisibleCount] = useState(12);
   const visibleProperties = group.properties.slice(0, visibleCount);
+  const hasSufficientHistory = group.history.status === "sufficient";
 
   return (
     <Card className="gap-0 overflow-hidden py-0">
@@ -84,11 +107,70 @@ function AgencyGroup({ group }: { group: NewPropertyAgencyGroup }) {
           </div>
         </div>
 
-        {group.history.status === "insufficient" && (
-          <div className="mt-4 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100">
-            Histórico insuficiente para classificar anúncios como novos. São necessários snapshots publicados anteriores.
+        <div
+          aria-label={`Histórico comparado de ${group.crawl_agency.name}`}
+          className={`mt-4 rounded-lg border p-4 ${
+            hasSufficientHistory
+              ? "border-sky-200 bg-sky-50/70 dark:border-sky-900 dark:bg-sky-950/30"
+              : "border-amber-300 bg-amber-50 dark:border-amber-900 dark:bg-amber-950/40"
+          }`}
+          role="region"
+        >
+          <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
+            <div>
+              <p className="flex items-center gap-2 text-sm font-semibold">
+                <History className="size-4" aria-hidden="true" />
+                Comparação para identificar novos anúncios
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Snapshot atual #{group.snapshot.id} · publicado em {formatDate(group.snapshot.published_at)}
+              </p>
+            </div>
+            <Badge
+              variant="outline"
+              className={
+                hasSufficientHistory
+                  ? "w-fit border-sky-400 text-sky-800 dark:text-sky-200"
+                  : "w-fit border-amber-500 text-amber-900 dark:text-amber-100"
+              }
+            >
+              {hasSufficientHistory ? "Histórico suficiente" : "Histórico insuficiente"}
+            </Badge>
           </div>
-        )}
+
+          <dl className="mt-3 grid gap-3 text-sm sm:grid-cols-3">
+            <div>
+              <dt className="text-xs text-muted-foreground">Janela analisada</dt>
+              <dd className="font-medium">{group.history.window_days} dias</dd>
+              <dd className="text-xs text-muted-foreground">
+                {formatDay(group.history.window_start)} até {formatDay(group.history.window_end)}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-xs text-muted-foreground">Snapshots anteriores</dt>
+              <dd className="font-medium">
+                {group.history.snapshot_count}{" "}
+                {group.history.snapshot_count === 1 ? "comparado" : "comparados"}
+              </dd>
+              <dd className="break-words text-xs text-muted-foreground">
+                {historySnapshotIds(group.history.snapshot_ids)}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-xs text-muted-foreground">Identidades observadas</dt>
+              <dd className="font-medium">{group.history.observed_identity_count}</dd>
+              <dd className="text-xs text-muted-foreground">nos snapshots anteriores</dd>
+            </div>
+          </dl>
+
+          <p className="mt-3 flex items-start gap-2 border-t border-current/10 pt-3 text-xs leading-5 text-muted-foreground">
+            <Fingerprint className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+            <span>
+              Quando a identidade estável é preservada, alterações de preço, descrição, fotos ou URL não fazem o anúncio parecer novo.
+              {!hasSufficientHistory && " Como não há snapshot anterior publicado na janela, nenhum anúncio é marcado como Novo."}
+            </span>
+          </p>
+        </div>
       </CardHeader>
 
       <CardContent className="p-5 md:p-6">

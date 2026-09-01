@@ -34,6 +34,8 @@ export interface NewPropertyItem {
   link_imovel: string;
   is_new: boolean;
   new_reason: NewPropertyReason;
+  history_window_start: string;
+  history_snapshot_count: number;
   first_seen_in_current_window_at: string | null;
   is_opportunity: boolean;
   opportunity_score: number | null;
@@ -62,8 +64,13 @@ export interface NewPropertyAgencyGroup {
   };
   history: {
     status: "sufficient" | "insufficient";
-    snapshot_count: number;
+    window_days: number;
     window_start: string;
+    window_end: string;
+    snapshot_count: number;
+    snapshot_ids: number[];
+    observed_identity_count: number;
+    identity_strategy: "listing_identity";
   };
   properties: NewPropertyItem[];
 }

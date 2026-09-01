@@ -27,6 +27,34 @@ Esta definição estabelece o contrato que orientará as próximas entregas. Dep
 - a interface limita a quantidade inicial de cards renderizados e permite carregar mais;
 - preferências, alertas, paginação de API e deduplicação entre origens continuam fora do escopo.
 
+## Entrega de 10/09/2026 — Preparação do Histórico
+
+**Status:** concluída e validada com o backup local
+
+Esta entrega transforma a regra já definida em uma comparação histórica explícita e testável. Ela reutiliza duas estruturas existentes do Crawler Machine:
+
+- `Listing Identity`, que representa o mesmo anúncio ao longo do tempo;
+- `Listing Version`, que registra a observação imutável dessa identidade em cada Snapshot Publicado.
+
+O histórico preparado para cada Imobiliária de Origem informa:
+
+- o Snapshot Publicado atual;
+- o início e o fim da janela de 30 dias;
+- os IDs e a quantidade de snapshots anteriores comparados;
+- a quantidade de identidades observadas nesse histórico;
+- se o histórico é suficiente ou insuficiente para classificar anúncios como Novos.
+
+Se não houver Snapshot Publicado anterior na janela, nenhum anúncio recebe automaticamente a flag **Novo**. Alterações de conteúdo ou de URL não criam um novo anúncio quando a fonte mantém a mesma Listing Identity, normalmente por meio de seu identificador externo estável.
+
+### Implementação entregue em 10/09/2026
+
+- um serviço dedicado seleciona somente Snapshots Publicados da mesma Imobiliária de Origem no intervalo inclusivo de 30 dias;
+- a comparação usa `listing_identity_id`, e não preço, descrição, foto, URL ou o ID temporário da linha coletada;
+- a API informa janela, snapshots comparados, identidades observadas e o estado `sufficient` ou `insufficient`;
+- um índice parcial em `(crawl_agency_id, published_at)` acelera a busca desse histórico no PostgreSQL;
+- a tela mostra, por imobiliária, exatamente qual histórico foi usado na classificação;
+- testes automatizados cobrem ausência de histórico, limite exato de 30 dias, isolamento entre imobiliárias, exclusão de snapshots não publicados e alterações no mesmo anúncio.
+
 ## Linguagem do domínio
 
 **Imobiliária de Origem (Crawl Agency)**:
