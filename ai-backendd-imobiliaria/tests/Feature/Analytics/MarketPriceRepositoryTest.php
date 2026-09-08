@@ -4,6 +4,7 @@ namespace Tests\Feature\Analytics;
 
 use App\Domain\Analytics\MarketAnalyticsFilters;
 use App\Domain\Analytics\PriceMetric;
+use App\Domain\Analytics\PropertyTypeNormalizer;
 use App\Domain\Analytics\StatisticalSummary;
 use App\Domain\Analytics\SupplyDimension;
 use App\Models\CrawlerRun;
@@ -123,6 +124,31 @@ class MarketPriceRepositoryTest extends TestCase
         $this->assertTrue($groups['Amizade']->isInsufficient());
         $this->assertNull($groups['Amizade']->median);
         $this->assertSame(2, $groups['Amizade']->sampleSize);
+    }
+
+    public function test_grouping_by_type_uses_the_canonical_name(): void
+    {
+        $run = CrawlerRun::factory()->create();
+
+        foreach ([300000, 400000, 500000] as $price) {
+            MarketProperty::factory()->create(['crawler_run_id' => $run->id, 'tipo' => 'Casa', 'valor' => $price]);
+        }
+
+        foreach ([600000, 700000] as $price) {
+            MarketProperty::factory()->create(['crawler_run_id' => $run->id, 'tipo' => 'casa residencial', 'valor' => $price]);
+        }
+
+        MarketProperty::factory()->create(['crawler_run_id' => $run->id, 'tipo' => 'Baependi', 'valor' => 900000]);
+
+        $groups = $this->repository->summarizeBy(
+            MarketAnalyticsFilters::fromArray([]),
+            PriceMetric::AnnouncedPrice,
+            SupplyDimension::Type,
+        );
+
+        $this->assertSame(5, $groups['Casa']->sampleSize);
+        $this->assertSame(500000.0, $groups['Casa']->median);
+        $this->assertSame(1, $groups[PropertyTypeNormalizer::UNCLASSIFIED]->sampleSize);
     }
 
     private function summarize(): StatisticalSummary

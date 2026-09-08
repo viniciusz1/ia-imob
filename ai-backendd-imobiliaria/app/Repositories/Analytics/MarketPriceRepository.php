@@ -49,7 +49,7 @@ class MarketPriceRepository
         PriceMetric $metric,
         SupplyDimension $dimension,
     ): Collection {
-        $values = $this->values($filters, $metric, $this->stock->dimension($dimension));
+        $values = $this->values($filters, $metric, $this->stock->groupingFor($dimension));
 
         $bounds = DB::query()->fromSub($values, 'v')
             ->selectRaw('v.grouping, '.$this->boundsSelection())
@@ -71,20 +71,20 @@ class MarketPriceRepository
     private function values(
         MarketAnalyticsFilters $filters,
         PriceMetric $metric,
-        ?string $groupExpression = null,
+        ?Grouping $grouping = null,
     ): QueryBuilder {
         $expression = $this->stock->metric($metric);
 
-        $selection = $groupExpression === null
+        $selection = $grouping === null
             ? "{$expression} as value"
-            : "{$groupExpression} as grouping, {$expression} as value";
+            : "{$grouping->expression} as grouping, {$expression} as value";
 
         $values = $this->stock->forMetric($filters, $metric)->getQuery()
-            ->selectRaw($selection)
+            ->selectRaw($selection, $grouping?->bindings ?? [])
             ->whereRaw("{$expression} is not null");
 
-        if ($groupExpression !== null) {
-            $values->whereRaw("{$groupExpression} is not null");
+        if ($grouping !== null && $grouping->nullable) {
+            $values->whereRaw("{$grouping->expression} is not null", $grouping->bindings);
         }
 
         return $values;

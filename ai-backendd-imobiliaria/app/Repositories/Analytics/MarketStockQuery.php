@@ -81,6 +81,17 @@ class MarketStockQuery
         return self::PROPERTIES.'.'.self::COLUMNS[$field->value];
     }
 
+    public function groupingFor(SupplyDimension $dimension): Grouping
+    {
+        if ($dimension === SupplyDimension::Type) {
+            [$expression, $bindings] = $this->canonicalTypeExpression();
+
+            return new Grouping($expression, $bindings, nullable: false);
+        }
+
+        return new Grouping($this->dimension($dimension));
+    }
+
     public function dimension(SupplyDimension $dimension): string
     {
         return match ($dimension) {
@@ -138,6 +149,36 @@ class MarketStockQuery
             $this->canonicalTypes(),
             static fn (string $canonical): bool => in_array($canonical, $canonicalNames, true),
         )));
+    }
+
+    /**
+     * @return array{0: string, 1: list<string>}
+     */
+    private function canonicalTypeExpression(): array
+    {
+        $rawTypesByCanonical = [];
+
+        foreach ($this->canonicalTypes() as $rawType => $canonical) {
+            $rawTypesByCanonical[$canonical][] = $rawType;
+        }
+
+        $column = $this->column(SupplyField::Type);
+        $clauses = [];
+        $bindings = [];
+
+        foreach ($rawTypesByCanonical as $canonical => $rawTypes) {
+            if ($canonical === PropertyTypeNormalizer::UNCLASSIFIED) {
+                continue;
+            }
+
+            $placeholders = implode(', ', array_fill(0, count($rawTypes), '?'));
+            $clauses[] = "when {$column} in ({$placeholders}) then ?";
+            $bindings = [...$bindings, ...$rawTypes, $canonical];
+        }
+
+        $bindings[] = PropertyTypeNormalizer::UNCLASSIFIED;
+
+        return ['case '.implode(' ', $clauses).' else ? end', $bindings];
     }
 
     private function applyFilters(Builder $query, MarketAnalyticsFilters $filters): void
