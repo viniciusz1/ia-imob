@@ -50,7 +50,7 @@ export function MultiSelectFilter<TValue extends string | number>({
         <DropdownMenuTrigger asChild>
           <Button
             variant="outline"
-            className="w-full justify-between font-normal"
+            className="w-full justify-between border-input bg-transparent font-normal hover:bg-accent/50 dark:bg-input/30 dark:hover:bg-input/50"
             disabled={values.length === 0}
           >
             <span className={selected.length === 0 ? "text-muted-foreground" : undefined}>
