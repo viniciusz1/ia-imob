@@ -7,6 +7,7 @@ use App\Domain\Analytics\MarketAnalyticsFilters;
 use App\Domain\Analytics\PropertyTypeNormalizer;
 use App\Domain\Analytics\SupplyDimension;
 use App\Domain\Analytics\SupplyField;
+use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
 
 class MarketSupplyRepository
@@ -16,6 +17,11 @@ class MarketSupplyRepository
     public function total(MarketAnalyticsFilters $filters): int
     {
         return $this->stock->stock($filters)->count();
+    }
+
+    public function referenceDate(MarketAnalyticsFilters $filters): ?CarbonImmutable
+    {
+        return $this->stock->referenceDate($filters);
     }
 
     /**
