@@ -59,6 +59,8 @@ Route::middleware(['auth:sanctum', EnsureAgencyIsActive::class])->group(function
     require __DIR__.'/api/user_routes.php';
 });
 
+require __DIR__.'/api/analytics.php';
+
 Route::prefix('admin')->group(function () {
     require __DIR__.'/api/admin.php';
 });
