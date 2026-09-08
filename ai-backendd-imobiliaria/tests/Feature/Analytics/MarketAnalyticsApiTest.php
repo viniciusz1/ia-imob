@@ -10,7 +10,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
 
-class MarketOverviewApiTest extends TestCase
+class MarketAnalyticsApiTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -52,6 +52,36 @@ class MarketOverviewApiTest extends TestCase
             'meta' => ['generated_at', 'data_reference_date', 'notices'],
         ]);
         $this->assertNotNull($response->json('meta.data_reference_date'));
+    }
+
+    public function test_the_pricing_endpoint_reports_its_indicators(): void
+    {
+        $run = CrawlerRun::factory()->create();
+
+        foreach ([100000, 200000, 300000, 400000, 500000] as $price) {
+            MarketProperty::factory()->create(['crawler_run_id' => $run->id, 'valor' => $price]);
+        }
+
+        $this->actingAs($this->userWithPermission())
+            ->getJson('/api/v1/analytics/market/pricing')
+            ->assertOk()
+            ->assertJsonPath('data.median_price.value', 300000)
+            ->assertJsonPath('data.median_price.indicator', 'A2.01')
+            ->assertJsonStructure([
+                'data' => [
+                    'median_price', 'average_price', 'central_price_range',
+                    'median_price_per_square_metre', 'by_type', 'by_bedrooms',
+                    'dispersion_by_neighbourhood',
+                ],
+                'meta' => ['generated_at', 'data_reference_date', 'notices'],
+            ]);
+    }
+
+    public function test_the_pricing_endpoint_is_gated_by_the_same_permission(): void
+    {
+        $this->actingAs($this->user())
+            ->getJson('/api/v1/analytics/market/pricing')
+            ->assertForbidden();
     }
 
     public function test_filters_narrow_the_reported_supply(): void
