@@ -84,6 +84,41 @@ class MarketAnalyticsApiTest extends TestCase
             ->assertForbidden();
     }
 
+    public function test_the_rankings_endpoint_reports_its_indicators(): void
+    {
+        $run = CrawlerRun::factory()->create();
+
+        foreach ([200000, 300000, 400000, 500000, 600000] as $price) {
+            MarketProperty::factory()->create([
+                'crawler_run_id' => $run->id,
+                'bairro' => 'Centro',
+                'valor' => $price,
+                'area' => 100,
+            ]);
+        }
+
+        $this->actingAs($this->userWithPermission())
+            ->getJson('/api/v1/analytics/market/rankings?limite=3')
+            ->assertOk()
+            ->assertJsonPath('data.neighbourhoods_by_price.indicator', 'A2.05')
+            ->assertJsonPath('data.neighbourhoods_by_price.items.0.label', 'Centro')
+            ->assertJsonCount(3, 'data.most_expensive_listings.items')
+            ->assertJsonStructure([
+                'data' => [
+                    'neighbourhoods_by_price', 'neighbourhoods_by_square_metre',
+                    'neighbourhood_extremes', 'most_expensive_listings',
+                    'highest_price_per_square_metre_listings', 'cheapest_listings',
+                ],
+            ]);
+    }
+
+    public function test_the_rankings_endpoint_is_gated_by_the_same_permission(): void
+    {
+        $this->actingAs($this->user())
+            ->getJson('/api/v1/analytics/market/rankings')
+            ->assertForbidden();
+    }
+
     public function test_filters_narrow_the_reported_supply(): void
     {
         $run = CrawlerRun::factory()->create();
