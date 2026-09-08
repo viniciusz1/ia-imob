@@ -68,6 +68,32 @@ class MarketPriceRepository
             ]);
     }
 
+    /**
+     * @return Collection<string, array{sample_size: int, variation: float|null}>
+     */
+    public function dispersionBy(
+        MarketAnalyticsFilters $filters,
+        PriceMetric $metric,
+        SupplyDimension $dimension,
+    ): Collection {
+        $values = $this->values($filters, $metric, $this->stock->groupingFor($dimension));
+
+        return DB::query()->fromSub($values, 'v')
+            ->groupBy('v.grouping')
+            ->selectRaw('v.grouping as grouping, count(*) as sample_size, stddev_samp(v.value) / nullif(avg(v.value), 0) as variation')
+            ->get()
+            ->mapWithKeys(function (object $row): array {
+                $sampleSize = (int) $row->sample_size;
+
+                return [(string) $row->grouping => [
+                    'sample_size' => $sampleSize,
+                    'variation' => $sampleSize < StatisticalSummary::MINIMUM_SAMPLE || $row->variation === null
+                        ? null
+                        : round((float) $row->variation, 4),
+                ]];
+            });
+    }
+
     private function values(
         MarketAnalyticsFilters $filters,
         PriceMetric $metric,
