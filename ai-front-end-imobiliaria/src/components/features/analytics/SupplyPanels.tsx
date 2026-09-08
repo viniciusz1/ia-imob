@@ -1,11 +1,11 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { MarketOverview } from "@/types/analytics";
 import { DistributionBars } from "./DistributionBars";
+import { PanelCard } from "./PanelCard";
 import { FIELD_LABELS, formatCount, formatShare } from "./format";
 
 export function SupplyPanels({ overview }: { overview: MarketOverview }) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="grid gap-4 lg:grid-cols-2">
         <DistributionBars
           indicator={overview.by_city.indicator}
@@ -49,19 +49,14 @@ export function SupplyPanels({ overview }: { overview: MarketOverview }) {
         />
       </div>
 
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-baseline justify-between text-sm font-medium">
-            <span>Preenchimento dos campos</span>
-            <span className="text-xs tabular-nums text-muted-foreground">
-              {overview.field_completeness.indicator}
-            </span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <PanelCard
+        indicator={overview.field_completeness.indicator}
+        title="Preenchimento dos campos"
+      >
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {overview.field_completeness.items.map((item) => (
-            <div key={item.field} className="space-y-1">
-              <div className="flex items-baseline justify-between text-sm">
+            <div key={item.field} className="space-y-1.5">
+              <div className="flex items-baseline justify-between gap-2 text-sm">
                 <span>{FIELD_LABELS[item.field] ?? item.field}</span>
                 <span className="tabular-nums text-muted-foreground">
                   {formatShare(item.share)} · {formatCount(item.filled)}
@@ -75,8 +70,8 @@ export function SupplyPanels({ overview }: { overview: MarketOverview }) {
               </div>
             </div>
           ))}
-        </CardContent>
-      </Card>
+        </div>
+      </PanelCard>
     </div>
   );
 }

@@ -41,31 +41,32 @@ export function MarketDashboardClient() {
   const meta = overview.data?.meta ?? pricing.data?.meta ?? null;
 
   return (
-    <div className="space-y-6">
-      <header className="space-y-1">
-        <h1 className="text-2xl font-semibold">Análise de mercado</h1>
-        <p className="text-sm text-muted-foreground">
-          Estoque, preços e rankings calculados sobre a coleta publicada mais recente de cada
-          imobiliária.
-        </p>
+    <div className="container mx-auto py-8">
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Análise de mercado</h1>
+          <p className="text-muted-foreground mt-1">
+            Estoque, preços e rankings da coleta publicada mais recente de cada imobiliária.
+          </p>
+        </div>
         {meta === null ? null : (
-          <p className="text-xs text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             Coleta de referência: {formatReferenceDate(meta.data_reference_date)}
           </p>
         )}
-      </header>
+      </div>
 
       <MarketFiltersPanel filters={filters} onChange={setFilters} />
 
       {meta?.notices.length ? (
-        <ul className="space-y-1 rounded-md border border-dashed p-3 text-xs text-muted-foreground">
+        <ul className="mb-6 space-y-1 rounded-md border border-dashed p-4 text-sm text-muted-foreground">
           {meta.notices.map((notice) => (
             <li key={notice}>{notice}</li>
           ))}
         </ul>
       ) : null}
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+      <section className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         {overview.isPending || pricing.isPending ? (
           <PanelSkeleton count={5} />
         ) : (
@@ -116,14 +117,28 @@ export function MarketDashboardClient() {
         )}
       </section>
 
-      {overview.isPending ? <PanelSkeleton count={4} /> : null}
-      {overview.data ? <SupplyPanels overview={overview.data.data} /> : null}
+      <div className="space-y-6">
+        {overview.isPending ? (
+          <div className="grid gap-4 lg:grid-cols-2">
+            <PanelSkeleton count={4} />
+          </div>
+        ) : null}
+        {overview.data ? <SupplyPanels overview={overview.data.data} /> : null}
 
-      {pricing.isPending ? <PanelSkeleton count={2} /> : null}
-      {pricing.data ? <PricingPanels pricing={pricing.data.data} /> : null}
+        {pricing.isPending ? (
+          <div className="grid gap-4 lg:grid-cols-2">
+            <PanelSkeleton count={2} />
+          </div>
+        ) : null}
+        {pricing.data ? <PricingPanels pricing={pricing.data.data} /> : null}
 
-      {rankings.isPending ? <PanelSkeleton count={2} /> : null}
-      {rankings.data ? <RankingPanels rankings={rankings.data.data} /> : null}
+        {rankings.isPending ? (
+          <div className="grid gap-4 lg:grid-cols-2">
+            <PanelSkeleton count={2} />
+          </div>
+        ) : null}
+        {rankings.data ? <RankingPanels rankings={rankings.data.data} /> : null}
+      </div>
     </div>
   );
 }
@@ -132,7 +147,7 @@ function PanelSkeleton({ count }: { count: number }) {
   return (
     <>
       {Array.from({ length: count }).map((_, index) => (
-        <Skeleton key={index} className="h-28 w-full rounded-lg" />
+        <Skeleton key={index} className="h-40 w-full rounded-xl" />
       ))}
     </>
   );
