@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen, waitFor } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { MarketDashboardClient } from "../MarketDashboardClient";
 import {
@@ -44,9 +44,8 @@ function renderDashboard() {
   );
 }
 
-describe("MarketDashboardClient", () => {
-  it("leads with the supply figure and the headline prices", async () => {
-    vi.mocked(getMarketPropertyFilters).mockResolvedValue({
+function mockServices() {
+  vi.mocked(getMarketPropertyFilters).mockResolvedValue({
       tipos: [],
       bairros: [],
       bairros_por_cidade: {},
@@ -58,7 +57,7 @@ describe("MarketDashboardClient", () => {
       vagas: [],
     });
 
-    vi.mocked(getMarketOverview).mockResolvedValue({
+  vi.mocked(getMarketOverview).mockResolvedValue({
       meta,
       data: {
         total_supply: { indicator: "A1.01", value: 4083 },
@@ -80,9 +79,9 @@ describe("MarketDashboardClient", () => {
       },
     });
 
-    const sample = { sample_size: 3767, insufficient_sample: false, outliers_discarded: 316 };
+  const sample = { sample_size: 3767, insufficient_sample: false, outliers_discarded: 316 };
 
-    vi.mocked(getMarketPricing).mockResolvedValue({
+  vi.mocked(getMarketPricing).mockResolvedValue({
       meta,
       data: {
         median_price: { indicator: "A2.01", value: 490000, ...sample },
@@ -101,18 +100,23 @@ describe("MarketDashboardClient", () => {
       },
     });
 
-    vi.mocked(getMarketRankings).mockResolvedValue({
-      meta,
-      data: {
-        neighbourhoods_by_price: { indicator: "A2.05", items: [] },
-        neighbourhoods_by_square_metre: { indicator: "A2.06", items: [] },
-        neighbourhood_extremes: { indicator: "A2.07", most_expensive: null, cheapest: null },
-        most_expensive_listings: { indicator: "A2.08", items: [] },
-        highest_price_per_square_metre_listings: { indicator: "A2.09", items: [] },
-        cheapest_listings: { indicator: "A2.10", items: [] },
-      },
-    });
+  vi.mocked(getMarketRankings).mockResolvedValue({
+    meta,
+    data: {
+      neighbourhoods_by_price: { indicator: "A2.05", items: [] },
+      neighbourhoods_by_square_metre: { indicator: "A2.06", items: [] },
+      neighbourhood_extremes: { indicator: "A2.07", most_expensive: null, cheapest: null },
+      most_expensive_listings: { indicator: "A2.08", items: [] },
+      highest_price_per_square_metre_listings: { indicator: "A2.09", items: [] },
+      cheapest_listings: { indicator: "A2.10", items: [] },
+    },
+  });
+}
 
+describe("MarketDashboardClient", () => {
+  beforeEach(() => mockServices());
+
+  it("leads with the supply figure and the headline prices", async () => {
     renderDashboard();
 
     await waitFor(() => expect(screen.getByText("4.083")).toBeInTheDocument());
@@ -126,5 +130,25 @@ describe("MarketDashboardClient", () => {
     expect(screen.getByText("316 valores fora do padrão descartados")).toBeInTheDocument();
     expect(screen.getByText("R$ 4.053/m²")).toBeInTheDocument();
     expect(screen.getByText("916 de 4.083 imóveis têm área informada")).toBeInTheDocument();
+  });
+
+  it("groups the indicators into a handful of panels instead of one card each", async () => {
+    renderDashboard();
+
+    await waitFor(() => expect(screen.getByText("4.083")).toBeInTheDocument());
+
+    for (const panel of [
+      "Onde está a oferta",
+      "Perfil dos imóveis",
+      "Preço por recorte",
+      "Bairros mais caros",
+      "Imóveis em destaque",
+    ]) {
+      expect(screen.getByText(panel)).toBeInTheDocument();
+    }
+
+    expect(screen.queryByText("A1.01")).not.toBeInTheDocument();
+    expect(screen.queryByText("A2.01")).not.toBeInTheDocument();
+    expect(screen.queryByText("A1.02")).not.toBeInTheDocument();
   });
 });

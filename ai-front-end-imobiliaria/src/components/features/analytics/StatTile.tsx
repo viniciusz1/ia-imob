@@ -3,7 +3,6 @@ import { cn } from "@/lib/utils";
 import { EMPTY_VALUE, formatCount } from "./format";
 
 interface StatTileProps {
-  indicator: string;
   label: string;
   value: string;
   context?: string;
@@ -13,7 +12,6 @@ interface StatTileProps {
 }
 
 export function StatTile({
-  indicator,
   label,
   value,
   context,
@@ -27,7 +25,7 @@ export function StatTile({
 
   return (
     <Card className={cn("gap-0 py-5", hero && "border-primary/30 bg-primary/5")}>
-      <CardContent className="flex h-full flex-col justify-between gap-4 px-5">
+      <CardContent className="flex h-full flex-col justify-between gap-3 px-5">
         <p className="text-sm font-medium text-muted-foreground">{label}</p>
 
         <div className="space-y-1">
@@ -40,10 +38,8 @@ export function StatTile({
           >
             {insufficientSample ? EMPTY_VALUE : value}
           </p>
-          <p className="min-h-5 text-sm text-muted-foreground">{footer}</p>
+          <p className="min-h-10 text-sm text-muted-foreground">{footer}</p>
         </div>
-
-        <p className="text-xs text-muted-foreground/70">{indicator}</p>
       </CardContent>
     </Card>
   );

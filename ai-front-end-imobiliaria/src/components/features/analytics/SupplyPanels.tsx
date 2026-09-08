@@ -1,77 +1,100 @@
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import type { MarketOverview } from "@/types/analytics";
 import { DistributionBars } from "./DistributionBars";
-import { PanelCard } from "./PanelCard";
+import { TabbedPanel } from "./TabbedPanel";
 import { FIELD_LABELS, formatCount, formatShare } from "./format";
 
 export function SupplyPanels({ overview }: { overview: MarketOverview }) {
   return (
-    <div className="space-y-6">
+    <>
       <div className="grid gap-4 lg:grid-cols-2">
-        <DistributionBars
-          indicator={overview.by_city.indicator}
-          title="Imóveis por cidade"
-          items={overview.by_city.items}
+        <TabbedPanel
+          title="Onde está a oferta"
+          description="Distribuição dos imóveis por região."
+          tabs={[
+            {
+              value: "city",
+              label: "Cidade",
+              content: <DistributionBars items={overview.by_city.items} />,
+            },
+            {
+              value: "neighbourhood",
+              label: "Bairro",
+              content: <DistributionBars items={overview.by_neighbourhood.items} />,
+            },
+            {
+              value: "agency",
+              label: "Imobiliária",
+              content: <DistributionBars items={overview.by_agency.items} />,
+            },
+          ]}
         />
-        <DistributionBars
-          indicator={overview.by_neighbourhood.indicator}
-          title="Imóveis por bairro"
-          items={overview.by_neighbourhood.items}
-        />
-        <DistributionBars
-          indicator={overview.by_type.indicator}
-          title="Imóveis por tipo"
-          items={overview.by_type.items}
-        />
-        <DistributionBars
-          indicator={overview.by_agency.indicator}
-          title="Participação por imobiliária"
-          items={overview.by_agency.items}
-        />
-        <DistributionBars
-          indicator={overview.by_price_range.indicator}
-          title="Distribuição por faixa de preço"
-          items={overview.by_price_range.items}
-        />
-        <DistributionBars
-          indicator={overview.by_area_range.indicator}
-          title="Distribuição por faixa de área"
-          items={overview.by_area_range.items}
-        />
-        <DistributionBars
-          indicator={overview.by_bedrooms.indicator}
-          title="Distribuição por quartos"
-          items={overview.by_bedrooms.items}
-        />
-        <DistributionBars
-          indicator={overview.by_parking_spaces.indicator}
-          title="Distribuição por vagas"
-          items={overview.by_parking_spaces.items}
+
+        <TabbedPanel
+          title="Perfil dos imóveis"
+          description="Como a oferta se divide por tipo, preço, área e características."
+          tabs={[
+            {
+              value: "type",
+              label: "Tipo",
+              content: <DistributionBars items={overview.by_type.items} />,
+            },
+            {
+              value: "price",
+              label: "Preço",
+              content: <DistributionBars items={overview.by_price_range.items} />,
+            },
+            {
+              value: "area",
+              label: "Área",
+              content: <DistributionBars items={overview.by_area_range.items} />,
+            },
+            {
+              value: "bedrooms",
+              label: "Quartos",
+              content: <DistributionBars items={overview.by_bedrooms.items} />,
+            },
+            {
+              value: "parking",
+              label: "Vagas",
+              content: <DistributionBars items={overview.by_parking_spaces.items} />,
+            },
+          ]}
         />
       </div>
 
-      <PanelCard
-        indicator={overview.field_completeness.indicator}
-        title="Preenchimento dos campos"
-      >
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {overview.field_completeness.items.map((item) => (
-            <div key={item.field} className="space-y-1.5">
-              <div className="flex items-baseline justify-between gap-2 text-sm">
-                <span>{FIELD_LABELS[item.field] ?? item.field}</span>
-                <span className="tabular-nums text-muted-foreground">
-                  {formatShare(item.share)} · {formatCount(item.filled)}
-                </span>
-              </div>
-              <div className="h-2 w-full rounded-full bg-muted">
-                <div
-                  className="h-2 rounded-full bg-primary"
-                  style={{ width: `${item.share * 100}%` }}
-                />
-              </div>
+      <Accordion type="single" collapsible className="rounded-xl border bg-card px-6">
+        <AccordionItem value="completeness" className="border-b-0">
+          <AccordionTrigger className="text-sm">
+            Qualidade dos dados: preenchimento dos campos
+          </AccordionTrigger>
+          <AccordionContent>
+            <div className="grid gap-4 pb-2 sm:grid-cols-2 lg:grid-cols-3">
+              {overview.field_completeness.items.map((item) => (
+                <div key={item.field} className="space-y-1.5">
+                  <div className="flex items-baseline justify-between gap-2 text-sm">
+                    <span>{FIELD_LABELS[item.field] ?? item.field}</span>
+                    <span className="tabular-nums text-muted-foreground">
+                      {formatShare(item.share)} · {formatCount(item.filled)}
+                    </span>
+                  </div>
+                  <div className="h-2 w-full rounded-full bg-muted">
+                    <div
+                      className="h-2 rounded-full bg-primary"
+                      style={{ width: `${item.share * 100}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      </PanelCard>
-    </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+    </>
   );
 }

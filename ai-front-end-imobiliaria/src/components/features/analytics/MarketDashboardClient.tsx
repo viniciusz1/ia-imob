@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 import {
   getMarketOverview,
   getMarketPricing,
@@ -72,18 +73,16 @@ export function MarketDashboardClient() {
 
       <section className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {overview.isPending || pricing.isPending ? (
-          <PanelSkeleton count={4} />
+          <PanelSkeleton count={4} className="h-44" />
         ) : (
           <>
             <StatTile
               hero
-              indicator={overview.data?.data.total_supply.indicator ?? "A1.01"}
               label="Imóveis em oferta"
               value={formatCount(overview.data?.data.total_supply.value)}
               context={agencyContext(overview.data?.data)}
             />
             <StatTile
-              indicator="A2.01 · A2.03"
               label="Preço mediano"
               value={formatCurrency(pricing.data?.data.median_price.value)}
               context={centralRangeContext(pricing.data?.data.central_price_range)}
@@ -91,7 +90,6 @@ export function MarketDashboardClient() {
               insufficientSample={pricing.data?.data.median_price.insufficient_sample}
             />
             <StatTile
-              indicator="A2.02"
               label="Preço médio"
               value={formatCurrency(pricing.data?.data.average_price.value)}
               context={outlierContext(pricing.data?.data.average_price.outliers_discarded)}
@@ -99,7 +97,6 @@ export function MarketDashboardClient() {
               insufficientSample={pricing.data?.data.average_price.insufficient_sample}
             />
             <StatTile
-              indicator="A2.04"
               label="Preço mediano por m²"
               value={formatSquareMetrePrice(
                 pricing.data?.data.median_price_per_square_metre.value,
@@ -120,16 +117,12 @@ export function MarketDashboardClient() {
       <div className="space-y-6">
         {overview.isPending ? (
           <div className="grid gap-4 lg:grid-cols-2">
-            <PanelSkeleton count={4} />
+            <PanelSkeleton count={2} />
           </div>
         ) : null}
         {overview.data ? <SupplyPanels overview={overview.data.data} /> : null}
 
-        {pricing.isPending ? (
-          <div className="grid gap-4 lg:grid-cols-2">
-            <PanelSkeleton count={2} />
-          </div>
-        ) : null}
+        {pricing.isPending ? <PanelSkeleton count={1} /> : null}
         {pricing.data ? <PricingPanels pricing={pricing.data.data} /> : null}
 
         {rankings.isPending ? (
@@ -143,11 +136,11 @@ export function MarketDashboardClient() {
   );
 }
 
-function PanelSkeleton({ count }: { count: number }) {
+function PanelSkeleton({ count, className = "h-72" }: { count: number; className?: string }) {
   return (
     <>
       {Array.from({ length: count }).map((_, index) => (
-        <Skeleton key={index} className="h-44 w-full rounded-xl" />
+        <Skeleton key={index} className={cn("w-full rounded-xl", className)} />
       ))}
     </>
   );
