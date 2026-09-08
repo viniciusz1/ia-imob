@@ -13,12 +13,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { cn } from "@/lib/utils";
 import {
   getMarketPropertyFilters,
   type MarketPropertyFiltersResponse,
 } from "@/services/marketPropertyService";
 import type { MarketAnalyticsFilters } from "@/types/analytics";
+import { MultiSelectFilter } from "./MultiSelectFilter";
+import { NumberRangeField } from "./NumberRangeField";
+import { formatAreaInput, formatCurrencyInput } from "./numberInput";
 import { EMPTY_FILTERS } from "./useMarketAnalyticsFilters";
 
 const ALL_CITIES = "__todas__";
@@ -58,9 +60,6 @@ export function MarketFiltersPanel({ filters, onChange }: MarketFiltersPanelProp
 
   const update = (patch: Partial<MarketAnalyticsFilters>) => onChange({ ...filters, ...patch });
 
-  const toggle = <TValue extends string | number>(list: TValue[], value: TValue): TValue[] =>
-    list.includes(value) ? list.filter((item) => item !== value) : [...list, value];
-
   return (
     <Card className="mb-6">
       <CardContent className="space-y-4 p-4">
@@ -87,43 +86,27 @@ export function MarketFiltersPanel({ filters, onChange }: MarketFiltersPanelProp
             </Select>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="analytics-min-price">Preço</Label>
-            <div className="flex gap-2">
-              <Input
-                id="analytics-min-price"
-                inputMode="numeric"
-                placeholder="Mínimo"
-                value={filters.min}
-                onChange={(event) => update({ min: event.target.value })}
-              />
-              <Input
-                inputMode="numeric"
-                placeholder="Máximo"
-                value={filters.max}
-                onChange={(event) => update({ max: event.target.value })}
-              />
-            </div>
-          </div>
+          <NumberRangeField
+            id="analytics-price"
+            label="Preço"
+            format={formatCurrencyInput}
+            minValue={filters.min}
+            maxValue={filters.max}
+            minPlaceholder="Mínimo"
+            maxPlaceholder="Máximo"
+            onChange={(range) => update({ min: range.min, max: range.max })}
+          />
 
-          <div className="space-y-2">
-            <Label htmlFor="analytics-min-area">Área (m²)</Label>
-            <div className="flex gap-2">
-              <Input
-                id="analytics-min-area"
-                inputMode="numeric"
-                placeholder="Mínima"
-                value={filters.area_min}
-                onChange={(event) => update({ area_min: event.target.value })}
-              />
-              <Input
-                inputMode="numeric"
-                placeholder="Máxima"
-                value={filters.area_max}
-                onChange={(event) => update({ area_max: event.target.value })}
-              />
-            </div>
-          </div>
+          <NumberRangeField
+            id="analytics-area"
+            label="Área"
+            format={formatAreaInput}
+            minValue={filters.area_min}
+            maxValue={filters.area_max}
+            minPlaceholder="Mínima"
+            maxPlaceholder="Máxima"
+            onChange={(range) => update({ area_min: range.min, area_max: range.max })}
+          />
 
           <div className="space-y-2">
             <Label htmlFor="analytics-start-date">Período das coletas</Label>
@@ -143,42 +126,43 @@ export function MarketFiltersPanel({ filters, onChange }: MarketFiltersPanelProp
           </div>
         </div>
 
-        <ChipGroup
-          label="Tipo de imóvel"
-          values={options?.tipos ?? []}
-          selected={filters.tipo}
-          onToggle={(value) => update({ tipo: toggle(filters.tipo, value) })}
-        />
-
-        <ChipGroup
-          label="Bairro"
-          values={neighbourhoods}
-          selected={filters.bairro}
-          onToggle={(value) => update({ bairro: toggle(filters.bairro, value) })}
-          limit={24}
-        />
-
-        <ChipGroup
-          label="Imobiliária"
-          values={options?.imobiliarias ?? []}
-          selected={filters.imobiliaria}
-          onToggle={(value) => update({ imobiliaria: toggle(filters.imobiliaria, value) })}
-        />
-
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <ChipGroup
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5">
+          <MultiSelectFilter
+            label="Tipo de imóvel"
+            placeholder="Todos os tipos"
+            values={options?.tipos ?? []}
+            selected={filters.tipo}
+            onChange={(tipo) => update({ tipo })}
+          />
+          <MultiSelectFilter
+            label="Bairro"
+            placeholder="Todos os bairros"
+            values={neighbourhoods}
+            selected={filters.bairro}
+            onChange={(bairro) => update({ bairro })}
+          />
+          <MultiSelectFilter
+            label="Imobiliária"
+            placeholder="Todas as imobiliárias"
+            values={options?.imobiliarias ?? []}
+            selected={filters.imobiliaria}
+            onChange={(imobiliaria) => update({ imobiliaria })}
+          />
+          <MultiSelectFilter
             label="Quartos"
+            placeholder="Qualquer quantidade"
             values={BEDROOM_OPTIONS}
             selected={filters.quartos}
-            renderLabel={(value) => (value === 5 ? "5+" : String(value))}
-            onToggle={(value) => update({ quartos: toggle(filters.quartos, value) })}
+            renderLabel={(value) => (value === 5 ? "5 ou mais" : String(value))}
+            onChange={(quartos) => update({ quartos })}
           />
-          <ChipGroup
+          <MultiSelectFilter
             label="Vagas"
+            placeholder="Qualquer quantidade"
             values={PARKING_OPTIONS}
             selected={filters.vagas}
-            renderLabel={(value) => (value === 3 ? "3+" : String(value))}
-            onToggle={(value) => update({ vagas: toggle(filters.vagas, value) })}
+            renderLabel={(value) => (value === 3 ? "3 ou mais" : String(value))}
+            onChange={(vagas) => update({ vagas })}
           />
         </div>
 
@@ -193,47 +177,3 @@ export function MarketFiltersPanel({ filters, onChange }: MarketFiltersPanelProp
   );
 }
 
-interface ChipGroupProps<TValue extends string | number> {
-  label: string;
-  values: TValue[];
-  selected: TValue[];
-  onToggle: (value: TValue) => void;
-  renderLabel?: (value: TValue) => string;
-  limit?: number;
-}
-
-function ChipGroup<TValue extends string | number>({
-  label,
-  values,
-  selected,
-  onToggle,
-  renderLabel,
-  limit,
-}: ChipGroupProps<TValue>) {
-  if (values.length === 0) return null;
-
-  const visible = limit === undefined ? values : values.slice(0, limit);
-
-  return (
-    <div className="space-y-2">
-      <Label>{label}</Label>
-      <div className="flex flex-wrap gap-2">
-        {visible.map((value) => (
-          <button
-            key={String(value)}
-            type="button"
-            onClick={() => onToggle(value)}
-            className={cn(
-              "rounded-full border px-3 py-1 text-sm transition-colors",
-              selected.includes(value)
-                ? "border-primary bg-primary text-primary-foreground"
-                : "border-input hover:bg-accent",
-            )}
-          >
-            {renderLabel ? renderLabel(value) : String(value)}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
