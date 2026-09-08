@@ -69,6 +69,21 @@ class MarketPriceRepository
     }
 
     /**
+     * @return array{0: float, 1: float}|null
+     */
+    public function fenceFor(MarketAnalyticsFilters $filters, PriceMetric $metric): ?array
+    {
+        $bounds = DB::query()
+            ->fromSub($this->values($filters, $metric), 'v')
+            ->selectRaw($this->boundsSelection())
+            ->first();
+
+        return (int) ($bounds->raw_count ?? 0) === 0
+            ? null
+            : $this->fence((float) $bounds->q1, (float) $bounds->q3);
+    }
+
+    /**
      * @return Collection<string, array{sample_size: int, variation: float|null}>
      */
     public function dispersionBy(
