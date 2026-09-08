@@ -3,7 +3,9 @@
 namespace Tests\Feature\Analytics;
 
 use App\Domain\Analytics\FixedRanges;
+use App\Domain\Analytics\LabelledCount;
 use App\Domain\Analytics\MarketAnalyticsFilters;
+use App\Domain\Analytics\PropertyTypeNormalizer;
 use App\Domain\Analytics\SupplyDimension;
 use App\Domain\Analytics\SupplyField;
 use App\Models\CrawlerRun;
@@ -40,6 +42,20 @@ class MarketSupplyRepositoryTest extends TestCase
         $this->assertSame('Jaraguá do Sul', $cities->first()->label);
         $this->assertSame(3, $cities->first()->count);
         $this->assertSame(0.75, $cities->first()->toArray(4)['share']);
+    }
+
+    public function test_types_are_counted_by_their_canonical_name(): void
+    {
+        $run = CrawlerRun::factory()->create();
+        MarketProperty::factory()->create(['crawler_run_id' => $run->id, 'tipo' => 'Casa']);
+        MarketProperty::factory()->create(['crawler_run_id' => $run->id, 'tipo' => 'casa residencial']);
+        MarketProperty::factory()->count(3)->create(['crawler_run_id' => $run->id, 'tipo' => 'C']);
+
+        $types = $this->repository->countByCanonicalType($this->everything)
+            ->mapWithKeys(fn (LabelledCount $type): array => [$type->label => $type->count]);
+
+        $this->assertSame(2, $types['Casa']);
+        $this->assertSame(3, $types[PropertyTypeNormalizer::UNCLASSIFIED]);
     }
 
     public function test_range_counts_place_each_record_in_a_single_bucket(): void

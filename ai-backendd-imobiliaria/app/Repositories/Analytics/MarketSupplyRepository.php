@@ -4,6 +4,7 @@ namespace App\Repositories\Analytics;
 
 use App\Domain\Analytics\LabelledCount;
 use App\Domain\Analytics\MarketAnalyticsFilters;
+use App\Domain\Analytics\PropertyTypeNormalizer;
 use App\Domain\Analytics\SupplyDimension;
 use App\Domain\Analytics\SupplyField;
 use Illuminate\Support\Collection;
@@ -32,6 +33,26 @@ class MarketSupplyRepository
             ->selectRaw("{$column} as label, count(*) as total")
             ->get()
             ->map(fn (object $row): LabelledCount => new LabelledCount((string) $row->label, (int) $row->total));
+    }
+
+    /**
+     * @return Collection<int, LabelledCount>
+     */
+    public function countByCanonicalType(MarketAnalyticsFilters $filters): Collection
+    {
+        $canonicalTypes = $this->stock->canonicalTypes();
+        $counts = [];
+
+        foreach ($this->countBy($filters, SupplyDimension::Type) as $rawType) {
+            $canonical = $canonicalTypes[$rawType->label] ?? PropertyTypeNormalizer::UNCLASSIFIED;
+            $counts[$canonical] = ($counts[$canonical] ?? 0) + $rawType->count;
+        }
+
+        arsort($counts);
+
+        return collect($counts)->map(
+            fn (int $count, string $label): LabelledCount => new LabelledCount($label, $count),
+        )->values();
     }
 
     /**
