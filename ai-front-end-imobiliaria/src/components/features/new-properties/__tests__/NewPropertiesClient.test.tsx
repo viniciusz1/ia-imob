@@ -225,7 +225,14 @@ describe("NewPropertiesClient", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /limpar filtros/i }));
     fireEvent.click(screen.getByRole("combobox", { name: "Filtrar por quartos" }));
-    fireEvent.click(await screen.findByRole("option", { name: "3+ quartos" }));
+    fireEvent.click(await screen.findByRole("option", { name: "3 quartos" }));
+
+    expect(screen.queryByRole("heading", { name: "Apartamento novo no Centro" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Casa com bom custo-benefício" })).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /limpar filtros/i }));
+    fireEvent.click(screen.getByRole("combobox", { name: "Filtrar por quartos" }));
+    fireEvent.click(await screen.findByRole("option", { name: "4 quartos" }));
 
     expect(screen.queryByRole("heading", { name: "Apartamento novo no Centro" })).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Casa com bom custo-benefício" })).toBeInTheDocument();

@@ -40,6 +40,9 @@ const FILTERS: Array<{ value: NewPropertyFlagFilter; label: string }> = [
   { value: "both", label: "Novidades com oportunidade" },
 ];
 
+const COUNT_FILTER_VALUES = ["1", "2", "3", "4", "5+"] as const;
+type CountFilterValue = "all" | (typeof COUNT_FILTER_VALUES)[number];
+
 function matchesFilter(property: NewPropertyItem, filter: NewPropertyFlagFilter): boolean {
   if (filter === "new") return property.is_new;
   if (filter === "opportunity") return property.is_opportunity;
@@ -74,6 +77,20 @@ function uniqueValues(values: string[]): string[] {
   return Array.from(new Set(values.filter(Boolean))).sort((first, second) =>
     first.localeCompare(second, "pt-BR"),
   );
+}
+
+function matchesCount(value: number, filter: CountFilterValue): boolean {
+  if (filter === "all") return true;
+  if (filter === "5+") return value >= 5;
+
+  return value === Number(filter);
+}
+
+function countLabel(value: (typeof COUNT_FILTER_VALUES)[number], unit: string): string {
+  if (value === "5+") return `5+ ${unit}`;
+  if (value === "1") return `1 ${unit.slice(0, -1)}`;
+
+  return `${value} ${unit}`;
 }
 
 function NewPropertiesSkeleton() {
@@ -177,9 +194,9 @@ export function NewPropertiesClient() {
   const [search, setSearch] = useState("");
   const [propertyType, setPropertyType] = useState("all");
   const [city, setCity] = useState("all");
-  const [minimumBedrooms, setMinimumBedrooms] = useState("all");
-  const [minimumBathrooms, setMinimumBathrooms] = useState("all");
-  const [minimumParkingSpaces, setMinimumParkingSpaces] = useState("all");
+  const [bedrooms, setBedrooms] = useState<CountFilterValue>("all");
+  const [bathrooms, setBathrooms] = useState<CountFilterValue>("all");
+  const [parkingSpaces, setParkingSpaces] = useState<CountFilterValue>("all");
   const query = useQuery({
     queryKey: ["new-properties"],
     queryFn: getNewProperties,
@@ -198,17 +215,17 @@ export function NewPropertiesClient() {
     Boolean(search.trim()) ||
     propertyType !== "all" ||
     city !== "all" ||
-    minimumBedrooms !== "all" ||
-    minimumBathrooms !== "all" ||
-    minimumParkingSpaces !== "all";
+    bedrooms !== "all" ||
+    bathrooms !== "all" ||
+    parkingSpaces !== "all";
 
   function clearPropertyFilters() {
     setSearch("");
     setPropertyType("all");
     setCity("all");
-    setMinimumBedrooms("all");
-    setMinimumBathrooms("all");
-    setMinimumParkingSpaces("all");
+    setBedrooms("all");
+    setBathrooms("all");
+    setParkingSpaces("all");
   }
 
   const filteredGroups = useMemo(() => {
@@ -223,9 +240,9 @@ export function NewPropertiesClient() {
             matchesSearch(property, search) &&
             (propertyType === "all" || property.tipo === propertyType) &&
             (city === "all" || property.cidade === city) &&
-            (minimumBedrooms === "all" || property.quartos >= Number(minimumBedrooms)) &&
-            (minimumBathrooms === "all" || property.banheiros >= Number(minimumBathrooms)) &&
-            (minimumParkingSpaces === "all" || property.vagas >= Number(minimumParkingSpaces)),
+            matchesCount(property.quartos, bedrooms) &&
+            matchesCount(property.banheiros, bathrooms) &&
+            matchesCount(property.vagas, parkingSpaces),
         ),
       }))
       .filter(
@@ -233,7 +250,7 @@ export function NewPropertiesClient() {
           group.properties.length > 0 ||
           (filter === "all" && !hasPropertyFilters && group.history.status === "insufficient"),
       );
-  }, [city, filter, hasPropertyFilters, minimumBathrooms, minimumBedrooms, minimumParkingSpaces, propertyType, query.data, search]);
+  }, [bathrooms, bedrooms, city, filter, hasPropertyFilters, parkingSpaces, propertyType, query.data, search]);
 
   return (
     <div className="mx-auto w-full max-w-[1500px] space-y-6">
@@ -323,7 +340,7 @@ export function NewPropertiesClient() {
             <SelectTrigger size="sm" aria-label="Filtrar por cidade">
               <SelectValue placeholder="Cidade" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent position="popper" align="start" className="max-h-64 overscroll-contain">
               <SelectItem value="all">Todas as cidades</SelectItem>
               {filterOptions.cities.map((option) => (
                 <SelectItem key={option} value={option}>{option}</SelectItem>
@@ -331,38 +348,38 @@ export function NewPropertiesClient() {
             </SelectContent>
           </Select>
 
-          <Select value={minimumBedrooms} onValueChange={setMinimumBedrooms}>
+          <Select value={bedrooms} onValueChange={(value) => setBedrooms(value as CountFilterValue)}>
             <SelectTrigger size="sm" aria-label="Filtrar por quartos">
               <SelectValue placeholder="Quartos" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Qualquer quarto</SelectItem>
-              {[1, 2, 3, 4, 5].map((value) => (
-                <SelectItem key={value} value={String(value)}>{value}+ quartos</SelectItem>
+              {COUNT_FILTER_VALUES.map((value) => (
+                <SelectItem key={value} value={value}>{countLabel(value, "quartos")}</SelectItem>
               ))}
             </SelectContent>
           </Select>
 
-          <Select value={minimumBathrooms} onValueChange={setMinimumBathrooms}>
+          <Select value={bathrooms} onValueChange={(value) => setBathrooms(value as CountFilterValue)}>
             <SelectTrigger size="sm" aria-label="Filtrar por banheiros">
               <SelectValue placeholder="Banheiros" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Qualquer banheiro</SelectItem>
-              {[1, 2, 3, 4].map((value) => (
-                <SelectItem key={value} value={String(value)}>{value}+ banheiros</SelectItem>
+              {COUNT_FILTER_VALUES.map((value) => (
+                <SelectItem key={value} value={value}>{countLabel(value, "banheiros")}</SelectItem>
               ))}
             </SelectContent>
           </Select>
 
-          <Select value={minimumParkingSpaces} onValueChange={setMinimumParkingSpaces}>
+          <Select value={parkingSpaces} onValueChange={(value) => setParkingSpaces(value as CountFilterValue)}>
             <SelectTrigger size="sm" aria-label="Filtrar por vagas">
               <SelectValue placeholder="Vagas" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Qualquer vaga</SelectItem>
-              {[1, 2, 3, 4].map((value) => (
-                <SelectItem key={value} value={String(value)}>{value}+ vagas</SelectItem>
+              {COUNT_FILTER_VALUES.map((value) => (
+                <SelectItem key={value} value={value}>{countLabel(value, "vagas")}</SelectItem>
               ))}
             </SelectContent>
           </Select>
