@@ -7,14 +7,24 @@ import {
   CircleAlert,
   Loader2,
   RefreshCw,
+  Search,
   Sparkles,
   TrendingDown,
+  X,
 } from "lucide-react";
 
 import { NewPropertyCard } from "./NewPropertyCard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getNewProperties } from "@/services/newPropertiesService";
 import type {
@@ -36,6 +46,34 @@ function matchesFilter(property: NewPropertyItem, filter: NewPropertyFlagFilter)
   if (filter === "both") return property.is_new && property.is_opportunity;
 
   return true;
+}
+
+function normalize(value: string): string {
+  return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("pt-BR");
+}
+
+function matchesSearch(property: NewPropertyItem, search: string): boolean {
+  if (!search.trim()) return true;
+
+  const searchableText = [
+    property.title,
+    property.tipo,
+    property.purpose,
+    property.bairro,
+    property.cidade,
+    property.imobiliaria,
+    property.descricao,
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  return normalize(searchableText).includes(normalize(search.trim()));
+}
+
+function uniqueValues(values: string[]): string[] {
+  return Array.from(new Set(values.filter(Boolean))).sort((first, second) =>
+    first.localeCompare(second, "pt-BR"),
+  );
 }
 
 function NewPropertiesSkeleton() {
@@ -70,9 +108,6 @@ function AgencyGroup({ group }: { group: NewPropertyAgencyGroup }) {
                 Imóveis de
               </p>
               <h2 className="text-xl font-semibold leading-tight">{group.crawl_agency.name}</h2>
-              <p className="text-sm text-muted-foreground">
-                Veja os imóveis que merecem sua atenção.
-              </p>
             </div>
           </div>
           <div className="flex flex-wrap gap-2 md:justify-end">
@@ -139,10 +174,42 @@ function AgencyGroup({ group }: { group: NewPropertyAgencyGroup }) {
 
 export function NewPropertiesClient() {
   const [filter, setFilter] = useState<NewPropertyFlagFilter>("all");
+  const [search, setSearch] = useState("");
+  const [propertyType, setPropertyType] = useState("all");
+  const [city, setCity] = useState("all");
+  const [minimumBedrooms, setMinimumBedrooms] = useState("all");
+  const [minimumBathrooms, setMinimumBathrooms] = useState("all");
+  const [minimumParkingSpaces, setMinimumParkingSpaces] = useState("all");
   const query = useQuery({
     queryKey: ["new-properties"],
     queryFn: getNewProperties,
   });
+
+  const filterOptions = useMemo(() => {
+    const properties = query.data?.data.flatMap((group) => group.properties) ?? [];
+
+    return {
+      types: uniqueValues(properties.map((property) => property.tipo)),
+      cities: uniqueValues(properties.map((property) => property.cidade)),
+    };
+  }, [query.data]);
+
+  const hasPropertyFilters =
+    Boolean(search.trim()) ||
+    propertyType !== "all" ||
+    city !== "all" ||
+    minimumBedrooms !== "all" ||
+    minimumBathrooms !== "all" ||
+    minimumParkingSpaces !== "all";
+
+  function clearPropertyFilters() {
+    setSearch("");
+    setPropertyType("all");
+    setCity("all");
+    setMinimumBedrooms("all");
+    setMinimumBathrooms("all");
+    setMinimumParkingSpaces("all");
+  }
 
   const filteredGroups = useMemo(() => {
     if (!query.data) return [];
@@ -150,14 +217,23 @@ export function NewPropertiesClient() {
     return query.data.data
       .map((group) => ({
         ...group,
-        properties: group.properties.filter((property) => matchesFilter(property, filter)),
+        properties: group.properties.filter(
+          (property) =>
+            matchesFilter(property, filter) &&
+            matchesSearch(property, search) &&
+            (propertyType === "all" || property.tipo === propertyType) &&
+            (city === "all" || property.cidade === city) &&
+            (minimumBedrooms === "all" || property.quartos >= Number(minimumBedrooms)) &&
+            (minimumBathrooms === "all" || property.banheiros >= Number(minimumBathrooms)) &&
+            (minimumParkingSpaces === "all" || property.vagas >= Number(minimumParkingSpaces)),
+        ),
       }))
       .filter(
         (group) =>
           group.properties.length > 0 ||
-          (filter === "all" && group.history.status === "insufficient"),
+          (filter === "all" && !hasPropertyFilters && group.history.status === "insufficient"),
       );
-  }, [filter, query.data]);
+  }, [city, filter, hasPropertyFilters, minimumBathrooms, minimumBedrooms, minimumParkingSpaces, propertyType, query.data, search]);
 
   return (
     <div className="mx-auto w-full max-w-[1500px] space-y-6">
@@ -198,25 +274,105 @@ export function NewPropertiesClient() {
       </header>
 
       <nav
-        className="flex flex-col gap-3 rounded-xl border bg-card p-3 shadow-sm sm:flex-row sm:items-center sm:justify-between"
+        className="rounded-xl border bg-card p-3 shadow-sm"
         aria-label="Filtrar imóveis por classificação"
       >
-        <p className="px-2 text-sm font-medium text-muted-foreground">Encontre o que mais combina com você</p>
-        <div className="flex flex-wrap gap-2">
-          {FILTERS.map((option) => (
-            <Button
-              key={option.value}
-              type="button"
-              size="sm"
-              variant={filter === option.value ? "default" : "ghost"}
-              aria-pressed={filter === option.value}
-              onClick={() => setFilter(option.value)}
-            >
-              {option.value === "opportunity" && <TrendingDown className="size-4" aria-hidden="true" />}
-              {option.value === "new" && <Sparkles className="size-4" aria-hidden="true" />}
-              {option.label}
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="relative w-full lg:max-w-md">
+            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
+            <Input
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              aria-label="Buscar imóveis"
+              placeholder="Buscar por imóvel, bairro ou cidade"
+              className="pl-9"
+            />
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {FILTERS.map((option) => (
+              <Button
+                key={option.value}
+                type="button"
+                size="sm"
+                variant={filter === option.value ? "default" : "ghost"}
+                aria-pressed={filter === option.value}
+                onClick={() => setFilter(option.value)}
+              >
+                {option.value === "opportunity" && <TrendingDown className="size-4" aria-hidden="true" />}
+                {option.value === "new" && <Sparkles className="size-4" aria-hidden="true" />}
+                {option.label}
+              </Button>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-3 flex flex-wrap items-center gap-2 border-t pt-3">
+          <Select value={propertyType} onValueChange={setPropertyType}>
+            <SelectTrigger size="sm" aria-label="Filtrar por tipo">
+              <SelectValue placeholder="Tipo" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os tipos</SelectItem>
+              {filterOptions.types.map((type) => (
+                <SelectItem key={type} value={type}>{type}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={city} onValueChange={setCity}>
+            <SelectTrigger size="sm" aria-label="Filtrar por cidade">
+              <SelectValue placeholder="Cidade" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas as cidades</SelectItem>
+              {filterOptions.cities.map((option) => (
+                <SelectItem key={option} value={option}>{option}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={minimumBedrooms} onValueChange={setMinimumBedrooms}>
+            <SelectTrigger size="sm" aria-label="Filtrar por quartos">
+              <SelectValue placeholder="Quartos" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Qualquer quarto</SelectItem>
+              {[1, 2, 3, 4, 5].map((value) => (
+                <SelectItem key={value} value={String(value)}>{value}+ quartos</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={minimumBathrooms} onValueChange={setMinimumBathrooms}>
+            <SelectTrigger size="sm" aria-label="Filtrar por banheiros">
+              <SelectValue placeholder="Banheiros" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Qualquer banheiro</SelectItem>
+              {[1, 2, 3, 4].map((value) => (
+                <SelectItem key={value} value={String(value)}>{value}+ banheiros</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={minimumParkingSpaces} onValueChange={setMinimumParkingSpaces}>
+            <SelectTrigger size="sm" aria-label="Filtrar por vagas">
+              <SelectValue placeholder="Vagas" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Qualquer vaga</SelectItem>
+              {[1, 2, 3, 4].map((value) => (
+                <SelectItem key={value} value={String(value)}>{value}+ vagas</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {hasPropertyFilters && (
+            <Button type="button" size="sm" variant="ghost" onClick={clearPropertyFilters}>
+              <X className="size-4" aria-hidden="true" />
+              Limpar filtros
             </Button>
-          ))}
+          )}
         </div>
       </nav>
 

@@ -52,8 +52,13 @@ const opportunityProperty: NewPropertyItem = {
   image: "",
   title: "Casa com bom custo-benefício",
   tipo: "Casa",
+  bairro: "América",
+  cidade: "Blumenau",
   preco: 620000,
   area: 155,
+  quartos: 4,
+  banheiros: 3,
+  vagas: 2,
   link_imovel: "https://imobiliaria.example.com/imovel/11",
   is_new: false,
   new_reason: "observed_in_window",
@@ -203,6 +208,27 @@ describe("NewPropertiesClient", () => {
     expect(screen.queryByRole("heading", { name: "Apartamento novo no Centro" })).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Casa com bom custo-benefício" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Imobiliária Exemplo" })).toBeInTheDocument();
+  });
+
+  it("searches listings and applies the main property filters", async () => {
+    vi.mocked(getNewProperties).mockResolvedValue(response);
+
+    renderClient();
+    await screen.findByRole("heading", { name: "Apartamento novo no Centro" });
+
+    fireEvent.change(screen.getByRole("textbox", { name: "Buscar imóveis" }), {
+      target: { value: "centro" },
+    });
+
+    expect(screen.getByRole("heading", { name: "Apartamento novo no Centro" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Casa com bom custo-benefício" })).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /limpar filtros/i }));
+    fireEvent.click(screen.getByRole("combobox", { name: "Filtrar por quartos" }));
+    fireEvent.click(await screen.findByRole("option", { name: "3+ quartos" }));
+
+    expect(screen.queryByRole("heading", { name: "Apartamento novo no Centro" })).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Casa com bom custo-benefício" })).toBeInTheDocument();
   });
 
   it("shows the empty state when there are no classified properties", async () => {
