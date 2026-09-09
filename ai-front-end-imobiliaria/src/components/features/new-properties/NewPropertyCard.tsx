@@ -19,7 +19,6 @@ import type { NewPropertyItem } from "@/types/newProperties";
 
 interface NewPropertyCardProps {
   property: NewPropertyItem;
-  publishedAt: string;
 }
 
 function formatCurrency(value: number): string {
@@ -30,30 +29,18 @@ function formatCurrency(value: number): string {
   }).format(value);
 }
 
-function formatDate(value: string): string {
-  return new Intl.DateTimeFormat("pt-BR", {
-    dateStyle: "short",
-    timeStyle: "short",
-    timeZone: "America/Sao_Paulo",
-  }).format(new Date(value));
-}
-
 function opportunitySummary(property: NewPropertyItem): string | null {
   if (!property.is_opportunity) return null;
-  if (property.opportunity_explanation) return property.opportunity_explanation;
 
-  if (
-    property.price_advantage_percentage !== null &&
-    property.comparable_count > 0
-  ) {
+  if (property.price_advantage_percentage !== null) {
     const advantage = new Intl.NumberFormat("pt-BR", {
       maximumFractionDigits: 1,
     }).format(property.price_advantage_percentage);
 
-    return `${advantage}% abaixo da mediana de ${property.comparable_count} imóveis comparáveis`;
+    return `${advantage}% abaixo da referência de imóveis parecidos.`;
   }
 
-  return "Preço por m² abaixo de imóveis semelhantes";
+  return "Preço por m² abaixo da referência de imóveis parecidos.";
 }
 
 function propertyTitle(property: NewPropertyItem): string {
@@ -66,13 +53,13 @@ function propertyTitle(property: NewPropertyItem): string {
   return location ? `${type} em ${location}` : type;
 }
 
-export function NewPropertyCard({ property, publishedAt }: NewPropertyCardProps) {
+export function NewPropertyCard({ property }: NewPropertyCardProps) {
   const summary = opportunitySummary(property);
   const hasExternalLink = /^https?:\/\//i.test(property.link_imovel);
 
   return (
-    <Card className="group h-full overflow-hidden py-0 transition-shadow hover:shadow-md">
-      <div className="relative h-48 overflow-hidden bg-muted">
+    <Card className="group h-full overflow-hidden border-border/80 py-0 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg">
+      <div className="relative h-56 overflow-hidden bg-muted">
         {property.image ? (
           <ImageWithFallback
             src={property.image}
@@ -163,30 +150,24 @@ export function NewPropertyCard({ property, publishedAt }: NewPropertyCardProps)
           )}
         </div>
 
-        {property.is_new && (
-          <div className="rounded-lg border border-sky-200 bg-sky-50 p-3 text-sky-900 dark:border-sky-900 dark:bg-sky-950/40 dark:text-sky-100">
-            <p className="text-sm font-medium">Por que é novo?</p>
-            <p className="mt-1.5 text-xs leading-5">
-              A identidade estável deste anúncio não apareceu em {property.history_snapshot_count}{" "}
-              {property.history_snapshot_count === 1
-                ? "snapshot publicado anterior"
-                : "snapshots publicados anteriores"}{" "}
-              da janela de 30 dias.
-            </p>
-          </div>
-        )}
-
         {property.is_opportunity && (
-          <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-emerald-900 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-100">
-            <div className="flex items-center justify-between gap-3">
-              <span className="text-sm font-medium">Custo-benefício</span>
-              {property.opportunity_score !== null && (
-                <Badge variant="outline" className="border-emerald-400 text-current">
-                  Score {property.opportunity_score}/100
-                </Badge>
-              )}
+          <div className="rounded-xl border border-emerald-200 bg-emerald-50/80 p-3.5 text-emerald-950 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-50">
+            <div className="flex gap-3">
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/60 dark:text-emerald-200">
+                <TrendingDown className="size-4" aria-hidden="true" />
+              </span>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-sm font-semibold">Boa oportunidade</span>
+                  {property.opportunity_score !== null && (
+                    <Badge variant="outline" className="shrink-0 border-emerald-400 bg-transparent text-current">
+                      Score {property.opportunity_score}/100
+                    </Badge>
+                  )}
+                </div>
+                {summary && <p className="mt-1 text-xs leading-5 text-emerald-900/80 dark:text-emerald-100/80">{summary}</p>}
+              </div>
             </div>
-            {summary && <p className="mt-1.5 text-xs leading-5">{summary}</p>}
           </div>
         )}
 
@@ -196,10 +177,7 @@ export function NewPropertyCard({ property, publishedAt }: NewPropertyCardProps)
           </p>
         )}
 
-        <div className="mt-auto space-y-3 border-t pt-3">
-          <p className="text-xs text-muted-foreground">
-            Snapshot publicado em {formatDate(publishedAt)}
-          </p>
+        <div className="mt-auto border-t pt-3">
           {hasExternalLink ? (
             <Button asChild className="w-full">
               <a href={property.link_imovel} target="_blank" rel="noreferrer">

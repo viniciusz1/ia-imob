@@ -52,7 +52,7 @@ Se não houver Snapshot Publicado anterior na janela, nenhum anúncio recebe aut
 - a comparação usa `listing_identity_id`, e não preço, descrição, foto, URL ou o ID temporário da linha coletada;
 - a API informa janela, snapshots comparados, identidades observadas e o estado `sufficient` ou `insufficient`;
 - um índice parcial em `(crawl_agency_id, published_at)` acelera a busca desse histórico no PostgreSQL;
-- a tela mostra, por imobiliária, exatamente qual histórico foi usado na classificação;
+- a API mantém os detalhes do histórico para auditoria, enquanto a tela do cliente mostra somente o resultado da classificação e um aviso simples quando ainda não há dados suficientes;
 - testes automatizados cobrem ausência de histórico, limite exato de 30 dias, isolamento entre imobiliárias, exclusão de snapshots não publicados e alterações no mesmo anúncio.
 
 As capturas do antes e depois e o roteiro simples de apresentação estão em [Evidências da preparação do histórico](../../evidence/new-properties-history/README.md).

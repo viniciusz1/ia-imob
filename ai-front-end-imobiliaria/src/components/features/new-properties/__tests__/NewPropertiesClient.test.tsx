@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -152,52 +152,42 @@ describe("NewPropertiesClient", () => {
     vi.mocked(getNewProperties).mockReset();
   });
 
-  it("groups cards by Crawl Agency and displays both classifications", async () => {
+  it("shows a customer-friendly showcase grouped by real-estate agency", async () => {
     vi.mocked(getNewProperties).mockResolvedValue(response);
 
     renderClient();
 
+    expect(await screen.findByText("Seu radar imobiliário")).toBeInTheDocument();
+    expect(screen.getByText("Descubra imóveis recém-encontrados e oportunidades que combinam com a sua busca.")).toBeInTheDocument();
     expect(await screen.findByRole("heading", { name: "Imobiliária Exemplo" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Apartamento novo no Centro" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Casa com bom custo-benefício" })).toBeInTheDocument();
     expect(screen.getByText("Score 80/100")).toBeInTheDocument();
-    expect(screen.getByText(/20% abaixo da mediana de 9 imóveis comparáveis/i)).toBeInTheDocument();
+    expect(screen.getByText(/20% abaixo da referência de imóveis parecidos/i)).toBeInTheDocument();
     expect(screen.getAllByRole("link", { name: /ver anúncio original/i })).toHaveLength(2);
   });
 
-  it("explains the 30-day history used to classify a new listing", async () => {
+  it("keeps technical history details out of the customer-facing screen", async () => {
     vi.mocked(getNewProperties).mockResolvedValue(response);
 
     renderClient();
 
-    const history = await screen.findByRole("region", {
-      name: "Histórico comparado de Imobiliária Exemplo",
-    });
+    await screen.findByRole("heading", { name: "Apartamento novo no Centro" });
 
-    expect(within(history).getByText(/Snapshot atual #91/)).toBeInTheDocument();
-    expect(within(history).getByText("Histórico suficiente")).toBeInTheDocument();
-    expect(within(history).getByText("30 dias")).toBeInTheDocument();
-    expect(within(history).getByText("28/07/2026 até 27/08/2026")).toBeInTheDocument();
-    expect(within(history).getByText("4 comparados")).toBeInTheDocument();
-    expect(within(history).getByText("#70, #76, #82, #88")).toBeInTheDocument();
-    expect(within(history).getByText("135")).toBeInTheDocument();
-    expect(within(history).getByText(/Quando a identidade estável é preservada, alterações de preço, descrição, fotos ou URL não fazem o anúncio parecer novo/i)).toBeInTheDocument();
-    expect(screen.getByText(/não apareceu em 4 snapshots publicados anteriores da janela de 30 dias/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Snapshot atual/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Histórico suficiente/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/identidade estável/i)).not.toBeInTheDocument();
+    expect(screen.queryByText("Por que é novo?")).not.toBeInTheDocument();
+    expect(screen.queryByText(/atualizado em/i)).not.toBeInTheDocument();
   });
 
-  it("reports insufficient history without displaying a false New badge", async () => {
+  it("uses a friendly message when there is not enough history for new listings", async () => {
     vi.mocked(getNewProperties).mockResolvedValue(insufficientResponse);
 
     renderClient();
 
-    const history = await screen.findByRole("region", {
-      name: "Histórico comparado de Imobiliária Sem Histórico",
-    });
-
-    expect(within(history).getByText("Histórico insuficiente")).toBeInTheDocument();
-    expect(within(history).getByText("0 comparados")).toBeInTheDocument();
-    expect(within(history).getByText("Nenhum snapshot anterior")).toBeInTheDocument();
-    expect(within(history).getByText(/nenhum anúncio é marcado como Novo/i)).toBeInTheDocument();
+    expect(await screen.findByText("Novidades ainda não disponíveis")).toBeInTheDocument();
+    expect(screen.getByText(/ainda precisa de mais informações para indicar novidades com segurança/i)).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Casa no primeiro snapshot" })).toBeInTheDocument();
     expect(screen.queryByText(/^Novo$/)).not.toBeInTheDocument();
   });

@@ -2,6 +2,8 @@
 
 Estas imagens foram capturadas com o mesmo usuário, o mesmo backup PostgreSQL e a mesma Imobiliária de Origem.
 
+> Nota: estas capturas registram a demonstração técnica da entrega de histórico. Na tela voltada ao cliente, os IDs, horários e demais detalhes internos foram removidos posteriormente; o resultado continua sendo calculado pela mesma regra.
+
 - **Antes:** commit `d45509e`, após a primeira versão do Módulo de Novos Imóveis e antes da preparação explícita do histórico.
 - **Depois:** commit `db3c531`, após a entrega de preparação do histórico.
 
