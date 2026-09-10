@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { DistributionBars } from "../DistributionBars";
 
@@ -18,7 +18,7 @@ describe("DistributionBars", () => {
     expect(screen.getByText("261 · 6,4%")).toBeInTheDocument();
   });
 
-  it("respects the requested limit", () => {
+  it("shows every item when the list fits on a single page", () => {
     render(
       <DistributionBars
         items={[
@@ -26,12 +26,30 @@ describe("DistributionBars", () => {
           { label: "Amizade", count: 6, share: 0.3 },
           { label: "Vila Nova", count: 4, share: 0.2 },
         ]}
-        limit={2}
       />,
     );
 
     expect(screen.getByText("Centro")).toBeInTheDocument();
-    expect(screen.queryByText("Vila Nova")).not.toBeInTheDocument();
+    expect(screen.getByText("Vila Nova")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Próxima" })).not.toBeInTheDocument();
+  });
+
+  it("paginates a long distribution instead of silently dropping items", () => {
+    const items = Array.from({ length: 183 }, (_, index) => ({
+      label: `Bairro ${index + 1}`,
+      count: 183 - index,
+      share: (183 - index) / 16836,
+    }));
+
+    render(<DistributionBars items={items} noun="bairros" />);
+
+    expect(screen.getByText("Bairro 20")).toBeInTheDocument();
+    expect(screen.queryByText("Bairro 21")).not.toBeInTheDocument();
+    expect(screen.getByText("1-20 de 183 bairros")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Próxima" }));
+
+    expect(screen.getByText("Bairro 21")).toBeInTheDocument();
   });
 
   it("explains an empty distribution", () => {

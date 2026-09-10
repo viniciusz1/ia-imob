@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Table,
   TableBody,
@@ -8,6 +10,7 @@ import {
 } from "@/components/ui/table";
 import type { MarketRankings, NeighbourhoodRankingItem } from "@/types/analytics";
 import { ListingRows } from "./ListingRows";
+import { PaginationFooter, usePagedItems } from "./PagedList";
 import { TabbedPanel } from "./TabbedPanel";
 import { formatCount, formatCurrency, formatSquareMetrePrice } from "./format";
 
@@ -81,6 +84,8 @@ function NeighbourhoodRanking({
   items: NeighbourhoodRankingItem[];
   format: (value: number | null) => string;
 }) {
+  const paged = usePagedItems(items);
+
   if (items.length === 0) {
     return (
       <p className="text-sm text-muted-foreground">
@@ -90,6 +95,7 @@ function NeighbourhoodRanking({
   }
 
   return (
+    <div>
     <Table>
       <TableHeader>
         <TableRow>
@@ -100,9 +106,11 @@ function NeighbourhoodRanking({
         </TableRow>
       </TableHeader>
       <TableBody>
-        {items.map((item, index) => (
+        {paged.pageItems.map((item, index) => (
           <TableRow key={item.label}>
-            <TableCell className="tabular-nums text-muted-foreground">{index + 1}</TableCell>
+            <TableCell className="tabular-nums text-muted-foreground">
+              {paged.firstIndex + index + 1}
+            </TableCell>
             <TableCell className="font-medium">{item.label}</TableCell>
             <TableCell className="text-right tabular-nums">{format(item.median)}</TableCell>
             <TableCell className="text-right tabular-nums text-muted-foreground">
@@ -112,5 +120,7 @@ function NeighbourhoodRanking({
         ))}
       </TableBody>
     </Table>
+    <PaginationFooter paged={paged} noun="bairros" />
+    </div>
   );
 }

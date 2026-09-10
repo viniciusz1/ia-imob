@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Table,
   TableBody,
@@ -7,6 +9,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import type { DispersionItem, MarketPricing, PriceByGroupItem } from "@/types/analytics";
+import { PaginationFooter, usePagedItems } from "./PagedList";
 import { TabbedPanel } from "./TabbedPanel";
 import { EMPTY_VALUE, formatCount, formatCurrency, formatShare, formatSquareMetrePrice } from "./format";
 
@@ -45,11 +48,14 @@ function PriceByGroupTable({
   items: PriceByGroupItem[];
   showSquareMetre?: boolean;
 }) {
+  const paged = usePagedItems(items);
+
   if (items.length === 0) {
     return <p className="text-sm text-muted-foreground">Sem imóveis neste recorte.</p>;
   }
 
   return (
+    <div>
     <Table>
       <TableHeader>
         <TableRow>
@@ -60,7 +66,7 @@ function PriceByGroupTable({
         </TableRow>
       </TableHeader>
       <TableBody>
-        {items.map((item) => (
+        {paged.pageItems.map((item) => (
           <TableRow key={item.label}>
             <TableCell className="font-medium">{item.label}</TableCell>
             <TableCell className="text-right tabular-nums">
@@ -78,15 +84,20 @@ function PriceByGroupTable({
         ))}
       </TableBody>
     </Table>
+    <PaginationFooter paged={paged} noun="grupos" />
+    </div>
   );
 }
 
 function DispersionTable({ items }: { items: DispersionItem[] }) {
+  const paged = usePagedItems(items);
+
   if (items.length === 0) {
     return <p className="text-sm text-muted-foreground">Sem bairros neste recorte.</p>;
   }
 
   return (
+    <div>
     <Table>
       <TableHeader>
         <TableRow>
@@ -96,7 +107,7 @@ function DispersionTable({ items }: { items: DispersionItem[] }) {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {items.slice(0, 12).map((item) => (
+        {paged.pageItems.map((item) => (
           <TableRow key={item.label}>
             <TableCell className="font-medium">{item.label}</TableCell>
             <TableCell className="text-right tabular-nums">
@@ -109,5 +120,7 @@ function DispersionTable({ items }: { items: DispersionItem[] }) {
         ))}
       </TableBody>
     </Table>
+    <PaginationFooter paged={paged} noun="bairros" />
+    </div>
   );
 }

@@ -20,17 +20,17 @@ export function SupplyPanels({ overview }: { overview: MarketOverview }) {
             {
               value: "city",
               label: "Cidade",
-              content: <DistributionBars items={overview.by_city.items} />,
+              content: <DistributionBars items={overview.by_city.items} noun="cidades" />,
             },
             {
               value: "neighbourhood",
               label: "Bairro",
-              content: <DistributionBars items={overview.by_neighbourhood.items} />,
+              content: <DistributionBars items={overview.by_neighbourhood.items} noun="bairros" />,
             },
             {
               value: "agency",
               label: "Imobiliária",
-              content: <DistributionBars items={overview.by_agency.items} />,
+              content: <DistributionBars items={overview.by_agency.items} noun="imobiliárias" />,
             },
           ]}
         />
@@ -42,27 +42,27 @@ export function SupplyPanels({ overview }: { overview: MarketOverview }) {
             {
               value: "type",
               label: "Tipo",
-              content: <DistributionBars items={overview.by_type.items} />,
+              content: <DistributionBars items={overview.by_type.items} noun="tipos" />,
             },
             {
               value: "price",
               label: "Preço",
-              content: <DistributionBars items={overview.by_price_range.items} />,
+              content: <DistributionBars items={overview.by_price_range.items} noun="faixas" />,
             },
             {
               value: "area",
               label: "Área",
-              content: <DistributionBars items={overview.by_area_range.items} />,
+              content: <DistributionBars items={overview.by_area_range.items} noun="faixas" />,
             },
             {
               value: "bedrooms",
               label: "Quartos",
-              content: <DistributionBars items={overview.by_bedrooms.items} />,
+              content: <DistributionBars items={overview.by_bedrooms.items} noun="faixas" />,
             },
             {
               value: "parking",
               label: "Vagas",
-              content: <DistributionBars items={overview.by_parking_spaces.items} />,
+              content: <DistributionBars items={overview.by_parking_spaces.items} noun="faixas" />,
             },
           ]}
         />
