@@ -45,8 +45,8 @@ export function MarketDashboardClient() {
   const meta = overview.data?.meta ?? pricing.data?.meta ?? null;
 
   return (
-    <div className="container mx-auto py-8">
-      <div className="flex justify-between items-center mb-6">
+    <div className="container mx-auto px-4 py-8">
+      <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Análise de mercado</h1>
           <p className="text-muted-foreground mt-1">
@@ -54,7 +54,7 @@ export function MarketDashboardClient() {
           </p>
         </div>
         {meta === null ? null : (
-          <p className="text-sm text-muted-foreground">
+          <p className="shrink-0 text-sm text-muted-foreground">
             Coleta de referência: {formatReferenceDate(meta.data_reference_date)}
           </p>
         )}

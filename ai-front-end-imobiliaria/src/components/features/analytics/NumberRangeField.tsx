@@ -31,12 +31,14 @@ export function NumberRangeField({
       <div className="flex gap-2">
         <Input
           id={id}
+          className="min-w-0"
           inputMode="numeric"
           placeholder={minPlaceholder}
           value={format(minValue)}
           onChange={(event) => onChange({ min: toDigits(event.target.value), max: maxValue })}
         />
         <Input
+          className="min-w-0"
           inputMode="numeric"
           placeholder={maxPlaceholder}
           value={format(maxValue)}

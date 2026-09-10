@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { cn } from "@/lib/utils";
 
 interface MultiSelectFilterProps<TValue extends string | number> {
   label: string;
@@ -50,13 +51,16 @@ export function MultiSelectFilter<TValue extends string | number>({
         <DropdownMenuTrigger asChild>
           <Button
             variant="outline"
-            className="w-full justify-between border-input bg-transparent font-normal hover:bg-accent/50 dark:bg-input/30 dark:hover:bg-input/50"
+            className="w-full min-w-0 justify-between border-input bg-transparent font-normal hover:bg-accent/50 dark:bg-input/30 dark:hover:bg-input/50"
             disabled={values.length === 0}
           >
-            <span className={selected.length === 0 ? "text-muted-foreground" : undefined}>
+            <span
+              className={cn("truncate", selected.length === 0 && "text-muted-foreground")}
+              title={summary}
+            >
               {summary}
             </span>
-            <ChevronDown className="h-4 w-4 opacity-50" />
+            <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-(--radix-dropdown-menu-trigger-width)">

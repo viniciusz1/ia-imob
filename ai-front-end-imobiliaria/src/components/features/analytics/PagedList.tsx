@@ -47,7 +47,7 @@ export function PaginationFooter<T>({ paged, noun }: PaginationFooterProps<T>) {
   const to = paged.firstIndex + paged.pageItems.length;
 
   return (
-    <div className="mt-4 flex items-center justify-between gap-2">
+    <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
       <p className="text-sm text-muted-foreground tabular-nums">
         {from}-{to} de {formatCount(paged.total)} {noun}
       </p>
