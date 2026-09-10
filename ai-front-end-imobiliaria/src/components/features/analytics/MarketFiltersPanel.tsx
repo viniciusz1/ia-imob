@@ -151,15 +151,20 @@ export function MarketFiltersPanel({ filters, onChange }: MarketFiltersPanelProp
 
             <div className="space-y-2">
               <Label htmlFor="analytics-start-date">Período das coletas</Label>
-              <div className="flex gap-2">
+              {/* Um campo de data nativo pede 152px para o indicador não cobrir
+                  o texto, e dois lado a lado nesta coluna ficam com menos de
+                  120px. Empilhados, cada um recebe a coluna inteira. */}
+              <div className="flex flex-col gap-2">
                 <Input
                   id="analytics-start-date"
+                  aria-label="Data inicial das coletas"
                   className="min-w-0"
                   type="date"
                   value={filters.data_inicio}
                   onChange={(event) => update({ data_inicio: event.target.value })}
                 />
                 <Input
+                  aria-label="Data final das coletas"
                   className="min-w-0"
                   type="date"
                   value={filters.data_fim}
