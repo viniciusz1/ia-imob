@@ -24,7 +24,7 @@ export function StatTile({
     : context;
 
   return (
-    <Card className={cn("gap-0 py-5", hero && "border-primary/30 bg-primary/5")}>
+    <Card className="gap-0 py-5">
       <CardContent className="flex h-full flex-col justify-between gap-3 px-5">
         <p className="text-sm font-medium text-muted-foreground">{label}</p>
 
