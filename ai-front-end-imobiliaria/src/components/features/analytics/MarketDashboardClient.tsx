@@ -61,7 +61,7 @@ export function MarketDashboardClient() {
 
       <MarketFiltersPanel filters={filters} onChange={setFilters} />
 
-      <section className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <section className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {overview.isPending || pricing.isPending ? (
           <PanelSkeleton count={4} className="h-24" />
         ) : (

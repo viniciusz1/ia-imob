@@ -18,27 +18,26 @@ export function StatTile({
 }: StatTileProps) {
   return (
     <Card className="gap-0 py-5">
-      <CardContent className="flex items-center gap-4 px-5">
-        {/* O ícone cede espaço na faixa em que o card fica mais estreito — quatro
-            colunas abaixo de xl — para o valor caber inteiro em vez de truncar. */}
-        <span className="hidden size-11 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground sm:flex lg:hidden xl:flex">
-          <Icon aria-hidden className="size-5" />
-        </span>
-
-        <div className="min-w-0 space-y-0.5">
-          <p className="text-sm font-medium text-muted-foreground">{label}</p>
-          <p
-            className={cn(
-              "truncate text-2xl font-semibold tracking-tight xl:text-3xl",
-              insufficientSample && "text-muted-foreground",
-            )}
-            // The figure can be long (R$ 1.234.567/m²) and truncates on narrow
-            // screens, so keep the full text reachable on hover.
-            title={insufficientSample ? "Amostra insuficiente" : value}
-          >
-            {insufficientSample ? EMPTY_VALUE : value}
+      <CardContent className="space-y-1 px-5">
+        {/* O ícone divide a linha com o rótulo, que pode encurtar. O valor fica
+            sozinho na linha de baixo com a largura inteira do card, porque é
+            ele que não pode perder caractere quando a coluna estreita. */}
+        <div className="flex items-center gap-2 text-muted-foreground">
+          <Icon aria-hidden className="size-4 shrink-0" />
+          <p className="truncate text-sm font-medium" title={label}>
+            {label}
           </p>
         </div>
+
+        <p
+          className={cn(
+            "text-2xl font-semibold tracking-tight tabular-nums 2xl:text-3xl",
+            insufficientSample && "text-muted-foreground",
+          )}
+          title={insufficientSample ? "Amostra insuficiente" : undefined}
+        >
+          {insufficientSample ? EMPTY_VALUE : value}
+        </p>
       </CardContent>
     </Card>
   );
