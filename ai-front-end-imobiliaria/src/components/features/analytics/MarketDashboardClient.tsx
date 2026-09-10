@@ -11,10 +11,9 @@ import {
 } from "@/services/marketAnalyticsService";
 import type { MarketAnalyticsFilters } from "@/types/analytics";
 import { StatTile } from "./StatTile";
+import { HighlightedListings } from "./HighlightedListings";
+import { MarketBreakdownTable } from "./MarketBreakdownTable";
 import { MarketFiltersPanel } from "./MarketFiltersPanel";
-import { PricingPanels } from "./PricingPanels";
-import { RankingPanels } from "./RankingPanels";
-import { SupplyPanels } from "./SupplyPanels";
 import {
   formatCount,
   formatCurrency,
@@ -22,6 +21,9 @@ import {
   formatSquareMetrePrice,
 } from "./format";
 import { useMarketAnalyticsFilters } from "./useMarketAnalyticsFilters";
+
+/** Teto que a API aceita em `limite`; cobre todo bairro com amostra suficiente. */
+const NEIGHBOURHOOD_LIMIT = 50;
 
 export function MarketDashboardClient() {
   const { filters, setFilters } = useMarketAnalyticsFilters();
@@ -37,7 +39,7 @@ export function MarketDashboardClient() {
   });
   const rankings = useQuery({
     queryKey: ["market-analytics", "rankings", key],
-    queryFn: () => getMarketRankings(filters),
+    queryFn: () => getMarketRankings(filters, NEIGHBOURHOOD_LIMIT),
   });
 
   const meta = overview.data?.meta ?? pricing.data?.meta ?? null;
@@ -96,23 +98,18 @@ export function MarketDashboardClient() {
         )}
       </section>
 
-      <div className="space-y-6">
-        {overview.isPending ? (
-          <div className="grid gap-4 lg:grid-cols-2">
-            <PanelSkeleton count={2} />
-          </div>
-        ) : null}
-        {overview.data ? <SupplyPanels overview={overview.data.data} /> : null}
+      <div className="grid gap-4 lg:grid-cols-2">
+        {pricing.data && rankings.data ? (
+          <MarketBreakdownTable pricing={pricing.data.data} rankings={rankings.data.data} />
+        ) : (
+          <PanelSkeleton count={1} />
+        )}
 
-        {pricing.isPending ? <PanelSkeleton count={1} /> : null}
-        {pricing.data ? <PricingPanels pricing={pricing.data.data} /> : null}
-
-        {rankings.isPending ? (
-          <div className="grid gap-4 lg:grid-cols-2">
-            <PanelSkeleton count={2} />
-          </div>
-        ) : null}
-        {rankings.data ? <RankingPanels rankings={rankings.data.data} /> : null}
+        {rankings.data ? (
+          <HighlightedListings rankings={rankings.data.data} />
+        ) : (
+          <PanelSkeleton count={1} />
+        )}
       </div>
     </div>
   );

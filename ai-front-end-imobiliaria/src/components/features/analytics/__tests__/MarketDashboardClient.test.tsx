@@ -140,19 +140,17 @@ describe("MarketDashboardClient", () => {
     }
   });
 
-  it("groups the indicators into a handful of panels instead of one card each", async () => {
+  it("keeps the screen to one breakdown table and the highlighted listings", async () => {
     renderDashboard();
 
     await waitFor(() => expect(screen.getByText("4.083")).toBeInTheDocument());
 
-    for (const panel of [
-      "Onde está a oferta",
-      "Perfil dos imóveis",
-      "Preço por recorte",
-      "Bairros mais caros",
-      "Imóveis em destaque",
-    ]) {
+    for (const panel of ["Preço por recorte", "Imóveis em destaque"]) {
       expect(screen.getByText(panel)).toBeInTheDocument();
+    }
+
+    for (const gone of ["Onde está a oferta", "Perfil dos imóveis", "Bairros mais caros"]) {
+      expect(screen.queryByText(gone)).not.toBeInTheDocument();
     }
 
     expect(screen.queryByText("A1.01")).not.toBeInTheDocument();
