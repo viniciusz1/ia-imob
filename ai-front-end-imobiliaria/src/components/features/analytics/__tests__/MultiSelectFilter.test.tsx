@@ -31,7 +31,7 @@ describe("MultiSelectFilter", () => {
     expect(screen.getByRole("button", { expanded: false })).toHaveTextContent("Casa");
   });
 
-  it("counts a multiple selection and shows a pill for each value", () => {
+  it("counts a multiple selection without listing pills below the trigger", () => {
     render(
       <MultiSelectFilter
         label="Tipo de imóvel"
@@ -43,11 +43,10 @@ describe("MultiSelectFilter", () => {
     );
 
     expect(screen.getByText("2 selecionados")).toBeInTheDocument();
-    expect(screen.getByLabelText("Remover Casa")).toBeInTheDocument();
-    expect(screen.getByLabelText("Remover Apartamento")).toBeInTheDocument();
+    expect(screen.queryByLabelText("Remover Casa")).not.toBeInTheDocument();
   });
 
-  it("removes a value through its pill", () => {
+  it("unchecks a value from inside the dropdown", () => {
     const onChange = vi.fn();
     render(
       <MultiSelectFilter
@@ -60,7 +59,12 @@ describe("MultiSelectFilter", () => {
       />,
     );
 
-    fireEvent.click(screen.getByLabelText("Remover 5 ou mais"));
+    // Radix abre o menu no pointerdown, não no click.
+    fireEvent.pointerDown(
+      screen.getByRole("button", { name: /selecionados/ }),
+      { button: 0, ctrlKey: false, pointerType: "mouse" },
+    );
+    fireEvent.click(screen.getByRole("menuitemcheckbox", { name: "5 ou mais" }));
 
     expect(onChange).toHaveBeenCalledWith([2]);
   });

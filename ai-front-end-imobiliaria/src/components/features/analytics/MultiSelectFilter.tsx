@@ -1,7 +1,6 @@
 "use client";
 
-import { ChevronDown, X } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -78,24 +77,6 @@ export function MultiSelectFilter<TValue extends string | number>({
           </ScrollArea>
         </DropdownMenuContent>
       </DropdownMenu>
-
-      {selected.length > 0 ? (
-        <div className="flex flex-wrap gap-1.5">
-          {selected.map((value) => (
-            <Badge key={String(value)} variant="secondary" className="gap-1 pr-1">
-              {display(value)}
-              <button
-                type="button"
-                aria-label={`Remover ${display(value)}`}
-                onClick={() => toggle(value)}
-                className="rounded-full p-0.5 hover:bg-muted-foreground/20"
-              >
-                <X className="h-3 w-3" />
-              </button>
-            </Badge>
-          ))}
-        </div>
-      ) : null}
     </div>
   );
 }
