@@ -19,7 +19,9 @@ export function StatTile({
   return (
     <Card className="gap-0 py-5">
       <CardContent className="flex items-center gap-4 px-5">
-        <span className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+        {/* O ícone cede espaço na faixa em que o card fica mais estreito — quatro
+            colunas abaixo de xl — para o valor caber inteiro em vez de truncar. */}
+        <span className="hidden size-11 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground sm:flex lg:hidden xl:flex">
           <Icon aria-hidden className="size-5" />
         </span>
 
@@ -27,7 +29,7 @@ export function StatTile({
           <p className="text-sm font-medium text-muted-foreground">{label}</p>
           <p
             className={cn(
-              "truncate text-2xl font-semibold tracking-tight sm:text-3xl",
+              "truncate text-2xl font-semibold tracking-tight xl:text-3xl",
               insufficientSample && "text-muted-foreground",
             )}
             // The figure can be long (R$ 1.234.567/m²) and truncates on narrow
