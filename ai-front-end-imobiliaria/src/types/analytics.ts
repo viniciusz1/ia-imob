@@ -43,24 +43,9 @@ export interface NeighbourhoodRankingItem {
   sample_size: number;
 }
 
-export interface RankedListing {
-  id: number;
-  type: string;
-  price: number | null;
-  area: number | null;
-  price_per_square_metre: number | null;
-  neighbourhood: string | null;
-  city: string | null;
-  agency: string | null;
-  listing_url: string | null;
-}
-
 export interface MarketRankings {
   neighbourhoods_by_price: { indicator: string; items: NeighbourhoodRankingItem[] };
   neighbourhoods_by_square_metre: { indicator: string; items: NeighbourhoodRankingItem[] };
-  most_expensive_listings: { indicator: string; items: RankedListing[] };
-  highest_price_per_square_metre_listings: { indicator: string; items: RankedListing[] };
-  cheapest_listings: { indicator: string; items: RankedListing[] };
 }
 
 export interface MarketAnalyticsFilters {

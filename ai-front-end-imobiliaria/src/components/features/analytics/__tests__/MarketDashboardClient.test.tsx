@@ -85,9 +85,6 @@ function mockServices() {
     data: {
       neighbourhoods_by_price: { indicator: "A2.05", items: [] },
       neighbourhoods_by_square_metre: { indicator: "A2.06", items: [] },
-      most_expensive_listings: { indicator: "A2.08", items: [] },
-      highest_price_per_square_metre_listings: { indicator: "A2.09", items: [] },
-      cheapest_listings: { indicator: "A2.10", items: [] },
     },
   });
 }
@@ -120,16 +117,19 @@ describe("MarketDashboardClient", () => {
     }
   });
 
-  it("keeps the screen to one breakdown table and the highlighted listings", async () => {
+  it("keeps the screen to a single breakdown table", async () => {
     renderDashboard();
 
     await waitFor(() => expect(screen.getByText("4.083")).toBeInTheDocument());
 
-    for (const panel of ["Preço por recorte", "Imóveis em destaque"]) {
-      expect(screen.getByText(panel)).toBeInTheDocument();
-    }
+    expect(screen.getByText("Preço por recorte")).toBeInTheDocument();
 
-    for (const gone of ["Onde está a oferta", "Perfil dos imóveis", "Bairros mais caros"]) {
+    for (const gone of [
+      "Onde está a oferta",
+      "Perfil dos imóveis",
+      "Bairros mais caros",
+      "Imóveis em destaque",
+    ]) {
       expect(screen.queryByText(gone)).not.toBeInTheDocument();
     }
 

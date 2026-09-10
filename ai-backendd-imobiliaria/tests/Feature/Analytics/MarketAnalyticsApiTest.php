@@ -96,13 +96,8 @@ class MarketAnalyticsApiTest extends TestCase
             ->assertOk()
             ->assertJsonPath('data.neighbourhoods_by_price.indicator', 'A2.05')
             ->assertJsonPath('data.neighbourhoods_by_price.items.0.label', 'Centro')
-            ->assertJsonCount(3, 'data.most_expensive_listings.items')
             ->assertJsonStructure([
-                'data' => [
-                    'neighbourhoods_by_price', 'neighbourhoods_by_square_metre',
-                    'most_expensive_listings',
-                    'highest_price_per_square_metre_listings', 'cheapest_listings',
-                ],
+                'data' => ['neighbourhoods_by_price', 'neighbourhoods_by_square_metre'],
             ]);
     }
 

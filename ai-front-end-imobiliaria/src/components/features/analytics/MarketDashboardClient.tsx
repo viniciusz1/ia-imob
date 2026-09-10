@@ -11,7 +11,6 @@ import {
 } from "@/services/marketAnalyticsService";
 import type { MarketAnalyticsFilters } from "@/types/analytics";
 import { StatTile } from "./StatTile";
-import { HighlightedListings } from "./HighlightedListings";
 import { MarketBreakdownTable } from "./MarketBreakdownTable";
 import { MarketFiltersPanel } from "./MarketFiltersPanel";
 import {
@@ -98,19 +97,11 @@ export function MarketDashboardClient() {
         )}
       </section>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        {pricing.data && rankings.data ? (
-          <MarketBreakdownTable pricing={pricing.data.data} rankings={rankings.data.data} />
-        ) : (
-          <PanelSkeleton count={1} />
-        )}
-
-        {rankings.data ? (
-          <HighlightedListings rankings={rankings.data.data} />
-        ) : (
-          <PanelSkeleton count={1} />
-        )}
-      </div>
+      {pricing.data && rankings.data ? (
+        <MarketBreakdownTable pricing={pricing.data.data} rankings={rankings.data.data} />
+      ) : (
+        <PanelSkeleton count={1} />
+      )}
     </div>
   );
 }

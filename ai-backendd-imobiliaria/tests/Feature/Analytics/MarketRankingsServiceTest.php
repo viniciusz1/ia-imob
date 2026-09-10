@@ -30,16 +30,16 @@ class MarketRankingsServiceTest extends TestCase
         $this->assertCount(2, $ranking);
     }
 
-    public function test_listing_rankings_respect_the_requested_limit(): void
+    public function test_the_neighbourhood_ranking_respects_the_requested_limit(): void
     {
         $run = CrawlerRun::factory()->create();
         $this->createNeighbourhood($run->id, 'Centro', [200000, 300000, 400000, 500000, 600000]);
+        $this->createNeighbourhood($run->id, 'Amizade', [900000, 950000, 1000000, 1100000, 1200000]);
 
-        $data = $this->handle(limit: 2);
+        $data = $this->handle(limit: 1);
 
-        $this->assertCount(2, $data['most_expensive_listings']['items']);
-        $this->assertSame(600000.0, $data['most_expensive_listings']['items'][0]['price']);
-        $this->assertSame(200000.0, $data['cheapest_listings']['items'][0]['price']);
+        $this->assertCount(1, $data['neighbourhoods_by_price']['items']);
+        $this->assertSame('Amizade', $data['neighbourhoods_by_price']['items'][0]['label']);
     }
 
     public function test_a_market_without_enough_records_has_no_neighbourhood_ranking(): void

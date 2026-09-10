@@ -63,7 +63,7 @@ function rankingsWith(count: number): MarketRankings {
       indicator: "A2.06",
       items: [{ label: "Bairro 1", median: 8100, sample_size: 20 }],
     },
-  } as unknown as MarketRankings;
+  };
 }
 
 describe("MarketBreakdownTable", () => {
