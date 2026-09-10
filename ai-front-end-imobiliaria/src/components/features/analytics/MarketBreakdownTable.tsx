@@ -94,34 +94,39 @@ function BreakdownRows({ rows, groupLabel }: { rows: BreakdownRow[]; groupLabel:
 
   return (
     <div>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>{groupLabel}</TableHead>
-            <TableHead className="text-right">Imóveis</TableHead>
-            <TableHead className="text-right">Mediana</TableHead>
-            <TableHead className="text-right">R$/m²</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {paged.pageItems.map((row) => (
-            <TableRow key={row.label}>
-              <TableCell className="font-medium">{row.label}</TableCell>
-              <TableCell className="text-right tabular-nums text-muted-foreground">
-                {formatCount(row.sampleSize)}
-              </TableCell>
-              <TableCell className="text-right tabular-nums">
-                {row.insufficientSample ? EMPTY_VALUE : formatCurrency(row.median)}
-              </TableCell>
-              <TableCell className="text-right tabular-nums">
-                {row.insufficientSample
-                  ? EMPTY_VALUE
-                  : formatSquareMetrePrice(row.medianPerSquareMetre)}
-              </TableCell>
+      {/* CardContent recua 24px de cada lado, o que deixava as divisórias das
+          linhas paradas antes da borda do card. A sangria negativa devolve a
+          largura à tabela e o recuo volta nas células das pontas. */}
+      <div className="-mx-6">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="pl-6">{groupLabel}</TableHead>
+              <TableHead className="text-right">Imóveis</TableHead>
+              <TableHead className="text-right">Mediana</TableHead>
+              <TableHead className="pr-6 text-right">R$/m²</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {paged.pageItems.map((row) => (
+              <TableRow key={row.label}>
+                <TableCell className="pl-6 font-medium">{row.label}</TableCell>
+                <TableCell className="text-right tabular-nums text-muted-foreground">
+                  {formatCount(row.sampleSize)}
+                </TableCell>
+                <TableCell className="text-right tabular-nums">
+                  {row.insufficientSample ? EMPTY_VALUE : formatCurrency(row.median)}
+                </TableCell>
+                <TableCell className="pr-6 text-right tabular-nums">
+                  {row.insufficientSample
+                    ? EMPTY_VALUE
+                    : formatSquareMetrePrice(row.medianPerSquareMetre)}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
       <PaginationFooter paged={paged} noun="grupos" />
     </div>
   );
