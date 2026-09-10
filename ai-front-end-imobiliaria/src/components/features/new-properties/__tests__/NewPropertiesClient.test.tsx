@@ -186,15 +186,15 @@ describe("NewPropertiesClient", () => {
     expect(screen.queryByText(/atualizado em/i)).not.toBeInTheDocument();
   });
 
-  it("uses a friendly message when there is not enough history for new listings", async () => {
+  it("keeps the insufficient history state out of the customer-facing screen", async () => {
     vi.mocked(getNewProperties).mockResolvedValue(insufficientResponse);
 
     renderClient();
 
-    expect(await screen.findByText("Novidades ainda não disponíveis")).toBeInTheDocument();
-    expect(screen.getByText(/ainda precisa de mais informações para indicar novidades com segurança/i)).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Casa no primeiro snapshot" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Casa no primeiro snapshot" })).toBeInTheDocument();
     expect(screen.queryByText(/^Novo$/)).not.toBeInTheDocument();
+    expect(screen.queryByText("Novidades ainda não disponíveis")).not.toBeInTheDocument();
+    expect(screen.queryByText(/ainda precisa de mais informações para indicar novidades com segurança/i)).not.toBeInTheDocument();
   });
 
   it("hides an agency completely when it has no properties to show", async () => {

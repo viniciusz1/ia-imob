@@ -4,7 +4,6 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   Building2,
-  CircleAlert,
   Loader2,
   RefreshCw,
   Search,
@@ -110,7 +109,6 @@ function NewPropertiesSkeleton() {
 function AgencyGroup({ group }: { group: NewPropertyAgencyGroup }) {
   const [visibleCount, setVisibleCount] = useState(12);
   const visibleProperties = group.properties.slice(0, visibleCount);
-  const hasEnoughHistory = group.history.status === "sufficient";
 
   return (
     <Card className="gap-0 overflow-hidden border-border/80 py-0 shadow-sm">
@@ -138,20 +136,6 @@ function AgencyGroup({ group }: { group: NewPropertyAgencyGroup }) {
             </Badge>
           </div>
         </div>
-
-        {!hasEnoughHistory && (
-          <div className="mt-5 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50/80 p-4 text-amber-950 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-50">
-            <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/60 dark:text-amber-200">
-              <CircleAlert className="size-4" aria-hidden="true" />
-            </span>
-            <div>
-              <p className="text-sm font-semibold">Novidades ainda não disponíveis</p>
-              <p className="mt-1 text-sm leading-5 text-amber-900/80 dark:text-amber-100/80">
-                Esta imobiliária ainda precisa de mais informações para indicar novidades com segurança.
-              </p>
-            </div>
-          </div>
-        )}
       </CardHeader>
 
       <CardContent className="p-5 md:p-6">
