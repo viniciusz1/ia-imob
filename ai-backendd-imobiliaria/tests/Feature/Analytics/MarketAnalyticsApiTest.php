@@ -28,7 +28,7 @@ class MarketAnalyticsApiTest extends TestCase
             ->assertForbidden();
     }
 
-    public function test_the_overview_reports_every_supply_indicator(): void
+    public function test_the_overview_reports_the_published_stock(): void
     {
         $run = CrawlerRun::factory()->create(['published_at' => '2026-08-01 22:32:00']);
         MarketProperty::factory()->count(2)->create([
@@ -42,13 +42,8 @@ class MarketAnalyticsApiTest extends TestCase
 
         $response->assertJsonPath('data.total_supply.value', 2);
         $response->assertJsonPath('data.total_supply.indicator', 'A1.01');
-        $response->assertJsonPath('data.by_city.items.0.label', 'Jaraguá do Sul');
         $response->assertJsonStructure([
-            'data' => [
-                'total_supply', 'by_city', 'by_neighbourhood', 'by_type',
-                'by_price_range', 'by_area_range', 'by_bedrooms',
-                'by_parking_spaces', 'by_agency', 'field_completeness',
-            ],
+            'data' => ['total_supply'],
             'meta' => ['generated_at', 'data_reference_date'],
         ]);
         $this->assertNotNull($response->json('meta.data_reference_date'));
@@ -69,9 +64,8 @@ class MarketAnalyticsApiTest extends TestCase
             ->assertJsonPath('data.median_price.indicator', 'A2.01')
             ->assertJsonStructure([
                 'data' => [
-                    'median_price', 'average_price', 'central_price_range',
+                    'median_price', 'average_price',
                     'median_price_per_square_metre', 'by_type', 'by_bedrooms',
-                    'dispersion_by_neighbourhood',
                 ],
                 'meta' => ['generated_at', 'data_reference_date'],
             ]);
@@ -106,7 +100,7 @@ class MarketAnalyticsApiTest extends TestCase
             ->assertJsonStructure([
                 'data' => [
                     'neighbourhoods_by_price', 'neighbourhoods_by_square_metre',
-                    'neighbourhood_extremes', 'most_expensive_listings',
+                    'most_expensive_listings',
                     'highest_price_per_square_metre_listings', 'cheapest_listings',
                 ],
             ]);

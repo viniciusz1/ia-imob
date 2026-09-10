@@ -151,31 +151,6 @@ class MarketPriceRepositoryTest extends TestCase
         $this->assertSame(1, $groups[PropertyTypeNormalizer::UNCLASSIFIED]->sampleSize);
     }
 
-    public function test_dispersion_needs_the_minimum_sample(): void
-    {
-        $run = CrawlerRun::factory()->create();
-
-        foreach ([100000, 200000, 300000, 400000, 500000] as $price) {
-            MarketProperty::factory()->create(['crawler_run_id' => $run->id, 'bairro' => 'Centro', 'valor' => $price]);
-        }
-
-        MarketProperty::factory()->count(2)->create([
-            'crawler_run_id' => $run->id,
-            'bairro' => 'Amizade',
-            'valor' => 900000,
-        ]);
-
-        $dispersion = $this->repository->dispersionBy(
-            MarketAnalyticsFilters::fromArray([]),
-            PriceMetric::AnnouncedPrice,
-            SupplyDimension::Neighbourhood,
-        );
-
-        $this->assertSame(0.5270, $dispersion['Centro']['variation']);
-        $this->assertNull($dispersion['Amizade']['variation']);
-        $this->assertSame(2, $dispersion['Amizade']['sample_size']);
-    }
-
     private function summarize(): StatisticalSummary
     {
         return $this->repository->summarize(

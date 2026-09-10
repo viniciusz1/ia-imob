@@ -31,8 +31,6 @@ const meta = {
   data_reference_date: "2026-08-01T19:32:00-03:00",
 };
 
-const emptyBlock = { indicator: "", items: [] };
-
 function renderDashboard() {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 
@@ -60,21 +58,6 @@ function mockServices() {
       meta,
       data: {
         total_supply: { indicator: "A1.01", value: 4083 },
-        by_city: emptyBlock,
-        by_neighbourhood: emptyBlock,
-        by_type: emptyBlock,
-        by_price_range: emptyBlock,
-        by_area_range: emptyBlock,
-        by_bedrooms: emptyBlock,
-        by_parking_spaces: emptyBlock,
-        by_agency: {
-          indicator: "A1.09",
-          items: [
-            { label: "ITAIVAN", count: 894, share: 0.22 },
-            { label: "Chalé", count: 749, share: 0.18 },
-          ],
-        },
-        field_completeness: { indicator: "A1.10", items: [] },
       },
     });
 
@@ -85,7 +68,6 @@ function mockServices() {
       data: {
         median_price: { indicator: "A2.01", value: 490000, ...sample },
         average_price: { indicator: "A2.02", value: 624442.5, ...sample },
-        central_price_range: { indicator: "A2.03", p25: 230000, p75: 897000, ...sample },
         median_price_per_square_metre: {
           indicator: "A2.04",
           value: 4052.8,
@@ -95,7 +77,6 @@ function mockServices() {
         },
         by_type: { indicator: "A2.11", items: [] },
         by_bedrooms: { indicator: "A2.12", items: [] },
-        dispersion_by_neighbourhood: { indicator: "A2.13", items: [] },
       },
     });
 
@@ -104,7 +85,6 @@ function mockServices() {
     data: {
       neighbourhoods_by_price: { indicator: "A2.05", items: [] },
       neighbourhoods_by_square_metre: { indicator: "A2.06", items: [] },
-      neighbourhood_extremes: { indicator: "A2.07", most_expensive: null, cheapest: null },
       most_expensive_listings: { indicator: "A2.08", items: [] },
       highest_price_per_square_metre_listings: { indicator: "A2.09", items: [] },
       cheapest_listings: { indicator: "A2.10", items: [] },

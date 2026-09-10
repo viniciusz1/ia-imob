@@ -13,7 +13,7 @@ class MarketPricingServiceTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_headline_prices_report_median_average_and_central_range(): void
+    public function test_headline_prices_report_median_and_average(): void
     {
         $run = CrawlerRun::factory()->create();
 
@@ -30,8 +30,6 @@ class MarketPricingServiceTest extends TestCase
         $this->assertSame(300000.0, $data['median_price']['value']);
         $this->assertSame('A2.01', $data['median_price']['indicator']);
         $this->assertSame(300000.0, $data['average_price']['value']);
-        $this->assertSame(200000.0, $data['central_price_range']['p25']);
-        $this->assertSame(400000.0, $data['central_price_range']['p75']);
         $this->assertSame(3000.0, $data['median_price_per_square_metre']['value']);
         $this->assertFalse($data['median_price']['insufficient_sample']);
     }
@@ -70,24 +68,6 @@ class MarketPricingServiceTest extends TestCase
 
         $byBedrooms = collect($data['by_bedrooms']['items'])->keyBy('label');
         $this->assertSame(500000.0, $byBedrooms['3']['median']);
-    }
-
-    public function test_neighbourhood_dispersion_is_reported_with_its_sample(): void
-    {
-        $run = CrawlerRun::factory()->create();
-
-        foreach ([100000, 200000, 300000, 400000, 500000] as $price) {
-            MarketProperty::factory()->create([
-                'crawler_run_id' => $run->id,
-                'bairro' => 'Centro',
-                'valor' => $price,
-            ]);
-        }
-
-        $dispersion = collect($this->handle()['dispersion_by_neighbourhood']['items'])->keyBy('label');
-
-        $this->assertSame(0.5270, $dispersion['Centro']['variation']);
-        $this->assertFalse($dispersion['Centro']['insufficient_sample']);
     }
 
     /**

@@ -34,11 +34,6 @@ class MarketRankingsService
                 'indicator' => 'A2.06',
                 'items' => $bySquareMetre->take($limit)->values()->all(),
             ],
-            'neighbourhood_extremes' => [
-                'indicator' => 'A2.07',
-                'most_expensive' => $byPrice->first(),
-                'cheapest' => $byPrice->last(),
-            ],
             'most_expensive_listings' => [
                 'indicator' => 'A2.08',
                 'items' => $this->listings->rankedBy($filters, PriceMetric::AnnouncedPrice, 'desc', $limit)->all(),

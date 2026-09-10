@@ -28,8 +28,6 @@ class MarketRankingsServiceTest extends TestCase
         $this->assertSame('Amizade', $ranking[0]['label']);
         $this->assertSame('Centro', $ranking[1]['label']);
         $this->assertCount(2, $ranking);
-        $this->assertSame('Amizade', $data['neighbourhood_extremes']['most_expensive']['label']);
-        $this->assertSame('Centro', $data['neighbourhood_extremes']['cheapest']['label']);
     }
 
     public function test_listing_rankings_respect_the_requested_limit(): void
@@ -52,7 +50,6 @@ class MarketRankingsServiceTest extends TestCase
         $data = $this->handle();
 
         $this->assertSame([], $data['neighbourhoods_by_price']['items']);
-        $this->assertNull($data['neighbourhood_extremes']['most_expensive']);
     }
 
     /**

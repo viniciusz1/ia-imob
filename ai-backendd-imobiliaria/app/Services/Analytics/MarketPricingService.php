@@ -23,19 +23,9 @@ class MarketPricingService
         return [
             'median_price' => $this->value('A2.01', $announced, $announced->median),
             'average_price' => $this->value('A2.02', $announced, $announced->average),
-            'central_price_range' => [
-                'indicator' => 'A2.03',
-                'p25' => $announced->firstQuartile,
-                'p75' => $announced->thirdQuartile,
-                ...$this->sample($announced),
-            ],
             'median_price_per_square_metre' => $this->value('A2.04', $perSquareMetre, $perSquareMetre->median),
             'by_type' => $this->byDimension('A2.11', $filters, SupplyDimension::Type, withSquareMetre: true),
             'by_bedrooms' => $this->byDimension('A2.12', $filters, SupplyDimension::Bedrooms),
-            'dispersion_by_neighbourhood' => [
-                'indicator' => 'A2.13',
-                'items' => $this->dispersion($filters),
-            ],
         ];
     }
 
@@ -77,24 +67,6 @@ class MarketPricingService
             ->values();
 
         return ['indicator' => $indicator, 'items' => $items->all()];
-    }
-
-    /**
-     * @return list<array<string, mixed>>
-     */
-    private function dispersion(MarketAnalyticsFilters $filters): array
-    {
-        return $this->prices
-            ->dispersionBy($filters, PriceMetric::AnnouncedPrice, SupplyDimension::Neighbourhood)
-            ->map(fn (array $row, string $group): array => [
-                'label' => $group,
-                'variation' => $row['variation'],
-                'sample_size' => $row['sample_size'],
-                'insufficient_sample' => $row['variation'] === null,
-            ])
-            ->sortByDesc('sample_size')
-            ->values()
-            ->all();
     }
 
     /**
