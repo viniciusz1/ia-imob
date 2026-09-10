@@ -245,12 +245,8 @@ export function NewPropertiesClient() {
             matchesCount(property.vagas, parkingSpaces),
         ),
       }))
-      .filter(
-        (group) =>
-          group.properties.length > 0 ||
-          (filter === "all" && !hasPropertyFilters && group.history.status === "insufficient"),
-      );
-  }, [bathrooms, bedrooms, city, filter, hasPropertyFilters, parkingSpaces, propertyType, query.data, search]);
+      .filter((group) => group.properties.length > 0);
+  }, [bathrooms, bedrooms, city, filter, parkingSpaces, propertyType, query.data, search]);
 
   return (
     <div className="mx-auto w-full max-w-[1500px] space-y-6">

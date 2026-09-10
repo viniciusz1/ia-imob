@@ -197,6 +197,20 @@ describe("NewPropertiesClient", () => {
     expect(screen.queryByText(/^Novo$/)).not.toBeInTheDocument();
   });
 
+  it("hides an agency completely when it has no properties to show", async () => {
+    vi.mocked(getNewProperties).mockResolvedValue({
+      ...insufficientResponse,
+      data: [{ ...insufficientResponse.data[0], properties: [] }],
+      meta: { ...insufficientResponse.meta, total: 0, total_opportunities: 0 },
+    });
+
+    renderClient();
+
+    expect(await screen.findByRole("heading", { name: "Nenhum imóvel encontrado" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Imobiliária Sem Histórico" })).not.toBeInTheDocument();
+    expect(screen.queryByText("Novidades ainda não disponíveis")).not.toBeInTheDocument();
+  });
+
   it("filters the cards without losing their Agency grouping", async () => {
     vi.mocked(getNewProperties).mockResolvedValue(response);
 
