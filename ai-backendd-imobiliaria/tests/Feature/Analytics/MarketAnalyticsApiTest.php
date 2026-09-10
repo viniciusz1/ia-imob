@@ -49,7 +49,7 @@ class MarketAnalyticsApiTest extends TestCase
                 'by_price_range', 'by_area_range', 'by_bedrooms',
                 'by_parking_spaces', 'by_agency', 'field_completeness',
             ],
-            'meta' => ['generated_at', 'data_reference_date', 'notices'],
+            'meta' => ['generated_at', 'data_reference_date'],
         ]);
         $this->assertNotNull($response->json('meta.data_reference_date'));
     }
@@ -73,7 +73,7 @@ class MarketAnalyticsApiTest extends TestCase
                     'median_price_per_square_metre', 'by_type', 'by_bedrooms',
                     'dispersion_by_neighbourhood',
                 ],
-                'meta' => ['generated_at', 'data_reference_date', 'notices'],
+                'meta' => ['generated_at', 'data_reference_date'],
             ]);
     }
 

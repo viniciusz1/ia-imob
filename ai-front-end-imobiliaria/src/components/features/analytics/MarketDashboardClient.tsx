@@ -60,14 +60,6 @@ export function MarketDashboardClient() {
 
       <MarketFiltersPanel filters={filters} onChange={setFilters} />
 
-      {meta?.notices.length ? (
-        <ul className="mb-6 space-y-1 rounded-md border border-dashed p-4 text-sm text-muted-foreground">
-          {meta.notices.map((notice) => (
-            <li key={notice}>{notice}</li>
-          ))}
-        </ul>
-      ) : null}
-
       <section className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {overview.isPending || pricing.isPending ? (
           <PanelSkeleton count={4} className="h-24" />

@@ -1,7 +1,6 @@
 export interface MarketAnalyticsMeta {
   generated_at: string;
   data_reference_date: string | null;
-  notices: string[];
 }
 
 export interface MarketAnalyticsResponse<TData> {

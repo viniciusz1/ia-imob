@@ -29,7 +29,6 @@ vi.mock("@/services/marketPropertyService", () => ({
 const meta = {
   generated_at: "2026-09-08T12:00:00-03:00",
   data_reference_date: "2026-08-01T19:32:00-03:00",
-  notices: [],
 };
 
 const emptyBlock = { indicator: "", items: [] };
