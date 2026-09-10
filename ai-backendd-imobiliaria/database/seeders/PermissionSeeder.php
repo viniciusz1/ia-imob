@@ -45,6 +45,7 @@ class PermissionSeeder extends Seeder
             'crawler.snapshots.publish_exceptionally',
             'crawler.policies.manage',
             'crawler.schedules.manage',
+            'analytics.market.view',
         ];
 
         foreach ($permissions as $permissionName) {

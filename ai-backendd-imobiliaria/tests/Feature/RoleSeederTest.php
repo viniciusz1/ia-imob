@@ -34,4 +34,22 @@ class RoleSeederTest extends TestCase
                 || str_starts_with($permission, 'crawler.')
         ));
     }
+
+    public function test_both_administrative_roles_receive_market_analytics(): void
+    {
+        $this->seed([
+            PermissionSeeder::class,
+            RoleSeeder::class,
+        ]);
+
+        foreach (['Administrador', 'Platform Admin'] as $roleName) {
+            $permissions = Role::query()
+                ->where('name', $roleName)
+                ->firstOrFail()
+                ->permissions
+                ->pluck('name');
+
+            $this->assertContains('analytics.market.view', $permissions, $roleName);
+        }
+    }
 }
