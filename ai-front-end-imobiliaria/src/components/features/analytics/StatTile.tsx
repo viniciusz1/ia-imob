@@ -1,44 +1,41 @@
+import type { LucideIcon } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { EMPTY_VALUE, formatCount } from "./format";
+import { EMPTY_VALUE } from "./format";
 
 interface StatTileProps {
   label: string;
   value: string;
-  context?: string;
-  sampleSize?: number;
+  icon: LucideIcon;
   insufficientSample?: boolean;
-  hero?: boolean;
 }
 
 export function StatTile({
   label,
   value,
-  context,
-  sampleSize,
+  icon: Icon,
   insufficientSample = false,
-  hero = false,
 }: StatTileProps) {
-  const footer = insufficientSample
-    ? `Amostra insuficiente: ${formatCount(sampleSize)} imóveis`
-    : context;
-
   return (
     <Card className="gap-0 py-5">
-      <CardContent className="flex h-full flex-col justify-between gap-3 px-5">
-        <p className="text-sm font-medium text-muted-foreground">{label}</p>
+      <CardContent className="flex items-center gap-4 px-5">
+        <span className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+          <Icon aria-hidden className="size-5" />
+        </span>
 
-        <div className="space-y-1">
+        <div className="min-w-0 space-y-0.5">
+          <p className="text-sm font-medium text-muted-foreground">{label}</p>
           <p
             className={cn(
-              "font-semibold tracking-tight",
-              hero ? "text-4xl sm:text-5xl" : "text-3xl",
+              "truncate text-2xl font-semibold tracking-tight sm:text-3xl",
               insufficientSample && "text-muted-foreground",
             )}
+            // The figure can be long (R$ 1.234.567/m²) and truncates on narrow
+            // screens, so keep the full text reachable on hover.
+            title={insufficientSample ? "Amostra insuficiente" : value}
           >
             {insufficientSample ? EMPTY_VALUE : value}
           </p>
-          <p className="min-h-10 text-sm text-muted-foreground">{footer}</p>
         </div>
       </CardContent>
     </Card>

@@ -121,15 +121,24 @@ describe("MarketDashboardClient", () => {
 
     await waitFor(() => expect(screen.getByText("4.083")).toBeInTheDocument());
 
-    expect(screen.getByText("2 imobiliárias no recorte")).toBeInTheDocument();
     expect(screen.getByText("R$ 490.000")).toBeInTheDocument();
-    expect(
-      screen.getByText("Metade central entre R$ 230.000 e R$ 897.000"),
-    ).toBeInTheDocument();
     expect(screen.getByText("R$ 624.443")).toBeInTheDocument();
-    expect(screen.getByText("316 valores fora do padrão descartados")).toBeInTheDocument();
     expect(screen.getByText("R$ 4.053/m²")).toBeInTheDocument();
-    expect(screen.getByText("916 de 4.083 imóveis têm área informada")).toBeInTheDocument();
+  });
+
+  it("keeps each KPI card down to a label and a figure", async () => {
+    renderDashboard();
+
+    await waitFor(() => expect(screen.getByText("4.083")).toBeInTheDocument());
+
+    for (const context of [
+      "2 imobiliárias no recorte",
+      "Metade central entre R$ 230.000 e R$ 897.000",
+      "316 valores fora do padrão descartados",
+      "916 de 4.083 imóveis têm área informada",
+    ]) {
+      expect(screen.queryByText(context)).not.toBeInTheDocument();
+    }
   });
 
   it("groups the indicators into a handful of panels instead of one card each", async () => {
