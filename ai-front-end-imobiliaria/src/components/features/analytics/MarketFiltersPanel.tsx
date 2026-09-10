@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { X } from "lucide-react";
+import { ChevronDown, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 import {
   getMarketPropertyFilters,
   type MarketPropertyFiltersResponse,
@@ -27,13 +28,29 @@ const ALL_CITIES = "__todas__";
 const BEDROOM_OPTIONS = [0, 1, 2, 3, 4, 5];
 const PARKING_OPTIONS = [0, 1, 2, 3];
 
+/** Filters kept behind "Mais filtros"; the rest stay visible at all times. */
+const SECONDARY_KEYS = [
+  "area_min",
+  "area_max",
+  "data_inicio",
+  "data_fim",
+  "imobiliaria",
+  "quartos",
+  "vagas",
+] as const;
+
 interface MarketFiltersPanelProps {
   filters: MarketAnalyticsFilters;
   onChange: (filters: MarketAnalyticsFilters) => void;
 }
 
+function isActive(value: MarketAnalyticsFilters[keyof MarketAnalyticsFilters]): boolean {
+  return Array.isArray(value) ? value.length > 0 : value !== "";
+}
+
 export function MarketFiltersPanel({ filters, onChange }: MarketFiltersPanelProps) {
   const [options, setOptions] = useState<MarketPropertyFiltersResponse | null>(null);
+  const [showSecondary, setShowSecondary] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -58,12 +75,17 @@ export function MarketFiltersPanel({ filters, onChange }: MarketFiltersPanelProp
     return options.bairros_por_cidade[filters.cidade] ?? [];
   }, [options, filters.cidade]);
 
+  // A filter hidden behind the toggle still narrows every number on the page,
+  // so surface how many are on rather than letting them apply unseen.
+  const hiddenActiveCount = SECONDARY_KEYS.filter((key) => isActive(filters[key])).length;
+  const hasAnyFilter = Object.values(filters).some(isActive);
+
   const update = (patch: Partial<MarketAnalyticsFilters>) => onChange({ ...filters, ...patch });
 
   return (
     <Card className="mb-6">
       <CardContent className="space-y-4 p-4">
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div className="space-y-2">
             <Label htmlFor="analytics-city">Cidade</Label>
             <Select
@@ -86,6 +108,14 @@ export function MarketFiltersPanel({ filters, onChange }: MarketFiltersPanelProp
             </Select>
           </div>
 
+          <MultiSelectFilter
+            label="Tipo de imóvel"
+            placeholder="Todos os tipos"
+            values={options?.tipos ?? []}
+            selected={filters.tipo}
+            onChange={(tipo) => update({ tipo })}
+          />
+
           <NumberRangeField
             id="analytics-price"
             label="Preço"
@@ -97,43 +127,6 @@ export function MarketFiltersPanel({ filters, onChange }: MarketFiltersPanelProp
             onChange={(range) => update({ min: range.min, max: range.max })}
           />
 
-          <NumberRangeField
-            id="analytics-area"
-            label="Área"
-            format={formatAreaInput}
-            minValue={filters.area_min}
-            maxValue={filters.area_max}
-            minPlaceholder="Mínima"
-            maxPlaceholder="Máxima"
-            onChange={(range) => update({ area_min: range.min, area_max: range.max })}
-          />
-
-          <div className="space-y-2">
-            <Label htmlFor="analytics-start-date">Período das coletas</Label>
-            <div className="flex gap-2">
-              <Input
-                id="analytics-start-date"
-                type="date"
-                value={filters.data_inicio}
-                onChange={(event) => update({ data_inicio: event.target.value })}
-              />
-              <Input
-                type="date"
-                value={filters.data_fim}
-                onChange={(event) => update({ data_fim: event.target.value })}
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5">
-          <MultiSelectFilter
-            label="Tipo de imóvel"
-            placeholder="Todos os tipos"
-            values={options?.tipos ?? []}
-            selected={filters.tipo}
-            onChange={(tipo) => update({ tipo })}
-          />
           <MultiSelectFilter
             label="Bairro"
             placeholder="Todos os bairros"
@@ -141,39 +134,92 @@ export function MarketFiltersPanel({ filters, onChange }: MarketFiltersPanelProp
             selected={filters.bairro}
             onChange={(bairro) => update({ bairro })}
           />
-          <MultiSelectFilter
-            label="Imobiliária"
-            placeholder="Todas as imobiliárias"
-            values={options?.imobiliarias ?? []}
-            selected={filters.imobiliaria}
-            onChange={(imobiliaria) => update({ imobiliaria })}
-          />
-          <MultiSelectFilter
-            label="Quartos"
-            placeholder="Qualquer quantidade"
-            values={BEDROOM_OPTIONS}
-            selected={filters.quartos}
-            renderLabel={(value) => (value === 5 ? "5 ou mais" : String(value))}
-            onChange={(quartos) => update({ quartos })}
-          />
-          <MultiSelectFilter
-            label="Vagas"
-            placeholder="Qualquer quantidade"
-            values={PARKING_OPTIONS}
-            selected={filters.vagas}
-            renderLabel={(value) => (value === 3 ? "3 ou mais" : String(value))}
-            onChange={(vagas) => update({ vagas })}
-          />
         </div>
 
-        <div className="flex justify-end">
-          <Button variant="outline" onClick={() => onChange({ ...EMPTY_FILTERS })}>
-            <X className="mr-2 h-4 w-4" />
-            Limpar filtros
+        {showSecondary ? (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <NumberRangeField
+              id="analytics-area"
+              label="Área"
+              format={formatAreaInput}
+              minValue={filters.area_min}
+              maxValue={filters.area_max}
+              minPlaceholder="Mínima"
+              maxPlaceholder="Máxima"
+              onChange={(range) => update({ area_min: range.min, area_max: range.max })}
+            />
+
+            <div className="space-y-2">
+              <Label htmlFor="analytics-start-date">Período das coletas</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="analytics-start-date"
+                  className="min-w-0"
+                  type="date"
+                  value={filters.data_inicio}
+                  onChange={(event) => update({ data_inicio: event.target.value })}
+                />
+                <Input
+                  className="min-w-0"
+                  type="date"
+                  value={filters.data_fim}
+                  onChange={(event) => update({ data_fim: event.target.value })}
+                />
+              </div>
+            </div>
+
+            <MultiSelectFilter
+              label="Imobiliária"
+              placeholder="Todas as imobiliárias"
+              values={options?.imobiliarias ?? []}
+              selected={filters.imobiliaria}
+              onChange={(imobiliaria) => update({ imobiliaria })}
+            />
+
+            <MultiSelectFilter
+              label="Quartos"
+              placeholder="Qualquer quantidade"
+              values={BEDROOM_OPTIONS}
+              selected={filters.quartos}
+              renderLabel={(value) => (value === 5 ? "5 ou mais" : String(value))}
+              onChange={(quartos) => update({ quartos })}
+            />
+
+            <MultiSelectFilter
+              label="Vagas"
+              placeholder="Qualquer quantidade"
+              values={PARKING_OPTIONS}
+              selected={filters.vagas}
+              renderLabel={(value) => (value === 3 ? "3 ou mais" : String(value))}
+              onChange={(vagas) => update({ vagas })}
+            />
+          </div>
+        ) : null}
+
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowSecondary((open) => !open)}
+            aria-expanded={showSecondary}
+          >
+            <ChevronDown
+              aria-hidden
+              className={cn("mr-2 h-4 w-4 transition-transform", showSecondary && "rotate-180")}
+            />
+            {showSecondary
+              ? "Menos filtros"
+              : `Mais filtros${hiddenActiveCount > 0 ? ` (${hiddenActiveCount})` : ""}`}
           </Button>
+
+          {hasAnyFilter ? (
+            <Button variant="outline" size="sm" onClick={() => onChange({ ...EMPTY_FILTERS })}>
+              <X aria-hidden className="mr-2 h-4 w-4" />
+              Limpar filtros
+            </Button>
+          ) : null}
         </div>
       </CardContent>
     </Card>
   );
 }
-
