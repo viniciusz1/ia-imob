@@ -21,6 +21,9 @@ Route::middleware(['auth:sanctum', EnsureAgencyIsActive::class])->group(function
     Route::apiResource('roles', RoleController::class);
     Route::get('permissions', [PermissionController::class, 'index']);
 
+    // Auctions Module
+    Route::get('auctions', [\App\Http\Controllers\Api\AuctionController::class, 'index']);
+
     // Properties Module
     Route::apiResource('properties', \App\Http\Controllers\Api\PropertyController::class);
     Route::get('valuations/{valuation}/report.pdf', [\App\Http\Controllers\Api\ValuationController::class, 'report']);
@@ -82,3 +85,8 @@ Route::get('/plans', [\App\Http\Controllers\Api\PlanController::class, 'index'])
 
 // Asaas Webhook (Public POST)
 Route::post('/webhooks/asaas', [\App\Http\Controllers\Api\AsaasWebhookController::class, 'handle']);
+
+// Crawler Webhooks (Authenticated via Sanctum Token)
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::post('/webhooks/crawler/auctions', [\App\Http\Controllers\Api\Crawler\AuctionIngestionController::class, 'store']);
+});

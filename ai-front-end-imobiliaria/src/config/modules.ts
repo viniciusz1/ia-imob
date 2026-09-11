@@ -3,6 +3,7 @@ import {
   Building2,
   Calculator,
   CreditCard,
+  Gavel,
   Globe,
   Landmark,
   Radar,
@@ -34,6 +35,17 @@ export const dashboardModules: DashboardModule[] = [
     dashboard: {
       title: "Gerenciar imóveis",
       description: "Cadastre, edite e acompanhe seus imóveis.",
+    },
+  },
+  {
+    id: "auctions",
+    title: "Leilões de Imóveis",
+    href: "/leiloes",
+    icon: Gavel,
+    permissions: [],
+    dashboard: {
+      title: "Módulo de Leilões",
+      description: "Oportunidades em Jaraguá do Sul e região (Judiciais, Extrajudiciais e CAIXA).",
     },
   },
   {
