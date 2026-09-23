@@ -21,6 +21,7 @@ class NewPropertyResource extends JsonResource
             'new_reason' => $this->resource['new_reason'],
             'history_window_start' => $this->resource['history_window_start'],
             'history_snapshot_count' => $this->resource['history_snapshot_count'],
+            'identified_at' => $this->resource['identified_at'],
             'first_seen_in_current_window_at' => $this->resource['first_seen_in_current_window_at'],
             'is_opportunity' => $this->resource['is_opportunity'],
             'opportunity_score' => $this->resource['opportunity_score'],

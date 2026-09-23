@@ -8,6 +8,7 @@ use App\Models\MarketProperty;
 use App\Services\Crawler\PropertyTypeCatalog;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 
 class NewPropertiesQueryService
 {
@@ -20,12 +21,12 @@ class NewPropertiesQueryService
     /**
      * @return array{groups: list<array<string, mixed>>, meta: array<string, mixed>}
      */
-    public function get(): array
+    public function get(array $options = []): array
     {
         $currentRuns = $this->currentPublishedRuns();
 
         if ($currentRuns->isEmpty()) {
-            return [
+            $empty = [
                 'groups' => [],
                 'meta' => [
                     'updated_at' => null,
@@ -35,8 +36,28 @@ class NewPropertiesQueryService
                     'total_opportunities' => 0,
                 ],
             ];
+
+            return $options === [] ? $empty : $this->applyQueryOptions($empty, $options);
         }
 
+        // A published snapshot is immutable. Reuse its classification when users
+        // browse different filters and pages; a new publication changes the key.
+        $cacheKey = 'new-properties:classified:v1:'.sha1($currentRuns
+            ->map(fn (CrawlerRun $run): string => $run->id.':'.$run->published_at->toISOString())
+            ->implode('|'));
+        $result = app()->environment('testing')
+            ? $this->classifyCurrentInventory($currentRuns)
+            : Cache::remember($cacheKey, now()->addMinutes(5), fn (): array => $this->classifyCurrentInventory($currentRuns));
+
+        return $options === [] ? $result : $this->applyQueryOptions($result, $options);
+    }
+
+    /**
+     * @param  EloquentCollection<int, CrawlerRun>  $currentRuns
+     * @return array{groups: list<array<string, mixed>>, meta: array<string, mixed>}
+     */
+    private function classifyCurrentInventory(EloquentCollection $currentRuns): array
+    {
         $histories = $this->history->forCurrentRuns($currentRuns);
         $properties = $this->currentObservedProperties($currentRuns->pluck('id')->all());
         $propertiesByRun = $properties->groupBy('crawler_run_id');
@@ -79,6 +100,7 @@ class NewPropertiesQueryService
                     'new_reason' => $newReason,
                     'history_window_start' => $historySummary['window_start'],
                     'history_snapshot_count' => $historyCount,
+                    'identified_at' => $run->published_at->toISOString(),
                     'first_seen_in_current_window_at' => ($firstSeen ?? $run->published_at)->toISOString(),
                     ...$opportunity,
                 ];
@@ -118,6 +140,147 @@ class NewPropertiesQueryService
                 'total_opportunities' => collect($groups)->sum('counts.opportunities'),
             ],
         ];
+    }
+
+    /**
+     * Filter and paginate classified listings globally, then rebuild agency groups for this page.
+     * The comparable sample and classification remain based on the full published inventory.
+     *
+     * @param  array{groups: list<array<string, mixed>>, meta: array<string, mixed>}  $result
+     * @return array{groups: list<array<string, mixed>>, meta: array<string, mixed>}
+     */
+    private function applyQueryOptions(array $result, array $options): array
+    {
+        $entries = [];
+        $facets = [
+            'agencies' => [],
+            'cities' => [],
+            'neighborhoods' => [],
+            'types' => [],
+            'purposes' => [],
+        ];
+
+        foreach ($result['groups'] as $groupIndex => $group) {
+            foreach ($group['properties'] as $property) {
+                $model = $property['property'];
+                $facets['agencies'][(int) $group['crawl_agency']['id']] = $group['crawl_agency'];
+                foreach (['cities' => $model->cidade, 'neighborhoods' => $model->bairro] as $name => $value) {
+                    if (trim((string) $value) !== '') {
+                        $facets[$name][(string) $value] = (string) $value;
+                    }
+                }
+                $type = PropertyTypeCatalog::canonicalNameFor($model->tipo) ?? (string) $model->tipo;
+                if ($type !== '') {
+                    $facets['types'][$type] = $type;
+                }
+                if ($property['purpose'] !== null) {
+                    $facets['purposes'][$property['purpose']] = $property['purpose'];
+                }
+
+                if ($this->matchesOptions($property, $group, $options)) {
+                    $entries[] = ['group_index' => $groupIndex, 'property' => $property];
+                }
+            }
+        }
+
+        usort($entries, static function (array $left, array $right) use ($options): int {
+            $a = $left['property'];
+            $b = $right['property'];
+            $dateOrder = strcmp($b['identified_at'], $a['identified_at']);
+            $order = match ($options['sort'] ?? 'identified_desc') {
+                'identified_asc' => -$dateOrder,
+                'opportunity_desc' => ($b['price_advantage_percentage'] ?? -INF) <=> ($a['price_advantage_percentage'] ?? -INF),
+                default => $dateOrder,
+            };
+
+            return $order ?: ($dateOrder ?: ($a['property']->id <=> $b['property']->id));
+        });
+
+        $page = (int) ($options['page'] ?? 1);
+        $perPage = (int) ($options['per_page'] ?? 24);
+        $total = count($entries);
+        $pageEntries = array_slice($entries, ($page - 1) * $perPage, $perPage);
+        $groups = [];
+
+        foreach ($pageEntries as $entry) {
+            $index = $entry['group_index'];
+            if (! isset($groups[$index])) {
+                $groups[$index] = [...$result['groups'][$index], 'properties' => []];
+            }
+            $groups[$index]['properties'][] = $entry['property'];
+        }
+
+        foreach (['cities', 'neighborhoods', 'types', 'purposes'] as $facet) {
+            $facets[$facet] = array_values($facets[$facet]);
+            natcasesort($facets[$facet]);
+            $facets[$facet] = array_values($facets[$facet]);
+        }
+        $facets['agencies'] = array_values($facets['agencies']);
+
+        return [
+            'groups' => array_values($groups),
+            'meta' => [
+                ...$result['meta'],
+                'filtered_total' => $total,
+                'filters' => $facets,
+                'pagination' => [
+                    'page' => $page,
+                    'per_page' => $perPage,
+                    'total' => $total,
+                    'last_page' => max(1, (int) ceil($total / $perPage)),
+                    'has_more' => $page * $perPage < $total,
+                ],
+            ],
+        ];
+    }
+
+    private function matchesOptions(array $property, array $group, array $options): bool
+    {
+        $model = $property['property'];
+        $matchesText = fn ($actual, string $filter): bool => ! isset($options[$filter])
+            || $this->normalize((string) $actual) === $this->normalize((string) $options[$filter]);
+        $matchesCount = static function ($actual, string $filter) use ($options): bool {
+            if (! isset($options[$filter])) {
+                return true;
+            }
+
+            return $options[$filter] === '5+'
+                ? (int) $actual >= 5
+                : (int) $actual === (int) $options[$filter];
+        };
+
+        if (isset($options['agency_id']) && (int) $options['agency_id'] !== (int) $group['crawl_agency']['id']) {
+            return false;
+        }
+        if (! $matchesText($model->cidade, 'city')
+            || ! $matchesText($model->bairro, 'neighborhood')
+            || ! $matchesText(PropertyTypeCatalog::canonicalNameFor($model->tipo) ?? $model->tipo, 'type')
+            || ! $matchesText($property['purpose'], 'purpose')
+            || ! $matchesCount($model->quartos, 'bedrooms')
+            || ! $matchesCount($model->banheiros, 'bathrooms')
+            || ! $matchesCount($model->vagas, 'parking')) {
+            return false;
+        }
+
+        $flag = $options['flag'] ?? 'all';
+        if (($flag === 'new' && ! $property['is_new'])
+            || ($flag === 'opportunity' && ! $property['is_opportunity'])
+            || ($flag === 'both' && (! $property['is_new'] || ! $property['is_opportunity']))) {
+            return false;
+        }
+
+        if (isset($options['search'])) {
+            $haystack = $this->normalize(implode(' ', [
+                $property['title'], $model->tipo, $property['purpose'], $model->cidade,
+                $model->bairro, $model->descricao, $group['crawl_agency']['name'],
+            ]));
+            $needle = $this->normalize((string) $options['search']);
+            if ($needle !== null && ($haystack === null || ! str_contains($haystack, $needle))) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**

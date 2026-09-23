@@ -36,6 +36,7 @@ export interface NewPropertyItem {
   new_reason: NewPropertyReason;
   history_window_start: string;
   history_snapshot_count: number;
+  identified_at: string;
   first_seen_in_current_window_at: string | null;
   is_opportunity: boolean;
   opportunity_score: number | null;
@@ -82,5 +83,36 @@ export interface NewPropertiesResponse {
     total: number;
     total_new: number;
     total_opportunities: number;
+    filtered_total: number;
+    filters: {
+      agencies: { id: number; name: string }[];
+      cities: string[];
+      neighborhoods: string[];
+      types: string[];
+      purposes: string[];
+    };
+    pagination: {
+      page: number;
+      per_page: number;
+      total: number;
+      last_page: number;
+      has_more: boolean;
+    };
   };
+}
+
+export interface NewPropertiesParams {
+  agency_id?: number;
+  city?: string;
+  neighborhood?: string;
+  type?: string;
+  purpose?: string;
+  flag?: NewPropertyFlagFilter;
+  search?: string;
+  bedrooms?: string;
+  bathrooms?: string;
+  parking?: string;
+  sort?: "identified_desc" | "identified_asc" | "opportunity_desc";
+  page?: number;
+  per_page?: number;
 }

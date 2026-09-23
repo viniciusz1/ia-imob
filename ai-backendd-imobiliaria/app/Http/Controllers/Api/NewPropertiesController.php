@@ -14,7 +14,12 @@ class NewPropertiesController extends Controller
         IndexNewPropertiesRequest $request,
         NewPropertiesQueryService $service,
     ): AnonymousResourceCollection {
-        $result = $service->get();
+        $result = $service->get([
+            'page' => 1,
+            'per_page' => 24,
+            'sort' => 'identified_desc',
+            ...$request->validated(),
+        ]);
 
         return NewPropertyAgencyResource::collection($result['groups'])
             ->additional(['meta' => $result['meta']]);

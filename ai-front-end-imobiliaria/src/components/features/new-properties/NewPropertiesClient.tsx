@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   Building2,
@@ -29,7 +29,7 @@ import { getNewProperties } from "@/services/newPropertiesService";
 import type {
   NewPropertyAgencyGroup,
   NewPropertyFlagFilter,
-  NewPropertyItem,
+  NewPropertiesParams,
 } from "@/types/newProperties";
 
 const FILTERS: Array<{ value: NewPropertyFlagFilter; label: string }> = [
@@ -41,49 +41,6 @@ const FILTERS: Array<{ value: NewPropertyFlagFilter; label: string }> = [
 
 const COUNT_FILTER_VALUES = ["1", "2", "3", "4", "5+"] as const;
 type CountFilterValue = "all" | (typeof COUNT_FILTER_VALUES)[number];
-
-function matchesFilter(property: NewPropertyItem, filter: NewPropertyFlagFilter): boolean {
-  if (filter === "new") return property.is_new;
-  if (filter === "opportunity") return property.is_opportunity;
-  if (filter === "both") return property.is_new && property.is_opportunity;
-
-  return true;
-}
-
-function normalize(value: string): string {
-  return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("pt-BR");
-}
-
-function matchesSearch(property: NewPropertyItem, search: string): boolean {
-  if (!search.trim()) return true;
-
-  const searchableText = [
-    property.title,
-    property.tipo,
-    property.purpose,
-    property.bairro,
-    property.cidade,
-    property.imobiliaria,
-    property.descricao,
-  ]
-    .filter(Boolean)
-    .join(" ");
-
-  return normalize(searchableText).includes(normalize(search.trim()));
-}
-
-function uniqueValues(values: string[]): string[] {
-  return Array.from(new Set(values.filter(Boolean))).sort((first, second) =>
-    first.localeCompare(second, "pt-BR"),
-  );
-}
-
-function matchesCount(value: number, filter: CountFilterValue): boolean {
-  if (filter === "all") return true;
-  if (filter === "5+") return value >= 5;
-
-  return value === Number(filter);
-}
 
 function countLabel(value: (typeof COUNT_FILTER_VALUES)[number], unit: string): string {
   if (value === "5+") return `5+ ${unit}`;
@@ -107,9 +64,6 @@ function NewPropertiesSkeleton() {
 }
 
 function AgencyGroup({ group }: { group: NewPropertyAgencyGroup }) {
-  const [visibleCount, setVisibleCount] = useState(12);
-  const visibleProperties = group.properties.slice(0, visibleCount);
-
   return (
     <Card className="gap-0 overflow-hidden border-border/80 py-0 shadow-sm">
       <CardHeader className="border-b bg-gradient-to-r from-primary/[0.07] via-card to-card px-5 py-5 md:px-6">
@@ -148,26 +102,12 @@ function AgencyGroup({ group }: { group: NewPropertyAgencyGroup }) {
           </div>
         ) : (
           <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-            {visibleProperties.map((property) => (
+            {group.properties.map((property) => (
               <NewPropertyCard key={property.id} property={property} />
             ))}
           </div>
         )}
 
-        {group.properties.length > visibleCount && (
-          <div className="mt-6 flex flex-col items-center gap-2 border-t pt-5">
-            <p className="text-sm text-muted-foreground">
-              Mostrando {visibleCount} de {group.properties.length} imóveis
-            </p>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setVisibleCount((current) => current + 12)}
-            >
-              Mostrar mais imóveis
-            </Button>
-          </div>
-        )}
       </CardContent>
     </Card>
   );
@@ -176,61 +116,71 @@ function AgencyGroup({ group }: { group: NewPropertyAgencyGroup }) {
 export function NewPropertiesClient() {
   const [filter, setFilter] = useState<NewPropertyFlagFilter>("all");
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [agency, setAgency] = useState("all");
   const [propertyType, setPropertyType] = useState("all");
   const [city, setCity] = useState("all");
+  const [neighborhood, setNeighborhood] = useState("all");
+  const [purpose, setPurpose] = useState("all");
+  const [sort, setSort] = useState<NonNullable<NewPropertiesParams["sort"]>>("identified_desc");
+  const [page, setPage] = useState(1);
   const [bedrooms, setBedrooms] = useState<CountFilterValue>("all");
   const [bathrooms, setBathrooms] = useState<CountFilterValue>("all");
   const [parkingSpaces, setParkingSpaces] = useState<CountFilterValue>("all");
+  useEffect(() => {
+    const timeout = window.setTimeout(() => setDebouncedSearch(search.trim()), 300);
+
+    return () => window.clearTimeout(timeout);
+  }, [search]);
+
+  const params: NewPropertiesParams = {
+    flag: filter,
+    sort,
+    page,
+    per_page: 24,
+    ...(debouncedSearch && { search: debouncedSearch }),
+    ...(agency !== "all" && { agency_id: Number(agency) }),
+    ...(propertyType !== "all" && { type: propertyType }),
+    ...(city !== "all" && { city }),
+    ...(neighborhood !== "all" && { neighborhood }),
+    ...(purpose !== "all" && { purpose }),
+    ...(bedrooms !== "all" && { bedrooms }),
+    ...(bathrooms !== "all" && { bathrooms }),
+    ...(parkingSpaces !== "all" && { parking: parkingSpaces }),
+  };
   const query = useQuery({
-    queryKey: ["new-properties"],
-    queryFn: getNewProperties,
+    queryKey: ["new-properties", params],
+    queryFn: () => getNewProperties(params),
+    staleTime: 30_000,
   });
-
-  const filterOptions = useMemo(() => {
-    const properties = query.data?.data.flatMap((group) => group.properties) ?? [];
-
-    return {
-      types: uniqueValues(properties.map((property) => property.tipo)),
-      cities: uniqueValues(properties.map((property) => property.cidade)),
-    };
-  }, [query.data]);
+  const filterOptions = query.data?.meta.filters;
 
   const hasPropertyFilters =
     Boolean(search.trim()) ||
+    agency !== "all" ||
     propertyType !== "all" ||
     city !== "all" ||
+    neighborhood !== "all" ||
+    purpose !== "all" ||
     bedrooms !== "all" ||
     bathrooms !== "all" ||
     parkingSpaces !== "all";
 
   function clearPropertyFilters() {
     setSearch("");
+    setDebouncedSearch("");
+    setAgency("all");
     setPropertyType("all");
     setCity("all");
+    setNeighborhood("all");
+    setPurpose("all");
     setBedrooms("all");
     setBathrooms("all");
     setParkingSpaces("all");
+    setPage(1);
   }
 
-  const filteredGroups = useMemo(() => {
-    if (!query.data) return [];
-
-    return query.data.data
-      .map((group) => ({
-        ...group,
-        properties: group.properties.filter(
-          (property) =>
-            matchesFilter(property, filter) &&
-            matchesSearch(property, search) &&
-            (propertyType === "all" || property.tipo === propertyType) &&
-            (city === "all" || property.cidade === city) &&
-            matchesCount(property.quartos, bedrooms) &&
-            matchesCount(property.banheiros, bathrooms) &&
-            matchesCount(property.vagas, parkingSpaces),
-        ),
-      }))
-      .filter((group) => group.properties.length > 0);
-  }, [bathrooms, bedrooms, city, filter, parkingSpaces, propertyType, query.data, search]);
+  const visibleGroups = query.data?.data.filter((group) => group.properties.length > 0) ?? [];
 
   return (
     <div className="mx-auto w-full max-w-[1500px] space-y-6">
@@ -279,7 +229,7 @@ export function NewPropertiesClient() {
             <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
             <Input
               value={search}
-              onChange={(event) => setSearch(event.target.value)}
+              onChange={(event) => { setSearch(event.target.value); setPage(1); }}
               aria-label="Buscar imóveis"
               placeholder="Buscar por imóvel, bairro ou cidade"
               className="pl-9"
@@ -293,7 +243,7 @@ export function NewPropertiesClient() {
                 size="sm"
                 variant={filter === option.value ? "default" : "ghost"}
                 aria-pressed={filter === option.value}
-                onClick={() => setFilter(option.value)}
+                onClick={() => { setFilter(option.value); setPage(1); }}
               >
                 {option.value === "opportunity" && <TrendingDown className="size-4" aria-hidden="true" />}
                 {option.value === "new" && <Sparkles className="size-4" aria-hidden="true" />}
@@ -304,31 +254,61 @@ export function NewPropertiesClient() {
         </div>
 
         <div className="mt-3 flex flex-wrap items-center gap-2 border-t pt-3">
-          <Select value={propertyType} onValueChange={setPropertyType}>
+          <Select value={agency} onValueChange={(value) => { setAgency(value); setPage(1); }}>
+            <SelectTrigger size="sm" aria-label="Filtrar por imobiliária"><SelectValue placeholder="Imobiliária" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas as imobiliárias</SelectItem>
+              {filterOptions?.agencies.map((option) => (
+                <SelectItem key={option.id} value={String(option.id)}>{option.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={propertyType} onValueChange={(value) => { setPropertyType(value); setPage(1); }}>
             <SelectTrigger size="sm" aria-label="Filtrar por tipo">
               <SelectValue placeholder="Tipo" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos os tipos</SelectItem>
-              {filterOptions.types.map((type) => (
+              {filterOptions?.types.map((type) => (
                 <SelectItem key={type} value={type}>{type}</SelectItem>
               ))}
             </SelectContent>
           </Select>
 
-          <Select value={city} onValueChange={setCity}>
+          <Select value={city} onValueChange={(value) => { setCity(value); setPage(1); }}>
             <SelectTrigger size="sm" aria-label="Filtrar por cidade">
               <SelectValue placeholder="Cidade" />
             </SelectTrigger>
             <SelectContent position="popper" align="start" className="max-h-64 overscroll-contain">
               <SelectItem value="all">Todas as cidades</SelectItem>
-              {filterOptions.cities.map((option) => (
+              {filterOptions?.cities.map((option) => (
                 <SelectItem key={option} value={option}>{option}</SelectItem>
               ))}
             </SelectContent>
           </Select>
 
-          <Select value={bedrooms} onValueChange={(value) => setBedrooms(value as CountFilterValue)}>
+          <Select value={neighborhood} onValueChange={(value) => { setNeighborhood(value); setPage(1); }}>
+            <SelectTrigger size="sm" aria-label="Filtrar por bairro"><SelectValue placeholder="Bairro" /></SelectTrigger>
+            <SelectContent position="popper" align="start" className="max-h-64 overscroll-contain">
+              <SelectItem value="all">Todos os bairros</SelectItem>
+              {filterOptions?.neighborhoods.map((option) => (
+                <SelectItem key={option} value={option}>{option}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={purpose} onValueChange={(value) => { setPurpose(value); setPage(1); }}>
+            <SelectTrigger size="sm" aria-label="Filtrar por finalidade"><SelectValue placeholder="Finalidade" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas as finalidades</SelectItem>
+              {filterOptions?.purposes.map((option) => (
+                <SelectItem key={option} value={option}>{option === "locacao" ? "Locação" : "Venda"}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={bedrooms} onValueChange={(value) => { setBedrooms(value as CountFilterValue); setPage(1); }}>
             <SelectTrigger size="sm" aria-label="Filtrar por quartos">
               <SelectValue placeholder="Quartos" />
             </SelectTrigger>
@@ -340,7 +320,7 @@ export function NewPropertiesClient() {
             </SelectContent>
           </Select>
 
-          <Select value={bathrooms} onValueChange={(value) => setBathrooms(value as CountFilterValue)}>
+          <Select value={bathrooms} onValueChange={(value) => { setBathrooms(value as CountFilterValue); setPage(1); }}>
             <SelectTrigger size="sm" aria-label="Filtrar por banheiros">
               <SelectValue placeholder="Banheiros" />
             </SelectTrigger>
@@ -352,7 +332,7 @@ export function NewPropertiesClient() {
             </SelectContent>
           </Select>
 
-          <Select value={parkingSpaces} onValueChange={(value) => setParkingSpaces(value as CountFilterValue)}>
+          <Select value={parkingSpaces} onValueChange={(value) => { setParkingSpaces(value as CountFilterValue); setPage(1); }}>
             <SelectTrigger size="sm" aria-label="Filtrar por vagas">
               <SelectValue placeholder="Vagas" />
             </SelectTrigger>
@@ -361,6 +341,15 @@ export function NewPropertiesClient() {
               {COUNT_FILTER_VALUES.map((value) => (
                 <SelectItem key={value} value={value}>{countLabel(value, "vagas")}</SelectItem>
               ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={sort} onValueChange={(value) => { setSort(value as NonNullable<NewPropertiesParams["sort"]>); setPage(1); }}>
+            <SelectTrigger size="sm" aria-label="Ordenar imóveis"><SelectValue placeholder="Ordenar" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="identified_desc">Mais recentes</SelectItem>
+              <SelectItem value="identified_asc">Mais antigos</SelectItem>
+              <SelectItem value="opportunity_desc">Melhor oportunidade</SelectItem>
             </SelectContent>
           </Select>
 
@@ -396,7 +385,7 @@ export function NewPropertiesClient() {
             Tentar novamente
           </Button>
         </div>
-      ) : filteredGroups.length === 0 ? (
+      ) : visibleGroups.length === 0 ? (
         <div className="rounded-xl border border-dashed p-10 text-center">
           <Sparkles className="mx-auto size-9 text-muted-foreground" aria-hidden="true" />
           <h2 className="mt-3 text-lg font-semibold">Nenhum imóvel encontrado</h2>
@@ -406,9 +395,16 @@ export function NewPropertiesClient() {
         </div>
       ) : (
         <div className="space-y-6">
-          {filteredGroups.map((group) => (
+          {visibleGroups.map((group) => (
             <AgencyGroup key={group.crawl_agency.id} group={group} />
           ))}
+          {query.data && query.data.meta.pagination.last_page > 1 && (
+            <div className="flex items-center justify-center gap-3" aria-label="Paginar imóveis">
+              <Button variant="outline" disabled={page === 1} onClick={() => setPage((current) => current - 1)}>Anterior</Button>
+              <span className="text-sm text-muted-foreground">Página {page} de {query.data.meta.pagination.last_page}</span>
+              <Button variant="outline" disabled={!query.data.meta.pagination.has_more} onClick={() => setPage((current) => current + 1)}>Próxima</Button>
+            </div>
+          )}
         </div>
       )}
     </div>

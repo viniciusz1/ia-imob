@@ -2,9 +2,11 @@
 
 namespace Tests\Feature\NewProperties;
 
+use App\Models\Agency;
 use App\Models\Crawler\ListingIdentity;
 use App\Models\CrawlerRun;
 use App\Models\MarketProperty;
+use App\Models\User;
 use App\Services\Crawler\ListingInventoryService;
 use App\Services\NewProperties\NewPropertiesQueryService;
 use Carbon\CarbonImmutable;
@@ -228,6 +230,123 @@ class NewPropertiesQueryServiceTest extends TestCase
         $this->assertSame([$boundaryRunId], $history['snapshot_ids']);
         $this->assertSame(1, $history['observed_identity_count']);
         $this->assertSame(0, $result['meta']['total_new']);
+    }
+
+    public function test_api_filters_sorts_and_paginates_classified_listings_without_duplicates(): void
+    {
+        $this->seed(\Database\Seeders\PermissionSeeder::class);
+        $user = User::factory()->for(Agency::factory())->create();
+        $user->givePermissionTo('properties.view');
+        $publishedAt = CarbonImmutable::parse('2026-09-23 12:00:00', 'UTC');
+        $firstAgency = $this->createAgency('primeira-origem', $publishedAt);
+        $secondAgency = $this->createAgency('segunda-origem', $publishedAt);
+        $listingIds = [];
+
+        foreach ([$firstAgency, $secondAgency] as $agencyId) {
+            $agencyPublishedAt = $agencyId === $firstAgency ? $publishedAt : $publishedAt->subHours(2);
+            $this->createPublishedRun($agencyId, $agencyPublishedAt->subDay());
+            $runId = $this->createPublishedRun($agencyId, $agencyPublishedAt);
+            $this->pointAgencyToCurrentRun($agencyId, $runId);
+
+            foreach (range(1, $agencyId === $firstAgency ? 4 : 3) as $index) {
+                $listing = $this->createObservedProperty(
+                    $agencyId,
+                    $runId,
+                    "listing-{$agencyId}-{$index}",
+                    $agencyId === $firstAgency && $index === 1 ? 400_000 : 500_000,
+                    null,
+                    $agencyPublishedAt,
+                );
+                $listingIds[] = $listing['property_id'];
+            }
+        }
+
+        $this->actingAs($user);
+        $first = $this->getJson('/api/v1/new-properties?per_page=2&page=1');
+        $first->assertOk()
+            ->assertJsonPath('meta.pagination.total', 7)
+            ->assertJsonPath('meta.pagination.last_page', 4)
+            ->assertJsonPath('meta.pagination.has_more', true)
+            ->assertJsonPath('meta.total_opportunities', 1);
+        $this->assertCount(2, collect($first->json('data'))->flatMap(fn ($group) => $group['properties']));
+
+        $observed = [];
+        foreach (range(1, 4) as $page) {
+            $response = $this->getJson("/api/v1/new-properties?per_page=2&page={$page}")->assertOk();
+            foreach ($response->json('data') as $group) {
+                foreach ($group['properties'] as $property) {
+                    $observed[] = $property['id'];
+                }
+            }
+        }
+        $this->assertEqualsCanonicalizing($listingIds, $observed);
+
+        $this->getJson('/api/v1/new-properties?agency_id='.$firstAgency.'&flag=both&sort=opportunity_desc')
+            ->assertOk()
+            ->assertJsonPath('meta.pagination.total', 1)
+            ->assertJsonPath('data.0.properties.0.is_new', true)
+            ->assertJsonPath('data.0.properties.0.is_opportunity', true)
+            ->assertJsonPath('data.0.properties.0.opportunity_score', 80);
+
+        $this->getJson('/api/v1/new-properties?city=Joinville&neighborhood=Centro&type=Apartamento&purpose=venda&flag=opportunity')
+            ->assertOk()
+            ->assertJsonPath('meta.pagination.total', 1);
+
+        $this->getJson('/api/v1/new-properties?sort=opportunity_desc&per_page=1')
+            ->assertOk()
+            ->assertJsonPath('data.0.properties.0.id', $listingIds[0]);
+
+        $this->getJson('/api/v1/new-properties?sort=identified_asc&per_page=1')
+            ->assertOk()
+            ->assertJsonPath('data.0.properties.0.id', $listingIds[4]);
+
+        $this->getJson('/api/v1/new-properties?search=SEGUNDA&bedrooms=2')
+            ->assertOk()
+            ->assertJsonPath('meta.pagination.total', 3);
+
+        $this->getJson('/api/v1/new-properties?bedrooms=5%2B')
+            ->assertOk()
+            ->assertJsonPath('meta.pagination.total', 0)
+            ->assertJsonCount(0, 'data');
+
+        $this->getJson('/api/v1/new-properties?per_page=2&page=5')
+            ->assertOk()
+            ->assertJsonPath('meta.pagination.total', 7)
+            ->assertJsonCount(0, 'data');
+
+        $this->getJson('/api/v1/new-properties?sort=wrong&per_page=101')->assertUnprocessable();
+    }
+
+    public function test_api_rejects_unauthorized_users_and_handles_missing_listing_data(): void
+    {
+        $this->getJson('/api/v1/new-properties')->assertUnauthorized();
+        $this->seed(\Database\Seeders\PermissionSeeder::class);
+        $agency = Agency::factory()->create();
+        $user = User::factory()->for($agency)->create();
+        $this->actingAs($user)->getJson('/api/v1/new-properties')->assertForbidden();
+
+        $platformAdmin = User::factory()->create(['agency_id' => null]);
+        $platformAdmin->givePermissionTo('properties.view');
+        $this->actingAs($platformAdmin)->getJson('/api/v1/new-properties')->assertForbidden();
+
+        $user->givePermissionTo('properties.view');
+        $publishedAt = CarbonImmutable::parse('2026-09-23 12:00:00', 'UTC');
+        $crawlAgency = $this->createAgency('sem-dados', $publishedAt);
+        $this->createPublishedRun($crawlAgency, $publishedAt->subDay());
+        $runId = $this->createPublishedRun($crawlAgency, $publishedAt);
+        $listing = $this->createObservedProperty($crawlAgency, $runId, 'sem-preco-area-foto', 0, null, $publishedAt);
+        DB::table('crawler.market_properties')->where('id', $listing['property_id'])->update(['area' => null]);
+        $this->pointAgencyToCurrentRun($crawlAgency, $runId);
+
+        $this->actingAs($user)->getJson('/api/v1/new-properties')
+            ->assertOk()
+            ->assertJsonPath('data.0.properties.0.is_new', true)
+            ->assertJsonPath('data.0.properties.0.is_opportunity', false)
+            ->assertJsonPath('data.0.properties.0.opportunity_reason', 'missing_price_or_area')
+            ->assertJsonPath('data.0.properties.0.image', '');
+
+        $agency->update(['is_active' => false]);
+        $this->actingAs($user->fresh())->getJson('/api/v1/new-properties')->assertForbidden();
     }
 
     private function createPublishedRun(int $agencyId, CarbonImmutable $publishedAt): int

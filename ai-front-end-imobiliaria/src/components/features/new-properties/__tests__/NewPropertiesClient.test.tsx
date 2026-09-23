@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { NewPropertiesClient } from "../NewPropertiesClient";
 import { getNewProperties } from "@/services/newPropertiesService";
 import type {
+  NewPropertiesParams,
   NewPropertiesResponse,
   NewPropertyItem,
 } from "@/types/newProperties";
@@ -34,6 +35,7 @@ const newProperty: NewPropertyItem = {
   new_reason: "absent_in_30_day_window",
   history_window_start: "2026-07-28T12:00:00-03:00",
   history_snapshot_count: 4,
+  identified_at: "2026-08-27T12:00:00-03:00",
   first_seen_in_current_window_at: "2026-08-27T09:00:00-03:00",
   is_opportunity: false,
   opportunity_score: null,
@@ -98,6 +100,15 @@ const response: NewPropertiesResponse = {
     total: 2,
     total_new: 1,
     total_opportunities: 1,
+    filtered_total: 2,
+    filters: {
+      agencies: [{ id: 7, name: "Imobiliária Exemplo" }],
+      cities: ["Joinville", "Blumenau"],
+      neighborhoods: ["Centro", "América"],
+      types: ["Apartamento", "Casa"],
+      purposes: ["venda"],
+    },
+    pagination: { page: 1, per_page: 24, total: 2, last_page: 1, has_more: false },
   },
 };
 
@@ -131,12 +142,33 @@ const insufficientResponse: NewPropertiesResponse = {
     },
   ],
   meta: {
+    ...response.meta,
     updated_at: "2026-08-27T13:00:00-03:00",
     total: 1,
     total_new: 0,
     total_opportunities: 1,
   },
 };
+
+function filteredResponse(params: NewPropertiesParams = {}): NewPropertiesResponse {
+  const properties = response.data[0].properties.filter((property) => {
+    if (params.flag === "new" && !property.is_new) return false;
+    if (params.flag === "opportunity" && !property.is_opportunity) return false;
+    if (params.search && !property.title?.toLowerCase().includes(params.search.toLowerCase())) return false;
+    if (params.bedrooms && property.quartos !== Number(params.bedrooms)) return false;
+    return true;
+  });
+
+  return {
+    ...response,
+    data: properties.length ? [{ ...response.data[0], properties }] : [],
+    meta: {
+      ...response.meta,
+      filtered_total: properties.length,
+      pagination: { ...response.meta.pagination, total: properties.length },
+    },
+  };
+}
 
 function renderClient() {
   const queryClient = new QueryClient({
@@ -212,20 +244,52 @@ describe("NewPropertiesClient", () => {
   });
 
   it("filters the cards without losing their Agency grouping", async () => {
-    vi.mocked(getNewProperties).mockResolvedValue(response);
+    vi.mocked(getNewProperties).mockImplementation(async (params) => filteredResponse(params));
 
     renderClient();
     await screen.findByRole("heading", { name: "Apartamento novo no Centro" });
 
     fireEvent.click(screen.getByRole("button", { name: "Oportunidades" }));
 
+    await waitFor(() => expect(getNewProperties).toHaveBeenLastCalledWith(expect.objectContaining({ flag: "opportunity" })));
+    expect(await screen.findByRole("heading", { name: "Casa com bom custo-benefício" })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Apartamento novo no Centro" })).not.toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Casa com bom custo-benefício" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Imobiliária Exemplo" })).toBeInTheDocument();
   });
 
+  it("moves between server pages without repeating the previous cards", async () => {
+    vi.mocked(getNewProperties).mockImplementation(async (params) => ({
+      ...response,
+      data: [{
+        ...response.data[0],
+        properties: [params?.page === 2 ? opportunityProperty : newProperty],
+      }],
+      meta: {
+        ...response.meta,
+        pagination: {
+          page: params?.page ?? 1,
+          per_page: 1,
+          total: 2,
+          last_page: 2,
+          has_more: params?.page !== 2,
+        },
+      },
+    }));
+
+    renderClient();
+    expect(await screen.findByRole("heading", { name: "Apartamento novo no Centro" })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Próxima" }));
+    await waitFor(() => expect(getNewProperties).toHaveBeenLastCalledWith(expect.objectContaining({ page: 2 })));
+    expect(await screen.findByRole("heading", { name: "Casa com bom custo-benefício" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Apartamento novo no Centro" })).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Anterior" }));
+    expect(await screen.findByRole("heading", { name: "Apartamento novo no Centro" })).toBeInTheDocument();
+  });
+
   it("searches listings and applies the main property filters", async () => {
-    vi.mocked(getNewProperties).mockResolvedValue(response);
+    vi.mocked(getNewProperties).mockImplementation(async (params) => filteredResponse(params));
 
     renderClient();
     await screen.findByRole("heading", { name: "Apartamento novo no Centro" });
@@ -234,28 +298,29 @@ describe("NewPropertiesClient", () => {
       target: { value: "centro" },
     });
 
-    expect(screen.getByRole("heading", { name: "Apartamento novo no Centro" })).toBeInTheDocument();
-    expect(screen.queryByRole("heading", { name: "Casa com bom custo-benefício" })).not.toBeInTheDocument();
+    await waitFor(() => expect(getNewProperties).toHaveBeenLastCalledWith(expect.objectContaining({ search: "centro" })));
+    expect(await screen.findByRole("heading", { name: "Apartamento novo no Centro" })).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /limpar filtros/i }));
     fireEvent.click(screen.getByRole("combobox", { name: "Filtrar por quartos" }));
     fireEvent.click(await screen.findByRole("option", { name: "3 quartos" }));
 
-    expect(screen.queryByRole("heading", { name: "Apartamento novo no Centro" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("heading", { name: "Casa com bom custo-benefício" })).not.toBeInTheDocument();
+    await waitFor(() => expect(getNewProperties).toHaveBeenLastCalledWith(expect.objectContaining({ bedrooms: "3" })));
+    expect(await screen.findByRole("heading", { name: "Nenhum imóvel encontrado" })).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /limpar filtros/i }));
     fireEvent.click(screen.getByRole("combobox", { name: "Filtrar por quartos" }));
     fireEvent.click(await screen.findByRole("option", { name: "4 quartos" }));
 
-    expect(screen.queryByRole("heading", { name: "Apartamento novo no Centro" })).not.toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Casa com bom custo-benefício" })).toBeInTheDocument();
+    await waitFor(() => expect(getNewProperties).toHaveBeenLastCalledWith(expect.objectContaining({ bedrooms: "4" })));
+    expect(await screen.findByRole("heading", { name: "Casa com bom custo-benefício" })).toBeInTheDocument();
   });
 
   it("shows the empty state when there are no classified properties", async () => {
     vi.mocked(getNewProperties).mockResolvedValue({
       data: [],
       meta: {
+        ...response.meta,
         updated_at: null,
         total: 0,
         total_new: 0,

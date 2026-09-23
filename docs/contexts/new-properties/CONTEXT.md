@@ -21,6 +21,7 @@ Esta definição estabelece o contrato que orientará as próximas entregas. Dep
 ## Estado da implementação em 27/08/2026
 
 - `GET /api/v1/new-properties` classifica os anúncios dos últimos Snapshots Publicados;
+- A consulta paginada e seus filtros estão documentados em [API.md](./API.md);
 - a consulta compara Listing Identities com os snapshots publicados da mesma origem nos 30 dias anteriores;
 - a oportunidade usa a fórmula de preço por metro quadrado e mediana definida neste documento;
 - `/novos-imoveis` agrupa os cards pela Imobiliária de Origem e permite filtrar as duas flags;
