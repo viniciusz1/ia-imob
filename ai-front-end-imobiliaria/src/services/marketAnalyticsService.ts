@@ -5,6 +5,7 @@ import type {
   MarketOverview,
   MarketPricing,
   MarketRankings,
+  ValuationAnalytics,
 } from "@/types/analytics";
 
 const BASE_PATH = `${API_PREFIX}/analytics/market`;
@@ -56,4 +57,18 @@ export function getMarketPricing(filters: Partial<MarketAnalyticsFilters>) {
 
 export function getMarketRankings(filters: Partial<MarketAnalyticsFilters>, limit = 10) {
   return get<MarketRankings>("rankings", filters, { limite: String(limit) });
+}
+
+export async function getValuationAnalytics(
+  filters: Pick<MarketAnalyticsFilters, "data_inicio" | "data_fim">,
+  limit = 50,
+): Promise<MarketAnalyticsResponse<ValuationAnalytics>> {
+  const params = toQueryParams(filters);
+  params.set("limite", String(limit));
+
+  const { data } = await api.get<MarketAnalyticsResponse<ValuationAnalytics>>(
+    `${API_PREFIX}/analytics/valuations?${params.toString()}`,
+  );
+
+  return data;
 }

@@ -3,6 +3,7 @@ import {
   Bot,
   Building2,
   Calculator,
+  ClipboardList,
   CreditCard,
   Globe,
   Landmark,
@@ -71,6 +72,17 @@ export const dashboardModules: DashboardModule[] = [
     dashboard: {
       title: "Análise de mercado",
       description: "Acompanhe estoque, preços e rankings do mercado coletado.",
+    },
+  },
+  {
+    id: "valuation-analytics",
+    title: "Análise de avaliações",
+    href: "/analitico/avaliacoes",
+    icon: ClipboardList,
+    permissions: ["analytics.market.view"],
+    dashboard: {
+      title: "Análise de avaliações",
+      description: "Acompanhe volume, resultado e valores das avaliações da imobiliária.",
     },
   },
   {

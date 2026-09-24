@@ -62,3 +62,33 @@ export interface MarketAnalyticsFilters {
   data_inicio: string;
   data_fim: string;
 }
+
+export interface CountIndicator {
+  indicator: string;
+  value: number;
+}
+
+export interface ValueIndicator {
+  indicator: string;
+  value: number | null;
+}
+
+export interface ValuationGroupItem {
+  label: string;
+  count: number;
+  median_value: number | null;
+}
+
+export interface ValuationAnalytics {
+  total: CountIndicator;
+  calculated: CountIndicator;
+  insufficient_sample: CountIndicator;
+  calculated_share: ValueIndicator;
+  median_value: ValueIndicator;
+  average_value: ValueIndicator;
+  median_price_per_square_metre: ValueIndicator;
+  by_type: { indicator: string; items: ValuationGroupItem[] };
+  by_neighbourhood: { indicator: string; items: ValuationGroupItem[] };
+  by_month: { indicator: string; items: { label: string; count: number }[] };
+  by_user: { indicator: string; items: ValuationGroupItem[] };
+}
