@@ -1,4 +1,5 @@
 import {
+  BarChart3,
   Bot,
   Building2,
   Calculator,
@@ -59,6 +60,17 @@ export const dashboardModules: DashboardModule[] = [
     dashboard: {
       title: "Buscar com IA",
       description: "Encontre imóveis usando linguagem natural.",
+    },
+  },
+  {
+    id: "market-analytics",
+    title: "Análise de mercado",
+    href: "/analitico/mercado",
+    icon: BarChart3,
+    permissions: ["analytics.market.view"],
+    dashboard: {
+      title: "Análise de mercado",
+      description: "Acompanhe estoque, preços e rankings do mercado coletado.",
     },
   },
   {
