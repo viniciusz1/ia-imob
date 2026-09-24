@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Domain\Valuation\ResidentialType;
+use App\Domain\Valuation\ValuationPurpose;
 use App\Models\PropertyValuation;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -18,6 +19,8 @@ class ValuationResource extends JsonResource
             'id' => $valuation->id,
             'code' => $valuation->code,
             'status' => $valuation->status,
+            'purpose' => $valuation->purpose,
+            'purpose_label' => ValuationPurpose::label($valuation->purpose),
             'status_label' => $valuation->status === PropertyValuation::STATUS_CALCULATED
                 ? 'Calculada'
                 : 'Amostra insuficiente',
@@ -72,9 +75,9 @@ class ValuationResource extends JsonResource
             'central' => (float) $central,
             'max' => (float) $max,
             'display' => [
-                'min' => $this->money((float) $min),
-                'central' => $this->money((float) $central),
-                'max' => $this->money((float) $max),
+                'min' => ValuationPurpose::money((float) $min, $valuation->purpose),
+                'central' => ValuationPurpose::money((float) $central, $valuation->purpose),
+                'max' => ValuationPurpose::money((float) $max, $valuation->purpose),
             ],
         ];
     }
@@ -121,12 +124,5 @@ class ValuationResource extends JsonResource
         }
 
         return $text;
-    }
-
-    private function money(float $value): string
-    {
-        $rounded = round($value / 1000) * 1000;
-
-        return 'R$ '.number_format($rounded, 0, ',', '.');
     }
 }

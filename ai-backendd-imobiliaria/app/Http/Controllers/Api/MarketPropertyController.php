@@ -90,8 +90,9 @@ class MarketPropertyController extends Controller
         }
     }
 
-    public function filters()
+    public function filters(Request $request)
     {
+        $data = $request->validate(['cidade' => ['sometimes', 'required', 'string', 'max:120']]);
         $baseQuery = MarketProperty::query()->latestRun();
 
         $tipos = (clone $baseQuery)
@@ -103,6 +104,7 @@ class MarketPropertyController extends Controller
             ->pluck('tipo');
 
         $bairros = (clone $baseQuery)
+            ->when(isset($data['cidade']), fn ($query) => $query->where('cidade', $data['cidade']))
             ->whereNotNull('bairro')
             ->where('bairro', '!=', '')
             ->distinct()

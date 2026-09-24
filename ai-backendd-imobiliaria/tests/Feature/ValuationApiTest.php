@@ -2,9 +2,9 @@
 
 namespace Tests\Feature;
 
+use App\Models\Agency;
 use App\Models\MarketProperty;
 use App\Models\PropertyValuation;
-use App\Models\Agency;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
@@ -913,6 +913,124 @@ class ValuationApiTest extends TestCase
         $this->get("/api/v1/valuations/{$valuation->id}/report.pdf")->assertNotFound();
         $this->get("/api/v1/valuations/{$valuation->id}/report.docx")->assertNotFound();
         $this->get("/api/v1/valuations/{$valuation->id}/comparables.xlsx")->assertNotFound();
+    }
+
+    public function test_rental_valuation_uses_monthly_rent_and_preserves_its_evidence(): void
+    {
+        $user = User::factory()->for(Agency::factory())->create();
+        $user->givePermissionTo(['valuations.create', 'valuations.view']);
+        Sanctum::actingAs($user);
+
+        foreach ([2000, 2200, 2400, 2600, 2800] as $rent) {
+            $this->createComparable(['valor_aluguel' => $rent]);
+        }
+        $this->createComparable(['valor' => 900000, 'valor_aluguel' => null]);
+        $this->createComparable(['valor_aluguel' => 0]);
+        $this->createComparable(['valor_aluguel' => -100]);
+
+        $response = $this->postJson('/api/v1/valuations', $this->valuationPayload(['purpose' => 'rent']));
+        $response->assertCreated()
+            ->assertJsonPath('data.purpose', 'rent')
+            ->assertJsonPath('data.purpose_label', 'Locação mensal')
+            ->assertJsonPath('data.final_range.min', 2640)
+            ->assertJsonPath('data.final_range.central', 2880)
+            ->assertJsonPath('data.final_range.max', 3120)
+            ->assertJsonPath('data.final_range.display.central', 'R$ 2.880,00 /mês')
+            ->assertJsonPath('data.sample_summary.used_count', 5)
+            ->assertJsonCount(5, 'data.comparable_evidence');
+
+        $id = $response->json('data.id');
+        $this->assertDatabaseHas('property_valuations', ['id' => $id, 'purpose' => 'rent']);
+        $evidence = $response->json('data.comparable_evidence.0');
+        $this->assertSame('rent', $evidence['purpose']);
+        MarketProperty::findOrFail($evidence['market_property_id'])->update(['valor_aluguel' => 9999]);
+        $this->getJson("/api/v1/valuations/{$id}")
+            ->assertOk()
+            ->assertJsonPath('data.comparable_evidence.0.price', $evidence['price'])
+            ->assertJsonPath('data.final_range.central', 2880);
+
+        $word = $this->get("/api/v1/valuations/{$id}/report.docx")->assertOk();
+        $zip = $this->openOfficeZip($word->content());
+        $this->assertStringContainsString('Locação mensal', $zip->getFromName('word/document.xml'));
+        $this->assertStringContainsString('R$ 2.880,00 /mês', $zip->getFromName('word/document.xml'));
+        $zip->close();
+
+        $excel = $this->get("/api/v1/valuations/{$id}/comparables.xlsx")->assertOk();
+        $zip = $this->openOfficeZip($excel->content());
+        $this->assertStringContainsString('Aluguel mensal', $zip->getFromName('xl/sharedStrings.xml'));
+        $zip->close();
+        $this->get("/api/v1/valuations/{$id}/report.pdf")->assertOk();
+    }
+
+    public function test_reviewed_rental_valuation_uses_rent_and_applies_flood_adjustment(): void
+    {
+        $user = User::factory()->for(Agency::factory())->create();
+        $user->givePermissionTo('valuations.create');
+        Sanctum::actingAs($user);
+        $rental = $this->createComparable(['valor_aluguel' => 2350.50, 'valor' => null]);
+        $this->createComparable(['valor_aluguel' => null]);
+
+        $payload = $this->valuationPayload(['purpose' => 'rent', 'area' => 100, 'flood_risk' => true]);
+        $this->postJson('/api/v1/valuations/candidates', $payload)
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.market_property_id', $rental->id)
+            ->assertJsonPath('data.0.price', 2350.50);
+
+        $payload['comparable_reviews'] = [['market_property_id' => $rental->id, 'status' => 'approved']];
+        $this->postJson('/api/v1/valuations', $payload)
+            ->assertCreated()
+            ->assertJsonPath('data.base_range.central', 2350.50)
+            ->assertJsonPath('data.final_range.central', 1645.35)
+            ->assertJsonPath('data.final_range.display.central', 'R$ 1.645,35 /mês');
+
+        $payload['purpose'] = 'sale';
+        $this->postJson('/api/v1/valuations', $payload)->assertUnprocessable()
+            ->assertJsonValidationErrors('comparable_reviews');
+    }
+
+    public function test_sale_remains_the_default_and_does_not_use_rental_prices(): void
+    {
+        $user = User::factory()->for(Agency::factory())->create();
+        $user->givePermissionTo('valuations.create');
+        Sanctum::actingAs($user);
+        foreach (range(1, 5) as $index) {
+            $this->createComparable(['valor' => 600000, 'valor_aluguel' => 2000]);
+        }
+        $this->createComparable(['valor' => null, 'valor_aluguel' => 9000]);
+        $this->postJson('/api/v1/valuations', $this->valuationPayload())
+            ->assertCreated()
+            ->assertJsonPath('data.purpose', 'sale')
+            ->assertJsonPath('data.final_range.central', 720000)
+            ->assertJsonPath('data.sample_summary.used_count', 5);
+    }
+
+    public function test_rental_valuation_does_not_fall_back_to_sale_when_rent_is_missing(): void
+    {
+        $user = User::factory()->for(Agency::factory())->create();
+        $user->givePermissionTo('valuations.create');
+        Sanctum::actingAs($user);
+        foreach (range(1, 5) as $index) {
+            $this->createComparable();
+        }
+        $this->postJson('/api/v1/valuations', $this->valuationPayload(['purpose' => 'rent']))
+            ->assertCreated()
+            ->assertJsonPath('data.purpose', 'rent')
+            ->assertJsonPath('data.status', PropertyValuation::STATUS_INSUFFICIENT_SAMPLE)
+            ->assertJsonPath('data.final_range', null);
+    }
+
+    public function test_invalid_valuation_purposes_are_rejected(): void
+    {
+        $user = User::factory()->for(Agency::factory())->create();
+        $user->givePermissionTo('valuations.create');
+        Sanctum::actingAs($user);
+        foreach (['lease', '', null] as $purpose) {
+            foreach (['/api/v1/valuations', '/api/v1/valuations/candidates'] as $endpoint) {
+                $this->postJson($endpoint, $this->valuationPayload(['purpose' => $purpose]))
+                    ->assertUnprocessable()->assertJsonValidationErrors('purpose');
+            }
+        }
     }
 
     private function valuationPayload(array $overrides = []): array

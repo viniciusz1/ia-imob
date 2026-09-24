@@ -24,6 +24,7 @@ final readonly class CreateMarketValuation
                 'user_id' => $user->id,
                 'code' => $this->nextCode(),
                 'status' => $result->status,
+                'purpose' => $input->purpose,
                 'city' => $input->city,
                 'neighborhood' => $input->neighborhood,
                 'residential_type' => $input->residentialType,

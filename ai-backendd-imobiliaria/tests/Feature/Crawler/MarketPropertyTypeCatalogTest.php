@@ -23,7 +23,7 @@ class MarketPropertyTypeCatalogTest extends TestCase
         $this->assertSame('Apartamento', $knownAlias->refresh()->tipo);
         $this->assertSame('Millenium', $unknownType->refresh()->tipo);
 
-        $response = app(MarketPropertyController::class)->filters();
+        $response = app(MarketPropertyController::class)->filters(Request::create('/api/v1/market-properties/filters'));
 
         $this->assertSame(['Apartamento'], $response->getData(true)['tipos']);
         $this->assertSame(
@@ -31,5 +31,22 @@ class MarketPropertyTypeCatalogTest extends TestCase
             (new MarketPropertyResource($unknownType->refresh()))
                 ->toArray(Request::create('/api/v1/market-properties'))['tipo'],
         );
+    }
+
+    public function test_neighborhood_filters_are_scoped_to_city_without_changing_global_options(): void
+    {
+        MarketProperty::factory()->create(['cidade' => 'Jaragua do Sul', 'bairro' => 'Centro']);
+        MarketProperty::factory()->create(['cidade' => 'Jaragua do Sul', 'bairro' => 'Centro']);
+        MarketProperty::factory()->create(['cidade' => 'Joinville', 'bairro' => 'America']);
+
+        $controller = app(MarketPropertyController::class);
+        $all = $controller->filters(Request::create('/api/v1/market-properties/filters'))->getData(true);
+        $filtered = $controller->filters(Request::create('/api/v1/market-properties/filters', 'GET', ['cidade' => 'Joinville']))->getData(true);
+        $missing = $controller->filters(Request::create('/api/v1/market-properties/filters', 'GET', ['cidade' => 'Unknown']))->getData(true);
+
+        $this->assertSame(['America', 'Centro'], $all['bairros']);
+        $this->assertSame(['America'], $filtered['bairros']);
+        $this->assertSame($all['cidades'], $filtered['cidades']);
+        $this->assertSame([], $missing['bairros']);
     }
 }

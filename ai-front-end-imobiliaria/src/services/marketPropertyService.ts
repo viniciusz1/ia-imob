@@ -11,7 +11,9 @@ export interface MarketPropertyFiltersResponse {
   vagas: number[];
 }
 
-export async function getMarketPropertyFilters(): Promise<MarketPropertyFiltersResponse> {
-  const { data } = await api.get<MarketPropertyFiltersResponse>(`${API_PREFIX}/market-properties/filters`);
+export async function getMarketPropertyFilters(city?: string): Promise<MarketPropertyFiltersResponse> {
+  const { data } = await api.get<MarketPropertyFiltersResponse>(`${API_PREFIX}/market-properties/filters`, {
+    params: city ? { cidade: city } : undefined,
+  });
   return data;
 }

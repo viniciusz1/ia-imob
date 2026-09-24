@@ -2,6 +2,7 @@
 
 namespace App\Services\Valuation;
 
+use App\Domain\Valuation\ValuationPurpose;
 use App\Models\PropertyValuation;
 use ZipArchive;
 
@@ -20,7 +21,7 @@ class ComparableEvidenceExcelGenerator
         $zip->addFromString('_rels/.rels', $this->packageRelationships());
         $zip->addFromString('xl/workbook.xml', $this->workbook());
         $zip->addFromString('xl/_rels/workbook.xml.rels', $this->workbookRelationships());
-        $zip->addFromString('xl/styles.xml', $this->styles());
+        $zip->addFromString('xl/styles.xml', $this->styles($valuation->purpose));
         $zip->addFromString('xl/worksheets/sheet1.xml', $this->worksheet($rows, $strings, $stringIndexes));
         $zip->addFromString('xl/sharedStrings.xml', $this->sharedStrings($strings));
         $zip->close();
@@ -37,6 +38,7 @@ class ComparableEvidenceExcelGenerator
             [
                 ['s', 'Imóveis comparáveis'],
                 ['s', $valuation->code],
+                ['s', ValuationPurpose::label($valuation->purpose)],
             ],
             [
                 ['s', 'Imobiliária'],
@@ -55,8 +57,8 @@ class ComparableEvidenceExcelGenerator
                 ['s', 'Quartos'],
                 ['s', 'Banheiros'],
                 ['s', 'Vagas'],
-                ['s', 'Valor anunciado'],
-                ['s', 'R$/m²'],
+                ['s', $valuation->purpose === ValuationPurpose::RENT ? 'Aluguel mensal' : 'Valor anunciado'],
+                ['s', $valuation->purpose === ValuationPurpose::RENT ? 'R$/m²/mês' : 'R$/m²'],
             ],
         ];
 
@@ -74,8 +76,22 @@ class ComparableEvidenceExcelGenerator
                 ['n', (int) ($comparable['bathrooms'] ?? 0)],
                 ['n', (int) ($comparable['garage_spaces'] ?? 0)],
                 ['n', (float) ($comparable['price'] ?? 0), 2],
-                ['n', (float) ($comparable['price_per_square_meter'] ?? 0), 2],
+                ['n', (float) ($comparable['price_per_square_meter'] ?? 0), 4],
             ];
+        }
+
+        $rows[] = [];
+        $rows[] = [['s', ''], ['s', ''], ['s', $valuation->purpose === ValuationPurpose::RENT ? 'Faixa de aluguel mensal estimada' : 'Faixa de venda estimada', 1]];
+        $rows[] = [['s', ''], ['s', ''], ['s', 'Mínimo', 3], ['s', 'Central', 3], ['s', 'Máximo', 3]];
+        $rows[] = [
+            ['s', ''], ['s', ''],
+            ['n', (float) $valuation->final_min_value, 2],
+            ['n', (float) $valuation->final_central_value, 2],
+            ['n', (float) $valuation->final_max_value, 2],
+        ];
+
+        if ($valuation->purpose === ValuationPurpose::RENT) {
+            $rows[] = [['s', 'Aluguel mensal sem condomínio, IPTU ou outras taxas.']];
         }
 
         return $rows;
@@ -90,8 +106,10 @@ class ComparableEvidenceExcelGenerator
             .'<col min="2" max="2" width="14" customWidth="1"/>'
             .'<col min="3" max="3" width="28" customWidth="1"/>'
             .'<col min="4" max="4" width="36" customWidth="1"/>'
-            .'<col min="5" max="7" width="18" customWidth="1"/>'
-            .'<col min="8" max="13" width="14" customWidth="1"/>'
+            .'<col min="5" max="5" width="28" customWidth="1"/>'
+            .'<col min="6" max="7" width="18" customWidth="1"/>'
+            .'<col min="8" max="11" width="14" customWidth="1"/>'
+            .'<col min="12" max="13" width="28" customWidth="1"/>'
             .'</cols><sheetData>';
 
         foreach ($rows as $rowIndex => $row) {
@@ -143,20 +161,27 @@ class ComparableEvidenceExcelGenerator
             .'</sst>';
     }
 
-    private function styles(): string
+    private function styles(string $purpose): string
     {
+        $moneyUnit = $purpose === ValuationPurpose::RENT ? ' &quot;/mês&quot;' : '';
+        $areaUnit = $purpose === ValuationPurpose::RENT ? ' &quot;/m²/mês&quot;' : ' &quot;/m²&quot;';
+
         return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
             .'<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
-            .'<numFmts count="1"><numFmt numFmtId="164" formatCode="&quot;R$&quot; #,##0"/></numFmts>'
+            .'<numFmts count="2">'
+            .'<numFmt numFmtId="164" formatCode="&quot;R$&quot; #,##0.00'.$moneyUnit.'"/>'
+            .'<numFmt numFmtId="165" formatCode="&quot;R$&quot; #,##0.00'.$areaUnit.'"/>'
+            .'</numFmts>'
             .'<fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="12"/><name val="Calibri"/></font></fonts>'
             .'<fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FFE5E7EB"/><bgColor indexed="64"/></patternFill></fill></fills>'
             .'<borders count="2"><border/><border><left style="thin"/><right style="thin"/><top style="thin"/><bottom style="thin"/></border></borders>'
             .'<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>'
-            .'<cellXfs count="4">'
+            .'<cellXfs count="5">'
             .'<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>'
             .'<xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/>'
             .'<xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>'
             .'<xf numFmtId="0" fontId="1" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"/>'
+            .'<xf numFmtId="165" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>'
             .'</cellXfs>'
             .'</styleSheet>';
     }

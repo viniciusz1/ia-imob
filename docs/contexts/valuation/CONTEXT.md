@@ -99,9 +99,29 @@ A declared characteristic of the subject property that reduces the full market r
 _Avoid_: Comparable filter, scraped flood evidence
 
 **Venda Residencial Urbana (Urban Residential Sale)**:
-The initial valuation scope for houses, apartments, and townhouses offered for sale in urban neighborhoods.
-_Avoid_: Rental valuation, land valuation, commercial valuation, rural valuation
+Valuations of houses, apartments, and townhouses offered for sale in urban neighborhoods.
+_Avoid_: Land valuation, commercial valuation, rural valuation
 
 **Tipo Residencial (Residential Type)**:
 The controlled subject-property type used for valuation, limited to house, apartment, and townhouse in the first version.
 _Avoid_: Raw scraped type, free-text property type
+
+
+**Finalidade da Avaliação (Valuation Purpose)**:
+The transaction being estimated: `sale` (sale price) or `rent` (monthly rent). It is an immutable input of every Saved Valuation. Historical valuations and API requests that omit this input remain `sale`.
+
+**Locação Residencial Urbana (Urban Residential Rental)**:
+Valuations of monthly rent for houses, apartments, and townhouses in urban neighborhoods. Seasonal and daily rentals are outside this scope.
+
+## Sale and rental price contract
+
+- `property_valuations.purpose` stores `sale` or `rent`; range columns retain their existing names. Rental ranges are BRL per month.
+- `crawler.market_properties.valor` retains its sale-price meaning. The nullable decimal `valor_aluguel` stores monthly rent in BRL, excluding condominium fees, property tax and other charges. A listing offered for both transactions may populate both fields; a rent-only listing must leave `valor` null.
+- Ingestion must populate `valor_aluguel` from an explicit monthly rental price. Do not infer it from sale prices or copy ambiguous legacy `valor` values. Existing market records keep `valor_aluguel = null` until ingestion supplies rental data.
+- Rental comparisons require a finite, strictly positive `valor_aluguel`; sale comparisons keep the existing R$ 50,000 to R$ 100,000,000 validation. Both retain the area and characteristic validations. There is no sale-price fallback for rent, or rental-price fallback for sale.
+- Both purposes use price divided by area, then p25/median/p75 multiplied by the subject area. Existing sample selection, manual review and declared flood-risk adjustment apply to both purposes.
+- Comparable Evidence preserves `purpose`, the selected `price`, and `price_per_square_meter`. Evidence saved before this extension is sale evidence. Rental amounts display cents and a monthly unit in the UI and reports.
+
+## Deployment
+
+Run `php artisan migrate` in the backend to add the purpose and monthly-rent columns. Deploy the backend before the updated frontend. The crawler implementation is not included in this checkout; its ingestion must adopt the price contract above before rental valuations have a usable sample. Missing rental prices produce Insufficient Sample rather than an estimate derived from sales.

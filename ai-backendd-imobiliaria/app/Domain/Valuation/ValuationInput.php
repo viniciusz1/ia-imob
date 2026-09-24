@@ -17,5 +17,6 @@ final readonly class ValuationInput
         public int $bathrooms,
         public int $garageSpaces,
         public bool $floodRisk,
+        public string $purpose = ValuationPurpose::SALE,
     ) {}
 }

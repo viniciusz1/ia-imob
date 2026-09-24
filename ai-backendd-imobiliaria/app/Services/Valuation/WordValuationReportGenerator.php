@@ -3,6 +3,7 @@
 namespace App\Services\Valuation;
 
 use App\Domain\Valuation\ResidentialType;
+use App\Domain\Valuation\ValuationPurpose;
 use App\Models\PropertyValuation;
 use Illuminate\Support\Facades\Storage;
 use ZipArchive;
@@ -49,6 +50,7 @@ class WordValuationReportGenerator
             $this->table([
                 [
                     ['Número da avaliação', $valuation->code],
+                    ['Finalidade', ValuationPurpose::label($valuation->purpose)],
                     ['Data do parecer', $valuation->created_at?->format('d/m/Y') ?? '-'],
                     ['Responsável', $valuation->user?->name ?? '-'],
                 ],
@@ -66,10 +68,10 @@ class WordValuationReportGenerator
                 ],
                 [
                     ['Área privativa / útil', $this->number((float) $valuation->area).' m²'],
-                    ['Valor estimado de mercado', $this->money((float) $valuation->final_central_value)],
+                    [$valuation->purpose === ValuationPurpose::RENT ? 'Aluguel mensal estimado' : 'Valor estimado de mercado', ValuationPurpose::money((float) $valuation->final_central_value, $valuation->purpose)],
                 ],
                 [
-                    ['Faixa de negociação', 'De '.$this->money((float) $valuation->final_min_value).' a '.$this->money((float) $valuation->final_max_value)],
+                    ['Faixa de negociação', 'De '.ValuationPurpose::money((float) $valuation->final_min_value, $valuation->purpose).' a '.ValuationPurpose::money((float) $valuation->final_max_value, $valuation->purpose)],
                     ['Liquidez esperada', $this->liquidityLabel((int) ($summary['used_count'] ?? 0))],
                 ],
             ]),
@@ -97,24 +99,24 @@ class WordValuationReportGenerator
                 ],
             ]),
             $this->section('5. Amostras comparativas de mercado'),
-            $this->comparablesTable($comparables),
+            $this->comparablesTable($comparables, $valuation->purpose),
             $this->section('6. Cálculo do valor'),
             $this->table([
                 [
                     ['Indicador', 'Valor / fórmula', 'Observação'],
                 ],
                 [
-                    ['Faixa mínima sugerida', $this->money((float) $valuation->final_min_value), 'Base inferior do valor por m² aplicado à área do imóvel.'],
+                    ['Faixa mínima sugerida', ValuationPurpose::money((float) $valuation->final_min_value, $valuation->purpose), 'Base inferior do valor por m² aplicado à área do imóvel.'],
                 ],
                 [
-                    ['Valor estimado de mercado', $this->money((float) $valuation->final_central_value), 'Mediana ajustada do valor por m² aplicada à área do imóvel.'],
+                    [$valuation->purpose === ValuationPurpose::RENT ? 'Aluguel mensal estimado' : 'Valor estimado de mercado', ValuationPurpose::money((float) $valuation->final_central_value, $valuation->purpose), 'Mediana ajustada do valor por m² aplicada à área do imóvel.'],
                 ],
                 [
-                    ['Faixa máxima sugerida', $this->money((float) $valuation->final_max_value), 'Base superior do valor por m² aplicado à área do imóvel.'],
+                    ['Faixa máxima sugerida', ValuationPurpose::money((float) $valuation->final_max_value, $valuation->purpose), 'Base superior do valor por m² aplicado à área do imóvel.'],
                 ],
             ]),
             $this->section('7. Parecer final'),
-            $this->paragraph('Com base nas amostras comparativas disponíveis na data-base da avaliação, o valor estimado de mercado é '.$this->money((float) $valuation->final_central_value).', com faixa sugerida entre '.$this->money((float) $valuation->final_min_value).' e '.$this->money((float) $valuation->final_max_value).'.'),
+            $this->paragraph('Com base nas amostras comparativas disponíveis na data-base da avaliação, o valor estimado de mercado é '.ValuationPurpose::money((float) $valuation->final_central_value, $valuation->purpose).', com faixa sugerida entre '.ValuationPurpose::money((float) $valuation->final_min_value, $valuation->purpose).' e '.ValuationPurpose::money((float) $valuation->final_max_value, $valuation->purpose).'.'),
             $this->section('8. Observações, limitações e responsabilidade'),
             $this->paragraph('Esta avaliação depende da qualidade dos dados disponíveis, da amostra comparativa preservada e das condições de mercado na data do parecer. Não substitui laudo técnico ou pericial quando exigido por norma, banco ou decisão judicial.'),
             $this->section('9. Assinaturas'),
@@ -160,7 +162,7 @@ class WordValuationReportGenerator
             .'</w:p></w:ftr>';
     }
 
-    private function comparablesTable(array $comparables): string
+    private function comparablesTable(array $comparables, string $purpose): string
     {
         $rows = [
             [
@@ -170,8 +172,8 @@ class WordValuationReportGenerator
                 ['Bairro', ''],
                 ['Tipo', ''],
                 ['Área m²', ''],
-                ['R$/m²', ''],
-                ['Valor anunciado', ''],
+                [$purpose === ValuationPurpose::RENT ? 'R$/m²/mês' : 'R$/m²', ''],
+                [$purpose === ValuationPurpose::RENT ? 'Aluguel mensal' : 'Valor anunciado', ''],
             ],
         ];
 
@@ -183,8 +185,8 @@ class WordValuationReportGenerator
                 [(string) ($comparable['neighborhood'] ?? '-'), ''],
                 [(string) ($comparable['raw_type'] ?? '-'), ''],
                 [$this->number((float) ($comparable['area'] ?? 0)), ''],
-                [$this->money((float) ($comparable['price_per_square_meter'] ?? 0)), ''],
-                [$this->money((float) ($comparable['price'] ?? 0)), ''],
+                [ValuationPurpose::money((float) ($comparable['price_per_square_meter'] ?? 0), $purpose), ''],
+                [ValuationPurpose::money((float) ($comparable['price'] ?? 0), $purpose), ''],
             ];
         }
 
@@ -352,13 +354,6 @@ class WordValuationReportGenerator
         }
 
         return $usedCount >= 8 ? 'Média' : 'Baixa';
-    }
-
-    private function money(float $value): string
-    {
-        $rounded = round($value / 1000) * 1000;
-
-        return 'R$ '.number_format($rounded, 0, ',', '.');
     }
 
     private function number(float $value): string

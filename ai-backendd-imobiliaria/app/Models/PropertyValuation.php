@@ -20,6 +20,7 @@ class PropertyValuation extends Model
         'user_id',
         'code',
         'status',
+        'purpose',
         'city',
         'neighborhood',
         'residential_type',
@@ -38,6 +39,8 @@ class PropertyValuation extends Model
         'sample_summary',
         'comparable_evidence',
     ];
+
+    protected $attributes = ['purpose' => 'sale'];
 
     protected $casts = [
         'area' => 'decimal:2',

@@ -1,7 +1,7 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
-import { Calculator, Check, Download, ExternalLink, FileSpreadsheet, FileText, Loader2, Plus, Search, X } from "lucide-react";
+import { type ComponentProps, FormEvent, useEffect, useMemo, useState } from "react";
+import { Calculator, Check, ChevronDown, Download, ExternalLink, FileSpreadsheet, FileText, Loader2, Plus, Search, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
@@ -24,6 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import {
   Table,
   TableBody,
@@ -44,6 +45,7 @@ import {
 import { getMarketPropertyFilters } from "@/services/marketPropertyService";
 import { authService } from "@/services/authService";
 import { useAuthStore } from "@/store/useAuthStore";
+import { formatValuationMoney as formatMoney, valuationPresentation } from "./valuationPresentation";
 import type {
   ComparableCandidate,
   ComparableReview,
@@ -52,6 +54,7 @@ import type {
   ResidentialType,
   Valuation,
   ValuationInput,
+  ValuationPurpose,
 } from "@/types/valuation";
 
 const residentialTypes: Array<{ value: ResidentialType; label: string }> = [
@@ -60,9 +63,17 @@ const residentialTypes: Array<{ value: ResidentialType; label: string }> = [
   { value: "townhouse", label: "Sobrado" },
 ];
 
-const initialInput: ValuationInput = {
-  city: [],
-  neighborhood: [],
+type Finalidade = "venda" | "locacao";
+type ValuationForm = Omit<ValuationInput, "purpose" | "city" | "neighborhood"> & {
+  finalidade: Finalidade;
+  city: string;
+  neighborhood: string;
+};
+
+const initialInput: ValuationForm = {
+  finalidade: "venda",
+  city: "",
+  neighborhood: "",
   residential_type: "house",
   area: 100,
   bedrooms: 3,
@@ -85,12 +96,17 @@ function formatNumber(value: number): string {
   }).format(value);
 }
 
-function formatMoney(value: number): string {
-  return new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-    maximumFractionDigits: 0,
-  }).format(Math.round(value / 1000) * 1000);
+function LocationSelect({ value, ...props }: ComponentProps<"select">) {
+  return (
+    <div className="relative w-full min-w-0">
+      <select
+        {...props}
+        value={value}
+        className={`peer h-9 w-full min-w-0 cursor-pointer appearance-none truncate rounded-md border border-input bg-background py-1 pl-3 pr-9 text-sm shadow-xs outline-none transition-colors enabled:hover:border-ring/60 enabled:hover:bg-accent/30 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:bg-muted/50 disabled:text-muted-foreground dark:[color-scheme:dark] [&>option]:bg-background [&>option]:text-foreground ${value ? "text-foreground" : "text-muted-foreground"}`}
+      />
+      <ChevronDown aria-hidden="true" className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-muted-foreground peer-disabled:opacity-40" />
+    </div>
+  );
 }
 
 function nextReviewStatus(status: ComparableReviewStatus): ComparableReviewStatus {
@@ -131,9 +147,10 @@ function comparableReviewsFrom(candidates: ComparableCandidate[]): ComparableRev
 export function ValuationsClient() {
   const user = useAuthStore((state) => state.user);
   const setUser = useAuthStore((state) => state.setUser);
-  const [form, setForm] = useState<ValuationInput>(initialInput);
+  const [form, setForm] = useState<ValuationForm>(initialInput);
   const [valuations, setValuations] = useState<Valuation[]>([]);
   const [selected, setSelected] = useState<Valuation | null>(null);
+  const [candidatesInput, setCandidatesInput] = useState<ValuationInput | null>(null);
   const [candidates, setCandidates] = useState<ComparableCandidate[]>([]);
   const [selectedCandidateIds, setSelectedCandidateIds] = useState<Set<number>>(() => new Set());
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -144,6 +161,7 @@ export function ValuationsClient() {
   const [availableCities, setAvailableCities] = useState<string[]>([]);
   const [availableNeighborhoods, setAvailableNeighborhoods] = useState<string[]>([]);
   const [isLoadingFilters, setIsLoadingFilters] = useState(true);
+  const [isLoadingNeighborhoods, setIsLoadingNeighborhoods] = useState(false);
   const permissions = Array.isArray(user?.permissions) ? user.permissions : null;
   const canCreate = permissions?.includes("valuations.create") ?? false;
   const canView = permissions?.includes("valuations.view") ?? false;
@@ -151,6 +169,9 @@ export function ValuationsClient() {
 
   const selectedComparables = selected?.comparable_evidence ?? [];
   const selectedRange = selected?.final_range;
+  const formPurpose: ValuationPurpose = form.finalidade === "locacao" ? "rent" : "sale";
+  const formPresentation = valuationPresentation(formPurpose);
+  const resultPresentation = valuationPresentation(selected?.purpose ?? formPurpose);
   const pendingCandidates = candidates.filter((candidate) => candidate.review_status === "pending").length;
   const approvedCandidates = candidates.filter((candidate) => candidate.review_status === "approved").length;
   const rejectedCandidates = candidates.filter((candidate) => candidate.review_status === "rejected").length;
@@ -204,7 +225,6 @@ export function ValuationsClient() {
       try {
         const filters = await getMarketPropertyFilters();
         setAvailableCities(filters.cidades);
-        setAvailableNeighborhoods(filters.bairros);
       } catch (error) {
         console.error("Erro ao carregar filtros de localidade", error);
         toast.error("Não foi possível carregar as cidades e bairros disponíveis.");
@@ -215,6 +235,35 @@ export function ValuationsClient() {
 
     void loadFilters();
   }, []);
+
+  useEffect(() => {
+    if (!form.city) return;
+    let active = true;
+    async function loadNeighborhoods() {
+      try {
+        const filters = await getMarketPropertyFilters(form.city);
+        if (active) setAvailableNeighborhoods(filters.bairros);
+      } catch (error) {
+        if (active) {
+          console.error("Erro ao carregar bairros", error);
+          toast.error("Não foi possível carregar os bairros desta cidade. Selecione a cidade novamente para tentar.");
+        }
+      } finally {
+        if (active) setIsLoadingNeighborhoods(false);
+      }
+    }
+    void loadNeighborhoods();
+    return () => { active = false; };
+  }, [form.city]);
+
+  function updateCity(city: string) {
+    setForm((current) => ({ ...current, city, neighborhood: "" }));
+    setAvailableNeighborhoods([]);
+    setIsLoadingNeighborhoods(Boolean(city));
+    setCandidates([]);
+    setCandidatesInput(null);
+    setSelectedCandidateIds(new Set());
+  }
 
   async function loadHistory() {
     setIsLoadingHistory(true);
@@ -236,24 +285,26 @@ export function ValuationsClient() {
     }));
   }
 
-  function updateMultiSelect(field: "city" | "neighborhood", select: HTMLSelectElement) {
-    const selected: string[] = Array.from(select.selectedOptions).map((option) => option.value);
-
-    setForm((current) => ({ ...current, [field]: selected }));
-  }
-
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!canCreate) return;
 
-    if (form.city.length === 0 || form.neighborhood.length === 0) {
-      toast.error("Selecione pelo menos uma cidade e um bairro.");
+    if (!form.city || !form.neighborhood || isLoadingNeighborhoods || !availableNeighborhoods.includes(form.neighborhood)) {
+      toast.error("Selecione uma cidade e um bairro.");
       return;
     }
 
     setIsLoadingCandidates(true);
     try {
-      const comparableCandidates = await getValuationCandidates(form);
+      const { finalidade, city, neighborhood, ...characteristics } = form;
+      const input: ValuationInput = {
+        ...characteristics,
+        city: [city],
+        neighborhood: [neighborhood],
+        purpose: finalidade === "locacao" ? "rent" : "sale",
+      };
+      const comparableCandidates = await getValuationCandidates(input);
+      setCandidatesInput(input);
       setCandidates(comparableCandidates);
       setSelectedCandidateIds(new Set());
       toast.success(`${comparableCandidates.length} comparáveis encontrados para revisão.`);
@@ -267,6 +318,8 @@ export function ValuationsClient() {
 
   async function handleCreateReviewedValuation() {
     if (!canCreate) return;
+
+    if (!candidatesInput) return;
 
     const comparableReviews = comparableReviewsFrom(candidates);
 
@@ -283,7 +336,7 @@ export function ValuationsClient() {
     setIsSubmitting(true);
     try {
       const valuation = await createValuation({
-        ...form,
+        ...candidatesInput,
         comparable_reviews: comparableReviews,
       });
       setSelected(valuation);
@@ -377,7 +430,10 @@ export function ValuationsClient() {
   }
 
   function handleNewValuation() {
+    setAvailableNeighborhoods([]);
+    setIsLoadingNeighborhoods(false);
     setForm(initialInput);
+    setCandidatesInput(null);
     setCandidates([]);
     setSelectedCandidateIds(new Set());
     setSelected(null);
@@ -407,9 +463,9 @@ export function ValuationsClient() {
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-6">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex flex-col gap-2">
-          <h1 className="text-3xl font-bold tracking-tight">Avaliar imóvel</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{formPresentation.title}</h1>
           <p className="text-muted-foreground">
-            Calcule uma avaliação de mercado com base em imóveis comparáveis da base.
+            {formPresentation.description}
           </p>
         </div>
         {canCreate && (
@@ -439,45 +495,71 @@ export function ValuationsClient() {
           <CardContent>
             <form className="space-y-4" onSubmit={handleSubmit}>
               <div className="space-y-2">
+                <Label id="valuation-purpose-label">Finalidade</Label>
+                <ToggleGroup
+                  role="radiogroup"
+                  aria-labelledby="valuation-purpose-label"
+                  value={form.finalidade}
+                  className="w-full rounded-lg p-1"
+                  onValueChange={(finalidade) => {
+                    if (finalidade !== "venda" && finalidade !== "locacao") return;
+                    if (finalidade === form.finalidade) return;
+                    setForm((current) => ({ ...current, finalidade }));
+                    setCandidates([]);
+                    setCandidatesInput(null);
+                    setSelectedCandidateIds(new Set());
+                  }}
+                >
+                  <ToggleGroupItem value="venda" className="h-9 flex-1 rounded-md" disabled={isLoadingCandidates || isSubmitting}>
+                    Venda
+                  </ToggleGroupItem>
+                  <ToggleGroupItem value="locacao" className="h-9 flex-1 rounded-md" disabled={isLoadingCandidates || isSubmitting}>
+                    Locação
+                  </ToggleGroupItem>
+                </ToggleGroup>
+                <p className="text-xs text-muted-foreground">{formPresentation.hint}</p>
+              </div>
+              <div className="space-y-2">
                 <Label htmlFor="city">Cidade</Label>
-                <select
+                <LocationSelect
                   id="city"
-                  multiple
                   value={form.city}
-                  onChange={(event) => updateMultiSelect("city", event.target as HTMLSelectElement)}
+                  onChange={(event) => updateCity(event.target.value)}
                   disabled={isLoadingFilters}
-                  className="border-input bg-background focus-visible:ring-ring aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive w-full rounded-md border px-3 py-2 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50"
-                  size={5}
                   required
                 >
+                  <option value="">Selecione uma cidade</option>
                   {availableCities.map((city) => (
                     <option key={city} value={city}>
                       {city}
                     </option>
                   ))}
-                </select>
-                <p className="text-xs text-muted-foreground">Segure Ctrl (ou Cmd) para selecionar várias cidades.</p>
+                </LocationSelect>
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="neighborhood">Bairro</Label>
-                <select
+                <LocationSelect
                   id="neighborhood"
-                  multiple
                   value={form.neighborhood}
-                  onChange={(event) => updateMultiSelect("neighborhood", event.target as HTMLSelectElement)}
-                  disabled={isLoadingFilters}
-                  className="border-input bg-background focus-visible:ring-ring aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive w-full rounded-md border px-3 py-2 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50"
-                  size={5}
+                  onChange={(event) => {
+                    const neighborhood = event.target.value;
+                    if (form.city && !isLoadingNeighborhoods && availableNeighborhoods.includes(neighborhood)) {
+                      setForm((current) => ({ ...current, neighborhood }));
+                    }
+                  }}
+                  disabled={!form.city || isLoadingNeighborhoods || availableNeighborhoods.length === 0}
                   required
                 >
+                  <option value="" disabled>
+                    {!form.city ? "Selecione primeiro uma cidade" : isLoadingNeighborhoods ? "Carregando bairros..." : availableNeighborhoods.length === 0 ? "Nenhum bairro disponível" : "Selecione um bairro"}
+                  </option>
                   {availableNeighborhoods.map((neighborhood) => (
                     <option key={neighborhood} value={neighborhood}>
                       {neighborhood}
                     </option>
                   ))}
-                </select>
-                <p className="text-xs text-muted-foreground">Segure Ctrl (ou Cmd) para selecionar vários bairros.</p>
+                </LocationSelect>
               </div>
 
               <div className="space-y-2">
@@ -569,9 +651,10 @@ export function ValuationsClient() {
           </CardContent>
         </Card>}
 
-        <div className="flex flex-col gap-6">
+        <div className="flex min-w-0 flex-col gap-6">
           {canCreate && candidates.length > 0 && (
             <ComparableReviewPanel
+              purpose={candidatesInput?.purpose ?? formPurpose}
               candidates={candidates}
               selectedCandidateIds={selectedCandidateIds}
               pendingCount={pendingCandidates}
@@ -591,9 +674,9 @@ export function ValuationsClient() {
           <Card>
             <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
-                <CardTitle>Resultado</CardTitle>
+                <CardTitle>{resultPresentation.estimatedValue}</CardTitle>
                 <CardDescription>
-                  {selected ? `${selected.code} - ${selected.status_label}` : "Nenhuma avaliação selecionada"}
+                  {selected ? `${selected.code} - ${selected.purpose_label} - ${selected.status_label}` : "Nenhuma avaliação selecionada"}
                 </CardDescription>
               </div>
               {selected && (
@@ -610,18 +693,18 @@ export function ValuationsClient() {
               ) : (
                 <>
                   {selectedRange ? (
-                    <div className="grid gap-3 md:grid-cols-3">
-                      <div className="rounded-md border p-4">
+                    <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,18rem),1fr))] gap-3">
+                      <div className="min-w-0 rounded-md border p-4">
                         <p className="text-sm text-muted-foreground">Mínimo</p>
-                        <p className="text-2xl font-semibold">{selectedRange.display.min}</p>
+                        <p className="text-xl font-semibold tabular-nums [overflow-wrap:anywhere]">{formatMoney(selectedRange.min, selected.purpose)}</p>
                       </div>
-                      <div className="rounded-md border p-4">
+                      <div className="min-w-0 rounded-md border p-4">
                         <p className="text-sm text-muted-foreground">Central</p>
-                        <p className="text-2xl font-semibold">{selectedRange.display.central}</p>
+                        <p className="text-xl font-semibold tabular-nums [overflow-wrap:anywhere]">{formatMoney(selectedRange.central, selected.purpose)}</p>
                       </div>
-                      <div className="rounded-md border p-4">
+                      <div className="min-w-0 rounded-md border p-4">
                         <p className="text-sm text-muted-foreground">Máximo</p>
-                        <p className="text-2xl font-semibold">{selectedRange.display.max}</p>
+                        <p className="text-xl font-semibold tabular-nums [overflow-wrap:anywhere]">{formatMoney(selectedRange.max, selected.purpose)}</p>
                       </div>
                     </div>
                   ) : (
@@ -687,7 +770,7 @@ export function ValuationsClient() {
                     </div>
                   )}
 
-                  <ComparableTable comparables={selectedComparables} />
+                  <ComparableTable comparables={selectedComparables} purpose={selected.purpose} />
                 </>
               )}
             </CardContent>
@@ -718,7 +801,8 @@ export function ValuationsClient() {
                       <TableHead>Código</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Imóvel</TableHead>
-                      <TableHead>Valor central</TableHead>
+                      <TableHead>Finalidade</TableHead>
+                      <TableHead>Valor estimado</TableHead>
                       <TableHead />
                     </TableRow>
                   </TableHeader>
@@ -730,7 +814,8 @@ export function ValuationsClient() {
                         <TableCell>
                           {valuation.subject_property.neighborhood}, {valuation.subject_property.city}
                         </TableCell>
-                        <TableCell>{valuation.final_range?.display.central ?? "-"}</TableCell>
+                        <TableCell>{valuation.purpose_label}</TableCell>
+                        <TableCell>{valuation.final_range ? formatMoney(valuation.final_range.central, valuation.purpose) : "-"}</TableCell>
                         <TableCell className="text-right">
                           <Button type="button" variant="outline" size="sm" onClick={() => void handleSelect(valuation.id)}>
                             Abrir
@@ -750,6 +835,7 @@ export function ValuationsClient() {
 }
 
 interface ComparableReviewPanelProps {
+  purpose: ValuationPurpose;
   candidates: ComparableCandidate[];
   selectedCandidateIds: Set<number>;
   pendingCount: number;
@@ -766,6 +852,7 @@ interface ComparableReviewPanelProps {
 }
 
 function ComparableReviewPanel({
+  purpose,
   candidates,
   selectedCandidateIds,
   pendingCount,
@@ -858,8 +945,8 @@ function ComparableReviewPanel({
                 <TableHead>Origem</TableHead>
                 <TableHead>Bairro</TableHead>
                 <TableHead>Área</TableHead>
-                <TableHead>Valor</TableHead>
-                <TableHead>Valor/m²</TableHead>
+                <TableHead>{valuationPresentation(purpose).price}</TableHead>
+                <TableHead>{valuationPresentation(purpose).pricePerArea}</TableHead>
                 <TableHead>Imóvel</TableHead>
               </TableRow>
             </TableHeader>
@@ -891,8 +978,8 @@ function ComparableReviewPanel({
                     <TableCell>{candidate.agency ?? "-"}</TableCell>
                     <TableCell>{candidate.neighborhood}</TableCell>
                     <TableCell>{formatNumber(candidate.area)} m²</TableCell>
-                    <TableCell>{formatMoney(candidate.price)}</TableCell>
-                    <TableCell>{formatMoney(candidate.price_per_square_meter)}</TableCell>
+                    <TableCell>{formatMoney(candidate.price, candidate.purpose ?? purpose)}</TableCell>
+                    <TableCell>{formatMoney(candidate.price_per_square_meter, candidate.purpose ?? purpose)}</TableCell>
                     <TableCell>
                       {candidate.link ? (
                         <a
@@ -926,7 +1013,7 @@ function ComparableReviewPanel({
   );
 }
 
-function ComparableTable({ comparables }: { comparables: Valuation["comparable_evidence"] }) {
+function ComparableTable({ comparables, purpose }: { comparables: Valuation["comparable_evidence"]; purpose: ValuationPurpose }) {
   if (comparables.length === 0) {
     return null;
   }
@@ -940,8 +1027,8 @@ function ComparableTable({ comparables }: { comparables: Valuation["comparable_e
             <TableHead>Status</TableHead>
             <TableHead>Bairro</TableHead>
             <TableHead>Área</TableHead>
-            <TableHead>Valor</TableHead>
-            <TableHead>Valor/m²</TableHead>
+            <TableHead>{valuationPresentation(purpose).price}</TableHead>
+            <TableHead>{valuationPresentation(purpose).pricePerArea}</TableHead>
             <TableHead>Origem</TableHead>
           </TableRow>
         </TableHeader>
@@ -959,8 +1046,8 @@ function ComparableTable({ comparables }: { comparables: Valuation["comparable_e
               </TableCell>
               <TableCell>{comparable.neighborhood}</TableCell>
               <TableCell>{formatNumber(comparable.area)} m²</TableCell>
-              <TableCell>{formatMoney(comparable.price)}</TableCell>
-              <TableCell>{formatMoney(comparable.price_per_square_meter)}</TableCell>
+              <TableCell>{formatMoney(comparable.price, comparable.purpose ?? purpose)}</TableCell>
+              <TableCell>{formatMoney(comparable.price_per_square_meter, comparable.purpose ?? purpose)}</TableCell>
               <TableCell>
                 {comparable.link ? (
                   <div className="flex flex-col gap-1">
