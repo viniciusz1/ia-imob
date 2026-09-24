@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\Analytics\MarketOverviewController;
 use App\Http\Controllers\Api\Analytics\MarketPricingController;
 use App\Http\Controllers\Api\Analytics\MarketRankingsController;
+use App\Http\Controllers\Api\Analytics\ValuationAnalyticsController;
 use App\Http\Middleware\EnsureAgencyIsActive;
 use Illuminate\Support\Facades\Route;
 
@@ -13,3 +14,6 @@ Route::middleware(['auth:sanctum', EnsureAgencyIsActive::class, 'can:analytics.m
         Route::get('/pricing', MarketPricingController::class);
         Route::get('/rankings', MarketRankingsController::class);
     });
+
+Route::middleware(['auth:sanctum', EnsureAgencyIsActive::class, 'can:analytics.market.view'])
+    ->get('analytics/valuations', ValuationAnalyticsController::class);
