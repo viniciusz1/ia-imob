@@ -21,7 +21,7 @@ describe("CrawlRunDataTable", () => {
             absence_count: 1,
             listing_reason: "not_observed",
           }],
-          meta: { current_page: 1, last_page: 1, per_page: 25, total: 1 },
+          meta: { current_page: 1, last_page: 1, per_page: 10, total: 1 },
         }}
         runId={19}
       />,
@@ -36,5 +36,7 @@ describe("CrawlRunDataTable", () => {
     expect(screen.getByRole("combobox", { name: "Estado do anúncio" })).toBeInTheDocument();
     expect(screen.getByText("Ausente · 1 publicação(ões) ausente(s)")).toBeInTheDocument();
     expect(screen.getByText("Motivo: not_observed")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Página 1" })).toHaveAttribute("aria-current", "page");
+    expect(screen.getByRole("button", { name: /próxima/i })).toBeDisabled();
   });
 });

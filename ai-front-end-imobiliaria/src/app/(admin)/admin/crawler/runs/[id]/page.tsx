@@ -26,7 +26,7 @@ export default async function CrawlRunPage({ params }: CrawlRunPageProps) {
   const runId = Number(id);
   const [run, initialPage] = await Promise.all([
     getCrawlRun(runId),
-    listCrawlRunRecords(runId, { view: "normalized", sort: "-created_at", page: 1, per_page: 25 }),
+    listCrawlRunRecords(runId, { view: "normalized", sort: "-created_at", page: 1, per_page: 10 }),
   ]);
   const publication = publicationStatus[run.publication_state];
 

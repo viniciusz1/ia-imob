@@ -3,6 +3,7 @@
 import { TriangleAlert } from "lucide-react";
 import { useState } from "react";
 
+import { DEFAULT_PAGE_SIZE, PaginationFooter } from "@/components/layout/PaginationFooter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { NativeSelect } from "@/components/ui/native-select";
@@ -35,7 +36,7 @@ export function CrawlRunDataTable({ runId, initialPage }: CrawlRunDataTableProps
       sort,
       listing_state: nextView === "normalized" && listingState ? state : undefined,
       page: nextPage,
-      per_page: 25,
+      per_page: DEFAULT_PAGE_SIZE,
     }));
   };
 
@@ -142,27 +143,13 @@ export function CrawlRunDataTable({ runId, initialPage }: CrawlRunDataTableProps
           ))}
         </TableBody>
       </Table>
-      <div className="flex flex-wrap items-center justify-between gap-3 border-t px-4 py-3 text-sm sm:px-5">
-        <span className="text-muted-foreground tabular-nums">{page.meta.total} registros</span>
-        <div className="flex gap-2">
-          <Button
-            disabled={page.meta.current_page <= 1}
-            onClick={() => void load(view, page.meta.current_page - 1)}
-            size="sm"
-            variant="outline"
-          >
-            Anterior
-          </Button>
-          <Button
-            disabled={page.meta.current_page >= page.meta.last_page}
-            onClick={() => void load(view, page.meta.current_page + 1)}
-            size="sm"
-            variant="outline"
-          >
-            Próxima
-          </Button>
-        </div>
-      </div>
+      <PaginationFooter
+        onPageChange={(nextPage) => void load(view, nextPage)}
+        page={page.meta.current_page}
+        pageCount={page.meta.last_page}
+        pageSize={page.meta.per_page}
+        total={page.meta.total}
+      />
     </>
   );
 }
