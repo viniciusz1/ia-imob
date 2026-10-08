@@ -1,5 +1,8 @@
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
+import { HealthBadge, LifecycleBadge } from "@/components/features/crawler/CrawlerStatusBadges";
+import { Button } from "@/components/ui/button";
 import type { CrawlAgency } from "@/types/crawler";
 
 import { CrawlAgencyNavigation } from "./CrawlAgencyNavigation";
@@ -10,29 +13,31 @@ interface CrawlAgencyContextHeaderProps {
   description?: string;
 }
 
+/**
+ * Page header shared by every Crawl Agency sub-screen: agency name and status,
+ * the current area and the agency tabs. The topbar already shows the trail.
+ */
 export function CrawlAgencyContextHeader({ agency, area, description }: CrawlAgencyContextHeaderProps) {
-  const agencyHref = `/admin/crawler/agencies/${agency.id}`;
-
   return (
-    <header className="space-y-5">
-      <nav aria-label="Breadcrumb">
-        <ol className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-          <li><Link className="cursor-pointer rounded-sm underline-offset-4 hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" href="/admin/crawler/agencies">Crawl Agencies</Link></li>
-          <li aria-hidden="true">/</li>
-          <li><Link className="cursor-pointer rounded-sm underline-offset-4 hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" href={agencyHref}>{agency.name}</Link></li>
-          <li aria-hidden="true">/</li>
-          <li aria-current="page" className="text-foreground">{area}</li>
-        </ol>
-      </nav>
-
-      <div className="space-y-3 border-l-4 border-primary pl-4">
-        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          <h1 className="text-lg font-semibold">{agency.name}</h1>
-          <span className="text-sm text-muted-foreground">{agency.root_domain}</span>
-        </div>
-        <div>
-          <h2 className="text-base font-semibold">{area}</h2>
-          {description && <p className="text-muted-foreground">{description}</p>}
+    <header className="space-y-4">
+      <div className="flex min-w-0 items-center gap-3">
+        <Button asChild className="shrink-0" size="icon" title="Voltar para Crawl Agencies" variant="ghost">
+          <Link aria-label="Voltar para Crawl Agencies" href="/admin/crawler/agencies">
+            <ArrowLeft />
+          </Link>
+        </Button>
+        <div className="min-w-0 space-y-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <h1 className="text-2xl tracking-tight text-foreground sm:text-[1.75rem]">{agency.name}</h1>
+            <LifecycleBadge state={agency.lifecycle_state} />
+            <HealthBadge state={agency.health_state} />
+          </div>
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground">
+            <span>{agency.root_domain}</span>
+            <span aria-hidden="true">·</span>
+            <h2 className="text-sm text-foreground">{area}</h2>
+          </div>
+          {description && <p className="text-sm text-muted-foreground">{description}</p>}
         </div>
       </div>
 

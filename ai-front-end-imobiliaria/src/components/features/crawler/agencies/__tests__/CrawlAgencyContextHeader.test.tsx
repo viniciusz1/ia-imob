@@ -27,8 +27,9 @@ describe("CrawlAgencyContextHeader", () => {
   it("identifies the Crawler hierarchy, selected agency and current area", () => {
     render(<CrawlAgencyContextHeader agency={agency} area="Perfis de Extração" description="Configurações versionadas." />);
 
-    expect(screen.getByRole("navigation", { name: /breadcrumb/i })).toHaveTextContent("Crawl Agencies/Imóveis Exemplo/Perfis de Extração");
-    expect(screen.getByRole("heading", { name: "Imóveis Exemplo" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Voltar para Crawl Agencies" })).toHaveAttribute("href", "/admin/crawler/agencies");
+    expect(screen.getByRole("heading", { level: 1, name: "Imóveis Exemplo" })).toBeInTheDocument();
+    expect(screen.getByText("Em onboarding")).toBeInTheDocument();
     expect(screen.getByText("imoveis.example.com")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Perfis de Extração" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Perfis de Extração" })).toHaveAttribute("aria-current", "page");

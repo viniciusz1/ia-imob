@@ -21,14 +21,31 @@ export function CrawlAgencyNavigation({ agencyId }: { agencyId: number }) {
   const root = `/admin/crawler/agencies/${agencyId}`;
 
   return (
-    <nav aria-label="Navegação da Crawl Agency" className="flex overflow-x-auto border-b">
+    <nav
+      aria-label="Navegação da Crawl Agency"
+      className="-mx-1 flex gap-1 overflow-x-auto px-1 pb-1 [scrollbar-width:none]"
+    >
       {items.map((item) => {
         const href = `${root}${item.suffix}`;
         const active = item.suffix === ""
           ? pathname === href
           : pathname === href || pathname.startsWith(`${href}/`);
 
-        return <Link aria-current={active ? "page" : undefined} className={cn("shrink-0 cursor-pointer border-b-2 border-transparent px-3 py-3 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring", active && "border-primary text-foreground")} href={href} key={href}>{item.label}</Link>;
+        return (
+          <Link
+            aria-current={active ? "page" : undefined}
+            className={cn(
+              "flex h-9 shrink-0 items-center gap-2 rounded-lg px-3 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
+              active
+                ? "bg-primary/10 text-primary"
+                : "text-muted-foreground hover:bg-muted hover:text-foreground",
+            )}
+            href={href}
+            key={href}
+          >
+            {item.label}
+          </Link>
+        );
       })}
     </nav>
   );
