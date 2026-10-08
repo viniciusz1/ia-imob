@@ -28,6 +28,7 @@ import { toast } from "sonner";
 
 import { EmptyState } from "@/components/layout/EmptyState";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { DEFAULT_PAGE_SIZE, PaginationFooter } from "@/components/layout/PaginationFooter";
 import { SectionHeader } from "@/components/layout/SectionHeader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -70,6 +71,7 @@ import {
 import { getMarketPropertyFilters } from "@/services/marketPropertyService";
 import { authService } from "@/services/authService";
 import { useAuthStore } from "@/store/useAuthStore";
+import { useClientPagination } from "@/hooks/useClientPagination";
 import type {
   ComparableCandidate,
   ComparableReview,
@@ -174,9 +176,12 @@ export function ValuationsClient() {
   const setUser = useAuthStore((state) => state.setUser);
   const [form, setForm] = useState<ValuationInput>(initialInput);
   const [valuations, setValuations] = useState<Valuation[]>([]);
+  const [historyPage, setHistoryPage] = useState({ page: 1, pageCount: 1, total: 0 });
   const [selected, setSelected] = useState<Valuation | null>(null);
   const [candidates, setCandidates] = useState<ComparableCandidate[]>([]);
   const [selectedCandidateIds, setSelectedCandidateIds] = useState<Set<number>>(() => new Set());
+  // Bumped on every search so the review table starts again on its first page.
+  const [candidateSearch, setCandidateSearch] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoadingCandidates, setIsLoadingCandidates] = useState(false);
   const [isLoadingHistory, setIsLoadingHistory] = useState(true);
@@ -257,11 +262,16 @@ export function ValuationsClient() {
     void loadFilters();
   }, []);
 
-  async function loadHistory() {
+  async function loadHistory(page = 1) {
     setIsLoadingHistory(true);
     try {
-      const response = await getValuations();
+      const response = await getValuations(page, DEFAULT_PAGE_SIZE);
       setValuations(response.data);
+      setHistoryPage({
+        page: response.meta.current_page,
+        pageCount: response.meta.last_page,
+        total: response.meta.total,
+      });
       setSelected((current) => current ?? response.data[0] ?? null);
     } catch (error) {
       console.error("Erro ao carregar avaliações", error);
@@ -296,6 +306,7 @@ export function ValuationsClient() {
     try {
       const comparableCandidates = await getValuationCandidates(form);
       setCandidates(comparableCandidates);
+      setCandidateSearch((current) => current + 1);
       setSelectedCandidateIds(new Set());
       toast.success(`${comparableCandidates.length} comparáveis encontrados para revisão.`);
     } catch (error) {
@@ -612,6 +623,7 @@ export function ValuationsClient() {
         <div className="min-w-0 space-y-6">
           {canCreate && candidates.length > 0 && (
             <ComparableReviewPanel
+              key={candidateSearch}
               candidates={candidates}
               selectedCandidateIds={selectedCandidateIds}
               pendingCount={pendingCandidates}
@@ -746,7 +758,7 @@ export function ValuationsClient() {
             )}
           </Card>
 
-          {selected && <ComparableTable comparables={selectedComparables} />}
+          {selected && <ComparableTable comparables={selectedComparables} key={selected.id} />}
 
           <Card className="gap-0 overflow-hidden py-0">
             <SectionHeader
@@ -814,6 +826,15 @@ export function ValuationsClient() {
                   ))}
                 </TableBody>
               </Table>
+            )}
+            {canView && (
+              <PaginationFooter
+                onPageChange={(page) => void loadHistory(page)}
+                page={historyPage.page}
+                pageCount={historyPage.pageCount}
+                pageSize={DEFAULT_PAGE_SIZE}
+                total={historyPage.total}
+              />
             )}
           </Card>
         </div>
@@ -884,6 +905,7 @@ function ComparableReviewPanel({
   onCalculate,
 }: ComparableReviewPanelProps) {
   const selectedCount = selectedCandidateIds.size;
+  const pagination = useClientPagination(candidates);
 
   return (
     <Card className="gap-0 overflow-hidden py-0">
@@ -966,7 +988,7 @@ function ComparableReviewPanel({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {candidates.map((candidate) => {
+          {pagination.pageItems.map((candidate) => {
             const agencyLabel = candidate.agency ?? `#${candidate.market_property_id}`;
             const isSelected = selectedCandidateIds.has(candidate.market_property_id);
 
@@ -1017,6 +1039,14 @@ function ComparableReviewPanel({
         </TableBody>
       </Table>
 
+      <PaginationFooter
+        onPageChange={pagination.setPage}
+        page={pagination.page}
+        pageCount={pagination.pageCount}
+        pageSize={pagination.pageSize}
+        total={pagination.total}
+      />
+
       <div className="flex flex-wrap items-center justify-between gap-3 border-t px-4 py-4 sm:px-5">
         <p className="text-xs text-muted-foreground">
           {canCalculate
@@ -1033,6 +1063,8 @@ function ComparableReviewPanel({
 }
 
 function ComparableTable({ comparables }: { comparables: Valuation["comparable_evidence"] }) {
+  const pagination = useClientPagination(comparables);
+
   if (comparables.length === 0) {
     return null;
   }
@@ -1058,7 +1090,7 @@ function ComparableTable({ comparables }: { comparables: Valuation["comparable_e
           </TableRow>
         </TableHeader>
         <TableBody>
-          {comparables.map((comparable) => (
+          {pagination.pageItems.map((comparable) => (
             <TableRow key={comparable.market_property_id}>
               {hasReviewStatus && (
                 <TableCell>
@@ -1102,6 +1134,14 @@ function ComparableTable({ comparables }: { comparables: Valuation["comparable_e
           ))}
         </TableBody>
       </Table>
+
+      <PaginationFooter
+        onPageChange={pagination.setPage}
+        page={pagination.page}
+        pageCount={pagination.pageCount}
+        pageSize={pagination.pageSize}
+        total={pagination.total}
+      />
     </Card>
   );
 }

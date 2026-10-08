@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ValuationsClient } from "../ValuationsClient";
@@ -278,6 +278,28 @@ describe("ValuationsClient", () => {
     expect(await screen.findByText("Acesso indisponível")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /calcular avaliação/i })).not.toBeInTheDocument();
     expect(valuationService.getValuations).not.toHaveBeenCalled();
+  });
+
+  it("pages the valuation history through the API, ten at a time", async () => {
+    const firstPage = paginated([calculatedValuation]);
+    vi.mocked(valuationService.getValuations).mockResolvedValue({
+      ...firstPage,
+      meta: { ...firstPage.meta, last_page: 3, per_page: 10, total: 25, to: 10 },
+    });
+
+    render(<ValuationsClient />);
+
+    const history = (await screen.findByText("Histórico")).closest<HTMLElement>('[data-slot="card"]');
+    if (!history) throw new Error("Histórico card not found");
+
+    expect(valuationService.getValuations).toHaveBeenCalledWith(1, 10);
+    expect(await within(history).findByText("1–10")).toBeInTheDocument();
+
+    fireEvent.click(within(history).getByRole("button", { name: /próxima/i }));
+
+    await waitFor(() => {
+      expect(valuationService.getValuations).toHaveBeenCalledWith(2, 10);
+    });
   });
 
   it("renders calculated valuation details and downloads the report", async () => {
