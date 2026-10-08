@@ -1,12 +1,14 @@
 "use client";
 
+import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { updateCrawlAgency } from "@/services/crawlerService";
 import type { CrawlAgency, CrawlAgencyInput } from "@/types/crawler";
 import { crawlerOperationErrorMessage } from "../crawlerOperationFeedback";
@@ -25,6 +27,7 @@ export function CrawlAgencySettingsForm({ agency }: CrawlAgencySettingsFormProps
       root_domain: agency.root_domain,
     },
   });
+  const { isSubmitting } = form.formState;
 
   const submit = form.handleSubmit(async (values) => {
     try {
@@ -43,26 +46,38 @@ export function CrawlAgencySettingsForm({ agency }: CrawlAgencySettingsFormProps
   });
 
   return (
-    <form className="grid gap-4 sm:grid-cols-2" onSubmit={submit}>
-      <div className="space-y-2">
-        <Label htmlFor="agency-settings-name">Nome</Label>
-        <Input disabled={form.formState.isSubmitting} id="agency-settings-name" required {...form.register("name")} />
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="agency-settings-slug">Slug</Label>
-        <Input disabled={form.formState.isSubmitting} id="agency-settings-slug" required {...form.register("slug")} />
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="agency-settings-base-url">URL base</Label>
-        <Input disabled={form.formState.isSubmitting} id="agency-settings-base-url" required type="url" {...form.register("base_url")} />
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="agency-settings-root-domain">Domínio raiz</Label>
-        <Input disabled={form.formState.isSubmitting} id="agency-settings-root-domain" required {...form.register("root_domain")} />
-      </div>
-      <div className="sm:col-span-2">
-        <Button disabled={form.formState.isSubmitting} type="submit">
-          {form.formState.isSubmitting ? "Salvando…" : "Salvar identidade"}
+    <form className="space-y-6" onSubmit={submit}>
+      <Card>
+        <CardHeader className="border-b">
+          <CardTitle>Identidade da Crawl Agency</CardTitle>
+          <CardDescription>Nome, endereço e domínio usados pelo Crawler para identificar a fonte.</CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-5 sm:grid-cols-2">
+          <FormField htmlFor="agency-settings-name" label="Nome">
+            <Input disabled={isSubmitting} id="agency-settings-name" required {...form.register("name")} />
+          </FormField>
+          <FormField htmlFor="agency-settings-slug" label="Slug">
+            <Input disabled={isSubmitting} id="agency-settings-slug" required {...form.register("slug")} />
+          </FormField>
+          <FormField htmlFor="agency-settings-base-url" label="URL base">
+            <Input
+              disabled={isSubmitting}
+              id="agency-settings-base-url"
+              required
+              type="url"
+              {...form.register("base_url")}
+            />
+          </FormField>
+          <FormField htmlFor="agency-settings-root-domain" label="Domínio raiz">
+            <Input disabled={isSubmitting} id="agency-settings-root-domain" required {...form.register("root_domain")} />
+          </FormField>
+        </CardContent>
+      </Card>
+
+      <div className="flex flex-wrap justify-end gap-3">
+        <Button disabled={isSubmitting} type="submit">
+          {isSubmitting && <Loader2 className="animate-spin" />}
+          {isSubmitting ? "Salvando…" : "Salvar identidade"}
         </Button>
       </div>
     </form>
