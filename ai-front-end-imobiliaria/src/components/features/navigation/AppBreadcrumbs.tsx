@@ -22,7 +22,7 @@ const BREADCRUMB_PATH_LABELS: Record<string, string> = {
 };
 
 // Route segments that group pages but have no page of their own.
-const UNLINKED_BREADCRUMBS = [/^\/analitico$/];
+const UNLINKED_BREADCRUMBS = [/^\/analitico$/, /^\/properties\/[^/]+$/];
 
 /** Topbar trail of the CRM. A client component because the patterns are RegExps. */
 export function AppBreadcrumbs() {
