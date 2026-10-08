@@ -10,10 +10,10 @@ import { EmptyState } from "@/components/layout/EmptyState";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { SectionHeader } from "@/components/layout/SectionHeader";
 import { Button } from "@/components/ui/button";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { FormField } from "@/components/ui/form-field";
-import { Input } from "@/components/ui/input";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Progress } from "@/components/ui/progress";
 import {
@@ -219,10 +219,20 @@ export function CrawlerOperationsClient({ agencies, initialOperations, initialWo
           </div>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
             <FormField htmlFor="operation-from-filter" label="De">
-              <Input id="operation-from-filter" onChange={updateFilter("from")} type="datetime-local" value={filters.from} />
+              <DatePicker
+                id="operation-from-filter"
+                onChange={(value) => setFilters((current) => ({ ...current, from: value }))}
+                value={filters.from}
+                withTime
+              />
             </FormField>
             <FormField htmlFor="operation-to-filter" label="Até">
-              <Input id="operation-to-filter" onChange={updateFilter("to")} type="datetime-local" value={filters.to} />
+              <DatePicker
+                id="operation-to-filter"
+                onChange={(value) => setFilters((current) => ({ ...current, to: value }))}
+                value={filters.to}
+                withTime
+              />
             </FormField>
             <div className="flex items-end">
               <Button onClick={() => void applyFilters()} type="button">Aplicar filtros</Button>
