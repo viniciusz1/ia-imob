@@ -7,6 +7,7 @@ import { useMemo, useState, type ReactNode } from "react";
 import { toast } from "sonner";
 
 import { PageHeader } from "@/components/layout/PageHeader";
+import { PaginationFooter } from "@/components/layout/PaginationFooter";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,6 +18,7 @@ import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
+import { useClientPagination } from "@/hooks/useClientPagination";
 import {
   decideProspect,
   previewProspectingRequery,
@@ -62,6 +64,7 @@ export function ProspectsClient({ initialProspects, initialSuggestions = [] }: {
     () => filteredProspects(prospects, reviewFilter, classificationFilter, cityFilter, operationFilter),
     [cityFilter, classificationFilter, operationFilter, prospects, reviewFilter],
   );
+  const pagination = useClientPagination(filtered);
   const pendingProspects = filtered.filter((prospect) => prospect.review_state === "pending");
   const filtersActive = Boolean(cityFilter || operationFilter || reviewFilter || classificationFilter);
   const selectedPendingCount = pendingProspects.filter((prospect) => selected.includes(prospect.id)).length;
@@ -391,7 +394,7 @@ export function ProspectsClient({ initialProspects, initialSuggestions = [] }: {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filtered.map((prospect) => (
+              {pagination.pageItems.map((prospect) => (
                 <TableRow data-state={selected.includes(prospect.id) ? "selected" : undefined} key={prospect.id}>
                   <TableCell>
                     <Checkbox
@@ -487,6 +490,13 @@ export function ProspectsClient({ initialProspects, initialSuggestions = [] }: {
             </TableBody>
           </Table>
         </div>
+        <PaginationFooter
+          onPageChange={pagination.setPage}
+          page={pagination.page}
+          pageCount={pagination.pageCount}
+          pageSize={pagination.pageSize}
+          total={pagination.total}
+        />
       </Card>
 
       {initialSuggestions.length > 0 && (
