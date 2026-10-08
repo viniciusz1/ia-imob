@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import {
-  Home,
+  ExternalLink,
   MapPin,
   Building2,
   Maximize,
@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { ImageWithFallback } from "./ImageWithFallback";
 import type { AiSearcherProperty } from "./types";
 
@@ -39,6 +40,7 @@ const formatPrice = (price: number) =>
   new Intl.NumberFormat("pt-BR", {
     style: "currency",
     currency: "BRL",
+    maximumFractionDigits: 0,
   }).format(price);
 
 const COMODIDADE_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -59,7 +61,7 @@ const COMODIDADE_ICONS: Record<string, React.ComponentType<{ className?: string 
   financiamento: Banknote,
 };
 
-const COMODIDADE_PRIORITY = [
+const COMODIDADE_PRIORITY: (keyof AiSearcherProperty)[] = [
   "piscina",
   "elevador",
   "churrasqueira",
@@ -105,7 +107,7 @@ export function PropertyCard({ property }: PropertyCardProps) {
   };
 
   const activeComodidades = COMODIDADE_PRIORITY.filter(
-    (key) => (property as any)[key] === true
+    (key) => property[key] === true
   );
 
   const visibleComodidades = showAllComodidades
@@ -114,144 +116,139 @@ export function PropertyCard({ property }: PropertyCardProps) {
 
   const remaining = activeComodidades.length - MAX_COMODIDADES;
 
+  const attributes = [
+    {
+      key: "quartos",
+      icon: BedDouble,
+      value: property.quartos,
+      label: property.quartos === 1 ? "quarto" : "quartos",
+    },
+    {
+      key: "suites",
+      icon: Crown,
+      value: property.suites,
+      label: property.suites === 1 ? "suíte" : "suítes",
+    },
+    {
+      key: "banheiros",
+      icon: Bath,
+      value: property.banheiros,
+      label: property.banheiros === 1 ? "banh." : "banhs.",
+    },
+    {
+      key: "vagas",
+      icon: Car,
+      value: property.vagas,
+      label: property.vagas === 1 ? "vaga" : "vagas",
+    },
+    {
+      key: "area",
+      icon: Maximize,
+      value: property.area,
+      label: "m²",
+    },
+  ].filter((attribute) => attribute.value > 0);
+
   return (
-    <div className="group bg-card rounded-xl border shadow-sm overflow-hidden hover:shadow-lg transition-shadow duration-300 flex flex-col">
-      {/* Imagem */}
-      <div className="relative h-48 overflow-hidden">
+    <article className="group flex flex-col overflow-hidden rounded-xl border bg-card transition-colors hover:border-primary/30">
+      <div className="relative aspect-[4/3] overflow-hidden bg-muted">
         <ImageWithFallback
           src={property.image}
           alt={`${property.tipo} em ${property.bairro}`}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
-        <Badge className="absolute top-3 right-3 bg-primary text-primary-foreground">
-          {property.tipo}
-        </Badge>
+        {property.tipo && (
+          <Badge className="absolute top-3 left-3 shadow-xs">
+            {property.tipo}
+          </Badge>
+        )}
       </div>
 
-      {/* Conteúdo */}
-      <div className="p-5 flex flex-col flex-1">
-        {/* Preço */}
-        <p className="text-2xl font-bold text-foreground mb-3">
-          {formatPrice(property.preco)}
-        </p>
-
-        {/* Informações principais */}
-        <div className="space-y-2 mb-4">
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <MapPin className="w-4 h-4 text-primary shrink-0" />
-            <span className="text-sm truncate">
+      <div className="flex flex-1 flex-col gap-4 p-4">
+        <div className="space-y-1.5">
+          <p className="text-xl tracking-tight text-foreground tabular-nums">
+            {formatPrice(property.preco)}
+          </p>
+          <p className="flex items-center gap-1.5 text-sm text-foreground">
+            <MapPin className="size-3.5 shrink-0 text-muted-foreground" />
+            <span className="truncate">
               {property.bairro} - {property.cidade}
             </span>
-          </div>
-
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Building2 className="w-4 h-4 text-emerald-500 shrink-0" />
-            <span className="text-sm truncate">{property.imobiliaria}</span>
-          </div>
-        </div>
-
-        {/* Características */}
-        <div className="flex items-center flex-wrap gap-x-4 gap-y-2 mb-4 pb-4 border-b">
-          {property.quartos > 0 && (
-            <div className="flex items-center gap-1 text-muted-foreground">
-              <BedDouble className="w-4 h-4 text-primary" />
-              <span className="text-sm">
-                {property.quartos} {property.quartos === 1 ? "quarto" : "quartos"}
-              </span>
-            </div>
-          )}
-
-          {property.suites > 0 && (
-            <div className="flex items-center gap-1 text-muted-foreground">
-              <Crown className="w-4 h-4 text-amber-500" />
-              <span className="text-sm">
-                {property.suites} {property.suites === 1 ? "suíte" : "suítes"}
-              </span>
-            </div>
-          )}
-
-          {property.banheiros > 0 && (
-            <div className="flex items-center gap-1 text-muted-foreground">
-              <Bath className="w-4 h-4 text-sky-500" />
-              <span className="text-sm">
-                {property.banheiros} {property.banheiros === 1 ? "banh." : "banhs."}
-              </span>
-            </div>
-          )}
-
-          {property.vagas > 0 && (
-            <div className="flex items-center gap-1 text-muted-foreground">
-              <Car className="w-4 h-4 text-violet-500" />
-              <span className="text-sm">
-                {property.vagas} {property.vagas === 1 ? "vaga" : "vagas"}
-              </span>
-            </div>
-          )}
-
-          {property.area > 0 && (
-            <div className="flex items-center gap-1 text-muted-foreground">
-              <Maximize className="w-4 h-4 text-emerald-500" />
-              <span className="text-sm">{property.area}m²</span>
-            </div>
+          </p>
+          {property.imobiliaria && (
+            <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <Building2 className="size-3.5 shrink-0" />
+              <span className="truncate">{property.imobiliaria}</span>
+            </p>
           )}
         </div>
 
-        {/* Descrição */}
-        <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
-          {property.descricao}
-        </p>
+        {attributes.length > 0 && (
+          <ul className="flex flex-wrap items-center gap-x-4 gap-y-1.5 border-y py-3 text-sm text-foreground">
+            {attributes.map(({ key, icon: Icon, value, label }) => (
+              <li key={key} className="flex items-center gap-1.5">
+                <Icon className="size-3.5 shrink-0 text-muted-foreground" />
+                <span className="tabular-nums">
+                  {key === "area" ? `${value}${label}` : `${value} ${label}`}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
 
-        {/* Comodidades */}
+        {property.descricao && (
+          <p className="line-clamp-2 text-sm text-muted-foreground">
+            {property.descricao}
+          </p>
+        )}
+
         {activeComodidades.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 mb-4">
+          <div className="flex flex-wrap gap-1.5">
             {visibleComodidades.map((key) => {
               const Icon = COMODIDADE_ICONS[key];
               return (
-                <Badge
-                  key={key}
-                  variant="secondary"
-                  className="text-xs font-normal gap-1"
-                >
-                  {Icon && <Icon className="w-3 h-3" />}
+                <Badge key={key} variant="muted">
+                  {Icon && <Icon />}
                   {COMODIDADE_LABELS[key]}
                 </Badge>
               );
             })}
-            {!showAllComodidades && remaining > 0 && (
-              <Badge
-                variant="outline"
-                className="text-xs font-normal cursor-pointer hover:bg-accent"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowAllComodidades(true);
-                }}
-              >
-                +{remaining}
-              </Badge>
-            )}
-            {showAllComodidades && remaining > 0 && (
-              <Badge
-                variant="outline"
-                className="text-xs font-normal cursor-pointer hover:bg-accent"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowAllComodidades(false);
-                }}
-              >
-                ver menos
+            {remaining > 0 && (
+              <Badge asChild variant="outline">
+                <button
+                  type="button"
+                  className="cursor-pointer hover:bg-muted"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowAllComodidades((current) => !current);
+                  }}
+                >
+                  {showAllComodidades ? "ver menos" : `+${remaining}`}
+                </button>
               </Badge>
             )}
           </div>
         )}
 
-        {/* Spacer to push button to bottom */}
-        <div className="flex-1" />
-
-        {/* Botão */}
-        <Button onClick={handleViewDetails} className="w-full cursor-pointer" variant="default">
-          <Home className="w-4 h-4 mr-2" />
+        <Button onClick={handleViewDetails} className="mt-auto w-full" variant="outline">
+          <ExternalLink />
           Ver Detalhes
         </Button>
+      </div>
+    </article>
+  );
+}
+
+export function PropertyCardSkeleton() {
+  return (
+    <div className="flex flex-col overflow-hidden rounded-xl border bg-card">
+      <Skeleton className="aspect-[4/3] rounded-none" />
+      <div className="space-y-3 p-4">
+        <Skeleton className="h-6 w-36" />
+        <Skeleton className="h-4 w-3/4" />
+        <Skeleton className="h-3 w-1/2" />
+        <Skeleton className="h-10 w-full" />
+        <Skeleton className="h-9 w-full" />
       </div>
     </div>
   );
