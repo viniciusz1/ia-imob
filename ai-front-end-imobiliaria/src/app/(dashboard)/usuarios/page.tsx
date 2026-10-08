@@ -6,6 +6,9 @@ import { UsuariosClient } from "@/components/features/users/UsuariosClient";
 
 export const dynamic = 'force-dynamic';
 
+// Same as DEFAULT_PAGE_SIZE; a server component can't read constants from a "use client" module.
+const PAGE_SIZE = 10;
+
 export const metadata = {
     title: "Gestão de Usuários",
 };
@@ -19,6 +22,7 @@ export default async function UsuariosPage({ searchParams }: PageProps) {
 
     const filters: UserFiltersParams = {
         page: params.page ? Number(params.page) : 1,
+        perPage: PAGE_SIZE,
         filterId: params.filterId,
         filterName: params.filterName,
         filterUsername: params.filterUsername,
