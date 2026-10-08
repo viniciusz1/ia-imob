@@ -61,6 +61,8 @@ inputs, tabelas e badges seguindo uma única escala de altura, raio e espaçamen
 | `StatCard` | `components/layout` | KPI com ícone tingido |
 | `EmptyState` | `components/layout` | Estado vazio (card tracejado ou compacto) |
 | `NativeSelect` | `components/ui` | `<select>` nativo com o mesmo visual do Input |
+| `PaginationFooter` | `components/layout` | Rodapé de paginação (10 por página, "Exibindo X–Y de Z", números) |
+| `SidebarNav*` | `components/layout` | Itens do menu lateral, iguais no admin e no CRM |
 | `FormField` | `components/ui` | Label + campo + erro/ajuda com espaçamento padrão |
 | `SidebarBrand`, `SidebarUserCard` | `components/layout` | Logo e usuário no sidebar |
 | `LifecycleBadge`, `HealthBadge`, `OperationStateBadge` | `features/crawler/CrawlerStatusBadges` | Estados do Crawler com rótulo em pt-BR |
@@ -125,16 +127,16 @@ Problemas recorrentes a eliminar durante a fase 1:
 
 ### Fase 2: CRM (dashboard da imobiliária)
 
-- [ ] `(dashboard)/layout.tsx` migra para o `AppShell` (substitui o shadcn Sidebar).
-- [ ] `/`: dashboard.
-- [ ] `/properties`, `/properties/create`, `/properties/[id]/edit`: imóveis e wizard.
-- [ ] `/ai-searcher`: buscador por IA.
-- [ ] `/avaliacoes`: avaliações.
-- [ ] `/analitico/mercado`, `/analitico/avaliacoes`: analítico.
-- [ ] `/leiloes`: leilões.
-- [ ] `/usuarios`, `/grupos`: usuários e grupos.
-- [ ] `/billing`: assinatura.
-- [ ] `/configuracoes-do-site`: configurações do site.
+- [x] `(dashboard)/layout.tsx` migra para o `AppShell` (substitui o shadcn Sidebar).
+- [x] `/`: dashboard.
+- [x] `/properties`, `/properties/create`, `/properties/[id]/edit`: imóveis e wizard.
+- [x] `/ai-searcher`: buscador por IA.
+- [x] `/avaliacoes`: avaliações.
+- [x] `/analitico/mercado`, `/analitico/avaliacoes`: analítico.
+- [x] `/leiloes`: leilões.
+- [x] `/usuarios`, `/grupos`: usuários e grupos.
+- [x] `/billing`: assinatura.
+- [x] `/configuracoes-do-site`: configurações do site.
 
 ### Fase 3: login e site público
 
