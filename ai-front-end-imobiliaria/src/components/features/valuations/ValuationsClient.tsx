@@ -1,9 +1,34 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
-import { Calculator, Check, Download, ExternalLink, FileSpreadsheet, FileText, Loader2, Plus, Search, X } from "lucide-react";
+import {
+  Calculator,
+  Check,
+  CircleAlert,
+  Download,
+  ExternalLink,
+  FileSpreadsheet,
+  FileText,
+  History,
+  Home,
+  ListChecks,
+  Loader2,
+  Lock,
+  Plus,
+  Search,
+  ShieldAlert,
+  Target,
+  TrendingDown,
+  TrendingUp,
+  Users,
+  X,
+  type LucideIcon,
+} from "lucide-react";
 import { toast } from "sonner";
 
+import { EmptyState } from "@/components/layout/EmptyState";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { SectionHeader } from "@/components/layout/SectionHeader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,6 +39,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -101,15 +127,30 @@ function nextReviewStatus(status: ComparableReviewStatus): ComparableReviewStatu
 
 function reviewStatusClassName(status: ComparableReviewStatus): string {
   if (status === "approved") {
-    return "border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 dark:hover:bg-emerald-950/70";
+    return "border-success/30 bg-success/10 text-success hover:bg-success/15 hover:text-success dark:bg-success/10 dark:hover:bg-success/15";
   }
 
   if (status === "rejected") {
-    return "border-red-200 bg-red-50 text-red-700 hover:bg-red-100 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300 dark:hover:bg-red-950/70";
+    return "border-destructive/30 bg-destructive/5 text-destructive hover:bg-destructive/10 hover:text-destructive dark:bg-destructive/5 dark:hover:bg-destructive/10";
   }
 
   return "border-border bg-muted text-muted-foreground hover:bg-muted/70";
 }
+
+const reviewStatusBadgeVariants: Record<ComparableReviewStatus, "muted" | "success" | "destructive"> = {
+  pending: "muted",
+  approved: "success",
+  rejected: "destructive",
+};
+
+function valuationStatusBadgeVariant(status: Valuation["status"]): "success" | "warning" | "muted" {
+  if (status === "calculated") return "success";
+  if (status === "insufficient_sample") return "warning";
+  return "muted";
+}
+
+const multiSelectClassName =
+  "w-full min-w-0 rounded-lg border border-input bg-background px-1.5 py-1.5 text-sm shadow-xs shadow-black/5 transition-colors outline-none hover:border-muted-foreground/30 focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/20 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-input/30 [&>option]:rounded-md [&>option]:px-2 [&>option]:py-1 [&>option:checked]:bg-primary/10 [&>option:checked]:text-primary";
 
 function comparableReviewsFrom(candidates: ComparableCandidate[]): ComparableReview[] | null {
   const reviews: ComparableReview[] = [];
@@ -386,7 +427,7 @@ export function ValuationsClient() {
   if (isLoadingAccess) {
     return (
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <Loader2 className="h-4 w-4 animate-spin" />
+        <Loader2 className="size-4 animate-spin" />
         Carregando permissões...
       </div>
     );
@@ -394,182 +435,181 @@ export function ValuationsClient() {
 
   if (!hasValuationAccess) {
     return (
-      <div className="mx-auto max-w-3xl rounded-md border p-6">
-        <h1 className="text-2xl font-semibold">Acesso indisponível</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Você não tem permissão para avaliar imóveis ou consultar avaliações.
-        </p>
+      <div className="space-y-6">
+        <PageHeader title="Avaliar imóvel" />
+        <EmptyState
+          description="Você não tem permissão para avaliar imóveis ou consultar avaliações."
+          icon={Lock}
+          title="Acesso indisponível"
+        />
       </div>
     );
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-        <div className="flex flex-col gap-2">
-          <h1 className="text-3xl font-bold tracking-tight">Avaliar imóvel</h1>
-          <p className="text-muted-foreground">
-            Calcule uma avaliação de mercado com base em imóveis comparáveis da base.
-          </p>
-        </div>
+    <div className="space-y-6">
+      <PageHeader
+        actions={
+          canCreate && (
+            <Button type="button" variant="outline" onClick={handleNewValuation}>
+              <Plus />
+              Nova avaliação
+            </Button>
+          )
+        }
+        description="Calcule uma avaliação de mercado com base em imóveis comparáveis da base."
+        title="Avaliar imóvel"
+      />
+
+      <div className={canCreate ? "grid items-start gap-6 xl:grid-cols-[380px_minmax(0,1fr)]" : "grid gap-6"}>
         {canCreate && (
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleNewValuation}
-            className="mt-1 shrink-0"
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Nova avaliação
-          </Button>
-        )}
-      </div>
-
-      <div className={canCreate ? "grid gap-6 lg:grid-cols-[360px_minmax(0,1fr)]" : "grid gap-6"}>
-        {canCreate && <Card className="h-fit">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Calculator className="h-5 w-5" />
-              Imóvel avaliado
-            </CardTitle>
-            <CardDescription>
-              Informe as características usadas para buscar comparáveis.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form className="space-y-4" onSubmit={handleSubmit}>
-              <div className="space-y-2">
-                <Label htmlFor="city">Cidade</Label>
-                <select
-                  id="city"
-                  multiple
-                  value={form.city}
-                  onChange={(event) => updateMultiSelect("city", event.target as HTMLSelectElement)}
-                  disabled={isLoadingFilters}
-                  className="border-input bg-background focus-visible:ring-ring aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive w-full rounded-md border px-3 py-2 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50"
-                  size={5}
-                  required
+          <Card>
+            <CardHeader className="border-b">
+              <CardTitle className="flex items-center gap-2">
+                <Calculator className="size-4 text-muted-foreground" />
+                Imóvel avaliado
+              </CardTitle>
+              <CardDescription>
+                Informe as características usadas para buscar comparáveis.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form className="grid gap-5" onSubmit={handleSubmit}>
+                <FormField
+                  hint="Segure Ctrl (ou Cmd) para selecionar várias cidades."
+                  htmlFor="city"
+                  label="Cidade"
                 >
-                  {availableCities.map((city) => (
-                    <option key={city} value={city}>
-                      {city}
-                    </option>
-                  ))}
-                </select>
-                <p className="text-xs text-muted-foreground">Segure Ctrl (ou Cmd) para selecionar várias cidades.</p>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="neighborhood">Bairro</Label>
-                <select
-                  id="neighborhood"
-                  multiple
-                  value={form.neighborhood}
-                  onChange={(event) => updateMultiSelect("neighborhood", event.target as HTMLSelectElement)}
-                  disabled={isLoadingFilters}
-                  className="border-input bg-background focus-visible:ring-ring aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive w-full rounded-md border px-3 py-2 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50"
-                  size={5}
-                  required
-                >
-                  {availableNeighborhoods.map((neighborhood) => (
-                    <option key={neighborhood} value={neighborhood}>
-                      {neighborhood}
-                    </option>
-                  ))}
-                </select>
-                <p className="text-xs text-muted-foreground">Segure Ctrl (ou Cmd) para selecionar vários bairros.</p>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Tipo residencial</Label>
-                <Select
-                  value={form.residential_type}
-                  onValueChange={(value) =>
-                    setForm((current) => ({ ...current, residential_type: value as ResidentialType }))
-                  }
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {residentialTypes.map((type) => (
-                      <SelectItem key={type.value} value={type.value}>
-                        {type.label}
-                      </SelectItem>
+                  <select
+                    id="city"
+                    multiple
+                    value={form.city}
+                    onChange={(event) => updateMultiSelect("city", event.target as HTMLSelectElement)}
+                    disabled={isLoadingFilters}
+                    className={multiSelectClassName}
+                    size={5}
+                    required
+                  >
+                    {availableCities.map((city) => (
+                      <option key={city} value={city}>
+                        {city}
+                      </option>
                     ))}
-                  </SelectContent>
-                </Select>
-              </div>
+                  </select>
+                </FormField>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-2">
-                  <Label htmlFor="area">Metragem</Label>
-                  <Input
-                    id="area"
-                    type="number"
-                    min={20}
-                    max={2000}
-                    value={form.area}
-                    onChange={(event) => updateNumber("area", event.target.value)}
+                <FormField
+                  hint="Segure Ctrl (ou Cmd) para selecionar vários bairros."
+                  htmlFor="neighborhood"
+                  label="Bairro"
+                >
+                  <select
+                    id="neighborhood"
+                    multiple
+                    value={form.neighborhood}
+                    onChange={(event) => updateMultiSelect("neighborhood", event.target as HTMLSelectElement)}
+                    disabled={isLoadingFilters}
+                    className={multiSelectClassName}
+                    size={5}
                     required
+                  >
+                    {availableNeighborhoods.map((neighborhood) => (
+                      <option key={neighborhood} value={neighborhood}>
+                        {neighborhood}
+                      </option>
+                    ))}
+                  </select>
+                </FormField>
+
+                <FormField htmlFor="residential_type" label="Tipo residencial">
+                  <Select
+                    value={form.residential_type}
+                    onValueChange={(value) =>
+                      setForm((current) => ({ ...current, residential_type: value as ResidentialType }))
+                    }
+                  >
+                    <SelectTrigger className="w-full" id="residential_type">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {residentialTypes.map((type) => (
+                        <SelectItem key={type.value} value={type.value}>
+                          {type.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FormField>
+
+                <div className="grid grid-cols-2 gap-5">
+                  <FormField htmlFor="area" label="Metragem">
+                    <Input
+                      id="area"
+                      type="number"
+                      min={20}
+                      max={2000}
+                      value={form.area}
+                      onChange={(event) => updateNumber("area", event.target.value)}
+                      required
+                    />
+                  </FormField>
+                  <FormField htmlFor="bedrooms" label="Quartos">
+                    <Input
+                      id="bedrooms"
+                      type="number"
+                      min={0}
+                      max={10}
+                      value={form.bedrooms}
+                      onChange={(event) => updateNumber("bedrooms", event.target.value)}
+                      required
+                    />
+                  </FormField>
+                  <FormField htmlFor="bathrooms" label="Banheiros">
+                    <Input
+                      id="bathrooms"
+                      type="number"
+                      min={0}
+                      max={10}
+                      value={form.bathrooms}
+                      onChange={(event) => updateNumber("bathrooms", event.target.value)}
+                      required
+                    />
+                  </FormField>
+                  <FormField htmlFor="garage_spaces" label="Vagas">
+                    <Input
+                      id="garage_spaces"
+                      type="number"
+                      min={0}
+                      max={10}
+                      value={form.garage_spaces}
+                      onChange={(event) => updateNumber("garage_spaces", event.target.value)}
+                      required
+                    />
+                  </FormField>
+                </div>
+
+                <div className="flex items-center justify-between gap-4 rounded-lg border p-4">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="flood_risk">Risco de enchente</Label>
+                    <p className="text-xs text-muted-foreground">Aplica um ajuste negativo ao valor final.</p>
+                  </div>
+                  <Switch
+                    id="flood_risk"
+                    checked={form.flood_risk}
+                    onCheckedChange={(checked) => setForm((current) => ({ ...current, flood_risk: checked }))}
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="bedrooms">Quartos</Label>
-                  <Input
-                    id="bedrooms"
-                    type="number"
-                    min={0}
-                    max={10}
-                    value={form.bedrooms}
-                    onChange={(event) => updateNumber("bedrooms", event.target.value)}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="bathrooms">Banheiros</Label>
-                  <Input
-                    id="bathrooms"
-                    type="number"
-                    min={0}
-                    max={10}
-                    value={form.bathrooms}
-                    onChange={(event) => updateNumber("bathrooms", event.target.value)}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="garage_spaces">Vagas</Label>
-                  <Input
-                    id="garage_spaces"
-                    type="number"
-                    min={0}
-                    max={10}
-                    value={form.garage_spaces}
-                    onChange={(event) => updateNumber("garage_spaces", event.target.value)}
-                    required
-                  />
-                </div>
-              </div>
 
-              <div className="flex items-center justify-between rounded-md border p-3">
-                <Label htmlFor="flood_risk">Risco de enchente</Label>
-                <Switch
-                  id="flood_risk"
-                  checked={form.flood_risk}
-                  onCheckedChange={(checked) => setForm((current) => ({ ...current, flood_risk: checked }))}
-                />
-              </div>
+                <Button type="submit" className="w-full" disabled={isLoadingCandidates || isLoadingFilters}>
+                  {isLoadingCandidates ? <Loader2 className="animate-spin" /> : <Search />}
+                  Buscar comparáveis
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        )}
 
-              <Button type="submit" className="w-full" disabled={isLoadingCandidates || isLoadingFilters}>
-                {isLoadingCandidates ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Search className="mr-2 h-4 w-4" />}
-                Buscar comparáveis
-              </Button>
-            </form>
-          </CardContent>
-        </Card>}
-
-        <div className="flex flex-col gap-6">
+        <div className="min-w-0 space-y-6">
           {canCreate && candidates.length > 0 && (
             <ComparableReviewPanel
               candidates={candidates}
@@ -588,163 +628,226 @@ export function ValuationsClient() {
             />
           )}
 
-          <Card>
-            <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-              <div>
-                <CardTitle>Resultado</CardTitle>
-                <CardDescription>
-                  {selected ? `${selected.code} - ${selected.status_label}` : "Nenhuma avaliação selecionada"}
-                </CardDescription>
-              </div>
-              {selected && (
-                <Badge variant={selected.status === "calculated" ? "default" : "secondary"}>
-                  {selected.status_label}
-                </Badge>
-              )}
-            </CardHeader>
-            <CardContent className="space-y-5">
-              {!selected ? (
-                <p className="text-sm text-muted-foreground">
-                  Crie uma avaliação ou selecione um registro do histórico.
-                </p>
-              ) : (
-                <>
-                  {selectedRange ? (
-                    <div className="grid gap-3 md:grid-cols-3">
-                      <div className="rounded-md border p-4">
-                        <p className="text-sm text-muted-foreground">Mínimo</p>
-                        <p className="text-2xl font-semibold">{selectedRange.display.min}</p>
-                      </div>
-                      <div className="rounded-md border p-4">
-                        <p className="text-sm text-muted-foreground">Central</p>
-                        <p className="text-2xl font-semibold">{selectedRange.display.central}</p>
-                      </div>
-                      <div className="rounded-md border p-4">
-                        <p className="text-sm text-muted-foreground">Máximo</p>
-                        <p className="text-2xl font-semibold">{selectedRange.display.max}</p>
-                      </div>
+          <Card className="gap-0 overflow-hidden py-0">
+            <SectionHeader
+              actions={
+                selected && (
+                  <Badge variant={valuationStatusBadgeVariant(selected.status)}>
+                    {selected.status_label}
+                  </Badge>
+                )
+              }
+              description={selected ? `${selected.code} - ${selected.status_label}` : "Nenhuma avaliação selecionada"}
+              icon={Target}
+              title="Resultado"
+            />
+            {!selected ? (
+              <EmptyState
+                description="Crie uma avaliação ou selecione um registro do histórico."
+                icon={Calculator}
+                title="Nenhuma avaliação selecionada"
+                variant="inline"
+              />
+            ) : (
+              <div className="space-y-5 p-4 sm:p-5">
+                {selectedRange ? (
+                  <>
+                    <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 sm:p-5">
+                      <p className="text-xs tracking-wide text-primary uppercase">Valor estimado</p>
+                      <p className="mt-2 text-4xl leading-none tracking-tight text-foreground tabular-nums">
+                        {selectedRange.display.central}
+                      </p>
+                      <p className="mt-2 text-sm text-muted-foreground tabular-nums">
+                        Faixa de mercado entre {selectedRange.display.min} e {selectedRange.display.max}
+                      </p>
                     </div>
-                  ) : (
-                    <div className="rounded-md border border-dashed p-4">
-                      <p className="font-medium">Amostra insuficiente</p>
-                      <p className="text-sm text-muted-foreground">{selected.calculation_summary}</p>
-                    </div>
-                  )}
 
-                  <div className="grid gap-3 md:grid-cols-2">
-                    <div className="rounded-md border p-4 text-sm">
-                      <p className="font-medium">Imóvel avaliado</p>
-                      <p className="text-muted-foreground">
-                        {selected.subject_property.residential_type_label} em {selected.subject_property.neighborhood},{" "}
-                        {selected.subject_property.city}
-                      </p>
-                      <p className="text-muted-foreground">
-                        {formatNumber(selected.subject_property.area)} m², {selected.subject_property.bedrooms} quartos,{" "}
-                        {selected.subject_property.bathrooms} banheiros, {selected.subject_property.garage_spaces} vagas
-                      </p>
+                    <div className="grid gap-4 sm:grid-cols-3">
+                      <RangeTile icon={TrendingDown} label="Mínimo" tone="info" value={selectedRange.display.min} />
+                      <RangeTile icon={Target} label="Central" tone="primary" value={selectedRange.display.central} />
+                      <RangeTile icon={TrendingUp} label="Máximo" tone="success" value={selectedRange.display.max} />
                     </div>
-                    <div className="rounded-md border p-4 text-sm">
-                      <p className="font-medium">Amostra</p>
-                      <p className="text-muted-foreground">{sampleLabel}</p>
+                  </>
+                ) : (
+                  <div className="flex items-start gap-3 rounded-lg border border-warning/30 bg-warning/10 px-4 py-3 text-sm">
+                    <CircleAlert className="mt-0.5 size-4 shrink-0 text-warning" />
+                    <div className="space-y-1">
+                      <p className="text-foreground">Amostra insuficiente</p>
                       <p className="text-muted-foreground">{selected.calculation_summary}</p>
                     </div>
                   </div>
+                )}
 
-                  {selected.flood_adjustment_percent !== null && (
-                    <div className="rounded-md border p-4 text-sm">
+                {selected.flood_adjustment_percent !== null && (
+                  <div className="flex items-start gap-3 rounded-lg border border-warning/30 bg-warning/10 px-4 py-3 text-sm">
+                    <ShieldAlert className="mt-0.5 size-4 shrink-0 text-warning" />
+                    <p className="text-foreground">
                       Ajuste aplicado: -{selected.flood_adjustment_percent}% por risco de enchente informado.
-                    </div>
-                  )}
+                    </p>
+                  </div>
+                )}
 
-                  {selected.can_download_report && canView && (
-                    <div className="flex flex-wrap gap-2">
-                      <Button
-                        type="button"
-                        onClick={() => void handleDownload("pdf")}
-                        disabled={downloadingFormat === "pdf"}
-                      >
-                        {downloadingFormat === "pdf" ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}
-                        Baixar PDF
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => void handleDownload("word")}
-                        disabled={downloadingFormat === "word"}
-                      >
-                        {downloadingFormat === "word" ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileText className="mr-2 h-4 w-4" />}
-                        Baixar Word
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => void handleDownload("excel")}
-                        disabled={downloadingFormat === "excel"}
-                      >
-                        {downloadingFormat === "excel" ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileSpreadsheet className="mr-2 h-4 w-4" />}
-                        Exportar Excel
-                      </Button>
-                    </div>
-                  )}
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="rounded-lg border p-4 text-sm">
+                    <p className="flex items-center gap-2 text-xs tracking-wide text-muted-foreground uppercase">
+                      <Home className="size-3.5" />
+                      Imóvel avaliado
+                    </p>
+                    <p className="mt-2 text-foreground">
+                      {selected.subject_property.residential_type_label} em {selected.subject_property.neighborhood},{" "}
+                      {selected.subject_property.city}
+                    </p>
+                    <p className="mt-1 text-muted-foreground tabular-nums">
+                      {formatNumber(selected.subject_property.area)} m², {selected.subject_property.bedrooms} quartos,{" "}
+                      {selected.subject_property.bathrooms} banheiros, {selected.subject_property.garage_spaces} vagas
+                    </p>
+                  </div>
+                  <div className="rounded-lg border p-4 text-sm">
+                    <p className="flex items-center gap-2 text-xs tracking-wide text-muted-foreground uppercase">
+                      <Users className="size-3.5" />
+                      Amostra
+                    </p>
+                    <p className="mt-2 text-foreground tabular-nums">{sampleLabel}</p>
+                    {selectedRange && <p className="mt-1 text-muted-foreground">{selected.calculation_summary}</p>}
+                  </div>
+                </div>
 
-                  <ComparableTable comparables={selectedComparables} />
-                </>
-              )}
-            </CardContent>
+                {selected.can_download_report && canView && (
+                  <div className="flex flex-wrap justify-end gap-2 border-t pt-5">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => void handleDownload("excel")}
+                      disabled={downloadingFormat === "excel"}
+                    >
+                      {downloadingFormat === "excel" ? <Loader2 className="animate-spin" /> : <FileSpreadsheet />}
+                      Exportar Excel
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => void handleDownload("word")}
+                      disabled={downloadingFormat === "word"}
+                    >
+                      {downloadingFormat === "word" ? <Loader2 className="animate-spin" /> : <FileText />}
+                      Baixar Word
+                    </Button>
+                    <Button
+                      type="button"
+                      onClick={() => void handleDownload("pdf")}
+                      disabled={downloadingFormat === "pdf"}
+                    >
+                      {downloadingFormat === "pdf" ? <Loader2 className="animate-spin" /> : <Download />}
+                      Baixar PDF
+                    </Button>
+                  </div>
+                )}
+              </div>
+            )}
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FileText className="h-5 w-5" />
-                Histórico
-              </CardTitle>
-              <CardDescription>Avaliações salvas da imobiliária.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {!canView ? (
-                <p className="text-sm text-muted-foreground">Você pode criar avaliações, mas não tem permissão para consultar o histórico.</p>
-              ) : isLoadingHistory ? (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Carregando avaliações...
-                </div>
-              ) : valuations.length === 0 ? (
-                <p className="text-sm text-muted-foreground">Nenhuma avaliação salva.</p>
-              ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Código</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Imóvel</TableHead>
-                      <TableHead>Valor central</TableHead>
-                      <TableHead />
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {valuations.map((valuation) => (
-                      <TableRow key={valuation.id}>
-                        <TableCell>{valuation.code}</TableCell>
-                        <TableCell>{valuation.status_label}</TableCell>
-                        <TableCell>
+          {selected && <ComparableTable comparables={selectedComparables} />}
+
+          <Card className="gap-0 overflow-hidden py-0">
+            <SectionHeader
+              description="Avaliações salvas da imobiliária."
+              icon={History}
+              title="Histórico"
+            />
+            {!canView ? (
+              <EmptyState
+                description="Você pode criar avaliações, mas não tem permissão para consultar o histórico."
+                icon={Lock}
+                title="Histórico indisponível"
+                variant="inline"
+              />
+            ) : isLoadingHistory ? (
+              <div className="flex items-center gap-2 px-4 py-6 text-sm text-muted-foreground sm:px-5">
+                <Loader2 className="size-4 animate-spin" />
+                Carregando avaliações...
+              </div>
+            ) : valuations.length === 0 ? (
+              <EmptyState
+                description="As avaliações calculadas aparecem aqui."
+                icon={FileText}
+                title="Nenhuma avaliação salva."
+                variant="inline"
+              />
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow className="hover:bg-transparent">
+                    <TableHead>Avaliação</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Valor central</TableHead>
+                    <TableHead className="w-px">
+                      <span className="sr-only">Ações</span>
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {valuations.map((valuation) => (
+                    <TableRow
+                      key={valuation.id}
+                      data-state={selected?.id === valuation.id ? "selected" : undefined}
+                    >
+                      <TableCell>
+                        <p className="text-foreground tabular-nums">{valuation.code}</p>
+                        <p className="mt-0.5 text-xs text-muted-foreground">
                           {valuation.subject_property.neighborhood}, {valuation.subject_property.city}
-                        </TableCell>
-                        <TableCell>{valuation.final_range?.display.central ?? "-"}</TableCell>
-                        <TableCell className="text-right">
-                          <Button type="button" variant="outline" size="sm" onClick={() => void handleSelect(valuation.id)}>
-                            Abrir
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              )}
-            </CardContent>
+                        </p>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={valuationStatusBadgeVariant(valuation.status)}>
+                          {valuation.status_label}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right text-foreground tabular-nums">
+                        {valuation.final_range?.display.central ?? "-"}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button type="button" variant="outline" size="xs" onClick={() => void handleSelect(valuation.id)}>
+                          Abrir
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
           </Card>
         </div>
       </div>
+    </div>
+  );
+}
+
+const rangeTileTones = {
+  primary: "bg-primary/10 text-primary",
+  success: "bg-success/10 text-success",
+  info: "bg-info/10 text-info",
+} as const;
+
+function RangeTile({
+  icon: Icon,
+  label,
+  tone,
+  value,
+}: {
+  icon: LucideIcon;
+  label: string;
+  tone: keyof typeof rangeTileTones;
+  value: string;
+}) {
+  return (
+    <div className="rounded-lg border p-4">
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-sm text-muted-foreground">{label}</p>
+        <span className={`flex size-8 shrink-0 items-center justify-center rounded-lg ${rangeTileTones[tone]}`}>
+          <Icon className="size-4" />
+        </span>
+      </div>
+      <p className="mt-2 text-2xl tracking-tight text-foreground tabular-nums">{value}</p>
     </div>
   );
 }
@@ -783,145 +886,148 @@ function ComparableReviewPanel({
   const selectedCount = selectedCandidateIds.size;
 
   return (
-    <Card>
-      <CardHeader className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-        <div>
-          <CardTitle>Revisão de comparáveis</CardTitle>
-          <CardDescription>
-            {candidates.length} candidatos encontrados. Resolva todos os pendentes antes de calcular.
-          </CardDescription>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Badge variant="outline" className={reviewStatusClassName("pending")}>
-            {pendingCount} pendentes
-          </Badge>
-          <Badge variant="outline" className={reviewStatusClassName("approved")}>
-            {approvedCount} válidos
-          </Badge>
-          <Badge variant="outline" className={reviewStatusClassName("rejected")}>
-            {rejectedCount} inválidos
-          </Badge>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex flex-wrap items-center gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => onMarkSelected("approved")}
-            disabled={selectedCount === 0}
-          >
-            <Check className="mr-2 h-4 w-4" />
-            Marcar como válido
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="border-red-200 text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-300 dark:hover:bg-red-950/40"
-            onClick={() => onMarkSelected("rejected")}
-            disabled={selectedCount === 0}
-          >
-            <X className="mr-2 h-4 w-4" />
-            Marcar como inválido
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={onSelectAll}
-            disabled={candidates.length === 0}
-          >
-            Selecionar todos
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={onClearSelection}
-            disabled={selectedCount === 0}
-          >
-            Limpar seleção
-          </Button>
-          <span className="text-sm text-muted-foreground">
-            {selectedCount} selecionados
-          </span>
-        </div>
+    <Card className="gap-0 overflow-hidden py-0">
+      <SectionHeader
+        actions={
+          <>
+            <Badge variant="muted" className="tabular-nums">
+              {pendingCount} pendentes
+            </Badge>
+            <Badge variant="success" className="tabular-nums">
+              {approvedCount} válidos
+            </Badge>
+            <Badge variant="destructive" className="tabular-nums">
+              {rejectedCount} inválidos
+            </Badge>
+          </>
+        }
+        description={`${candidates.length} candidatos encontrados. Resolva todos os pendentes antes de calcular.`}
+        icon={ListChecks}
+        title="Revisão de comparáveis"
+      />
 
-        <div className="overflow-x-auto rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-10" />
-                <TableHead>Status</TableHead>
-                <TableHead>Origem</TableHead>
-                <TableHead>Bairro</TableHead>
-                <TableHead>Área</TableHead>
-                <TableHead>Valor</TableHead>
-                <TableHead>Valor/m²</TableHead>
-                <TableHead>Imóvel</TableHead>
+      <div className="flex flex-wrap items-center gap-2 border-b px-4 py-3 sm:px-5">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className={reviewStatusClassName("approved")}
+          onClick={() => onMarkSelected("approved")}
+          disabled={selectedCount === 0}
+        >
+          <Check />
+          Marcar como válido
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className={reviewStatusClassName("rejected")}
+          onClick={() => onMarkSelected("rejected")}
+          disabled={selectedCount === 0}
+        >
+          <X />
+          Marcar como inválido
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={onSelectAll}
+          disabled={candidates.length === 0}
+        >
+          Selecionar todos
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={onClearSelection}
+          disabled={selectedCount === 0}
+        >
+          Limpar seleção
+        </Button>
+        <span className="text-sm text-muted-foreground tabular-nums sm:ml-auto">
+          {selectedCount} selecionados
+        </span>
+      </div>
+
+      <Table>
+        <TableHeader>
+          <TableRow className="hover:bg-transparent">
+            <TableHead className="w-10" />
+            <TableHead>Status</TableHead>
+            <TableHead>Origem</TableHead>
+            <TableHead>Bairro</TableHead>
+            <TableHead className="text-right">Área</TableHead>
+            <TableHead className="text-right">Valor</TableHead>
+            <TableHead className="text-right">Valor/m²</TableHead>
+            <TableHead>Imóvel</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {candidates.map((candidate) => {
+            const agencyLabel = candidate.agency ?? `#${candidate.market_property_id}`;
+            const isSelected = selectedCandidateIds.has(candidate.market_property_id);
+
+            return (
+              <TableRow key={candidate.market_property_id} data-state={isSelected ? "selected" : undefined}>
+                <TableCell>
+                  <Checkbox
+                    aria-label={`Selecionar comparável ${agencyLabel}`}
+                    checked={isSelected}
+                    onCheckedChange={(checked) => onToggleSelected(candidate.market_property_id, checked === true)}
+                  />
+                </TableCell>
+                <TableCell>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="xs"
+                    className={`rounded-full ${reviewStatusClassName(candidate.review_status)}`}
+                    onClick={() => onCycleStatus(candidate.market_property_id)}
+                    aria-label={`Status do comparável ${agencyLabel}: ${reviewStatusLabels[candidate.review_status]}`}
+                  >
+                    {reviewStatusLabels[candidate.review_status]}
+                  </Button>
+                </TableCell>
+                <TableCell className="text-foreground">{candidate.agency ?? "-"}</TableCell>
+                <TableCell className="text-muted-foreground">{candidate.neighborhood}</TableCell>
+                <TableCell className="text-right tabular-nums">{formatNumber(candidate.area)} m²</TableCell>
+                <TableCell className="text-right text-foreground tabular-nums">{formatMoney(candidate.price)}</TableCell>
+                <TableCell className="text-right tabular-nums">{formatMoney(candidate.price_per_square_meter)}</TableCell>
+                <TableCell>
+                  {candidate.link ? (
+                    <a
+                      className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
+                      href={candidate.link}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Visualizar imóvel
+                      <ExternalLink className="size-3.5" />
+                    </a>
+                  ) : (
+                    "-"
+                  )}
+                </TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {candidates.map((candidate) => {
-                const agencyLabel = candidate.agency ?? `#${candidate.market_property_id}`;
+            );
+          })}
+        </TableBody>
+      </Table>
 
-                return (
-                  <TableRow key={candidate.market_property_id}>
-                    <TableCell>
-                      <Checkbox
-                        aria-label={`Selecionar comparável ${agencyLabel}`}
-                        checked={selectedCandidateIds.has(candidate.market_property_id)}
-                        onCheckedChange={(checked) => onToggleSelected(candidate.market_property_id, checked === true)}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className={reviewStatusClassName(candidate.review_status)}
-                        onClick={() => onCycleStatus(candidate.market_property_id)}
-                        aria-label={`Status do comparável ${agencyLabel}: ${reviewStatusLabels[candidate.review_status]}`}
-                      >
-                        {reviewStatusLabels[candidate.review_status]}
-                      </Button>
-                    </TableCell>
-                    <TableCell>{candidate.agency ?? "-"}</TableCell>
-                    <TableCell>{candidate.neighborhood}</TableCell>
-                    <TableCell>{formatNumber(candidate.area)} m²</TableCell>
-                    <TableCell>{formatMoney(candidate.price)}</TableCell>
-                    <TableCell>{formatMoney(candidate.price_per_square_meter)}</TableCell>
-                    <TableCell>
-                      {candidate.link ? (
-                        <a
-                          className="inline-flex items-center gap-1 text-sm font-medium text-primary underline-offset-4 hover:underline"
-                          href={candidate.link}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          Visualizar imóvel
-                          <ExternalLink className="h-3.5 w-3.5" />
-                        </a>
-                      ) : (
-                        "-"
-                      )}
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </div>
-
-        <div className="flex justify-end">
-          <Button type="button" onClick={onCalculate} disabled={!canCalculate || isSubmitting}>
-            {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Calculator className="mr-2 h-4 w-4" />}
-            Calcular avaliação
-          </Button>
-        </div>
-      </CardContent>
+      <div className="flex flex-wrap items-center justify-between gap-3 border-t px-4 py-4 sm:px-5">
+        <p className="text-xs text-muted-foreground">
+          {canCalculate
+            ? "Todos os comparáveis foram revisados."
+            : "Marque cada comparável como válido ou inválido para liberar o cálculo."}
+        </p>
+        <Button type="button" onClick={onCalculate} disabled={!canCalculate || isSubmitting}>
+          {isSubmitting ? <Loader2 className="animate-spin" /> : <Calculator />}
+          Calcular avaliação
+        </Button>
+      </div>
     </Card>
   );
 }
@@ -931,48 +1037,61 @@ function ComparableTable({ comparables }: { comparables: Valuation["comparable_e
     return null;
   }
 
+  const hasReviewStatus = comparables.some((comparable) => comparable.review_status);
+
   return (
-    <div className="space-y-2">
-      <h2 className="text-lg font-semibold">Evidências comparáveis</h2>
+    <Card className="gap-0 overflow-hidden py-0">
+      <SectionHeader
+        description={`${comparables.length} imóveis usados no cálculo.`}
+        icon={ListChecks}
+        title="Evidências comparáveis"
+      />
       <Table>
         <TableHeader>
-          <TableRow>
-            <TableHead>Status</TableHead>
+          <TableRow className="hover:bg-transparent">
+            {hasReviewStatus && <TableHead>Status</TableHead>}
             <TableHead>Bairro</TableHead>
-            <TableHead>Área</TableHead>
-            <TableHead>Valor</TableHead>
-            <TableHead>Valor/m²</TableHead>
+            <TableHead className="text-right">Área</TableHead>
+            <TableHead className="text-right">Valor</TableHead>
+            <TableHead className="text-right">Valor/m²</TableHead>
             <TableHead>Origem</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {comparables.map((comparable) => (
             <TableRow key={comparable.market_property_id}>
-              <TableCell>
-                {comparable.review_status ? (
-                  <Badge variant="outline" className={reviewStatusClassName(comparable.review_status)}>
-                    {reviewStatusLabels[comparable.review_status]}
-                  </Badge>
-                ) : (
-                  "-"
-                )}
-              </TableCell>
-              <TableCell>{comparable.neighborhood}</TableCell>
-              <TableCell>{formatNumber(comparable.area)} m²</TableCell>
-              <TableCell>{formatMoney(comparable.price)}</TableCell>
-              <TableCell>{formatMoney(comparable.price_per_square_meter)}</TableCell>
+              {hasReviewStatus && (
+                <TableCell>
+                  {comparable.review_status ? (
+                    <Badge variant={reviewStatusBadgeVariants[comparable.review_status]}>
+                      {reviewStatusLabels[comparable.review_status]}
+                    </Badge>
+                  ) : (
+                    "-"
+                  )}
+                </TableCell>
+              )}
+              <TableCell className="text-foreground">{comparable.neighborhood}</TableCell>
+              <TableCell className="text-right tabular-nums">{formatNumber(comparable.area)} m²</TableCell>
+              <TableCell className="text-right text-foreground tabular-nums">{formatMoney(comparable.price)}</TableCell>
+              <TableCell className="text-right tabular-nums">{formatMoney(comparable.price_per_square_meter)}</TableCell>
               <TableCell>
                 {comparable.link ? (
-                  <div className="flex flex-col gap-1">
-                    <span className="text-sm text-muted-foreground">{comparable.agency ?? "Origem externa"}</span>
+                  <div className="flex flex-col gap-0.5">
+                    <span
+                      className="block max-w-72 truncate text-sm text-foreground"
+                      title={comparable.agency ?? undefined}
+                    >
+                      {comparable.agency ?? "Origem externa"}
+                    </span>
                     <a
-                      className="inline-flex items-center gap-1 text-sm font-medium text-primary underline-offset-4 hover:underline"
+                      className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
                       href={comparable.link}
                       target="_blank"
                       rel="noreferrer"
                     >
                       Visualizar imóvel
-                      <ExternalLink className="h-3.5 w-3.5" />
+                      <ExternalLink className="size-3.5" />
                     </a>
                   </div>
                 ) : (
@@ -983,6 +1102,6 @@ function ComparableTable({ comparables }: { comparables: Valuation["comparable_e
           ))}
         </TableBody>
       </Table>
-    </div>
+    </Card>
   );
 }
