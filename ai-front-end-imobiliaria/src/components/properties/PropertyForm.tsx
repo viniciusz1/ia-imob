@@ -1,12 +1,15 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { isAxiosError } from "axios";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FormProvider, useForm } from "react-hook-form";
+import type { z } from "zod";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { ArrowLeft, ArrowRight, Loader2, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { propertySchema, type PropertyFormValues } from "@/schemas/propertySchema";
 import type { Property, SelectOption } from "@/types/property";
@@ -29,6 +32,8 @@ interface PropertyFormProps {
     mode: "create" | "edit";
     initialData?: Property | null;
 }
+
+type PropertyFormInput = z.input<typeof propertySchema>;
 
 const STEP_VALUES = ["basic", "features", "values", "location", "media", "management"] as const;
 
@@ -104,6 +109,7 @@ export function PropertyForm({ mode, initialData }: PropertyFormProps) {
     const [activeStep, setActiveStep] = useState<(typeof STEP_VALUES)[number]>("basic");
     const [pendingImages, setPendingImages] = useState<PendingImage[]>([]);
     const [existingImages, setExistingImages] = useState(initialData?.images ?? []);
+    const [syncedInitialData, setSyncedInitialData] = useState(initialData);
     const [isUploadingImages, setIsUploadingImages] = useState(false);
 
     const createMutation = useCreateProperty();
@@ -111,15 +117,19 @@ export function PropertyForm({ mode, initialData }: PropertyFormProps) {
     const { data: systemEnums = [], isLoading: isLoadingEnums } = useSystemEnums();
     const { data: featuresOptions = [], isLoading: isLoadingFeatures } = useGetFeatures();
 
-    const form = useForm<PropertyFormValues>({
-        // @ts-expect-error Zod resolver output/input mismatch with defaulted fields
+    const form = useForm<PropertyFormInput, unknown, PropertyFormValues>({
         resolver: zodResolver(propertySchema),
         defaultValues: getDefaultValues(initialData),
     });
 
+    // Reset the image list when a different property is loaded (adjusting state while rendering).
+    if (syncedInitialData !== initialData) {
+        setSyncedInitialData(initialData);
+        setExistingImages(initialData?.images ?? []);
+    }
+
     useEffect(() => {
         form.reset(getDefaultValues(initialData));
-        setExistingImages(initialData?.images ?? []);
     }, [form, initialData]);
 
     const propertyTypes = useMemo(
@@ -258,10 +268,13 @@ export function PropertyForm({ mode, initialData }: PropertyFormProps) {
             toast.success(isEdit ? "Imóvel atualizado com sucesso!" : "Imóvel criado com sucesso!");
             router.push("/properties");
             router.refresh();
-        } catch (error: any) {
+        } catch (error: unknown) {
             setIsUploadingImages(false);
-            if (error.response?.status === 422 && error.response.data?.errors) {
-                const serverErrors = error.response.data.errors as Record<string, string[]>;
+            const response = isAxiosError<{ errors?: Record<string, string[]>; message?: string }>(error)
+                ? error.response
+                : undefined;
+            if (response?.status === 422 && response.data?.errors) {
+                const serverErrors = response.data.errors;
                 Object.entries(serverErrors).forEach(([key, messages]) => {
                     form.setError(key as keyof PropertyFormValues, {
                         type: "server",
@@ -272,102 +285,108 @@ export function PropertyForm({ mode, initialData }: PropertyFormProps) {
                 return;
             }
 
-            toast.error(error.response?.data?.message ?? "Não foi possível salvar o imóvel.");
+            toast.error(response?.data?.message ?? "Não foi possível salvar o imóvel.");
         }
     }
 
     if (isLoadingEnums || isLoadingFeatures) {
         return (
-            <div className="border rounded-lg p-8 flex items-center justify-center text-muted-foreground">
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            <Card className="flex-row items-center justify-center gap-2 py-10 text-sm text-muted-foreground">
+                <Loader2 className="size-4 animate-spin" />
                 Carregando dados do formulário...
-            </div>
+            </Card>
         );
     }
 
     return (
         <FormProvider {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-6">
-                <Tabs value={activeStep} onValueChange={(value) => setActiveStep(value as (typeof STEP_VALUES)[number])}>
-                    <TabsList className="grid grid-cols-2 md:grid-cols-6 h-auto gap-1 bg-transparent p-0">
-                        {STEP_VALUES.map((step) => (
-                            <TabsTrigger
-                                key={step}
-                                value={step}
-                                className="border rounded-md px-3 py-2 text-xs md:text-sm"
-                            >
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <Tabs
+                    className="gap-6"
+                    value={activeStep}
+                    onValueChange={(value) => setActiveStep(value as (typeof STEP_VALUES)[number])}
+                >
+                    <TabsList className="w-full flex-wrap justify-start">
+                        {STEP_VALUES.map((step, index) => (
+                            <TabsTrigger key={step} value={step} className="group/step">
+                                <span className="flex size-5 items-center justify-center rounded-full bg-muted text-xs text-muted-foreground tabular-nums group-data-[state=active]/step:bg-primary group-data-[state=active]/step:text-primary-foreground">
+                                    {index + 1}
+                                </span>
                                 {STEP_LABELS[step]}
                             </TabsTrigger>
                         ))}
                     </TabsList>
 
-                    <div className="border rounded-lg p-5 md:p-6">
-                        <TabsContent value="basic">
-                            <BasicDataStep
-                                propertyTypes={propertyTypes}
-                                purposes={purposes}
-                                statuses={statuses}
-                            />
-                        </TabsContent>
-                        <TabsContent value="features">
-                            <FeaturesStep featuresOptions={featuresOptions} />
-                        </TabsContent>
-                        <TabsContent value="values">
-                            <ValuesStep />
-                        </TabsContent>
-                        <TabsContent value="location">
-                            <LocationStep />
-                        </TabsContent>
-                        <TabsContent value="media">
-                            <MediaStep
-                                pendingImages={pendingImages}
-                                existingImages={existingImages}
-                                disabled={isLoading}
-                                onFilesSelected={addPendingFiles}
-                                onRemovePending={removePendingFile}
-                                onSetPendingCover={setPendingCover}
-                                onMovePending={movePending}
-                                onDeleteExisting={handleDeleteExisting}
-                                onSetExistingCover={handleSetExistingCover}
-                                onReorderExisting={handleReorderExisting}
-                            />
-                        </TabsContent>
-                        <TabsContent value="management">
-                            <InternalManagementStep />
-                        </TabsContent>
-                    </div>
+                    <TabsContent value="basic">
+                        <BasicDataStep
+                            propertyTypes={propertyTypes}
+                            purposes={purposes}
+                            statuses={statuses}
+                        />
+                    </TabsContent>
+                    <TabsContent value="features">
+                        <FeaturesStep featuresOptions={featuresOptions} />
+                    </TabsContent>
+                    <TabsContent value="values">
+                        <ValuesStep />
+                    </TabsContent>
+                    <TabsContent value="location">
+                        <LocationStep />
+                    </TabsContent>
+                    <TabsContent value="media">
+                        <MediaStep
+                            pendingImages={pendingImages}
+                            existingImages={existingImages}
+                            disabled={isLoading}
+                            onFilesSelected={addPendingFiles}
+                            onRemovePending={removePendingFile}
+                            onSetPendingCover={setPendingCover}
+                            onMovePending={movePending}
+                            onDeleteExisting={handleDeleteExisting}
+                            onSetExistingCover={handleSetExistingCover}
+                            onReorderExisting={handleReorderExisting}
+                        />
+                    </TabsContent>
+                    <TabsContent value="management">
+                        <InternalManagementStep />
+                    </TabsContent>
                 </Tabs>
 
-                <div className="flex items-center justify-between">
-                    <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => moveStep("previous")}
-                        disabled={currentStepIndex === 0 || isLoading}
-                    >
-                        <ArrowLeft className="h-4 w-4 mr-2" />
-                        Anterior
-                    </Button>
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => moveStep("previous")}
+                            disabled={currentStepIndex === 0 || isLoading}
+                        >
+                            <ArrowLeft />
+                            Anterior
+                        </Button>
+                        <span className="text-xs text-muted-foreground tabular-nums">
+                            Etapa {currentStepIndex + 1} de {STEP_VALUES.length}
+                        </span>
+                    </div>
 
-                    <div className="flex gap-2">
-                        <Button type="button" variant="ghost" onClick={() => router.push("/properties")}>
+                    <div className="flex flex-wrap gap-3">
+                        <Button type="button" variant="outline" onClick={() => router.push("/properties")}>
                             Cancelar
                         </Button>
                         {currentStepIndex < STEP_VALUES.length - 1 ? (
                             <Button type="button" onClick={() => moveStep("next")} disabled={isLoading}>
                                 Próxima
-                                <ArrowRight className="h-4 w-4 ml-2" />
+                                <ArrowRight />
                             </Button>
                         ) : (
                             <Button type="submit" disabled={isLoading}>
                                 {isLoading ? (
                                     <>
-                                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                        <Loader2 className="animate-spin" />
                                         Salvando...
                                     </>
                                 ) : (
                                     <>
-                                        <Save className="h-4 w-4 mr-2" />
+                                        <Save />
                                         {isEdit ? "Salvar Alterações" : "Criar Imóvel"}
                                     </>
                                 )}
@@ -379,4 +398,3 @@ export function PropertyForm({ mode, initialData }: PropertyFormProps) {
         </FormProvider>
     );
 }
-

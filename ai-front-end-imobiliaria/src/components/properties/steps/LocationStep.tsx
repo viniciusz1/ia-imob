@@ -2,11 +2,18 @@
 
 import { useState } from "react";
 import { useFormContext } from "react-hook-form";
-import { Search } from "lucide-react";
+import { Loader2, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card";
+import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
+import { SwitchTile } from "@/components/properties/steps/SwitchTile";
 import type { PropertyFormValues } from "@/schemas/propertySchema";
 import { toast } from "sonner";
 
@@ -60,86 +67,89 @@ export function LocationStep() {
     }
 
     return (
-        <section className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="space-y-2 md:col-span-2">
-                    <Label htmlFor="zip_code">CEP *</Label>
-                    <div className="flex gap-2">
-                        <Input id="zip_code" {...register("zip_code")} />
-                        <Button type="button" variant="outline" onClick={handleSearchCep} disabled={isSearchingCep}>
-                            <Search className="h-4 w-4 mr-2" />
-                            {isSearchingCep ? "Buscando..." : "Buscar"}
-                        </Button>
-                    </div>
-                    {errors.zip_code && <p className="text-sm text-red-500">{errors.zip_code.message}</p>}
-                </div>
-            </div>
+        <div className="space-y-6">
+            <Card>
+                <CardHeader className="border-b">
+                    <CardTitle>Endereço</CardTitle>
+                    <CardDescription>Busque pelo CEP para preencher logradouro, bairro, cidade e UF.</CardDescription>
+                </CardHeader>
+                <CardContent className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                    <FormField
+                        className="sm:col-span-2"
+                        error={errors.zip_code?.message}
+                        htmlFor="zip_code"
+                        label="CEP"
+                        required
+                    >
+                        <div className="flex gap-2">
+                            <Input aria-invalid={!!errors.zip_code} id="zip_code" {...register("zip_code")} />
+                            <Button type="button" variant="outline" onClick={handleSearchCep} disabled={isSearchingCep}>
+                                {isSearchingCep ? <Loader2 className="animate-spin" /> : <Search />}
+                                {isSearchingCep ? "Buscando..." : "Buscar"}
+                            </Button>
+                        </div>
+                    </FormField>
+                    <div className="hidden lg:col-span-2 lg:block" />
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="space-y-2 md:col-span-2">
-                    <Label htmlFor="street">Logradouro *</Label>
-                    <Input id="street" {...register("street")} />
-                    {errors.street && <p className="text-sm text-red-500">{errors.street.message}</p>}
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="number">Número *</Label>
-                    <Input id="number" {...register("number")} />
-                    {errors.number && <p className="text-sm text-red-500">{errors.number.message}</p>}
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="complement">Complemento</Label>
-                    <Input id="complement" {...register("complement")} />
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="neighborhood">Bairro *</Label>
-                    <Input id="neighborhood" {...register("neighborhood")} />
-                    {errors.neighborhood && (
-                        <p className="text-sm text-red-500">{errors.neighborhood.message}</p>
-                    )}
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="city">Cidade *</Label>
-                    <Input id="city" {...register("city")} />
-                    {errors.city && <p className="text-sm text-red-500">{errors.city.message}</p>}
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="state">UF *</Label>
-                    <Input id="state" maxLength={2} {...register("state")} />
-                    {errors.state && <p className="text-sm text-red-500">{errors.state.message}</p>}
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="latitude">Latitude</Label>
-                    <Input
-                        id="latitude"
-                        type="number"
-                        step="0.00000001"
-                        {...register("latitude", { setValueAs: nullableNumber })}
-                    />
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="longitude">Longitude</Label>
-                    <Input
-                        id="longitude"
-                        type="number"
-                        step="0.00000001"
-                        {...register("longitude", { setValueAs: nullableNumber })}
-                    />
-                </div>
-            </div>
+                    <FormField
+                        className="sm:col-span-2 lg:col-span-3"
+                        error={errors.street?.message}
+                        htmlFor="street"
+                        label="Logradouro"
+                        required
+                    >
+                        <Input aria-invalid={!!errors.street} id="street" {...register("street")} />
+                    </FormField>
+                    <FormField error={errors.number?.message} htmlFor="number" label="Número" required>
+                        <Input aria-invalid={!!errors.number} id="number" {...register("number")} />
+                    </FormField>
+                    <FormField htmlFor="complement" label="Complemento">
+                        <Input id="complement" {...register("complement")} />
+                    </FormField>
+                    <FormField error={errors.neighborhood?.message} htmlFor="neighborhood" label="Bairro" required>
+                        <Input aria-invalid={!!errors.neighborhood} id="neighborhood" {...register("neighborhood")} />
+                    </FormField>
+                    <FormField error={errors.city?.message} htmlFor="city" label="Cidade" required>
+                        <Input aria-invalid={!!errors.city} id="city" {...register("city")} />
+                    </FormField>
+                    <FormField error={errors.state?.message} htmlFor="state" label="UF" required>
+                        <Input aria-invalid={!!errors.state} id="state" maxLength={2} {...register("state")} />
+                    </FormField>
+                </CardContent>
+            </Card>
 
-            <div className="flex items-center justify-between rounded-lg border p-4">
-                <div>
-                    <p className="font-medium">Exibir endereço exato no site</p>
-                    <p className="text-sm text-muted-foreground">
-                        Desative para ocultar número e localização precisa na vitrine pública.
-                    </p>
-                </div>
-                <Switch
-                    checked={watch("show_exact_address")}
-                    onCheckedChange={(checked) => setValue("show_exact_address", checked, { shouldDirty: true })}
-                />
-            </div>
-        </section>
+            <Card>
+                <CardHeader className="border-b">
+                    <CardTitle>Mapa e privacidade</CardTitle>
+                    <CardDescription>Coordenadas do imóvel e o que aparece na vitrine pública.</CardDescription>
+                </CardHeader>
+                <CardContent className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                    <FormField htmlFor="latitude" label="Latitude">
+                        <Input
+                            id="latitude"
+                            type="number"
+                            step="0.00000001"
+                            {...register("latitude", { setValueAs: nullableNumber })}
+                        />
+                    </FormField>
+                    <FormField htmlFor="longitude" label="Longitude">
+                        <Input
+                            id="longitude"
+                            type="number"
+                            step="0.00000001"
+                            {...register("longitude", { setValueAs: nullableNumber })}
+                        />
+                    </FormField>
+                    <SwitchTile
+                        checked={watch("show_exact_address")}
+                        className="sm:col-span-2"
+                        description="Desative para ocultar número e localização precisa na vitrine pública."
+                        id="show_exact_address"
+                        onCheckedChange={(checked) => setValue("show_exact_address", checked, { shouldDirty: true })}
+                        title="Exibir endereço exato no site"
+                    />
+                </CardContent>
+            </Card>
+        </div>
     );
 }
-
