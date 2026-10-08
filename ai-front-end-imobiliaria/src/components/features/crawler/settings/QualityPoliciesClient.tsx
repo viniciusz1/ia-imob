@@ -116,7 +116,7 @@ function RuleValue({ label, value }: { label: string; value: number }) {
   return (
     <div className="rounded-lg border p-4">
       <dt className="text-xs uppercase tracking-wide text-muted-foreground">{label}</dt>
-      <dd className="mt-1 text-lg text-foreground tabular-nums">{value * 100}%</dd>
+      <dd className="mt-1 text-lg text-foreground tabular-nums">{(value * 100).toLocaleString("pt-BR", { maximumFractionDigits: 2 })}%</dd>
     </div>
   );
 }
