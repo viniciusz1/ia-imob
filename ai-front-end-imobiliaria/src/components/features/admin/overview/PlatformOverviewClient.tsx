@@ -1,19 +1,16 @@
 "use client";
 
-import { ArrowRight, Radar } from "lucide-react";
+import { ArrowRight, CircleCheck, CirclePause, Landmark, Radar, Sparkles } from "lucide-react";
 import Link from "next/link";
 
+import { EmptyState } from "@/components/layout/EmptyState";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { SectionHeader } from "@/components/layout/SectionHeader";
+import { StatCard } from "@/components/layout/StatCard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { usePermission } from "@/hooks/usePermission";
-import { AdminPageHeader } from "@/components/features/admin/AdminPageHeader";
 import type { AgencySummary } from "@/services/adminApi";
 
 interface PlatformOverviewClientProps {
@@ -43,22 +40,6 @@ function sortByNewest(a: AgencySummary, b: AgencySummary): number {
     return new Date(b.created_at ?? 0).getTime() - new Date(a.created_at ?? 0).getTime();
 }
 
-// Mirrors the Crawler overview metric cards: a small label in the header and the
-// figure in the content, so both overview screens read as the same system.
-function StatCard({ label, value, hint }: { label: string; value: number; hint: string }) {
-    return (
-        <Card>
-            <CardHeader>
-                <CardTitle className="text-sm">{label}</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <p className="text-3xl font-semibold tabular-nums">{value}</p>
-                <p className="mt-1 text-xs text-muted-foreground">{hint}</p>
-            </CardContent>
-        </Card>
-    );
-}
-
 export function PlatformOverviewClient({ agencies }: PlatformOverviewClientProps) {
     const canSeeCrawler = usePermission("crawler.view");
 
@@ -68,8 +49,8 @@ export function PlatformOverviewClient({ agencies }: PlatformOverviewClientProps
     const recent = [...agencies].sort(sortByNewest).slice(0, RECENT_LIMIT);
 
     return (
-        <div className="flex flex-col gap-6">
-            <AdminPageHeader
+        <div className="space-y-6">
+            <PageHeader
                 description="Estado das imobiliárias clientes e atalhos para a operação da plataforma."
                 title="Visão geral da plataforma"
             />
@@ -77,84 +58,87 @@ export function PlatformOverviewClient({ agencies }: PlatformOverviewClientProps
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <StatCard
                     hint={agencies.length === 0 ? "Nenhuma agência cadastrada" : "Total cadastrado"}
-                    label="Agências"
+                    href="/admin/agencies"
+                    icon={Landmark}
+                    title="Agências"
                     value={agencies.length}
                 />
-                <StatCard hint="Com CRM e site liberados" label="Ativas" value={active.length} />
-                <StatCard hint="Site público fora do ar" label="Desativadas" value={inactive.length} />
+                <StatCard hint="Com CRM e site liberados" icon={CircleCheck} title="Ativas" tone="success" value={active.length} />
+                <StatCard hint="Site público fora do ar" icon={CirclePause} title="Desativadas" tone="muted" value={inactive.length} />
                 <StatCard
                     hint={`Últimos ${NEW_AGENCY_WINDOW_DAYS} dias`}
-                    label="Novas"
+                    icon={Sparkles}
+                    title="Novas"
+                    tone="info"
                     value={recentlyCreated.length}
                 />
             </div>
 
-            <div className="grid gap-4 lg:grid-cols-2">
-                <Card>
-                    <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0">
-                        <div>
-                            <CardTitle className="text-base">Agências recentes</CardTitle>
-                            <CardDescription>As últimas imobiliárias cadastradas.</CardDescription>
-                        </div>
-                        <Button asChild size="sm" variant="outline">
-                            <Link href="/admin/agencies">
-                                Ver todas
-                                <ArrowRight className="ml-1 size-4" />
-                            </Link>
-                        </Button>
-                    </CardHeader>
-                    <CardContent>
-                        {recent.length === 0 ? (
-                            <p className="text-sm text-muted-foreground">
-                                Nenhuma agência cadastrada ainda.{" "}
+            <div className="grid gap-6 xl:grid-cols-3">
+                <Card className="gap-0 overflow-hidden py-0 xl:col-span-2">
+                    <SectionHeader
+                        description="As últimas imobiliárias cadastradas."
+                        href="/admin/agencies"
+                        icon={Landmark}
+                        linkLabel="Ver todas"
+                        title="Agências recentes"
+                    />
+                    {recent.length === 0 ? (
+                        <EmptyState
+                            description={
                                 <Link className="text-primary hover:underline" href="/admin/agencies/new">
                                     Cadastrar a primeira
                                 </Link>
-                                .
-                            </p>
-                        ) : (
-                            <ul className="flex flex-col">
-                                {recent.map((agency) => (
-                                    <li
-                                        className="flex items-center gap-3 border-b py-2 text-sm last:border-b-0"
-                                        key={agency.id}
-                                    >
+                            }
+                            icon={Landmark}
+                            title="Nenhuma agência cadastrada ainda."
+                            variant="inline"
+                        />
+                    ) : (
+                        <ul className="divide-y">
+                            {recent.map((agency) => (
+                                <li className="flex items-center gap-3 px-4 py-3 sm:px-5" key={agency.id}>
+                                    <div className="min-w-0 flex-1">
                                         <Link
-                                            className="font-medium text-primary hover:underline"
+                                            className="block truncate text-sm text-foreground hover:text-primary hover:underline"
                                             href={`/admin/agencies/${agency.id}`}
                                         >
                                             {agency.name}
                                         </Link>
-                                        <Badge variant={agency.is_active ? "default" : "secondary"}>
-                                            {agency.is_active ? "Ativa" : "Inativa"}
-                                        </Badge>
-                                        <span className="ml-auto text-xs tabular-nums text-muted-foreground">
-                                            {formatDate(agency.created_at)}
-                                        </span>
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
-                    </CardContent>
+                                        <p className="truncate text-xs text-muted-foreground">{agency.slug}</p>
+                                    </div>
+                                    <Badge variant={agency.is_active ? "success" : "muted"}>
+                                        {agency.is_active ? "Ativa" : "Inativa"}
+                                    </Badge>
+                                    <span className="hidden w-20 shrink-0 text-right text-xs tabular-nums text-muted-foreground sm:block">
+                                        {formatDate(agency.created_at)}
+                                    </span>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
                 </Card>
 
                 {canSeeCrawler && (
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-base">Dados de mercado</CardTitle>
-                            <CardDescription>
-                                As Crawl Agencies que alimentam o Buscador com IA e as avaliações. Elas
-                                não são clientes da plataforma.
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <Button asChild variant="outline">
+                    <Card className="gap-0 overflow-hidden py-0">
+                        <SectionHeader
+                            description="Fontes que alimentam o Buscador com IA."
+                            icon={Radar}
+                            title="Dados de mercado"
+                        />
+                        <div className="space-y-4 px-4 py-4 sm:px-5">
+                            <p className="text-sm text-muted-foreground">
+                                As Crawl Agencies alimentam o Buscador com IA e as avaliações. Elas não são
+                                clientes da plataforma.
+                            </p>
+                            <Button asChild className="w-full" variant="outline">
                                 <Link href="/admin/crawler">
-                                    <Radar className="mr-1 size-4" />
+                                    <Radar />
                                     Abrir o Crawler
+                                    <ArrowRight className="ml-auto" />
                                 </Link>
                             </Button>
-                        </CardContent>
+                        </div>
                     </Card>
                 )}
             </div>
