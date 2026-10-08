@@ -34,6 +34,10 @@ const BREADCRUMB_LABELS: Record<string, string> = {
     runs: "Execuções",
 };
 
+const BREADCRUMB_PATH_LABELS: Record<string, string> = {
+    "/admin/crawler/agencies": "Crawl Agencies",
+};
+
 // Route segments that group pages but have no page of their own.
 const UNLINKED_BREADCRUMBS = [
     /^\/admin\/crawler\/runs$/,
@@ -107,7 +111,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             brand={<SidebarBrand caption="Administração da plataforma" href="/admin" />}
             navigation={<PlatformAdminNavigation />}
             sidebarFooter={<SidebarUserCard roleLabel="Platform Admin" />}
-            topbar={<Breadcrumbs labels={BREADCRUMB_LABELS} unlinkedPaths={UNLINKED_BREADCRUMBS} />}
+            topbar={<Breadcrumbs labels={BREADCRUMB_LABELS} pathLabels={BREADCRUMB_PATH_LABELS} unlinkedPaths={UNLINKED_BREADCRUMBS} />}
             topbarActions={
                 <>
                     {/* Crawler screens mirror live worker state, so they refresh on a timer. */}

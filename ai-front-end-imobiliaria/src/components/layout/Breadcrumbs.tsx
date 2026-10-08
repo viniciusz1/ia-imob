@@ -9,6 +9,8 @@ import { cn } from "@/lib/utils";
 interface BreadcrumbsProps {
     /** Label for each URL segment, e.g. `{ admin: "Administração" }`. */
     labels: Record<string, string>;
+    /** Labels for full paths, winning over segment labels, e.g. `{ "/admin/crawler/agencies": "Crawl Agencies" }`. */
+    pathLabels?: Record<string, string>;
     /** Paths that only group routes and have no page of their own. */
     unlinkedPaths?: RegExp[];
 }
@@ -24,7 +26,7 @@ function labelFor(segment: string, labels: Record<string, string>): string {
 }
 
 /** Path-derived breadcrumb trail for the topbar. */
-export function Breadcrumbs({ labels, unlinkedPaths = [] }: BreadcrumbsProps) {
+export function Breadcrumbs({ labels, pathLabels = {}, unlinkedPaths = [] }: BreadcrumbsProps) {
     const pathname = usePathname();
     const segments = pathname.split("/").filter(Boolean);
 
@@ -32,7 +34,7 @@ export function Breadcrumbs({ labels, unlinkedPaths = [] }: BreadcrumbsProps) {
         const href = `/${segments.slice(0, index + 1).join("/")}`;
         return {
             href,
-            label: labelFor(segment, labels),
+            label: pathLabels[href] ?? labelFor(segment, labels),
             linkable: !unlinkedPaths.some((pattern) => pattern.test(href)),
         };
     });
