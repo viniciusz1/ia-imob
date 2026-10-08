@@ -61,6 +61,9 @@ inputs, tabelas e badges seguindo uma única escala de altura, raio e espaçamen
 | `StatCard` | `components/layout` | KPI com ícone tingido |
 | `EmptyState` | `components/layout` | Estado vazio (card tracejado ou compacto) |
 | `NativeSelect` | `components/ui` | `<select>` nativo com o mesmo visual do Input |
+| `FormField` | `components/ui` | Label + campo + erro/ajuda com espaçamento padrão |
+| `SidebarBrand`, `SidebarUserCard` | `components/layout` | Logo e usuário no sidebar |
+| `LifecycleBadge`, `HealthBadge`, `OperationStateBadge` | `features/crawler/CrawlerStatusBadges` | Estados do Crawler com rótulo em pt-BR |
 
 `NativeSelect` existe porque os testes do Crawler dependem do `<select>` nativo
 (`getByRole("combobox")` + `fireEvent.change`). O visual fica igual ao Select do
@@ -70,45 +73,45 @@ Radix sem quebrar esses testes.
 
 ### Fase 0: base (afeta tudo)
 
-- [ ] Tokens novos em `theme.css` (fundo branco, borda neutra, sidebar da marca, status).
-- [ ] `globals.css`: `font-synthesis`, scrollbar, tokens de status no `@theme`.
-- [ ] Primitivos: Button, Input, Textarea, Select, Card, Badge, Tabs, Table,
+- [x] Tokens novos em `theme.css` (fundo branco, borda neutra, sidebar da marca, status).
+- [x] `globals.css`: `font-synthesis`, scrollbar, tokens de status no `@theme`.
+- [x] Primitivos: Button, Input, Textarea, Select, Card, Badge, Tabs, Table,
   Dialog, Checkbox, Skeleton.
-- [ ] Componentes de layout: AppShell, Breadcrumbs, PageHeader, SectionHeader,
+- [x] Componentes de layout: AppShell, Breadcrumbs, PageHeader, SectionHeader,
   StatCard, EmptyState, NativeSelect.
 
 ### Fase 1: Painel Administrativo (prioridade)
 
 Shell e navegação:
 
-- [ ] `(admin)/layout.tsx` passa a usar o `AppShell`.
-- [ ] `PlatformAdminNavigation`: seções no estilo RH Fácil; o Crawler vira uma
+- [x] `(admin)/layout.tsx` passa a usar o `AppShell`.
+- [x] `PlatformAdminNavigation`: seções no estilo RH Fácil; o Crawler vira uma
   seção expansível com os sub-itens que hoje estão na barra de abas.
-- [ ] `crawler/layout.tsx`: remove o banner, as abas e as margens negativas;
+- [x] `crawler/layout.tsx`: remove o banner, as abas e as margens negativas;
   o auto-refresh vira um indicador discreto.
-- [ ] `error.tsx` do admin com tokens.
+- [x] `error.tsx` do admin com tokens.
 
 Telas de Clientes:
 
-- [ ] `/admin`: Visão geral (PageHeader, StatCards, cards de lista).
-- [ ] `/admin/agencies`: lista de agências (tabela padrão).
-- [ ] `/admin/agencies/new`: formulário de nova agência.
-- [ ] `/admin/agencies/[id]`: detalhe da agência e franquia de buscas.
+- [x] `/admin`: Visão geral (PageHeader, StatCards, cards de lista).
+- [x] `/admin/agencies`: lista de agências (tabela padrão).
+- [x] `/admin/agencies/new`: formulário de nova agência.
+- [x] `/admin/agencies/[id]`: detalhe da agência e franquia de buscas.
 
 Telas do Crawler:
 
-- [ ] `/admin/crawler`: visão geral.
-- [ ] `/admin/crawler/prospects`: prospecção.
-- [ ] `/admin/crawler/agencies`: lista de crawl agencies.
-- [ ] `/admin/crawler/agencies/new`: cadastro.
-- [ ] `/admin/crawler/agencies/[id]` e sub-telas: workspace, crawls, operação,
+- [x] `/admin/crawler`: visão geral.
+- [x] `/admin/crawler/prospects`: prospecção.
+- [x] `/admin/crawler/agencies`: lista de crawl agencies.
+- [x] `/admin/crawler/agencies/new`: cadastro.
+- [x] `/admin/crawler/agencies/[id]` e sub-telas: workspace, crawls, operação,
   discoveries, onboarding, execução de onboarding, perfis, qualidade, agenda,
   configurações (cabeçalho de contexto + abas da agência).
-- [ ] `/admin/crawler/operations`: operações.
-- [ ] `/admin/crawler/discoveries/[id]`: detalhe de discovery.
-- [ ] `/admin/crawler/quality`: qualidade.
-- [ ] `/admin/crawler/runs/[id]`: detalhe de execução.
-- [ ] `/admin/crawler/settings`: catálogos, agenda padrão, contratos e políticas.
+- [x] `/admin/crawler/operations`: operações.
+- [x] `/admin/crawler/discoveries/[id]`: detalhe de discovery.
+- [x] `/admin/crawler/quality`: qualidade.
+- [x] `/admin/crawler/runs/[id]`: detalhe de execução.
+- [x] `/admin/crawler/settings`: catálogos, agenda padrão, contratos e políticas.
 
 Problemas recorrentes a eliminar durante a fase 1:
 
