@@ -1,12 +1,15 @@
 "use client";
 
+import { CircleAlert, TriangleAlert } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { FormField } from "@/components/ui/form-field";
 import { Label } from "@/components/ui/label";
+import { NativeSelect } from "@/components/ui/native-select";
 import { usePermission } from "@/hooks/usePermission";
 import { activateCrawlAgencyDiscoveryPolicy, queueProductionCrawl } from "@/services/crawlerService";
 import type { CrawlAgency, DiscoveryPolicyVersion } from "@/types/crawler";
@@ -95,61 +98,180 @@ export function ProductionCrawlPanel({ agency: initialAgency, discoveryPolicies:
   };
 
   return (
-    <div className="space-y-5">
-      {!hasActiveQualityPolicy && <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4"><p className="font-medium text-destructive">Nenhuma Política de Qualidade ativa</p><p className="text-sm text-muted-foreground">Crawls de Produção estão bloqueados até que uma política seja ativada. Crawls de Validação continuam disponíveis.</p><Link className="text-sm underline" href="/admin/crawler/settings">Configurar Política de Qualidade</Link></div>}
-      {pendingCandidateRunId !== null && <div className="rounded-lg border border-amber-300 bg-amber-50/60 p-4"><p className="font-medium">Snapshot Candidato aguardando Qualidade</p><p className="text-sm text-muted-foreground">Resolva a avaliação do Snapshot #{pendingCandidateRunId} antes de iniciar outra produção.</p><Link className="text-sm underline" href={`/admin/crawler/agencies/${agency.id}/quality`}>Resolver em Qualidade</Link></div>}
-      <div className="rounded-lg border bg-muted/20 p-4">
-        <p className="text-sm text-muted-foreground">Política de Discovery Ativa</p>
+    <div className="space-y-4">
+      {!hasActiveQualityPolicy && (
+        <div className="flex items-start gap-3 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm">
+          <CircleAlert className="mt-0.5 size-4 shrink-0 text-destructive" />
+          <div className="min-w-0 space-y-1">
+            <p className="text-destructive">Nenhuma Política de Qualidade ativa</p>
+            <p className="text-muted-foreground">
+              Crawls de Produção estão bloqueados até que uma política seja ativada. Crawls de Validação continuam
+              disponíveis.
+            </p>
+            <Link className="text-primary hover:underline" href="/admin/crawler/settings">
+              Configurar Política de Qualidade
+            </Link>
+          </div>
+        </div>
+      )}
+      {pendingCandidateRunId !== null && (
+        <div className="flex items-start gap-3 rounded-lg border border-warning/30 bg-warning/10 px-4 py-3 text-sm">
+          <TriangleAlert className="mt-0.5 size-4 shrink-0 text-warning" />
+          <div className="min-w-0 space-y-1">
+            <p className="text-foreground">Snapshot Candidato aguardando Qualidade</p>
+            <p className="text-muted-foreground">
+              Resolva a avaliação do Snapshot #{pendingCandidateRunId} antes de iniciar outra produção.
+            </p>
+            <Link className="text-primary hover:underline" href={`/admin/crawler/agencies/${agency.id}/quality`}>
+              Resolver em Qualidade
+            </Link>
+          </div>
+        </div>
+      )}
+      <div className="space-y-1 rounded-lg border p-4">
+        <p className="text-xs uppercase tracking-wide text-muted-foreground">Política de Discovery Ativa</p>
         {agency.active_discovery_policy ? (
           <>
-            <p className="font-medium">{agency.active_discovery_policy.name} · v{agency.active_discovery_policy.version}</p>
-            <p className="mt-1 text-sm text-muted-foreground">{agency.active_discovery_policy.strategies.join(" → ")}</p>
+            <p className="text-sm text-foreground">
+              {agency.active_discovery_policy.name} · v{agency.active_discovery_policy.version}
+            </p>
+            <p className="text-xs text-muted-foreground">{agency.active_discovery_policy.strategies.join(" → ")}</p>
           </>
-        ) : <p className="font-medium text-destructive">Nenhuma política ativa. Crawls com discovery novo estão bloqueados.</p>}
+        ) : (
+          <p className="text-sm text-destructive">Nenhuma política ativa. Crawls com discovery novo estão bloqueados.</p>
+        )}
       </div>
-      <div className="grid gap-3 md:grid-cols-2">
-        <select aria-label="Discovery do crawl" className="rounded-md border bg-transparent px-3 py-2" disabled={!canExecute || operationId !== null} onChange={(event) => { setDiscovery(event.target.value); if (event.target.value === "fresh") setOnlyNewUrls(false); }} value={discovery}>
-          <option value="fresh">Gerar novo Discovery</option>
-          {snapshots.map((snapshot) => <option key={snapshot.id} value={snapshot.id}>Usar Snapshot #{snapshot.id} · {snapshot.url_count} URLs</option>)}
-        </select>
-        <select aria-label="Perfil de Extração" className="rounded-md border bg-transparent px-3 py-2" disabled={!canExecute || operationId !== null} onChange={(event) => setProfileId(event.target.value)} value={profileId}>
-          <option value="">Selecione o Perfil de Extração</option>
-          {usableProfiles.map((profile) => <option key={profile.id} value={profile.id}>v{profile.version} · {profile.status}</option>)}
-        </select>
+      <div className="grid gap-4 md:grid-cols-2">
+        <FormField htmlFor="manual-crawl-discovery" label="Discovery">
+          <NativeSelect
+            aria-label="Discovery do crawl"
+            disabled={!canExecute || operationId !== null}
+            id="manual-crawl-discovery"
+            onChange={(event) => {
+              setDiscovery(event.target.value);
+              if (event.target.value === "fresh") setOnlyNewUrls(false);
+            }}
+            value={discovery}
+          >
+            <option value="fresh">Gerar novo Discovery</option>
+            {snapshots.map((snapshot) => (
+              <option key={snapshot.id} value={snapshot.id}>
+                Usar Snapshot #{snapshot.id} · {snapshot.url_count} URLs
+              </option>
+            ))}
+          </NativeSelect>
+        </FormField>
+        <FormField htmlFor="manual-crawl-profile" label="Perfil">
+          <NativeSelect
+            aria-label="Perfil de Extração"
+            disabled={!canExecute || operationId !== null}
+            id="manual-crawl-profile"
+            onChange={(event) => setProfileId(event.target.value)}
+            value={profileId}
+          >
+            <option value="">Selecione o Perfil de Extração</option>
+            {usableProfiles.map((profile) => (
+              <option key={profile.id} value={profile.id}>
+                v{profile.version} · {profile.status}
+              </option>
+            ))}
+          </NativeSelect>
+        </FormField>
       </div>
       {discovery !== "fresh" && (
-        <div className="flex items-start gap-2 rounded-lg border bg-muted/20 p-4">
-          <Checkbox checked={onlyNewUrls} disabled={!canExecute || operationId !== null} id="manual-crawl-only-new-urls" onCheckedChange={(checked) => setOnlyNewUrls(checked === true)} />
+        <div className="flex items-start gap-3 rounded-lg border p-4">
+          <Checkbox
+            checked={onlyNewUrls}
+            disabled={!canExecute || operationId !== null}
+            id="manual-crawl-only-new-urls"
+            onCheckedChange={(checked) => setOnlyNewUrls(checked === true)}
+          />
           <div className="space-y-1">
-            <Label className="font-normal" htmlFor="manual-crawl-only-new-urls">Somente URLs ainda não importadas</Label>
-            <p className="text-xs text-muted-foreground">Compara o snapshot com o histórico desta Crawl Agency antes de criar a operação.</p>
+            <Label htmlFor="manual-crawl-only-new-urls">Somente URLs ainda não importadas</Label>
+            <p className="text-xs text-muted-foreground">
+              Compara o snapshot com o histórico desta Crawl Agency antes de criar a operação.
+            </p>
           </div>
         </div>
       )}
       {discovery === "fresh" && (
-        <div className="space-y-2">
-          <Label htmlFor="manual-crawl-discovery-policy">Política para esta operação</Label>
-          <select className="h-10 w-full rounded-md border bg-background px-3 text-sm" disabled={!canExecute || operationId !== null} id="manual-crawl-discovery-policy" onChange={(event) => { setPolicyId(event.target.value); setConfirmActivation(false); }} value={policyId}>
+        <FormField htmlFor="manual-crawl-discovery-policy" label="Política para esta operação">
+          <NativeSelect
+            disabled={!canExecute || operationId !== null}
+            id="manual-crawl-discovery-policy"
+            onChange={(event) => {
+              setPolicyId(event.target.value);
+              setConfirmActivation(false);
+            }}
+            value={policyId}
+          >
             <option value="">Selecione uma política</option>
-            {discoveryPolicies.map((policy) => <option key={policy.id} value={policy.id}>{policy.name} · v{policy.version}{policy.id === activePolicyId ? " · ativa" : ""}</option>)}
-          </select>
-          {isOverride && <p className="text-sm text-amber-700">Override pontual: vale somente para esta Operação do Crawler e não altera o agendamento.</p>}
+            {discoveryPolicies.map((policy) => (
+              <option key={policy.id} value={policy.id}>
+                {policy.name} · v{policy.version}
+                {policy.id === activePolicyId ? " · ativa" : ""}
+              </option>
+            ))}
+          </NativeSelect>
+        </FormField>
+      )}
+      {isOverride && (
+        <div className="flex items-start gap-3 rounded-lg border border-warning/30 bg-warning/10 px-4 py-3 text-sm">
+          <TriangleAlert className="mt-0.5 size-4 shrink-0 text-warning" />
+          <p className="text-foreground">
+            Override pontual: vale somente para esta Operação do Crawler e não altera o agendamento.
+          </p>
         </div>
       )}
       {isOverride && canManagePolicies && (
-        <div className="space-y-3 rounded-lg border border-primary/30 bg-primary/5 p-4">
-          <p className="font-medium">Salvar override como nova política ativa</p>
-          <p className="text-sm text-muted-foreground">A ação criará uma nova versão de “{selectedPolicy.name}” antes de alterar o padrão da Crawl Agency.</p>
-          <div className="flex items-start gap-2">
-            <Checkbox checked={confirmActivation} disabled={activating} id="confirm-active-discovery-policy" onCheckedChange={(checked) => setConfirmActivation(checked === true)} />
-            <Label className="font-normal" htmlFor="confirm-active-discovery-policy">Confirmo a criação e ativação de uma nova versão. A operação já enfileirada, se houver, continuará imutável.</Label>
+        <div className="space-y-3 rounded-lg border border-primary/20 bg-primary/5 p-4">
+          <div className="space-y-1">
+            <p className="text-sm text-foreground">Salvar override como nova política ativa</p>
+            <p className="text-xs text-muted-foreground">
+              A ação criará uma nova versão de “{selectedPolicy.name}” antes de alterar o padrão da Crawl Agency.
+            </p>
           </div>
-          <Button disabled={!confirmActivation || activating} onClick={() => void activateOverride()} type="button" variant="outline">{activating ? "Ativando…" : "Salvar como nova política ativa"}</Button>
+          <div className="flex items-start gap-3">
+            <Checkbox
+              checked={confirmActivation}
+              disabled={activating}
+              id="confirm-active-discovery-policy"
+              onCheckedChange={(checked) => setConfirmActivation(checked === true)}
+            />
+            <Label htmlFor="confirm-active-discovery-policy">
+              Confirmo a criação e ativação de uma nova versão. A operação já enfileirada, se houver, continuará imutável.
+            </Label>
+          </div>
+          <Button
+            disabled={!confirmActivation || activating}
+            onClick={() => void activateOverride()}
+            size="sm"
+            type="button"
+            variant="outline"
+          >
+            {activating ? "Ativando…" : "Salvar como nova política ativa"}
+          </Button>
         </div>
       )}
       <div className="flex flex-wrap items-center gap-3">
-        {canExecute && <Button className="cursor-pointer disabled:cursor-not-allowed" disabled={!profileId || (requiresDiscoveryPolicy && !policyId) || !hasActiveQualityPolicy || pendingCandidateRunId !== null || operationId !== null} onClick={() => void queue()} type="button">{operationId ? `Crawl #${operationId} enfileirado` : "Rodar Crawl"}</Button>}
-        <Link className="cursor-pointer text-sm underline" href={`/admin/crawler/agencies/${agency.id}/discoveries`}>Gerar novo Discovery ou Perfil</Link>
+        {canExecute && (
+          <Button
+            disabled={
+              !profileId
+              || (requiresDiscoveryPolicy && !policyId)
+              || !hasActiveQualityPolicy
+              || pendingCandidateRunId !== null
+              || operationId !== null
+            }
+            onClick={() => void queue()}
+            type="button"
+          >
+            {operationId ? `Crawl #${operationId} enfileirado` : "Rodar Crawl"}
+          </Button>
+        )}
+        <Link className="text-sm text-primary hover:underline" href={`/admin/crawler/agencies/${agency.id}/discoveries`}>
+          Gerar novo Discovery ou Perfil
+        </Link>
       </div>
     </div>
   );

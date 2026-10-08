@@ -1,12 +1,15 @@
 "use client";
 
+import { TriangleAlert } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { CrawlerOperationStatus } from "@/components/features/crawler/CrawlerOperationStatus";
+import { OperationStateBadge } from "@/components/features/crawler/CrawlerStatusBadges";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+import { FormField } from "@/components/ui/form-field";
+import { NativeSelect } from "@/components/ui/native-select";
 import { usePermission } from "@/hooks/usePermission";
 import { queueProfileValidation } from "@/services/crawlerService";
 import type { CrawlerOperation, ExtractionProfile, OnboardingExecution } from "@/types/crawler";
@@ -66,43 +69,97 @@ export function ValidationCrawlPanel({ agencyId, activeOnboarding, initialOperat
       .find((operation) => operation.step === "profile_validation");
 
     return (
-      <div className="space-y-4 rounded-lg border border-amber-300 bg-amber-50/60 p-4">
-        <div className="space-y-1">
-          <p className="font-medium">Validação controlada pelo Onboarding</p>
-          <p className="text-sm text-muted-foreground">Existe uma Execução de Onboarding ativa. Para preservar a sequência, as tentativas e o histórico, este Crawl de Validação deve ser iniciado ou retomado no Onboarding.</p>
-          <p className="text-sm">Execução #{activeOnboarding.id} · etapa atual: {activeOnboarding.current_step}</p>
-          {validationOperation && <p className="text-sm">Operação de validação #{validationOperation.id} · {validationOperation.state}</p>}
+      <div className="space-y-4">
+        <div className="flex items-start gap-3 rounded-lg border border-warning/30 bg-warning/10 px-4 py-3 text-sm">
+          <TriangleAlert className="mt-0.5 size-4 shrink-0 text-warning" />
+          <div className="min-w-0 space-y-1">
+            <p className="text-foreground">Validação controlada pelo Onboarding</p>
+            <p className="text-muted-foreground">
+              Existe uma Execução de Onboarding ativa. Para preservar a sequência, as tentativas e o histórico, este
+              Crawl de Validação deve ser iniciado ou retomado no Onboarding.
+            </p>
+          </div>
         </div>
+        <dl className="grid gap-4 rounded-lg border p-4 text-sm sm:grid-cols-2">
+          <div className="space-y-1">
+            <dt className="text-xs uppercase tracking-wide text-muted-foreground">Execução de Onboarding</dt>
+            <dd className="tabular-nums">#{activeOnboarding.id} · etapa atual: {activeOnboarding.current_step}</dd>
+          </div>
+          {validationOperation && (
+            <div className="space-y-1">
+              <dt className="text-xs uppercase tracking-wide text-muted-foreground">Operação de validação</dt>
+              <dd className="flex flex-wrap items-center gap-2">
+                <span className="tabular-nums">#{validationOperation.id}</span>
+                <OperationStateBadge state={validationOperation.state} />
+              </dd>
+            </div>
+          )}
+        </dl>
         <div className="flex flex-wrap gap-3">
-          {canExecute && <Button aria-describedby="onboarding-validation-reason" disabled type="button">Rodar Crawl de Validação</Button>}
-          <Button asChild variant="outline"><Link href={`/admin/crawler/agencies/${agencyId}/onboarding/${activeOnboarding.id}`}>Abrir Onboarding</Link></Button>
+          {canExecute && (
+            <Button aria-describedby="onboarding-validation-reason" disabled type="button">
+              Rodar Crawl de Validação
+            </Button>
+          )}
+          <Button asChild variant="outline">
+            <Link href={`/admin/crawler/agencies/${agencyId}/onboarding/${activeOnboarding.id}`}>Abrir Onboarding</Link>
+          </Button>
         </div>
-        <p className="sr-only" id="onboarding-validation-reason">A validação deve ser comandada pela Execução de Onboarding ativa.</p>
+        <p className="sr-only" id="onboarding-validation-reason">
+          A validação deve ser comandada pela Execução de Onboarding ativa.
+        </p>
       </div>
     );
   }
 
   if (eligibleProfiles.length === 0) {
-    return <p className="text-sm text-muted-foreground">Nenhum Perfil de Extração Candidato ou com Revalidação Necessária está disponível.</p>;
+    return (
+      <p className="text-sm text-muted-foreground">
+        Nenhum Perfil de Extração Candidato ou com Revalidação Necessária está disponível.
+      </p>
+    );
   }
 
   return (
     <div className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="validation-profile">Perfil de Extração</Label>
-        <select
-          className="h-10 w-full rounded-md border bg-background px-3 text-sm"
+      <FormField htmlFor="validation-profile" label="Perfil de Extração">
+        <NativeSelect
           disabled={!canExecute || pending || activeOperation !== null}
           id="validation-profile"
           onChange={(event) => setProfileId(Number(event.target.value))}
           value={profileId ?? ""}
         >
-          {eligibleProfiles.map((profile) => <option key={profile.id} value={profile.id}>Perfil v{profile.version} · {profile.status === "candidate" ? "Candidato" : "Revalidação necessária"}</option>)}
-        </select>
-      </div>
-      {selectedProfile && <dl className="grid gap-3 rounded-lg border bg-muted/20 p-4 text-sm sm:grid-cols-3"><div><dt className="text-muted-foreground">Snapshot de Discovery</dt><dd>#{selectedProfile.discovery_snapshot_id}</dd></div><div><dt className="text-muted-foreground">Contrato de Dados</dt><dd>#{selectedProfile.market_data_contract_version_id}</dd></div><div><dt className="text-muted-foreground">Criado em</dt><dd>{new Intl.DateTimeFormat("pt-BR", { dateStyle: "short" }).format(new Date(selectedProfile.created_at))}</dd></div></dl>}
+          {eligibleProfiles.map((profile) => (
+            <option key={profile.id} value={profile.id}>
+              Perfil v{profile.version} · {profile.status === "candidate" ? "Candidato" : "Revalidação necessária"}
+            </option>
+          ))}
+        </NativeSelect>
+      </FormField>
+      {selectedProfile && (
+        <dl className="grid gap-4 rounded-lg border p-4 text-sm sm:grid-cols-3">
+          <div className="space-y-1">
+            <dt className="text-xs uppercase tracking-wide text-muted-foreground">Snapshot de Discovery</dt>
+            <dd className="tabular-nums">#{selectedProfile.discovery_snapshot_id}</dd>
+          </div>
+          <div className="space-y-1">
+            <dt className="text-xs uppercase tracking-wide text-muted-foreground">Contrato de Dados</dt>
+            <dd className="tabular-nums">#{selectedProfile.market_data_contract_version_id}</dd>
+          </div>
+          <div className="space-y-1">
+            <dt className="text-xs uppercase tracking-wide text-muted-foreground">Criado em</dt>
+            <dd className="tabular-nums">
+              {new Intl.DateTimeFormat("pt-BR", { dateStyle: "short" }).format(new Date(selectedProfile.created_at))}
+            </dd>
+          </div>
+        </dl>
+      )}
       {activeOperation && <CrawlerOperationStatus agencyId={agencyId} operation={activeOperation} />}
-      {canExecute && <Button disabled={pending || activeOperation !== null} onClick={() => void queue()} type="button">{pending ? "Enfileirando…" : activeOperation ? "Validação em andamento" : "Rodar Crawl de Validação"}</Button>}
+      {canExecute && (
+        <Button disabled={pending || activeOperation !== null} onClick={() => void queue()} type="button">
+          {pending ? "Enfileirando…" : activeOperation ? "Validação em andamento" : "Rodar Crawl de Validação"}
+        </Button>
+      )}
     </div>
   );
 }
