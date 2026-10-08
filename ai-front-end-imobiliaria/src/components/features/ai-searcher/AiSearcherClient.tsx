@@ -2,8 +2,21 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { ChevronLeft, ChevronRight, Sparkles, SlidersHorizontal } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import {
+  CircleAlert,
+  Loader2,
+  SearchX,
+  SlidersHorizontal,
+  Sparkles,
+  TriangleAlert,
+} from "lucide-react";
+import { EmptyState } from "@/components/layout/EmptyState";
+import { PageHeader } from "@/components/layout/PageHeader";
+import {
+  DEFAULT_PAGE_SIZE,
+  PaginationFooter,
+} from "@/components/layout/PaginationFooter";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
   SelectContent,
@@ -12,7 +25,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { PropertyCard } from "./PropertyCard";
+import { PropertyCard, PropertyCardSkeleton } from "./PropertyCard";
 import { PropertyFilters } from "./PropertyFilters";
 import { AiPromptInput } from "./AiPromptInput";
 import {
@@ -35,6 +48,9 @@ const SORT_OPTIONS: { value: SortMode; label: string }[] = [
   { value: "area_desc", label: "Maior área" },
   { value: "area_asc", label: "Menor área" },
 ];
+
+const PROPERTY_GRID_CLASS =
+  "grid gap-4 @lg:grid-cols-2 @3xl:grid-cols-3 @5xl:grid-cols-4";
 
 const RELAXED_FILTER_LABELS: Record<string, string> = {
   "comodidades.academia": "academia",
@@ -242,7 +258,7 @@ export function AiSearcherClient() {
             queryParams.set("page", queryParams.get("pagina")!);
             queryParams.delete("pagina");
           }
-          queryParams.set("per_page", "21");
+          queryParams.set("per_page", String(DEFAULT_PAGE_SIZE));
 
           const response = await api.get(`${API_PREFIX}/market-properties?${queryParams.toString()}`);
 
@@ -303,7 +319,7 @@ export function AiSearcherClient() {
     [searchParams]
   );
 
-  const perPage = 21;
+  const perPage = DEFAULT_PAGE_SIZE;
 
   const effectivePage = Math.min(Math.max(effectiveModePage, 1), Math.max(totalPages, 1));
 
@@ -513,29 +529,84 @@ export function AiSearcherClient() {
 
   const isLoadingEffective = isAiMode ? aiLoading && properties.length === 0 : isLoading;
 
-  if (isLoadingEffective) {
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-center gap-2">
-          <span className="text-sm text-muted-foreground">Modo de busca:</span>
+  function handleAllowanceExhausted(message: string) {
+    setSearchError(message);
+    setAllowanceExhausted(true);
+  }
+
+  const pageHeader = (
+    <PageHeader
+      title="Buscador com IA"
+      description={
+        isAiMode
+          ? "Descreva o imóvel em linguagem natural e a IA monta a busca na base de mercado."
+          : "Filtre os imóveis da base de mercado por localização, cômodos, preço e comodidades."
+      }
+      actions={
+        <div className="flex items-center gap-2">
+          <span className="hidden text-sm text-muted-foreground sm:inline">
+            Modo de busca
+          </span>
           <ToggleGroup
             type="single"
             value={searchMode}
             onValueChange={handleModeChange}
-            className="border rounded-md"
+            role="radiogroup"
+            aria-label="Modo de busca"
+            className="rounded-lg p-1"
           >
-            <ToggleGroupItem value="ai" aria-label="Busca por IA" className="cursor-pointer gap-1.5 px-4">
-              <Sparkles className="h-3.5 w-3.5" />
+            <ToggleGroupItem
+              value="ai"
+              aria-label="Busca por IA"
+              className="h-8 cursor-pointer gap-1.5 rounded-md px-3"
+            >
+              <Sparkles className="size-3.5" />
               IA
             </ToggleGroupItem>
-            <ToggleGroupItem value="conventional" aria-label="Busca Convencional" className="cursor-pointer gap-1.5 px-4">
-              <SlidersHorizontal className="h-3.5 w-3.5" />
+            <ToggleGroupItem
+              value="conventional"
+              aria-label="Busca Convencional"
+              className="h-8 cursor-pointer gap-1.5 rounded-md px-3"
+            >
+              <SlidersHorizontal className="size-3.5" />
               Filtros
             </ToggleGroupItem>
           </ToggleGroup>
         </div>
-        <div className="flex items-center justify-center py-16">
-          <p className="text-muted-foreground animate-pulse">Carregando imóveis da base de dados...</p>
+      }
+    />
+  );
+
+  if (isLoadingEffective) {
+    return (
+      <div className="space-y-6">
+        {pageHeader}
+        <div
+          className={
+            isAiMode
+              ? undefined
+              : "grid items-start gap-6 lg:grid-cols-[18rem_minmax(0,1fr)] xl:grid-cols-[20rem_minmax(0,1fr)]"
+          }
+        >
+          {!isAiMode && (
+            <Skeleton className="hidden h-[36rem] rounded-xl lg:block" />
+          )}
+          <div className="@container min-w-0 space-y-4">
+            <p
+              role="status"
+              className="flex items-center gap-2 text-sm text-muted-foreground"
+            >
+              <Loader2 className="size-4 animate-spin" />
+              {isAiMode
+                ? "Buscando imóveis com IA..."
+                : "Carregando imóveis da base de dados..."}
+            </p>
+            <div className={PROPERTY_GRID_CLASS}>
+              {Array.from({ length: 8 }, (_, index) => (
+                <PropertyCardSkeleton key={index} />
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -544,280 +615,161 @@ export function AiSearcherClient() {
   if (isAiMode && properties.length === 0 && !aiLoading) {
     return (
       <div className="space-y-6">
-        <div className="flex items-center justify-center gap-2">
-          <span className="text-sm text-muted-foreground">Modo de busca:</span>
-          <ToggleGroup
-            type="single"
-            value={searchMode}
-            onValueChange={handleModeChange}
-            className="border rounded-md"
+        {pageHeader}
+        <AiPromptInput
+          onResults={handleAiResults}
+          onLoadingChange={handleAiLoadingChange}
+          isLoading={aiLoading}
+          sort={sortOrder}
+          large
+          disabled={allowanceExhausted}
+          onAllowanceExhausted={handleAllowanceExhausted}
+        />
+      </div>
+    );
+  }
+
+  const sortSelectId = isAiMode ? "ai-sort-select" : "sort-select";
+
+  const results = (
+    <section aria-label="Resultados da busca" className="@container min-w-0 space-y-4">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div className="space-y-0.5">
+          <h2 className="text-base text-foreground">Imóveis Disponíveis</h2>
+          {(!isAiMode || totalItems > 0) && (
+            <p className="text-xs text-muted-foreground tabular-nums">
+              {totalItems}{" "}
+              {totalItems === 1 ? "imóvel encontrado" : "imóveis encontrados"}
+            </p>
+          )}
+        </div>
+
+        <div className="flex items-center gap-2">
+          <label
+            htmlFor={sortSelectId}
+            className="cursor-pointer text-sm whitespace-nowrap text-muted-foreground"
           >
-            <ToggleGroupItem value="ai" aria-label="Busca por IA" className="cursor-pointer gap-1.5 px-4">
-              <Sparkles className="h-3.5 w-3.5" />
-              IA
-            </ToggleGroupItem>
-            <ToggleGroupItem value="conventional" aria-label="Busca Convencional" className="cursor-pointer gap-1.5 px-4">
-              <SlidersHorizontal className="h-3.5 w-3.5" />
-              Filtros
-            </ToggleGroupItem>
-          </ToggleGroup>
-        </div>
-        <div className="flex flex-col items-center justify-center min-h-[60vh] px-4">
-          <AiPromptInput
-            onResults={handleAiResults}
-            onLoadingChange={handleAiLoadingChange}
-            isLoading={aiLoading}
-            sort={sortOrder}
-            large
+            Ordenar por
+          </label>
+          <Select
+            value={sortOrder}
+            onValueChange={handleSortChange}
             disabled={allowanceExhausted}
-            onAllowanceExhausted={(message) => {
-              setSearchError(message);
-              setAllowanceExhausted(true);
-            }}
-          />
+          >
+            <SelectTrigger id={sortSelectId} size="sm" className="w-44 cursor-pointer">
+              <SelectValue placeholder="Selecione" />
+            </SelectTrigger>
+            <SelectContent>
+              {SORT_OPTIONS.map((option) => (
+                <SelectItem
+                  key={option.value}
+                  value={option.value}
+                  className="cursor-pointer"
+                >
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
+      </div>
+
+      {isAiMode && aiApproximate && (
+        <div className="flex items-start gap-3 rounded-lg border border-warning/30 bg-warning/10 px-4 py-3 text-sm text-foreground">
+          <TriangleAlert className="mt-0.5 size-4 shrink-0 text-warning" />
+          <p>
+            Mostrando resultados aproximados
+            {aiRelaxedFilters.length > 0 && (
+              <>
+                {" — filtros relaxados: "}
+                {aiRelaxedFilters
+                  .map((filter) => RELAXED_FILTER_LABELS[filter] ?? filter)
+                  .join(", ")}
+              </>
+            )}
+          </p>
+        </div>
+      )}
+
+      {searchError && (
+        <div
+          role="alert"
+          className="flex items-start gap-3 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-foreground"
+        >
+          <CircleAlert className="mt-0.5 size-4 shrink-0 text-destructive" />
+          <p>{searchError}</p>
+        </div>
+      )}
+
+      {properties.length > 0 && (
+        <div className={PROPERTY_GRID_CLASS}>
+          {properties.map((property) => (
+            <PropertyCard key={property.id} property={property} />
+          ))}
+        </div>
+      )}
+
+      {properties.length === 0 && !aiLoading && (
+        <EmptyState
+          icon={SearchX}
+          title="Nenhum imóvel encontrado"
+          description={
+            isAiMode
+              ? "Tente descrever sua busca com outros termos."
+              : "Nenhum imóvel corresponde aos filtros selecionados. Ajuste ou limpe os filtros."
+          }
+        />
+      )}
+
+      {properties.length > 0 && (
+        <fieldset disabled={allowanceExhausted} className="min-w-0">
+          <PaginationFooter
+            page={effectivePage}
+            pageCount={totalPages}
+            onPageChange={handlePageChange}
+            total={totalItems}
+            pageSize={perPage}
+            itemLabel="imóveis"
+            className="px-0 pt-4 sm:px-0"
+          />
+        </fieldset>
+      )}
+    </section>
+  );
+
+  if (isAiMode) {
+    return (
+      <div className="space-y-6">
+        {pageHeader}
+        <AiPromptInput
+          onResults={handleAiResults}
+          onLoadingChange={handleAiLoadingChange}
+          isLoading={aiLoading}
+          sort={sortOrder}
+          disabled={allowanceExhausted}
+          onAllowanceExhausted={handleAllowanceExhausted}
+        />
+        {results}
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-center gap-2">
-        <span className="text-sm text-muted-foreground">Modo de busca:</span>
-        <ToggleGroup
-          type="single"
-          value={searchMode}
-          onValueChange={handleModeChange}
-          className="border rounded-md"
+      {pageHeader}
+      <div className="grid items-start gap-6 lg:grid-cols-[18rem_minmax(0,1fr)] xl:grid-cols-[20rem_minmax(0,1fr)]">
+        <fieldset
+          disabled={allowanceExhausted}
+          className="min-w-0 lg:sticky lg:top-0"
         >
-          <ToggleGroupItem value="ai" aria-label="Busca por IA" className="cursor-pointer gap-1.5 px-4">
-            <Sparkles className="h-3.5 w-3.5" />
-            IA
-          </ToggleGroupItem>
-          <ToggleGroupItem value="conventional" aria-label="Busca Convencional" className="cursor-pointer gap-1.5 px-4">
-            <SlidersHorizontal className="h-3.5 w-3.5" />
-            Filtros
-          </ToggleGroupItem>
-        </ToggleGroup>
-      </div>
-
-      <div className="flex flex-col lg:flex-row gap-8">
-        {!isAiMode && (
-          <fieldset
-            disabled={allowanceExhausted}
-            className="lg:w-80 shrink-0"
-          >
-            <PropertyFilters
-              properties={properties}
-              onFilterChange={handleFilterChange}
-              initialState={filtersFromUrl}
-              onFilterStateChange={handleFilterStateChange}
-            />
-          </fieldset>
-        )}
-
-        <main className="flex-1 min-w-0">
-          {isAiMode && (
-            <div className="mb-6">
-              <AiPromptInput
-                onResults={handleAiResults}
-                onLoadingChange={handleAiLoadingChange}
-                isLoading={aiLoading}
-                sort={sortOrder}
-                disabled={allowanceExhausted}
-                onAllowanceExhausted={(message) => {
-                  setSearchError(message);
-                  setAllowanceExhausted(true);
-                }}
-              />
-            </div>
-          )}
-          {!isAiMode && (
-            <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <div>
-                <h2 className="text-2xl font-semibold text-foreground">
-                  Imóveis Disponíveis
-                </h2>
-                <p className="text-muted-foreground mt-1">
-                  {totalItems}{" "}
-                  {totalItems === 1
-                    ? "imóvel encontrado"
-                    : "imóveis encontrados"}
-                  {totalPages > 1 &&
-                    ` — Página ${effectivePage} de ${totalPages}`}
-                </p>
-              </div>
-
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <label
-                    htmlFor="sort-select"
-                    className="text-sm text-muted-foreground whitespace-nowrap cursor-pointer"
-                  >
-                    Ordenar por:
-                  </label>
-                  <Select value={sortOrder} onValueChange={handleSortChange} disabled={allowanceExhausted}>
-                    <SelectTrigger id="sort-select" className="w-[200px] cursor-pointer">
-                      <SelectValue placeholder="Selecione" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {SORT_OPTIONS.map((option) => (
-                        <SelectItem key={option.value} value={option.value} className="cursor-pointer">
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-              </div>
-            </div>
-          )}
-
-          {isAiMode && (
-            <div className="mb-6 space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div>
-                  <h2 className="text-2xl font-semibold text-foreground">
-                    Imóveis Disponíveis
-                  </h2>
-                  {totalItems > 0 && (
-                    <p className="text-muted-foreground mt-1">
-                      {totalItems}{" "}
-                      {totalItems === 1
-                        ? "imóvel encontrado"
-                        : "imóveis encontrados"}
-                      {totalPages > 1 &&
-                        ` — Página ${effectivePage} de ${totalPages}`}
-                    </p>
-                  )}
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <label
-                    htmlFor="ai-sort-select"
-                    className="text-sm text-muted-foreground whitespace-nowrap cursor-pointer"
-                  >
-                    Ordenar por:
-                  </label>
-                  <Select value={sortOrder} onValueChange={handleSortChange} disabled={allowanceExhausted}>
-                    <SelectTrigger id="ai-sort-select" className="w-[200px] cursor-pointer">
-                      <SelectValue placeholder="Selecione" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {SORT_OPTIONS.map((option) => (
-                        <SelectItem key={option.value} value={option.value} className="cursor-pointer">
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              {aiApproximate && (
-                <div className="rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-                  Mostrando resultados aproximados
-                  {aiRelaxedFilters.length > 0 && (
-                    <>
-                      {" — filtros relaxados: "}
-                      {aiRelaxedFilters
-                        .map((filter) => RELAXED_FILTER_LABELS[filter] ?? filter)
-                        .join(", ")}
-                    </>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
-
-          {searchError && (
-            <div role="alert" className="mb-6 rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-              {searchError}
-            </div>
-          )}
-
-          <div
-            className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"
-          >
-            {properties.map((property) => (
-              <PropertyCard key={property.id} property={property} />
-            ))}
-          </div>
-
-          {properties.length === 0 && !aiLoading && (
-            <div className="text-center py-16">
-              <p className="text-xl text-muted-foreground">
-                {isAiMode
-                  ? "Nenhum imóvel encontrado. Tente descrever sua busca com outros termos."
-                  : "Nenhum imóvel encontrado com os filtros selecionados."}
-              </p>
-            </div>
-          )}
-
-          {totalPages > 1 && (
-            <div className="mt-8 flex justify-center items-center gap-2">
-              <Button
-                onClick={() => handlePageChange(effectivePage - 1)}
-                disabled={allowanceExhausted || effectivePage === 1}
-                variant="outline"
-                className="flex items-center gap-1 cursor-pointer"
-              >
-                <ChevronLeft className="w-4 h-4" />
-                Anterior
-              </Button>
-
-              <div className="flex gap-1">
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                  (page) => {
-                    if (
-                      page === 1 ||
-                      page === totalPages ||
-                      (page >= effectivePage - 2 && page <= effectivePage + 2)
-                    ) {
-                      return (
-                        <Button
-                          key={page}
-                          onClick={() => handlePageChange(page)}
-                          variant={
-                            effectivePage === page ? "default" : "outline"
-                          }
-                          disabled={allowanceExhausted}
-                          className="min-w-[40px] cursor-pointer"
-                        >
-                          {page}
-                        </Button>
-                      );
-                    } else if (
-                      page === effectivePage - 3 ||
-                      page === effectivePage + 3
-                    ) {
-                      return (
-                        <span
-                          key={page}
-                          className="px-2 text-muted-foreground self-center"
-                        >
-                          ...
-                        </span>
-                      );
-                    }
-                    return null;
-                  }
-                )}
-              </div>
-
-              <Button
-                onClick={() => handlePageChange(effectivePage + 1)}
-                disabled={allowanceExhausted || effectivePage === totalPages}
-                variant="outline"
-                className="flex items-center gap-1 cursor-pointer"
-              >
-                Próxima
-                <ChevronRight className="w-4 h-4" />
-              </Button>
-            </div>
-          )}
-        </main>
+          <PropertyFilters
+            properties={properties}
+            onFilterChange={handleFilterChange}
+            initialState={filtersFromUrl}
+            onFilterStateChange={handleFilterStateChange}
+          />
+        </fieldset>
+        {results}
       </div>
     </div>
   );
