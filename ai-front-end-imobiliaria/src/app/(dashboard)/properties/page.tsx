@@ -1,5 +1,9 @@
+import { CircleAlert } from "lucide-react";
+
 import { getProperties } from "@/services/propertyService";
 import { PropertiesClient } from "@/components/properties/PropertiesClient";
+import { EmptyState } from "@/components/layout/EmptyState";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 export const dynamic = 'force-dynamic';
 
@@ -11,11 +15,9 @@ interface PropertiesPageProps {
     searchParams: Promise<{ [key: string]: string | undefined }>;
 }
 
-export default async function PropertiesPage({ searchParams }: PropertiesPageProps) {
-    const params = await searchParams;
-
+async function loadProperties(params: { [key: string]: string | undefined }) {
     try {
-        const response = await getProperties({
+        return await getProperties({
             page: params.page ? Number(params.page) : 1,
             search: params.search,
             reference_code: params.reference_code,
@@ -24,16 +26,30 @@ export default async function PropertiesPage({ searchParams }: PropertiesPagePro
             status: params.status,
             city: params.city,
         });
-
-        return <PropertiesClient initialData={response.data} />;
     } catch {
+        return null;
+    }
+}
+
+export default async function PropertiesPage({ searchParams }: PropertiesPageProps) {
+    const params = await searchParams;
+    const response = await loadProperties(params);
+
+    if (!response) {
         return (
-            <div className="container mx-auto py-10">
-                <h1 className="text-2xl font-bold">Erro ao carregar imóveis</h1>
-                <p className="text-muted-foreground mt-2">
-                    Verifique se o backend está disponível e se seu usuário possui permissão.
-                </p>
+            <div className="space-y-6">
+                <PageHeader
+                    description="Gerencie captações, mídias e publicação."
+                    title="Imóveis"
+                />
+                <EmptyState
+                    description="Verifique se o backend está disponível e se seu usuário possui permissão."
+                    icon={CircleAlert}
+                    title="Erro ao carregar imóveis"
+                />
             </div>
         );
     }
+
+    return <PropertiesClient initialData={response.data} />;
 }
