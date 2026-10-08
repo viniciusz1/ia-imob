@@ -20,7 +20,7 @@ interface CrawlAgencyContextHeaderProps {
 export function CrawlAgencyContextHeader({ agency, area, description }: CrawlAgencyContextHeaderProps) {
   return (
     <header className="space-y-4">
-      <div className="flex min-w-0 items-center gap-3">
+      <div className="flex min-w-0 items-start gap-3">
         <Button asChild className="shrink-0" size="icon" title="Voltar para Crawl Agencies" variant="ghost">
           <Link aria-label="Voltar para Crawl Agencies" href="/admin/crawler/agencies">
             <ArrowLeft />

@@ -22,7 +22,7 @@ interface PageHeaderProps {
 export function PageHeader({ title, description, actions, badge, backHref }: PageHeaderProps) {
     return (
         <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
-            <div className="flex min-w-0 items-center gap-3">
+            <div className="flex min-w-0 items-start gap-3">
                 {backHref && (
                     <Button asChild className="shrink-0" size="icon" title="Voltar" variant="ghost">
                         <Link aria-label="Voltar" href={backHref}>
