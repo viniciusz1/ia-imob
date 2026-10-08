@@ -2,20 +2,15 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Search } from "lucide-react";
+import { Loader2, Search } from "lucide-react";
 import { toast } from "sonner";
 
+import { SectionHeader } from "@/components/layout/SectionHeader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
+import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import {
     updateMarketSearchAllowance,
@@ -61,73 +56,69 @@ export function AgencySearchAllowanceCard({ agency }: AgencySearchAllowanceCardP
     }
 
     return (
-        <Card>
-            <CardHeader>
-                <div className="flex items-start justify-between gap-4">
-                    <div className="space-y-1">
-                        <CardTitle className="flex items-center gap-2">
-                            <Search className="h-4 w-4" />
-                            Uso do IA Searcher
-                        </CardTitle>
-                        <CardDescription>
-                            Limite compartilhado entre todos os usuários da agência.
-                        </CardDescription>
-                    </div>
-                    {agency.market_search_weekly_limit === 0 && (
-                        <Badge variant="secondary">Desativado</Badge>
-                    )}
-                </div>
-            </CardHeader>
-            <CardContent className="space-y-5">
-                {usage && (
-                    <div className="space-y-3">
-                        <div className="grid grid-cols-3 gap-3 text-sm">
-                            <div>
-                                <p className="text-muted-foreground">Utilizadas</p>
-                                <p className="text-lg font-semibold">{usage.used}</p>
-                            </div>
-                            <div>
-                                <p className="text-muted-foreground">Restantes</p>
-                                <p className="text-lg font-semibold">{usage.remaining}</p>
-                            </div>
-                            <div>
-                                <p className="text-muted-foreground">Limite</p>
-                                <p className="text-lg font-semibold">{usage.limit}</p>
-                            </div>
-                        </div>
-                        <Progress aria-label="Consumo semanal de buscas" value={progress} />
-                        <p className="text-xs text-muted-foreground">
-                            Renova em {formatResetDate(usage.resets_at)}.
-                        </p>
-                    </div>
-                )}
+        <Card className="gap-0 overflow-hidden py-0">
+            <SectionHeader
+                actions={agency.market_search_weekly_limit === 0 && <Badge variant="muted">Desativado</Badge>}
+                description="Limite compartilhado entre todos os usuários da agência."
+                icon={Search}
+                title="Uso do IA Searcher"
+            />
 
-                <div className="flex items-end gap-3 border-t pt-4">
-                    <div className="flex-1 space-y-2">
-                        <Label htmlFor="market-search-weekly-limit">Limite semanal</Label>
-                        <Input
-                            id="market-search-weekly-limit"
-                            type="number"
-                            min={0}
-                            max={1_000_000}
-                            step={1}
-                            value={limit}
-                            onChange={(event) => setLimit(event.target.value)}
-                            aria-describedby="market-search-weekly-limit-help"
-                        />
-                        <p id="market-search-weekly-limit-help" className="text-xs text-muted-foreground">
-                            Cada página entregue conta como uma busca. Use 0 para desativar.
-                        </p>
+            {usage && (
+                <div className="space-y-3 border-b px-4 py-4 sm:px-5">
+                    <div className="grid grid-cols-3 gap-3">
+                        <div className="space-y-1">
+                            <p className="text-xs uppercase tracking-wide text-muted-foreground">Utilizadas</p>
+                            <p className="text-2xl leading-none text-foreground tabular-nums">{usage.used}</p>
+                        </div>
+                        <div className="space-y-1">
+                            <p className="text-xs uppercase tracking-wide text-muted-foreground">Restantes</p>
+                            <p className="text-2xl leading-none text-foreground tabular-nums">{usage.remaining}</p>
+                        </div>
+                        <div className="space-y-1">
+                            <p className="text-xs uppercase tracking-wide text-muted-foreground">Limite</p>
+                            <p className="text-2xl leading-none text-foreground tabular-nums">{usage.limit}</p>
+                        </div>
                     </div>
-                    <Button
-                        type="button"
-                        onClick={handleSave}
-                        disabled={!isValid || isSaving || parsedLimit === agency.market_search_weekly_limit}
-                    >
-                        {isSaving ? "Salvando..." : "Salvar"}
-                    </Button>
+                    <Progress aria-label="Consumo semanal de buscas" className="h-1.5" value={progress} />
+                    <p className="text-xs text-muted-foreground">
+                        Renova em {formatResetDate(usage.resets_at)}.
+                    </p>
                 </div>
-            </CardContent>
+            )}
+
+            <div className="flex items-start gap-3 px-4 py-4 sm:px-5">
+                <FormField
+                    className="flex-1"
+                    hint={
+                        <span id="market-search-weekly-limit-help">
+                            Cada página entregue conta como uma busca. Use 0 para desativar.
+                        </span>
+                    }
+                    htmlFor="market-search-weekly-limit"
+                    label="Limite semanal"
+                >
+                    <Input
+                        id="market-search-weekly-limit"
+                        type="number"
+                        min={0}
+                        max={1_000_000}
+                        step={1}
+                        value={limit}
+                        onChange={(event) => setLimit(event.target.value)}
+                        aria-describedby="market-search-weekly-limit-help"
+                    />
+                </FormField>
+                <Button
+                    className="mt-5"
+                    type="button"
+                    onClick={handleSave}
+                    disabled={!isValid || isSaving || parsedLimit === agency.market_search_weekly_limit}
+                >
+                    {isSaving && <Loader2 className="animate-spin" />}
+                    {isSaving ? "Salvando..." : "Salvar"}
+                </Button>
+            </div>
         </Card>
     );
 }
