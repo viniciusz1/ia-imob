@@ -115,6 +115,7 @@ Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.oper
         Route::post('/crawl-agencies/{crawlAgency}/sample-url-suggestion', SampleUrlSuggestionController::class);
         Route::post('/extraction-profiles/generate', [ExtractionProfileController::class, 'generate']);
         Route::post('/extraction-profiles/{extractionProfile}/validation', [ProfileValidationController::class, 'store']);
+        Route::post('/production-crawls/bulk', [ProductionCrawlController::class, 'bulk']);
         Route::post('/production-crawls', [ProductionCrawlController::class, 'store']);
         Route::post('/crawl-runs/{crawlRun}/quality-evaluation', [CrawlRunController::class, 'evaluate']);
         Route::post('/operations/{operation}/retry', [CrawlerOperationControlController::class, 'retry']);
@@ -194,6 +195,12 @@ Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.snap
     ->prefix('crawler')
     ->group(function () {
         Route::post('/crawl-runs/{crawlRun}/exceptional-publication', [QualityDecisionController::class, 'publishExceptionally']);
+    });
+
+Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.snapshots.review'])
+    ->prefix('crawler')
+    ->group(function () {
+        Route::post('/crawl-runs/{crawlRun}/quality-rejection', [QualityDecisionController::class, 'reject']);
     });
 
 Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.agencies.activate'])

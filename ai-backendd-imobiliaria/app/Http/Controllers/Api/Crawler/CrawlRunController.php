@@ -19,7 +19,7 @@ class CrawlRunController extends Controller
                     $query->where('publication_state', 'quarantined')
                         ->orWhereHas('exceptionalPublication');
                 })
-                ->with(['qualityReport', 'exceptionalPublication'])
+                ->with(['qualityReport', 'exceptionalPublication', 'qualityRejection'])
                 ->latest('id')
                 ->get()
         );
@@ -30,7 +30,7 @@ class CrawlRunController extends Controller
         return CrawlRunResource::collection(
             CrawlerRun::query()
                 ->where('crawl_agency_id', $crawlAgency->id)
-                ->with(['qualityReport', 'exceptionalPublication'])
+                ->with(['qualityReport', 'exceptionalPublication', 'qualityRejection'])
                 ->latest('id')
                 ->get()
         );
@@ -38,7 +38,7 @@ class CrawlRunController extends Controller
 
     public function show(CrawlerRun $crawlRun): CrawlRunResource
     {
-        return new CrawlRunResource($crawlRun->load(['qualityReport', 'exceptionalPublication']));
+        return new CrawlRunResource($crawlRun->load(['qualityReport', 'exceptionalPublication', 'qualityRejection']));
     }
 
     public function evaluate(CrawlerRun $crawlRun, CrawlRunPublicationService $publication): CrawlRunResource
@@ -46,7 +46,7 @@ class CrawlRunController extends Controller
         $publication->evaluate($crawlRun);
 
         return new CrawlRunResource(
-            $crawlRun->fresh()->load(['qualityReport', 'exceptionalPublication'])
+            $crawlRun->fresh()->load(['qualityReport', 'exceptionalPublication', 'qualityRejection'])
         );
     }
 }

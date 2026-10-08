@@ -29,6 +29,9 @@ class ExceptionalPublicationService
             if ($lockedRun->publication_state !== 'quarantined') {
                 throw ValidationException::withMessages(['publication_state' => 'Only quarantined snapshots can be exceptionally published.']);
             }
+            if ($lockedRun->qualityRejection()->exists()) {
+                throw ValidationException::withMessages(['quality_rejection' => 'Rejected snapshots cannot be exceptionally published.']);
+            }
             $agency = CrawlAgency::query()->lockForUpdate()->findOrFail($lockedRun->crawl_agency_id);
             if ($agency->lifecycle_state !== 'active') {
                 throw ValidationException::withMessages(['crawl_agency_id' => 'Exceptional publication requires an active Crawl Agency.']);
@@ -49,7 +52,7 @@ class ExceptionalPublicationService
             $this->inventory->applyPublishedSnapshot($lockedRun);
             $agency->update(['current_published_crawl_run_id' => $lockedRun->id]);
 
-            return $lockedRun->load(['qualityReport', 'exceptionalPublication']);
+            return $lockedRun->load(['qualityReport', 'exceptionalPublication', 'qualityRejection']);
         });
     }
 }

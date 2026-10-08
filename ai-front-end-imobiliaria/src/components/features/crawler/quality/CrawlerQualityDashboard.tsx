@@ -20,10 +20,10 @@ function QualitySnapshotList({ emptyMessage, runs }: QualitySnapshotListProps) {
         <div className="space-y-3 rounded-md border p-4" key={run.id}>
           <div className="flex flex-wrap items-center justify-between gap-2">
             <Link className="font-medium underline" href={`/admin/crawler/runs/${run.id}`}>
-              Revisar snapshot #{run.id}
+              {run.quality_rejection ? "Ver" : "Revisar"} snapshot #{run.id}
             </Link>
             <Badge variant={run.publication_state === "quarantined" ? "destructive" : "secondary"}>
-              {run.publication_state === "quarantined" ? "Quarentena" : "Publicado excepcionalmente"}
+              {run.quality_rejection ? "Publicação recusada" : run.publication_state === "quarantined" ? "Quarentena" : "Publicado excepcionalmente"}
             </Badge>
           </div>
           <p className="text-sm">
@@ -43,6 +43,11 @@ function QualitySnapshotList({ emptyMessage, runs }: QualitySnapshotListProps) {
               Publicado por #{run.exceptional_publication.published_by}: {run.exceptional_publication.reason}
             </p>
           )}
+          {run.quality_rejection && (
+            <p className="text-sm text-muted-foreground">
+              Recusado por #{run.quality_rejection.rejected_by}: {run.quality_rejection.reason}
+            </p>
+          )}
         </div>
       ))}
     </div>
@@ -50,7 +55,8 @@ function QualitySnapshotList({ emptyMessage, runs }: QualitySnapshotListProps) {
 }
 
 export function CrawlerQualityDashboard({ runs }: { runs: CrawlRun[] }) {
-  const quarantinedRuns = runs.filter((run) => run.publication_state === "quarantined");
+  const quarantinedRuns = runs.filter((run) => run.publication_state === "quarantined" && run.quality_rejection === null);
+  const rejectedRuns = runs.filter((run) => run.quality_rejection !== null);
   const exceptionalRuns = runs.filter((run) => run.exceptional_publication !== null);
 
   return (
@@ -58,7 +64,7 @@ export function CrawlerQualityDashboard({ runs }: { runs: CrawlRun[] }) {
       <div>
         <h2 className="text-lg font-semibold">Qualidade</h2>
         <p className="text-muted-foreground">
-          Revise evidências bloqueantes e acompanhe decisões excepcionais sem alterar o histórico de qualidade.
+          Revise evidências bloqueantes e acompanhe recusas e publicações excepcionais sem alterar o histórico de qualidade.
         </p>
       </div>
 
@@ -68,6 +74,15 @@ export function CrawlerQualityDashboard({ runs }: { runs: CrawlRun[] }) {
         </CardHeader>
         <CardContent>
           <QualitySnapshotList emptyMessage="Nenhum snapshot em quarentena." runs={quarantinedRuns} />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle><h3>Snapshots recusados</h3></CardTitle>
+        </CardHeader>
+        <CardContent>
+          <QualitySnapshotList emptyMessage="Nenhuma publicação recusada." runs={rejectedRuns} />
         </CardContent>
       </Card>
 

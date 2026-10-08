@@ -7,6 +7,7 @@ use App\Models\Crawler\CrawlAgencyCircuit;
 use App\Models\Crawler\CrawlAgencySchedule;
 use App\Models\Crawler\ScheduleDefault;
 use App\Models\User;
+use Illuminate\Validation\ValidationException;
 
 class CrawlerScheduleDispatcher
 {
@@ -57,11 +58,15 @@ class CrawlerScheduleDispatcher
                     return;
                 }
                 $user = User::query()->findOrFail($schedule->updated_by);
-                $this->production->queue([
-                    'crawl_agency_id' => $agency->id,
-                    'discovery_mode' => 'fresh',
-                    'trigger' => 'scheduled',
-                ], $user);
+                try {
+                    $this->production->queue([
+                        'crawl_agency_id' => $agency->id,
+                        'discovery_mode' => 'fresh',
+                        'trigger' => 'scheduled',
+                    ], $user);
+                } catch (ValidationException) {
+                    return;
+                }
                 $schedule->update([
                     'last_enqueued_at' => now(),
                     'next_run_at' => $this->schedules->nextRunAt($preset, $timezone),

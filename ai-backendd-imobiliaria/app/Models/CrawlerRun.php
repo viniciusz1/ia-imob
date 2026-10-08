@@ -3,6 +3,9 @@
 namespace App\Models;
 
 use App\Models\Crawler\CrawlAgency;
+use App\Models\Crawler\CrawlRunQualityRejection;
+use App\Models\Crawler\ExceptionalPublication;
+use App\Models\Crawler\QualityGateReport;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -65,11 +68,16 @@ class CrawlerRun extends Model
 
     public function qualityReport(): HasOne
     {
-        return $this->hasOne(\App\Models\Crawler\QualityGateReport::class, 'crawl_run_id');
+        return $this->hasOne(QualityGateReport::class, 'crawl_run_id');
     }
 
     public function exceptionalPublication(): HasOne
     {
-        return $this->hasOne(\App\Models\Crawler\ExceptionalPublication::class, 'crawl_run_id');
+        return $this->hasOne(ExceptionalPublication::class, 'crawl_run_id');
+    }
+
+    public function qualityRejection(): HasOne
+    {
+        return $this->hasOne(CrawlRunQualityRejection::class, 'crawl_run_id');
     }
 }

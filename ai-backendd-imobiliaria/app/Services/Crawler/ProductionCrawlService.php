@@ -107,14 +107,15 @@ class ProductionCrawlService
 
         return DB::transaction(function () use ($agency, $contract, $equivalenceKey, $plan, $requester): CrawlerOperation {
             DB::statement('SELECT pg_advisory_xact_lock(?)', [$agency->id]);
-            $pending = CrawlerOperation::query()
+            $active = CrawlerOperation::query()
                 ->where('type', 'production_crawl')
-                ->where('state', 'queued')
                 ->where('crawl_agency_id', $agency->id)
-                ->where('equivalence_key', $equivalenceKey)
+                ->whereIn('state', ['queued', 'running', 'cancellation_requested'])
                 ->first();
-            if ($pending !== null) {
-                return $pending;
+            if ($active !== null) {
+                throw ValidationException::withMessages([
+                    'production_crawl' => 'A production crawl is already queued or running for this Crawl Agency.',
+                ]);
             }
 
             if (CrawlerRun::query()

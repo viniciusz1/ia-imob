@@ -29,6 +29,8 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import {
+  ArrowLeft,
+  ChevronRight,
   Search,
   Save,
   Pencil,
@@ -51,6 +53,24 @@ interface PropertyFiltersProps {
 }
 
 const FIXED_ROOM_OPTIONS = [1, 2, 3, 4];
+
+type FilterView =
+  | "overview"
+  | "cidade"
+  | "bairro"
+  | "tipo"
+  | "imobiliaria"
+  | "rooms"
+  | "more";
+
+const FILTER_VIEW_TITLES: Record<Exclude<FilterView, "overview">, string> = {
+  cidade: "Cidade",
+  bairro: "Bairro",
+  tipo: "Tipo do imóvel",
+  imobiliaria: "Imobiliária",
+  rooms: "Quartos e vagas",
+  more: "Mais filtros",
+};
 
 const COMODIDADE_LABELS: Record<string, string> = {
   piscina: "Piscina",
@@ -108,6 +128,25 @@ const EMPTY_FILTER_STATE: AiSearcherFiltersState = {
   maxPrice: "",
 };
 
+function summarizeItems(items: string[], emptyLabel: string) {
+  if (items.length === 0) return emptyLabel;
+  if (items.length <= 2) return items.join(", ");
+  return `${items.slice(0, 2).join(", ")} +${items.length - 2}`;
+}
+
+function summarizeRoomSelection(
+  items: number[],
+  plusSelected: boolean,
+  singularLabel: string
+) {
+  const selectedValues = items.map(String);
+  if (plusSelected) selectedValues.push("4+");
+  if (selectedValues.length === 0) return null;
+
+  const label = selectedValues.length === 1 ? singularLabel : `${singularLabel}s`;
+  return `${selectedValues.join(", ")} ${label}`;
+}
+
 export function PropertyFilters(
   props: PropertyFiltersProps
 ) {
@@ -138,8 +177,10 @@ export function PropertyFilters(
   const [searchBairro, setSearchBairro] = useState<string>("");
   const [searchCidade, setSearchCidade] = useState<string>("");
   const [searchImobiliaria, setSearchImobiliaria] = useState<string>("");
+  const [activeView, setActiveView] = useState<FilterView>("overview");
 
   const isCommittingRef = useRef(false);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     getMarketPropertyFilters()
@@ -156,6 +197,12 @@ export function PropertyFilters(
       .finally(() => setSavedFiltersLoading(false));
   }, []);
 
+  useEffect(() => {
+    if (scrollAreaRef.current) {
+      scrollAreaRef.current.scrollTop = 0;
+    }
+  }, [activeView]);
+
   const initialStateKey = useMemo(
     () => JSON.stringify(initialState),
     [initialState]
@@ -168,6 +215,7 @@ export function PropertyFilters(
     if (initialStateKey !== filterStateKey) {
       setFilterState(initialState);
       setActiveFilterId(null);
+      setActiveView("overview");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialStateKey]);
@@ -257,6 +305,7 @@ export function PropertyFilters(
 
   const applyFilters = useCallback(() => {
     commitFilterState(filterState);
+    setActiveView("overview");
   }, [filterState, commitFilterState]);
 
   const clearFilters = useCallback(() => {
@@ -266,6 +315,7 @@ export function PropertyFilters(
     setSearchCidade("");
     setSearchImobiliaria("");
     setActiveFilterId(null);
+    setActiveView("overview");
     commitFilterState(EMPTY_FILTER_STATE);
   }, [commitFilterState]);
 
@@ -299,6 +349,7 @@ export function PropertyFilters(
         setSearchBairro("");
         setSearchCidade("");
         setSearchImobiliaria("");
+        setActiveView("overview");
       }
     },
     [savedFilters, commitFilterState]
@@ -393,384 +444,543 @@ export function PropertyFilters(
     maxPrice ? 1 : 0,
   ].reduce((a, b) => a + b, 0);
 
+  const roomSummaryParts = [
+    summarizeRoomSelection(selectedQuartos, selectedQuartosPlus, "quarto"),
+    summarizeRoomSelection(selectedVagas, selectedVagasPlus, "vaga"),
+  ].filter((summary): summary is string => summary !== null);
+
+  const roomFilterCount =
+    selectedQuartos.length +
+    (selectedQuartosPlus ? 1 : 0) +
+    selectedVagas.length +
+    (selectedVagasPlus ? 1 : 0);
+
+  const moreFilterCount =
+    selectedSuites.length +
+    (selectedSuitesPlus ? 1 : 0) +
+    selectedBanheiros.length +
+    (selectedBanheirosPlus ? 1 : 0) +
+    selectedComodidades.length +
+    (descricao ? 1 : 0);
+
+  const activeViewTitle =
+    activeView === "overview" ? null : FILTER_VIEW_TITLES[activeView];
+
   return (
     <>
-      <div className="bg-card rounded-xl border shadow-sm p-4 sticky top-20">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2 min-w-0">
-                <h3 className="text-lg font-semibold text-foreground whitespace-nowrap">
-                  Filtros
-                </h3>
-                {activeFilterCount > 0 && (
-                  <span className="inline-flex items-center justify-center size-5 rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
-                    {activeFilterCount}
-                  </span>
-                )}
-              </div>
-              <div className="flex items-center gap-1 shrink-0">
+      <div
+        data-testid="property-filter-panel"
+        className="flex h-[calc(100vh-6rem)] w-full min-w-0 flex-col overflow-hidden rounded-xl border bg-card shadow-sm"
+      >
+        <div className="p-4 pb-3">
+          {activeView === "overview" ? (
+            <>
+              <div className="flex items-center justify-between">
+                <div className="flex min-w-0 items-center gap-2">
+                  <h3 className="whitespace-nowrap text-lg font-semibold text-foreground">
+                    Filtros
+                  </h3>
+                  {activeFilterCount > 0 && (
+                    <span className="inline-flex size-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+                      {activeFilterCount}
+                    </span>
+                  )}
+                </div>
                 <button
+                  type="button"
                   onClick={clearFilters}
-                  className="text-sm text-primary hover:underline font-medium cursor-pointer"
+                  className="shrink-0 cursor-pointer text-sm font-medium text-primary hover:underline"
                 >
                   Limpar
                 </button>
               </div>
-            </div>
 
-            {/* Saved Filters Toolbar */}
-            <div className="flex items-center gap-2 mb-3">
-              <Select
-                value={activeFilterId ?? ""}
-                onValueChange={handleSelectFilter}
-              >
-                <SelectTrigger className="flex-1 min-w-0 h-8 text-xs">
-                  <SelectValue placeholder="Filtros salvos..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {savedFiltersLoading ? (
-                    <div className="px-2 py-6 text-xs text-muted-foreground text-center">
-                      Carregando...
-                    </div>
-                  ) : savedFilters.length === 0 ? (
-                    <div className="px-2 py-6 text-xs text-muted-foreground text-center">
-                      Nenhum filtro salvo
-                    </div>
-                  ) : (
-                    savedFilters.map((f) => (
-                      <SelectItem key={f.id} value={f.id} className="text-xs cursor-pointer">
-                        {f.name}
-                      </SelectItem>
-                    ))
-                  )}
-                </SelectContent>
-              </Select>
+              <div className="mt-3 flex items-center gap-2">
+                <Select
+                  value={activeFilterId ?? ""}
+                  onValueChange={handleSelectFilter}
+                >
+                  <SelectTrigger className="h-8 min-w-0 flex-1 text-xs">
+                    <SelectValue placeholder="Filtros salvos..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {savedFiltersLoading ? (
+                      <div className="px-2 py-6 text-center text-xs text-muted-foreground">
+                        Carregando...
+                      </div>
+                    ) : savedFilters.length === 0 ? (
+                      <div className="px-2 py-6 text-center text-xs text-muted-foreground">
+                        Nenhum filtro salvo
+                      </div>
+                    ) : (
+                      savedFilters.map((filter) => (
+                        <SelectItem
+                          key={filter.id}
+                          value={filter.id}
+                          className="cursor-pointer text-xs"
+                        >
+                          {filter.name}
+                        </SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </Select>
 
+                <Button
+                  variant="outline"
+                  size="icon-xs"
+                  onClick={() => setSaveDialogOpen(true)}
+                  title="Salvar filtro atual"
+                >
+                  <Save className="size-3.5" />
+                </Button>
+
+                {hasActiveFilter && (
+                  <>
+                    <Button
+                      variant="outline"
+                      size="icon-xs"
+                      onClick={handleUpdateFilter}
+                      title="Atualizar filtro salvo"
+                    >
+                      <Pencil className="size-3.5" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="icon-xs"
+                      onClick={handleDeleteFilter}
+                      title="Excluir filtro salvo"
+                    >
+                      <Trash2 className="size-3.5" />
+                    </Button>
+                  </>
+                )}
+              </div>
+            </>
+          ) : (
+            <div className="flex items-center gap-3">
               <Button
-                variant="outline"
-                size="icon-xs"
-                onClick={() => setSaveDialogOpen(true)}
-                title="Salvar filtro atual"
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                onClick={() => setActiveView("overview")}
+                aria-label="Voltar para filtros"
+                className="shrink-0"
               >
-                <Save className="size-3.5" />
+                <ArrowLeft className="size-4" />
               </Button>
-
-              {hasActiveFilter && (
-                <>
-                  <Button
-                    variant="outline"
-                    size="icon-xs"
-                    onClick={handleUpdateFilter}
-                    title="Atualizar filtro salvo"
-                  >
-                    <Pencil className="size-3.5" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="icon-xs"
-                    onClick={handleDeleteFilter}
-                    title="Excluir filtro salvo"
-                  >
-                    <Trash2 className="size-3.5" />
-                  </Button>
-                </>
-              )}
+              <div className="min-w-0">
+                <p className="text-xs text-muted-foreground">Filtros</p>
+                <h3 className="truncate text-base font-semibold text-foreground">
+                  {activeViewTitle}
+                </h3>
+              </div>
             </div>
+          )}
+        </div>
 
-            <Separator className="mb-3" />
+        <Separator />
 
-            <div className="space-y-6 max-h-[calc(100vh-320px)] overflow-y-auto pr-2 pb-4">
-              {/* Preço */}
-              <div>
-                <h4 className="font-semibold text-foreground mb-3 text-sm">
-                  Preço
-                </h4>
-                <div className="space-y-3">
-                  <div>
-                    <Label
-                      htmlFor="minPrice"
-                      className="text-sm text-muted-foreground"
-                    >
-                      Valor Mínimo
-                    </Label>
-                    <Input
-                      id="minPrice"
-                      type="text"
-                      placeholder="R$ 0"
-                      value={formatToBRL(minPrice)}
-                      onChange={(e) => handlePriceChange(e.target.value, "minPrice")}
-                      className="mt-1"
-                    />
-                  </div>
-                  <div>
-                    <Label
-                      htmlFor="maxPrice"
-                      className="text-sm text-muted-foreground"
-                    >
-                      Valor Máximo
-                    </Label>
-                    <Input
-                      id="maxPrice"
-                      type="text"
-                      placeholder="R$ 999.999"
-                      value={formatToBRL(maxPrice)}
-                      onChange={(e) => handlePriceChange(e.target.value, "maxPrice")}
-                      className="mt-1"
-                    />
+        <div
+          ref={scrollAreaRef}
+          data-testid="filter-scroll-area"
+          className="min-h-0 flex-1 overflow-y-auto px-4 py-4"
+        >
+          {activeView === "overview" && (
+            <div>
+              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Essenciais
+              </p>
+              <div className="divide-y overflow-hidden rounded-lg border">
+                <FilterNavigationRow
+                  title="Cidade"
+                  summary={summarizeItems(selectedCidades, "Todas as cidades")}
+                  selectedCount={selectedCidades.length}
+                  onClick={() => setActiveView("cidade")}
+                />
+                <FilterNavigationRow
+                  title="Bairro"
+                  summary={summarizeItems(selectedBairros, "Todos os bairros")}
+                  selectedCount={selectedBairros.length}
+                  onClick={() => setActiveView("bairro")}
+                />
+                <FilterNavigationRow
+                  title="Tipo do imóvel"
+                  summary={summarizeItems(selectedTipos, "Todos os tipos")}
+                  selectedCount={selectedTipos.length}
+                  onClick={() => setActiveView("tipo")}
+                />
+
+                <div className="space-y-2 px-3 py-3">
+                  <h4 className="text-sm font-medium text-foreground">Preço</h4>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="min-w-0">
+                      <Label
+                        htmlFor="minPrice"
+                        className="text-xs text-muted-foreground"
+                      >
+                        Mínimo
+                      </Label>
+                      <Input
+                        id="minPrice"
+                        type="text"
+                        placeholder="R$ 0"
+                        value={formatToBRL(minPrice)}
+                        onChange={(event) =>
+                          handlePriceChange(event.target.value, "minPrice")
+                        }
+                        className="mt-1 h-9 px-3"
+                      />
+                    </div>
+                    <div className="min-w-0">
+                      <Label
+                        htmlFor="maxPrice"
+                        className="text-xs text-muted-foreground"
+                      >
+                        Máximo
+                      </Label>
+                      <Input
+                        id="maxPrice"
+                        type="text"
+                        placeholder="R$ 999 mil"
+                        value={formatToBRL(maxPrice)}
+                        onChange={(event) =>
+                          handlePriceChange(event.target.value, "maxPrice")
+                        }
+                        className="mt-1 h-9 px-3"
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <Separator />
-
-              {/* Descrição */}
-              <div>
-                <h4 className="font-semibold text-foreground mb-3 text-sm">
-                  Descrição
-                </h4>
-                <Input
-                  placeholder="Buscar na descrição do imóvel..."
-                  value={descricao}
-                  onChange={(e) => setFilterState((prev) => ({ ...prev, descricao: e.target.value }))}
+                <FilterNavigationRow
+                  title="Imobiliária"
+                  summary={summarizeItems(
+                    selectedImobiliarias,
+                    "Todas as imobiliárias"
+                  )}
+                  selectedCount={selectedImobiliarias.length}
+                  onClick={() => setActiveView("imobiliaria")}
+                />
+                <FilterNavigationRow
+                  title="Quartos e vagas"
+                  summary={
+                    roomSummaryParts.length > 0
+                      ? roomSummaryParts.join(" · ")
+                      : "Qualquer quantidade"
+                  }
+                  selectedCount={roomFilterCount}
+                  onClick={() => setActiveView("rooms")}
+                />
+                <FilterNavigationRow
+                  title="Mais filtros"
+                  summary={
+                    moreFilterCount > 0
+                      ? `${moreFilterCount} ${
+                          moreFilterCount === 1
+                            ? "refinamento selecionado"
+                            : "refinamentos selecionados"
+                        }`
+                      : "Suítes, banheiros, características e descrição"
+                  }
+                  selectedCount={moreFilterCount}
+                  onClick={() => setActiveView("more")}
                 />
               </div>
+            </div>
+          )}
 
-              <Separator />
-
-              {/* Tipo de Imóvel */}
-              <FilterSection
-                title="Tipo de Imóvel"
-                searchPlaceholder="Pesquisar tipo..."
-                searchValue={searchTipo}
-                onSearchChange={setSearchTipo}
-                items={filteredTipos}
-                selectedItems={selectedTipos}
-                idPrefix="tipo"
-                onToggle={(val, checked) =>
-                  handleToggle("selectedTipos", val, checked)
-                }
-                onSelectAll={(items, select) => {
-                  setFilterState((prev) => ({
-                    ...prev,
-                    selectedTipos: select
-                      ? [...new Set([...prev.selectedTipos, ...items])]
-                      : prev.selectedTipos.filter((t) => !items.includes(t)),
-                  }));
-                }}
-                emptyMessage="Nenhum tipo encontrado"
-              />
-
-              <Separator />
-
-              {/* Cidade */}
-              <FilterSection
-                title="Cidade"
-                searchPlaceholder="Pesquisar cidade..."
-                searchValue={searchCidade}
-                onSearchChange={setSearchCidade}
-                items={filteredCidades}
-                selectedItems={selectedCidades}
-                idPrefix="cidade"
-                onToggle={(val, checked) => {
-                  updateSelectedCidades((current) => checked
-                    ? [...new Set([...current, val])]
-                    : current.filter((cidade) => cidade !== val));
-                }}
-                onSelectAll={(items, select) => {
-                  updateSelectedCidades((current) => select
+          {activeView === "cidade" && (
+            <FilterSection
+              searchPlaceholder="Pesquisar cidade..."
+              searchValue={searchCidade}
+              onSearchChange={setSearchCidade}
+              items={filteredCidades}
+              selectedItems={selectedCidades}
+              idPrefix="cidade"
+              onToggle={(value, checked) => {
+                updateSelectedCidades((current) =>
+                  checked
+                    ? [...new Set([...current, value])]
+                    : current.filter((cidade) => cidade !== value)
+                );
+              }}
+              onSelectAll={(items, select) => {
+                updateSelectedCidades((current) =>
+                  select
                     ? [...new Set([...current, ...items])]
-                    : current.filter((cidade) => !items.includes(cidade)));
-                }}
-                emptyMessage="Nenhuma cidade encontrada"
-              />
+                    : current.filter((cidade) => !items.includes(cidade))
+                );
+              }}
+              emptyMessage="Nenhuma cidade encontrada"
+            />
+          )}
 
-              <Separator />
+          {activeView === "bairro" && (
+            <FilterSection
+              searchPlaceholder="Pesquisar bairro..."
+              searchValue={searchBairro}
+              onSearchChange={setSearchBairro}
+              items={filteredBairros}
+              selectedItems={selectedBairros}
+              idPrefix="bairro"
+              onToggle={(value, checked) =>
+                handleToggle("selectedBairros", value, checked)
+              }
+              onSelectAll={(items, select) => {
+                setFilterState((previous) => ({
+                  ...previous,
+                  selectedBairros: select
+                    ? [...new Set([...previous.selectedBairros, ...items])]
+                    : previous.selectedBairros.filter(
+                        (bairro) => !items.includes(bairro)
+                      ),
+                }));
+              }}
+              emptyMessage="Nenhum bairro encontrado"
+            />
+          )}
 
-              {/* Bairro */}
-              <FilterSection
-                title="Bairro"
-                searchPlaceholder="Pesquisar bairro..."
-                searchValue={searchBairro}
-                onSearchChange={setSearchBairro}
-                items={filteredBairros}
-                selectedItems={selectedBairros}
-                idPrefix="bairro"
-                onToggle={(val, checked) =>
-                  handleToggle("selectedBairros", val, checked)
-                }
-                onSelectAll={(items, select) => {
-                  setFilterState((prev) => ({
-                    ...prev,
-                    selectedBairros: select
-                      ? [...new Set([...prev.selectedBairros, ...items])]
-                      : prev.selectedBairros.filter((b) => !items.includes(b)),
-                  }));
-                }}
-                emptyMessage="Nenhum bairro encontrado"
-              />
+          {activeView === "tipo" && (
+            <FilterSection
+              searchPlaceholder="Pesquisar tipo..."
+              searchValue={searchTipo}
+              onSearchChange={setSearchTipo}
+              items={filteredTipos}
+              selectedItems={selectedTipos}
+              idPrefix="tipo"
+              onToggle={(value, checked) =>
+                handleToggle("selectedTipos", value, checked)
+              }
+              onSelectAll={(items, select) => {
+                setFilterState((previous) => ({
+                  ...previous,
+                  selectedTipos: select
+                    ? [...new Set([...previous.selectedTipos, ...items])]
+                    : previous.selectedTipos.filter(
+                        (tipo) => !items.includes(tipo)
+                      ),
+                }));
+              }}
+              emptyMessage="Nenhum tipo encontrado"
+            />
+          )}
 
-              <Separator />
+          {activeView === "imobiliaria" && (
+            <FilterSection
+              searchPlaceholder="Pesquisar imobiliária..."
+              searchValue={searchImobiliaria}
+              onSearchChange={setSearchImobiliaria}
+              items={filteredImobiliarias}
+              selectedItems={selectedImobiliarias}
+              idPrefix="imobiliaria"
+              onToggle={(value, checked) =>
+                handleToggle("selectedImobiliarias", value, checked)
+              }
+              onSelectAll={(items, select) => {
+                setFilterState((previous) => ({
+                  ...previous,
+                  selectedImobiliarias: select
+                    ? [...new Set([...previous.selectedImobiliarias, ...items])]
+                    : previous.selectedImobiliarias.filter(
+                        (imobiliaria) => !items.includes(imobiliaria)
+                      ),
+                }));
+              }}
+              emptyMessage="Nenhuma imobiliária encontrada"
+            />
+          )}
 
-              {/* Imobiliária */}
-              <FilterSection
-                title="Imobiliária"
-                searchPlaceholder="Pesquisar imobiliária..."
-                searchValue={searchImobiliaria}
-                onSearchChange={setSearchImobiliaria}
-                items={filteredImobiliarias}
-                selectedItems={selectedImobiliarias}
-                idPrefix="imobiliaria"
-                onToggle={(val, checked) =>
-                  handleToggle("selectedImobiliarias", val, checked)
-                }
-                onSelectAll={(items, select) => {
-                  setFilterState((prev) => ({
-                    ...prev,
-                    selectedImobiliarias: select
-                      ? [...new Set([...prev.selectedImobiliarias, ...items])]
-                      : prev.selectedImobiliarias.filter((i) => !items.includes(i)),
-                  }));
-                }}
-                emptyMessage="Nenhuma imobiliária encontrada"
-              />
-
-              <Separator />
-
-              {/* Quartos */}
+          {activeView === "rooms" && (
+            <div className="space-y-6">
               <FixedRoomFilterSection
                 title="Quartos"
                 selectedItems={selectedQuartos}
                 selectedPlus={selectedQuartosPlus}
                 idPrefix="quartos"
                 labelSuffix="quarto"
-                onToggle={(val) =>
-                  handleToggle("selectedQuartos", val, !selectedQuartos.includes(val))
+                onToggle={(value) =>
+                  handleToggle(
+                    "selectedQuartos",
+                    value,
+                    !selectedQuartos.includes(value)
+                  )
                 }
                 onPlusToggle={() => handleBoolToggle("selectedQuartosPlus")}
               />
-
-              {/* Suites */}
-              <FixedRoomFilterSection
-                title="Suítes"
-                selectedItems={selectedSuites}
-                selectedPlus={selectedSuitesPlus}
-                idPrefix="suites"
-                labelSuffix="suíte"
-                onToggle={(val) =>
-                  handleToggle("selectedSuites", val, !selectedSuites.includes(val))
-                }
-                onPlusToggle={() => handleBoolToggle("selectedSuitesPlus")}
-              />
-
-              {/* Banheiros */}
-              <FixedRoomFilterSection
-                title="Banheiros"
-                selectedItems={selectedBanheiros}
-                selectedPlus={selectedBanheirosPlus}
-                idPrefix="banheiros"
-                labelSuffix="banheiro"
-                onToggle={(val) =>
-                  handleToggle("selectedBanheiros", val, !selectedBanheiros.includes(val))
-                }
-                onPlusToggle={() => handleBoolToggle("selectedBanheirosPlus")}
-              />
-
-              {/* Vagas */}
+              <Separator />
               <FixedRoomFilterSection
                 title="Vagas"
                 selectedItems={selectedVagas}
                 selectedPlus={selectedVagasPlus}
                 idPrefix="vagas"
                 labelSuffix="vaga"
-                onToggle={(val) =>
-                  handleToggle("selectedVagas", val, !selectedVagas.includes(val))
+                onToggle={(value) =>
+                  handleToggle(
+                    "selectedVagas",
+                    value,
+                    !selectedVagas.includes(value)
+                  )
                 }
                 onPlusToggle={() => handleBoolToggle("selectedVagasPlus")}
               />
+            </div>
+          )}
 
-              {COMODIDADE_GROUPS.some((g) => g.keys.length > 0) && (
-                <>
-                  <Separator />
+          {activeView === "more" && (
+            <div className="space-y-6">
+              <FixedRoomFilterSection
+                title="Suítes"
+                selectedItems={selectedSuites}
+                selectedPlus={selectedSuitesPlus}
+                idPrefix="suites"
+                labelSuffix="suíte"
+                onToggle={(value) =>
+                  handleToggle(
+                    "selectedSuites",
+                    value,
+                    !selectedSuites.includes(value)
+                  )
+                }
+                onPlusToggle={() => handleBoolToggle("selectedSuitesPlus")}
+              />
 
-                  {/* Comodidades */}
-                  <div>
-                    <h4 className="font-semibold text-foreground mb-3 text-sm">
-                      Características
-                    </h4>
-                    <Accordion type="multiple" className="border rounded-lg px-3">
-                      {COMODIDADE_GROUPS.map((group) => {
-                        const groupAllSelected = group.keys.every((key) =>
-                          selectedComodidades.includes(key)
-                        );
-                        return (
-                          <AccordionItem key={group.title} value={group.title}>
-                            <AccordionTrigger className="text-sm py-2 cursor-pointer">
-                              {group.title}
-                            </AccordionTrigger>
-                            <AccordionContent>
-                              <div className="space-y-2 pt-1">
-                                <button
-                                  type="button"
-                                  className="text-xs text-primary hover:underline cursor-pointer mb-1"
-                                  onClick={() => {
-                                    if (groupAllSelected) {
-                                      group.keys.forEach((key) => {
-                                        if (selectedComodidades.includes(key)) {
-                                          handleToggle("selectedComodidades", key, false);
-                                        }
-                                      });
-                                    } else {
-                                      group.keys.forEach((key) => {
-                                        if (!selectedComodidades.includes(key)) {
-                                          handleToggle("selectedComodidades", key, true);
-                                        }
-                                      });
+              <Separator />
+
+              <FixedRoomFilterSection
+                title="Banheiros"
+                selectedItems={selectedBanheiros}
+                selectedPlus={selectedBanheirosPlus}
+                idPrefix="banheiros"
+                labelSuffix="banheiro"
+                onToggle={(value) =>
+                  handleToggle(
+                    "selectedBanheiros",
+                    value,
+                    !selectedBanheiros.includes(value)
+                  )
+                }
+                onPlusToggle={() => handleBoolToggle("selectedBanheirosPlus")}
+              />
+
+              <Separator />
+
+              <div>
+                <h4 className="mb-3 text-sm font-semibold text-foreground">
+                  Características
+                </h4>
+                <Accordion type="multiple" className="rounded-lg border px-3">
+                  {COMODIDADE_GROUPS.map((group) => {
+                    const groupAllSelected = group.keys.every((key) =>
+                      selectedComodidades.includes(key)
+                    );
+
+                    return (
+                      <AccordionItem key={group.title} value={group.title}>
+                        <AccordionTrigger className="cursor-pointer py-2 text-sm">
+                          {group.title}
+                        </AccordionTrigger>
+                        <AccordionContent>
+                          <div className="space-y-2 pt-1">
+                            <button
+                              type="button"
+                              className="mb-1 cursor-pointer text-xs text-primary hover:underline"
+                              onClick={() => {
+                                if (groupAllSelected) {
+                                  group.keys.forEach((key) => {
+                                    if (selectedComodidades.includes(key)) {
+                                      handleToggle(
+                                        "selectedComodidades",
+                                        key,
+                                        false
+                                      );
                                     }
-                                  }}
+                                  });
+                                } else {
+                                  group.keys.forEach((key) => {
+                                    if (!selectedComodidades.includes(key)) {
+                                      handleToggle(
+                                        "selectedComodidades",
+                                        key,
+                                        true
+                                      );
+                                    }
+                                  });
+                                }
+                              }}
+                            >
+                              {groupAllSelected
+                                ? "Desmarcar tudo"
+                                : "Selecionar tudo"}
+                            </button>
+                            {group.keys.map((key) => (
+                              <div
+                                key={key}
+                                className="flex items-center space-x-2"
+                              >
+                                <Checkbox
+                                  id={`comodidade-${key}`}
+                                  checked={selectedComodidades.includes(key)}
+                                  onCheckedChange={(checked) =>
+                                    handleToggle(
+                                      "selectedComodidades",
+                                      key,
+                                      checked as boolean
+                                    )
+                                  }
+                                />
+                                <Label
+                                  htmlFor={`comodidade-${key}`}
+                                  className="cursor-pointer text-sm text-muted-foreground"
                                 >
-                                  {groupAllSelected ? "Desmarcar tudo" : "Selecionar tudo"}
-                                </button>
-                                {group.keys.map((key) => (
-                                  <div key={key} className="flex items-center space-x-2">
-                                    <Checkbox
-                                      id={`comodidade-${key}`}
-                                      checked={selectedComodidades.includes(key)}
-                                      onCheckedChange={(checked) =>
-                                        handleToggle(
-                                          "selectedComodidades",
-                                          key,
-                                          checked as boolean
-                                        )
-                                      }
-                                    />
-                                    <Label
-                                      htmlFor={`comodidade-${key}`}
-                                      className="text-sm text-muted-foreground cursor-pointer"
-                                    >
-                                      {COMODIDADE_LABELS[key]}
-                                    </Label>
-                                  </div>
-                                ))}
+                                  {COMODIDADE_LABELS[key]}
+                                </Label>
                               </div>
-                            </AccordionContent>
-                          </AccordionItem>
-                        );
-                      })}
-                    </Accordion>
-                  </div>
-                </>
-              )}
-            </div>
+                            ))}
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    );
+                  })}
+                </Accordion>
+              </div>
 
-            <div className="-mx-4 -mb-4 mt-4 border-t bg-card/95 px-4 py-4">
-              <Button
-                type="button"
-                onClick={applyFilters}
-                className="h-12 w-full cursor-pointer gap-2 text-base font-semibold"
-              >
-                <Search className="h-5 w-5" />
-                Buscar imóveis
-              </Button>
+              <Separator />
+
+              <div>
+                <Label
+                  htmlFor="filter-description"
+                  className="text-sm font-semibold text-foreground"
+                >
+                  Descrição
+                </Label>
+                <Input
+                  id="filter-description"
+                  placeholder="Buscar na descrição do imóvel..."
+                  value={descricao}
+                  onChange={(event) =>
+                    setFilterState((previous) => ({
+                      ...previous,
+                      descricao: event.target.value,
+                    }))
+                  }
+                  className="mt-3"
+                />
+              </div>
             </div>
+          )}
+        </div>
+
+        <div className="border-t bg-card/95 p-4">
+          <Button
+            type="button"
+            onClick={applyFilters}
+            className="h-12 w-full cursor-pointer gap-2 text-base font-semibold"
+          >
+            <Search className="h-5 w-5" />
+            Buscar imóveis
+          </Button>
+        </div>
       </div>
 
       {/* Save Filter Dialog */}
@@ -812,6 +1022,44 @@ export function PropertyFilters(
         </DialogContent>
       </Dialog>
     </>
+  );
+}
+
+interface FilterNavigationRowProps {
+  title: string;
+  summary: string;
+  selectedCount: number;
+  onClick: () => void;
+}
+
+function FilterNavigationRow({
+  title,
+  summary,
+  selectedCount,
+  onClick,
+}: FilterNavigationRowProps) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={`${title}: ${summary}`}
+      className="flex w-full cursor-pointer items-center gap-3 px-3 py-3 text-left transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+    >
+      <span className="min-w-0 flex-1">
+        <span className="flex items-center gap-2 text-sm font-medium text-foreground">
+          {title}
+          {selectedCount > 0 && (
+            <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-primary">
+              {selectedCount}
+            </span>
+          )}
+        </span>
+        <span className="mt-0.5 block truncate text-xs text-muted-foreground">
+          {summary}
+        </span>
+      </span>
+      <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
+    </button>
   );
 }
 
@@ -897,7 +1145,6 @@ function FixedRoomFilterSection({
 // --- Reusable filter section for string-based filters ---
 
 interface FilterSectionProps {
-  title: string;
   searchPlaceholder: string;
   searchValue: string;
   onSearchChange: (value: string) => void;
@@ -910,7 +1157,6 @@ interface FilterSectionProps {
 }
 
 function FilterSection({
-  title,
   searchPlaceholder,
   searchValue,
   onSearchChange,
@@ -925,20 +1171,19 @@ function FilterSection({
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-3">
-        <h4 className="font-semibold text-foreground text-sm">{title}</h4>
-        {onSelectAll && items.length > 0 && (
+      {onSelectAll && items.length > 0 && (
+        <div className="mb-3 flex justify-end">
           <button
             type="button"
-            className="text-xs text-primary hover:underline cursor-pointer"
+            className="cursor-pointer text-xs text-primary hover:underline"
             onClick={() => onSelectAll(items, !allSelected)}
           >
             {allSelected ? "Desmarcar tudo" : "Selecionar tudo"}
           </button>
-        )}
-      </div>
+        </div>
+      )}
       <div className="relative mb-2">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
+        <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           type="text"
           placeholder={searchPlaceholder}
@@ -947,7 +1192,7 @@ function FilterSection({
           className="pl-9"
         />
       </div>
-      <div className="space-y-2 max-h-48 overflow-y-auto">
+      <div className="space-y-2">
         {items.map((item) => (
           <div key={item} className="flex items-center space-x-2">
             <Checkbox
@@ -957,14 +1202,14 @@ function FilterSection({
             />
             <Label
               htmlFor={`${idPrefix}-${item}`}
-              className="text-sm text-muted-foreground cursor-pointer"
+              className="cursor-pointer text-sm text-muted-foreground"
             >
               {item}
             </Label>
           </div>
         ))}
         {items.length === 0 && (
-          <p className="text-sm text-muted-foreground text-center py-2">
+          <p className="py-2 text-center text-sm text-muted-foreground">
             {emptyMessage}
           </p>
         )}

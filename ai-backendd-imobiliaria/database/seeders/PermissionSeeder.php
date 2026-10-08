@@ -42,6 +42,7 @@ class PermissionSeeder extends Seeder
             'crawler.operations.cancel',
             'crawler.profiles.approve',
             'crawler.agencies.activate',
+            'crawler.snapshots.review',
             'crawler.snapshots.publish_exceptionally',
             'crawler.policies.manage',
             'crawler.schedules.manage',

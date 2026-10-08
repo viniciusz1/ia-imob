@@ -4,6 +4,7 @@ namespace Tests\Feature\Crawler;
 
 use App\Models\Crawler\CrawlAgency;
 use App\Models\Crawler\CrawlerOperation;
+use App\Models\Crawler\CrawlRunQualityRejection;
 use App\Models\Crawler\DiscoverySnapshot;
 use App\Models\Crawler\MarketDataContractVersion;
 use App\Models\Crawler\QualityPolicyVersion;
@@ -11,6 +12,7 @@ use App\Models\CrawlerRun;
 use App\Models\User;
 use App\Services\Crawler\CrawlRunPublicationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use LogicException;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
@@ -122,6 +124,62 @@ class QualityPolicyApiTest extends TestCase
         ])->assertUnprocessable();
     }
 
+    public function test_operator_can_reject_a_quarantined_snapshot_with_an_immutable_review_decision(): void
+    {
+        $agency = $this->agency('rejected-review');
+        $quarantined = $this->candidate($agency, 0, 10);
+        app(CrawlRunPublicationService::class)->evaluate($quarantined);
+        $endpoint = "/api/v1/admin/crawler/crawl-runs/{$quarantined->id}/quality-rejection";
+
+        Role::query()->where('name', 'Platform Admin')->firstOrFail()
+            ->revokePermissionTo('crawler.snapshots.review');
+        $this->actingAs($this->admin)->postJson($endpoint, [
+            'reason' => 'No valid listings can be published from this crawl.',
+        ])->assertForbidden();
+
+        $this->admin->givePermissionTo('crawler.snapshots.review');
+        $this->actingAs($this->admin)->postJson($endpoint, [
+            'reason' => 'No valid listings can be published from this crawl.',
+        ])->assertCreated()
+            ->assertJsonPath('data.publication_state', 'quarantined')
+            ->assertJsonPath('data.quality_rejection.rejected_by', $this->admin->id)
+            ->assertJsonPath('data.quality_rejection.reason', 'No valid listings can be published from this crawl.');
+
+        $this->assertDatabaseHas('crawler.crawl_run_quality_rejections', [
+            'crawl_run_id' => $quarantined->id,
+            'quality_gate_report_id' => $quarantined->qualityReport->id,
+            'rejected_by' => $this->admin->id,
+        ]);
+
+        $this->actingAs($this->admin)->postJson($endpoint, [
+            'reason' => 'A second decision must not replace the first one.',
+        ])->assertUnprocessable();
+        $this->actingAs($this->admin)->postJson("/api/v1/admin/crawler/crawl-runs/{$quarantined->id}/exceptional-publication", [
+            'reason' => 'A rejected snapshot must require a new crawl instead.',
+        ])->assertUnprocessable();
+
+        $this->actingAs($this->admin)
+            ->getJson('/api/v1/admin/crawler/overview')
+            ->assertOk()
+            ->assertJsonPath('data.quarantined_snapshots', 0)
+            ->assertJsonMissing(['href' => "/admin/crawler/runs/{$quarantined->id}"]);
+    }
+
+    public function test_quality_rejection_decisions_are_immutable(): void
+    {
+        $agency = $this->agency('immutable-rejection');
+        $quarantined = $this->candidate($agency, 0, 10);
+        app(CrawlRunPublicationService::class)->evaluate($quarantined);
+        $this->actingAs($this->admin)->postJson("/api/v1/admin/crawler/crawl-runs/{$quarantined->id}/quality-rejection", [
+            'reason' => 'The operator confirmed that the crawl must remain rejected.',
+        ])->assertCreated();
+
+        $rejection = CrawlRunQualityRejection::query()->where('crawl_run_id', $quarantined->id)->firstOrFail();
+
+        $this->expectException(LogicException::class);
+        $rejection->update(['reason' => 'Attempted replacement reason.']);
+    }
+
     public function test_operator_can_evaluate_a_completed_candidate_manually_and_the_endpoint_is_idempotent(): void
     {
         $agency = $this->agency('manual-evaluation');
@@ -155,7 +213,7 @@ class QualityPolicyApiTest extends TestCase
             ->assertJsonValidationErrors(['completed_at']);
     }
 
-    public function test_quality_index_consolidates_quarantined_and_exceptionally_published_snapshots(): void
+    public function test_quality_index_consolidates_pending_rejected_and_exceptionally_published_snapshots(): void
     {
         $agency = $this->agency('quality-index');
         foreach ([100, 100, 100] as $count) {
@@ -171,16 +229,27 @@ class QualityPolicyApiTest extends TestCase
         $quarantined = $this->candidate($agency, 20, 100);
         app(CrawlRunPublicationService::class)->evaluate($quarantined);
 
+        $rejected = $this->candidate($agency, 10, 100);
+        app(CrawlRunPublicationService::class)->evaluate($rejected);
+        $this->actingAs($this->admin)->postJson("/api/v1/admin/crawler/crawl-runs/{$rejected->id}/quality-rejection", [
+            'reason' => 'The operator confirmed that this snapshot must remain discarded.',
+        ])->assertCreated();
+
         $this->actingAs($this->admin)
             ->getJson('/api/v1/admin/crawler/quality-snapshots')
             ->assertOk()
-            ->assertJsonCount(2, 'data')
-            ->assertJsonPath('data.0.id', $quarantined->id)
-            ->assertJsonPath('data.0.publication_state', 'quarantined')
-            ->assertJsonPath('data.1.id', $exceptionallyPublished->id)
-            ->assertJsonPath('data.1.publication_state', 'published')
+            ->assertJsonCount(3, 'data')
+            ->assertJsonPath('data.0.id', $rejected->id)
             ->assertJsonPath(
-                'data.1.exceptional_publication.reason',
+                'data.0.quality_rejection.reason',
+                'The operator confirmed that this snapshot must remain discarded.'
+            )
+            ->assertJsonPath('data.1.id', $quarantined->id)
+            ->assertJsonPath('data.1.publication_state', 'quarantined')
+            ->assertJsonPath('data.2.id', $exceptionallyPublished->id)
+            ->assertJsonPath('data.2.publication_state', 'published')
+            ->assertJsonPath(
+                'data.2.exceptional_publication.reason',
                 'Operator verified the seasonal inventory directly with the agency.'
             );
     }

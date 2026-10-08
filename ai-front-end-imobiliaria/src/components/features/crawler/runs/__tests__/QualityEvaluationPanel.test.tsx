@@ -38,6 +38,7 @@ const candidate: CrawlRun = {
   publishable: true,
   quality_report: null,
   exceptional_publication: null,
+  quality_rejection: null,
   counts: { raw: 500, normalized: 117, rejected: 383, errors: 0 },
   error_summary: [],
   published_at: null,

@@ -21,7 +21,10 @@ class CrawlerOverviewController extends Controller
             ->latest('id')->limit(5)->get();
         $recentFailures = CrawlerOperation::query()->where('state', 'failed')->latest('id')->limit(5)->get();
         $circuits = CrawlAgencyCircuit::query()->where('state', 'open')->get();
-        $quarantined = CrawlerRun::query()->where('publication_state', 'quarantined')->latest('id')->limit(10)->get();
+        $quarantined = CrawlerRun::query()
+            ->where('publication_state', 'quarantined')
+            ->whereDoesntHave('qualityRejection')
+            ->latest('id')->limit(10)->get();
         $unavailableWorkers = WorkerInstance::query()->get()->filter(
             fn (WorkerInstance $worker): bool => $worker->health_state !== 'healthy'
                 || $worker->last_heartbeat_at?->lt(now()->subMinutes(2)),
@@ -65,7 +68,10 @@ class CrawlerOverviewController extends Controller
                     'failed' => CrawlerOperation::query()->where('state', 'failed')->count(),
                 ],
                 'open_circuits' => $circuits->count(),
-                'quarantined_snapshots' => CrawlerRun::query()->where('publication_state', 'quarantined')->count(),
+                'quarantined_snapshots' => CrawlerRun::query()
+                    ->where('publication_state', 'quarantined')
+                    ->whereDoesntHave('qualityRejection')
+                    ->count(),
                 'active_operations' => CrawlerOperationResource::collection($activeOperations)->resolve(),
                 'recent_failures' => CrawlerOperationResource::collection($recentFailures)->resolve(),
                 'alerts' => $alerts,

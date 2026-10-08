@@ -7,6 +7,7 @@ import {
   listCrawlAgenciesPage,
   listOnboardingDiscoverySnapshotCandidates,
   listProspects,
+  queueBulkProductionCrawls,
 } from "../crawlerService";
 
 vi.mock("../api", () => ({
@@ -43,6 +44,21 @@ describe("crawlerService pagination", () => {
     expect(api.get).toHaveBeenCalledWith("/api/v1/admin/crawler/crawl-agencies", {
       params: { per_page: 100 },
     });
+  });
+
+  it("confirms the bulk production crawl command", async () => {
+    const result = {
+      summary: { active_agencies: 2, enqueued: 2, skipped: 0 },
+      group: null,
+      skipped: [],
+    };
+    vi.mocked(api.post).mockResolvedValue({ data: { data: result } });
+
+    await expect(queueBulkProductionCrawls()).resolves.toEqual(result);
+    expect(api.post).toHaveBeenCalledWith(
+      "/api/v1/admin/crawler/production-crawls/bulk",
+      { confirmed: true },
+    );
   });
 
   it("loads enough prospects for the review workspace", async () => {

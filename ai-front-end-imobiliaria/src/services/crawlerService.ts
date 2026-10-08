@@ -1,6 +1,7 @@
 import api, { API_PREFIX } from "./api";
 import type {
   CrawlAgency,
+  BulkProductionCrawlResult,
   CrawlAgencyInput,
   CrawlAgencyLifecycle,
   PaginatedCrawlAgencies,
@@ -246,6 +247,13 @@ export interface QueueProductionCrawlPayload {
 
 export async function queueProductionCrawl(payload: QueueProductionCrawlPayload): Promise<CrawlerOperation> {
   const response = await api.post<Resource<CrawlerOperation>>(`${BASE}/production-crawls`, payload);
+  return response.data.data;
+}
+
+export async function queueBulkProductionCrawls(): Promise<BulkProductionCrawlResult> {
+  const response = await api.post<Resource<BulkProductionCrawlResult>>(`${BASE}/production-crawls/bulk`, {
+    confirmed: true,
+  });
   return response.data.data;
 }
 
@@ -563,6 +571,11 @@ export async function publishCrawlRunExceptionally(runId: number, reason: string
   return response.data.data;
 }
 
+export async function rejectCrawlRunQuality(runId: number, reason: string): Promise<CrawlRun> {
+  const response = await api.post<Resource<CrawlRun>>(`${BASE}/crawl-runs/${runId}/quality-rejection`, { reason });
+  return response.data.data;
+}
+
 export async function listProspects(params: {
   city?: string;
   state?: string;
@@ -642,7 +655,7 @@ export async function listCrawlAgencies(): Promise<CrawlAgency[]> {
 }
 
 export async function listCrawlAgenciesPage(
-  params: { page?: number; search?: string } = {},
+  params: { page?: number; search?: string; sort?: "name" | "-updated_at" } = {},
 ): Promise<PaginatedCrawlAgencies> {
   const response = await api.get<PaginatedCrawlAgencies>(`${BASE}/crawl-agencies`, { params });
   return response.data;

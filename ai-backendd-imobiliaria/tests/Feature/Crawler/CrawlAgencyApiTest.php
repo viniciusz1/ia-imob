@@ -159,4 +159,33 @@ class CrawlAgencyApiTest extends TestCase
             ->assertJsonCount(20, 'data')
             ->assertJsonPath('meta.per_page', 100);
     }
+
+    public function test_list_can_be_sorted_by_most_recently_modified(): void
+    {
+        foreach (['Alpha', 'Beta', 'Gamma'] as $index => $name) {
+            $agency = CrawlAgency::query()->create([
+                'name' => $name,
+                'slug' => strtolower($name),
+                'base_url' => 'https://'.strtolower($name).'.example.com',
+                'root_domain' => strtolower($name).'.example.com',
+            ]);
+            $agency->forceFill(['updated_at' => now()->subDays(3 - $index)])->saveQuietly();
+        }
+
+        CrawlAgency::query()->where('name', 'Alpha')->update(['updated_at' => now()->addMinute()]);
+
+        $this->actingAs($this->platformAdmin)
+            ->getJson('/api/v1/admin/crawler/crawl-agencies?sort=-updated_at')
+            ->assertOk()
+            ->assertJsonPath('data.0.name', 'Alpha')
+            ->assertJsonPath('data.1.name', 'Gamma')
+            ->assertJsonPath('data.2.name', 'Beta');
+
+        $this->actingAs($this->platformAdmin)
+            ->getJson('/api/v1/admin/crawler/crawl-agencies')
+            ->assertOk()
+            ->assertJsonPath('data.0.name', 'Alpha')
+            ->assertJsonPath('data.1.name', 'Beta')
+            ->assertJsonPath('data.2.name', 'Gamma');
+    }
 }

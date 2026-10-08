@@ -192,6 +192,31 @@ export interface OperationGroup {
   created_at: string;
 }
 
+export type BulkProductionCrawlSkipCode =
+  | "revalidation_required"
+  | "circuit_open"
+  | "production_in_progress"
+  | "candidate_snapshot_pending"
+  | "missing_active_discovery_policy"
+  | "missing_active_profile"
+  | "inactive_contract"
+  | "missing_active_quality_policy"
+  | "configuration_invalid";
+
+export interface BulkProductionCrawlResult {
+  summary: {
+    active_agencies: number;
+    enqueued: number;
+    skipped: number;
+  };
+  group: OperationGroup | null;
+  skipped: Array<{
+    crawl_agency: { id: number; name: string };
+    code: BulkProductionCrawlSkipCode;
+    message: string;
+  }>;
+}
+
 export interface WorkerInstance {
   id: number;
   worker_key: string;
@@ -304,6 +329,7 @@ export interface CrawlRun {
   publishable: boolean;
   quality_report: QualityGateReport | null;
   exceptional_publication: { published_by: number; reason: string; published_at: string } | null;
+  quality_rejection: { rejected_by: number; reason: string; rejected_at: string } | null;
   counts: { raw: number; normalized: number; rejected: number; errors: number };
   error_summary: Array<Record<string, unknown>>;
   started_at: string;

@@ -14,6 +14,7 @@ export default async function CrawlAgenciesPage({ searchParams }: CrawlAgenciesP
   const search = first(query.search)?.trim() ?? "";
   const agencies = await listCrawlAgenciesPage({
     page,
+    sort: "-updated_at",
     ...(search !== "" && { search }),
   });
 

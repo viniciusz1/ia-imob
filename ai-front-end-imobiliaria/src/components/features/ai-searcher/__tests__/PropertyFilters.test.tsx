@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { PropertyFilters } from "../PropertyFilters";
@@ -57,7 +57,7 @@ describe("PropertyFilters", () => {
         Ascurra: ["Amizade"],
       },
       cidades: ["Araquari", "Ascurra"],
-      imobiliarias: [],
+      imobiliarias: ["Imobiliária Central"],
       quartos: [],
       suites: [],
       banheiros: [],
@@ -77,13 +77,16 @@ describe("PropertyFilters", () => {
       />
     );
 
-    expect(await screen.findByLabelText("Amizade")).toBeInTheDocument();
+    fireEvent.click(
+      screen.getByRole("button", { name: /^Cidade: Todas as cidades$/ })
+    );
+    fireEvent.click(await screen.findByLabelText("Araquari"));
+    fireEvent.click(screen.getByRole("button", { name: "Voltar para filtros" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: /^Bairro: Todos os bairros$/ })
+    );
 
-    fireEvent.click(screen.getByLabelText("Araquari"));
-
-    await waitFor(() => {
-      expect(screen.queryByLabelText("Amizade")).not.toBeInTheDocument();
-    });
+    expect(screen.queryByLabelText("Amizade")).not.toBeInTheDocument();
     expect(screen.getByLabelText("Centro")).toBeInTheDocument();
     expect(screen.getByLabelText("Itinga")).toBeInTheDocument();
   });
@@ -100,9 +103,20 @@ describe("PropertyFilters", () => {
       />
     );
 
+    fireEvent.click(
+      screen.getByRole("button", { name: /^Cidade: Todas as cidades$/ })
+    );
     fireEvent.click(await screen.findByLabelText("Ascurra"));
-    fireEvent.click(screen.getByLabelText("Amizade"));
     fireEvent.click(screen.getByLabelText("Araquari"));
+    fireEvent.click(screen.getByRole("button", { name: "Voltar para filtros" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: /^Bairro: Todos os bairros$/ })
+    );
+    fireEvent.click(screen.getByLabelText("Amizade"));
+    fireEvent.click(screen.getByRole("button", { name: "Voltar para filtros" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: /^Cidade: / })
+    );
     fireEvent.click(screen.getByLabelText("Ascurra"));
     fireEvent.click(screen.getByRole("button", { name: "Buscar imóveis" }));
 
@@ -110,5 +124,56 @@ describe("PropertyFilters", () => {
       selectedCidades: ["Araquari"],
       selectedBairros: [],
     }));
+  });
+
+  it("places the agency filter immediately after price", async () => {
+    render(
+      <PropertyFilters
+        properties={[]}
+        initialState={emptyState}
+        onFilterChange={vi.fn()}
+        onFilterStateChange={vi.fn()}
+      />
+    );
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    const priceHeading = screen.getByRole("heading", { name: "Preço" });
+    const agencyButton = screen.getByRole("button", {
+      name: /^Imobiliária: Todas as imobiliárias$/,
+    });
+
+    expect(
+      priceHeading.compareDocumentPosition(agencyButton) &
+        Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
+  });
+
+  it("opens long option lists in the panel's only scroll area", async () => {
+    render(
+      <PropertyFilters
+        properties={[]}
+        initialState={emptyState}
+        onFilterChange={vi.fn()}
+        onFilterStateChange={vi.fn()}
+      />
+    );
+
+    const panel = screen.getByTestId("property-filter-panel");
+    const initialPanelClassName = panel.className;
+
+    expect(panel).toHaveClass("h-[calc(100vh-6rem)]");
+    expect(panel).not.toHaveClass("lg:sticky");
+    expect(screen.queryByLabelText("Amizade")).not.toBeInTheDocument();
+
+    fireEvent.click(
+      screen.getByRole("button", { name: /^Bairro: Todos os bairros$/ })
+    );
+
+    expect(await screen.findByLabelText("Amizade")).toBeInTheDocument();
+    expect(panel.className).toBe(initialPanelClassName);
+    expect(document.querySelectorAll('[class*="overflow-y-auto"]')).toHaveLength(1);
   });
 });

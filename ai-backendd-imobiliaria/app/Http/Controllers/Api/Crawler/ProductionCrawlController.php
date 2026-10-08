@@ -3,9 +3,13 @@
 namespace App\Http\Controllers\Api\Crawler;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Crawler\QueueBulkProductionCrawlRequest;
 use App\Http\Requests\Crawler\QueueProductionCrawlRequest;
 use App\Http\Resources\Crawler\CrawlerOperationResource;
+use App\Http\Resources\Crawler\OperationGroupResource;
+use App\Services\Crawler\BulkProductionCrawlService;
 use App\Services\Crawler\ProductionCrawlService;
+use Illuminate\Http\JsonResponse;
 
 class ProductionCrawlController extends Controller
 {
@@ -14,5 +18,20 @@ class ProductionCrawlController extends Controller
         ProductionCrawlService $service,
     ): CrawlerOperationResource {
         return new CrawlerOperationResource($service->queue($request->validated(), $request->user()));
+    }
+
+    public function bulk(
+        QueueBulkProductionCrawlRequest $request,
+        BulkProductionCrawlService $service,
+    ): JsonResponse {
+        $result = $service->queueAllActive($request->user());
+
+        return response()->json(['data' => [
+            'summary' => $result['summary'],
+            'group' => $result['group'] === null
+                ? null
+                : (new OperationGroupResource($result['group']))->resolve($request),
+            'skipped' => $result['skipped'],
+        ]]);
     }
 }

@@ -17,7 +17,7 @@ const validation: CrawlerOperation = {
 const productionRun: CrawlRun = {
   id: 9, operation_id: 10, crawl_agency_id: 42, discovery_snapshot_id: 1, extraction_profile_id: 1,
   market_data_contract_version_id: 1, quality_policy_version_id: 1, technical_state: "succeeded", result_kind: "full",
-  publication_state: "published", publishable: true, quality_report: null, exceptional_publication: null,
+  publication_state: "published", publishable: true, quality_report: null, exceptional_publication: null, quality_rejection: null,
   counts: { raw: 5, normalized: 5, rejected: 0, errors: 0 }, error_summary: [],
   started_at: "2026-07-01T12:00:00Z", completed_at: "2026-07-01T12:05:00Z", published_at: "2026-07-01T12:06:00Z", quarantined_at: null, created_at: "2026-07-01T12:00:00Z",
 };

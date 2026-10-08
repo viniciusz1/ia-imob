@@ -5,12 +5,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import type { CrawlRun } from "@/types/crawler";
 
 function SnapshotRow({ run }: { run: CrawlRun }) {
-  const label = run.publication_state === "candidate" ? "Avaliação pendente" : run.publication_state === "quarantined" ? "Em quarentena" : "Publicado";
-  return <div className="flex flex-wrap items-center justify-between gap-3 border-b py-3 last:border-b-0"><div><p className="font-medium">Snapshot #{run.id}</p><p className="text-sm text-muted-foreground">{run.counts.normalized} normalizados · Política v{run.quality_policy_version_id}</p></div><div className="flex items-center gap-3"><Badge variant={run.publication_state === "quarantined" ? "destructive" : "outline"}>{label}</Badge><Link className="underline" href={`/admin/crawler/runs/${run.id}`}>{run.publication_state === "quarantined" ? "Revisar evidências" : "Ver detalhe"}</Link></div></div>;
+  const awaitingReview = run.publication_state === "quarantined" && run.quality_rejection === null;
+  const label = run.quality_rejection ? "Recusado" : run.publication_state === "candidate" ? "Avaliação pendente" : run.publication_state === "quarantined" ? "Em quarentena" : "Publicado";
+  return <div className="flex flex-wrap items-center justify-between gap-3 border-b py-3 last:border-b-0"><div><p className="font-medium">Snapshot #{run.id}</p><p className="text-sm text-muted-foreground">{run.counts.normalized} normalizados · Política v{run.quality_policy_version_id}</p></div><div className="flex items-center gap-3"><Badge variant={run.publication_state === "quarantined" ? "destructive" : "outline"}>{label}</Badge><Link className="underline" href={`/admin/crawler/runs/${run.id}`}>{awaitingReview ? "Revisar evidências" : "Ver detalhe"}</Link></div></div>;
 }
 
 export function CrawlAgencyQualityPanel({ currentPublishedRunId, runs }: { currentPublishedRunId: number | null; runs: CrawlRun[] }) {
-  const actionRequired = runs.filter((run) => run.publication_state === "candidate" || run.publication_state === "quarantined");
+  const actionRequired = runs.filter((run) => run.publication_state === "candidate" || (run.publication_state === "quarantined" && run.quality_rejection === null));
   const currentPublished = runs.find((run) => run.id === currentPublishedRunId) ?? null;
 
   return <div className="space-y-6">

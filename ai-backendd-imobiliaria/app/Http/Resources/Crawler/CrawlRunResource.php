@@ -27,6 +27,11 @@ class CrawlRunResource extends JsonResource
                 'reason' => $this->exceptionalPublication->reason,
                 'published_at' => $this->exceptionalPublication->published_at,
             ]),
+            'quality_rejection' => $this->whenLoaded('qualityRejection', fn () => [
+                'rejected_by' => $this->qualityRejection->rejected_by,
+                'reason' => $this->qualityRejection->reason,
+                'rejected_at' => $this->qualityRejection->rejected_at,
+            ]),
             'counts' => [
                 'raw' => $this->raw_count,
                 'normalized' => $this->normalized_count,

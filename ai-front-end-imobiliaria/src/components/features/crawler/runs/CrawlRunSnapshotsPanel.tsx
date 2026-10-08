@@ -20,7 +20,7 @@ export function CrawlRunSnapshotsPanel({ runs }: { runs: CrawlRun[] }) {
           <CardContent className="space-y-2 pt-6">
             <div className="flex items-center justify-between gap-3">
               <Link className="font-medium underline" href={`/admin/crawler/runs/${run.id}`}>Snapshot #{run.id}</Link>
-              <Badge variant={run.publication_state === "quarantined" ? "destructive" : "outline"}>{labels[run.publication_state]}</Badge>
+              <Badge variant={run.publication_state === "quarantined" ? "destructive" : "outline"}>{run.quality_rejection ? "Recusado" : labels[run.publication_state]}</Badge>
             </div>
             <p>{run.counts.normalized} normalizados · {run.counts.rejected} rejeitados · {run.counts.errors} erros</p>
             <p className="text-sm">Contrato v{run.market_data_contract_version_id} · Política v{run.quality_policy_version_id}</p>

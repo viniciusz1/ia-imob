@@ -3,6 +3,7 @@
 namespace Tests\Feature\Crawler;
 
 use App\Models\Crawler\CrawlAgency;
+use App\Models\Crawler\CrawlAgencyCircuit;
 use App\Models\Crawler\CrawlerOperation;
 use App\Models\Crawler\DiscoveryPolicyVersion;
 use App\Models\Crawler\DiscoverySnapshot;
@@ -14,6 +15,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class ProductionCrawlApiTest extends TestCase
@@ -206,6 +208,10 @@ class ProductionCrawlApiTest extends TestCase
             CrawlerOperation::query()->findOrFail($operation['id'])
                 ->plan['discovery_policy']['id'],
         );
+        CrawlerOperation::query()->findOrFail($operation['id'])->update([
+            'state' => 'succeeded',
+            'completed_at' => now(),
+        ]);
 
         $this->actingAs($admin)
             ->postJson('/api/v1/admin/crawler/production-crawls', [
@@ -320,6 +326,216 @@ class ProductionCrawlApiTest extends TestCase
             ])
             ->assertUnprocessable()
             ->assertJsonValidationErrors('crawl_agency_id');
+    }
+
+    public function test_bulk_production_queues_every_active_agency_with_its_current_configuration(): void
+    {
+        [$admin, $firstAgency, , $firstProfile, , $firstPolicy] = $this->fixtures('bulk-first');
+        [, $secondAgency, , $secondProfile, , $secondPolicy] = $this->fixtures('bulk-second');
+        CrawlAgency::query()->create([
+            'name' => 'Agency still onboarding',
+            'slug' => 'agency-still-onboarding',
+            'base_url' => 'https://onboarding.bulk.example.com',
+            'root_domain' => 'onboarding.bulk.example.com',
+            'lifecycle_state' => 'onboarding',
+        ]);
+
+        $response = $this->actingAs($admin)
+            ->postJson('/api/v1/admin/crawler/production-crawls/bulk', [
+                'confirmed' => true,
+            ])
+            ->assertOk()
+            ->assertJsonPath('data.summary.active_agencies', 2)
+            ->assertJsonPath('data.summary.enqueued', 2)
+            ->assertJsonPath('data.summary.skipped', 0)
+            ->assertJsonPath('data.group.action', 'bulk_production_crawl')
+            ->assertJsonPath('data.group.member_count', 2)
+            ->assertJsonPath('data.skipped', []);
+
+        $operations = CrawlerOperation::query()
+            ->where('type', 'production_crawl')
+            ->orderBy('crawl_agency_id')
+            ->get();
+        $this->assertCount(2, $operations);
+        $this->assertSame([$firstAgency->id, $secondAgency->id], $operations->pluck('crawl_agency_id')->all());
+        $this->assertSame([$firstProfile->id, $secondProfile->id], $operations->pluck('plan.extraction_profile.id')->all());
+        $this->assertSame([$firstPolicy->id, $secondPolicy->id], $operations->pluck('plan.discovery_policy.id')->all());
+        $this->assertSame(['manual_bulk'], $operations->pluck('plan.trigger')->unique()->values()->all());
+        $this->assertSame(['fresh'], $operations->pluck('plan.discovery.mode')->unique()->values()->all());
+        $this->assertNotNull($response->json('data.group.id'));
+    }
+
+    public function test_bulk_production_enqueues_eligible_agencies_and_reports_blockers(): void
+    {
+        [$admin, $eligible] = $this->fixtures('bulk-eligible');
+        [, $circuitOpen] = $this->fixtures('bulk-circuit');
+        [, $alreadyRunning, , $runningProfile] = $this->fixtures('bulk-running');
+        [, $missingPolicy] = $this->fixtures('bulk-policy');
+
+        CrawlAgencyCircuit::query()->create([
+            'crawl_agency_id' => $circuitOpen->id,
+            'state' => 'open',
+            'opened_at' => now(),
+            'reason' => 'Repeated production failures.',
+        ]);
+        CrawlerOperation::query()->create([
+            'type' => 'production_crawl',
+            'state' => 'running',
+            'requested_by' => $admin->id,
+            'crawl_agency_id' => $alreadyRunning->id,
+            'market_data_contract_version_id' => $runningProfile->market_data_contract_version_id,
+            'plan' => ['version' => 1, 'type' => 'production_crawl'],
+        ]);
+        $missingPolicy->update(['active_discovery_policy_version_id' => null]);
+
+        $response = $this->actingAs($admin)
+            ->postJson('/api/v1/admin/crawler/production-crawls/bulk', [
+                'confirmed' => true,
+            ])
+            ->assertOk()
+            ->assertJsonPath('data.summary.active_agencies', 4)
+            ->assertJsonPath('data.summary.enqueued', 1)
+            ->assertJsonPath('data.summary.skipped', 3)
+            ->assertJsonPath('data.group.member_count', 1);
+
+        $skipped = collect($response->json('data.skipped'))->keyBy('crawl_agency.id');
+        $this->assertSame('circuit_open', $skipped[$circuitOpen->id]['code']);
+        $this->assertSame('production_in_progress', $skipped[$alreadyRunning->id]['code']);
+        $this->assertSame('missing_active_discovery_policy', $skipped[$missingPolicy->id]['code']);
+        $this->assertDatabaseHas('crawler.operations', [
+            'crawl_agency_id' => $eligible->id,
+            'type' => 'production_crawl',
+            'state' => 'queued',
+        ]);
+    }
+
+    public function test_bulk_production_requires_confirmation_and_returns_no_group_when_all_are_blocked(): void
+    {
+        [$admin, $agency] = $this->fixtures('bulk-all-blocked');
+
+        $this->actingAs($admin)
+            ->postJson('/api/v1/admin/crawler/production-crawls/bulk', [
+                'confirmed' => false,
+            ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('confirmed');
+
+        $agency->update(['revalidation_required' => true]);
+        $this->actingAs($admin)
+            ->postJson('/api/v1/admin/crawler/production-crawls/bulk', [
+                'confirmed' => true,
+            ])
+            ->assertOk()
+            ->assertJsonPath('data.summary.active_agencies', 1)
+            ->assertJsonPath('data.summary.enqueued', 0)
+            ->assertJsonPath('data.summary.skipped', 1)
+            ->assertJsonPath('data.group', null)
+            ->assertJsonPath('data.skipped.0.code', 'revalidation_required');
+    }
+
+    public function test_bulk_production_reports_missing_active_configuration(): void
+    {
+        [$admin, $missingProfile, , $profile] = $this->fixtures('bulk-missing-profile');
+        [, $inactiveContract, , $inactiveContractProfile] = $this->fixtures('bulk-inactive-contract');
+        [, $candidateAgency, $candidateSnapshot, $candidateProfile] = $this->fixtures('bulk-candidate');
+
+        $profile->update(['status' => 'approved']);
+        $draftContract = MarketDataContractVersion::query()->create([
+            'version' => (int) MarketDataContractVersion::query()->max('version') + 1,
+            'status' => 'draft',
+            'fields' => $inactiveContractProfile->fields,
+            'affected_agency_ids' => [],
+            'created_by' => $admin->id,
+        ]);
+        $inactiveContractProfile->update([
+            'market_data_contract_version_id' => $draftContract->id,
+        ]);
+        $candidateOperation = CrawlerOperation::query()->create([
+            'type' => 'production_crawl',
+            'state' => 'succeeded',
+            'requested_by' => $admin->id,
+            'crawl_agency_id' => $candidateAgency->id,
+            'market_data_contract_version_id' => $candidateProfile->market_data_contract_version_id,
+            'plan' => ['version' => 1, 'type' => 'production_crawl'],
+        ]);
+        CrawlerRun::query()->create([
+            'operation_id' => $candidateOperation->id,
+            'crawl_agency_id' => $candidateAgency->id,
+            'discovery_snapshot_id' => $candidateSnapshot->id,
+            'extraction_profile_id' => $candidateProfile->id,
+            'market_data_contract_version_id' => $candidateProfile->market_data_contract_version_id,
+            'quality_policy_version_id' => DB::table('crawler.quality_policy_versions')->where('status', 'active')->value('id'),
+            'technical_state' => 'succeeded',
+            'result_kind' => 'full',
+            'publication_state' => 'candidate',
+            'publishable' => false,
+            'started_at' => now(),
+            'completed_at' => now(),
+        ]);
+
+        $response = $this->actingAs($admin)
+            ->postJson('/api/v1/admin/crawler/production-crawls/bulk', [
+                'confirmed' => true,
+            ])
+            ->assertOk()
+            ->assertJsonPath('data.summary.active_agencies', 3)
+            ->assertJsonPath('data.summary.enqueued', 0)
+            ->assertJsonPath('data.summary.skipped', 3)
+            ->assertJsonPath('data.group', null);
+
+        $skipped = collect($response->json('data.skipped'))->keyBy('crawl_agency.id');
+        $this->assertSame('missing_active_profile', $skipped[$missingProfile->id]['code']);
+        $this->assertSame('inactive_contract', $skipped[$inactiveContract->id]['code']);
+        $this->assertSame('candidate_snapshot_pending', $skipped[$candidateAgency->id]['code']);
+    }
+
+    public function test_bulk_production_reports_a_missing_active_quality_policy(): void
+    {
+        [$admin] = $this->fixtures('bulk-missing-quality-policy');
+        DB::table('crawler.quality_policy_versions')->update(['status' => 'draft']);
+
+        $this->actingAs($admin)
+            ->postJson('/api/v1/admin/crawler/production-crawls/bulk', [
+                'confirmed' => true,
+            ])
+            ->assertOk()
+            ->assertJsonPath('data.summary.enqueued', 0)
+            ->assertJsonPath('data.summary.skipped', 1)
+            ->assertJsonPath('data.skipped.0.code', 'missing_active_quality_policy');
+    }
+
+    public function test_bulk_production_requires_execute_permission(): void
+    {
+        [$admin] = $this->fixtures('bulk-permission');
+        Role::query()->where('name', 'Platform Admin')->firstOrFail()
+            ->revokePermissionTo('crawler.operations.execute');
+
+        $this->actingAs($admin)
+            ->postJson('/api/v1/admin/crawler/production-crawls/bulk', [
+                'confirmed' => true,
+            ])
+            ->assertForbidden();
+    }
+
+    public function test_production_crawl_is_blocked_when_another_production_is_active(): void
+    {
+        [$admin, $agency, , $profile] = $this->fixtures('concurrent-production');
+        CrawlerOperation::query()->create([
+            'type' => 'production_crawl',
+            'state' => 'queued',
+            'requested_by' => $admin->id,
+            'crawl_agency_id' => $agency->id,
+            'market_data_contract_version_id' => $profile->market_data_contract_version_id,
+            'plan' => ['version' => 1, 'type' => 'production_crawl'],
+        ]);
+
+        $this->actingAs($admin)
+            ->postJson('/api/v1/admin/crawler/production-crawls', [
+                'crawl_agency_id' => $agency->id,
+                'discovery_mode' => 'fresh',
+            ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('production_crawl');
     }
 
     public function test_run_records_are_paginated_filtered_sorted_and_expose_evidence(): void

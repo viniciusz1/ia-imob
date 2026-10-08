@@ -64,6 +64,8 @@ Cada Crawl Run possui a ação **Visualizar dados** com três visões somente le
 
 As três visões usam paginação, filtros e ordenação no backend. O detalhe de linha mostra payload, warnings de normalização e trace. A visão normalizada também permite filtrar a comparação com o Snapshot Publicado anterior por `novo`, `alterado`, `inalterado`, `ausente` ou `removido`. Runs falhos ou cancelados exibem Resultados Parciais claramente identificados, que não podem ser publicados.
 
+Na revisão de um Snapshot em Quarentena, o Platform Admin pode registrar uma **Recusa de Publicação** com justificativa. A decisão preserva responsável e data, retira o snapshot das pendências de atenção e impede sua Publicação Excepcional; os dados continuam disponíveis somente para diagnóstico e outra revisão exige um novo crawl.
+
 Um anúncio apenas ausente permanece disponível por uma publicação e é removido após duas ausências consecutivas. Sinal explícito de indisponibilidade ou resposta `404`/`410` remove imediatamente. A tabela identifica o motivo e a contagem de ausências; se o anúncio reaparecer, reutiliza sua identidade e recebe uma nova versão.
 
 Exportação de dados fica fora do escopo inicial.

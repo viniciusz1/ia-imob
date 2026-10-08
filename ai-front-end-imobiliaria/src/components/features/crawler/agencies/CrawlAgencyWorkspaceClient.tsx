@@ -80,7 +80,7 @@ export function CrawlAgencyWorkspaceClient({
     [agency, execution?.approval],
   );
   const publishedRun = runs.find((run) => run.publication_state === "published");
-  const quarantinedRun = runs.find((run) => run.publication_state === "quarantined");
+  const quarantinedRun = runs.find((run) => run.publication_state === "quarantined" && run.quality_rejection === null);
   const state = useMemo(() => readiness(displayedAgency, profiles, runs), [displayedAgency, profiles, runs]);
 
   useCrawlerOperationPolling({
