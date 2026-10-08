@@ -1,7 +1,10 @@
+import { Layers } from "lucide-react";
+
 import { CrawlAgencyContextHeader } from "@/components/features/crawler/agencies/CrawlAgencyContextHeader";
 import { DiscoveryGenerator } from "@/components/features/crawler/discoveries/DiscoveryGenerator";
 import { DiscoverySnapshotsPanel } from "@/components/features/crawler/discoveries/DiscoverySnapshotsPanel";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { SectionHeader } from "@/components/layout/SectionHeader";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   getCrawlAgency,
   getOnboardingExecution,
@@ -37,22 +40,32 @@ export default async function DiscoveriesPage({ params, searchParams }: Discover
     : undefined;
 
   return (
-    <section className="space-y-6">
+    <div className="space-y-6">
       <CrawlAgencyContextHeader
         agency={agency}
         area="Discoveries"
         description="Snapshots imutáveis de URLs desta Crawl Agency."
       />
+
       <Card>
-        <CardHeader><CardTitle>Novo Discovery</CardTitle></CardHeader>
-        <CardContent><DiscoveryGenerator agencyId={agencyId} contracts={contracts} /></CardContent>
-      </Card>
-      <Card>
-        <CardHeader><CardTitle>Snapshots de Discovery</CardTitle></CardHeader>
+        <CardHeader className="border-b">
+          <CardTitle>Novo Discovery</CardTitle>
+          <CardDescription>Escolha as fontes e o contrato de dados para gerar um novo Snapshot de URLs.</CardDescription>
+        </CardHeader>
         <CardContent>
-          <DiscoverySnapshotsPanel onboardingRecovery={onboardingRecovery} snapshots={snapshots} />
+          <DiscoveryGenerator agencyId={agencyId} contracts={contracts} />
         </CardContent>
       </Card>
-    </section>
+
+      <Card className="gap-0 overflow-hidden py-0">
+        <SectionHeader
+          as="h3"
+          description="Abra um Snapshot para conferir as URLs encontradas."
+          icon={Layers}
+          title="Snapshots de Discovery"
+        />
+        <DiscoverySnapshotsPanel onboardingRecovery={onboardingRecovery} snapshots={snapshots} />
+      </Card>
+    </div>
   );
 }

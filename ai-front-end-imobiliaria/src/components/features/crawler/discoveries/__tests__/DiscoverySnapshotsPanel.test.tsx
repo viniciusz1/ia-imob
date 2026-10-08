@@ -106,14 +106,14 @@ describe("DiscoverySnapshotsPanel", () => {
     render(<DiscoverySnapshotsPanel snapshots={snapshots} />);
 
     fireEvent.click(screen.getByRole("button", { name: /snapshot #10/i }));
-    await screen.findByText("Página 1 de 2 · 21 URLs");
+    await screen.findByText("Exibindo 1–20 de 21 URLs");
     fireEvent.click(screen.getByRole("button", { name: "Próxima" }));
     await waitFor(() => expect(listDiscoverySnapshotUrls).toHaveBeenCalledWith(10, 2, 20));
-    await screen.findByText("Página 2 de 2 · 21 URLs");
+    await screen.findByText("Exibindo 21–21 de 21 URLs");
 
     fireEvent.change(screen.getByRole("combobox", { name: /itens por página do snapshot #10/i }), { target: { value: "30" } });
     await waitFor(() => expect(listDiscoverySnapshotUrls).toHaveBeenCalledWith(10, 1, 30));
-    expect(await screen.findByText("Página 1 de 1 · 21 URLs")).toBeInTheDocument();
+    expect(await screen.findByText("Exibindo 1–21 de 21 URLs")).toBeInTheDocument();
   });
 
   it("keeps the current table visible while another page is loading", async () => {
@@ -130,7 +130,7 @@ describe("DiscoverySnapshotsPanel", () => {
     render(<DiscoverySnapshotsPanel snapshots={snapshots} />);
 
     fireEvent.click(screen.getByRole("button", { name: /snapshot #10/i }));
-    await screen.findByText("Página 1 de 2 · 21 URLs");
+    await screen.findByText("Exibindo 1–20 de 21 URLs");
     fireEvent.click(screen.getByRole("button", { name: "Próxima" }));
     await waitFor(() => expect(listDiscoverySnapshotUrls).toHaveBeenCalledWith(10, 2, 20));
 
