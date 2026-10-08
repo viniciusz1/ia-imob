@@ -7,6 +7,7 @@ import { CircleAlert, Landmark, Pencil, Plus, Power, PowerOff } from "lucide-rea
 
 import { EmptyState } from "@/components/layout/EmptyState";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { PaginationFooter } from "@/components/layout/PaginationFooter";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -24,9 +25,12 @@ import {
     useAdminAgencies,
     useDeactivateAgency,
 } from "@/hooks/useAdminAgencies";
+import { useClientPagination } from "@/hooks/useClientPagination";
 import { usePermission } from "@/hooks/usePermission";
 import { AgencyFormModal } from "./AgencyFormModal";
 import type { AgencySummary } from "@/services/adminApi";
+
+const NO_AGENCIES: AgencySummary[] = [];
 
 interface AgenciesClientProps {
     initialData: AgencySummary[];
@@ -79,6 +83,7 @@ export function AgenciesClient({ initialData }: AgenciesClientProps) {
     const canDeactivate = usePermission("platform.agencies.deactivate");
     const canUpdate = usePermission("platform.agencies.update");
     const { handleActivate, handleDeactivate, isPending } = useStatusActions();
+    const pagination = useClientPagination(agencies ?? NO_AGENCIES);
 
     const [modalOpen, setModalOpen] = useState(false);
     const [editingAgency, setEditingAgency] = useState<AgencySummary | null>(null);
@@ -133,7 +138,7 @@ export function AgenciesClient({ initialData }: AgenciesClientProps) {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {agencies?.map((agency) => (
+                            {pagination.pageItems.map((agency) => (
                                 <TableRow key={agency.id}>
                                     <TableCell>
                                         <Link
@@ -207,6 +212,15 @@ export function AgenciesClient({ initialData }: AgenciesClientProps) {
                             )}
                         </TableBody>
                     </Table>
+                )}
+                {!isLoading && !error && (
+                    <PaginationFooter
+                        onPageChange={pagination.setPage}
+                        page={pagination.page}
+                        pageCount={pagination.pageCount}
+                        pageSize={pagination.pageSize}
+                        total={pagination.total}
+                    />
                 )}
             </Card>
 
