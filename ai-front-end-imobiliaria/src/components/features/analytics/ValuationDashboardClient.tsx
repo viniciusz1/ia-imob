@@ -2,10 +2,25 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { CheckCircle2, ClipboardList, Coins, Ruler, TrendingUp, TriangleAlert } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import {
+  CalendarClock,
+  CalendarRange,
+  ChartColumn,
+  CheckCircle2,
+  ClipboardList,
+  ClipboardX,
+  Coins,
+  Ruler,
+  TrendingUp,
+  TriangleAlert,
+} from "lucide-react";
+import { EmptyState } from "@/components/layout/EmptyState";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { SectionHeader } from "@/components/layout/SectionHeader";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
+import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
@@ -46,47 +61,54 @@ export function ValuationDashboardClient() {
   const indicators = data?.data;
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Análise de avaliações</h1>
-          <p className="text-muted-foreground mt-1">
-            Volume, resultado e valores das avaliações salvas pela sua imobiliária.
-          </p>
-        </div>
-        {data === undefined ? null : (
-          <p className="shrink-0 text-sm text-muted-foreground">
-            Última avaliação: {formatReferenceDate(data.meta.data_reference_date)}
-          </p>
-        )}
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        actions={
+          data === undefined ? null : (
+            <Badge variant="info">
+              <CalendarClock aria-hidden />
+              Última avaliação: {formatReferenceDate(data.meta.data_reference_date)}
+            </Badge>
+          )
+        }
+        description="Volume, resultado e valores das avaliações salvas pela sua imobiliária."
+        title="Análise de avaliações"
+      />
 
-      <Card className="mb-6">
-        <CardContent className="flex flex-col gap-2 sm:flex-row sm:items-end">
-          <div className="space-y-2">
-            <Label htmlFor="valuation-start-date">Período das avaliações</Label>
+      <Card className="gap-0 overflow-hidden py-0">
+        <SectionHeader
+          description="Considera as avaliações salvas dentro do intervalo escolhido."
+          icon={CalendarRange}
+          title="Período das avaliações"
+        />
+        <div className="grid gap-4 p-4 sm:grid-cols-2 sm:p-5 xl:grid-cols-4">
+          <FormField htmlFor="valuation-start-date" label="De">
             <Input
               id="valuation-start-date"
               aria-label="Data inicial das avaliações"
+              size="sm"
               type="date"
               value={period.data_inicio}
               onChange={(event) => setPeriod({ ...period, data_inicio: event.target.value })}
             />
-          </div>
-          <Input
-            aria-label="Data final das avaliações"
-            className="sm:w-auto"
-            type="date"
-            value={period.data_fim}
-            onChange={(event) => setPeriod({ ...period, data_fim: event.target.value })}
-          />
-        </CardContent>
+          </FormField>
+          <FormField htmlFor="valuation-end-date" label="Até">
+            <Input
+              id="valuation-end-date"
+              aria-label="Data final das avaliações"
+              size="sm"
+              type="date"
+              value={period.data_fim}
+              onChange={(event) => setPeriod({ ...period, data_fim: event.target.value })}
+            />
+          </FormField>
+        </div>
       </Card>
 
-      <section className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {isPending || indicators === undefined ? (
           Array.from({ length: 6 }).map((_, index) => (
-            <Skeleton key={index} className="h-24 w-full rounded-xl" />
+            <Skeleton key={index} className="h-[7.5rem] w-full rounded-xl" />
           ))
         ) : (
           <>
@@ -98,21 +120,25 @@ export function ValuationDashboardClient() {
             <StatTile
               icon={CheckCircle2}
               label="Calculadas"
+              tone="success"
               value={`${formatCount(indicators.calculated.value)} (${formatShare(indicators.calculated_share.value)})`}
             />
             <StatTile
               icon={TriangleAlert}
               label="Amostra insuficiente"
+              tone="warning"
               value={formatCount(indicators.insufficient_sample.value)}
             />
             <StatTile
               icon={Coins}
               label="Valor central mediano"
+              tone="info"
               value={formatCurrency(indicators.median_value.value)}
             />
             <StatTile
               icon={TrendingUp}
               label="Valor central médio"
+              tone="info"
               value={formatCurrency(indicators.average_value.value)}
             />
             <StatTile
@@ -128,6 +154,7 @@ export function ValuationDashboardClient() {
         <Skeleton className="h-72 w-full rounded-xl" />
       ) : (
         <TabbedPanel
+          icon={ChartColumn}
           title="Avaliações por recorte"
           description="Quantidade de avaliações em cada grupo e mediana do valor central das que foram calculadas."
           tabs={[
@@ -175,43 +202,41 @@ function ValuationRows({ rows, groupLabel }: { rows: ValuationRow[]; groupLabel:
   const showMedian = rows.some((row) => row.medianValue !== undefined);
 
   if (rows.length === 0) {
-    return <p className="text-sm text-muted-foreground">Sem avaliações neste recorte.</p>;
+    return <EmptyState icon={ClipboardX} title="Sem avaliações neste recorte." variant="inline" />;
   }
 
   return (
     <div>
-      <div className="-mx-6">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="pl-6">{groupLabel}</TableHead>
-              <TableHead className={showMedian ? "text-right" : "pr-6 text-right"}>
-                Avaliações
-              </TableHead>
-              {showMedian ? <TableHead className="pr-6 text-right">Valor mediano</TableHead> : null}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {paged.pageItems.map((row) => (
-              <TableRow key={row.label}>
-                <TableCell className="pl-6 font-medium">{row.label}</TableCell>
-                <TableCell
-                  className={
-                    showMedian ? "text-right tabular-nums" : "pr-6 text-right tabular-nums"
-                  }
-                >
-                  {formatCount(row.count)}
+      <Table>
+        <TableHeader>
+          <TableRow className="hover:bg-transparent">
+            <TableHead className="sm:pl-5">{groupLabel}</TableHead>
+            <TableHead className={showMedian ? "text-right" : "text-right sm:pr-5"}>
+              Avaliações
+            </TableHead>
+            {showMedian ? <TableHead className="text-right sm:pr-5">Valor mediano</TableHead> : null}
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {paged.pageItems.map((row) => (
+            <TableRow key={row.label}>
+              <TableCell className="text-foreground sm:pl-5">{row.label}</TableCell>
+              <TableCell
+                className={
+                  showMedian ? "text-right tabular-nums" : "text-right tabular-nums sm:pr-5"
+                }
+              >
+                {formatCount(row.count)}
+              </TableCell>
+              {showMedian ? (
+                <TableCell className="text-right tabular-nums sm:pr-5">
+                  {row.medianValue == null ? EMPTY_VALUE : formatCurrency(row.medianValue)}
                 </TableCell>
-                {showMedian ? (
-                  <TableCell className="pr-6 text-right tabular-nums">
-                    {row.medianValue == null ? EMPTY_VALUE : formatCurrency(row.medianValue)}
-                  </TableCell>
-                ) : null}
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+              ) : null}
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
       <PaginationFooter paged={paged} noun="grupos" />
     </div>
   );
