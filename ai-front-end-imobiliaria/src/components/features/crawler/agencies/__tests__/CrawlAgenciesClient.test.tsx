@@ -115,10 +115,7 @@ describe("CrawlAgenciesClient", () => {
     await waitFor(() => expect(mockedQueueBulkProductionCrawls).toHaveBeenCalledTimes(1));
     expect(await screen.findByRole("status")).toHaveTextContent("2 de 3 enfileirada(s); 1 ignorada(s)");
     expect(screen.getByText("Imóveis Litoral").parentElement).toHaveTextContent("circuito aberto");
-    expect(screen.getByRole("link", { name: "Acompanhar grupo na fila global" })).toHaveAttribute(
-      "href",
-      "/admin/crawler/operations?group_id=91",
-    );
+    expect(screen.queryByRole("link", { name: "Acompanhar grupo na fila global" })).not.toBeInTheDocument();
   });
 
   it("hides the bulk action without execute permission", () => {

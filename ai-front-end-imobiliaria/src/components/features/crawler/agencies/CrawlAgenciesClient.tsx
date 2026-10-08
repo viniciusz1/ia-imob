@@ -170,11 +170,6 @@ export function CrawlAgenciesClient({ initialAgencies, initialSearch, pageCount 
               {bulkResult.summary.enqueued} de {bulkResult.summary.active_agencies} enfileirada(s); {bulkResult.summary.skipped} ignorada(s).
             </p>
           </div>
-          {bulkResult.group && (
-            <Link className="inline-flex text-sm font-medium underline" href={`/admin/crawler/operations?group_id=${bulkResult.group.id}`}>
-              Acompanhar grupo na fila global
-            </Link>
-          )}
           {bulkResult.skipped.length > 0 && (
             <div>
               <p className="text-sm font-medium">Crawl Agencies ignoradas</p>

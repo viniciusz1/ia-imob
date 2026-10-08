@@ -124,8 +124,8 @@ describe("OnboardingExecutionTimeline", () => {
 
     expect(screen.getByText(/nenhuma produção foi iniciada/i)).toBeInTheDocument();
     expect(screen.getByText("Tentativa 1 · Operação #101")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Abrir fila global" })).toHaveAttribute("href", "/admin/crawler/operations");
-    expect(screen.getByRole("link", { name: "Ver detalhes da operação" })).toHaveAttribute("href", expect.stringContaining("#operation-101"));
+    expect(screen.queryByRole("link", { name: "Abrir fila global" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Ver detalhes da operação" })).not.toBeInTheDocument();
 
     fireEvent.change(screen.getByLabelText("Justificativa da aprovação"), { target: { value: "Amostra revisada" } });
     fireEvent.click(screen.getByRole("button", { name: "Aprovar e continuar" }));

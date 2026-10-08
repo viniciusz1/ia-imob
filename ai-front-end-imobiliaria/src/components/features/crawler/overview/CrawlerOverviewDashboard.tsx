@@ -17,10 +17,10 @@ export function CrawlerOverviewDashboard({
   integrations: CrawlerIntegration[];
 }) {
   const [testResults, setTestResults] = useState<Record<string, string>>({});
-  const metrics = [
+  const metrics: { label: string; value: number; href?: string }[] = [
     { label: "Crawl Agencies", value: initialOverview.agencies.total, href: "/admin/crawler/agencies" },
-    { label: "Operações ativas", value: initialOverview.operations.active, href: "/admin/crawler/operations?state=running" },
-    { label: "Falhas", value: initialOverview.operations.failed, href: "/admin/crawler/operations?state=failed" },
+    { label: "Operações ativas", value: initialOverview.operations.active },
+    { label: "Falhas", value: initialOverview.operations.failed },
     { label: "Circuitos abertos", value: initialOverview.open_circuits, href: "#alertas" },
     { label: "Snapshots em quarentena", value: initialOverview.quarantined_snapshots, href: "/admin/crawler/quality" },
   ];
@@ -38,7 +38,7 @@ export function CrawlerOverviewDashboard({
 
     <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
       {metrics.map((metric) => <Card key={metric.label}>
-        <CardHeader><CardTitle className="text-sm"><Link href={metric.href}>{metric.label}</Link></CardTitle></CardHeader>
+        <CardHeader><CardTitle className="text-sm">{metric.href ? <Link href={metric.href}>{metric.label}</Link> : metric.label}</CardTitle></CardHeader>
         <CardContent className="text-3xl font-semibold">{metric.value}</CardContent>
       </Card>)}
     </div>
@@ -59,7 +59,7 @@ export function CrawlerOverviewDashboard({
         <CardHeader><CardTitle>Operações ativas</CardTitle></CardHeader>
         <CardContent className="space-y-2">
           {initialOverview.active_operations.length === 0 && <p>Nenhuma operação ativa.</p>}
-          {initialOverview.active_operations.map((operation) => <Link className="block underline" href={`/admin/crawler/operations?operation=${operation.id}`} key={operation.id}>#{operation.id} · {operation.type}</Link>)}
+          {initialOverview.active_operations.map((operation) => <p key={operation.id}>#{operation.id} · {operation.type}</p>)}
         </CardContent>
       </Card>
     </div>

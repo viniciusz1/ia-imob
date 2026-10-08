@@ -40,7 +40,9 @@ class CrawlerOverviewController extends Controller
                 'kind' => 'operation_failure',
                 'title' => "Falha na operação #{$operation->id}",
                 'detail' => $operation->error_code,
-                'href' => '/admin/crawler/operations?state=failed',
+                'href' => $operation->crawl_agency_id === null
+                    ? '/admin/crawler/agencies'
+                    : "/admin/crawler/agencies/{$operation->crawl_agency_id}",
             ]))
             ->concat($quarantined->map(fn (CrawlerRun $run) => [
                 'kind' => 'quarantined_snapshot',
@@ -52,7 +54,7 @@ class CrawlerOverviewController extends Controller
                 'kind' => 'worker_unavailable',
                 'title' => "Worker {$worker->worker_key} indisponível",
                 'detail' => 'Heartbeat ou saúde degradados',
-                'href' => '/admin/crawler/operations#workers',
+                'href' => '/admin/crawler',
             ]))->values();
 
         return response()->json([

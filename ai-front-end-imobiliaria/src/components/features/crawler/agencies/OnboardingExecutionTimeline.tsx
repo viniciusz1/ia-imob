@@ -131,7 +131,6 @@ function OperationAttempt({ execution, operation }: { execution: OnboardingExecu
   const profileId = typeof operation.result?.extraction_profile_id === "number"
     ? operation.result.extraction_profile_id
     : null;
-  const detailHref = `/admin/crawler/operations?crawl_agency_id=${execution.crawl_agency_id}#operation-${operation.id}`;
 
   return (
     <li className="space-y-2 rounded-lg border bg-muted/10 p-3">
@@ -151,8 +150,6 @@ function OperationAttempt({ execution, operation }: { execution: OnboardingExecu
         </details>
       )}
       <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm">
-        <Link className="underline" href="/admin/crawler/operations">Abrir fila global</Link>
-        <Link className="underline" href={detailHref}>Ver detalhes da operação</Link>
         {snapshotId && <Link className="underline" href={`/admin/crawler/discoveries/${snapshotId}`}>Ver Snapshot de Discovery</Link>}
         {runId && <Link className="underline" href={`/admin/crawler/runs/${runId}`}>Ver dados do crawl</Link>}
         {profileId && <Link className="underline" href={`/admin/crawler/agencies/${execution.crawl_agency_id}/profiles`}>Ver Perfil #{profileId}</Link>}

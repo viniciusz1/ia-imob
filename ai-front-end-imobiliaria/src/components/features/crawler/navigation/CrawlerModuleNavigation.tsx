@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  Activity,
   Building2,
   LayoutDashboard,
   Plus,
@@ -39,14 +38,6 @@ const navigationItems = [
     isActive: (pathname: string) => [
       `${moduleRoot}/agencies`,
       `${moduleRoot}/runs`,
-    ].some((prefix) => pathname.startsWith(prefix)),
-  },
-  {
-    label: "Operações",
-    href: `${moduleRoot}/operations`,
-    icon: Activity,
-    isActive: (pathname: string) => [
-      `${moduleRoot}/operations`,
       `${moduleRoot}/discoveries`,
     ].some((prefix) => pathname.startsWith(prefix)),
   },

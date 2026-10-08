@@ -207,7 +207,7 @@ export function ProfileValidationPanel({
         </div>
       </header>
 
-      {operation && <CrawlerOperationStatus agencyId={profile.crawl_agency_id} operation={operation} />}
+      {operation && <CrawlerOperationStatus operation={operation} />}
       {actionError && <p className="text-sm text-destructive" role="alert">{actionError}</p>}
 
       <Button aria-expanded={expanded} onClick={() => setExpanded((current) => !current)} type="button" variant="ghost">{expanded ? `Ocultar detalhes do Perfil v${profile.version}` : `Ver detalhes do Perfil v${profile.version}`}</Button>

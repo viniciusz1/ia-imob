@@ -101,7 +101,7 @@ export function ValidationCrawlPanel({ agencyId, activeOnboarding, initialOperat
         </select>
       </div>
       {selectedProfile && <dl className="grid gap-3 rounded-lg border bg-muted/20 p-4 text-sm sm:grid-cols-3"><div><dt className="text-muted-foreground">Snapshot de Discovery</dt><dd>#{selectedProfile.discovery_snapshot_id}</dd></div><div><dt className="text-muted-foreground">Contrato de Dados</dt><dd>#{selectedProfile.market_data_contract_version_id}</dd></div><div><dt className="text-muted-foreground">Criado em</dt><dd>{new Intl.DateTimeFormat("pt-BR", { dateStyle: "short" }).format(new Date(selectedProfile.created_at))}</dd></div></dl>}
-      {activeOperation && <CrawlerOperationStatus agencyId={agencyId} operation={activeOperation} />}
+      {activeOperation && <CrawlerOperationStatus operation={activeOperation} />}
       {canExecute && <Button disabled={pending || activeOperation !== null} onClick={() => void queue()} type="button">{pending ? "Enfileirando…" : activeOperation ? "Validação em andamento" : "Rodar Crawl de Validação"}</Button>}
     </div>
   );

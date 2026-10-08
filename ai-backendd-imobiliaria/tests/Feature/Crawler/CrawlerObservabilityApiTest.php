@@ -63,7 +63,6 @@ class CrawlerObservabilityApiTest extends TestCase
             ->assertJsonPath('data.open_circuits', 1)
             ->assertJsonPath('data.quarantined_snapshots', 1)
             ->assertJsonFragment(['href' => "/admin/crawler/agencies/{$this->agency->id}"])
-            ->assertJsonFragment(['href' => '/admin/crawler/operations?state=failed'])
             ->assertJsonFragment(['href' => "/admin/crawler/runs/{$run->id}"]);
         $this->assertNotEmpty($response->json('data.alerts'));
         $this->assertSame($running->id, $response->json('data.active_operations.0.id'));

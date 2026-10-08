@@ -172,7 +172,7 @@ describe("ProfileValidationPanel", () => {
 
     expect(screen.getByText(label)).toBeInTheDocument();
     if (message) expect(screen.getByText(message)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /abrir na fila global/i })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /abrir na fila global/i })).not.toBeInTheDocument();
   });
 
   it("shows the completed validation report without a page reload", async () => {
