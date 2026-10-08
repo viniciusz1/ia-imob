@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -15,7 +16,7 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { FormField } from "@/components/ui/form-field";
 import { useUpdateAgency } from "@/hooks/useAdminAgencies";
 import { agencyFormSchema, type AgencyFormValues } from "@/schemas/adminAgencySchema";
 import type { AgencySummary } from "@/services/adminApi";
@@ -79,42 +80,36 @@ export function AgencyFormModal({ open, onOpenChange, agency }: AgencyFormModalP
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-md">
-                <DialogHeader>
-                    <DialogTitle>Editar Agência</DialogTitle>
-                    <DialogDescription>
-                        Atualize os dados de identificação da agência.
-                    </DialogDescription>
-                </DialogHeader>
+            <DialogContent className="max-h-[90vh] gap-0 overflow-y-auto p-0 sm:max-w-lg">
+                <form onSubmit={form.handleSubmit(onSubmit)}>
+                    <DialogHeader className="gap-1 border-b px-6 py-5 text-left">
+                        <DialogTitle>Editar agência</DialogTitle>
+                        <DialogDescription>
+                            Atualize os dados de identificação da agência.
+                        </DialogDescription>
+                    </DialogHeader>
 
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="agency-name">Nome *</Label>
-                        <Input
-                            id="agency-name"
-                            {...form.register("name")}
-                        />
-                        {form.formState.errors.name && (
-                            <p className="text-sm text-red-500">
-                                {form.formState.errors.name.message}
-                            </p>
-                        )}
+                    <div className="space-y-5 px-6 py-5">
+                        <FormField
+                            error={form.formState.errors.name?.message}
+                            htmlFor="agency-name"
+                            label="Nome"
+                            required
+                        >
+                            <Input id="agency-name" {...form.register("name")} />
+                        </FormField>
+
+                        <FormField
+                            error={form.formState.errors.slug?.message}
+                            htmlFor="agency-slug"
+                            label="Slug"
+                            required
+                        >
+                            <Input id="agency-slug" {...form.register("slug")} />
+                        </FormField>
                     </div>
 
-                    <div className="space-y-2">
-                        <Label htmlFor="agency-slug">Slug *</Label>
-                        <Input
-                            id="agency-slug"
-                            {...form.register("slug")}
-                        />
-                        {form.formState.errors.slug && (
-                            <p className="text-sm text-red-500">
-                                {form.formState.errors.slug.message}
-                            </p>
-                        )}
-                    </div>
-
-                    <DialogFooter>
+                    <DialogFooter className="gap-2 border-t px-6 py-4">
                         <Button
                             type="button"
                             variant="outline"
@@ -124,6 +119,7 @@ export function AgencyFormModal({ open, onOpenChange, agency }: AgencyFormModalP
                             Cancelar
                         </Button>
                         <Button type="submit" disabled={isLoading}>
+                            {isLoading && <Loader2 className="animate-spin" />}
                             {isLoading ? "Salvando..." : "Salvar Alterações"}
                         </Button>
                     </DialogFooter>
