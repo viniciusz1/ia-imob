@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { isAxiosError } from "axios";
 import { Building2, Pencil, Plus, Star, Trash2 } from "lucide-react";
@@ -9,6 +10,7 @@ import { useDeleteProperty } from "@/hooks/useProperties";
 import type { Property } from "@/types/property";
 import { EmptyState } from "@/components/layout/EmptyState";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { PaginationFooter } from "@/components/layout/PaginationFooter";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -22,7 +24,12 @@ import {
 } from "@/components/ui/table";
 
 interface PropertiesClientProps {
+    /** Current page of properties, paginated by the API (`?page=` in the URL). */
     initialData: Property[];
+    page: number;
+    pageCount: number;
+    pageSize: number;
+    total: number;
 }
 
 type BadgeVariant = "success" | "warning" | "info" | "muted";
@@ -59,9 +66,25 @@ function StatusBadge({ status }: { status: string }) {
     return <Badge variant={badge.variant}>{badge.label}</Badge>;
 }
 
-export function PropertiesClient({ initialData }: PropertiesClientProps) {
+export function PropertiesClient({ initialData, page, pageCount, pageSize, total }: PropertiesClientProps) {
+    const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
     const [properties, setProperties] = useState(initialData);
+    const [loadedData, setLoadedData] = useState(initialData);
     const deleteMutation = useDeleteProperty();
+
+    // A new page from the server replaces the local list.
+    if (initialData !== loadedData) {
+        setLoadedData(initialData);
+        setProperties(initialData);
+    }
+
+    function handlePageChange(newPage: number) {
+        const params = new URLSearchParams(searchParams.toString());
+        params.set("page", newPage.toString());
+        router.push(`${pathname}?${params.toString()}`);
+    }
 
     async function handleDelete(property: Property) {
         if (!confirm(`Deseja excluir o imóvel "${property.title}"?`)) {
@@ -71,6 +94,8 @@ export function PropertiesClient({ initialData }: PropertiesClientProps) {
         try {
             await deleteMutation.mutateAsync(property.id);
             setProperties((current) => current.filter((item) => item.id !== property.id));
+            // Refill the page and the total from the API.
+            router.refresh();
             toast.success("Imóvel excluído com sucesso.");
         } catch (error: unknown) {
             toast.error(
@@ -198,6 +223,14 @@ export function PropertiesClient({ initialData }: PropertiesClientProps) {
                         )}
                     </TableBody>
                 </Table>
+
+                <PaginationFooter
+                    onPageChange={handlePageChange}
+                    page={page}
+                    pageCount={pageCount}
+                    pageSize={pageSize}
+                    total={total}
+                />
             </Card>
         </div>
     );

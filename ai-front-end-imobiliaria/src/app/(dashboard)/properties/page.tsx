@@ -1,4 +1,5 @@
 import { CircleAlert } from "lucide-react";
+import { redirect } from "next/navigation";
 
 import { getProperties } from "@/services/propertyService";
 import { PropertiesClient } from "@/components/properties/PropertiesClient";
@@ -6,6 +7,9 @@ import { EmptyState } from "@/components/layout/EmptyState";
 import { PageHeader } from "@/components/layout/PageHeader";
 
 export const dynamic = 'force-dynamic';
+
+// Same as DEFAULT_PAGE_SIZE; a server component can't read constants from a "use client" module.
+const PAGE_SIZE = 10;
 
 export const metadata = {
     title: "Cadastro de Imóveis",
@@ -19,6 +23,7 @@ async function loadProperties(params: { [key: string]: string | undefined }) {
     try {
         return await getProperties({
             page: params.page ? Number(params.page) : 1,
+            per_page: PAGE_SIZE,
             search: params.search,
             reference_code: params.reference_code,
             property_type: params.property_type,
@@ -51,5 +56,25 @@ export default async function PropertiesPage({ searchParams }: PropertiesPagePro
         );
     }
 
-    return <PropertiesClient initialData={response.data} />;
+    const { current_page, last_page, total } = response.meta;
+
+    // Past the last page (e.g. after deleting its only item): go to the last one.
+    if (response.data.length === 0 && current_page > last_page) {
+        const query = new URLSearchParams();
+        Object.entries(params).forEach(([key, value]) => {
+            if (value !== undefined) query.set(key, value);
+        });
+        query.set("page", String(last_page));
+        redirect(`/properties?${query.toString()}`);
+    }
+
+    return (
+        <PropertiesClient
+            initialData={response.data}
+            page={current_page}
+            pageCount={last_page}
+            pageSize={PAGE_SIZE}
+            total={total}
+        />
+    );
 }
