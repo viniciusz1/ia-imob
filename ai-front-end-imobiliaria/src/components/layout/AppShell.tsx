@@ -48,7 +48,7 @@ export function AppShell({
 
     // main scrolls on its own, so a route change has to reset it explicitly.
     useEffect(() => {
-        mainRef.current?.scrollTo({ top: 0 });
+        if (mainRef.current) mainRef.current.scrollTop = 0;
     }, [pathname]);
 
     return (

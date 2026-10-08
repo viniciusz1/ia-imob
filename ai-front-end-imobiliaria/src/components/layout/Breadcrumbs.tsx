@@ -9,8 +9,8 @@ import { cn } from "@/lib/utils";
 interface BreadcrumbsProps {
     /** Label for each URL segment, e.g. `{ admin: "Administração" }`. */
     labels: Record<string, string>;
-    /** Segments that only group routes and have no page of their own. */
-    unlinkedSegments?: string[];
+    /** Paths that only group routes and have no page of their own. */
+    unlinkedPaths?: RegExp[];
 }
 
 // Numeric ids and UUIDs become "Detalhes" instead of leaking into the trail.
@@ -24,15 +24,18 @@ function labelFor(segment: string, labels: Record<string, string>): string {
 }
 
 /** Path-derived breadcrumb trail for the topbar. */
-export function Breadcrumbs({ labels, unlinkedSegments = [] }: BreadcrumbsProps) {
+export function Breadcrumbs({ labels, unlinkedPaths = [] }: BreadcrumbsProps) {
     const pathname = usePathname();
     const segments = pathname.split("/").filter(Boolean);
 
-    const crumbs = segments.map((segment, index) => ({
-        href: `/${segments.slice(0, index + 1).join("/")}`,
-        label: labelFor(segment, labels),
-        linkable: !unlinkedSegments.includes(segment),
-    }));
+    const crumbs = segments.map((segment, index) => {
+        const href = `/${segments.slice(0, index + 1).join("/")}`;
+        return {
+            href,
+            label: labelFor(segment, labels),
+            linkable: !unlinkedPaths.some((pattern) => pattern.test(href)),
+        };
+    });
 
     return (
         <nav aria-label="Breadcrumb" className="flex min-w-0 items-center gap-1.5 text-sm">

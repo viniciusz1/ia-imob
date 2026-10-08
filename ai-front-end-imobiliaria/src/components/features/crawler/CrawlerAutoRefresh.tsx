@@ -1,5 +1,6 @@
 "use client";
 
+import { RefreshCw } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
@@ -27,7 +28,8 @@ export function CrawlerAutoRefresh() {
   }, [router]);
 
   return (
-    <div className="flex justify-end border-b bg-muted/20 px-6 py-2 text-xs text-muted-foreground" role="status">
+    <div className="flex items-center gap-1.5 text-xs whitespace-nowrap text-muted-foreground tabular-nums" role="status">
+      <RefreshCw aria-hidden="true" className="size-3.5" />
       Atualizando em {secondsUntilRefresh} {secondsUntilRefresh === 1 ? "segundo" : "segundos"}
     </div>
   );

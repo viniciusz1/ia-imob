@@ -4,10 +4,42 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { Loader2 } from "lucide-react";
+
 import { PlatformAdminNavigation } from "@/components/features/admin/navigation/PlatformAdminNavigation";
+import { UserNav } from "@/components/features/auth/UserNav";
+import { CrawlerAutoRefresh } from "@/components/features/crawler/CrawlerAutoRefresh";
+import { AppShell } from "@/components/layout/AppShell";
+import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
+import { SidebarBrand } from "@/components/layout/SidebarBrand";
+import { SidebarUserCard } from "@/components/layout/SidebarUserCard";
 import { authService } from "@/services/authService";
 import { clearAuthenticatedSession } from "@/services/authSessionCookie";
 import { hasPermission } from "@/lib/permissions";
+
+const BREADCRUMB_LABELS: Record<string, string> = {
+    admin: "Administração",
+    agencies: "Agências",
+    new: "Novo cadastro",
+    crawler: "Crawler",
+    prospects: "Prospecção",
+    operations: "Operações",
+    quality: "Qualidade",
+    settings: "Configurações",
+    crawls: "Crawls",
+    discoveries: "Discoveries",
+    onboarding: "Onboarding",
+    profiles: "Perfis de extração",
+    schedule: "Agenda",
+    runs: "Execuções",
+};
+
+// Route segments that group pages but have no page of their own.
+const UNLINKED_BREADCRUMBS = [
+    /^\/admin\/crawler\/runs$/,
+    /^\/admin\/crawler\/discoveries$/,
+    /^\/admin\/crawler\/agencies\/[^/]+\/crawls\/operations$/,
+];
 
 function hasSessionCookie(): boolean {
     if (typeof document === "undefined") return false;
@@ -59,8 +91,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
     if (isChecking) {
         return (
-            <div className="min-h-screen bg-background flex items-center justify-center">
-                <p className="text-muted-foreground">Carregando...</p>
+            <div className="flex min-h-svh items-center justify-center gap-2 bg-background text-sm text-muted-foreground">
+                <Loader2 className="size-4 animate-spin" />
+                Carregando...
             </div>
         );
     }
@@ -70,30 +103,24 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     if (user?.is_platform_admin !== true || !hasPermission(perms, requiredPermission)) return null;
 
     return (
-        <div className="min-h-screen bg-background md:grid md:grid-cols-[232px_1fr]">
-            <aside className="border-b bg-sidebar md:sticky md:top-0 md:flex md:h-svh md:flex-col md:border-b-0 md:border-r">
-                <div className="flex items-center gap-2.5 px-5 pt-4">
-                    <span
-                        aria-hidden="true"
-                        className="grid size-7 shrink-0 place-items-center rounded-lg bg-sidebar-primary text-xs font-bold text-sidebar-primary-foreground"
-                    >
-                        PA
-                    </span>
-                    <span className="flex flex-col leading-tight">
-                        <span className="text-sm font-semibold">Plataforma</span>
-                        <span className="text-xs text-muted-foreground">Administração</span>
-                    </span>
-                </div>
-
-                <PlatformAdminNavigation />
-            </aside>
-
-            {/* p-6 is the Admin Area gutter every page inherits. The Crawler module
-                cancels it with -mx-6 -mt-6 so its header and tab bar can span edge
-                to edge, so this padding must stay on <main>. */}
-            <div className="flex min-w-0 flex-col">
-                <main className="flex-1 p-6">{children}</main>
-            </div>
-        </div>
+        <AppShell
+            brand={<SidebarBrand caption="Administração da plataforma" href="/admin" />}
+            navigation={<PlatformAdminNavigation />}
+            sidebarFooter={<SidebarUserCard roleLabel="Platform Admin" />}
+            topbar={<Breadcrumbs labels={BREADCRUMB_LABELS} unlinkedPaths={UNLINKED_BREADCRUMBS} />}
+            topbarActions={
+                <>
+                    {/* Crawler screens mirror live worker state, so they refresh on a timer. */}
+                    {pathname.startsWith("/admin/crawler") && (
+                        <div className="hidden sm:block">
+                            <CrawlerAutoRefresh />
+                        </div>
+                    )}
+                    <UserNav />
+                </>
+            }
+        >
+            {children}
+        </AppShell>
     );
 }

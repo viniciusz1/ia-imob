@@ -35,6 +35,11 @@ vi.mock("@/services/authService", () => ({
     },
 }));
 
+// The account menu needs a QueryClient; the guard is what is under test here.
+vi.mock("@/components/features/auth/UserNav", () => ({
+    UserNav: () => null,
+}));
+
 vi.mock("@/services/authSessionCookie", () => ({
     clearAuthenticatedSession: vi.fn(),
     markAuthenticatedSession: vi.fn(),
