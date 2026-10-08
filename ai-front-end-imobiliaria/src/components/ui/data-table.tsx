@@ -23,6 +23,9 @@ interface DataTableProps<TData, TValue> {
   data: TData[];
   emptyMessage: string;
   pageCount: number;
+  /** Total of records across pages; shows "Exibindo 11–20 de 57" in the footer. */
+  total?: number;
+  pageSize?: number;
 }
 
 export function DataTable<TData, TValue>({
@@ -30,6 +33,8 @@ export function DataTable<TData, TValue>({
   data,
   emptyMessage,
   pageCount,
+  total,
+  pageSize,
 }: DataTableProps<TData, TValue>) {
   const router = useRouter();
   const pathname = usePathname();
@@ -93,7 +98,13 @@ export function DataTable<TData, TValue>({
         </TableBody>
       </Table>
 
-      <PaginationFooter onPageChange={handlePageChange} page={currentPage} pageCount={normalizedPageCount} />
+      <PaginationFooter
+        onPageChange={handlePageChange}
+        page={currentPage}
+        pageCount={normalizedPageCount}
+        pageSize={pageSize}
+        total={total}
+      />
     </div>
   );
 }
