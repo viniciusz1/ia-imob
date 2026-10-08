@@ -282,7 +282,7 @@ export function ProspectsClient({ initialProspects, initialSuggestions = [] }: {
             <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-[minmax(12rem,1.2fr)_minmax(10rem,0.8fr)_minmax(11rem,0.8fr)_minmax(14rem,1fr)]">
               <FormField htmlFor="city-filter" label="Filtrar por cidade">
                 <Input
-                  className="h-9"
+                  size="sm"
                   id="city-filter"
                   onChange={(event) => setCityFilter(event.target.value)}
                   placeholder="Buscar por cidade"
@@ -291,7 +291,7 @@ export function ProspectsClient({ initialProspects, initialSuggestions = [] }: {
               </FormField>
               <FormField htmlFor="operation-filter" label="Filtrar por operação">
                 <Input
-                  className="h-9"
+                  size="sm"
                   id="operation-filter"
                   onChange={(event) => setOperationFilter(event.target.value)}
                   placeholder="ID da operação"

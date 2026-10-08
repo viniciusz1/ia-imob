@@ -126,7 +126,7 @@ export function ProfileEvidenceInspector({ agencyId, profileId, reportId, totalR
           <FormField htmlFor={`evidence-search-${reportId}`} label="Localizar URL">
             <div className="flex gap-2">
               <Input
-                className="h-9"
+                size="sm"
                 id={`evidence-search-${reportId}`}
                 onChange={(event) => setSearchDraft(event.target.value)}
                 placeholder="Parte da URL"
