@@ -1,11 +1,13 @@
 "use client";
 
+import { CircleAlert } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { usePermission } from "@/hooks/usePermission";
 import { updateCrawlAgencySchedule } from "@/services/crawlerService";
@@ -36,42 +38,76 @@ export function CrawlAgencySchedulePanel({ initialSchedule }: { initialSchedule:
       timeZone: schedule.effective_timezone,
     }).format(new Date(schedule.next_run_at));
 
-  return <Card id="agendamento">
-    <CardHeader className="flex-row items-center justify-between">
-      <CardTitle>Agendamento</CardTitle>
-      <Badge variant={schedule.suspended ? "destructive" : "secondary"}>{schedule.suspended ? "Suspenso" : "Ativo"}</Badge>
-    </CardHeader>
-    <CardContent className="space-y-4">
-      <div className="rounded-md border bg-muted/20 p-3">
-        <p className="text-sm text-muted-foreground">Discovery dos crawls agendados</p>
-        {schedule.discovery_policy
-          ? <p className="font-medium">{schedule.discovery_policy.name} · v{schedule.discovery_policy.version} · sempre gera snapshot novo</p>
-          : <p className="font-medium text-destructive">Sem Política de Discovery Ativa; nenhum crawl será agendado.</p>}
-      </div>
-      <div className="flex items-center gap-2">
-        <input
-          aria-label="Herdar padrão da plataforma"
-          checked={inheritDefault}
-          disabled={!canManage}
-          id="inherit-schedule"
-          onChange={(event) => setInheritDefault(event.target.checked)}
-          type="checkbox"
+  return (
+    <Card id="agendamento">
+      <CardHeader className="border-b">
+        <CardTitle>Agendamento</CardTitle>
+        <CardDescription>Frequência e fuso horário dos crawls automáticos desta fonte.</CardDescription>
+        <CardAction>
+          <Badge variant={schedule.suspended ? "destructive" : "success"}>{schedule.suspended ? "Suspenso" : "Ativo"}</Badge>
+        </CardAction>
+      </CardHeader>
+      <CardContent className="space-y-5">
+        {schedule.suspended && (
+          <div className="flex items-start gap-3 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm">
+            <CircleAlert className="mt-0.5 size-4 shrink-0 text-destructive" />
+            <p className="text-foreground">
+              Suspenso após 3 falhas consecutivas de produção. Crawls manuais continuam disponíveis.
+            </p>
+          </div>
+        )}
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-1 rounded-lg border p-4">
+            <p className="text-xs uppercase tracking-wide text-muted-foreground">Discovery dos crawls agendados</p>
+            {schedule.discovery_policy ? (
+              <p className="text-sm text-foreground">
+                {schedule.discovery_policy.name} · v{schedule.discovery_policy.version} · sempre gera snapshot novo
+              </p>
+            ) : (
+              <p className="text-sm text-destructive">Sem Política de Discovery Ativa; nenhum crawl será agendado.</p>
+            )}
+          </div>
+          <div className="space-y-1 rounded-lg border p-4">
+            <p className="text-xs uppercase tracking-wide text-muted-foreground">Execução automática</p>
+            <p className="text-sm text-foreground tabular-nums">Próxima execução: {nextRun}</p>
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <div className="flex items-center gap-3">
+            <Checkbox
+              aria-label="Herdar padrão da plataforma"
+              checked={inheritDefault}
+              disabled={!canManage}
+              id="inherit-schedule"
+              onCheckedChange={(checked) => setInheritDefault(checked === true)}
+            />
+            <Label htmlFor="inherit-schedule">Herdar padrão da plataforma</Label>
+          </div>
+          {schedule.inherit_default && (
+            <p className="text-xs text-muted-foreground">
+              Herdando padrão da plataforma: {schedulePresetLabels[schedule.effective_preset]} · {schedule.effective_timezone}
+            </p>
+          )}
+        </div>
+
+        <SchedulePresetFields
+          disabled={inheritDefault || !canManage}
+          onPresetChange={setPreset}
+          onTimezoneChange={setTimezone}
+          preset={preset}
+          presetLabel="Frequência"
+          timezone={timezone}
+          timezoneLabel="Fuso horário"
         />
-        <Label htmlFor="inherit-schedule">Herdar padrão da plataforma</Label>
-      </div>
-      {schedule.inherit_default && <p>Herdando padrão da plataforma: {schedulePresetLabels[schedule.effective_preset]} · {schedule.effective_timezone}</p>}
-      <SchedulePresetFields
-        disabled={inheritDefault || !canManage}
-        onPresetChange={setPreset}
-        onTimezoneChange={setTimezone}
-        preset={preset}
-        presetLabel="Frequência"
-        timezone={timezone}
-        timezoneLabel="Fuso horário"
-      />
-      <p>Próxima execução: {nextRun}</p>
-      {schedule.suspended && <p className="text-sm text-destructive">Suspenso após 3 falhas consecutivas de produção. Crawls manuais continuam disponíveis.</p>}
-      {canManage && <Button onClick={() => void save()} type="button">Salvar agendamento</Button>}
-    </CardContent>
-  </Card>;
+
+        {canManage && (
+          <div className="flex justify-end">
+            <Button onClick={() => void save()} type="button">Salvar agendamento</Button>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
 }
