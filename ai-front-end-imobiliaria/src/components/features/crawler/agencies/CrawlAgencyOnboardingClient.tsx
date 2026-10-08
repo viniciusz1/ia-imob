@@ -1,10 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { CircleAlert, History, Rocket } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
 
+import { EmptyState } from "@/components/layout/EmptyState";
+import { SectionHeader } from "@/components/layout/SectionHeader";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import type { CrawlAgency, OnboardingExecution, OnboardingExecutionStepKey } from "@/types/crawler";
 
 import { CrawlAgencyContextHeader } from "./CrawlAgencyContextHeader";
@@ -15,6 +18,8 @@ interface CrawlAgencyOnboardingClientProps {
   agency: CrawlAgency;
   initialExecutions: OnboardingExecution[];
 }
+
+type StateBadgeVariant = "success" | "warning" | "info" | "destructive" | "muted";
 
 const STEP_LABELS: Record<OnboardingExecutionStepKey, string> = {
   discovery: "Discovery",
@@ -35,6 +40,17 @@ const STATE_LABELS: Record<OnboardingExecution["state"], string> = {
   awaiting_first_production: "Aguardando primeira produção",
   completed: "Concluída",
   cancelled: "Cancelada",
+};
+
+const STATE_BADGE_VARIANTS: Record<OnboardingExecution["state"], StateBadgeVariant> = {
+  queued: "muted",
+  running: "info",
+  awaiting_manual_step: "warning",
+  requires_attention: "destructive",
+  awaiting_approval: "warning",
+  awaiting_first_production: "warning",
+  completed: "success",
+  cancelled: "muted",
 };
 
 function formatDate(value: string | null): string {
@@ -68,7 +84,7 @@ export function CrawlAgencyOnboardingClient({
   });
 
   return (
-    <section className="space-y-6">
+    <div className="space-y-6">
       <CrawlAgencyContextHeader
         agency={agency}
         area="Onboarding"
@@ -76,25 +92,30 @@ export function CrawlAgencyOnboardingClient({
       />
 
       {pollingFailed && (
-        <p className="rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm" role="alert">
-          Não foi possível atualizar a Execução de Onboarding. Os últimos dados recebidos continuam visíveis.
-        </p>
+        <div
+          className="flex items-start gap-3 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm"
+          role="alert"
+        >
+          <CircleAlert aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-destructive" />
+          <p>Não foi possível atualizar a Execução de Onboarding. Os últimos dados recebidos continuam visíveis.</p>
+        </div>
       )}
 
       {currentExecution === null && (
-        <Card>
-          <CardHeader><CardTitle>Execuções de Onboarding</CardTitle></CardHeader>
-          <CardContent className="text-muted-foreground">
-            Nenhuma Execução de Onboarding foi iniciada.
-          </CardContent>
+        <Card className="gap-0 overflow-hidden py-0">
+          <SectionHeader as="h3" icon={Rocket} title="Execuções de Onboarding" />
+          <EmptyState icon={Rocket} title="Nenhuma Execução de Onboarding foi iniciada." variant="inline" />
         </Card>
       )}
 
       {currentExecution !== null && (
-        <section aria-labelledby="current-onboarding-execution" className="space-y-3">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <h3 className="text-lg font-semibold" id="current-onboarding-execution">Execução atual</h3>
-            <Link className="rounded-sm text-sm underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" href={`/admin/crawler/agencies/${agency.id}/onboarding/${currentExecution.id}`}>
+        <section aria-labelledby="current-onboarding-execution" className="space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h3 className="text-base text-foreground" id="current-onboarding-execution">Execução atual</h3>
+            <Link
+              className="rounded-sm text-sm text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+              href={`/admin/crawler/agencies/${agency.id}/onboarding/${currentExecution.id}`}
+            >
               Abrir detalhe da execução #{currentExecution.id}
             </Link>
           </div>
@@ -108,35 +129,45 @@ export function CrawlAgencyOnboardingClient({
 
       {executions.length > 1 && (
         <section aria-label="Histórico de Execuções de Onboarding">
-          <Card>
-            <CardHeader><CardTitle>Histórico</CardTitle></CardHeader>
-            <CardContent>
-              <ol className="space-y-3">
-                {executions.slice(1).map((execution) => {
-                  const model = execution.resolved_configuration.execution_model;
-                  const modelLabel = model === null ? "Sem modelo" : `${model.name} v${model.version}`;
+          <Card className="gap-0 overflow-hidden py-0">
+            <SectionHeader
+              as="h3"
+              description="Execuções anteriores preservadas para auditoria."
+              icon={History}
+              title="Histórico"
+            />
+            <ol className="divide-y">
+              {executions.slice(1).map((execution) => {
+                const model = execution.resolved_configuration.execution_model;
+                const modelLabel = model === null ? "Sem modelo" : `${model.name} v${model.version}`;
 
-                  return (
-                    <li className="space-y-2 rounded-lg border p-4" key={execution.id}>
-                      <div className="flex flex-wrap items-center justify-between gap-2">
-                        <p className="font-medium">#{execution.id} · {execution.name}</p>
-                        <Badge variant="outline">{STATE_LABELS[execution.state]}</Badge>
-                      </div>
-                      <p className="text-sm">{execution.conduction === "automated" ? "Automatizada" : "Manual"} · {modelLabel}</p>
-                      <p className="text-sm text-muted-foreground">Última etapa: {STEP_LABELS[execution.current_step]}</p>
-                      <p className="text-sm text-muted-foreground">Início: {formatDate(execution.started_at)} · Término: {formatDate(execution.completed_at)}</p>
-                      <p className="text-sm text-muted-foreground">Responsável: {execution.created_by.name}</p>
-                      <Link className="inline-flex rounded-sm text-sm underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" href={`/admin/crawler/agencies/${agency.id}/onboarding/${execution.id}`}>
-                        Abrir execução #{execution.id}
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ol>
-            </CardContent>
+                return (
+                  <li className="space-y-2 px-4 py-3 sm:px-5" key={execution.id}>
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <p className="text-sm text-foreground">#{execution.id} · {execution.name}</p>
+                      <Badge variant={STATE_BADGE_VARIANTS[execution.state]}>{STATE_LABELS[execution.state]}</Badge>
+                    </div>
+                    <div className="space-y-0.5 text-xs text-muted-foreground">
+                      <p>{execution.conduction === "automated" ? "Automatizada" : "Manual"} · {modelLabel}</p>
+                      <p>Última etapa: {STEP_LABELS[execution.current_step]}</p>
+                      <p className="tabular-nums">
+                        Início: {formatDate(execution.started_at)} · Término: {formatDate(execution.completed_at)}
+                      </p>
+                      <p>Responsável: {execution.created_by.name}</p>
+                    </div>
+                    <Link
+                      className="inline-flex rounded-sm text-sm text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+                      href={`/admin/crawler/agencies/${agency.id}/onboarding/${execution.id}`}
+                    >
+                      Abrir execução #{execution.id}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ol>
           </Card>
         </section>
       )}
-    </section>
+    </div>
   );
 }

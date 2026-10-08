@@ -1,5 +1,6 @@
 "use client";
 
+import { LoaderCircle } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -70,36 +71,52 @@ export function OnboardingDiscoveryRecovery({
       </div>
 
       {open && (
-        <section aria-label="Snapshots disponíveis para continuar o Onboarding" className="space-y-3 rounded-md border bg-background p-3">
-          {status === "loading" && <p className="text-sm text-muted-foreground" role="status">Carregando Snapshots elegíveis…</p>}
+        <section
+          aria-label="Snapshots disponíveis para continuar o Onboarding"
+          className="overflow-hidden rounded-lg border bg-card"
+        >
+          {status === "loading" && (
+            <p className="flex items-center gap-2 px-4 py-3 text-sm text-muted-foreground" role="status">
+              <LoaderCircle aria-hidden="true" className="size-3.5 animate-spin" />
+              Carregando Snapshots elegíveis…
+            </p>
+          )}
           {status === "error" && (
-            <div className="flex flex-wrap items-center justify-between gap-2" role="alert">
+            <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3" role="alert">
               <p className="text-sm text-destructive">Não foi possível carregar os Snapshots.</p>
               <Button onClick={loadCandidates} size="sm" type="button" variant="outline">Tentar novamente</Button>
             </div>
           )}
           {status === "loaded" && candidates.length === 0 && (
-            <p className="text-sm text-muted-foreground">Nenhum Snapshot desta Crawl Agency está disponível.</p>
+            <p className="px-4 py-3 text-sm text-muted-foreground">Nenhum Snapshot desta Crawl Agency está disponível.</p>
           )}
-          {candidates.map((candidate) => (
-            <article className="space-y-2 rounded-md border p-3" key={candidate.id}>
-              <div className="flex flex-wrap items-start justify-between gap-2">
-                <div>
-                  <p className="font-medium">Snapshot #{candidate.id}</p>
-                  <p className="text-sm text-muted-foreground">{candidate.url_count} URLs · {formatDate(candidate.created_at)} · Operação #{candidate.operation_id}</p>
-                </div>
-                <Badge variant={candidate.adoption.eligible ? "secondary" : "outline"}>
-                  {candidate.adoption.eligible ? "Elegível" : "Indisponível"}
-                </Badge>
-              </div>
-              {candidate.adoption.sample_url && <p className="break-all text-sm">{candidate.adoption.sample_url}</p>}
-              <AdoptDiscoverySnapshotButton
-                candidate={candidate}
-                executionId={execution.id}
-                onAdopted={onExecution}
-              />
-            </article>
-          ))}
+          {candidates.length > 0 && (
+            <div className="divide-y">
+              {candidates.map((candidate) => (
+                <article className="space-y-3 px-4 py-3" key={candidate.id}>
+                  <div className="flex flex-wrap items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="text-sm text-foreground">Snapshot #{candidate.id}</p>
+                      <p className="text-xs text-muted-foreground tabular-nums">
+                        {candidate.url_count} URLs · {formatDate(candidate.created_at)} · Operação #{candidate.operation_id}
+                      </p>
+                    </div>
+                    <Badge variant={candidate.adoption.eligible ? "success" : "muted"}>
+                      {candidate.adoption.eligible ? "Elegível" : "Indisponível"}
+                    </Badge>
+                  </div>
+                  {candidate.adoption.sample_url && (
+                    <p className="text-sm break-all text-muted-foreground">{candidate.adoption.sample_url}</p>
+                  )}
+                  <AdoptDiscoverySnapshotButton
+                    candidate={candidate}
+                    executionId={execution.id}
+                    onAdopted={onExecution}
+                  />
+                </article>
+              ))}
+            </div>
+          )}
         </section>
       )}
     </div>

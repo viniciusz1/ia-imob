@@ -1,10 +1,11 @@
 "use client";
 
+import { TriangleAlert } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+import { FormField } from "@/components/ui/form-field";
 import { Textarea } from "@/components/ui/textarea";
 import { adoptOnboardingDiscoverySnapshot } from "@/services/crawlerService";
 import type { OnboardingDiscoverySnapshotCandidate, OnboardingExecution } from "@/types/crawler";
@@ -43,10 +44,13 @@ export function AdoptDiscoverySnapshotButton({
   return (
     <div className="space-y-2">
       {candidate.adoption.reason && (
-        <p className="text-sm text-destructive">{candidate.adoption.reason}</p>
+        <p className="text-xs text-destructive">{candidate.adoption.reason}</p>
       )}
       {candidate.adoption.age_warning && (
-        <p className="text-sm text-amber-700 dark:text-amber-400">{candidate.adoption.age_warning}</p>
+        <p className="flex items-start gap-1.5 text-xs text-warning">
+          <TriangleAlert aria-hidden="true" className="mt-px size-3.5 shrink-0" />
+          <span>{candidate.adoption.age_warning}</span>
+        </p>
       )}
       {!confirming ? (
         <Button
@@ -59,21 +63,22 @@ export function AdoptDiscoverySnapshotButton({
           Usar Snapshot #{candidate.id}
         </Button>
       ) : (
-        <div className="space-y-2 rounded-md border bg-background p-3">
-          <Label htmlFor={noteId}>Nota da adoção</Label>
-          <Textarea
-            disabled={pending}
-            id={noteId}
-            onChange={(event) => setNote(event.target.value)}
-            placeholder="Opcional: registre o motivo da escolha."
-            value={note}
-          />
-          <div className="flex flex-wrap gap-2">
-            <Button disabled={pending} onClick={() => void adopt()} size="sm" type="button">
-              Confirmar adoção do Snapshot #{candidate.id}
-            </Button>
+        <div className="space-y-4 rounded-lg border bg-card p-4">
+          <FormField htmlFor={noteId} label="Nota da adoção">
+            <Textarea
+              disabled={pending}
+              id={noteId}
+              onChange={(event) => setNote(event.target.value)}
+              placeholder="Opcional: registre o motivo da escolha."
+              value={note}
+            />
+          </FormField>
+          <div className="flex flex-wrap justify-end gap-2">
             <Button disabled={pending} onClick={() => setConfirming(false)} size="sm" type="button" variant="ghost">
               Cancelar
+            </Button>
+            <Button disabled={pending} onClick={() => void adopt()} size="sm" type="button">
+              Confirmar adoção do Snapshot #{candidate.id}
             </Button>
           </div>
         </div>
