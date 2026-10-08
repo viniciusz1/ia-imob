@@ -6,9 +6,11 @@ import { useMemo, useState } from "react";
 
 import { OperationStateBadge } from "@/components/features/crawler/CrawlerStatusBadges";
 import { EmptyState } from "@/components/layout/EmptyState";
+import { PaginationFooter } from "@/components/layout/PaginationFooter";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useClientPagination } from "@/hooks/useClientPagination";
 import type { CrawlerOperation, CrawlRun } from "@/types/crawler";
 
 interface CrawlHistoryPanelProps {
@@ -39,9 +41,24 @@ export function CrawlHistoryPanel({ agencyId, operations, runs }: CrawlHistoryPa
       .filter(({ operation }) => type === "all" || (type === "profile_validation" ? operation?.type === type : operation?.type === type || operation === null))
       .sort((left, right) => new Date(right.operation?.created_at ?? right.run?.created_at ?? 0).getTime() - new Date(left.operation?.created_at ?? left.run?.created_at ?? 0).getTime());
   }, [operations, runs, type]);
+  const pagination = useClientPagination(rows);
+  const footer = (
+    <PaginationFooter
+      onPageChange={pagination.setPage}
+      page={pagination.page}
+      pageCount={pagination.pageCount}
+      pageSize={pagination.pageSize}
+      total={pagination.total}
+    />
+  );
 
   if (operations.length === 0 && runs.length === 0) {
-    return <EmptyState icon={History} title="Nenhum crawl executado." variant="inline" />;
+    return (
+      <>
+        <EmptyState icon={History} title="Nenhum crawl executado." variant="inline" />
+        {footer}
+      </>
+    );
   }
 
   return (
@@ -55,7 +72,10 @@ export function CrawlHistoryPanel({ agencyId, operations, runs }: CrawlHistoryPa
           <Button
             aria-pressed={type === option.key}
             key={option.key}
-            onClick={() => setType(option.key)}
+            onClick={() => {
+              setType(option.key);
+              pagination.setPage(1);
+            }}
             size="xs"
             type="button"
             variant={type === option.key ? "default" : "outline"}
@@ -81,7 +101,7 @@ export function CrawlHistoryPanel({ agencyId, operations, runs }: CrawlHistoryPa
             </TableRow>
           </TableHeader>
           <TableBody>
-            {rows.map(({ operation, run }) => {
+            {pagination.pageItems.map(({ operation, run }) => {
               const validation = operation?.type === "profile_validation";
               const href = validation
                 ? `/admin/crawler/agencies/${agencyId}/crawls/operations/${operation.id}`
@@ -117,6 +137,7 @@ export function CrawlHistoryPanel({ agencyId, operations, runs }: CrawlHistoryPa
           </TableBody>
         </Table>
       )}
+      {footer}
     </>
   );
 }
