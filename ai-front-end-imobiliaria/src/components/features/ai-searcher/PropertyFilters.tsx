@@ -494,7 +494,7 @@ export function PropertyFilters(
           )}
         </div>
 
-        <div className="divide-y lg:max-h-[calc(100vh-22rem)] lg:overflow-y-auto">
+        <div className="divide-y lg:max-h-[calc(100vh-26rem)] lg:overflow-y-auto">
           {/* Preço */}
           <FilterGroup title="Preço">
             <div className="grid grid-cols-2 gap-3">
