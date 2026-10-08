@@ -1,5 +1,10 @@
+import { CircleAlert } from "lucide-react";
+
+import { EmptyState } from "@/components/layout/EmptyState";
+import { PageHeader } from "@/components/layout/PageHeader";
 import { getPaginatedRoles } from "@/services/roleService";
 import { RolesClient } from "@/components/features/roles/RolesClient";
+import type { PaginatedRolesResponse } from "@/types/role";
 
 export const dynamic = 'force-dynamic';
 
@@ -15,23 +20,31 @@ export default async function GruposPage({
     const resolvedParams = await searchParams;
     const page = Number(resolvedParams.page) || 1;
 
-    try {
-        const response = await getPaginatedRoles(page);
+    let response: PaginatedRolesResponse;
 
-        return (
-            <RolesClient
-                initialData={response.data}
-                pageCount={response.meta?.last_page || 1}
-            />
-        );
-    } catch (error) {
+    try {
+        response = await getPaginatedRoles(page);
+    } catch {
         // Fallback básico para erro de API
         return (
-            <div className="container mx-auto py-8 text-center text-red-500 mt-20">
-                <h1 className="text-2xl font-bold mb-4">Erro ao carregar grupos</h1>
-                <p>Verifique sua conexão ou se a API está online.</p>
+            <div className="space-y-6">
+                <PageHeader
+                    description="Gerencie os perfis de acesso e permissões do sistema."
+                    title="Grupos de usuários"
+                />
+                <EmptyState
+                    description="Verifique sua conexão ou se a API está online."
+                    icon={CircleAlert}
+                    title="Erro ao carregar grupos"
+                />
             </div>
         );
     }
-}
 
+    return (
+        <RolesClient
+            initialData={response.data}
+            pageCount={response.meta?.last_page || 1}
+        />
+    );
+}

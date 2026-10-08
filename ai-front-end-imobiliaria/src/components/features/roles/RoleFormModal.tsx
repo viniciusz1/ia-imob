@@ -1,11 +1,14 @@
 "use client";
 
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, type FieldPath } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { useEffect } from "react";
+import { isAxiosError } from "axios";
+import { Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -17,13 +20,6 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-    Accordion,
-    AccordionContent,
-    AccordionItem,
-    AccordionTrigger,
-} from "@/components/ui/accordion";
 
 import { useCreateRole, useUpdateRole, usePermissions } from "@/hooks/useRoles";
 import { roleFormSchema, RoleFormValues } from "@/schemas/roleSchema";
@@ -107,11 +103,13 @@ export function RoleFormModal({
             }
 
             onOpenChange(false);
-        } catch (error: any) {
-            if (error.response?.status === 422 && error.response.data?.errors) {
+        } catch (error: unknown) {
+            if (isAxiosError<{ errors?: Record<string, string[]>; message?: string }>(error)
+                && error.response?.status === 422
+                && error.response.data?.errors) {
                 const errors = error.response.data.errors;
                 Object.keys(errors).forEach((key) => {
-                    form.setError(key as any, {
+                    form.setError(key as FieldPath<RoleFormValues>, {
                         type: "server",
                         message: errors[key][0],
                     });
@@ -119,7 +117,7 @@ export function RoleFormModal({
                 toast.error("Por favor, verifique os campos destacados.");
             } else {
                 toast.error(
-                    error.response?.data?.message ||
+                    (isAxiosError<{ message?: string }>(error) && error.response?.data?.message) ||
                     "Ocorreu um erro ao salvar o grupo de usuários."
                 );
             }
@@ -145,10 +143,10 @@ export function RoleFormModal({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-md lg:max-w-2xl">
-                <DialogHeader className="px-1">
+            <DialogContent className="flex max-h-[90vh] flex-col gap-0 p-0 sm:max-w-2xl lg:max-w-3xl">
+                <DialogHeader className="gap-1 border-b px-6 py-5 text-left">
                     <DialogTitle>
-                        {isEditing ? "Editar Grupo de Usuários" : "Novo Grupo de Usuários"}
+                        {isEditing ? "Editar grupo de usuários" : "Novo grupo de usuários"}
                     </DialogTitle>
                     <DialogDescription>
                         {isEditing
@@ -157,153 +155,159 @@ export function RoleFormModal({
                     </DialogDescription>
                 </DialogHeader>
 
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                    <div className="space-y-4 px-1 py-2">
-                        <div className="space-y-2">
-                            <Label htmlFor="modal-role-name">
-                                Nome do Grupo *
-                            </Label>
+                <form
+                    onSubmit={form.handleSubmit(onSubmit)}
+                    className="flex flex-1 flex-col overflow-hidden"
+                >
+                    <div className="flex-1 space-y-5 overflow-y-auto px-6 py-5">
+                        <FormField
+                            error={form.formState.errors.name?.message}
+                            htmlFor="modal-role-name"
+                            label="Nome do Grupo"
+                            required
+                        >
                             <Input
                                 id="modal-role-name"
                                 placeholder="ex: Administrador"
                                 {...form.register("name")}
                             />
-                            {form.formState.errors.name && (
-                                <p className="text-sm text-red-500">
-                                    {form.formState.errors.name.message}
-                                </p>
-                            )}
-                        </div>
+                        </FormField>
 
                         <div className="space-y-3">
-                            <Label>Permissões *</Label>
-                            <div className="rounded-md border p-4">
-                                {isLoadingPermissions ? (
-                                    <p className="text-sm text-muted-foreground">Carregando permissões...</p>
-                                ) : availablePermissions?.length === 0 ? (
-                                    <p className="text-sm text-muted-foreground">Nenhuma permissão encontrada.</p>
-                                ) : (
-                                    <ScrollArea className="h-[350px] rounded-md border p-4 bg-background">
-                                        <Controller
-                                            name="permissions"
-                                            control={form.control}
-                                            render={({ field }) => {
-                                                const allPermissionIds = availablePermissions?.map(p => p.id) || [];
-                                                const isAllSystemSelected = allPermissionIds.every(id => field.value?.includes(id)) && allPermissionIds.length > 0;
-                                                
-                                                const handleToggleAllSystem = (checked: boolean) => {
-                                                    field.onChange(checked ? allPermissionIds : []);
-                                                };
-
-                                                return (
-                                                    <div className="flex items-center space-x-3 mb-4 p-3 bg-secondary/30 rounded-md border border-border">
-                                                        <Checkbox
-                                                            id="select-all-system"
-                                                            checked={isAllSystemSelected}
-                                                            onCheckedChange={handleToggleAllSystem}
-                                                        />
-                                                        <Label htmlFor="select-all-system" className="text-sm font-semibold cursor-pointer text-primary">
-                                                            Selecionar Todas as Permissões do Sistema
-                                                        </Label>
-                                                    </div>
-                                                );
-                                            }}
-                                        />
-
-                                        <Accordion type="multiple" className="w-full">
-                                            {groupedPermissions.map(({ groupName, permissions }) => (
-                                                <AccordionItem key={groupName} value={groupName} className="border-b-0 mb-3 border rounded-md relative bg-card shadow-sm pl-10 pr-1">
-                                                    
-                                                    {/* Checkbox na esquerda (absoluto) */}
-                                                    <div className="absolute left-3 top-0 bottom-0 flex items-center h-12 z-10" onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
-                                                        <Controller
-                                                            name="permissions"
-                                                            control={form.control}
-                                                            render={({ field }) => {
-                                                                const groupIds = permissions.map(p => p.id);
-                                                                const selectedInGroup = groupIds.filter(id => field.value?.includes(id));
-                                                                const isAllGroupSelected = selectedInGroup.length === permissions.length && permissions.length > 0;
-
-                                                                const handleToggleGroup = (checked: boolean) => {
-                                                                    const currentValues = new Set(field.value || []);
-                                                                    if (checked) {
-                                                                        groupIds.forEach(id => currentValues.add(id));
-                                                                    } else {
-                                                                        groupIds.forEach(id => currentValues.delete(id));
-                                                                    }
-                                                                    field.onChange(Array.from(currentValues));
-                                                                };
-
-                                                                return (
-                                                                    <div className="flex items-center">
-                                                                        <Checkbox
-                                                                            id={`select-group-${groupName}`}
-                                                                            checked={isAllGroupSelected}
-                                                                            onCheckedChange={handleToggleGroup}
-                                                                            className="w-5 h-5 rounded-[4px]"
-                                                                        />
-                                                                    </div>
-                                                                );
-                                                            }}
-                                                        />
-                                                    </div>
-
-                                                    <AccordionTrigger className="hover:no-underline py-3.5 text-sm font-semibold text-left transition-colors hover:text-primary">
-                                                        <span>
-                                                            {groupName}
-                                                            <span className="text-xs font-normal text-muted-foreground ml-2">({permissions.length})</span>
-                                                        </span>
-                                                    </AccordionTrigger>
-                                                    
-                                                    <AccordionContent className="pb-4 pt-4 border-t border-border/50 mt-1 bg-muted/20 -ml-10 -mr-1 px-4">
-                                                        <Controller
-                                                            name="permissions"
-                                                            control={form.control}
-                                                            render={({ field }) => (
-                                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                                    {permissions.map((permission) => {
-                                                                        const isChecked = field.value?.includes(permission.id);
-                                                                        return (
-                                                                            <div className="flex items-start space-x-3 bg-background p-2.5 px-3 rounded-md border border-border/40 shadow-sm transition-colors hover:border-primary/50" key={permission.id}>
-                                                                                <Checkbox
-                                                                                    id={`permission-${permission.id}`}
-                                                                                    checked={isChecked}
-                                                                                    onCheckedChange={(checked) => {
-                                                                                        const updatedPermissions = checked
-                                                                                            ? [...(field.value || []), permission.id]
-                                                                                            : field.value?.filter((val) => val !== permission.id);
-                                                                                        field.onChange(updatedPermissions);
-                                                                                    }}
-                                                                                    className="mt-0.5"
-                                                                                />
-                                                                                <Label
-                                                                                    htmlFor={`permission-${permission.id}`}
-                                                                                    className="text-sm font-normal cursor-pointer leading-tight pt-0.5 flex-1"
-                                                                                >
-                                                                                    {permission.label ?? permission.name}
-                                                                                </Label>
-                                                                            </div>
-                                                                        );
-                                                                    })}
-                                                                </div>
-                                                            )}
-                                                        />
-                                                    </AccordionContent>
-                                                </AccordionItem>
-                                            ))}
-                                        </Accordion>
-                                    </ScrollArea>
+                            <div className="flex flex-wrap items-center justify-between gap-2">
+                                <p className="text-sm text-foreground">
+                                    Permissões <span className="text-destructive">*</span>
+                                </p>
+                                {availablePermissions && availablePermissions.length > 0 && (
+                                    <Controller
+                                        name="permissions"
+                                        control={form.control}
+                                        render={({ field }) => (
+                                            <span className="text-xs text-muted-foreground tabular-nums">
+                                                {field.value?.length ?? 0} de {availablePermissions.length} selecionadas
+                                            </span>
+                                        )}
+                                    />
                                 )}
                             </div>
+
+                            {isLoadingPermissions ? (
+                                <p className="rounded-lg border p-4 text-sm text-muted-foreground">
+                                    Carregando permissões...
+                                </p>
+                            ) : availablePermissions?.length === 0 ? (
+                                <p className="rounded-lg border p-4 text-sm text-muted-foreground">
+                                    Nenhuma permissão encontrada.
+                                </p>
+                            ) : (
+                                <>
+                                    <Controller
+                                        name="permissions"
+                                        control={form.control}
+                                        render={({ field }) => {
+                                            const allPermissionIds = availablePermissions?.map(p => p.id) || [];
+                                            const isAllSystemSelected = allPermissionIds.every(id => field.value?.includes(id)) && allPermissionIds.length > 0;
+
+                                            const handleToggleAllSystem = (checked: boolean) => {
+                                                field.onChange(checked ? allPermissionIds : []);
+                                            };
+
+                                            return (
+                                                <div className="flex items-center gap-3 rounded-lg border border-primary/20 bg-primary/5 px-4 py-3">
+                                                    <Checkbox
+                                                        id="select-all-system"
+                                                        checked={isAllSystemSelected}
+                                                        onCheckedChange={handleToggleAllSystem}
+                                                    />
+                                                    <Label htmlFor="select-all-system" className="cursor-pointer text-primary">
+                                                        Selecionar todas as permissões do sistema
+                                                    </Label>
+                                                </div>
+                                            );
+                                        }}
+                                    />
+
+                                    <div className="grid gap-4 sm:grid-cols-2">
+                                        {groupedPermissions.map(({ groupName, permissions }) => (
+                                            <Controller
+                                                key={groupName}
+                                                name="permissions"
+                                                control={form.control}
+                                                render={({ field }) => {
+                                                    const groupIds = permissions.map(p => p.id);
+                                                    const selectedInGroup = groupIds.filter(id => field.value?.includes(id));
+                                                    const isAllGroupSelected = selectedInGroup.length === permissions.length && permissions.length > 0;
+
+                                                    const handleToggleGroup = (checked: boolean) => {
+                                                        const currentValues = new Set(field.value || []);
+                                                        if (checked) {
+                                                            groupIds.forEach(id => currentValues.add(id));
+                                                        } else {
+                                                            groupIds.forEach(id => currentValues.delete(id));
+                                                        }
+                                                        field.onChange(Array.from(currentValues));
+                                                    };
+
+                                                    return (
+                                                        <div aria-label={groupName} className="space-y-3 rounded-lg border p-4" role="group">
+                                                            <div className="flex items-center justify-between gap-3">
+                                                                <p className="text-xs tracking-wide text-muted-foreground uppercase">
+                                                                    {groupName}
+                                                                </p>
+                                                                <div className="flex items-center gap-2">
+                                                                    <span className="text-xs text-muted-foreground tabular-nums">
+                                                                        {selectedInGroup.length}/{permissions.length}
+                                                                    </span>
+                                                                    <Checkbox
+                                                                        aria-label={`Selecionar todas de ${groupName}`}
+                                                                        id={`select-group-${groupName}`}
+                                                                        checked={isAllGroupSelected}
+                                                                        onCheckedChange={handleToggleGroup}
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                            <div className="space-y-2.5 border-t pt-3">
+                                                                {permissions.map((permission) => {
+                                                                    const isChecked = field.value?.includes(permission.id);
+                                                                    return (
+                                                                        <div className="flex items-start gap-3" key={permission.id}>
+                                                                            <Checkbox
+                                                                                id={`permission-${permission.id}`}
+                                                                                checked={isChecked}
+                                                                                onCheckedChange={(checked) => {
+                                                                                    const updatedPermissions = checked
+                                                                                        ? [...(field.value || []), permission.id]
+                                                                                        : field.value?.filter((val) => val !== permission.id);
+                                                                                    field.onChange(updatedPermissions);
+                                                                                }}
+                                                                            />
+                                                                            <Label
+                                                                                htmlFor={`permission-${permission.id}`}
+                                                                                className="flex-1 cursor-pointer leading-tight"
+                                                                            >
+                                                                                {permission.label ?? permission.name}
+                                                                            </Label>
+                                                                        </div>
+                                                                    );
+                                                                })}
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                }}
+                                            />
+                                        ))}
+                                    </div>
+                                </>
+                            )}
                             {form.formState.errors.permissions && (
-                                <p className="text-sm text-red-500">
+                                <p className="text-xs text-destructive">
                                     {form.formState.errors.permissions.message}
                                 </p>
                             )}
                         </div>
                     </div>
 
-                    <DialogFooter>
+                    <DialogFooter className="gap-2 border-t px-6 py-4">
                         <Button
                             type="button"
                             variant="outline"
@@ -313,11 +317,12 @@ export function RoleFormModal({
                             Cancelar
                         </Button>
                         <Button type="submit" disabled={isLoading}>
+                            {isLoading && <Loader2 className="animate-spin" />}
                             {isLoading
                                 ? "Salvando..."
                                 : isEditing
-                                    ? "Salvar Alterações"
-                                    : "Criar Grupo"}
+                                    ? "Salvar alterações"
+                                    : "Criar grupo"}
                         </Button>
                     </DialogFooter>
                 </form>

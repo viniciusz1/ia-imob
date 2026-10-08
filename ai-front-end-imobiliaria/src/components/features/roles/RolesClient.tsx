@@ -1,8 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { isAxiosError } from "axios";
+import { KeyRound, Plus, ShieldAlert, ShieldCheck } from "lucide-react";
+
+import { PageHeader } from "@/components/layout/PageHeader";
+import { StatCard } from "@/components/layout/StatCard";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
 import { RolesDataTable } from "@/components/features/roles/RolesDataTable";
 import { RoleFormModal } from "@/components/features/roles/RoleFormModal";
 import { Role } from "@/types/role";
@@ -27,6 +31,13 @@ export function RolesClient({ initialData, pageCount }: RolesClientProps) {
     const [editingRole, setEditingRole] = useState<Role | null>(null);
     const deleteMutation = useDeleteRole();
 
+    const permissionsInUse = new Set(
+        initialData.flatMap((role) => (role.permissions || []).map((permission) => permission.id))
+    ).size;
+    const rolesWithoutPermissions = initialData.filter(
+        (role) => (role.permissions || []).length === 0
+    ).length;
+
     const handleCreate = () => {
         setEditingRole(null);
         setModalOpen(true);
@@ -42,8 +53,11 @@ export function RolesClient({ initialData, pageCount }: RolesClientProps) {
             try {
                 await deleteMutation.mutateAsync(role.id);
                 toast.success("Grupo excluído com sucesso.");
-            } catch (error: any) {
-                toast.error(error.response?.data?.message || "Não foi possível excluir o grupo.");
+            } catch (error: unknown) {
+                toast.error(
+                    (isAxiosError<{ message?: string }>(error) && error.response?.data?.message) ||
+                    "Não foi possível excluir o grupo."
+                );
             }
         }
     };
@@ -56,18 +70,39 @@ export function RolesClient({ initialData, pageCount }: RolesClientProps) {
     };
 
     return (
-        <div className="container mx-auto py-8">
-            <div className="flex justify-between items-center mb-6">
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight">Grupos de Usuários</h1>
-                    <p className="text-muted-foreground mt-1">
-                        Gerencie os perfis de acesso e permissões do sistema.
-                    </p>
-                </div>
-                <Button onClick={handleCreate}>
-                    <Plus className="mr-2 h-4 w-4" />
-                    Novo Grupo
-                </Button>
+        <div className="space-y-6">
+            <PageHeader
+                actions={(
+                    <Button onClick={handleCreate}>
+                        <Plus />
+                        Novo grupo
+                    </Button>
+                )}
+                description="Gerencie os perfis de acesso e permissões do sistema."
+                title="Grupos de usuários"
+            />
+
+            <div className="grid gap-4 sm:grid-cols-3">
+                <StatCard
+                    icon={ShieldCheck}
+                    title="Grupos"
+                    tone="primary"
+                    value={initialData.length}
+                />
+                <StatCard
+                    hint="Permissões distintas atribuídas a algum grupo"
+                    icon={KeyRound}
+                    title="Permissões em uso"
+                    tone="info"
+                    value={permissionsInUse}
+                />
+                <StatCard
+                    hint="Usuários desses grupos não acessam nenhum módulo"
+                    icon={ShieldAlert}
+                    title="Grupos sem permissão"
+                    tone={rolesWithoutPermissions > 0 ? "warning" : "success"}
+                    value={rolesWithoutPermissions}
+                />
             </div>
 
             <RolesDataTable

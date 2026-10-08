@@ -1,18 +1,11 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { Role } from "@/types/role";
+import { Pencil, ShieldCheck, Trash2 } from "lucide-react";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Edit, MoreHorizontal, Trash } from "lucide-react";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Role } from "@/types/role";
 
 export function getColumns(
     onEdit: (role: Role) => void,
@@ -22,12 +15,27 @@ export function getColumns(
         {
             accessorKey: "id",
             header: "Código",
+            cell: ({ row }) => (
+                <span className="text-muted-foreground tabular-nums">
+                    {row.original.id}
+                </span>
+            ),
         },
         {
             accessorKey: "name",
             header: "Nome do Grupo",
             cell: ({ row }) => (
-                <span className="font-medium">{row.original.name}</span>
+                <div className="flex items-center gap-3">
+                    <span
+                        aria-hidden="true"
+                        className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary"
+                    >
+                        <ShieldCheck className="size-4" />
+                    </span>
+                    <span className="text-sm text-foreground">
+                        {row.original.name}
+                    </span>
+                </div>
             ),
         },
         {
@@ -35,59 +43,49 @@ export function getColumns(
             header: "Permissões",
             cell: ({ row }) => {
                 const permissions = row.original.permissions || [];
-                const displayCount = 3;
+
+                if (permissions.length === 0) {
+                    return <Badge variant="warning">Nenhuma permissão</Badge>;
+                }
 
                 return (
-                    <div className="flex flex-wrap gap-1">
-                        {permissions.slice(0, displayCount).map(p => (
-                            <Badge key={p.id} variant="secondary" className="text-xs">
-                                {p.name}
-                            </Badge>
-                        ))}
-                        {permissions.length > displayCount && (
-                            <Badge variant="outline" className="text-xs">
-                                +{permissions.length - displayCount}
-                            </Badge>
-                        )}
-                        {permissions.length === 0 && (
-                            <span className="text-sm text-muted-foreground">Nenhuma permissão</span>
-                        )}
-                    </div>
+                    <Badge className="tabular-nums" variant="info">
+                        {permissions.length} {permissions.length === 1 ? "permissão" : "permissões"}
+                    </Badge>
                 );
             },
         },
         {
             id: "actions",
+            header: () => <span className="sr-only">Ações</span>,
             cell: ({ row }) => {
                 const role = row.original;
 
                 return (
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0">
-                                <span className="sr-only">Abrir menu</span>
-                                <MoreHorizontal className="h-4 w-4" />
+                    <div className="flex items-center justify-end gap-0.5">
+                        <Button
+                            aria-label={`Editar ${role.name}`}
+                            className="text-muted-foreground hover:text-foreground"
+                            onClick={() => onEdit(role)}
+                            size="icon-sm"
+                            title="Editar"
+                            variant="ghost"
+                        >
+                            <Pencil />
+                        </Button>
+                        {onDelete && (
+                            <Button
+                                aria-label={`Excluir ${role.name}`}
+                                className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                                onClick={() => onDelete(role)}
+                                size="icon-sm"
+                                title="Excluir"
+                                variant="ghost"
+                            >
+                                <Trash2 />
                             </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Ações</DropdownMenuLabel>
-                            <DropdownMenuItem
-                                className="cursor-pointer"
-                                onClick={() => onEdit(role)}
-                            >
-                                <Edit className="mr-2 h-4 w-4" />
-                                Editar
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                                className="cursor-pointer text-red-600"
-                                onClick={() => onDelete && onDelete(role)}
-                            >
-                                <Trash className="mr-2 h-4 w-4" />
-                                Excluir
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                        )}
+                    </div>
                 );
             },
         },
