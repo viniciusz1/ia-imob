@@ -22,6 +22,8 @@ export default async function CrawlAgenciesPage({ searchParams }: CrawlAgenciesP
       initialAgencies={agencies.data}
       initialSearch={search}
       pageCount={agencies.meta.last_page}
+      pageSize={agencies.meta.per_page}
+      total={agencies.meta.total}
     />
   );
 }

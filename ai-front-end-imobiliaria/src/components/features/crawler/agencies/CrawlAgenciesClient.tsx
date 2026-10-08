@@ -18,6 +18,8 @@ interface CrawlAgenciesClientProps {
   initialAgencies: CrawlAgency[];
   initialSearch: string;
   pageCount: number;
+  total?: number;
+  pageSize?: number;
 }
 
 const columns: ColumnDef<CrawlAgency>[] = [
@@ -50,7 +52,7 @@ const columns: ColumnDef<CrawlAgency>[] = [
   },
 ];
 
-export function CrawlAgenciesClient({ initialAgencies, initialSearch, pageCount }: CrawlAgenciesClientProps) {
+export function CrawlAgenciesClient({ initialAgencies, initialSearch, pageCount, total, pageSize }: CrawlAgenciesClientProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -111,6 +113,8 @@ export function CrawlAgenciesClient({ initialAgencies, initialSearch, pageCount 
         data={initialAgencies}
         emptyMessage="Nenhuma Crawl Agency encontrada."
         pageCount={pageCount}
+        pageSize={pageSize}
+        total={total}
       />
     </div>
   );
