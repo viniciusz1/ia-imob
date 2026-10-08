@@ -2,9 +2,9 @@ import { CircleAlert } from "lucide-react";
 
 import { EmptyState } from "@/components/layout/EmptyState";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { getPaginatedRoles } from "@/services/roleService";
+import { getRoles } from "@/services/roleService";
 import { RolesClient } from "@/components/features/roles/RolesClient";
-import type { PaginatedRolesResponse } from "@/types/role";
+import type { Role } from "@/types/role";
 
 export const dynamic = 'force-dynamic';
 
@@ -12,18 +12,12 @@ export const dynamic = 'force-dynamic';
 // Server Component - Grupos de Usuários Page
 // =============================================================================
 
-export default async function GruposPage({
-    searchParams,
-}: {
-    searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-}) {
-    const resolvedParams = await searchParams;
-    const page = Number(resolvedParams.page) || 1;
-
-    let response: PaginatedRolesResponse;
+export default async function GruposPage() {
+    // The API returns every group at once; the table pages them in the browser.
+    let roles: Role[];
 
     try {
-        response = await getPaginatedRoles(page);
+        roles = await getRoles();
     } catch {
         // Fallback básico para erro de API
         return (
@@ -42,9 +36,6 @@ export default async function GruposPage({
     }
 
     return (
-        <RolesClient
-            initialData={response.data}
-            pageCount={response.meta?.last_page || 1}
-        />
+        <RolesClient initialData={roles} />
     );
 }

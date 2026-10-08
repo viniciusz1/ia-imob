@@ -19,14 +19,13 @@ import { toast } from "sonner";
 
 interface RolesClientProps {
     initialData: Role[];
-    pageCount: number;
 }
 
 // =============================================================================
 // Client Component — Orquestra listagem + modal
 // =============================================================================
 
-export function RolesClient({ initialData, pageCount }: RolesClientProps) {
+export function RolesClient({ initialData }: RolesClientProps) {
     const [modalOpen, setModalOpen] = useState(false);
     const [editingRole, setEditingRole] = useState<Role | null>(null);
     const deleteMutation = useDeleteRole();
@@ -107,7 +106,6 @@ export function RolesClient({ initialData, pageCount }: RolesClientProps) {
 
             <RolesDataTable
                 data={initialData}
-                pageCount={pageCount}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
             />
