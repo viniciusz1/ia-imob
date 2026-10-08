@@ -32,17 +32,16 @@ const PLAN_FEATURES: Record<string, string[]> = {
   ],
 };
 
-const CYCLE_LABEL: Record<string, string> = {
-  MONTHLY: "mês",
-  SEMIANNUALLY: "6 meses",
-  YEARLY: "ano",
-};
-
 const CHARGE_LABEL: Record<string, string> = {
   monthly: "por mês",
   semiannual: "a cada 6 meses",
   annual: "por ano",
 };
+
+const currency = new Intl.NumberFormat("pt-BR", {
+  style: "currency",
+  currency: "BRL",
+});
 
 export function PlanCard({
   plan,
@@ -55,54 +54,48 @@ export function PlanCard({
   return (
     <div
       className={cn(
-        "relative flex flex-col rounded-2xl border bg-card p-6 shadow-sm transition-all duration-200",
+        "flex flex-col rounded-xl border bg-card p-6 shadow-xs shadow-black/[0.03] transition-colors",
         isSelected
-          ? "border-primary ring-2 ring-primary shadow-md"
-          : "border-border hover:border-primary/50 hover:shadow-md",
-        isMostPopular && "border-primary/60",
+          ? "border-primary bg-primary/5 ring-2 ring-primary/30"
+          : isMostPopular
+            ? "border-primary ring-1 ring-primary/20"
+            : "hover:border-primary/30",
       )}
     >
-      {/* Most popular badge */}
-      {isMostPopular && (
-        <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-          <Badge className="flex items-center gap-1 bg-primary text-primary-foreground px-3 py-1 text-xs font-semibold shadow">
-            <Star className="h-3 w-3 fill-current" />
-            Mais Popular
-          </Badge>
-        </div>
-      )}
-
-      <div className="flex-1 space-y-4">
+      <div className="flex-1 space-y-5">
         {/* Plan header */}
-        <div>
-          <h3 className="text-lg font-bold text-foreground">{plan.name}</h3>
-          <div className="mt-2 flex items-baseline gap-1">
-            <span className="text-3xl font-extrabold text-foreground">
-              {new Intl.NumberFormat("pt-BR", {
-                style: "currency",
-                currency: "BRL",
-              }).format(plan.pricePerMonth)}
-            </span>
-            <span className="text-sm text-muted-foreground">/mês</span>
+        <div className="space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h3 className="text-base text-foreground">{plan.name}</h3>
+            {isMostPopular && (
+              <Badge>
+                <Star className="fill-current" />
+                Mais Popular
+              </Badge>
+            )}
           </div>
-          <p className="mt-1 text-xs text-muted-foreground">
-            Cobrado{" "}
-            {new Intl.NumberFormat("pt-BR", {
-              style: "currency",
-              currency: "BRL",
-            }).format(plan.totalPrice)}{" "}
-            {CHARGE_LABEL[plan.slug]}
-          </p>
+
+          <div>
+            <div className="flex items-baseline gap-1">
+              <span className="text-3xl leading-none tracking-tight text-foreground tabular-nums">
+                {currency.format(plan.pricePerMonth)}
+              </span>
+              <span className="text-sm text-muted-foreground">/mês</span>
+            </div>
+            <p className="mt-2 text-xs text-muted-foreground tabular-nums">
+              Cobrado {currency.format(plan.totalPrice)} {CHARGE_LABEL[plan.slug]}
+            </p>
+          </div>
         </div>
 
         {/* Features */}
-        <ul className="space-y-2">
+        <ul className="space-y-2.5 border-t pt-5">
           {features.map((feature) => (
             <li
               key={feature}
-              className="flex items-start gap-2 text-sm text-muted-foreground"
+              className="flex items-start gap-2 text-sm text-foreground"
             >
-              <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+              <Check className="mt-0.5 size-4 shrink-0 text-success" />
               {feature}
             </li>
           ))}
@@ -114,6 +107,7 @@ export function PlanCard({
         variant={isSelected ? "default" : "outline"}
         onClick={onSelect}
       >
+        {isSelected && <Check />}
         {isSelected ? "Plano Selecionado" : "Selecionar Plano"}
       </Button>
     </div>

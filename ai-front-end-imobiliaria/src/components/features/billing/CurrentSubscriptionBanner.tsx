@@ -2,8 +2,11 @@
 
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { SectionHeader } from "@/components/layout/SectionHeader";
+import { STAT_TONES, type StatTone } from "@/components/layout/StatCard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,7 +18,17 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { CheckCircle, Clock, AlertTriangle, Loader2 } from "lucide-react";
+import {
+  CalendarClock,
+  CheckCircle2,
+  CircleAlert,
+  CircleX,
+  Clock,
+  CreditCard,
+  Loader2,
+  Wallet,
+  type LucideIcon,
+} from "lucide-react";
 import { cancelSubscription } from "@/services/billingService";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -27,44 +40,48 @@ const BILLING_LABEL: Record<string, string> = {
   CREDIT_CARD: "Cartão de Crédito",
 };
 
+type StatusBadgeVariant = "success" | "warning" | "destructive" | "muted";
+
 const STATUS_CONFIG: Record<
   SubscriptionStatus,
-  { label: string; icon: React.ElementType; variant: string; banner: string }
+  { label: string; icon: LucideIcon; badge: StatusBadgeVariant; tone: StatTone }
 > = {
   active: {
     label: "Ativo",
-    icon: CheckCircle,
-    variant: "bg-emerald-500",
-    banner:
-      "border-emerald-200 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-950/30",
+    icon: CheckCircle2,
+    badge: "success",
+    tone: "success",
   },
   pending: {
     label: "Aguardando pagamento",
     icon: Clock,
-    variant: "bg-yellow-500",
-    banner:
-      "border-yellow-200 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-950/30",
+    badge: "warning",
+    tone: "warning",
   },
   inactive: {
     label: "Pagamento atrasado",
-    icon: AlertTriangle,
-    variant: "bg-orange-500",
-    banner:
-      "border-orange-200 bg-orange-50 dark:border-orange-800 dark:bg-orange-950/30",
+    icon: CircleAlert,
+    badge: "destructive",
+    tone: "destructive",
   },
   expired: {
     label: "Expirado",
-    icon: AlertTriangle,
-    variant: "bg-destructive",
-    banner: "border-destructive/20 bg-destructive/5",
+    icon: CircleAlert,
+    badge: "destructive",
+    tone: "destructive",
   },
   cancelled: {
     label: "Cancelado",
-    icon: AlertTriangle,
-    variant: "bg-destructive",
-    banner: "border-destructive/20 bg-destructive/5",
+    icon: CircleX,
+    badge: "muted",
+    tone: "muted",
   },
 };
+
+const currency = new Intl.NumberFormat("pt-BR", {
+  style: "currency",
+  currency: "BRL",
+});
 
 const STATUS_MESSAGE: Partial<Record<SubscriptionStatus, string>> = {
   pending: "Aguardando confirmação do pagamento",
@@ -105,58 +122,19 @@ export function CurrentSubscriptionBanner({
       )
     : null;
 
+  const canCancel =
+    canManage &&
+    (subscription.status === "active" || subscription.status === "pending");
+
   return (
-    <div className={cn("rounded-2xl border p-5", config.banner)}>
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="flex items-start gap-3">
-          <StatusIcon className="mt-0.5 h-5 w-5 shrink-0 text-current" />
-          <div className="space-y-1">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="font-semibold text-foreground">
-                {subscription.plan.name}
-              </span>
-              <Badge className={cn("text-white text-xs", config.variant)}>
-                {config.label}
-              </Badge>
-            </div>
-
-            {STATUS_MESSAGE[subscription.status] && (
-              <p className="text-sm text-muted-foreground">
-                {STATUS_MESSAGE[subscription.status]}
-              </p>
-            )}
-
-            <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-              {nextDue && (
-                <span>
-                  Próxima cobrança:{" "}
-                  <strong className="text-foreground">{nextDue}</strong>
-                </span>
-              )}
-              <span>
-                Método:{" "}
-                <strong className="text-foreground">
-                  {BILLING_LABEL[subscription.billingType]}
-                </strong>
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {canManage &&
-          (subscription.status === "active" ||
-            subscription.status === "pending") && (
+    <Card className="gap-0 overflow-hidden py-0">
+      <SectionHeader
+        actions={
+          canCancel ? (
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={isCancelling}
-                  className="shrink-0"
-                >
-                  {isCancelling && (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  )}
+                <Button variant="outline" size="sm" disabled={isCancelling}>
+                  {isCancelling && <Loader2 className="animate-spin" />}
                   Cancelar Assinatura
                 </Button>
               </AlertDialogTrigger>
@@ -170,17 +148,75 @@ export function CurrentSubscriptionBanner({
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Manter assinatura</AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={handleCancel}
-                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                  >
+                  <AlertDialogAction onClick={handleCancel} variant="destructive">
                     Sim, cancelar
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
-          )}
+          ) : null
+        }
+        description="Plano contratado pela sua imobiliária."
+        icon={CreditCard}
+        title="Assinatura atual"
+      />
+
+      <div className="space-y-4 p-4 sm:p-5">
+        <div className="flex flex-wrap items-center gap-4 rounded-lg border border-primary/20 bg-primary/5 p-4">
+          <span
+            className={cn(
+              "flex size-10 shrink-0 items-center justify-center rounded-lg",
+              STAT_TONES[config.tone],
+            )}
+          >
+            <StatusIcon className="size-5" />
+          </span>
+
+          <div className="min-w-0 flex-1 space-y-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="text-lg text-foreground">{subscription.plan.name}</p>
+              <Badge variant={config.badge}>{config.label}</Badge>
+            </div>
+            {STATUS_MESSAGE[subscription.status] && (
+              <p className="text-sm text-muted-foreground">
+                {STATUS_MESSAGE[subscription.status]}
+              </p>
+            )}
+          </div>
+
+          <div className="flex items-baseline gap-1">
+            <span className="text-2xl tracking-tight text-foreground tabular-nums">
+              {currency.format(subscription.plan.pricePerMonth)}
+            </span>
+            <span className="text-sm text-muted-foreground">/mês</span>
+          </div>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="flex items-center gap-3 rounded-lg border p-4">
+            <CalendarClock className="size-4 shrink-0 text-muted-foreground" />
+            <div className="min-w-0">
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                Próxima cobrança
+              </p>
+              <p className="text-sm text-foreground tabular-nums">
+                {nextDue ?? "—"}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 rounded-lg border p-4">
+            <Wallet className="size-4 shrink-0 text-muted-foreground" />
+            <div className="min-w-0">
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                Método
+              </p>
+              <p className="text-sm text-foreground">
+                {BILLING_LABEL[subscription.billingType]}
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
+    </Card>
   );
 }

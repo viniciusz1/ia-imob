@@ -12,7 +12,8 @@ import { createSubscription } from "@/services/billingService";
 import { PlanSelector } from "./PlanSelector";
 import { CurrentSubscriptionBanner } from "./CurrentSubscriptionBanner";
 import { SubscriptionConfirmModal } from "./SubscriptionConfirmModal";
-import { CreditCard } from "lucide-react";
+import { Info } from "lucide-react";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 interface BillingPageProps {
   plans: SubscriptionPlan[];
@@ -52,21 +53,11 @@ export function BillingPage({ plans, currentSubscription }: BillingPageProps) {
   }
 
   return (
-    <div className="space-y-8">
-      {/* Page header */}
-      <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-          <CreditCard className="h-5 w-5" />
-        </div>
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">
-            Plano &amp; Assinatura
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            Gerencie o plano de assinatura da sua imobiliária
-          </p>
-        </div>
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        description="Gerencie o plano de assinatura da sua imobiliária"
+        title="Plano & Assinatura"
+      />
 
       {/* Current subscription banner */}
       {currentSubscription && (
@@ -78,11 +69,14 @@ export function BillingPage({ plans, currentSubscription }: BillingPageProps) {
 
       {/* Plan selector — shown when no active subscription or when expired/cancelled */}
       {!hasActiveSubscription && (
-        <div className="space-y-4">
+        <>
           {currentSubscription === null && (
-            <div className="rounded-xl border border-dashed p-5 text-center text-sm text-muted-foreground">
-              Você ainda não possui uma assinatura ativa. Escolha um plano
-              abaixo para começar.
+            <div className="flex items-start gap-3 rounded-lg border border-info/30 bg-info/10 px-4 py-3 text-sm">
+              <Info className="mt-0.5 size-4 shrink-0 text-info" />
+              <p className="text-foreground">
+                Você ainda não possui uma assinatura ativa. Escolha um plano
+                abaixo para começar.
+              </p>
             </div>
           )}
 
@@ -94,7 +88,7 @@ export function BillingPage({ plans, currentSubscription }: BillingPageProps) {
             onChangeBillingType={setBillingType}
             onContinue={() => setConfirmOpen(true)}
           />
-        </div>
+        </>
       )}
 
       {/* Confirm modal */}

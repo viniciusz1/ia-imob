@@ -1,6 +1,10 @@
 'use client';
 
-import { AlertTriangle } from 'lucide-react';
+import { useEffect } from 'react';
+import { CircleAlert, RotateCcw } from 'lucide-react';
+
+import { EmptyState } from '@/components/layout/EmptyState';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/button';
 
 export default function BillingError({
@@ -10,16 +14,28 @@ export default function BillingError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  useEffect(() => {
+    console.error(error);
+  }, [error]);
+
   return (
-    <div className="flex flex-col items-center justify-center gap-4 py-24 text-center">
-      <AlertTriangle className="h-12 w-12 text-destructive" />
-      <h2 className="text-xl font-semibold">Erro ao carregar os planos</h2>
-      <p className="text-sm text-muted-foreground max-w-sm">
-        Não foi possível buscar os dados de assinatura. Verifique sua conexão e tente novamente.
-      </p>
-      <Button onClick={reset} variant="outline">
-        Tentar novamente
-      </Button>
+    <div className="space-y-6">
+      <PageHeader
+        description="Gerencie o plano de assinatura da sua imobiliária"
+        title="Plano & Assinatura"
+      />
+
+      <EmptyState
+        action={
+          <Button onClick={reset} variant="outline">
+            <RotateCcw />
+            Tentar novamente
+          </Button>
+        }
+        description="Não foi possível buscar os dados de assinatura. Verifique sua conexão e tente novamente."
+        icon={CircleAlert}
+        title="Erro ao carregar os planos"
+      />
     </div>
   );
 }
