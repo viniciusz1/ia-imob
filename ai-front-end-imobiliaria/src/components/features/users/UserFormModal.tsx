@@ -3,10 +3,12 @@
 import { type FieldPath, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { useState, useEffect } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import { isAxiosError } from "axios";
+import { Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -150,13 +152,21 @@ export function UserFormModal({
     };
 
     const isLoading = createMutation.isPending || updateMutation.isPending;
+    const errors = form.formState.errors;
+
+    const personType = form.watch("person_type");
+    const roleId = form.watch("role_id");
+    const teamId = form.watch("team_id");
+    const isActive = form.watch("is_active");
+    const showOnWebsite = form.watch("show_on_website");
+    const hasBrokerPage = form.watch("has_broker_page");
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-2xl lg:max-w-4xl p-0 gap-0 max-h-[90vh] flex flex-col">
-                <DialogHeader className="px-6 pt-6 pb-4">
+            <DialogContent className="flex max-h-[90vh] flex-col gap-0 p-0 sm:max-w-2xl lg:max-w-3xl">
+                <DialogHeader className="gap-1 border-b px-6 py-5 text-left">
                     <DialogTitle>
-                        {isEditing ? "Editar Usuário" : "Novo Usuário"}
+                        {isEditing ? "Editar usuário" : "Novo usuário"}
                     </DialogTitle>
                     <DialogDescription>
                         {isEditing
@@ -167,556 +177,415 @@ export function UserFormModal({
 
                 <form
                     onSubmit={form.handleSubmit(onSubmit)}
-                    className="flex flex-col flex-1 overflow-hidden"
+                    className="flex flex-1 flex-col overflow-hidden"
                 >
-                    <div className="flex-1 overflow-y-auto px-6">
-                        <div className="space-y-8 pb-6">
-                            {/* ========================================= */}
-                            {/* Seção: Dados Principais e Contato         */}
-                            {/* ========================================= */}
-                            <section>
-                                <h3 className="text-base font-semibold mb-4">
-                                    Dados Principais e Contato
-                                </h3>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="modal-name">
-                                            Nome Completo *
-                                        </Label>
-                                        <Input
-                                            id="modal-name"
-                                            {...form.register("name")}
-                                        />
-                                        {form.formState.errors.name && (
-                                            <p className="text-sm text-red-500">
-                                                {
-                                                    form.formState.errors.name
-                                                        .message
-                                                }
-                                            </p>
-                                        )}
-                                    </div>
+                    <div className="flex-1 space-y-6 overflow-y-auto px-6 py-5">
+                        {/* ========================================= */}
+                        {/* Seção: Dados Principais e Contato         */}
+                        {/* ========================================= */}
+                        <section className="space-y-4">
+                            <SectionTitle>Dados principais e contato</SectionTitle>
+                            <div className="grid gap-5 sm:grid-cols-2">
+                                <FormField
+                                    error={errors.name?.message}
+                                    htmlFor="modal-name"
+                                    label="Nome completo"
+                                    required
+                                >
+                                    <Input
+                                        id="modal-name"
+                                        {...form.register("name")}
+                                    />
+                                </FormField>
 
-                                    <div className="space-y-2">
-                                        <Label htmlFor="modal-email">
-                                            Email *
-                                        </Label>
-                                        <Input
-                                            id="modal-email"
-                                            type="email"
-                                            {...form.register("email")}
-                                        />
-                                        {form.formState.errors.email && (
-                                            <p className="text-sm text-red-500">
-                                                {
-                                                    form.formState.errors.email
-                                                        .message
-                                                }
-                                            </p>
-                                        )}
-                                    </div>
+                                <FormField
+                                    error={errors.email?.message}
+                                    htmlFor="modal-email"
+                                    label="E-mail"
+                                    required
+                                >
+                                    <Input
+                                        id="modal-email"
+                                        type="email"
+                                        {...form.register("email")}
+                                    />
+                                </FormField>
 
-                                    <div className="space-y-2">
-                                        <Label htmlFor="modal-phone">
-                                            Telefone *
-                                        </Label>
-                                        <Input
-                                            id="modal-phone"
-                                            {...form.register("phone")}
-                                        />
-                                        {form.formState.errors.phone && (
-                                            <p className="text-sm text-red-500">
-                                                {
-                                                    form.formState.errors.phone
-                                                        .message
-                                                }
-                                            </p>
-                                        )}
-                                    </div>
+                                <FormField
+                                    error={errors.phone?.message}
+                                    htmlFor="modal-phone"
+                                    label="Telefone"
+                                    required
+                                >
+                                    <Input
+                                        id="modal-phone"
+                                        {...form.register("phone")}
+                                    />
+                                </FormField>
 
-                                    <div className="space-y-2">
-                                        <Label htmlFor="modal-person-type">
-                                            Tipo de Pessoa *
-                                        </Label>
-                                        <Select
-                                            onValueChange={(value) =>
-                                                form.setValue(
-                                                    "person_type",
-                                                    value as "F" | "J"
-                                                )
+                                <FormField
+                                    htmlFor="modal-person-type"
+                                    label="Tipo de pessoa"
+                                    required
+                                >
+                                    <Select
+                                        onValueChange={(value) =>
+                                            form.setValue(
+                                                "person_type",
+                                                value as "F" | "J"
+                                            )
+                                        }
+                                        value={personType}
+                                    >
+                                        <SelectTrigger className="w-full" id="modal-person-type">
+                                            <SelectValue placeholder="Selecione" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="F">
+                                                Pessoa Física
+                                            </SelectItem>
+                                            <SelectItem value="J">
+                                                Pessoa Jurídica
+                                            </SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </FormField>
+
+                                <FormField
+                                    className="sm:col-span-2"
+                                    htmlFor="modal-avatar"
+                                    label="Imagem do usuário"
+                                >
+                                    <Input
+                                        id="modal-avatar"
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={(e) => {
+                                            if (
+                                                e.target.files &&
+                                                e.target.files.length > 0
+                                            ) {
+                                                setAvatarFile(
+                                                    e.target.files[0]
+                                                );
                                             }
-                                            value={form.watch("person_type")}
-                                        >
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Selecione" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="F">
-                                                    Pessoa Física
-                                                </SelectItem>
-                                                <SelectItem value="J">
-                                                    Pessoa Jurídica
-                                                </SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-
-                                    <div className="space-y-2 md:col-span-2">
-                                        <Label htmlFor="modal-avatar">
-                                            Imagem do Usuário
-                                        </Label>
-                                        <Input
-                                            id="modal-avatar"
-                                            type="file"
-                                            accept="image/*"
-                                            onChange={(e) => {
-                                                if (
-                                                    e.target.files &&
-                                                    e.target.files.length > 0
-                                                ) {
-                                                    setAvatarFile(
-                                                        e.target.files[0]
-                                                    );
-                                                }
-                                            }}
-                                        />
-                                        {initialData?.avatar_url &&
-                                            !avatarFile && (
-                                                <div className="mt-2 text-sm text-muted-foreground pt-2 flex items-center gap-2">
-                                                    <img
-                                                        src={
-                                                            initialData.avatar_url
-                                                        }
-                                                        alt="Avatar"
-                                                        className="w-10 h-10 object-cover rounded-full"
-                                                    />
-                                                    <span>Imagem atual</span>
-                                                </div>
-                                            )}
-                                    </div>
-                                </div>
-                            </section>
-
-                            <Separator />
-
-                            {/* ========================================= */}
-                            {/* Seção: Profissional                       */}
-                            {/* ========================================= */}
-                            <section>
-                                <h3 className="text-base font-semibold mb-4">
-                                    Profissional
-                                </h3>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="modal-creci">
-                                            CRECI
-                                        </Label>
-                                        <Input
-                                            id="modal-creci"
-                                            {...form.register("creci")}
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="modal-order">
-                                            Ordem *
-                                        </Label>
-                                        <Input
-                                            id="modal-order"
-                                            type="number"
-                                            {...form.register("order")}
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="modal-group">
-                                            Grupo do Usuário *
-                                        </Label>
-                                        <Select
-                                            onValueChange={(val) =>
-                                                form.setValue(
-                                                    "role_id",
-                                                    Number(val)
-                                                )
-                                            }
-                                            value={String(
-                                                form.watch("role_id")
-                                            )}
-                                        >
-                                            <SelectTrigger>
-                                                <SelectValue placeholder={isLoadingRoles ? "Carregando grupos..." : "Selecione o grupo"} />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {roles?.map((role) => (
-                                                    <SelectItem key={role.id} value={String(role.id)}>
-                                                        {role.name}
-                                                    </SelectItem>
-                                                ))}
-                                                {roles?.length === 0 && (
-                                                    <SelectItem value="0" disabled>Nenhum grupo encontrado</SelectItem>
-                                                )}
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="modal-team">
-                                            Equipe do Usuário
-                                        </Label>
-                                        <Select
-                                            onValueChange={(val) =>
-                                                form.setValue(
-                                                    "team_id",
-                                                    Number(val)
-                                                )
-                                            }
-                                            value={
-                                                form.watch("team_id")
-                                                    ? String(
-                                                        form.watch("team_id")
-                                                    )
-                                                    : undefined
-                                            }
-                                        >
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Selecione a equipe" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {/* Placeholder para integração real */}
-                                                <SelectItem value="1">
-                                                    Vendas Sul
-                                                </SelectItem>
-                                                <SelectItem value="2">
-                                                    Locação Norte
-                                                </SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                    <div className="space-y-2 md:col-span-2">
-                                        <Label htmlFor="modal-notes">
-                                            Observações
-                                        </Label>
-                                        <Textarea
-                                            id="modal-notes"
-                                            {...form.register("notes")}
-                                            className="h-24"
-                                        />
-                                    </div>
-                                </div>
-                            </section>
-
-                            <Separator />
-
-                            {/* ========================================= */}
-                            {/* Seção: Visibilidade e Acesso Geral        */}
-                            {/* ========================================= */}
-                            <section>
-                                <h3 className="text-base font-semibold mb-4">
-                                    Visibilidade e Acesso Geral
-                                </h3>
-                                <div className="space-y-4">
-                                    <div className="flex flex-row items-center justify-between rounded-lg border p-4">
-                                        <div className="space-y-0.5">
-                                            <Label className="text-base">
-                                                Usuário Ativo
-                                            </Label>
-                                            <p className="text-sm text-muted-foreground">
-                                                Define se o usuário pode acessar
-                                                o sistema.
-                                            </p>
+                                        }}
+                                    />
+                                    {initialData?.avatar_url && !avatarFile && (
+                                        <div className="flex items-center gap-2 pt-1 text-xs text-muted-foreground">
+                                            {/* A imagem vem da API com domínio variável; o next/image exigiria configurar cada host. */}
+                                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                                            <img
+                                                src={initialData.avatar_url}
+                                                alt="Avatar"
+                                                className="size-10 rounded-full object-cover"
+                                            />
+                                            <span>Imagem atual</span>
                                         </div>
-                                        <Switch
-                                            checked={form.watch("is_active")}
-                                            onCheckedChange={(val) =>
-                                                form.setValue("is_active", val)
-                                            }
-                                        />
-                                    </div>
-                                    <div className="flex flex-row items-center justify-between rounded-lg border p-4">
-                                        <div className="space-y-0.5">
-                                            <Label className="text-base">
-                                                Mostrar no Site
-                                            </Label>
-                                            <p className="text-sm text-muted-foreground">
-                                                Exibir perfil deste usuário na
-                                                listagem do site de clientes.
-                                            </p>
-                                        </div>
-                                        <Switch
-                                            checked={form.watch(
-                                                "show_on_website"
-                                            )}
-                                            onCheckedChange={(val) =>
-                                                form.setValue(
-                                                    "show_on_website",
-                                                    val
-                                                )
-                                            }
-                                        />
-                                    </div>
-                                    <div className="flex flex-row items-center justify-between rounded-lg border p-4">
-                                        <div className="space-y-0.5">
-                                            <Label className="text-base">
-                                                Página do Corretor
-                                            </Label>
-                                            <p className="text-sm text-muted-foreground">
-                                                Habilita uma página pública
-                                                exclusiva com as captações deste
-                                                corretor.
-                                            </p>
-                                        </div>
-                                        <Switch
-                                            checked={form.watch(
-                                                "has_broker_page"
-                                            )}
-                                            onCheckedChange={(val) =>
-                                                form.setValue(
-                                                    "has_broker_page",
-                                                    val
-                                                )
-                                            }
-                                        />
-                                    </div>
-                                </div>
-                            </section>
+                                    )}
+                                </FormField>
+                            </div>
+                        </section>
 
-                            <Separator />
+                        <Separator />
 
-                            {/* ========================================= */}
-                            {/* Seção: Credenciais                        */}
-                            {/* ========================================= */}
-                            <section>
-                                <h3 className="text-base font-semibold mb-4">
-                                    Credenciais
-                                </h3>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="space-y-2 md:col-span-2">
-                                        <Label htmlFor="modal-username">
-                                            Login / Usuário *
-                                        </Label>
-                                        <Input
-                                            id="modal-username"
-                                            {...form.register("username")}
-                                        />
-                                        {form.formState.errors.username && (
-                                            <p className="text-sm text-red-500">
-                                                {
-                                                    form.formState.errors
-                                                        .username.message
-                                                }
-                                            </p>
-                                        )}
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="modal-password">
-                                            Senha{" "}
-                                            {isEditing
-                                                ? "(Apenas se quiser alterar)"
-                                                : "*"}
-                                        </Label>
-                                        <Input
-                                            id="modal-password"
-                                            type="password"
-                                            {...form.register("password")}
-                                        />
-                                        {form.formState.errors.password && (
-                                            <p className="text-sm text-red-500">
-                                                {
-                                                    form.formState.errors
-                                                        .password.message
-                                                }
-                                            </p>
-                                        )}
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="modal-password-confirm">
-                                            Repita a Senha
-                                        </Label>
-                                        <Input
-                                            id="modal-password-confirm"
-                                            type="password"
-                                            {...form.register(
-                                                "password_confirmation"
+                        {/* ========================================= */}
+                        {/* Seção: Profissional                       */}
+                        {/* ========================================= */}
+                        <section className="space-y-4">
+                            <SectionTitle>Profissional</SectionTitle>
+                            <div className="grid gap-5 sm:grid-cols-2">
+                                <FormField htmlFor="modal-creci" label="CRECI">
+                                    <Input
+                                        id="modal-creci"
+                                        {...form.register("creci")}
+                                    />
+                                </FormField>
+                                <FormField
+                                    error={errors.order?.message}
+                                    htmlFor="modal-order"
+                                    label="Ordem"
+                                    required
+                                >
+                                    <Input
+                                        id="modal-order"
+                                        type="number"
+                                        {...form.register("order")}
+                                    />
+                                </FormField>
+                                <FormField
+                                    error={errors.role_id?.message}
+                                    htmlFor="modal-group"
+                                    label="Grupo do Usuário"
+                                    required
+                                >
+                                    <Select
+                                        onValueChange={(val) =>
+                                            form.setValue(
+                                                "role_id",
+                                                Number(val)
+                                            )
+                                        }
+                                        value={String(roleId)}
+                                    >
+                                        <SelectTrigger className="w-full" id="modal-group">
+                                            <SelectValue placeholder={isLoadingRoles ? "Carregando grupos..." : "Selecione o grupo"} />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {roles?.map((role) => (
+                                                <SelectItem key={role.id} value={String(role.id)}>
+                                                    {role.name}
+                                                </SelectItem>
+                                            ))}
+                                            {roles?.length === 0 && (
+                                                <SelectItem value="0" disabled>
+                                                    Nenhum grupo encontrado
+                                                </SelectItem>
                                             )}
-                                        />
-                                        {form.formState.errors
-                                            .password_confirmation && (
-                                                <p className="text-sm text-red-500">
-                                                    {
-                                                        form.formState.errors
-                                                            .password_confirmation
-                                                            .message
-                                                    }
-                                                </p>
-                                            )}
-                                    </div>
-                                </div>
-                            </section>
+                                        </SelectContent>
+                                    </Select>
+                                </FormField>
+                                <FormField htmlFor="modal-team" label="Equipe do usuário">
+                                    <Select
+                                        onValueChange={(val) =>
+                                            form.setValue(
+                                                "team_id",
+                                                Number(val)
+                                            )
+                                        }
+                                        value={teamId ? String(teamId) : undefined}
+                                    >
+                                        <SelectTrigger className="w-full" id="modal-team">
+                                            <SelectValue placeholder="Selecione a equipe" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {/* Placeholder para integração real */}
+                                            <SelectItem value="1">
+                                                Vendas Sul
+                                            </SelectItem>
+                                            <SelectItem value="2">
+                                                Locação Norte
+                                            </SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </FormField>
+                                <FormField
+                                    className="sm:col-span-2"
+                                    htmlFor="modal-notes"
+                                    label="Observações"
+                                >
+                                    <Textarea
+                                        id="modal-notes"
+                                        {...form.register("notes")}
+                                        className="h-24"
+                                    />
+                                </FormField>
+                            </div>
+                        </section>
 
-                            <Separator />
+                        <Separator />
 
-                            {/* ========================================= */}
-                            {/* Seção: Horários de Acesso                 */}
-                            {/* ========================================= */}
-                            <section>
-                                <h3 className="text-base font-semibold mb-4">
-                                    Horários de Acesso
-                                </h3>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
-                                    <div className="space-y-4 border p-4 rounded-md">
-                                        <h4 className="font-semibold text-sm">
-                                            1º Período
-                                        </h4>
-                                        <div className="space-y-2">
-                                            <Label htmlFor="modal-wp1-start">
-                                                Entrada
-                                            </Label>
+                        {/* ========================================= */}
+                        {/* Seção: Visibilidade e Acesso Geral        */}
+                        {/* ========================================= */}
+                        <section className="space-y-4">
+                            <SectionTitle>Visibilidade e acesso</SectionTitle>
+                            <div className="grid gap-3">
+                                <SwitchTile
+                                    checked={isActive}
+                                    description="Define se o usuário pode acessar o sistema."
+                                    id="modal-is-active"
+                                    label="Usuário ativo"
+                                    onCheckedChange={(val) =>
+                                        form.setValue("is_active", val)
+                                    }
+                                />
+                                <SwitchTile
+                                    checked={showOnWebsite}
+                                    description="Exibir perfil deste usuário na listagem do site de clientes."
+                                    id="modal-show-on-website"
+                                    label="Mostrar no site"
+                                    onCheckedChange={(val) =>
+                                        form.setValue("show_on_website", val)
+                                    }
+                                />
+                                <SwitchTile
+                                    checked={hasBrokerPage}
+                                    description="Habilita uma página pública exclusiva com as captações deste corretor."
+                                    id="modal-has-broker-page"
+                                    label="Página do corretor"
+                                    onCheckedChange={(val) =>
+                                        form.setValue("has_broker_page", val)
+                                    }
+                                />
+                            </div>
+                        </section>
+
+                        <Separator />
+
+                        {/* ========================================= */}
+                        {/* Seção: Credenciais                        */}
+                        {/* ========================================= */}
+                        <section className="space-y-4">
+                            <SectionTitle>Credenciais</SectionTitle>
+                            <div className="grid gap-5 sm:grid-cols-2">
+                                <FormField
+                                    className="sm:col-span-2"
+                                    error={errors.username?.message}
+                                    htmlFor="modal-username"
+                                    label="Login / usuário"
+                                    required
+                                >
+                                    <Input
+                                        id="modal-username"
+                                        {...form.register("username")}
+                                    />
+                                </FormField>
+                                <FormField
+                                    error={errors.password?.message}
+                                    hint={isEditing ? "Preencha apenas se quiser alterar." : undefined}
+                                    htmlFor="modal-password"
+                                    label="Senha"
+                                    required={!isEditing}
+                                >
+                                    <Input
+                                        id="modal-password"
+                                        type="password"
+                                        {...form.register("password")}
+                                    />
+                                </FormField>
+                                <FormField
+                                    error={errors.password_confirmation?.message}
+                                    htmlFor="modal-password-confirm"
+                                    label="Repita a senha"
+                                >
+                                    <Input
+                                        id="modal-password-confirm"
+                                        type="password"
+                                        {...form.register("password_confirmation")}
+                                    />
+                                </FormField>
+                            </div>
+                        </section>
+
+                        <Separator />
+
+                        {/* ========================================= */}
+                        {/* Seção: Horários de Acesso                 */}
+                        {/* ========================================= */}
+                        <section className="space-y-4">
+                            <SectionTitle>Horários de acesso</SectionTitle>
+                            <div className="grid gap-4 sm:grid-cols-2">
+                                <div className="space-y-4 rounded-lg border p-4">
+                                    <p className="text-xs tracking-wide text-muted-foreground uppercase">
+                                        1º período
+                                    </p>
+                                    <div className="grid gap-4 sm:grid-cols-2">
+                                        <FormField htmlFor="modal-wp1-start" label="Entrada">
                                             <Input
                                                 id="modal-wp1-start"
                                                 type="time"
-                                                {...form.register(
-                                                    "work_period_1_start"
-                                                )}
+                                                {...form.register("work_period_1_start")}
                                             />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label htmlFor="modal-wp1-end">
-                                                Saída
-                                            </Label>
+                                        </FormField>
+                                        <FormField
+                                            error={errors.work_period_1_end?.message}
+                                            htmlFor="modal-wp1-end"
+                                            label="Saída"
+                                        >
                                             <Input
                                                 id="modal-wp1-end"
                                                 type="time"
-                                                {...form.register(
-                                                    "work_period_1_end"
-                                                )}
+                                                {...form.register("work_period_1_end")}
                                             />
-                                            {form.formState.errors
-                                                .work_period_1_end && (
-                                                    <p className="text-sm text-red-500">
-                                                        {
-                                                            form.formState.errors
-                                                                .work_period_1_end
-                                                                .message
-                                                        }
-                                                    </p>
-                                                )}
-                                        </div>
+                                        </FormField>
                                     </div>
+                                </div>
 
-                                    <div className="space-y-4 border p-4 rounded-md">
-                                        <h4 className="font-semibold text-sm">
-                                            2º Período
-                                        </h4>
-                                        <div className="space-y-2">
-                                            <Label htmlFor="modal-wp2-start">
-                                                Entrada
-                                            </Label>
+                                <div className="space-y-4 rounded-lg border p-4">
+                                    <p className="text-xs tracking-wide text-muted-foreground uppercase">
+                                        2º período
+                                    </p>
+                                    <div className="grid gap-4 sm:grid-cols-2">
+                                        <FormField htmlFor="modal-wp2-start" label="Entrada">
                                             <Input
                                                 id="modal-wp2-start"
                                                 type="time"
-                                                {...form.register(
-                                                    "work_period_2_start"
-                                                )}
+                                                {...form.register("work_period_2_start")}
                                             />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label htmlFor="modal-wp2-end">
-                                                Saída
-                                            </Label>
+                                        </FormField>
+                                        <FormField
+                                            error={errors.work_period_2_end?.message}
+                                            htmlFor="modal-wp2-end"
+                                            label="Saída"
+                                        >
                                             <Input
                                                 id="modal-wp2-end"
                                                 type="time"
-                                                {...form.register(
-                                                    "work_period_2_end"
-                                                )}
+                                                {...form.register("work_period_2_end")}
                                             />
-                                            {form.formState.errors
-                                                .work_period_2_end && (
-                                                    <p className="text-sm text-red-500">
-                                                        {
-                                                            form.formState.errors
-                                                                .work_period_2_end
-                                                                .message
-                                                        }
-                                                    </p>
-                                                )}
-                                        </div>
+                                        </FormField>
                                     </div>
                                 </div>
-                            </section>
+                            </div>
+                        </section>
 
-                            <Separator />
+                        <Separator />
 
-                            {/* ========================================= */}
-                            {/* Seção: Configurações para o Site           */}
-                            {/* ========================================= */}
-                            <section>
-                                <h3 className="text-base font-semibold mb-4">
-                                    Configurações para o Site
-                                </h3>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="space-y-2 md:col-span-2">
-                                        <Label htmlFor="modal-website-name">
-                                            Nome Exibido no Site
-                                        </Label>
-                                        <Input
-                                            id="modal-website-name"
-                                            {...form.register("website_name")}
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="modal-facebook">
-                                            Link do Facebook
-                                        </Label>
-                                        <Input
-                                            id="modal-facebook"
-                                            placeholder="https://facebook.com/..."
-                                            {...form.register("facebook_link")}
-                                        />
-                                        {form.formState.errors
-                                            .facebook_link && (
-                                                <p className="text-sm text-red-500">
-                                                    {
-                                                        form.formState.errors
-                                                            .facebook_link.message
-                                                    }
-                                                </p>
-                                            )}
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="modal-instagram">
-                                            Link do Instagram
-                                        </Label>
-                                        <Input
-                                            id="modal-instagram"
-                                            placeholder="https://instagram.com/..."
-                                            {...form.register(
-                                                "instagram_link"
-                                            )}
-                                        />
-                                        {form.formState.errors
-                                            .instagram_link && (
-                                                <p className="text-sm text-red-500">
-                                                    {
-                                                        form.formState.errors
-                                                            .instagram_link.message
-                                                    }
-                                                </p>
-                                            )}
-                                    </div>
-                                    <div className="space-y-2 md:col-span-2">
-                                        <Label htmlFor="modal-description">
-                                            Descrição para o Site
-                                        </Label>
-                                        <Textarea
-                                            id="modal-description"
-                                            className="h-32"
-                                            {...form.register("description")}
-                                        />
-                                    </div>
-                                </div>
-                            </section>
-                        </div>
+                        {/* ========================================= */}
+                        {/* Seção: Configurações para o Site           */}
+                        {/* ========================================= */}
+                        <section className="space-y-4">
+                            <SectionTitle>Configurações para o site</SectionTitle>
+                            <div className="grid gap-5 sm:grid-cols-2">
+                                <FormField
+                                    className="sm:col-span-2"
+                                    htmlFor="modal-website-name"
+                                    label="Nome exibido no site"
+                                >
+                                    <Input
+                                        id="modal-website-name"
+                                        {...form.register("website_name")}
+                                    />
+                                </FormField>
+                                <FormField
+                                    error={errors.facebook_link?.message}
+                                    htmlFor="modal-facebook"
+                                    label="Link do Facebook"
+                                >
+                                    <Input
+                                        id="modal-facebook"
+                                        placeholder="https://facebook.com/..."
+                                        {...form.register("facebook_link")}
+                                    />
+                                </FormField>
+                                <FormField
+                                    error={errors.instagram_link?.message}
+                                    htmlFor="modal-instagram"
+                                    label="Link do Instagram"
+                                >
+                                    <Input
+                                        id="modal-instagram"
+                                        placeholder="https://instagram.com/..."
+                                        {...form.register("instagram_link")}
+                                    />
+                                </FormField>
+                                <FormField
+                                    className="sm:col-span-2"
+                                    htmlFor="modal-description"
+                                    label="Descrição para o site"
+                                >
+                                    <Textarea
+                                        id="modal-description"
+                                        className="h-32"
+                                        {...form.register("description")}
+                                    />
+                                </FormField>
+                            </div>
+                        </section>
                     </div>
 
-                    <DialogFooter className="px-6 py-4 border-t">
+                    <DialogFooter className="gap-2 border-t px-6 py-4">
                         <Button
                             type="button"
                             variant="outline"
@@ -726,15 +595,48 @@ export function UserFormModal({
                             Cancelar
                         </Button>
                         <Button type="submit" disabled={isLoading}>
+                            {isLoading && <Loader2 className="animate-spin" />}
                             {isLoading
                                 ? "Salvando..."
                                 : isEditing
-                                    ? "Salvar Alterações"
-                                    : "Criar Usuário"}
+                                    ? "Salvar alterações"
+                                    : "Criar usuário"}
                         </Button>
                     </DialogFooter>
                 </form>
             </DialogContent>
         </Dialog>
+    );
+}
+
+// =============================================================================
+// Subcomponentes de apresentação
+// =============================================================================
+
+function SectionTitle({ children }: { children: ReactNode }) {
+    return <h3 className="text-base text-foreground">{children}</h3>;
+}
+
+interface SwitchTileProps {
+    id: string;
+    label: string;
+    description: string;
+    checked?: boolean;
+    onCheckedChange: (checked: boolean) => void;
+}
+
+function SwitchTile({ id, label, description, checked, onCheckedChange }: SwitchTileProps) {
+    return (
+        <div className="flex items-center justify-between gap-4 rounded-lg border p-4">
+            <div className="space-y-1">
+                <Label htmlFor={id}>{label}</Label>
+                <p className="text-xs text-muted-foreground">{description}</p>
+            </div>
+            <Switch
+                checked={checked}
+                id={id}
+                onCheckedChange={onCheckedChange}
+            />
+        </div>
     );
 }

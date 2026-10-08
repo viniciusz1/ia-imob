@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect } from "react";
+import { CircleAlert, RotateCcw } from "lucide-react";
+
+import { EmptyState } from "@/components/layout/EmptyState";
+import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertCircle } from "lucide-react";
 
 export default function Error({
     error,
@@ -17,26 +19,34 @@ export default function Error({
     }, [error]);
 
     return (
-        <div className="container mx-auto py-12 flex justify-center items-center min-h-[50vh]">
-            <Card className="w-full max-w-md border-red-200">
-                <CardHeader className="bg-red-50 text-red-900 flex flex-row items-center gap-2 rounded-t-lg border-b border-red-100">
-                    <AlertCircle className="h-5 w-5" />
-                    <CardTitle>Erro de Conexão</CardTitle>
-                </CardHeader>
-                <CardContent className="pt-6">
-                    <p className="text-muted-foreground">
-                        Não foi possível carregar os dados dos usuários. Por favor, verifique se a API está online e tente novamente.
-                    </p>
-                    <div className="mt-4 p-4 bg-gray-50 rounded text-sm text-gray-500 overflow-auto break-all">
-                        {error.message}
-                    </div>
-                </CardContent>
-                <CardFooter className="flex justify-end pt-4">
-                    <Button onClick={() => reset()} variant="default">
+        <div className="space-y-6">
+            <PageHeader
+                description="Gerencie quem acessa o sistema e o que cada pessoa pode fazer."
+                title="Usuários"
+            />
+
+            <EmptyState
+                action={(
+                    <Button onClick={() => reset()}>
+                        <RotateCcw />
                         Tentar novamente
                     </Button>
-                </CardFooter>
-            </Card>
+                )}
+                description={(
+                    <>
+                        <p>
+                            Não foi possível carregar os dados dos usuários. Verifique se a API está online e tente novamente.
+                        </p>
+                        {error.message && (
+                            <p className="mt-3 rounded-lg bg-muted px-3 py-2 text-xs break-all">
+                                {error.message}
+                            </p>
+                        )}
+                    </>
+                )}
+                icon={CircleAlert}
+                title="Erro de conexão"
+            />
         </div>
     );
 }

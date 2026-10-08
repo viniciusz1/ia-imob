@@ -51,7 +51,7 @@ describe('UserFormModal', () => {
         // a <SelectValue> vai renderizar o primeiro ou placeholder.
 
         // Verifica se carregou sem erros e o campo Grupo do Usuário existe
-        const groupLabel = screen.getByText('Grupo do Usuário *');
+        const groupLabel = screen.getByText('Grupo do Usuário');
         expect(groupLabel).toBeInTheDocument();
         expect(useRoles).toHaveBeenCalledWith(true);
     });

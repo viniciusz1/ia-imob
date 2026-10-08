@@ -1,8 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { Plus, UserCheck, UserX, Users, Wifi } from "lucide-react";
+
+import { PageHeader } from "@/components/layout/PageHeader";
+import { StatCard } from "@/components/layout/StatCard";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
 import { UserFilters } from "@/components/features/users/UserFilters";
 import { UsersDataTable } from "@/components/features/users/UsersDataTable";
 import { UserFormModal } from "@/components/features/users/UserFormModal";
@@ -15,15 +18,23 @@ import { User } from "@/types/user";
 interface UsuariosClientProps {
     initialData: User[];
     pageCount: number;
+    /** Total de usuários encontrados com os filtros atuais (meta da API). */
+    total?: number;
 }
 
 // =============================================================================
 // Client Component — Orquestra listagem + modal
 // =============================================================================
 
-export function UsuariosClient({ initialData, pageCount }: UsuariosClientProps) {
+export function UsuariosClient({ initialData, pageCount, total }: UsuariosClientProps) {
     const [modalOpen, setModalOpen] = useState(false);
     const [editingUser, setEditingUser] = useState<User | null>(null);
+
+    const activeCount = initialData.filter((user) => user.is_active).length;
+    const inactiveCount = initialData.length - activeCount;
+    const onlineCount = initialData.filter((user) => user.is_online).length;
+    const isPaginated = pageCount > 1;
+    const pageHint = isPaginated ? "Na página atual" : undefined;
 
     const handleCreate = () => {
         setEditingUser(null);
@@ -43,13 +54,47 @@ export function UsuariosClient({ initialData, pageCount }: UsuariosClientProps) 
     };
 
     return (
-        <div className="container mx-auto py-8">
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-bold tracking-tight">Usuários</h1>
-                <Button onClick={handleCreate}>
-                    <Plus className="mr-2 h-4 w-4" />
-                    Novo Usuário
-                </Button>
+        <div className="space-y-6">
+            <PageHeader
+                actions={(
+                    <Button onClick={handleCreate}>
+                        <Plus />
+                        Novo usuário
+                    </Button>
+                )}
+                description="Gerencie quem acessa o sistema e o que cada pessoa pode fazer."
+                title="Usuários"
+            />
+
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <StatCard
+                    hint="Com os filtros aplicados"
+                    icon={Users}
+                    title="Usuários"
+                    tone="primary"
+                    value={total ?? initialData.length}
+                />
+                <StatCard
+                    hint={pageHint}
+                    icon={UserCheck}
+                    title="Ativos"
+                    tone="success"
+                    value={activeCount}
+                />
+                <StatCard
+                    hint={pageHint}
+                    icon={UserX}
+                    title="Inativos"
+                    tone="warning"
+                    value={inactiveCount}
+                />
+                <StatCard
+                    hint={pageHint}
+                    icon={Wifi}
+                    title="Online agora"
+                    tone="info"
+                    value={onlineCount}
+                />
             </div>
 
             <UserFilters />

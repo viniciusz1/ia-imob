@@ -1,30 +1,32 @@
 import { Skeleton } from "@/components/ui/skeleton";
-import { Card, CardContent } from "@/components/ui/card";
 
 export default function Loading() {
     return (
-        <div className="container mx-auto py-8 space-y-6">
-            <div className="flex justify-between items-center mb-6">
-                <Skeleton className="h-10 w-48" />
-                <Skeleton className="h-10 w-32" />
+        <section aria-busy="true" className="space-y-6" role="status">
+            <span className="sr-only">Carregando usuários…</span>
+            <div className="flex flex-wrap items-end justify-between gap-3">
+                <div className="space-y-2">
+                    <Skeleton className="h-8 w-48" />
+                    <Skeleton className="h-4 w-72 max-w-full" />
+                </div>
+                <Skeleton className="h-10 w-36 rounded-lg" />
             </div>
 
-            <Card>
-                <CardContent className="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <Skeleton className="h-10 w-full" />
-                    <Skeleton className="h-10 w-full" />
-                    <Skeleton className="h-10 w-full" />
-                    <Skeleton className="h-10 w-full" />
-                </CardContent>
-            </Card>
-
-            <div className="space-y-4">
-                <Skeleton className="h-12 w-full" />
-                <Skeleton className="h-16 w-full" />
-                <Skeleton className="h-16 w-full" />
-                <Skeleton className="h-16 w-full" />
-                <Skeleton className="h-16 w-full" />
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <Skeleton className="h-28 rounded-xl" />
+                <Skeleton className="h-28 rounded-xl" />
+                <Skeleton className="h-28 rounded-xl" />
+                <Skeleton className="h-28 rounded-xl" />
             </div>
-        </div>
+
+            <div className="flex flex-wrap gap-3">
+                <Skeleton className="h-9 min-w-48 flex-1 rounded-lg" />
+                <Skeleton className="h-9 w-40 rounded-lg" />
+                <Skeleton className="h-9 w-40 rounded-lg" />
+                <Skeleton className="h-9 w-40 rounded-lg" />
+            </div>
+
+            <Skeleton className="h-96 rounded-xl" />
+        </section>
     );
 }
