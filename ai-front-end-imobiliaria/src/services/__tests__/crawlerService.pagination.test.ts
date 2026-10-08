@@ -20,10 +20,10 @@ describe("crawlerService pagination", () => {
     vi.mocked(api.post).mockReset();
   });
 
-  it("returns pagination metadata and sends page and search to the API", async () => {
+  it("returns pagination metadata and sends page, search and 10 per page to the API", async () => {
     const response = {
       data: [{ id: 35, name: "Séculus Imobiliária" }],
-      meta: { current_page: 2, last_page: 2, per_page: 15, total: 23, from: 16, to: 23 },
+      meta: { current_page: 2, last_page: 3, per_page: 10, total: 23, from: 11, to: 20 },
       links: { first: null, last: null, prev: null, next: null },
     };
     vi.mocked(api.get).mockResolvedValue({ data: response });
@@ -31,7 +31,7 @@ describe("crawlerService pagination", () => {
     const result = await listCrawlAgenciesPage({ page: 2, search: "seculus.net" });
 
     expect(api.get).toHaveBeenCalledWith("/api/v1/admin/crawler/crawl-agencies", {
-      params: { page: 2, search: "seculus.net" },
+      params: { per_page: 10, page: 2, search: "seculus.net" },
     });
     expect(result).toEqual(response);
   });

@@ -642,9 +642,11 @@ export async function listCrawlAgencies(): Promise<CrawlAgency[]> {
 }
 
 export async function listCrawlAgenciesPage(
-  params: { page?: number; search?: string } = {},
+  params: { page?: number; search?: string; per_page?: number } = {},
 ): Promise<PaginatedCrawlAgencies> {
-  const response = await api.get<PaginatedCrawlAgencies>(`${BASE}/crawl-agencies`, { params });
+  const response = await api.get<PaginatedCrawlAgencies>(`${BASE}/crawl-agencies`, {
+    params: { per_page: 10, ...params },
+  });
   return response.data;
 }
 
