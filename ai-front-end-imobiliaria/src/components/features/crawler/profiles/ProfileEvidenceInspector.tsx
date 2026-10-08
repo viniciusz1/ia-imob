@@ -1,11 +1,14 @@
 "use client";
 
+import { CircleCheck, CircleX, Search, TriangleAlert } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 import { getProfileValidationRecords } from "@/services/crawlerService";
 import type { PaginatedProfileValidationRecords, ProfileValidationRecord } from "@/types/crawler";
 
@@ -39,11 +42,11 @@ function EvidenceData({ data, emptyLabel }: { data: Record<string, unknown> | nu
   if (data === null || Object.keys(data).length === 0) return <p className="text-sm text-muted-foreground">{emptyLabel}</p>;
 
   return (
-    <dl className="divide-y rounded-md border">
+    <dl className="divide-y rounded-lg border">
       {Object.entries(data).map(([field, value]) => (
-        <div className="grid gap-1 p-3 lg:grid-cols-[10rem_1fr]" key={field}>
-          <dt className="font-medium">{fieldLabels[field] ?? field}</dt>
-          <dd className="whitespace-pre-wrap break-words text-sm">{valueLabel(value)}</dd>
+        <div className="grid gap-1 px-4 py-3 lg:grid-cols-[10rem_1fr]" key={field}>
+          <dt className="text-xs text-muted-foreground">{fieldLabels[field] ?? field}</dt>
+          <dd className="whitespace-pre-wrap break-words text-sm text-foreground">{valueLabel(value)}</dd>
         </div>
       ))}
     </dl>
@@ -93,25 +96,56 @@ export function ProfileEvidenceInspector({ agencyId, profileId, reportId, totalR
   const selectedWarnings = selected ? recordWarnings(selected) : [];
 
   if (!open) {
-    return <Button onClick={() => { beginLoad(); setOpen(true); }} type="button" variant="outline">Inspecionar evidências ({totalRecords})</Button>;
+    return (
+      <Button
+        onClick={() => {
+          beginLoad();
+          setOpen(true);
+        }}
+        type="button"
+        variant="outline"
+      >
+        <Search />
+        Inspecionar evidências ({totalRecords})
+      </Button>
+    );
   }
 
   return (
-    <section aria-label="Evidências da validação" className="space-y-4 rounded-md border bg-background p-4">
+    <section aria-label="Evidências da validação" className="space-y-4 rounded-lg border p-4">
       <div className="flex flex-wrap items-end gap-3">
-        <form className="min-w-72 flex-1" onSubmit={(event) => { event.preventDefault(); beginLoad(); setPage(1); setSearch(searchDraft.trim()); }}>
-          <Label htmlFor={`evidence-search-${reportId}`}>Localizar URL</Label>
-          <div className="mt-1 flex gap-2">
-            <Input id={`evidence-search-${reportId}`} onChange={(event) => setSearchDraft(event.target.value)} placeholder="Parte da URL" value={searchDraft} />
-            <Button type="submit" variant="outline">Buscar</Button>
-          </div>
+        <form
+          className="min-w-72 flex-1"
+          onSubmit={(event) => {
+            event.preventDefault();
+            beginLoad();
+            setPage(1);
+            setSearch(searchDraft.trim());
+          }}
+        >
+          <FormField htmlFor={`evidence-search-${reportId}`} label="Localizar URL">
+            <div className="flex gap-2">
+              <Input
+                className="h-9"
+                id={`evidence-search-${reportId}`}
+                onChange={(event) => setSearchDraft(event.target.value)}
+                placeholder="Parte da URL"
+                value={searchDraft}
+              />
+              <Button size="sm" type="submit" variant="outline">Buscar</Button>
+            </div>
+          </FormField>
         </form>
-        <div className="flex items-center gap-2 pb-2">
+        <div className="flex h-9 items-center gap-2">
           <Checkbox
             aria-label="Somente URLs com problemas"
             checked={filter === "issues"}
             id={`evidence-issues-${reportId}`}
-            onCheckedChange={(checked) => { beginLoad(); setFilter(checked === true ? "issues" : "all"); setPage(1); }}
+            onCheckedChange={(checked) => {
+              beginLoad();
+              setFilter(checked === true ? "issues" : "all");
+              setPage(1);
+            }}
           />
           <Label htmlFor={`evidence-issues-${reportId}`}>Somente URLs com problemas</Label>
         </div>
@@ -119,53 +153,171 @@ export function ProfileEvidenceInspector({ agencyId, profileId, reportId, totalR
 
       {loading && <p className="text-sm text-muted-foreground">Carregando evidências…</p>}
       {error && <p className="text-sm text-destructive">{error}</p>}
-      {!loading && !error && result?.data.length === 0 && <p className="text-sm text-muted-foreground">Nenhuma evidência corresponde aos filtros.</p>}
+      {!loading && !error && result?.data.length === 0 && (
+        <p className="text-sm text-muted-foreground">Nenhuma evidência corresponde aos filtros.</p>
+      )}
 
       {result && result.data.length > 0 && (
         <div className="grid gap-4 xl:grid-cols-[22rem_1fr]">
-          <div className="space-y-2">
-            <p className="text-sm text-muted-foreground">{result.meta.total} URL(s) encontrada(s)</p>
-            <ol className="space-y-2">
-              {result.data.map((record) => (
-                <li className={record.id === selectedId ? "rounded-md border border-primary bg-primary/5 p-3" : "rounded-md border p-3"} key={record.id}>
-                  <button aria-current={record.id === selectedId ? "true" : undefined} className="w-full cursor-pointer text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" onClick={() => setSelectedId(record.id)} type="button">
-                    <span className="block font-medium">{record.is_valid ? (recordWarnings(record).length > 0 ? `Válido com ${recordWarnings(record).length} aviso(s)` : "Registro válido") : `Falha crítica · ${record.errors.length} erro(s)${recordWarnings(record).length > 0 ? ` · ${recordWarnings(record).length} aviso(s)` : ""}`}</span>
-                  </button>
-                  <a className="mt-1 block break-all text-sm underline" href={record.url} rel="noreferrer" target="_blank">{record.url}</a>
-                </li>
-              ))}
+          <div className="space-y-3">
+            <p className="text-xs text-muted-foreground tabular-nums">{result.meta.total} URL(s) encontrada(s)</p>
+            <ol className="space-y-1">
+              {result.data.map((record) => {
+                const isSelected = record.id === selectedId;
+                const warnings = recordWarnings(record).length;
+                return (
+                  <li
+                    className={cn("rounded-lg px-3 py-2 transition-colors", isSelected ? "bg-primary/10" : "hover:bg-muted")}
+                    key={record.id}
+                  >
+                    <button
+                      aria-current={isSelected ? "true" : undefined}
+                      className={cn(
+                        "flex w-full cursor-pointer items-center gap-2 rounded-md text-left text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
+                        isSelected ? "text-primary" : "text-foreground",
+                      )}
+                      onClick={() => setSelectedId(record.id)}
+                      type="button"
+                    >
+                      {record.is_valid
+                        ? <CircleCheck className={cn("size-3.5 shrink-0", warnings > 0 ? "text-warning" : "text-success")} />
+                        : <CircleX className="size-3.5 shrink-0 text-destructive" />}
+                      <span>
+                        {record.is_valid
+                          ? (warnings > 0 ? `Válido com ${warnings} aviso(s)` : "Registro válido")
+                          : `Falha crítica · ${record.errors.length} erro(s)${warnings > 0 ? ` · ${warnings} aviso(s)` : ""}`}
+                      </span>
+                    </button>
+                    <a
+                      className="mt-0.5 block break-all text-xs text-muted-foreground hover:text-primary hover:underline"
+                      href={record.url}
+                      rel="noreferrer"
+                      target="_blank"
+                    >
+                      {record.url}
+                    </a>
+                  </li>
+                );
+              })}
             </ol>
             <div className="flex items-center justify-between gap-2">
-              <Button disabled={result.meta.current_page <= 1} onClick={() => { beginLoad(); setPage((current) => current - 1); }} size="sm" type="button" variant="outline">Anterior</Button>
-              <span className="text-sm">Página {result.meta.current_page} de {result.meta.last_page}</span>
-              <Button disabled={result.meta.current_page >= result.meta.last_page} onClick={() => { beginLoad(); setPage((current) => current + 1); }} size="sm" type="button" variant="outline">Próxima</Button>
+              <Button
+                disabled={result.meta.current_page <= 1}
+                onClick={() => {
+                  beginLoad();
+                  setPage((current) => current - 1);
+                }}
+                size="sm"
+                type="button"
+                variant="outline"
+              >
+                Anterior
+              </Button>
+              <span className="text-xs text-muted-foreground tabular-nums">
+                Página {result.meta.current_page} de {result.meta.last_page}
+              </span>
+              <Button
+                disabled={result.meta.current_page >= result.meta.last_page}
+                onClick={() => {
+                  beginLoad();
+                  setPage((current) => current + 1);
+                }}
+                size="sm"
+                type="button"
+                variant="outline"
+              >
+                Próxima
+              </Button>
             </div>
           </div>
 
           {selected && (
-            <article className="space-y-4" aria-label={`Evidência ${selected.url}`}>
-              <div><p className="text-sm text-muted-foreground">URL selecionada</p><a className="break-all font-medium underline" href={selected.url} rel="noreferrer" target="_blank">{selected.url}</a></div>
-              {selected.errors.length > 0 && <div><h5 className="font-semibold text-destructive">Erros</h5><ul className="mt-1 list-disc pl-5 text-sm">{selected.errors.map((item) => <li key={item}>{item}</li>)}</ul></div>}
-              {selectedWarnings.length > 0 && <div><h5 className="font-semibold text-amber-700">Avisos</h5><ul className="mt-1 list-disc pl-5 text-sm">{selectedWarnings.map((item) => <li key={item}>{item}</li>)}</ul></div>}
+            <article aria-label={`Evidência ${selected.url}`} className="space-y-4">
+              <div className="space-y-0.5">
+                <p className="text-xs text-muted-foreground">URL selecionada</p>
+                <a
+                  className="break-all text-sm text-primary hover:underline"
+                  href={selected.url}
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  {selected.url}
+                </a>
+              </div>
+              {selected.errors.length > 0 && (
+                <div className="flex items-start gap-3 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm">
+                  <CircleX className="size-4 shrink-0 text-destructive" />
+                  <div>
+                    <h5 className="text-destructive">Erros</h5>
+                    <ul className="mt-1 list-disc pl-5 text-foreground">
+                      {selected.errors.map((item) => <li key={item}>{item}</li>)}
+                    </ul>
+                  </div>
+                </div>
+              )}
+              {selectedWarnings.length > 0 && (
+                <div className="flex items-start gap-3 rounded-lg border border-warning/30 bg-warning/10 px-4 py-3 text-sm">
+                  <TriangleAlert className="size-4 shrink-0 text-warning" />
+                  <div>
+                    <h5 className="text-warning">Avisos</h5>
+                    <ul className="mt-1 list-disc pl-5 text-foreground">
+                      {selectedWarnings.map((item) => <li key={item}>{item}</li>)}
+                    </ul>
+                  </div>
+                </div>
+              )}
               <div className="grid gap-4 lg:grid-cols-2">
-                <div><h5 className="mb-2 font-semibold">Dado bruto</h5><EvidenceData data={selected.raw_data} emptyLabel="Nenhum dado bruto disponível." /></div>
-                <div><h5 className="mb-2 font-semibold">Dado normalizado</h5><EvidenceData data={selected.normalized_data} emptyLabel="Nenhum dado normalizado disponível." /></div>
+                <div className="space-y-2">
+                  <h5 className="text-xs uppercase tracking-wide text-muted-foreground">Dado bruto</h5>
+                  <EvidenceData data={selected.raw_data} emptyLabel="Nenhum dado bruto disponível." />
+                </div>
+                <div className="space-y-2">
+                  <h5 className="text-xs uppercase tracking-wide text-muted-foreground">Dado normalizado</h5>
+                  <EvidenceData data={selected.normalized_data} emptyLabel="Nenhum dado normalizado disponível." />
+                </div>
               </div>
               <div className="flex items-center justify-between gap-2">
-                <Button disabled={selectedIndex <= 0} onClick={() => setSelectedId(result.data[selectedIndex - 1]?.id ?? null)} size="sm" type="button" variant="outline">URL anterior</Button>
-                <span className="text-sm text-muted-foreground">Registro {selectedIndex + 1} de {result.data.length} nesta página</span>
-                <Button disabled={selectedIndex < 0 || selectedIndex >= result.data.length - 1} onClick={() => setSelectedId(result.data[selectedIndex + 1]?.id ?? null)} size="sm" type="button" variant="outline">Próxima URL</Button>
+                <Button
+                  disabled={selectedIndex <= 0}
+                  onClick={() => setSelectedId(result.data[selectedIndex - 1]?.id ?? null)}
+                  size="sm"
+                  type="button"
+                  variant="outline"
+                >
+                  URL anterior
+                </Button>
+                <span className="text-xs text-muted-foreground tabular-nums">
+                  Registro {selectedIndex + 1} de {result.data.length} nesta página
+                </span>
+                <Button
+                  disabled={selectedIndex < 0 || selectedIndex >= result.data.length - 1}
+                  onClick={() => setSelectedId(result.data[selectedIndex + 1]?.id ?? null)}
+                  size="sm"
+                  type="button"
+                  variant="outline"
+                >
+                  Próxima URL
+                </Button>
               </div>
-              <details className="rounded-md border p-3">
-                <summary className="cursor-pointer font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">Ver payload técnico integral</summary>
-                <pre className="mt-3 max-h-96 overflow-auto rounded bg-muted p-3 text-xs">{JSON.stringify({ raw_data: selected.raw_data, normalized_data: selected.normalized_data, errors: selected.errors, field_presence: selected.field_presence }, null, 2)}</pre>
+              <details className="rounded-lg border p-4">
+                <summary className="cursor-pointer text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40">
+                  Ver payload técnico integral
+                </summary>
+                <pre className="mt-3 max-h-96 overflow-auto rounded-lg bg-muted p-3 font-mono text-xs">
+                  {JSON.stringify({
+                    raw_data: selected.raw_data,
+                    normalized_data: selected.normalized_data,
+                    errors: selected.errors,
+                    field_presence: selected.field_presence,
+                  }, null, 2)}
+                </pre>
               </details>
             </article>
           )}
         </div>
       )}
 
-      <Button onClick={() => setOpen(false)} type="button" variant="ghost">Fechar evidências</Button>
+      <Button onClick={() => setOpen(false)} size="sm" type="button" variant="ghost">Fechar evidências</Button>
     </section>
   );
 }

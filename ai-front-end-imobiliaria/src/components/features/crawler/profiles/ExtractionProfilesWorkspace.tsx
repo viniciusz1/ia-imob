@@ -1,11 +1,13 @@
 "use client";
 
+import { FileCode2 } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 
+import { EmptyState } from "@/components/layout/EmptyState";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PrototypeSwitcher } from "@/components/ui/PrototypeSwitcher";
 import { listExtractionProfiles } from "@/services/crawlerService";
 import type {
@@ -91,23 +93,66 @@ export function ExtractionProfilesWorkspace({
     }));
   };
 
+  const generationDescription = snapshots.length === 0
+    ? "Crie um Snapshot de Discovery antes de gerar um perfil."
+    : hasCurrentProfile
+      ? "Fluxo alternativo para criar uma nova versão."
+      : "Prepare uma URL de amostra e gere o primeiro Perfil de Extração Candidato.";
+
   return (
     <div className="space-y-6">
       <Card>
-        <CardHeader className="flex-row items-center justify-between gap-3">
-          <div><CardTitle>Gerar Perfil Candidato</CardTitle><CardDescription>{snapshots.length === 0 ? "Crie um Snapshot de Discovery antes de gerar um perfil." : hasCurrentProfile ? "Fluxo alternativo para criar uma nova versão." : "Prepare uma URL de amostra e gere o primeiro Perfil de Extração Candidato."}</CardDescription></div>
-          {snapshots.length > 0 && hasCurrentProfile && <Button onClick={() => setGenerationOpen((current) => !current)} type="button" variant="outline">{generationOpen ? "Ocultar formulário" : "Mostrar formulário"}</Button>}
+        <CardHeader className={generationOpen || snapshots.length === 0 ? "border-b" : undefined}>
+          <CardTitle>Gerar Perfil Candidato</CardTitle>
+          <CardDescription>{generationDescription}</CardDescription>
+          {snapshots.length > 0 && hasCurrentProfile && (
+            <CardAction>
+              <Button onClick={() => setGenerationOpen((current) => !current)} size="sm" type="button" variant="outline">
+                {generationOpen ? "Ocultar formulário" : "Mostrar formulário"}
+              </Button>
+            </CardAction>
+          )}
         </CardHeader>
-        {snapshots.length === 0 && <CardContent><Button asChild variant="outline"><Link href={`/admin/crawler/agencies/${agency.id}/discoveries`}>Criar Discovery</Link></Button></CardContent>}
-        {generationOpen && <CardContent><ExtractionProfileGenerator agencyId={agency.id} contracts={contracts} initialOperations={operations} onOperationChange={updateOperation} onProfilesChanged={reloadProfiles} primaryAction={!hasCurrentProfile} prototypeVariant={prototypeVariant} snapshots={snapshots} /></CardContent>}
+        {snapshots.length === 0 && (
+          <CardContent>
+            <Button asChild variant="outline">
+              <Link href={`/admin/crawler/agencies/${agency.id}/discoveries`}>Criar Discovery</Link>
+            </Button>
+          </CardContent>
+        )}
+        {generationOpen && (
+          <CardContent>
+            <ExtractionProfileGenerator
+              agencyId={agency.id}
+              contracts={contracts}
+              initialOperations={operations}
+              onOperationChange={updateOperation}
+              onProfilesChanged={reloadProfiles}
+              primaryAction={!hasCurrentProfile}
+              prototypeVariant={prototypeVariant}
+              snapshots={snapshots}
+            />
+          </CardContent>
+        )}
       </Card>
 
       <Card>
-        <CardHeader><CardTitle>Perfis de Extração</CardTitle><CardDescription>Escolha entre as versões, revise validações e ative o perfil que deve orientar os próximos crawls.</CardDescription></CardHeader>
-        <CardContent className="space-y-3">
-          {orderedProfiles.length === 0
-            ? <p className="text-muted-foreground">Nenhum Perfil de Extração foi gerado. Gere um perfil candidato acima.</p>
-            : orderedProfiles.map((profile) => (
+        <CardHeader className="border-b">
+          <CardTitle>Perfis de Extração</CardTitle>
+          <CardDescription>
+            Escolha entre as versões, revise validações e ative o perfil que deve orientar os próximos crawls.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {orderedProfiles.length === 0 ? (
+            <EmptyState
+              description="Gere um perfil candidato acima."
+              icon={FileCode2}
+              title="Nenhum Perfil de Extração foi gerado."
+              variant="inline"
+            />
+          ) : (
+            orderedProfiles.map((profile) => (
               <ProfileValidationPanel
                 agencyLifecycle={lifecycle}
                 initialOperations={operations}
@@ -118,10 +163,20 @@ export function ExtractionProfilesWorkspace({
                 onProfileChange={updateProfile}
                 pollOperations={false}
               />
-            ))}
+            ))
+          )}
         </CardContent>
       </Card>
-      {prototypeVariant && <PrototypeSwitcher current={prototypeVariant} variants={[{ key: "A", name: "Lista inline" }, { key: "B", name: "Escolha da origem" }, { key: "C", name: "Busca em modal" }]} />}
+      {prototypeVariant && (
+        <PrototypeSwitcher
+          current={prototypeVariant}
+          variants={[
+            { key: "A", name: "Lista inline" },
+            { key: "B", name: "Escolha da origem" },
+            { key: "C", name: "Busca em modal" },
+          ]}
+        />
+      )}
     </div>
   );
 }

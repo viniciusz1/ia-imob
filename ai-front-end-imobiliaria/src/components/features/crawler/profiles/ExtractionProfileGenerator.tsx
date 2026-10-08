@@ -1,13 +1,16 @@
 "use client";
 
+import { TriangleAlert } from "lucide-react";
 import Link from "next/link";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { NativeSelect } from "@/components/ui/native-select";
 import {
   queueExtractionProfileGeneration,
   queueSampleUrlSuggestion,
@@ -125,11 +128,32 @@ export function ExtractionProfileGenerator({
   };
 
   if (snapshots.length === 0) {
-    return <div className="rounded-md border border-dashed p-4"><p className="font-medium">Crie um Snapshot de Discovery antes de gerar um perfil.</p><p className="mt-1 text-sm text-muted-foreground">O perfil precisa fixar um conjunto reproduzível de URLs.</p><Link className="mt-3 inline-block underline underline-offset-4" href={`/admin/crawler/agencies/${agencyId}/discoveries`}>Criar Discovery</Link></div>;
+    return (
+      <div className="flex items-start gap-3 rounded-lg border border-warning/30 bg-warning/10 px-4 py-3 text-sm">
+        <TriangleAlert className="size-4 shrink-0 text-warning" />
+        <div className="space-y-1">
+          <p className="text-foreground">Crie um Snapshot de Discovery antes de gerar um perfil.</p>
+          <p className="text-muted-foreground">O perfil precisa fixar um conjunto reproduzível de URLs.</p>
+          <Link className="inline-block text-primary hover:underline" href={`/admin/crawler/agencies/${agencyId}/discoveries`}>
+            Criar Discovery
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   if (activeContracts.length === 0) {
-    return <div className="rounded-md border border-dashed p-4"><p className="font-medium">Ative um Contrato de Dados de Mercado antes de gerar um perfil.</p><Link className="mt-3 inline-block underline underline-offset-4" href="/admin/crawler/settings">Administrar contratos</Link></div>;
+    return (
+      <div className="flex items-start gap-3 rounded-lg border border-warning/30 bg-warning/10 px-4 py-3 text-sm">
+        <TriangleAlert className="size-4 shrink-0 text-warning" />
+        <div className="space-y-1">
+          <p className="text-foreground">Ative um Contrato de Dados de Mercado antes de gerar um perfil.</p>
+          <Link className="inline-block text-primary hover:underline" href="/admin/crawler/settings">
+            Administrar contratos
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   const generationActive = generationOperation !== null && isActiveCrawlerOperation(generationOperation);
@@ -143,18 +167,107 @@ export function ExtractionProfileGenerator({
           ? "Confirme a URL de amostra antes de gerar o perfil."
           : null;
 
+  const suggesting = suggestionOperation !== null && isActiveCrawlerOperation(suggestionOperation);
+  const invalidUrl = sampleUrl !== "" && !isValidUrl;
+
   return (
-    <div className="space-y-4" id="profile-generation">
-      <div className="grid gap-3 md:grid-cols-2">
-        <div className="space-y-1"><Label htmlFor={`profile-snapshot-${agencyId}`}>Snapshot de Discovery</Label><select aria-describedby={`profile-snapshot-help-${agencyId}`} className="h-10 w-full rounded-md border bg-transparent px-3 py-2" id={`profile-snapshot-${agencyId}`} value={snapshotId} onChange={(event) => setSnapshotId(event.target.value)}><option value="">Selecione um Discovery</option>{snapshots.map((snapshot) => <option key={snapshot.id} value={snapshot.id}>#{snapshot.id} · {snapshot.url_count} URLs</option>)}</select><p className="text-xs text-muted-foreground" id={`profile-snapshot-help-${agencyId}`}>Conjunto imutável de URLs usado para gerar e reproduzir esta versão.</p></div>
-        <div className="space-y-1"><Label htmlFor={`profile-contract-${agencyId}`}>Contrato de Dados de Mercado</Label><select aria-describedby={`profile-contract-help-${agencyId}`} className="h-10 w-full rounded-md border bg-transparent px-3 py-2" id={`profile-contract-${agencyId}`} value={contractId} onChange={(event) => setContractId(event.target.value)}><option value="">Selecione o contrato</option>{activeContracts.map((contract) => <option key={contract.id} value={contract.id}>Versão {contract.version}</option>)}</select><p className="text-xs text-muted-foreground" id={`profile-contract-help-${agencyId}`}>Define os campos canônicos que o perfil deve extrair e normalizar.</p></div>
+    <div className="space-y-5" id="profile-generation">
+      <div className="grid gap-5 md:grid-cols-2">
+        <FormField htmlFor={`profile-snapshot-${agencyId}`} label="Snapshot de Discovery">
+          <NativeSelect
+            aria-describedby={`profile-snapshot-help-${agencyId}`}
+            id={`profile-snapshot-${agencyId}`}
+            onChange={(event) => setSnapshotId(event.target.value)}
+            value={snapshotId}
+          >
+            <option value="">Selecione um Discovery</option>
+            {snapshots.map((snapshot) => (
+              <option key={snapshot.id} value={snapshot.id}>#{snapshot.id} · {snapshot.url_count} URLs</option>
+            ))}
+          </NativeSelect>
+          <p className="text-xs text-muted-foreground" id={`profile-snapshot-help-${agencyId}`}>
+            Conjunto imutável de URLs usado para gerar e reproduzir esta versão.
+          </p>
+        </FormField>
+        <FormField htmlFor={`profile-contract-${agencyId}`} label="Contrato de Dados de Mercado">
+          <NativeSelect
+            aria-describedby={`profile-contract-help-${agencyId}`}
+            id={`profile-contract-${agencyId}`}
+            onChange={(event) => setContractId(event.target.value)}
+            value={contractId}
+          >
+            <option value="">Selecione o contrato</option>
+            {activeContracts.map((contract) => (
+              <option key={contract.id} value={contract.id}>Versão {contract.version}</option>
+            ))}
+          </NativeSelect>
+          <p className="text-xs text-muted-foreground" id={`profile-contract-help-${agencyId}`}>
+            Define os campos canônicos que o perfil deve extrair e normalizar.
+          </p>
+        </FormField>
       </div>
-      {prototypeVariant
-        ? <><SampleUrlPickerPrototype agencyId={agencyId} disabled={suggestionOperation !== null && isActiveCrawlerOperation(suggestionOperation)} onChange={(url) => { setSampleUrl(url); setConfirmed(false); }} onSuggest={() => void suggest()} sampleUrl={sampleUrl} snapshotId={snapshotId} suggesting={suggestionOperation !== null && isActiveCrawlerOperation(suggestionOperation)} variant={prototypeVariant} />{sampleUrl !== "" && !isValidUrl && <p className="text-sm text-destructive">Informe uma URL http ou https válida.</p>}</>
-        : <div className="space-y-1"><Label htmlFor={`profile-sample-url-${agencyId}`}>URL de amostra</Label><div className="flex gap-2"><Input aria-describedby={`profile-sample-url-help-${agencyId}`} aria-invalid={sampleUrl !== "" && !isValidUrl} id={`profile-sample-url-${agencyId}`} type="url" value={sampleUrl} onChange={(event) => { setSampleUrl(event.target.value); setConfirmed(false); }} /><Button type="button" variant="outline" onClick={() => void suggest()} disabled={suggestionOperation !== null && isActiveCrawlerOperation(suggestionOperation)}>{suggestionOperation && isActiveCrawlerOperation(suggestionOperation) ? "Buscando…" : "Sugerir pela home"}</Button></div><p className="text-xs text-muted-foreground" id={`profile-sample-url-help-${agencyId}`}>Página de imóvel usada como referência pela geração dos seletores.</p>{sampleUrl !== "" && !isValidUrl && <p className="text-sm text-destructive">Informe uma URL http ou https válida.</p>}</div>}
-      <div className="flex items-center gap-2"><Checkbox aria-label="Confirmo a URL" id={`confirm-sample-url-${agencyId}`} checked={confirmed} onCheckedChange={(checked) => setConfirmed(checked === true)} /><Label htmlFor={`confirm-sample-url-${agencyId}`}>Confirmo a URL de amostra</Label></div>
-      <Button data-primary-action={primaryAction ? "true" : undefined} disabled={disabledReason !== null} onClick={() => void generate()} type="button" variant={primaryAction ? "default" : "outline"}>Gerar Perfil Candidato</Button>
-      {disabledReason && !(sampleUrl !== "" && !isValidUrl) && <p className="text-sm text-muted-foreground">{disabledReason}</p>}
+      {prototypeVariant ? (
+        <>
+          <SampleUrlPickerPrototype
+            agencyId={agencyId}
+            disabled={suggesting}
+            onChange={(url) => {
+              setSampleUrl(url);
+              setConfirmed(false);
+            }}
+            onSuggest={() => void suggest()}
+            sampleUrl={sampleUrl}
+            snapshotId={snapshotId}
+            suggesting={suggesting}
+            variant={prototypeVariant}
+          />
+          {invalidUrl && <p className="text-xs text-destructive">Informe uma URL http ou https válida.</p>}
+        </>
+      ) : (
+        <FormField htmlFor={`profile-sample-url-${agencyId}`} label="URL de amostra">
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <Input
+              aria-describedby={`profile-sample-url-help-${agencyId}`}
+              aria-invalid={invalidUrl}
+              id={`profile-sample-url-${agencyId}`}
+              onChange={(event) => {
+                setSampleUrl(event.target.value);
+                setConfirmed(false);
+              }}
+              type="url"
+              value={sampleUrl}
+            />
+            <Button disabled={suggesting} onClick={() => void suggest()} type="button" variant="outline">
+              {suggesting ? "Buscando…" : "Sugerir pela home"}
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground" id={`profile-sample-url-help-${agencyId}`}>
+            Página de imóvel usada como referência pela geração dos seletores.
+          </p>
+          {invalidUrl && <p className="text-xs text-destructive">Informe uma URL http ou https válida.</p>}
+        </FormField>
+      )}
+      <div className="flex items-center gap-2">
+        <Checkbox
+          aria-label="Confirmo a URL"
+          checked={confirmed}
+          id={`confirm-sample-url-${agencyId}`}
+          onCheckedChange={(checked) => setConfirmed(checked === true)}
+        />
+        <Label htmlFor={`confirm-sample-url-${agencyId}`}>Confirmo a URL de amostra</Label>
+      </div>
+      <div className="flex flex-wrap items-center gap-3">
+        <Button
+          data-primary-action={primaryAction ? "true" : undefined}
+          disabled={disabledReason !== null}
+          onClick={() => void generate()}
+          type="button"
+          variant={primaryAction ? "default" : "outline"}
+        >
+          Gerar Perfil Candidato
+        </Button>
+        {disabledReason && !invalidUrl && <p className="text-sm text-muted-foreground">{disabledReason}</p>}
+      </div>
       {suggestionOperation && <CrawlerOperationStatus agencyId={agencyId} operation={suggestionOperation} />}
       {generationOperation && <CrawlerOperationStatus agencyId={agencyId} operation={generationOperation} />}
     </div>

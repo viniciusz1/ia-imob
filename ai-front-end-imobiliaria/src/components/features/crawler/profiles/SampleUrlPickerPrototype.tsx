@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
 import { listDiscoverySnapshotUrls } from "@/services/crawlerService";
 import type { DiscoverySnapshotUrl } from "@/types/crawler";
 
@@ -53,8 +54,18 @@ function UrlRows({ onSelect, query = "", selected, urls }: { onSelect: (url: str
   return (
     <div className="max-h-64 divide-y overflow-y-auto">
       {filtered.map((item) => (
-        <button className="flex w-full items-center gap-3 p-3 text-left hover:bg-accent" key={item.id} onClick={() => onSelect(item.url)} type="button">
-          <span className="flex size-5 shrink-0 items-center justify-center rounded-full border">{selected === item.url && <Check className="size-3.5" />}</span>
+        <button
+          className={cn(
+            "flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-muted",
+            selected === item.url && "bg-primary/10 text-primary hover:bg-primary/10",
+          )}
+          key={item.id}
+          onClick={() => onSelect(item.url)}
+          type="button"
+        >
+          <span className="flex size-5 shrink-0 items-center justify-center rounded-full border">
+            {selected === item.url && <Check className="size-3.5" />}
+          </span>
           <span className="min-w-0 flex-1 truncate text-sm">{item.url}</span>
           <ExternalLink className="size-3.5 shrink-0 text-muted-foreground" />
         </button>
@@ -64,28 +75,70 @@ function UrlRows({ onSelect, query = "", selected, urls }: { onSelect: (url: str
 }
 
 function LoadingState({ status }: { status: "idle" | "loading" | "loaded" | "error" }) {
-  if (status === "loading") return <p className="flex items-center gap-2 p-4 text-sm text-muted-foreground"><LoaderCircle className="size-4 animate-spin" />Carregando URLs do snapshot…</p>;
+  if (status === "loading") {
+    return (
+      <p className="flex items-center gap-2 p-4 text-sm text-muted-foreground">
+        <LoaderCircle className="size-4 animate-spin" />
+        Carregando URLs do snapshot…
+      </p>
+    );
+  }
   if (status === "error") return <p className="p-4 text-sm text-destructive">Não foi possível carregar as URLs do snapshot.</p>;
   return null;
 }
 
 function ManualInput({ agencyId, onChange, sampleUrl }: Pick<SampleUrlPickerPrototypeProps, "agencyId" | "onChange" | "sampleUrl">) {
-  return <Input aria-describedby={`profile-sample-url-help-${agencyId}`} id={`profile-sample-url-${agencyId}`} onChange={(event) => onChange(event.target.value)} placeholder="https://imobiliaria.com/imovel/..." type="url" value={sampleUrl} />;
+  return (
+    <Input
+      aria-describedby={`profile-sample-url-help-${agencyId}`}
+      id={`profile-sample-url-${agencyId}`}
+      onChange={(event) => onChange(event.target.value)}
+      placeholder="https://imobiliaria.com/imovel/..."
+      type="url"
+      value={sampleUrl}
+    />
+  );
 }
 
 function VariantA(props: SampleUrlPickerPrototypeProps) {
   const [open, setOpen] = useState(false);
   const state = useSnapshotUrls(props.snapshotId, open);
   return (
-    <div className="space-y-2">
+    <div className="space-y-1.5">
       <Label htmlFor={`profile-sample-url-${props.agencyId}`}>URL de amostra</Label>
       <div className="flex flex-col gap-2 lg:flex-row">
         <ManualInput {...props} />
-        <Button aria-expanded={open} onClick={() => setOpen((value) => !value)} type="button" variant="outline"><List />Escolher do snapshot<ChevronDown className={`transition-transform ${open ? "rotate-180" : ""}`} /></Button>
-        <Button disabled={props.disabled} onClick={props.onSuggest} type="button" variant="outline"><Sparkles />{props.suggesting ? "Buscando…" : "Sugerir pela home"}</Button>
+        <Button aria-expanded={open} onClick={() => setOpen((value) => !value)} type="button" variant="outline">
+          <List />
+          Escolher do snapshot
+          <ChevronDown className={cn("transition-transform", open && "rotate-180")} />
+        </Button>
+        <Button disabled={props.disabled} onClick={props.onSuggest} type="button" variant="outline">
+          <Sparkles />
+          {props.suggesting ? "Buscando…" : "Sugerir pela home"}
+        </Button>
       </div>
-      <p className="text-xs text-muted-foreground" id={`profile-sample-url-help-${props.agencyId}`}>Digite uma URL, escolha uma das URLs descobertas ou peça uma sugestão automática.</p>
-      {open && <div className="overflow-hidden rounded-md border bg-background"><div className="border-b bg-muted/30 px-3 py-2 text-sm font-medium">URLs do snapshot selecionado</div><LoadingState status={state.status} />{state.status === "loaded" && <UrlRows onSelect={(url) => { props.onChange(url); setOpen(false); }} selected={props.sampleUrl} urls={state.urls} />}</div>}
+      <p className="text-xs text-muted-foreground" id={`profile-sample-url-help-${props.agencyId}`}>
+        Digite uma URL, escolha uma das URLs descobertas ou peça uma sugestão automática.
+      </p>
+      {open && (
+        <div className="overflow-hidden rounded-lg border">
+          <div className="border-b bg-muted/40 px-4 py-2 text-xs uppercase tracking-wide text-muted-foreground">
+            URLs do snapshot selecionado
+          </div>
+          <LoadingState status={state.status} />
+          {state.status === "loaded" && (
+            <UrlRows
+              onSelect={(url) => {
+                props.onChange(url);
+                setOpen(false);
+              }}
+              selected={props.sampleUrl}
+              urls={state.urls}
+            />
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -94,19 +147,41 @@ function VariantB(props: SampleUrlPickerPrototypeProps) {
   const [source, setSource] = useState("snapshot");
   const state = useSnapshotUrls(props.snapshotId, source === "snapshot");
   return (
-    <div className="rounded-lg border p-4">
-      <div className="mb-3"><p className="font-medium">Como deseja definir a URL de amostra?</p><p className="text-xs text-muted-foreground">Você poderá revisar a escolha antes de gerar o perfil.</p></div>
+    <div className="space-y-4 rounded-lg border p-4">
+      <div>
+        <p className="text-sm text-foreground">Como deseja definir a URL de amostra?</p>
+        <p className="text-xs text-muted-foreground">Você poderá revisar a escolha antes de gerar o perfil.</p>
+      </div>
       <Tabs onValueChange={setSource} value={source}>
-        <TabsList className="grid h-auto w-full grid-cols-3">
+        <TabsList>
           <TabsTrigger value="snapshot"><List />Snapshot</TabsTrigger>
           <TabsTrigger value="manual"><Link2 />Digitar URL</TabsTrigger>
           <TabsTrigger value="suggestion"><Sparkles />Sugestão</TabsTrigger>
         </TabsList>
-        <TabsContent className="mt-3 overflow-hidden rounded-md border" value="snapshot"><LoadingState status={state.status} />{state.status === "loaded" && <UrlRows onSelect={props.onChange} selected={props.sampleUrl} urls={state.urls} />}</TabsContent>
-        <TabsContent className="mt-3 space-y-2" value="manual"><Label htmlFor={`profile-sample-url-${props.agencyId}`}>Cole a URL do imóvel</Label><ManualInput {...props} /></TabsContent>
-        <TabsContent className="mt-3 rounded-md border bg-muted/20 p-4" value="suggestion"><p className="mb-3 text-sm text-muted-foreground">Vamos analisar a home da imobiliária e procurar uma página de imóvel adequada.</p><Button disabled={props.disabled} onClick={props.onSuggest} type="button"><Sparkles />{props.suggesting ? "Buscando sugestão…" : "Buscar sugestão pela home"}</Button></TabsContent>
+        <TabsContent className="overflow-hidden rounded-lg border" value="snapshot">
+          <LoadingState status={state.status} />
+          {state.status === "loaded" && <UrlRows onSelect={props.onChange} selected={props.sampleUrl} urls={state.urls} />}
+        </TabsContent>
+        <TabsContent className="space-y-1.5" value="manual">
+          <Label htmlFor={`profile-sample-url-${props.agencyId}`}>Cole a URL do imóvel</Label>
+          <ManualInput {...props} />
+        </TabsContent>
+        <TabsContent className="space-y-3 rounded-lg border p-4" value="suggestion">
+          <p className="text-sm text-muted-foreground">
+            Vamos analisar a home da imobiliária e procurar uma página de imóvel adequada.
+          </p>
+          <Button disabled={props.disabled} onClick={props.onSuggest} type="button">
+            <Sparkles />
+            {props.suggesting ? "Buscando sugestão…" : "Buscar sugestão pela home"}
+          </Button>
+        </TabsContent>
       </Tabs>
-      {props.sampleUrl && <div className="mt-3 rounded-md bg-primary/5 p-3 text-sm"><span className="font-medium">URL escolhida: </span><span className="break-all">{props.sampleUrl}</span></div>}
+      {props.sampleUrl && (
+        <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm">
+          <span className="text-muted-foreground">URL escolhida: </span>
+          <span className="break-all text-foreground">{props.sampleUrl}</span>
+        </div>
+      )}
     </div>
   );
 }
@@ -116,21 +191,58 @@ function VariantC(props: SampleUrlPickerPrototypeProps) {
   const [query, setQuery] = useState("");
   const state = useSnapshotUrls(props.snapshotId, open);
   return (
-    <div className="space-y-2">
+    <div className="space-y-1.5">
       <Label htmlFor={`profile-sample-url-${props.agencyId}`}>URL de amostra</Label>
       <div className="flex flex-col gap-2 lg:flex-row">
         <ManualInput {...props} />
         <Dialog onOpenChange={setOpen} open={open}>
-          <DialogTrigger asChild><Button type="button" variant="outline"><Search />Buscar no snapshot</Button></DialogTrigger>
+          <DialogTrigger asChild>
+            <Button type="button" variant="outline">
+              <Search />
+              Buscar no snapshot
+            </Button>
+          </DialogTrigger>
           <DialogContent className="sm:max-w-2xl">
-            <DialogHeader><DialogTitle>Escolher URL do Snapshot #{props.snapshotId}</DialogTitle><DialogDescription>Procure entre as URLs encontradas no Discovery e selecione uma página de imóvel.</DialogDescription></DialogHeader>
-            <div className="relative"><Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" /><Input aria-label="Filtrar URLs" className="pl-9" onChange={(event) => setQuery(event.target.value)} placeholder="Filtrar por trecho da URL…" value={query} /></div>
-            <div className="overflow-hidden rounded-md border"><LoadingState status={state.status} />{state.status === "loaded" && <UrlRows onSelect={(url) => { props.onChange(url); setOpen(false); }} query={query} selected={props.sampleUrl} urls={state.urls} />}</div>
+            <DialogHeader>
+              <DialogTitle>Escolher URL do Snapshot #{props.snapshotId}</DialogTitle>
+              <DialogDescription>
+                Procure entre as URLs encontradas no Discovery e selecione uma página de imóvel.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="relative">
+              <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                aria-label="Filtrar URLs"
+                className="pl-9"
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Filtrar por trecho da URL…"
+                value={query}
+              />
+            </div>
+            <div className="overflow-hidden rounded-lg border">
+              <LoadingState status={state.status} />
+              {state.status === "loaded" && (
+                <UrlRows
+                  onSelect={(url) => {
+                    props.onChange(url);
+                    setOpen(false);
+                  }}
+                  query={query}
+                  selected={props.sampleUrl}
+                  urls={state.urls}
+                />
+              )}
+            </div>
           </DialogContent>
         </Dialog>
-        <Button disabled={props.disabled} onClick={props.onSuggest} type="button" variant="ghost"><Sparkles />{props.suggesting ? "Buscando…" : "Sugerir pela home"}</Button>
+        <Button disabled={props.disabled} onClick={props.onSuggest} type="button" variant="ghost">
+          <Sparkles />
+          {props.suggesting ? "Buscando…" : "Sugerir pela home"}
+        </Button>
       </div>
-      <p className="text-xs text-muted-foreground" id={`profile-sample-url-help-${props.agencyId}`}>Página de imóvel usada como referência pela geração dos seletores.</p>
+      <p className="text-xs text-muted-foreground" id={`profile-sample-url-help-${props.agencyId}`}>
+        Página de imóvel usada como referência pela geração dos seletores.
+      </p>
     </div>
   );
 }

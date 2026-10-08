@@ -1,13 +1,15 @@
 "use client";
 
+import { ChevronDown, ChevronUp, CircleX, TriangleAlert } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 import {
   activateCrawlAgency,
   activateExtractionProfile,
@@ -61,12 +63,12 @@ const strategyLabels: Record<string, string> = {
   xpath: "Seletores XPath",
 };
 
-const statusVariants: Record<ExtractionProfile["status"], "default" | "secondary" | "destructive" | "outline"> = {
-  candidate: "outline",
-  approved: "secondary",
+const statusVariants: Record<ExtractionProfile["status"], "info" | "success" | "destructive" | "warning" | "muted"> = {
+  candidate: "info",
+  approved: "muted",
   rejected: "destructive",
-  active: "default",
-  revalidation_required: "destructive",
+  active: "success",
+  revalidation_required: "warning",
 };
 
 function profileValidationOperation(operations: CrawlerOperation[], profileId: number): CrawlerOperation | null {
@@ -193,52 +195,247 @@ export function ProfileValidationPanel({
   };
 
   return (
-    <article className="space-y-3 rounded-md border p-4" id={`profile-${profile.id}`}>
+    <article className="space-y-4 rounded-lg border p-4" id={`profile-${profile.id}`}>
       <header className="flex flex-wrap items-start justify-between gap-3">
-        <div className="space-y-1">
-          <div className="flex flex-wrap items-center gap-2"><h3 className="font-semibold">Perfil v{profile.version}</h3><Badge variant={statusVariants[profile.status]}>{statusLabels[profile.status]}</Badge></div>
-          <p className="text-sm text-muted-foreground">Criado em {formatDate(profile.created_at)} · Discovery #{profile.discovery_snapshot_id} · Contrato #{profile.market_data_contract_version_id}</p>
-          {report && <p className="text-sm text-muted-foreground">Última validação em {formatDate(report.created_at)} · {Math.round(report.valid_ratio * 100)}% de registros válidos</p>}
+        <div className="min-w-0 space-y-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <h3 className="text-base text-foreground">Perfil v{profile.version}</h3>
+            <Badge variant={statusVariants[profile.status]}>{statusLabels[profile.status]}</Badge>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Criado em {formatDate(profile.created_at)} · Discovery #{profile.discovery_snapshot_id} · Contrato #{profile.market_data_contract_version_id}
+          </p>
+          {report && (
+            <p className="text-xs text-muted-foreground">
+              Última validação em {formatDate(report.created_at)} · {Math.round(report.valid_ratio * 100)}% de registros válidos
+            </p>
+          )}
         </div>
         <div className="flex flex-wrap gap-2">
-          {canDecide && !operationActive && <Button asChild variant="outline"><Link href={`/admin/crawler/agencies/${profile.crawl_agency_id}/crawls`}>Validar em Crawls</Link></Button>}
-          {profile.status === "approved" && <Button disabled={pendingAction !== null} onClick={() => void activateProfile()} type="button">{pendingAction === "activate-profile" ? "Ativando Perfil…" : "Ativar Perfil de Extração"}</Button>}
-          {profile.status === "active" && lifecycle === "onboarding" && <Button disabled={pendingAction !== null} onClick={() => void activateAgency()} type="button">{pendingAction === "activate-agency" ? "Ativando Crawl Agency…" : "Ativar Crawl Agency"}</Button>}
+          {canDecide && !operationActive && (
+            <Button asChild size="sm" variant="outline">
+              <Link href={`/admin/crawler/agencies/${profile.crawl_agency_id}/crawls`}>Validar em Crawls</Link>
+            </Button>
+          )}
+          {profile.status === "approved" && (
+            <Button disabled={pendingAction !== null} onClick={() => void activateProfile()} size="sm" type="button">
+              {pendingAction === "activate-profile" ? "Ativando Perfil…" : "Ativar Perfil de Extração"}
+            </Button>
+          )}
+          {profile.status === "active" && lifecycle === "onboarding" && (
+            <Button disabled={pendingAction !== null} onClick={() => void activateAgency()} size="sm" type="button">
+              {pendingAction === "activate-agency" ? "Ativando Crawl Agency…" : "Ativar Crawl Agency"}
+            </Button>
+          )}
         </div>
       </header>
 
       {operation && <CrawlerOperationStatus agencyId={profile.crawl_agency_id} operation={operation} />}
       {actionError && <p className="text-sm text-destructive" role="alert">{actionError}</p>}
 
-      <Button aria-expanded={expanded} onClick={() => setExpanded((current) => !current)} type="button" variant="ghost">{expanded ? `Ocultar detalhes do Perfil v${profile.version}` : `Ver detalhes do Perfil v${profile.version}`}</Button>
+      <Button
+        aria-expanded={expanded}
+        onClick={() => setExpanded((current) => !current)}
+        size="sm"
+        type="button"
+        variant="ghost"
+      >
+        {expanded ? <ChevronUp /> : <ChevronDown />}
+        {expanded ? `Ocultar detalhes do Perfil v${profile.version}` : `Ver detalhes do Perfil v${profile.version}`}
+      </Button>
 
-      {expanded && <div className="space-y-5 border-t pt-4">
-        <section className="space-y-4 text-sm">
-          <h4 className="font-semibold">Configuração versionada</h4>
-          <dl className="grid gap-3 sm:grid-cols-2">
-            <div><dt className="text-muted-foreground">URL de amostra</dt><dd className="break-all">{profile.sample_url}</dd></div>
-            <div><dt className="text-muted-foreground">Snapshot de Discovery</dt><dd>#{profile.discovery_snapshot_id}</dd></div>
-            <div><dt className="text-muted-foreground">Contrato de Dados de Mercado</dt><dd>#{profile.market_data_contract_version_id}</dd></div>
-            <div><dt className="text-muted-foreground">Estado técnico</dt><dd><code>{profile.status}</code></dd></div>
-            <div><dt className="text-muted-foreground">Estratégias</dt><dd>{profile.strategies.map((strategy) => strategyLabels[strategy] ? `${strategyLabels[strategy]} (${strategy})` : strategy).join(", ") || "—"}</dd></div>
-          </dl>
-          <div><h5 className="font-medium">Campos</h5>{profile.fields.length === 0 ? <p className="text-muted-foreground">Nenhum campo configurado.</p> : <ul className="mt-1 space-y-1">{profile.fields.map((field) => <li key={field.name}>{fieldLabels[field.name] ? `${fieldLabels[field.name]} (${field.name})` : field.name} · {field.type} · {field.required ? "obrigatório" : "opcional"}{field.normalization.length > 0 ? ` · ${field.normalization.join(", ")}` : ""}</li>)}</ul>}</div>
-          <div className="grid gap-3 lg:grid-cols-2"><div><h5 className="font-medium">Schemas</h5><pre className="mt-1 max-h-80 overflow-auto rounded bg-muted p-3 text-xs">{JSON.stringify(profile.schemas, null, 2)}</pre></div><div><h5 className="font-medium">Parâmetros</h5><pre className="mt-1 max-h-80 overflow-auto rounded bg-muted p-3 text-xs">{JSON.stringify(profile.parameters, null, 2)}</pre></div></div>
-        </section>
+      {expanded && (
+        <div className="space-y-5 border-t pt-4">
+          <section className="space-y-4 text-sm">
+            <h4 className="text-base text-foreground">Configuração versionada</h4>
+            <dl className="grid gap-4 sm:grid-cols-2">
+              <DetailItem label="URL de amostra"><span className="break-all">{profile.sample_url}</span></DetailItem>
+              <DetailItem label="Snapshot de Discovery">#{profile.discovery_snapshot_id}</DetailItem>
+              <DetailItem label="Contrato de Dados de Mercado">#{profile.market_data_contract_version_id}</DetailItem>
+              <DetailItem label="Estado técnico">
+                <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">{profile.status}</code>
+              </DetailItem>
+              <DetailItem label="Estratégias">
+                {profile.strategies
+                  .map((strategy) => strategyLabels[strategy] ? `${strategyLabels[strategy]} (${strategy})` : strategy)
+                  .join(", ") || "—"}
+              </DetailItem>
+            </dl>
+            <div className="space-y-1">
+              <h5 className="text-xs uppercase tracking-wide text-muted-foreground">Campos</h5>
+              {profile.fields.length === 0 ? (
+                <p className="text-muted-foreground">Nenhum campo configurado.</p>
+              ) : (
+                <ul className="space-y-1 text-foreground">
+                  {profile.fields.map((field) => (
+                    <li key={field.name}>
+                      {fieldLabels[field.name] ? `${fieldLabels[field.name]} (${field.name})` : field.name} · {field.type} · {field.required ? "obrigatório" : "opcional"}
+                      {field.normalization.length > 0 ? ` · ${field.normalization.join(", ")}` : ""}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            <div className="grid gap-4 lg:grid-cols-2">
+              <div className="space-y-1">
+                <h5 className="text-xs uppercase tracking-wide text-muted-foreground">Schemas</h5>
+                <pre className="max-h-80 overflow-auto rounded-lg bg-muted p-3 font-mono text-xs">
+                  {JSON.stringify(profile.schemas, null, 2)}
+                </pre>
+              </div>
+              <div className="space-y-1">
+                <h5 className="text-xs uppercase tracking-wide text-muted-foreground">Parâmetros</h5>
+                <pre className="max-h-80 overflow-auto rounded-lg bg-muted p-3 font-mono text-xs">
+                  {JSON.stringify(profile.parameters, null, 2)}
+                </pre>
+              </div>
+            </div>
+          </section>
 
-        {report && <section className="space-y-4 rounded-lg border bg-muted/20 p-4">
-          <div className="flex flex-wrap items-center justify-between gap-3"><div><h4 className="font-semibold">Resultado da validação</h4><p className="text-sm text-muted-foreground">Os limites são recomendações técnicas; a aprovação permanece uma decisão humana justificada.</p></div><Badge variant={recommended ? "secondary" : "outline"}>{recommended ? "Dentro da recomendação" : "Fora da recomendação"}</Badge></div>
-          <div className="grid gap-3 sm:grid-cols-3"><div className="rounded-md border bg-background p-3"><p className="text-xs text-muted-foreground">Registros válidos</p><p className="mt-1 text-lg font-semibold">{report.valid_record_count}/{report.sampled_url_count} · {Math.round(report.valid_ratio * 100)}%</p><p className={validRatioRecommended ? "text-xs text-emerald-700" : "text-xs text-amber-700"}>Recomendado: 80% ou mais</p></div><div className="rounded-md border bg-background p-3"><p className="text-xs text-muted-foreground">Cobertura obrigatória</p><p className="mt-1 text-lg font-semibold">{coverageRecommended ? "Atendida" : "Abaixo do recomendado"}</p><p className="text-xs text-muted-foreground">Recomendado: 90% por campo</p></div><div className="rounded-md border bg-background p-3"><p className="text-xs text-muted-foreground">Falhas Críticas de Validação</p><p className="mt-1 text-lg font-semibold">{report.blocking_failures.length}</p><p className="text-xs text-muted-foreground">Exigem revisão e justificativa</p></div></div>
-          <div className="flex flex-wrap gap-2">{Object.entries(report.required_field_coverage).map(([field, value]) => <Badge key={field} variant={value >= 0.9 ? "secondary" : "outline"}>{fieldLabels[field] ?? field}: {Math.round(value * 100)}%</Badge>)}</div>
-          {(report.blocking_failures.length > 0 || report.warnings.length > 0) && <div className="space-y-2 rounded-md border bg-background p-3"><h5 className="font-medium">Alertas e falhas</h5>{report.blocking_failures.map((failure) => <p className="text-sm text-destructive" key={failure}>Falha crítica de validação: {failure}</p>)}{report.warnings.map((warning) => <p className="text-sm text-amber-700" key={warning}>{warning}</p>)}</div>}
-          <ProfileEvidenceInspector agencyId={profile.crawl_agency_id} profileId={profile.id} reportId={report.id} totalRecords={report.sampled_url_count} />
-          {canDecide && allowDecision && <div className="rounded-md border border-primary/30 bg-primary/5 p-3"><p className="mb-3 text-sm">Registre a justificativa da decisão. É possível aprovar abaixo da recomendação após revisar as evidências.</p><div className="space-y-1"><Label htmlFor={`profile-decision-reason-${profile.id}`}>Motivo da decisão</Label><Input id={`profile-decision-reason-${profile.id}`} onChange={(event) => setReason(event.target.value)} value={reason} /></div><div className="mt-3 flex flex-wrap gap-2"><Button data-primary-action="true" disabled={reason.trim() === "" || pendingAction !== null} onClick={() => void decide("approved")} type="button">{pendingAction === "approve" ? "Aprovando…" : "Aprovar Perfil"}</Button><Button disabled={reason.trim() === "" || pendingAction !== null} onClick={() => void decide("rejected")} type="button" variant="outline">{pendingAction === "reject" ? "Rejeitando…" : "Rejeitar Perfil"}</Button></div></div>}
-        </section>}
+          {report && (
+            <section className="space-y-4 rounded-lg border p-4">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <h4 className="text-base text-foreground">Resultado da validação</h4>
+                  <p className="text-xs text-muted-foreground">
+                    Os limites são recomendações técnicas; a aprovação permanece uma decisão humana justificada.
+                  </p>
+                </div>
+                <Badge variant={recommended ? "success" : "warning"}>
+                  {recommended ? "Dentro da recomendação" : "Fora da recomendação"}
+                </Badge>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-3">
+                <MetricTile
+                  hint="Recomendado: 80% ou mais"
+                  hintClassName={validRatioRecommended ? "text-success" : "text-warning"}
+                  label="Registros válidos"
+                  value={`${report.valid_record_count}/${report.sampled_url_count} · ${Math.round(report.valid_ratio * 100)}%`}
+                />
+                <MetricTile
+                  hint="Recomendado: 90% por campo"
+                  label="Cobertura obrigatória"
+                  value={coverageRecommended ? "Atendida" : "Abaixo do recomendado"}
+                />
+                <MetricTile
+                  hint="Exigem revisão e justificativa"
+                  label="Falhas Críticas de Validação"
+                  value={report.blocking_failures.length}
+                />
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {Object.entries(report.required_field_coverage).map(([field, value]) => (
+                  <Badge key={field} variant={value >= 0.9 ? "success" : "warning"}>
+                    {fieldLabels[field] ?? field}: {Math.round(value * 100)}%
+                  </Badge>
+                ))}
+              </div>
+              {(report.blocking_failures.length > 0 || report.warnings.length > 0) && (
+                <div className="space-y-2 rounded-lg border p-4">
+                  <h5 className="text-sm text-foreground">Alertas e falhas</h5>
+                  {report.blocking_failures.map((failure) => (
+                    <p className="flex items-start gap-2 text-sm text-destructive" key={failure}>
+                      <CircleX className="mt-0.5 size-4 shrink-0" />
+                      Falha crítica de validação: {failure}
+                    </p>
+                  ))}
+                  {report.warnings.map((warning) => (
+                    <p className="flex items-start gap-2 text-sm text-warning" key={warning}>
+                      <TriangleAlert className="mt-0.5 size-4 shrink-0" />
+                      {warning}
+                    </p>
+                  ))}
+                </div>
+              )}
+              <ProfileEvidenceInspector
+                agencyId={profile.crawl_agency_id}
+                profileId={profile.id}
+                reportId={report.id}
+                totalRecords={report.sampled_url_count}
+              />
+              {canDecide && allowDecision && (
+                <div className="space-y-4 rounded-lg border border-primary/20 bg-primary/5 p-4">
+                  <p className="text-sm text-foreground">
+                    Registre a justificativa da decisão. É possível aprovar abaixo da recomendação após revisar as evidências.
+                  </p>
+                  <FormField htmlFor={`profile-decision-reason-${profile.id}`} label="Motivo da decisão">
+                    <Input
+                      id={`profile-decision-reason-${profile.id}`}
+                      onChange={(event) => setReason(event.target.value)}
+                      value={reason}
+                    />
+                  </FormField>
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      data-primary-action="true"
+                      disabled={reason.trim() === "" || pendingAction !== null}
+                      onClick={() => void decide("approved")}
+                      type="button"
+                    >
+                      {pendingAction === "approve" ? "Aprovando…" : "Aprovar Perfil"}
+                    </Button>
+                    <Button
+                      disabled={reason.trim() === "" || pendingAction !== null}
+                      onClick={() => void decide("rejected")}
+                      type="button"
+                      variant="outline"
+                    >
+                      {pendingAction === "reject" ? "Rejeitando…" : "Rejeitar Perfil"}
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </section>
+          )}
 
-        {(profile.decider || profile.decided_at || profile.decision_reason) && <section className="space-y-1 rounded-md border p-3 text-sm"><h4 className="font-semibold">Decisão registrada</h4><p>{profile.decider?.name ?? (profile.decided_by ? `Usuário #${profile.decided_by}` : "Responsável não informado")} · {formatDate(profile.decided_at)}</p><p className="text-muted-foreground">{profile.decision_reason ?? "Sem justificativa registrada."}</p></section>}
-        {(profile.activator || profile.activated_at) && <section className="space-y-1 rounded-md border p-3 text-sm"><h4 className="font-semibold">Ativação registrada</h4><p>{profile.activator?.name ?? (profile.activated_by ? `Usuário #${profile.activated_by}` : "Responsável não informado")} · {formatDate(profile.activated_at)}</p></section>}
-      </div>}
-
+          {(profile.decider || profile.decided_at || profile.decision_reason) && (
+            <section className="space-y-1 rounded-lg border p-4 text-sm">
+              <h4 className="text-base text-foreground">Decisão registrada</h4>
+              <p className="text-foreground">
+                {profile.decider?.name ?? (profile.decided_by ? `Usuário #${profile.decided_by}` : "Responsável não informado")} · {formatDate(profile.decided_at)}
+              </p>
+              <p className="text-muted-foreground">{profile.decision_reason ?? "Sem justificativa registrada."}</p>
+            </section>
+          )}
+          {(profile.activator || profile.activated_at) && (
+            <section className="space-y-1 rounded-lg border p-4 text-sm">
+              <h4 className="text-base text-foreground">Ativação registrada</h4>
+              <p className="text-foreground">
+                {profile.activator?.name ?? (profile.activated_by ? `Usuário #${profile.activated_by}` : "Responsável não informado")} · {formatDate(profile.activated_at)}
+              </p>
+            </section>
+          )}
+        </div>
+      )}
     </article>
+  );
+}
+
+function DetailItem({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div className="space-y-0.5">
+      <dt className="text-xs text-muted-foreground">{label}</dt>
+      <dd className="text-sm text-foreground">{children}</dd>
+    </div>
+  );
+}
+
+function MetricTile({
+  label,
+  value,
+  hint,
+  hintClassName = "text-muted-foreground",
+}: {
+  label: string;
+  value: ReactNode;
+  hint: string;
+  hintClassName?: string;
+}) {
+  return (
+    <div className="rounded-lg border p-4">
+      <p className="text-xs uppercase tracking-wide text-muted-foreground">{label}</p>
+      <p className="mt-1 text-lg text-foreground tabular-nums">{value}</p>
+      <p className={cn("text-xs", hintClassName)}>{hint}</p>
+    </div>
   );
 }
