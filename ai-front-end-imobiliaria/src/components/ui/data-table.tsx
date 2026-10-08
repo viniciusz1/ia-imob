@@ -8,7 +8,7 @@ import {
 } from "@tanstack/react-table";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-import { Button } from "@/components/ui/button";
+import { PaginationFooter } from "@/components/layout/PaginationFooter";
 import {
   Table,
   TableBody,
@@ -93,29 +93,7 @@ export function DataTable<TData, TValue>({
         </TableBody>
       </Table>
 
-      <div className="flex flex-wrap items-center justify-between gap-3 border-t px-4 py-3">
-        <p className="text-sm text-muted-foreground tabular-nums">
-          Mostrando página {currentPage} de {normalizedPageCount}
-        </p>
-        <div className="flex items-center gap-2">
-          <Button
-            disabled={currentPage <= 1}
-            onClick={() => handlePageChange(currentPage - 1)}
-            size="sm"
-            variant="outline"
-          >
-            Anterior
-          </Button>
-          <Button
-            disabled={currentPage >= normalizedPageCount}
-            onClick={() => handlePageChange(currentPage + 1)}
-            size="sm"
-            variant="outline"
-          >
-            Próxima
-          </Button>
-        </div>
-      </div>
+      <PaginationFooter onPageChange={handlePageChange} page={currentPage} pageCount={normalizedPageCount} />
     </div>
   );
 }

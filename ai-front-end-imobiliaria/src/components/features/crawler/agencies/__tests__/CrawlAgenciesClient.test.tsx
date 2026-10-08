@@ -50,7 +50,7 @@ describe("CrawlAgenciesClient", () => {
       "href",
       "/admin/crawler/agencies/42",
     );
-    expect(screen.getByText("Mostrando página 2 de 2")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Página 2" })).toHaveAttribute("aria-current", "page");
   });
 
   it("sends the search to the server and resets pagination", () => {
