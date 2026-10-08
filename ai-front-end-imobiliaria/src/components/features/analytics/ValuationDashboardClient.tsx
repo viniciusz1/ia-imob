@@ -200,7 +200,12 @@ function ValuationRows({ rows, groupLabel }: { rows: ValuationRow[]; groupLabel:
   const showMedian = rows.some((row) => row.medianValue !== undefined);
 
   if (rows.length === 0) {
-    return <EmptyState icon={ClipboardX} title="Sem avaliações neste recorte." variant="inline" />;
+    return (
+      <div>
+        <EmptyState icon={ClipboardX} title="Sem avaliações neste recorte." variant="inline" />
+        <PaginationFooter paged={paged} noun="grupos" />
+      </div>
+    );
   }
 
   return (

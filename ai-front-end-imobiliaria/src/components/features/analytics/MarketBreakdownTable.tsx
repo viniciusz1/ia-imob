@@ -92,7 +92,12 @@ function BreakdownRows({ rows, groupLabel }: { rows: BreakdownRow[]; groupLabel:
   const paged = usePagedItems(rows);
 
   if (rows.length === 0) {
-    return <EmptyState icon={SearchX} title="Sem imóveis neste recorte." variant="inline" />;
+    return (
+      <div>
+        <EmptyState icon={SearchX} title="Sem imóveis neste recorte." variant="inline" />
+        <PaginationFooter paged={paged} noun="grupos" />
+      </div>
+    );
   }
 
   return (

@@ -73,16 +73,24 @@ describe("usePagedItems", () => {
     expect(screen.getByRole("button", { name: "Anterior" })).toBeDisabled();
   });
 
-  it("hides the footer when everything fits on one page", () => {
+  it("keeps the footer when everything fits on one page", () => {
     render(<Harness total={7} />);
 
-    expect(screen.queryByRole("button", { name: "Próxima" })).not.toBeInTheDocument();
     expect(screen.getByText("Item 7")).toBeInTheDocument();
+    expect(
+      screen.getByText((_, element) => element?.tagName === "P" && element.textContent === "Exibindo 1–7 de 7 itens"),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Página 1" })).toHaveAttribute("aria-current", "page");
+    expect(screen.getByRole("button", { name: "Anterior" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Próxima" })).toBeDisabled();
   });
 
   it("handles an empty list without offering navigation", () => {
     render(<Harness total={0} />);
 
-    expect(screen.queryByRole("button", { name: "Próxima" })).not.toBeInTheDocument();
+    expect(
+      screen.getByText((_, element) => element?.tagName === "P" && element.textContent === "Exibindo 0–0 de 0 itens"),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Próxima" })).toBeDisabled();
   });
 });

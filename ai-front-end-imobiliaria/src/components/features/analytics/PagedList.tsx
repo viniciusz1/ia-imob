@@ -44,10 +44,8 @@ interface PaginationFooterProps<T> {
   noun: string;
 }
 
-/** Rodapé padrão do card; some quando tudo cabe numa página. */
+/** Rodapé padrão do card; aparece sempre, mesmo quando tudo cabe numa página. */
 export function PaginationFooter<T>({ paged, noun }: PaginationFooterProps<T>) {
-  if (paged.pageCount <= 1) return null;
-
   return (
     <SharedPaginationFooter
       itemLabel={noun}
