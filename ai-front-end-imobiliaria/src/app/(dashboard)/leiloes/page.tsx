@@ -10,6 +10,7 @@ import {
     Clock,
     ExternalLink,
     FileText,
+    FilterX,
     Gavel,
     MapPin,
     Search,
@@ -37,6 +38,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
+import { FilterSelect } from "@/components/ui/filter-select";
 import { Input } from "@/components/ui/input";
 import {
     Select,
@@ -223,8 +225,8 @@ export default function AuctionsPage() {
                 />
             </div>
 
-            <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
-                <div className="relative w-full lg:w-96">
+            <div className="flex flex-wrap items-center gap-3">
+                <div className="relative w-full lg:w-80 lg:shrink-0">
                     <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
                         aria-label="Buscar leilões"
@@ -248,32 +250,27 @@ export default function AuctionsPage() {
                     )}
                 </div>
 
-                <div className="flex flex-wrap items-center gap-3 xl:flex-nowrap">
-                    <Select value={selectedCity} onValueChange={setSelectedCity}>
-                        <SelectTrigger aria-label="Cidade" className="w-full sm:w-44" size="sm">
-                            <SelectValue placeholder="Cidade" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {CITIES.map((city) => (
-                                <SelectItem key={city} value={city}>
-                                    {city === "Todas" ? "Todas as cidades" : city}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+                <div className="flex flex-wrap items-center gap-3">
+                    <FilterSelect
+                        aria-label="Cidade"
+                        className="w-full sm:w-48"
+                        emptyValue="Todas"
+                        onValueChange={setSelectedCity}
+                        options={CITIES.map((city) => ({
+                            value: city,
+                            label: city === "Todas" ? "Todas as cidades" : city,
+                        }))}
+                        value={selectedCity}
+                    />
 
-                    <Select value={selectedModality} onValueChange={(v: string) => setSelectedModality(v)}>
-                        <SelectTrigger aria-label="Modalidade" className="w-full sm:w-52" size="sm">
-                            <SelectValue placeholder="Modalidade" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {MODALITIES.map((m) => (
-                                <SelectItem key={m.value} value={m.value}>
-                                    {m.label}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+                    <FilterSelect
+                        aria-label="Modalidade"
+                        className="w-full sm:w-52"
+                        emptyValue="all"
+                        onValueChange={setSelectedModality}
+                        options={MODALITIES.map((m) => ({ value: m.value, label: m.label }))}
+                        value={selectedModality}
+                    />
 
                     <Select value={sortBy} onValueChange={(value: string) => setSortBy(value)}>
                         <SelectTrigger aria-label="Ordenar por" className="w-full sm:w-44" size="sm">
@@ -286,12 +283,17 @@ export default function AuctionsPage() {
                         </SelectContent>
                     </Select>
 
-                    {hasActiveFilters && (
-                        <Button onClick={clearFilters} size="sm" type="button" variant="ghost">
-                            <X />
-                            Limpar filtros
-                        </Button>
-                    )}
+                    <Button
+                        className="shrink-0"
+                        disabled={!hasActiveFilters}
+                        onClick={clearFilters}
+                        size="sm"
+                        type="button"
+                        variant="outline"
+                    >
+                        <FilterX />
+                        Limpar filtros
+                    </Button>
                 </div>
 
                 <p className="shrink-0 text-sm whitespace-nowrap text-muted-foreground tabular-nums lg:ml-auto">
