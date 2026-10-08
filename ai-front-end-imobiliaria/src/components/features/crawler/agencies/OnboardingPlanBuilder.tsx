@@ -1,15 +1,19 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { Eye } from "lucide-react";
+import { type ReactNode, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { NativeSelect } from "@/components/ui/native-select";
 import { usePermission } from "@/hooks/usePermission";
+import { cn } from "@/lib/utils";
 import {
   confirmOnboardingPlan,
   saveOnboardingPointConfiguration,
@@ -81,12 +85,12 @@ function PolicySummary({
   version: number | null;
 }) {
   return (
-    <div className="rounded-lg border bg-muted/20 p-3">
+    <div className="space-y-2 rounded-lg border p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="font-medium">{label}: {name}</p>
+        <p className="text-sm text-foreground">{label}: {name}</p>
         {version !== null && <Badge variant="outline">v{version}</Badge>}
       </div>
-      <p className="mt-2 text-sm text-muted-foreground">{strategies.join(" → ")}</p>
+      <p className="text-xs text-muted-foreground">{strategies.join(" → ")}</p>
     </div>
   );
 }
@@ -107,7 +111,10 @@ function StrategyChoices({
   return (
     <div className="grid gap-2 sm:grid-cols-2">
       {options.map((strategy) => (
-        <div className="flex items-center gap-2 rounded-md border p-2" key={strategy.key}>
+        <div
+          className="flex items-center gap-3 rounded-lg border px-3 py-2.5 transition-colors has-[[data-state=checked]]:border-primary/30 has-[[data-state=checked]]:bg-primary/5"
+          key={strategy.key}
+        >
           <Checkbox
             checked={selected.includes(strategy.key)}
             disabled={disabled}
@@ -119,9 +126,73 @@ function StrategyChoices({
               onChange(options.map((option) => option.key).filter((key) => selectedKeys.includes(key)));
             }}
           />
-          <Label className="font-normal" htmlFor={`${prefix}-${strategy.key}`}>{strategy.label}</Label>
+          <Label htmlFor={`${prefix}-${strategy.key}`}>{strategy.label}</Label>
         </div>
       ))}
+    </div>
+  );
+}
+
+function ConductionOption({
+  description,
+  disabled,
+  onSelect,
+  selected,
+  title,
+}: {
+  description: string;
+  disabled: boolean;
+  onSelect: () => void;
+  selected: boolean;
+  title: string;
+}) {
+  return (
+    <button
+      aria-pressed={selected}
+      className={cn(
+        "rounded-lg border p-4 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 disabled:cursor-not-allowed disabled:opacity-60",
+        selected ? "border-primary bg-primary/5" : "hover:bg-muted/40",
+      )}
+      disabled={disabled}
+      onClick={onSelect}
+      type="button"
+    >
+      <span className={cn("block text-sm", selected ? "text-primary" : "text-foreground")}>{title}</span>
+      <span className="mt-1 block text-xs text-muted-foreground">{description}</span>
+    </button>
+  );
+}
+
+function ChoiceToggle({
+  active,
+  children,
+  disabled,
+  onSelect,
+}: {
+  active: boolean;
+  children: ReactNode;
+  disabled: boolean;
+  onSelect: () => void;
+}) {
+  return (
+    <Button
+      aria-pressed={active}
+      disabled={disabled}
+      onClick={onSelect}
+      size="sm"
+      type="button"
+      variant={active ? "secondary" : "outline"}
+    >
+      {children}
+    </Button>
+  );
+}
+
+function ReviewItem({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="space-y-0.5">
+      <dt className="text-xs text-muted-foreground">{label}</dt>
+      <dd className="text-sm text-foreground">{value}</dd>
     </div>
   );
 }
@@ -335,9 +406,20 @@ export function OnboardingPlanBuilder({
   };
 
   const disabled = !canExecute || pending !== null;
+  const reviewDiscovery = conduction === "automated"
+    ? selectedModel?.discovery_policy.name ?? "Não selecionado"
+    : discoveryChoice === "catalog"
+      ? selectedDiscoveryPolicy?.name ?? "Não selecionada"
+      : `${discoveryPointStrategies.length} estratégias pontuais`;
+  const reviewExtraction = conduction === "automated"
+    ? selectedModel?.extraction_policy.name ?? "Não selecionado"
+    : extractionChoice === "catalog"
+      ? selectedExtractionPolicy?.name ?? "Não selecionada"
+      : "Sem modelo · configuração pontual";
+
   return (
-    <Card className="border-primary/30">
-      <CardHeader className="border-b bg-primary/5">
+    <Card>
+      <CardHeader className="border-b">
         <CardTitle>Plano de Onboarding</CardTitle>
         <CardDescription>
           Monte, nomeie e revise a combinação. Nenhuma Operação do Crawler começa antes da confirmação.
@@ -345,58 +427,63 @@ export function OnboardingPlanBuilder({
       </CardHeader>
       <CardContent className="space-y-6">
         {!canExecute && (
-          <p className="rounded-md border border-dashed p-3 text-sm text-muted-foreground">
-            Modo somente leitura. Você pode revisar o plano, mas não vê ações de alteração ou execução.
-          </p>
+          <div className="flex items-start gap-3 rounded-lg border border-info/30 bg-info/10 px-4 py-3 text-sm">
+            <Eye className="mt-0.5 size-4 shrink-0 text-info" />
+            <p className="text-foreground">
+              Modo somente leitura. Você pode revisar o plano, mas não vê ações de alteração ou execução.
+            </p>
+          </div>
         )}
 
-        <div className="space-y-2">
-          <Label htmlFor="onboarding-name">Nome da execução</Label>
-          <Input disabled={disabled} id="onboarding-name" maxLength={160} onChange={(event) => setName(event.target.value)} value={name} />
-          <p className="text-xs text-muted-foreground">Use este nome para distinguir combinações e tentativas futuras.</p>
-        </div>
+        <FormField
+          hint="Use este nome para distinguir combinações e tentativas futuras."
+          htmlFor="onboarding-name"
+          label="Nome da execução"
+        >
+          <Input
+            disabled={disabled}
+            id="onboarding-name"
+            maxLength={160}
+            onChange={(event) => setName(event.target.value)}
+            value={name}
+          />
+        </FormField>
 
         <fieldset className="space-y-3">
-          <legend className="text-sm font-medium">Condução</legend>
+          <legend className="text-xs uppercase tracking-wide text-muted-foreground">Condução</legend>
           <div className="grid gap-3 md:grid-cols-2">
-            <button
-              aria-pressed={conduction === "automated"}
-              className={`rounded-lg border p-4 text-left ${conduction === "automated" ? "border-primary bg-primary/5" : ""}`}
+            <ConductionOption
+              description="Executa a combinação do modelo e para na validação para sua aprovação."
               disabled={disabled}
-              onClick={() => setConduction("automated")}
-              type="button"
-            >
-              <span className="font-medium">Automatizada</span>
-              <span className="mt-1 block text-sm text-muted-foreground">Executa a combinação do modelo e para na validação para sua aprovação.</span>
-            </button>
-            <button
-              aria-pressed={conduction === "manual"}
-              className={`rounded-lg border p-4 text-left ${conduction === "manual" ? "border-primary bg-primary/5" : ""}`}
+              onSelect={() => setConduction("automated")}
+              selected={conduction === "automated"}
+              title="Automatizada"
+            />
+            <ConductionOption
+              description="Mantém o fluxo atual: você inicia uma etapa por vez, sem exigir Modelo de Execução."
               disabled={disabled}
-              onClick={() => setConduction("manual")}
-              type="button"
-            >
-              <span className="font-medium">Manual, etapa por etapa</span>
-              <span className="mt-1 block text-sm text-muted-foreground">Mantém o fluxo atual: você inicia uma etapa por vez, sem exigir Modelo de Execução.</span>
-            </button>
+              onSelect={() => setConduction("manual")}
+              selected={conduction === "manual"}
+              title="Manual, etapa por etapa"
+            />
           </div>
         </fieldset>
 
         {conduction === "automated" ? (
           <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="onboarding-model">Modelo de Execução</Label>
-              <select
-                className="h-9 w-full rounded-md border bg-background px-3 text-sm"
+            <FormField htmlFor="onboarding-model" label="Modelo de Execução">
+              <NativeSelect
                 disabled={disabled}
                 id="onboarding-model"
                 onChange={(event) => setModelId(Number(event.target.value))}
                 value={modelId}
               >
                 <option value={0}>Selecione um modelo</option>
-                {availableModels.map((model) => <option key={model.id} value={model.id}>{model.name} · v{model.version}</option>)}
-              </select>
-            </div>
+                {availableModels.map((model) => (
+                  <option key={model.id} value={model.id}>{model.name} · v{model.version}</option>
+                ))}
+              </NativeSelect>
+            </FormField>
             {selectedModel && (
               <div aria-label="Configuração resolvida do modelo" className="grid gap-3 md:grid-cols-2">
                 <PolicySummary
@@ -415,69 +502,163 @@ export function OnboardingPlanBuilder({
             )}
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-4">
             <section className="space-y-4 rounded-lg border p-4">
-              <div>
-                <h3 className="font-medium">1. Discovery</h3>
-                <p className="text-sm text-muted-foreground">Gere um snapshot novo ou reutilize explicitamente um snapshot desta Crawl Agency.</p>
+              <div className="space-y-1">
+                <h3 className="text-sm text-foreground">1. Discovery</h3>
+                <p className="text-xs text-muted-foreground">
+                  Gere um snapshot novo ou reutilize explicitamente um snapshot desta Crawl Agency.
+                </p>
               </div>
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="manual-discovery-mode">Origem do snapshot</Label>
-                  <select className="h-9 w-full rounded-md border bg-background px-3 text-sm" disabled={disabled} id="manual-discovery-mode" onChange={(event) => setDiscoveryMode(event.target.value as "fresh" | "existing")} value={discoveryMode}>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <FormField htmlFor="manual-discovery-mode" label="Origem do snapshot">
+                  <NativeSelect
+                    disabled={disabled}
+                    id="manual-discovery-mode"
+                    onChange={(event) => setDiscoveryMode(event.target.value as "fresh" | "existing")}
+                    value={discoveryMode}
+                  >
                     <option value="fresh">Executar novo Discovery</option>
                     <option value="existing">Reutilizar Snapshot de Discovery</option>
-                  </select>
-                </div>
+                  </NativeSelect>
+                </FormField>
                 {discoveryMode === "existing" && (
-                  <div className="space-y-2">
-                    <Label htmlFor="manual-discovery-snapshot">Snapshot</Label>
-                    <select className="h-9 w-full rounded-md border bg-background px-3 text-sm" disabled={disabled} id="manual-discovery-snapshot" onChange={(event) => setSnapshotId(Number(event.target.value))} value={snapshotId}>
+                  <FormField htmlFor="manual-discovery-snapshot" label="Snapshot">
+                    <NativeSelect
+                      disabled={disabled}
+                      id="manual-discovery-snapshot"
+                      onChange={(event) => setSnapshotId(Number(event.target.value))}
+                      value={snapshotId}
+                    >
                       <option value={0}>Selecione um snapshot</option>
-                      {snapshots.map((snapshot) => <option key={snapshot.id} value={snapshot.id}>#{snapshot.id} · {snapshot.url_count} URLs</option>)}
-                    </select>
-                  </div>
+                      {snapshots.map((snapshot) => (
+                        <option key={snapshot.id} value={snapshot.id}>#{snapshot.id} · {snapshot.url_count} URLs</option>
+                      ))}
+                    </NativeSelect>
+                  </FormField>
                 )}
               </div>
               <div className="space-y-3">
                 <div aria-label="Configuração do Discovery" className="flex flex-wrap gap-2" role="group">
-                  <Button disabled={disabled} onClick={() => setDiscoveryChoice("catalog")} size="sm" type="button" variant={discoveryChoice === "catalog" ? "secondary" : "outline"}>Política existente</Button>
-                  <Button disabled={disabled} onClick={() => setDiscoveryChoice("point")} size="sm" type="button" variant={discoveryChoice === "point" ? "secondary" : "outline"}>Configuração Pontual</Button>
+                  <ChoiceToggle
+                    active={discoveryChoice === "catalog"}
+                    disabled={disabled}
+                    onSelect={() => setDiscoveryChoice("catalog")}
+                  >
+                    Política existente
+                  </ChoiceToggle>
+                  <ChoiceToggle
+                    active={discoveryChoice === "point"}
+                    disabled={disabled}
+                    onSelect={() => setDiscoveryChoice("point")}
+                  >
+                    Configuração Pontual
+                  </ChoiceToggle>
                 </div>
                 {discoveryChoice === "catalog" ? (
-                  <select aria-label="Política de Discovery" className="h-9 w-full rounded-md border bg-background px-3 text-sm" disabled={disabled} onChange={(event) => setDiscoveryPolicyId(Number(event.target.value))} value={discoveryPolicyId}>
+                  <NativeSelect
+                    aria-label="Política de Discovery"
+                    disabled={disabled}
+                    onChange={(event) => setDiscoveryPolicyId(Number(event.target.value))}
+                    value={discoveryPolicyId}
+                  >
                     <option value={0}>Selecione uma política</option>
-                    {discoveryPolicies.map((policy) => <option key={policy.id} value={policy.id}>{policy.name} · v{policy.version}</option>)}
-                  </select>
+                    {discoveryPolicies.map((policy) => (
+                      <option key={policy.id} value={policy.id}>{policy.name} · v{policy.version}</option>
+                    ))}
+                  </NativeSelect>
                 ) : (
                   <>
-                    <StrategyChoices disabled={disabled} onChange={setDiscoveryPointStrategies} options={safeDiscoveryStrategies} prefix="point-discovery" selected={discoveryPointStrategies} />
-                    <p className="text-xs text-muted-foreground">A sobrescrita vale somente para esta execução. Ela não altera a política do catálogo.</p>
-                    {canManagePolicies && <Button disabled={disabled} onClick={() => { setPolicySave({ kind: "discovery", name: "" }); setPolicySaveConfirmed(false); }} size="sm" type="button" variant="outline">Salvar como nova política ativa</Button>}
+                    <StrategyChoices
+                      disabled={disabled}
+                      onChange={setDiscoveryPointStrategies}
+                      options={safeDiscoveryStrategies}
+                      prefix="point-discovery"
+                      selected={discoveryPointStrategies}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      A sobrescrita vale somente para esta execução. Ela não altera a política do catálogo.
+                    </p>
+                    {canManagePolicies && (
+                      <Button
+                        disabled={disabled}
+                        onClick={() => {
+                          setPolicySave({ kind: "discovery", name: "" });
+                          setPolicySaveConfirmed(false);
+                        }}
+                        size="sm"
+                        type="button"
+                        variant="outline"
+                      >
+                        Salvar como nova política ativa
+                      </Button>
+                    )}
                   </>
                 )}
               </div>
             </section>
 
             <section className="space-y-4 rounded-lg border p-4">
-              <div>
-                <h3 className="font-medium">2. Extração</h3>
-                <p className="text-sm text-muted-foreground">Escolha uma política ou mantenha o comportamento atual com estratégias pontuais, sem Modelo de Execução.</p>
+              <div className="space-y-1">
+                <h3 className="text-sm text-foreground">2. Extração</h3>
+                <p className="text-xs text-muted-foreground">
+                  Escolha uma política ou mantenha o comportamento atual com estratégias pontuais, sem Modelo de Execução.
+                </p>
               </div>
               <div aria-label="Configuração da Extração" className="flex flex-wrap gap-2" role="group">
-                <Button disabled={disabled} onClick={() => setExtractionChoice("catalog")} size="sm" type="button" variant={extractionChoice === "catalog" ? "secondary" : "outline"}>Política existente</Button>
-                <Button disabled={disabled} onClick={() => setExtractionChoice("point")} size="sm" type="button" variant={extractionChoice === "point" ? "secondary" : "outline"}>Sem modelo · comportamento atual</Button>
+                <ChoiceToggle
+                  active={extractionChoice === "catalog"}
+                  disabled={disabled}
+                  onSelect={() => setExtractionChoice("catalog")}
+                >
+                  Política existente
+                </ChoiceToggle>
+                <ChoiceToggle
+                  active={extractionChoice === "point"}
+                  disabled={disabled}
+                  onSelect={() => setExtractionChoice("point")}
+                >
+                  Sem modelo · comportamento atual
+                </ChoiceToggle>
               </div>
               {extractionChoice === "catalog" ? (
-                <select aria-label="Política de Extração" className="h-9 w-full rounded-md border bg-background px-3 text-sm" disabled={disabled} onChange={(event) => setExtractionPolicyId(Number(event.target.value))} value={extractionPolicyId}>
+                <NativeSelect
+                  aria-label="Política de Extração"
+                  disabled={disabled}
+                  onChange={(event) => setExtractionPolicyId(Number(event.target.value))}
+                  value={extractionPolicyId}
+                >
                   <option value={0}>Selecione uma política</option>
-                  {extractionPolicies.map((policy) => <option key={policy.id} value={policy.id}>{policy.name} · v{policy.version}</option>)}
-                </select>
+                  {extractionPolicies.map((policy) => (
+                    <option key={policy.id} value={policy.id}>{policy.name} · v{policy.version}</option>
+                  ))}
+                </NativeSelect>
               ) : (
                 <>
-                  <StrategyChoices disabled={disabled} onChange={(strategies) => setExtractionPointStrategies(strategies as ExtractionStrategy[])} options={EXTRACTION_STRATEGIES} prefix="point-extraction" selected={extractionPointStrategies} />
-                  <p className="text-xs text-muted-foreground">As estratégias rodam na ordem exibida e preenchem apenas os campos ainda ausentes.</p>
-                  {canManagePolicies && <Button disabled={disabled} onClick={() => { setPolicySave({ kind: "extraction", name: "" }); setPolicySaveConfirmed(false); }} size="sm" type="button" variant="outline">Salvar como nova política ativa</Button>}
+                  <StrategyChoices
+                    disabled={disabled}
+                    onChange={(strategies) => setExtractionPointStrategies(strategies as ExtractionStrategy[])}
+                    options={EXTRACTION_STRATEGIES}
+                    prefix="point-extraction"
+                    selected={extractionPointStrategies}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    As estratégias rodam na ordem exibida e preenchem apenas os campos ainda ausentes.
+                  </p>
+                  {canManagePolicies && (
+                    <Button
+                      disabled={disabled}
+                      onClick={() => {
+                        setPolicySave({ kind: "extraction", name: "" });
+                        setPolicySaveConfirmed(false);
+                      }}
+                      size="sm"
+                      type="button"
+                      variant="outline"
+                    >
+                      Salvar como nova política ativa
+                    </Button>
+                  )}
                 </>
               )}
             </section>
@@ -485,61 +666,118 @@ export function OnboardingPlanBuilder({
         )}
 
         {policySave && (
-          <section aria-label="Salvar Configuração Pontual" className="space-y-3 rounded-lg border border-primary/30 bg-primary/5 p-4">
-            <div className="space-y-2">
-              <Label htmlFor="point-policy-name">Nome da nova política</Label>
-              <Input disabled={pending !== null} id="point-policy-name" onChange={(event) => setPolicySave((current) => current ? { ...current, name: event.target.value } : null)} value={policySave.name} />
+          <section
+            aria-label="Salvar Configuração Pontual"
+            className="space-y-4 rounded-lg border border-primary/20 bg-primary/5 p-4"
+          >
+            <FormField htmlFor="point-policy-name" label="Nome da nova política">
+              <Input
+                disabled={pending !== null}
+                id="point-policy-name"
+                onChange={(event) => setPolicySave((current) => current ? { ...current, name: event.target.value } : null)}
+                value={policySave.name}
+              />
+            </FormField>
+            <div className="flex items-start gap-3">
+              <Checkbox
+                checked={policySaveConfirmed}
+                className="mt-0.5"
+                disabled={pending !== null}
+                id="confirm-point-policy-save"
+                onCheckedChange={(checked) => setPolicySaveConfirmed(checked === true)}
+              />
+              <Label className="leading-snug" htmlFor="confirm-point-policy-save">
+                Confirmo a criação de uma nova política. A configuração deste plano continuará sendo pontual.
+              </Label>
             </div>
-            <div className="flex items-start gap-2">
-              <Checkbox checked={policySaveConfirmed} disabled={pending !== null} id="confirm-point-policy-save" onCheckedChange={(checked) => setPolicySaveConfirmed(checked === true)} />
-              <Label className="font-normal" htmlFor="confirm-point-policy-save">Confirmo a criação de uma nova política. A configuração deste plano continuará sendo pontual.</Label>
-            </div>
-            <div className="flex gap-2">
-              <Button disabled={pending !== null || !policySave.name.trim() || !policySaveConfirmed} onClick={() => void savePointPolicy()} size="sm" type="button">Criar nova política</Button>
-              <Button disabled={pending !== null} onClick={() => setPolicySave(null)} size="sm" type="button" variant="ghost">Cancelar</Button>
+            <div className="flex flex-wrap gap-2">
+              <Button
+                disabled={pending !== null || !policySave.name.trim() || !policySaveConfirmed}
+                onClick={() => void savePointPolicy()}
+                size="sm"
+                type="button"
+              >
+                Criar nova política
+              </Button>
+              <Button disabled={pending !== null} onClick={() => setPolicySave(null)} size="sm" type="button" variant="ghost">
+                Cancelar
+              </Button>
             </div>
           </section>
         )}
 
-        <section className="space-y-3 rounded-lg border p-4">
-          <div>
-            <h3 className="font-medium">Primeira produção</h3>
-            <p className="text-sm text-muted-foreground">Este modo fica visível e será congelado junto com a combinação.</p>
+        <section className="space-y-4 rounded-lg border p-4">
+          <div className="space-y-1">
+            <h3 className="text-sm text-foreground">Primeira produção</h3>
+            <p className="text-xs text-muted-foreground">Este modo fica visível e será congelado junto com a combinação.</p>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="first-production-mode">Modo de Discovery</Label>
-            <select className="h-9 w-full rounded-md border bg-background px-3 text-sm" disabled={disabled} id="first-production-mode" onChange={(event) => setFirstProductionMode(event.target.value as FirstProductionDiscoveryMode)} value={firstProductionMode}>
+          <FormField htmlFor="first-production-mode" label="Modo de Discovery">
+            <NativeSelect
+              disabled={disabled}
+              id="first-production-mode"
+              onChange={(event) => setFirstProductionMode(event.target.value as FirstProductionDiscoveryMode)}
+              value={firstProductionMode}
+            >
               <option value="fresh">Novo Discovery na primeira produção</option>
               <option value="validation_snapshot">Reutilizar o snapshot da validação</option>
-            </select>
-          </div>
+            </NativeSelect>
+          </FormField>
         </section>
 
-        <section aria-label="Revisão final do plano" className="space-y-3 rounded-lg border-2 border-primary/30 p-4">
-          <div>
-            <h3 className="font-medium">Revisão final</h3>
-            <p className="text-sm text-muted-foreground">Confirmar congela o nome, a condução, as versões, as estratégias e o modo da primeira produção nesta execução.</p>
+        <section
+          aria-label="Revisão final do plano"
+          className="space-y-4 rounded-lg border border-primary/20 bg-primary/5 p-4"
+        >
+          <div className="space-y-1">
+            <h3 className="text-sm text-foreground">Revisão final</h3>
+            <p className="text-xs text-muted-foreground">
+              Confirmar congela o nome, a condução, as versões, as estratégias e o modo da primeira produção nesta execução.
+            </p>
           </div>
-          <dl className="grid gap-2 text-sm sm:grid-cols-2">
-            <div><dt className="text-muted-foreground">Execução</dt><dd className="font-medium">{name || "Sem nome"}</dd></div>
-            <div><dt className="text-muted-foreground">Condução</dt><dd className="font-medium">{conduction === "automated" ? "Automatizada" : "Manual, etapa por etapa"}</dd></div>
-            <div><dt className="text-muted-foreground">Discovery</dt><dd className="font-medium">{conduction === "automated" ? selectedModel?.discovery_policy.name ?? "Não selecionado" : discoveryChoice === "catalog" ? selectedDiscoveryPolicy?.name ?? "Não selecionada" : `${discoveryPointStrategies.length} estratégias pontuais`}</dd></div>
-            <div><dt className="text-muted-foreground">Extração</dt><dd className="font-medium">{conduction === "automated" ? selectedModel?.extraction_policy.name ?? "Não selecionado" : extractionChoice === "catalog" ? selectedExtractionPolicy?.name ?? "Não selecionada" : "Sem modelo · configuração pontual"}</dd></div>
-            <div><dt className="text-muted-foreground">Primeira produção</dt><dd className="font-medium">{firstProductionMode === "fresh" ? "Novo Discovery" : "Snapshot da validação"}</dd></div>
+          <dl className="grid gap-3 sm:grid-cols-2">
+            <ReviewItem label="Execução" value={name || "Sem nome"} />
+            <ReviewItem label="Condução" value={conduction === "automated" ? "Automatizada" : "Manual, etapa por etapa"} />
+            <ReviewItem label="Discovery" value={reviewDiscovery} />
+            <ReviewItem label="Extração" value={reviewExtraction} />
+            <ReviewItem
+              label="Primeira produção"
+              value={firstProductionMode === "fresh" ? "Novo Discovery" : "Snapshot da validação"}
+            />
           </dl>
           {canExecute && (
-            <div className="flex items-start gap-2">
-              <Checkbox checked={reviewConfirmed} disabled={pending !== null} id="confirm-frozen-plan" onCheckedChange={(checked) => setReviewConfirmed(checked === true)} />
-              <Label className="font-normal" htmlFor="confirm-frozen-plan">Revisei a combinação e entendo que alterações depois do início exigem cancelar e criar uma nova execução.</Label>
+            <div className="flex items-start gap-3">
+              <Checkbox
+                checked={reviewConfirmed}
+                className="mt-0.5"
+                disabled={pending !== null}
+                id="confirm-frozen-plan"
+                onCheckedChange={(checked) => setReviewConfirmed(checked === true)}
+              />
+              <Label className="leading-snug" htmlFor="confirm-frozen-plan">
+                Revisei a combinação e entendo que alterações depois do início exigem cancelar e criar uma nova execução.
+              </Label>
             </div>
           )}
         </section>
 
-        {validationMessage && <p className="text-sm text-destructive" role="alert">{validationMessage}</p>}
+        {validationMessage && <p className="text-xs text-destructive" role="alert">{validationMessage}</p>}
         {canExecute && (
-          <div className="flex flex-wrap gap-2">
-            <Button disabled={pending !== null || validationMessage !== null} onClick={() => void saveDraft()} type="button" variant="outline">{pending === "save" ? "Salvando…" : "Salvar rascunho"}</Button>
-            <Button disabled={pending !== null || validationMessage !== null || !reviewConfirmed} onClick={() => void confirm()} type="button">{pending === "confirm" ? "Confirmando…" : "Confirmar e iniciar execução"}</Button>
+          <div className="flex flex-wrap justify-end gap-3">
+            <Button
+              disabled={pending !== null || validationMessage !== null}
+              onClick={() => void saveDraft()}
+              type="button"
+              variant="outline"
+            >
+              {pending === "save" ? "Salvando…" : "Salvar rascunho"}
+            </Button>
+            <Button
+              disabled={pending !== null || validationMessage !== null || !reviewConfirmed}
+              onClick={() => void confirm()}
+              type="button"
+            >
+              {pending === "confirm" ? "Confirmando…" : "Confirmar e iniciar execução"}
+            </Button>
           </div>
         )}
       </CardContent>

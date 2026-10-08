@@ -1,8 +1,9 @@
+import { CircleAlert } from "lucide-react";
 import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import type { OnboardingExecution, OnboardingExecutionStepKey } from "@/types/crawler";
 
 const STEP_LABELS: Record<OnboardingExecutionStepKey, string> = {
@@ -48,26 +49,36 @@ export function OnboardingExecutionSummaryCard({
   execution,
 }: OnboardingExecutionSummaryCardProps) {
   const href = `/admin/crawler/agencies/${agencyId}/onboarding`;
+  const needsAttention = execution.state === "requires_attention";
 
   return (
-    <Card className={execution.state === "requires_attention" ? "border-destructive/40" : "border-primary/30"}>
-      <CardHeader>
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <CardTitle><h3>{STATE_TITLES[execution.state]}</h3></CardTitle>
-            <CardDescription className="mt-1">Execução de Onboarding #{execution.id} · {execution.name}</CardDescription>
-          </div>
-          <Badge variant={execution.state === "requires_attention" ? "destructive" : "secondary"}>{execution.conduction === "automated" ? "Automatizada" : "Manual"}</Badge>
-        </div>
+    <Card className={needsAttention ? "border-destructive/30" : undefined}>
+      <CardHeader className="border-b">
+        <CardTitle>
+          <h3>{STATE_TITLES[execution.state]}</h3>
+        </CardTitle>
+        <CardDescription>Execução de Onboarding #{execution.id} · {execution.name}</CardDescription>
+        <CardAction>
+          <Badge variant={needsAttention ? "destructive" : "muted"}>
+            {execution.conduction === "automated" ? "Automatizada" : "Manual"}
+          </Badge>
+        </CardAction>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div>
-          <p className="font-medium">Etapa atual: {STEP_LABELS[execution.current_step]}</p>
-          {execution.attention?.message && <p className="mt-1 text-sm text-muted-foreground">{execution.attention.message}</p>}
-        </div>
+        <p className="text-sm text-foreground">Etapa atual: {STEP_LABELS[execution.current_step]}</p>
+        {execution.attention?.message && (
+          <div className="flex items-start gap-3 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm">
+            <CircleAlert className="mt-0.5 size-4 shrink-0 text-destructive" />
+            <p className="text-foreground">{execution.attention.message}</p>
+          </div>
+        )}
         <div className="flex flex-wrap gap-2">
-          <Button asChild><Link href={href}>{primaryActionLabel(execution.next_action)}</Link></Button>
-          <Button asChild variant="outline"><Link href={href}>Abrir Onboarding</Link></Button>
+          <Button asChild>
+            <Link href={href}>{primaryActionLabel(execution.next_action)}</Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link href={href}>Abrir Onboarding</Link>
+          </Button>
         </div>
       </CardContent>
     </Card>

@@ -2,7 +2,8 @@ import { Check, CircleDot, LockKeyhole } from "lucide-react";
 import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 import type { CrawlAgency, DiscoverySnapshot, ExtractionProfile } from "@/types/crawler";
 
 interface CrawlAgencyOnboardingProgressProps {
@@ -47,33 +48,50 @@ function stateLabel(state: OnboardingStep["state"]) {
   return "Pendente";
 }
 
+const STEP_STYLES: Record<OnboardingStep["state"], { bar: string; icon: string }> = {
+  completed: { bar: "bg-success", icon: "bg-success/10 text-success" },
+  current: { bar: "bg-primary", icon: "bg-primary text-primary-foreground" },
+  pending: { bar: "bg-muted", icon: "bg-muted text-muted-foreground" },
+};
+
 export function CrawlAgencyOnboardingProgress({ agency, profiles, snapshots }: CrawlAgencyOnboardingProgressProps) {
   const steps = onboardingSteps(agency, snapshots, profiles);
   const completed = steps.filter((step) => step.state === "completed").length;
 
   return (
-    <Card className="overflow-hidden border-primary/25">
-      <CardHeader className="border-b bg-muted/20">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <CardTitle>Jornada de ativação</CardTitle>
-            <CardDescription className="mt-1">Acompanhe o onboarding da fonte até ela estar pronta para produção.</CardDescription>
-          </div>
-          <Badge variant="secondary">{completed} de {steps.length} concluídas</Badge>
-        </div>
+    <Card>
+      <CardHeader className="border-b">
+        <CardTitle>Jornada de ativação</CardTitle>
+        <CardDescription>Acompanhe o onboarding da fonte até ela estar pronta para produção.</CardDescription>
+        <CardAction>
+          <Badge className="tabular-nums" variant={completed === steps.length ? "success" : "muted"}>
+            {completed} de {steps.length} concluídas
+          </Badge>
+        </CardAction>
       </CardHeader>
       <CardContent>
-        <ol aria-label="Etapas da jornada de ativação" className="grid gap-3 md:grid-cols-5">
+        <ol aria-label="Etapas da jornada de ativação" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
           {steps.map((step, index) => (
-            <li className="relative" key={step.label}>
-              {index < steps.length - 1 && <div aria-hidden="true" className="absolute left-[calc(50%+1.5rem)] right-[calc(-50%+1.5rem)] top-5 hidden h-px bg-border md:block" />}
-              <Link className="group relative flex flex-row items-center gap-3 rounded-lg p-2 hover:bg-muted/60 md:flex-col md:text-center" href={step.href}>
-                <span className={`relative z-10 flex size-10 shrink-0 items-center justify-center rounded-full border-2 ${step.state === "completed" ? "border-emerald-600 bg-emerald-600 text-white" : step.state === "current" ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background text-muted-foreground"}`}>
-                  <StepIcon state={step.state} />
-                </span>
-                <span>
-                  <span className="block text-sm font-medium">{index + 1}. {step.label}</span>
-                  <span className="mt-1 block text-xs text-muted-foreground">{stateLabel(step.state)}</span>
+            <li key={step.label}>
+              <Link
+                aria-current={step.state === "current" ? "step" : undefined}
+                className="flex h-full flex-col gap-3 rounded-lg p-2 transition-colors hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+                href={step.href}
+              >
+                <span aria-hidden="true" className={cn("h-1 rounded-full", STEP_STYLES[step.state].bar)} />
+                <span className="flex items-center gap-3">
+                  <span
+                    className={cn(
+                      "flex size-8 shrink-0 items-center justify-center rounded-full",
+                      STEP_STYLES[step.state].icon,
+                    )}
+                  >
+                    <StepIcon state={step.state} />
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block text-sm text-foreground">{index + 1}. {step.label}</span>
+                    <span className="block text-xs text-muted-foreground">{stateLabel(step.state)}</span>
+                  </span>
                 </span>
               </Link>
             </li>
