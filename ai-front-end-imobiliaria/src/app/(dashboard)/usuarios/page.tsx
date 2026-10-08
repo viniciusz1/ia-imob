@@ -32,7 +32,7 @@ export default async function UsuariosPage({ searchParams }: PageProps) {
     };
 
     let data: User[] = [];
-    let meta: { last_page: number; total?: number } = { last_page: 1 };
+    let meta: { last_page: number; per_page: number; total?: number } = { last_page: 1, per_page: PAGE_SIZE };
 
     try {
         const response = await getUsers(filters);
@@ -50,6 +50,7 @@ export default async function UsuariosPage({ searchParams }: PageProps) {
         <UsuariosClient
             initialData={data}
             pageCount={meta.last_page}
+            pageSize={meta.per_page}
             total={meta.total}
         />
     );

@@ -18,6 +18,8 @@ import { User } from "@/types/user";
 interface UsuariosClientProps {
     initialData: User[];
     pageCount: number;
+    /** Itens por página devolvidos pela API (meta.per_page). */
+    pageSize?: number;
     /** Total de usuários encontrados com os filtros atuais (meta da API). */
     total?: number;
 }
@@ -26,7 +28,7 @@ interface UsuariosClientProps {
 // Client Component — Orquestra listagem + modal
 // =============================================================================
 
-export function UsuariosClient({ initialData, pageCount, total }: UsuariosClientProps) {
+export function UsuariosClient({ initialData, pageCount, pageSize, total }: UsuariosClientProps) {
     const [modalOpen, setModalOpen] = useState(false);
     const [editingUser, setEditingUser] = useState<User | null>(null);
 
@@ -102,6 +104,8 @@ export function UsuariosClient({ initialData, pageCount, total }: UsuariosClient
             <UsersDataTable
                 data={initialData}
                 pageCount={pageCount}
+                pageSize={pageSize}
+                total={total}
                 onEdit={handleEdit}
             />
 
