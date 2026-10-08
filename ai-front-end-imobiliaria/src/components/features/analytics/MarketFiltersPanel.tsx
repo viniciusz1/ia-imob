@@ -4,9 +4,9 @@ import { useEffect, useMemo, useState } from "react";
 import { ChevronDown, RotateCcw, SlidersHorizontal } from "lucide-react";
 import { SectionHeader } from "@/components/layout/SectionHeader";
 import { Button } from "@/components/ui/button";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Card } from "@/components/ui/card";
 import { FormField } from "@/components/ui/form-field";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -164,26 +164,21 @@ export function MarketFiltersPanel({ filters, onChange }: MarketFiltersPanelProp
             />
 
             <FormField htmlFor="analytics-start-date" label="Período das coletas">
-              {/* Um campo de data nativo pede 152px para o indicador não cobrir
-                  o texto, e dois lado a lado nesta coluna ficam apertados.
-                  Empilhados, cada um recebe a coluna inteira. */}
-              <div className="flex flex-col gap-2">
-                <Input
+              <div className="grid grid-cols-2 gap-2">
+                <DatePicker
                   id="analytics-start-date"
                   aria-label="Data inicial das coletas"
-                  className="min-w-0"
+                  placeholder="De"
                   size="sm"
-                  type="date"
                   value={filters.data_inicio}
-                  onChange={(event) => update({ data_inicio: event.target.value })}
+                  onChange={(value) => update({ data_inicio: value })}
                 />
-                <Input
+                <DatePicker
                   aria-label="Data final das coletas"
-                  className="min-w-0"
+                  placeholder="Até"
                   size="sm"
-                  type="date"
                   value={filters.data_fim}
-                  onChange={(event) => update({ data_fim: event.target.value })}
+                  onChange={(value) => update({ data_fim: value })}
                 />
               </div>
             </FormField>

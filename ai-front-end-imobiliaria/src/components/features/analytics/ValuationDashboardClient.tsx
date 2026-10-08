@@ -18,9 +18,9 @@ import { EmptyState } from "@/components/layout/EmptyState";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { SectionHeader } from "@/components/layout/SectionHeader";
 import { Badge } from "@/components/ui/badge";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Card } from "@/components/ui/card";
 import { FormField } from "@/components/ui/form-field";
-import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
@@ -83,23 +83,21 @@ export function ValuationDashboardClient() {
         />
         <div className="grid gap-4 p-4 sm:grid-cols-2 sm:p-5 xl:grid-cols-4">
           <FormField htmlFor="valuation-start-date" label="De">
-            <Input
+            <DatePicker
               id="valuation-start-date"
               aria-label="Data inicial das avaliações"
               size="sm"
-              type="date"
               value={period.data_inicio}
-              onChange={(event) => setPeriod({ ...period, data_inicio: event.target.value })}
+              onChange={(value) => setPeriod({ ...period, data_inicio: value })}
             />
           </FormField>
           <FormField htmlFor="valuation-end-date" label="Até">
-            <Input
+            <DatePicker
               id="valuation-end-date"
               aria-label="Data final das avaliações"
               size="sm"
-              type="date"
               value={period.data_fim}
-              onChange={(event) => setPeriod({ ...period, data_fim: event.target.value })}
+              onChange={(value) => setPeriod({ ...period, data_fim: value })}
             />
           </FormField>
         </div>
