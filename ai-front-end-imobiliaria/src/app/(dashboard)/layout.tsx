@@ -1,8 +1,12 @@
-import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/features/navigation/AppSidebar";
-import { UserNav } from "@/components/features/auth/UserNav";
+import { Building2 } from "lucide-react";
+
 import { RestoreAuthSession } from "@/components/features/auth/RestoreAuthSession";
-import { Separator } from "@/components/ui/separator";
+import { UserNav } from "@/components/features/auth/UserNav";
+import { AppBreadcrumbs } from "@/components/features/navigation/AppBreadcrumbs";
+import { AppNavigation } from "@/components/features/navigation/AppNavigation";
+import { AppShell } from "@/components/layout/AppShell";
+import { SidebarBrand } from "@/components/layout/SidebarBrand";
+import { SidebarUserCard } from "@/components/layout/SidebarUserCard";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function DashboardLayout({
@@ -11,25 +15,22 @@ export default function DashboardLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <SidebarProvider>
+        <>
             <RestoreAuthSession />
-            <AppSidebar />
-            <SidebarInset>
-                <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
-                    <div className="flex items-center gap-2">
-                        <SidebarTrigger className="-ml-1" />
-                        <Separator
-                            orientation="vertical"
-                            className="mr-2 data-[orientation=vertical]:h-4"
-                        />
-                    </div>
-                    <div className="ml-auto flex items-center gap-2">
+            <AppShell
+                brand={<SidebarBrand caption="Sistema imobiliário" href="/" icon={Building2} title="IA Imob" />}
+                navigation={<AppNavigation />}
+                sidebarFooter={<SidebarUserCard />}
+                topbar={<AppBreadcrumbs />}
+                topbarActions={
+                    <>
                         <ThemeToggle />
                         <UserNav />
-                    </div>
-                </header>
-                <main className="flex-1 p-4 md:p-6">{children}</main>
-            </SidebarInset>
-        </SidebarProvider>
+                    </>
+                }
+            >
+                {children}
+            </AppShell>
+        </>
     );
 }

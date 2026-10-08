@@ -11,6 +11,8 @@ interface BreadcrumbsProps {
     labels: Record<string, string>;
     /** Labels for full paths, winning over segment labels, e.g. `{ "/admin/crawler/agencies": "Crawl Agencies" }`. */
     pathLabels?: Record<string, string>;
+    /** Shown alone when the current page is the root (`/`). */
+    rootLabel?: string;
     /** Paths that only group routes and have no page of their own. */
     unlinkedPaths?: RegExp[];
 }
@@ -26,7 +28,7 @@ function labelFor(segment: string, labels: Record<string, string>): string {
 }
 
 /** Path-derived breadcrumb trail for the topbar. */
-export function Breadcrumbs({ labels, pathLabels = {}, unlinkedPaths = [] }: BreadcrumbsProps) {
+export function Breadcrumbs({ labels, pathLabels = {}, rootLabel, unlinkedPaths = [] }: BreadcrumbsProps) {
     const pathname = usePathname();
     const segments = pathname.split("/").filter(Boolean);
 
@@ -38,6 +40,10 @@ export function Breadcrumbs({ labels, pathLabels = {}, unlinkedPaths = [] }: Bre
             linkable: !unlinkedPaths.some((pattern) => pattern.test(href)),
         };
     });
+
+    if (crumbs.length === 0 && rootLabel) {
+        crumbs.push({ href: "/", label: rootLabel, linkable: false });
+    }
 
     return (
         <nav aria-label="Breadcrumb" className="flex min-w-0 items-center gap-1.5 text-sm">
