@@ -26,12 +26,12 @@ export function DashboardContent() {
     });
 
     return (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid auto-rows-fr gap-4 md:grid-cols-2 lg:grid-cols-3">
             {visibleModules.map((module) => (
-                <Link key={module.id} href={module.href} aria-label={module.dashboard?.title ?? module.title}>
-                    <Card className="transition-colors hover:border-primary/50 hover:shadow-md">
+                <Link key={module.id} href={module.href} aria-label={module.dashboard?.title ?? module.title} className="block h-full">
+                    <Card className="h-full transition-colors hover:border-primary/50 hover:shadow-md">
                         <CardHeader className="flex flex-row items-center gap-3 space-y-0 pb-2">
-                            <div className="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                            <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
                                 <module.icon className="size-5" />
                             </div>
                             <CardTitle className="text-lg">

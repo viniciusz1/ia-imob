@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
@@ -57,6 +57,17 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
     const clearAuth = useAuthStore((state) => state.clearAuth);
     const user = useAuthStore((state) => state.user);
     const [isLoggingOut, setIsLoggingOut] = useState(false);
+    
+    // Fetch user if not loaded but session cookie exists
+    useEffect(() => {
+        if (!user && typeof document !== "undefined" && document.cookie.includes("ia_imob_authenticated=1")) {
+            authService.getUser().then((response) => {
+                const userData = response.data.data ?? response.data;
+                useAuthStore.getState().setUser(userData);
+            }).catch(console.error);
+        }
+    }, [user]);
+
     const userPermissions = Array.isArray(user?.permissions) ? user.permissions : null;
     const visibleNavItems = navItems.filter((item) => {
         if (item.platformOnly && user?.is_platform_admin !== true) return false;
