@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 
 import { EmptyState } from "@/components/layout/EmptyState";
+import { PaginationFooter } from "@/components/layout/PaginationFooter";
 import { Button } from "@/components/ui/button";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -128,12 +129,6 @@ export function DiscoverySnapshotsPanel({ onboardingRecovery, snapshots }: Disco
           const requestedPage = urlState?.requestedPage ?? loadedPage?.meta.current_page ?? 1;
           const requestedPerPage = urlState?.requestedPerPage ?? loadedPage?.meta.per_page ?? 20;
           const panelId = `discovery-snapshot-${snapshot.id}-urls`;
-          const firstItem = loadedPage === undefined || loadedPage.meta.total === 0
-            ? 0
-            : ((loadedPage.meta.current_page - 1) * loadedPage.meta.per_page) + 1;
-          const lastItem = loadedPage === undefined
-            ? 0
-            : Math.min(loadedPage.meta.current_page * loadedPage.meta.per_page, loadedPage.meta.total);
 
           return (
             <section key={snapshot.id}>
@@ -202,58 +197,65 @@ export function DiscoverySnapshotsPanel({ onboardingRecovery, snapshots }: Disco
                       </Button>
                     </div>
                   )}
-                  {loadedPage !== undefined && loadedPage.data.length === 0 && (
-                    <p className="px-4 py-3 text-sm text-muted-foreground sm:px-5">Este Snapshot não contém URLs.</p>
-                  )}
-                  {loadedPage !== undefined && loadedPage.data.length > 0 && (
+                  {loadedPage !== undefined && (
                     <>
-                      <div className="max-h-[32rem] overflow-y-auto">
-                        <Table>
-                          <TableHeader>
-                            <TableRow className="hover:bg-transparent">
-                              <TableHead className="sticky top-0 w-16 bg-card">#</TableHead>
-                              <TableHead className="sticky top-0 bg-card">URL</TableHead>
-                              <TableHead className="sticky top-0 w-48 bg-card">Descoberta em</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {loadedPage.data.map((item, index) => (
-                              <TableRow key={item.id}>
-                                <TableCell className="text-muted-foreground tabular-nums">
-                                  {((loadedPage.meta.current_page - 1) * loadedPage.meta.per_page) + index + 1}
-                                </TableCell>
-                                <TableCell className="whitespace-normal">
-                                  <a
-                                    className="inline-flex items-start gap-1 break-all text-primary hover:underline"
-                                    href={item.url}
-                                    rel="noreferrer"
-                                    target="_blank"
-                                  >
-                                    {item.url}
-                                    <ExternalLink aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
-                                  </a>
-                                </TableCell>
-                                <TableCell className="text-muted-foreground tabular-nums">
-                                  <time dateTime={item.created_at}>{formatDate(item.created_at)}</time>
-                                </TableCell>
+                      {loadedPage.data.length === 0 ? (
+                        <p className="px-4 py-3 text-sm text-muted-foreground sm:px-5">Este Snapshot não contém URLs.</p>
+                      ) : (
+                        <div className="max-h-[32rem] overflow-y-auto">
+                          <Table>
+                            <TableHeader>
+                              <TableRow className="hover:bg-transparent">
+                                <TableHead className="sticky top-0 w-16 bg-card">#</TableHead>
+                                <TableHead className="sticky top-0 bg-card">URL</TableHead>
+                                <TableHead className="sticky top-0 w-48 bg-card">Descoberta em</TableHead>
                               </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
-                      </div>
-                      <div className="flex flex-wrap items-center justify-between gap-3 border-t px-4 py-3">
-                        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-                          <span className="text-sm text-muted-foreground tabular-nums">
-                            Exibindo {firstItem}–{lastItem} de {loadedPage.meta.total} URLs
-                          </span>
+                            </TableHeader>
+                            <TableBody>
+                              {loadedPage.data.map((item, index) => (
+                                <TableRow key={item.id}>
+                                  <TableCell className="text-muted-foreground tabular-nums">
+                                    {((loadedPage.meta.current_page - 1) * loadedPage.meta.per_page) + index + 1}
+                                  </TableCell>
+                                  <TableCell className="whitespace-normal">
+                                    <a
+                                      className="inline-flex items-start gap-1 break-all text-primary hover:underline"
+                                      href={item.url}
+                                      rel="noreferrer"
+                                      target="_blank"
+                                    >
+                                      {item.url}
+                                      <ExternalLink aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
+                                    </a>
+                                  </TableCell>
+                                  <TableCell className="text-muted-foreground tabular-nums">
+                                    <time dateTime={item.created_at}>{formatDate(item.created_at)}</time>
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </div>
+                      )}
+                      <div className="flex flex-wrap items-center border-t">
+                        <PaginationFooter
+                          className="min-w-0 flex-1 border-t-0"
+                          itemLabel="URLs"
+                          onPageChange={(nextPage) => {
+                            if (!refreshing) void loadUrls(snapshot.id, nextPage, loadedPage.meta.per_page);
+                          }}
+                          page={loadedPage.meta.current_page}
+                          pageCount={loadedPage.meta.last_page}
+                          pageSize={loadedPage.meta.per_page}
+                          total={loadedPage.meta.total}
+                        />
+                        <div className="flex flex-wrap items-center gap-3 px-4 pb-3 sm:px-5 sm:py-3 sm:pl-0">
                           {refreshing && (
                             <span className="inline-flex items-center gap-1 text-xs text-muted-foreground" role="status">
                               <LoaderCircle aria-hidden="true" className="size-3.5 animate-spin" />
                               Atualizando…
                             </span>
                           )}
-                        </div>
-                        <div className="flex flex-wrap items-center gap-3">
                           <label className="flex items-center gap-2 text-sm text-muted-foreground">
                             Itens por página
                             <NativeSelect
@@ -271,26 +273,6 @@ export function DiscoverySnapshotsPanel({ onboardingRecovery, snapshots }: Disco
                               {PAGE_SIZES.map((pageSize) => <option key={pageSize} value={pageSize}>{pageSize}</option>)}
                             </NativeSelect>
                           </label>
-                          <div className="flex items-center gap-2">
-                            <Button
-                              disabled={refreshing || loadedPage.meta.current_page <= 1}
-                              onClick={() => void loadUrls(snapshot.id, loadedPage.meta.current_page - 1, loadedPage.meta.per_page)}
-                              size="sm"
-                              type="button"
-                              variant="outline"
-                            >
-                              Anterior
-                            </Button>
-                            <Button
-                              disabled={refreshing || loadedPage.meta.current_page >= loadedPage.meta.last_page}
-                              onClick={() => void loadUrls(snapshot.id, loadedPage.meta.current_page + 1, loadedPage.meta.per_page)}
-                              size="sm"
-                              type="button"
-                              variant="outline"
-                            >
-                              Próxima
-                            </Button>
-                          </div>
                         </div>
                       </div>
                       {urlState?.status === "error" && (

@@ -39,6 +39,10 @@ const adoptionCandidates: OnboardingDiscoverySnapshotCandidate[] = [
   },
 ];
 
+/** The pagination summary spans several elements, so match the whole paragraph. */
+const summary = (text: string) => (_content: string, element: Element | null) =>
+  element?.tagName === "P" && element.textContent === text;
+
 describe("DiscoverySnapshotsPanel", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -89,6 +93,20 @@ describe("DiscoverySnapshotsPanel", () => {
     expect(listDiscoverySnapshotUrls).toHaveBeenCalledTimes(1);
   });
 
+  it("keeps the pagination footer visible when a Snapshot has no URLs", async () => {
+    vi.mocked(listDiscoverySnapshotUrls).mockResolvedValue({
+      data: [],
+      meta: { current_page: 1, last_page: 1, per_page: 20, total: 0 },
+    });
+    render(<DiscoverySnapshotsPanel snapshots={snapshots} />);
+
+    fireEvent.click(screen.getByRole("button", { name: /snapshot #10/i }));
+
+    expect(await screen.findByText("Este Snapshot não contém URLs.")).toBeInTheDocument();
+    expect(screen.getByText(summary("Exibindo 0–0 de 0 URLs"))).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /próxima/i })).toBeDisabled();
+  });
+
   it("requests page and page-size changes from the backend", async () => {
     vi.mocked(listDiscoverySnapshotUrls)
       .mockResolvedValueOnce({
@@ -106,14 +124,15 @@ describe("DiscoverySnapshotsPanel", () => {
     render(<DiscoverySnapshotsPanel snapshots={snapshots} />);
 
     fireEvent.click(screen.getByRole("button", { name: /snapshot #10/i }));
-    await screen.findByText("Exibindo 1–20 de 21 URLs");
+    await screen.findByText(summary("Exibindo 1–20 de 21 URLs"));
     fireEvent.click(screen.getByRole("button", { name: "Próxima" }));
     await waitFor(() => expect(listDiscoverySnapshotUrls).toHaveBeenCalledWith(10, 2, 20));
-    await screen.findByText("Exibindo 21–21 de 21 URLs");
+    await screen.findByText(summary("Exibindo 21–21 de 21 URLs"));
+    expect(screen.getByRole("button", { name: "Página 2" })).toHaveAttribute("aria-current", "page");
 
     fireEvent.change(screen.getByRole("combobox", { name: /itens por página do snapshot #10/i }), { target: { value: "30" } });
     await waitFor(() => expect(listDiscoverySnapshotUrls).toHaveBeenCalledWith(10, 1, 30));
-    expect(await screen.findByText("Exibindo 1–21 de 21 URLs")).toBeInTheDocument();
+    expect(await screen.findByText(summary("Exibindo 1–21 de 21 URLs"))).toBeInTheDocument();
   });
 
   it("keeps the current table visible while another page is loading", async () => {
@@ -130,7 +149,7 @@ describe("DiscoverySnapshotsPanel", () => {
     render(<DiscoverySnapshotsPanel snapshots={snapshots} />);
 
     fireEvent.click(screen.getByRole("button", { name: /snapshot #10/i }));
-    await screen.findByText("Exibindo 1–20 de 21 URLs");
+    await screen.findByText(summary("Exibindo 1–20 de 21 URLs"));
     fireEvent.click(screen.getByRole("button", { name: "Próxima" }));
     await waitFor(() => expect(listDiscoverySnapshotUrls).toHaveBeenCalledWith(10, 2, 20));
 
