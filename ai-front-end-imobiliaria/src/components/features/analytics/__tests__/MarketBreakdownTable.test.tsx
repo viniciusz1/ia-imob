@@ -105,8 +105,10 @@ describe("MarketBreakdownTable", () => {
 
     selectTab("Bairro");
 
-    expect(screen.getByText("Bairro 20")).toBeInTheDocument();
-    expect(screen.queryByText("Bairro 21")).not.toBeInTheDocument();
-    expect(screen.getByText("1-20 de 50 grupos")).toBeInTheDocument();
+    expect(screen.getByText("Bairro 10")).toBeInTheDocument();
+    expect(screen.queryByText("Bairro 11")).not.toBeInTheDocument();
+    expect(
+      screen.getByText((_, element) => element?.tagName === "P" && element.textContent === "Exibindo 1–10 de 50 grupos"),
+    ).toBeInTheDocument();
   });
 });

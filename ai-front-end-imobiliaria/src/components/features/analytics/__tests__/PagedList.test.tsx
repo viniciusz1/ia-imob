@@ -20,13 +20,13 @@ function Harness({ total, pageSize }: { total: number; pageSize?: number }) {
 }
 
 describe("usePagedItems", () => {
-  it("paginates in blocks of 20 by default", () => {
+  it("paginates in blocks of 10 by default", () => {
     render(<Harness total={183} />);
 
-    expect(PAGE_SIZE).toBe(20);
+    expect(PAGE_SIZE).toBe(10);
     expect(screen.getByText("Item 1")).toBeInTheDocument();
-    expect(screen.getByText("Item 20")).toBeInTheDocument();
-    expect(screen.queryByText("Item 21")).not.toBeInTheDocument();
+    expect(screen.getByText("Item 10")).toBeInTheDocument();
+    expect(screen.queryByText("Item 11")).not.toBeInTheDocument();
   });
 
   it("advances to the next page without dropping items", () => {
@@ -34,15 +34,15 @@ describe("usePagedItems", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Próxima" }));
 
-    expect(screen.getByText("Item 21")).toBeInTheDocument();
-    expect(screen.getByText("Item 40")).toBeInTheDocument();
-    expect(screen.queryByText("Item 20")).not.toBeInTheDocument();
+    expect(screen.getByText("Item 11")).toBeInTheDocument();
+    expect(screen.getByText("Item 20")).toBeInTheDocument();
+    expect(screen.queryByText("Item 10")).not.toBeInTheDocument();
   });
 
   it("reaches the last item of a partial final page", () => {
     render(<Harness total={183} />);
 
-    for (let index = 0; index < 9; index += 1) {
+    for (let index = 0; index < 18; index += 1) {
       fireEvent.click(screen.getByRole("button", { name: "Próxima" }));
     }
 
@@ -53,7 +53,18 @@ describe("usePagedItems", () => {
   it("reports the visible range and the full total", () => {
     render(<Harness total={183} />);
 
-    expect(screen.getByText("1-20 de 183 itens")).toBeInTheDocument();
+    expect(
+      screen.getByText((_, element) => element?.tagName === "P" && element.textContent === "Exibindo 1–10 de 183 itens"),
+    ).toBeInTheDocument();
+  });
+
+  it("jumps straight to a numbered page", () => {
+    render(<Harness total={183} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Página 19" }));
+
+    expect(screen.getByText("Item 183")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Página 19" })).toHaveAttribute("aria-current", "page");
   });
 
   it("disables the previous button on the first page", () => {
@@ -63,10 +74,10 @@ describe("usePagedItems", () => {
   });
 
   it("hides the footer when everything fits on one page", () => {
-    render(<Harness total={14} />);
+    render(<Harness total={7} />);
 
     expect(screen.queryByRole("button", { name: "Próxima" })).not.toBeInTheDocument();
-    expect(screen.getByText("Item 14")).toBeInTheDocument();
+    expect(screen.getByText("Item 7")).toBeInTheDocument();
   });
 
   it("handles an empty list without offering navigation", () => {

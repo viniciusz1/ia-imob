@@ -1,6 +1,8 @@
 "use client";
 
 import { useMemo } from "react";
+import { ChartColumn, SearchX } from "lucide-react";
+import { EmptyState } from "@/components/layout/EmptyState";
 import {
   Table,
   TableBody,
@@ -66,6 +68,7 @@ export function MarketBreakdownTable({ pricing, rankings }: MarketBreakdownTable
 
   return (
     <TabbedPanel
+      icon={ChartColumn}
       title="Preço por recorte"
       description="Mediana calculada dentro de cada grupo. Imóveis conta os anúncios com preço válido que sustentam a mediana."
       tabs={[
@@ -89,44 +92,39 @@ function BreakdownRows({ rows, groupLabel }: { rows: BreakdownRow[]; groupLabel:
   const paged = usePagedItems(rows);
 
   if (rows.length === 0) {
-    return <p className="text-sm text-muted-foreground">Sem imóveis neste recorte.</p>;
+    return <EmptyState icon={SearchX} title="Sem imóveis neste recorte." variant="inline" />;
   }
 
   return (
     <div>
-      {/* CardContent recua 24px de cada lado, o que deixava as divisórias das
-          linhas paradas antes da borda do card. A sangria negativa devolve a
-          largura à tabela e o recuo volta nas células das pontas. */}
-      <div className="-mx-6">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="pl-6">{groupLabel}</TableHead>
-              <TableHead className="text-right">Imóveis</TableHead>
-              <TableHead className="text-right">Mediana</TableHead>
-              <TableHead className="pr-6 text-right">R$/m²</TableHead>
+      <Table>
+        <TableHeader>
+          <TableRow className="hover:bg-transparent">
+            <TableHead className="sm:pl-5">{groupLabel}</TableHead>
+            <TableHead className="text-right">Imóveis</TableHead>
+            <TableHead className="text-right">Mediana</TableHead>
+            <TableHead className="text-right sm:pr-5">R$/m²</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {paged.pageItems.map((row) => (
+            <TableRow key={row.label}>
+              <TableCell className="text-foreground sm:pl-5">{row.label}</TableCell>
+              <TableCell className="text-right tabular-nums text-muted-foreground">
+                {formatCount(row.sampleSize)}
+              </TableCell>
+              <TableCell className="text-right tabular-nums">
+                {row.insufficientSample ? EMPTY_VALUE : formatCurrency(row.median)}
+              </TableCell>
+              <TableCell className="text-right tabular-nums sm:pr-5">
+                {row.insufficientSample
+                  ? EMPTY_VALUE
+                  : formatSquareMetrePrice(row.medianPerSquareMetre)}
+              </TableCell>
             </TableRow>
-          </TableHeader>
-          <TableBody>
-            {paged.pageItems.map((row) => (
-              <TableRow key={row.label}>
-                <TableCell className="pl-6 font-medium">{row.label}</TableCell>
-                <TableCell className="text-right tabular-nums text-muted-foreground">
-                  {formatCount(row.sampleSize)}
-                </TableCell>
-                <TableCell className="text-right tabular-nums">
-                  {row.insufficientSample ? EMPTY_VALUE : formatCurrency(row.median)}
-                </TableCell>
-                <TableCell className="pr-6 text-right tabular-nums">
-                  {row.insufficientSample
-                    ? EMPTY_VALUE
-                    : formatSquareMetrePrice(row.medianPerSquareMetre)}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+          ))}
+        </TableBody>
+      </Table>
       <PaginationFooter paged={paged} noun="grupos" />
     </div>
   );

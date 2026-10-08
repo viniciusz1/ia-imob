@@ -1,5 +1,6 @@
 import type { LucideIcon } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { STAT_TONES, type StatTone } from "@/components/layout/StatCard";
+import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { EMPTY_VALUE } from "./format";
 
@@ -7,38 +8,48 @@ interface StatTileProps {
   label: string;
   value: string;
   icon: LucideIcon;
+  tone?: StatTone;
   insufficientSample?: boolean;
 }
 
+/**
+ * Mesmo visual do `StatCard`, com o caso da amostra insuficiente: o valor dá
+ * lugar ao traço e o card explica o motivo no `title`.
+ */
 export function StatTile({
   label,
   value,
   icon: Icon,
+  tone = "primary",
   insufficientSample = false,
 }: StatTileProps) {
   return (
-    <Card className="gap-0 py-5">
-      <CardContent className="space-y-1 px-5">
-        {/* O ícone divide a linha com o rótulo, que pode encurtar. O valor fica
-            sozinho na linha de baixo com a largura inteira do card, porque é
-            ele que não pode perder caractere quando a coluna estreita. */}
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <Icon aria-hidden className="size-4 shrink-0" />
-          <p className="truncate text-sm font-medium" title={label}>
-            {label}
-          </p>
-        </div>
-
-        <p
-          className={cn(
-            "text-2xl font-semibold tracking-tight tabular-nums 2xl:text-3xl",
-            insufficientSample && "text-muted-foreground",
-          )}
-          title={insufficientSample ? "Amostra insuficiente" : undefined}
-        >
-          {insufficientSample ? EMPTY_VALUE : value}
+    <Card className="h-full gap-0 p-5">
+      <div className="flex items-start justify-between gap-3">
+        <p className="min-w-0 truncate text-sm text-muted-foreground" title={label}>
+          {label}
         </p>
-      </CardContent>
+        <span
+          className={cn(
+            "flex size-10 shrink-0 items-center justify-center rounded-lg",
+            STAT_TONES[insufficientSample ? "muted" : tone],
+          )}
+        >
+          <Icon aria-hidden className="size-5" />
+        </span>
+      </div>
+
+      {/* O valor fica sozinho na linha com a largura inteira do card, porque é
+          ele que não pode perder caractere quando a coluna estreita. */}
+      <p
+        className={cn(
+          "mt-2 text-3xl leading-none tracking-tight tabular-nums",
+          insufficientSample ? "text-muted-foreground" : "text-foreground",
+        )}
+        title={insufficientSample ? "Amostra insuficiente" : undefined}
+      >
+        {insufficientSample ? EMPTY_VALUE : value}
+      </p>
     </Card>
   );
 }

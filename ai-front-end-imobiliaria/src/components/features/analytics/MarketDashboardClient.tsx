@@ -1,7 +1,9 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { Building2, Coins, Ruler, TrendingUp } from "lucide-react";
+import { Building2, CalendarClock, Coins, Ruler, TrendingUp } from "lucide-react";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import {
@@ -44,26 +46,25 @@ export function MarketDashboardClient() {
   const meta = overview.data?.meta ?? pricing.data?.meta ?? null;
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Análise de mercado</h1>
-          <p className="text-muted-foreground mt-1">
-            Estoque, preços e rankings da coleta publicada mais recente de cada imobiliária.
-          </p>
-        </div>
-        {meta === null ? null : (
-          <p className="shrink-0 text-sm text-muted-foreground">
-            Coleta de referência: {formatReferenceDate(meta.data_reference_date)}
-          </p>
-        )}
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        actions={
+          meta === null ? null : (
+            <Badge variant="info">
+              <CalendarClock aria-hidden />
+              Coleta de referência: {formatReferenceDate(meta.data_reference_date)}
+            </Badge>
+          )
+        }
+        description="Estoque, preços e rankings da coleta publicada mais recente de cada imobiliária."
+        title="Análise de mercado"
+      />
 
       <MarketFiltersPanel filters={filters} onChange={setFilters} />
 
-      <section className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {overview.isPending || pricing.isPending ? (
-          <PanelSkeleton count={4} className="h-24" />
+          <PanelSkeleton count={4} className="h-[7.5rem]" />
         ) : (
           <>
             <StatTile
@@ -74,12 +75,14 @@ export function MarketDashboardClient() {
             <StatTile
               icon={Coins}
               label="Preço mediano"
+              tone="success"
               value={formatCurrency(pricing.data?.data.median_price.value)}
               insufficientSample={pricing.data?.data.median_price.insufficient_sample}
             />
             <StatTile
               icon={TrendingUp}
               label="Preço médio"
+              tone="info"
               value={formatCurrency(pricing.data?.data.average_price.value)}
               insufficientSample={pricing.data?.data.average_price.insufficient_sample}
             />
@@ -119,7 +122,3 @@ function PanelSkeleton({ count, className = "h-72" }: { count: number; className
 function queryKeyFor(filters: MarketAnalyticsFilters): string {
   return JSON.stringify(filters);
 }
-
-
-
-

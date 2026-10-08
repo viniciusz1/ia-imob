@@ -1,7 +1,7 @@
 "use client";
 
+import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { toDigits } from "./numberInput";
 
 interface NumberRangeFieldProps {
@@ -26,12 +26,12 @@ export function NumberRangeField({
   onChange,
 }: NumberRangeFieldProps) {
   return (
-    <div className="space-y-2">
-      <Label htmlFor={id}>{label}</Label>
+    <FormField htmlFor={id} label={label}>
       <div className="flex gap-2">
         <Input
           id={id}
           className="min-w-0"
+          size="sm"
           inputMode="numeric"
           placeholder={minPlaceholder}
           value={format(minValue)}
@@ -39,12 +39,13 @@ export function NumberRangeField({
         />
         <Input
           className="min-w-0"
+          size="sm"
           inputMode="numeric"
           placeholder={maxPlaceholder}
           value={format(maxValue)}
           onChange={(event) => onChange({ min: minValue, max: toDigits(event.target.value) })}
         />
       </div>
-    </div>
+    </FormField>
   );
 }

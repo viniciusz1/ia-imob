@@ -1,15 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { formatCount } from "./format";
+import {
+  DEFAULT_PAGE_SIZE,
+  PaginationFooter as SharedPaginationFooter,
+} from "@/components/layout/PaginationFooter";
 
-export const PAGE_SIZE = 20;
+export const PAGE_SIZE = DEFAULT_PAGE_SIZE;
 
 export interface PagedItems<T> {
   pageItems: T[];
   page: number;
   pageCount: number;
+  pageSize: number;
   total: number;
   /** Index of the first visible item, so callers can keep ranking numbers continuous. */
   firstIndex: number;
@@ -29,6 +32,7 @@ export function usePagedItems<T>(items: T[], pageSize: number = PAGE_SIZE): Page
     pageItems: items.slice(firstIndex, firstIndex + pageSize),
     page,
     pageCount,
+    pageSize,
     total: items.length,
     firstIndex,
     goToPage: setRequestedPage,
@@ -40,35 +44,18 @@ interface PaginationFooterProps<T> {
   noun: string;
 }
 
+/** Rodapé padrão do card; some quando tudo cabe numa página. */
 export function PaginationFooter<T>({ paged, noun }: PaginationFooterProps<T>) {
   if (paged.pageCount <= 1) return null;
 
-  const from = paged.firstIndex + 1;
-  const to = paged.firstIndex + paged.pageItems.length;
-
   return (
-    <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
-      <p className="text-sm text-muted-foreground tabular-nums">
-        {from}-{to} de {formatCount(paged.total)} {noun}
-      </p>
-      <div className="flex items-center gap-2">
-        <Button
-          disabled={paged.page <= 1}
-          onClick={() => paged.goToPage(paged.page - 1)}
-          size="sm"
-          variant="outline"
-        >
-          Anterior
-        </Button>
-        <Button
-          disabled={paged.page >= paged.pageCount}
-          onClick={() => paged.goToPage(paged.page + 1)}
-          size="sm"
-          variant="outline"
-        >
-          Próxima
-        </Button>
-      </div>
-    </div>
+    <SharedPaginationFooter
+      itemLabel={noun}
+      onPageChange={paged.goToPage}
+      page={paged.page}
+      pageCount={paged.pageCount}
+      pageSize={paged.pageSize}
+      total={paged.total}
+    />
   );
 }
