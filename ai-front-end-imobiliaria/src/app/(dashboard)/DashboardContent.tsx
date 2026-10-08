@@ -11,12 +11,20 @@ import { hasPermission } from "@/lib/permissions";
 import { dashboardModules, type DashboardModule } from "@/config/modules";
 import { cn } from "@/lib/utils";
 
-// Same grouping as the sidebar (AppNavigation), so the home mirrors the menu.
-const sections: Array<{ label: string; moduleIds: string[] }> = [
-    { label: "Imóveis", moduleIds: ["properties", "auctions", "ai-searcher", "valuations"] },
-    { label: "Análises", moduleIds: ["market-analytics", "valuation-analytics"] },
-    { label: "Gestão", moduleIds: ["users", "roles", "billing", "site-settings"] },
-    { label: "Plataforma", moduleIds: ["platform-agencies", "crawler-operations"] },
+// One continuous grid, in the same order as the sidebar menu (AppNavigation).
+const moduleOrder = [
+    "properties",
+    "auctions",
+    "ai-searcher",
+    "valuations",
+    "market-analytics",
+    "valuation-analytics",
+    "users",
+    "roles",
+    "billing",
+    "site-settings",
+    "platform-agencies",
+    "crawler-operations",
 ];
 
 // Tone per module: primary for the core work, success for money and value,
@@ -93,14 +101,9 @@ export function DashboardContent() {
         return hasPermission(userPermissions, module.permissions, "any");
     };
 
-    const visibleSections = sections
-        .map((section) => ({
-            label: section.label,
-            modules: section.moduleIds
-                .map((id) => modulesById.get(id))
-                .filter((module): module is DashboardModule => module !== undefined && canSee(module)),
-        }))
-        .filter((section) => section.modules.length > 0);
+    const visibleModules = moduleOrder
+        .map((id) => modulesById.get(id))
+        .filter((module): module is DashboardModule => module !== undefined && canSee(module));
 
     return (
         <div className="space-y-6">
@@ -109,16 +112,11 @@ export function DashboardContent() {
                 title={firstName ? `Olá, ${firstName}` : "Olá!"}
             />
 
-            {visibleSections.map((section) => (
-                <section className="space-y-3" key={section.label}>
-                    <h2 className="text-xs uppercase tracking-wide text-muted-foreground">{section.label}</h2>
-                    <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-                        {section.modules.map((module) => (
-                            <ModuleCard key={module.id} module={module} />
-                        ))}
-                    </div>
-                </section>
-            ))}
+            <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+                {visibleModules.map((module) => (
+                    <ModuleCard key={module.id} module={module} />
+                ))}
+            </div>
         </div>
     );
 }
