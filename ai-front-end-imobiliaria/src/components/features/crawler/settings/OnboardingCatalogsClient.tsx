@@ -1,15 +1,19 @@
 "use client";
 
 import { isAxiosError } from "axios";
+import { Info, Layers } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
+import { EmptyState } from "@/components/layout/EmptyState";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { NativeSelect } from "@/components/ui/native-select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   archiveDiscoveryPolicyVersion,
@@ -51,6 +55,12 @@ const statusLabels: Record<OnboardingCatalogStatus, string> = {
   draft: "Rascunho",
   available: "Disponível",
   archived: "Arquivada",
+};
+
+const statusVariants: Record<OnboardingCatalogStatus, "muted" | "success"> = {
+  draft: "muted",
+  available: "success",
+  archived: "muted",
 };
 
 interface OnboardingCatalogsClientProps {
@@ -139,17 +149,15 @@ function VersionHeading({
   isDefault?: boolean;
 }) {
   return (
-    <CardHeader className="flex-row items-start justify-between gap-3">
-      <div>
-        <CardTitle>{name} · v{version}</CardTitle>
-        <p className="mt-1 text-xs text-muted-foreground">
-          {status === "draft" ? "Editável até a publicação" : "Conteúdo imutável"}
-        </p>
-      </div>
-      <div className="flex gap-2">
-        {isDefault && <Badge>Padrão global</Badge>}
-        <Badge variant={status === "archived" ? "outline" : "secondary"}>{statusLabels[status]}</Badge>
-      </div>
+    <CardHeader className="border-b">
+      <CardTitle>{name} · v{version}</CardTitle>
+      <CardDescription className="text-xs">
+        {status === "draft" ? "Editável até a publicação" : "Conteúdo imutável"}
+      </CardDescription>
+      <CardAction className="flex flex-wrap justify-end gap-2">
+        {isDefault && <Badge variant="info">Padrão global</Badge>}
+        <Badge variant={statusVariants[status]}>{statusLabels[status]}</Badge>
+      </CardAction>
     </CardHeader>
   );
 }
@@ -186,8 +194,7 @@ function DiscoveryVersionCard({
               prefix={`discovery-${policy.id}`}
               selected={selected}
             />
-            <div className="max-w-xs space-y-2">
-              <Label htmlFor={`discovery-max-${policy.id}`}>Limite de URLs</Label>
+            <FormField className="max-w-xs" htmlFor={`discovery-max-${policy.id}`} label="Limite de URLs">
               <Input
                 id={`discovery-max-${policy.id}`}
                 max={10000}
@@ -196,10 +203,10 @@ function DiscoveryVersionCard({
                 type="number"
                 value={maxUrls}
               />
-            </div>
+            </FormField>
           </>
         ) : (
-          <p className="text-sm">Estratégias: {policy.strategies.join(" → ")}</p>
+          <p className="text-sm text-foreground">Estratégias: {policy.strategies.join(" → ")}</p>
         )}
         <p className="text-sm text-muted-foreground">
           Referenciada por {policy.model_reference_count} modelo(s);
@@ -313,7 +320,7 @@ function ExtractionVersionCard({
             selected={selected}
           />
         ) : (
-          <p className="text-sm">Fallback: {policy.strategies.join(" → ")}</p>
+          <p className="text-sm text-foreground">Fallback: {policy.strategies.join(" → ")}</p>
         )}
         <p className="text-sm text-muted-foreground">
           Referenciada por {policy.model_reference_count} modelo(s);
@@ -425,7 +432,7 @@ function ModelVersionCard({
       />
       <CardContent className="space-y-4">
         {model.mutable ? (
-          <div className="grid gap-3 md:grid-cols-2">
+          <div className="grid gap-5 md:grid-cols-2">
             <PolicySelect
               id={`model-discovery-${model.id}`}
               label="Política de discovery"
@@ -442,7 +449,7 @@ function ModelVersionCard({
             />
           </div>
         ) : (
-          <div className="grid gap-2 text-sm md:grid-cols-2">
+          <div className="grid gap-2 text-sm text-foreground md:grid-cols-2">
             <p>Discovery: {model.discovery_policy.name} · v{model.discovery_policy.version}</p>
             <p>Extração: {model.extraction_policy.name} · v{model.extraction_policy.version}</p>
           </div>
@@ -555,10 +562,8 @@ function PolicySelect({
   onChange: (id: number) => void;
 }) {
   return (
-    <div className="space-y-2">
-      <Label htmlFor={id}>{label}</Label>
-      <select
-        className="h-9 w-full rounded-md border bg-transparent px-3 text-sm"
+    <FormField htmlFor={id} label={label}>
+      <NativeSelect
         id={id}
         onChange={(event) => onChange(Number(event.target.value))}
         value={value}
@@ -566,8 +571,8 @@ function PolicySelect({
         {options.map((option) => (
           <option key={option.id} value={option.id}>{option.name} · v{option.version}</option>
         ))}
-      </select>
-    </div>
+      </NativeSelect>
+    </FormField>
   );
 }
 
@@ -658,8 +663,8 @@ export function OnboardingCatalogsClient({
   return (
     <section className="space-y-4">
       <div>
-        <h2 className="text-2xl font-semibold">Modelos de execução de onboarding</h2>
-        <p className="text-muted-foreground">
+        <h2 className="text-lg tracking-tight text-foreground">Modelos de execução de onboarding</h2>
+        <p className="text-sm text-muted-foreground">
           Monte combinações nomeadas entre uma versão de discovery e uma versão de extração.
           Publicadas, as versões ficam imutáveis.
         </p>
@@ -743,38 +748,47 @@ function DiscoveryCreationCard({
 
   return (
     <Card>
-      <CardHeader><CardTitle>Nova política de discovery</CardTitle></CardHeader>
-      <CardContent className="space-y-4">
-        <div className="grid gap-3 md:grid-cols-[1fr_12rem]">
-          <div className="space-y-2">
-            <Label htmlFor="new-discovery-name">Nome da política</Label>
+      <CardHeader className="border-b">
+        <CardTitle>Nova política de discovery</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-5">
+        <div className="grid gap-5 md:grid-cols-[1fr_12rem]">
+          <FormField htmlFor="new-discovery-name" label="Nome da política">
             <Input id="new-discovery-name" onChange={(event) => setName(event.target.value)} value={name} />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="new-discovery-max">Limite de URLs</Label>
-            <Input id="new-discovery-max" max={10000} min={1} onChange={(event) => setMaxUrls(event.target.valueAsNumber)} type="number" value={maxUrls} />
-          </div>
+          </FormField>
+          <FormField htmlFor="new-discovery-max" label="Limite de URLs">
+            <Input
+              id="new-discovery-max"
+              max={10000}
+              min={1}
+              onChange={(event) => setMaxUrls(event.target.valueAsNumber)}
+              type="number"
+              value={maxUrls}
+            />
+          </FormField>
         </div>
         <StrategyChoices onChange={setSelected} options={options} prefix="new-discovery" selected={selected} />
-        <Button
-          disabled={pending || name.trim() === "" || selected.length === 0}
-          onClick={() => void execute(
-            () => createDiscoveryPolicyVersion({
-              name: name.trim(),
-              strategies: selected,
-              configuration: { max_urls: maxUrls },
-            }),
-            "Política criada em rascunho.",
-            (created) => {
-              onCreated(created);
-              setName("");
-              setSelected([]);
-            },
-          )}
-          type="button"
-        >
-          Criar rascunho
-        </Button>
+        <div className="flex flex-wrap justify-end gap-3">
+          <Button
+            disabled={pending || name.trim() === "" || selected.length === 0}
+            onClick={() => void execute(
+              () => createDiscoveryPolicyVersion({
+                name: name.trim(),
+                strategies: selected,
+                configuration: { max_urls: maxUrls },
+              }),
+              "Política criada em rascunho.",
+              (created) => {
+                onCreated(created);
+                setName("");
+                setSelected([]);
+              },
+            )}
+            type="button"
+          >
+            Criar rascunho
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );
@@ -788,28 +802,26 @@ function CustomStrategyCard({ onCreated }: { onCreated: (strategy: DiscoveryStra
 
   return (
     <Card>
-      <CardHeader><CardTitle>Registrar estratégia customizada</CardTitle></CardHeader>
-      <CardContent className="grid gap-3 md:grid-cols-[1fr_1fr_12rem_auto]">
-        <div className="space-y-2">
-          <Label htmlFor="strategy-key">Identificador</Label>
+      <CardHeader className="border-b">
+        <CardTitle>Registrar estratégia customizada</CardTitle>
+      </CardHeader>
+      <CardContent className="grid gap-5 md:grid-cols-[1fr_1fr_12rem_auto]">
+        <FormField htmlFor="strategy-key" label="Identificador">
           <Input id="strategy-key" onChange={(event) => setKey(event.target.value)} placeholder="partner_feed" value={key} />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="strategy-label">Nome</Label>
+        </FormField>
+        <FormField htmlFor="strategy-label" label="Nome">
           <Input id="strategy-label" onChange={(event) => setLabel(event.target.value)} value={label} />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="strategy-safety">Segurança</Label>
-          <select
-            className="h-9 w-full rounded-md border bg-transparent px-3 text-sm"
+        </FormField>
+        <FormField htmlFor="strategy-safety" label="Segurança">
+          <NativeSelect
             id="strategy-safety"
             onChange={(event) => setSafety(event.target.value as DiscoveryStrategy["safety_status"])}
             value={safety}
           >
             <option value="safe">Segura</option>
             <option value="blocked">Bloqueada</option>
-          </select>
-        </div>
+          </NativeSelect>
+        </FormField>
         <Button
           className="self-end"
           disabled={pending || key.trim() === "" || label.trim() === ""}
@@ -850,35 +862,41 @@ function ExtractionCreationCard({
 
   return (
     <Card>
-      <CardHeader><CardTitle>Nova política de extração</CardTitle></CardHeader>
-      <CardContent className="space-y-4">
-        <div className="max-w-xl space-y-2">
-          <Label htmlFor="new-extraction-name">Nome da política</Label>
+      <CardHeader className="border-b">
+        <CardTitle>Nova política de extração</CardTitle>
+        <CardDescription>O fallback sempre segue a ordem exibida. Selecione uma ou mais estratégias.</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-5">
+        <FormField className="max-w-xl" htmlFor="new-extraction-name" label="Nome da política">
           <Input id="new-extraction-name" onChange={(event) => setName(event.target.value)} value={name} />
+        </FormField>
+        <StrategyChoices
+          onChange={updateSelection}
+          options={extractionStrategies}
+          prefix="new-extraction"
+          selected={selected}
+        />
+        <div className="flex flex-wrap justify-end gap-3">
+          <Button
+            disabled={pending || name.trim() === "" || selected.length === 0}
+            onClick={() => void execute(
+              () => createExtractionPolicyVersion({
+                name: name.trim(),
+                strategies: selected,
+                configuration: {},
+              }),
+              "Política criada em rascunho.",
+              (created) => {
+                onCreated(created);
+                setName("");
+                setSelected([]);
+              },
+            )}
+            type="button"
+          >
+            Criar rascunho
+          </Button>
         </div>
-        <p className="text-sm text-muted-foreground">
-          O fallback sempre segue a ordem exibida. Selecione uma ou mais estratégias.
-        </p>
-        <StrategyChoices onChange={updateSelection} options={extractionStrategies} prefix="new-extraction" selected={selected} />
-        <Button
-          disabled={pending || name.trim() === "" || selected.length === 0}
-          onClick={() => void execute(
-            () => createExtractionPolicyVersion({
-              name: name.trim(),
-              strategies: selected,
-              configuration: {},
-            }),
-            "Política criada em rascunho.",
-            (created) => {
-              onCreated(created);
-              setName("");
-              setSelected([]);
-            },
-          )}
-          type="button"
-        >
-          Criar rascunho
-        </Button>
       </CardContent>
     </Card>
   );
@@ -907,45 +925,63 @@ function ModelCreationCard({
 
   return (
     <Card>
-      <CardHeader><CardTitle>Nova combinação de onboarding</CardTitle></CardHeader>
-      <CardContent className="space-y-4">
+      <CardHeader className="border-b">
+        <CardTitle>Nova combinação de onboarding</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-5">
         {discoveryPolicies.length === 0 || extractionPolicies.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            Publique ao menos uma política de discovery e uma de extração para criar combinações.
-          </p>
+          <div className="flex items-start gap-3 rounded-lg border border-info/30 bg-info/10 px-4 py-3 text-sm">
+            <Info className="size-4 shrink-0 text-info" />
+            <p className="text-foreground">
+              Publique ao menos uma política de discovery e uma de extração para criar combinações.
+            </p>
+          </div>
         ) : (
-          <div className="grid gap-3 md:grid-cols-3">
-            <div className="space-y-2">
-              <Label htmlFor="new-model-name">Nome da execução</Label>
+          <div className="grid gap-5 md:grid-cols-3">
+            <FormField htmlFor="new-model-name" label="Nome da execução">
               <Input id="new-model-name" onChange={(event) => setName(event.target.value)} value={name} />
-            </div>
-            <PolicySelect id="new-model-discovery" label="Política de discovery" onChange={setDiscoveryId} options={discoveryPolicies} value={effectiveDiscoveryId} />
-            <PolicySelect id="new-model-extraction" label="Política de extração" onChange={setExtractionId} options={extractionPolicies} value={effectiveExtractionId} />
+            </FormField>
+            <PolicySelect
+              id="new-model-discovery"
+              label="Política de discovery"
+              onChange={setDiscoveryId}
+              options={discoveryPolicies}
+              value={effectiveDiscoveryId}
+            />
+            <PolicySelect
+              id="new-model-extraction"
+              label="Política de extração"
+              onChange={setExtractionId}
+              options={extractionPolicies}
+              value={effectiveExtractionId}
+            />
           </div>
         )}
-        <Button
-          disabled={pending || !canCreate}
-          onClick={() => void execute(
-            () => createOnboardingExecutionModelVersion({
-              name: name.trim(),
-              discovery_policy_version_id: effectiveDiscoveryId,
-              extraction_policy_version_id: effectiveExtractionId,
-            }),
-            "Modelo criado em rascunho.",
-            (created) => {
-              onCreated(created);
-              setName("");
-            },
-          )}
-          type="button"
-        >
-          Criar combinação
-        </Button>
+        <div className="flex flex-wrap justify-end gap-3">
+          <Button
+            disabled={pending || !canCreate}
+            onClick={() => void execute(
+              () => createOnboardingExecutionModelVersion({
+                name: name.trim(),
+                discovery_policy_version_id: effectiveDiscoveryId,
+                extraction_policy_version_id: effectiveExtractionId,
+              }),
+              "Modelo criado em rascunho.",
+              (created) => {
+                onCreated(created);
+                setName("");
+              },
+            )}
+            type="button"
+          >
+            Criar combinação
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );
 }
 
 function EmptyCatalog({ text }: { text: string }) {
-  return <div className="rounded-lg border border-dashed p-6 text-sm text-muted-foreground">{text}</div>;
+  return <EmptyState className="rounded-xl border border-dashed" icon={Layers} title={text} variant="inline" />;
 }

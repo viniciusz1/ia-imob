@@ -1,14 +1,17 @@
 "use client";
 
+import { TriangleAlert } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { NativeSelect } from "@/components/ui/native-select";
 import {
   activateMarketDataContract,
   createMarketDataContract,
@@ -72,56 +75,77 @@ export function MarketDataContractsClient({ initialContracts }: MarketDataContra
   return (
     <section className="space-y-4">
       <div>
-        <h2 className="text-lg font-semibold">Contrato de Dados de Mercado</h2>
-        <p className="text-muted-foreground">Versões ativas são imutáveis e permanecem consultáveis.</p>
+        <h2 className="text-lg tracking-tight text-foreground">Contrato de Dados de Mercado</h2>
+        <p className="text-sm text-muted-foreground">Versões ativas são imutáveis e permanecem consultáveis.</p>
       </div>
       <Card>
-        <CardHeader><CardTitle>Novo rascunho</CardTitle></CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid gap-3 md:grid-cols-4">
-            <div className="space-y-2">
-              <Label htmlFor="contract-field-name">Nome do campo</Label>
-              <Input id="contract-field-name" value={fieldName} onChange={(event) => setFieldName(event.target.value)} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="contract-field-type">Tipo</Label>
-              <select className="h-9 rounded-md border bg-transparent px-3" id="contract-field-type" value={fieldType} onChange={(event) => setFieldType(event.target.value as MarketDataFieldType)}>
-                {(["string", "integer", "decimal", "boolean", "date", "url", "array"] as const).map((type) => <option key={type} value={type}>{type}</option>)}
-              </select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="contract-normalization">Normalização</Label>
-              <Input id="contract-normalization" placeholder="trim,currency_brl" value={normalization} onChange={(event) => setNormalization(event.target.value)} />
-            </div>
-            <div className="flex items-end gap-2 pb-2">
-              <Checkbox id="contract-required" checked={required} onCheckedChange={(checked) => setRequired(checked === true)} />
+        <CardHeader className="border-b">
+          <CardTitle>Novo rascunho</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-5">
+          <div className="grid gap-5 md:grid-cols-4">
+            <FormField htmlFor="contract-field-name" label="Nome do campo">
+              <Input id="contract-field-name" onChange={(event) => setFieldName(event.target.value)} value={fieldName} />
+            </FormField>
+            <FormField htmlFor="contract-field-type" label="Tipo">
+              <NativeSelect
+                id="contract-field-type"
+                onChange={(event) => setFieldType(event.target.value as MarketDataFieldType)}
+                value={fieldType}
+              >
+                {(["string", "integer", "decimal", "boolean", "date", "url", "array"] as const).map((type) => (
+                  <option key={type} value={type}>{type}</option>
+                ))}
+              </NativeSelect>
+            </FormField>
+            <FormField htmlFor="contract-normalization" label="Normalização">
+              <Input
+                id="contract-normalization"
+                onChange={(event) => setNormalization(event.target.value)}
+                placeholder="trim,currency_brl"
+                value={normalization}
+              />
+            </FormField>
+            <div className="flex h-10 items-center gap-2 self-end">
+              <Checkbox checked={required} id="contract-required" onCheckedChange={(checked) => setRequired(checked === true)} />
               <Label htmlFor="contract-required">Obrigatório</Label>
             </div>
           </div>
-          <div className="flex flex-wrap gap-2">
-            <Button type="button" variant="outline" onClick={addField}>Adicionar campo</Button>
-            <Button type="button" disabled={pendingFields.length === 0} onClick={createDraft}>Criar rascunho</Button>
+          {pendingFields.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {pendingFields.map((field) => (
+                <Badge key={field.name} variant="outline">{field.name}</Badge>
+              ))}
+            </div>
+          )}
+          <div className="flex flex-wrap justify-end gap-3">
+            <Button onClick={addField} type="button" variant="outline">Adicionar campo</Button>
+            <Button disabled={pendingFields.length === 0} onClick={createDraft} type="button">Criar rascunho</Button>
           </div>
-          {pendingFields.length > 0 && <p className="text-sm">{pendingFields.map((field) => field.name).join(", ")}</p>}
         </CardContent>
       </Card>
       {contracts.map((contract) => (
         <Card key={contract.id}>
-          <CardHeader className="flex-row items-center justify-between">
+          <CardHeader className="border-b">
             <CardTitle>Versão {contract.version}</CardTitle>
-            <Badge>{contract.status}</Badge>
+            <CardAction>
+              <Badge variant={contractStatus[contract.status].variant}>{contractStatus[contract.status].label}</Badge>
+            </CardAction>
           </CardHeader>
-          <CardContent className="space-y-3">
-            <p>{contract.fields.length} campos canônicos</p>
+          <CardContent className="space-y-4">
+            <p className="text-sm text-foreground tabular-nums">{contract.fields.length} campos canônicos</p>
             {contract.compatibility === "incompatible" && (
-              <div className="rounded-md border border-destructive/40 p-3">
-                <p className="font-medium">Mudança incompatível</p>
-                <ul className="list-disc pl-5">
-                  {contract.affected_agencies.map((agency) => <li key={agency.id}>{agency.name}</li>)}
-                </ul>
+              <div className="flex items-start gap-3 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm">
+                <TriangleAlert className="size-4 shrink-0 text-destructive" />
+                <div className="space-y-1">
+                  <p className="text-destructive">Mudança incompatível</p>
+                  <ul className="list-disc pl-5 text-foreground">
+                    {contract.affected_agencies.map((agency) => <li key={agency.id}>{agency.name}</li>)}
+                  </ul>
+                </div>
               </div>
             )}
-            {contract.status === "active" && <p className="text-sm">Esta versão ativa é imutável.</p>}
+            {contract.status === "active" && <p className="text-sm text-muted-foreground">Esta versão ativa é imutável.</p>}
             {contract.status === "draft" && (
               <Button onClick={() => validateContract(contract.id)}>Validar contrato</Button>
             )}
@@ -134,3 +158,10 @@ export function MarketDataContractsClient({ initialContracts }: MarketDataContra
     </section>
   );
 }
+
+const contractStatus: Record<MarketDataContract["status"], { label: string; variant: "muted" | "info" | "success" }> = {
+  draft: { label: "Rascunho", variant: "muted" },
+  validating: { label: "Em validação", variant: "info" },
+  active: { label: "Ativo", variant: "success" },
+  superseded: { label: "Substituído", variant: "muted" },
+};

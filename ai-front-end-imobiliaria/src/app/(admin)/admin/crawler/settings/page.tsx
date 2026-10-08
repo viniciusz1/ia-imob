@@ -2,6 +2,7 @@ import { MarketDataContractsClient } from "@/components/features/crawler/setting
 import { OnboardingCatalogsClient } from "@/components/features/crawler/settings/OnboardingCatalogsClient";
 import { QualityPoliciesClient } from "@/components/features/crawler/settings/QualityPoliciesClient";
 import { ScheduleDefaultPanel } from "@/components/features/crawler/schedules/ScheduleDefaultPanel";
+import { PageHeader } from "@/components/layout/PageHeader";
 import {
   getScheduleDefault,
   listDiscoveryPolicyVersions,
@@ -32,16 +33,22 @@ export default async function CrawlerSettingsPage() {
   ]);
 
   return (
-    <div className="space-y-8">
-      <OnboardingCatalogsClient
-        initialDiscoveryPolicies={discoveryPolicies}
-        initialDiscoveryStrategies={discoveryStrategies}
-        initialExtractionPolicies={extractionPolicies}
-        initialModels={onboardingModels}
+    <div className="space-y-6">
+      <PageHeader
+        description="Catálogos de onboarding, agendamento padrão, contrato de dados e política de qualidade."
+        title="Configurações do Crawler"
       />
-      <ScheduleDefaultPanel initialDefault={scheduleDefault} />
-      <MarketDataContractsClient initialContracts={contracts} />
-      <QualityPoliciesClient initialPolicies={qualityPolicies} />
+      <div className="space-y-8">
+        <OnboardingCatalogsClient
+          initialDiscoveryPolicies={discoveryPolicies}
+          initialDiscoveryStrategies={discoveryStrategies}
+          initialExtractionPolicies={extractionPolicies}
+          initialModels={onboardingModels}
+        />
+        <ScheduleDefaultPanel initialDefault={scheduleDefault} />
+        <MarketDataContractsClient initialContracts={contracts} />
+        <QualityPoliciesClient initialPolicies={qualityPolicies} />
+      </div>
     </div>
   );
 }

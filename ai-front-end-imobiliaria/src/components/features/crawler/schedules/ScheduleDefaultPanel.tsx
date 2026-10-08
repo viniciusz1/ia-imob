@@ -4,7 +4,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { updateScheduleDefault } from "@/services/crawlerService";
 import type { ScheduleDefault, SchedulePreset } from "@/types/crawler";
 import { SchedulePresetFields } from "./SchedulePresetFields";
@@ -20,19 +20,27 @@ export function ScheduleDefaultPanel({ initialDefault }: { initialDefault: Sched
     toast.success("Agendamento padrão atualizado.");
   };
 
-  return <Card>
-    <CardHeader><CardTitle>Agendamento padrão da plataforma</CardTitle></CardHeader>
-    <CardContent className="space-y-4">
-      <p className="text-sm text-muted-foreground">Usado pelas Crawl Agencies que herdam o padrão.</p>
-      <SchedulePresetFields
-        onPresetChange={setPreset}
-        onTimezoneChange={setTimezone}
-        preset={preset}
-        presetLabel="Frequência padrão"
-        timezone={timezone}
-        timezoneLabel="Fuso horário padrão"
-      />
-      <Button onClick={() => void save()} type="button">Salvar agendamento padrão</Button>
-    </CardContent>
-  </Card>;
+  return (
+    <section className="space-y-4">
+      <div>
+        <h2 className="text-lg tracking-tight text-foreground">Agendamento padrão da plataforma</h2>
+        <p className="text-sm text-muted-foreground">Usado pelas Crawl Agencies que herdam o padrão.</p>
+      </div>
+      <Card>
+        <CardContent className="space-y-5">
+          <SchedulePresetFields
+            onPresetChange={setPreset}
+            onTimezoneChange={setTimezone}
+            preset={preset}
+            presetLabel="Frequência padrão"
+            timezone={timezone}
+            timezoneLabel="Fuso horário padrão"
+          />
+          <div className="flex flex-wrap justify-end gap-3">
+            <Button onClick={() => void save()} type="button">Salvar agendamento padrão</Button>
+          </div>
+        </CardContent>
+      </Card>
+    </section>
+  );
 }
