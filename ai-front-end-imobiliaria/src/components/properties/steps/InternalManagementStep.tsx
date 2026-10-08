@@ -1,6 +1,6 @@
 "use client";
 
-import { useFormContext } from "react-hook-form";
+import { Controller, useFormContext } from "react-hook-form";
 import {
     Card,
     CardContent,
@@ -8,6 +8,7 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
+import { DatePicker } from "@/components/ui/date-picker";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -22,6 +23,7 @@ function nullableNumber(value: unknown): number | null {
 
 export function InternalManagementStep() {
     const {
+        control,
         register,
         watch,
         setValue,
@@ -100,11 +102,17 @@ export function InternalManagementStep() {
                         htmlFor="exclusive_right_expiration_date"
                         label="Vencimento da Exclusividade"
                     >
-                        <Input
-                            aria-invalid={!!errors.exclusive_right_expiration_date}
-                            id="exclusive_right_expiration_date"
-                            type="date"
-                            {...register("exclusive_right_expiration_date")}
+                        <Controller
+                            control={control}
+                            name="exclusive_right_expiration_date"
+                            render={({ field }) => (
+                                <DatePicker
+                                    aria-invalid={!!errors.exclusive_right_expiration_date}
+                                    id="exclusive_right_expiration_date"
+                                    onChange={field.onChange}
+                                    value={typeof field.value === "string" ? field.value.slice(0, 10) : ""}
+                                />
+                            )}
                         />
                     </FormField>
                     <FormField htmlFor="keys_location" label="Localização das Chaves">
