@@ -10,6 +10,7 @@ import {
   Sparkles,
   TriangleAlert,
 } from "lucide-react";
+import { scrollAppToTop } from "@/components/layout/AppShell";
 import { EmptyState } from "@/components/layout/EmptyState";
 import { PageHeader } from "@/components/layout/PageHeader";
 import {
@@ -497,7 +498,7 @@ export function AiSearcherClient() {
           return result;
         });
       }
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      scrollAppToTop();
     },
     [fetchAiResults, pushSearchParams, searchParams, isAiMode, perPage, sortOrder]
   );

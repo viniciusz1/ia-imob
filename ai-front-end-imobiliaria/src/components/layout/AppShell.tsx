@@ -6,6 +6,15 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
+const MAIN_ID = "app-main";
+
+/** Scrolls the content area to the top; the shell scrolls <main>, not the window. */
+export function scrollAppToTop(behavior: ScrollBehavior = "smooth") {
+    const main = document.getElementById(MAIN_ID);
+    if (main?.scrollTo) main.scrollTo({ top: 0, behavior });
+    else window.scrollTo({ top: 0, behavior });
+}
+
 interface AppShellProps {
     /** Logo and product name shown at the top of the sidebar. */
     brand: ReactNode;
@@ -102,6 +111,7 @@ export function AppShell({
 
                 <main
                     className="min-h-0 flex-1 overflow-auto overscroll-contain bg-background p-4 sm:p-6 lg:p-8"
+                    id={MAIN_ID}
                     ref={mainRef}
                 >
                     <div className="animate-in fade-in-0 duration-200">{children}</div>
