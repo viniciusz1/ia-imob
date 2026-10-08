@@ -3,22 +3,27 @@
 import {
     Activity,
     Building2,
-    ChevronDown,
     ChevronLeft,
     Landmark,
     LayoutDashboard,
-    Lock,
     Radar,
     Search,
     Settings,
     ShieldCheck,
     type LucideIcon,
 } from "lucide-react";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import {
+    SidebarNav,
+    SidebarNavChild,
+    SidebarNavDisabled,
+    SidebarNavFooterLink,
+    SidebarNavLink,
+    SidebarNavModule,
+    SidebarNavSection,
+} from "@/components/layout/SidebarNav";
 import { hasPermission } from "@/lib/permissions";
-import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/useAuthStore";
 
 interface PlatformNavItem {
@@ -132,41 +137,27 @@ const navigationGroups: PlatformNavGroup[] = [
     },
 ];
 
-const focusRing = "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring/60";
-const itemClasses = cn("flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors", focusRing);
-const activeClasses = "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm";
-const inactiveClasses = "text-sidebar-muted hover:bg-sidebar-accent hover:text-sidebar-foreground";
-
 export function PlatformAdminNavigation() {
     const pathname = usePathname();
     const permissions = useAuthStore((state) => state.user?.permissions);
 
     return (
-        <nav aria-label="Navegação da plataforma" className="flex flex-col gap-5">
+        <SidebarNav label="Navegação da plataforma">
             {navigationGroups.map((group) => (
-                <div className="flex flex-col gap-0.5" key={group.label}>
-                    <p className="px-3 pb-1.5 text-xs uppercase tracking-wide text-sidebar-muted/80">
-                        {group.label}
-                    </p>
-
+                <SidebarNavSection key={group.label} label={group.label}>
                     {group.items.map((item) => {
-                        const allowed = hasPermission(permissions, item.permission);
-
                         // Items the user cannot reach stay visible but disabled. A menu
                         // that silently disappears is exactly how the Agency screens got
                         // lost; a disabled item with a stated reason is diagnosable.
-                        if (!allowed) {
+                        if (!hasPermission(permissions, item.permission)) {
                             return (
-                                <span
-                                    aria-disabled="true"
-                                    className={cn(itemClasses, "cursor-not-allowed text-sidebar-muted/50")}
+                                <SidebarNavDisabled
+                                    icon={item.icon}
                                     key={item.href}
-                                    title={`Requer a permissão ${item.permission}`}
+                                    reason={`Requer a permissão ${item.permission}`}
                                 >
-                                    <item.icon className="size-4 shrink-0" />
                                     {item.label}
-                                    <Lock aria-hidden="true" className="ml-auto size-3" />
-                                </span>
+                                </SidebarNavDisabled>
                             );
                         }
 
@@ -174,73 +165,39 @@ export function PlatformAdminNavigation() {
 
                         if (item.children) {
                             return (
-                                <div key={item.href}>
-                                    {/* The module link opens its overview; while inside the
-                                        module it reads as the open section and the child
-                                        item carries the active pill. */}
-                                    <Link
-                                        className={cn(
-                                            itemClasses,
-                                            active ? "bg-sidebar-accent text-sidebar-foreground" : inactiveClasses,
-                                        )}
-                                        href={item.href}
-                                    >
-                                        <item.icon className="size-4 shrink-0" />
-                                        <span className="flex-1">{item.label}</span>
-                                        <ChevronDown
-                                            aria-hidden="true"
-                                            className={cn("size-3.5 shrink-0 transition-transform duration-200", active && "rotate-180")}
-                                        />
-                                    </Link>
-
-                                    {active && (
-                                        <div className="mt-0.5 mb-1 ml-4 flex flex-col gap-0.5 border-l border-sidebar-border pl-3">
-                                            {item.children.map((child) => {
-                                                const childActive = child.isActive(pathname);
-
-                                                return (
-                                                    <Link
-                                                        aria-current={childActive ? "page" : undefined}
-                                                        className={cn(
-                                                            "flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm transition-colors",
-                                                            focusRing,
-                                                            childActive ? activeClasses : inactiveClasses,
-                                                        )}
-                                                        href={child.href}
-                                                        key={child.href}
-                                                    >
-                                                        <child.icon className="size-3.5 shrink-0" />
-                                                        {child.label}
-                                                    </Link>
-                                                );
-                                            })}
-                                        </div>
-                                    )}
-                                </div>
+                                <SidebarNavModule
+                                    href={item.href}
+                                    icon={item.icon}
+                                    key={item.href}
+                                    label={item.label}
+                                    open={active}
+                                >
+                                    {item.children.map((child) => (
+                                        <SidebarNavChild
+                                            active={child.isActive(pathname)}
+                                            href={child.href}
+                                            icon={child.icon}
+                                            key={child.href}
+                                        >
+                                            {child.label}
+                                        </SidebarNavChild>
+                                    ))}
+                                </SidebarNavModule>
                             );
                         }
 
                         return (
-                            <Link
-                                aria-current={active ? "page" : undefined}
-                                className={cn(itemClasses, active ? activeClasses : inactiveClasses)}
-                                href={item.href}
-                                key={item.href}
-                            >
-                                <item.icon className="size-4 shrink-0" />
+                            <SidebarNavLink active={active} href={item.href} icon={item.icon} key={item.href}>
                                 {item.label}
-                            </Link>
+                            </SidebarNavLink>
                         );
                     })}
-                </div>
+                </SidebarNavSection>
             ))}
 
-            <div className="border-t border-sidebar-border pt-3">
-                <Link className={cn(itemClasses, inactiveClasses)} href="/">
-                    <ChevronLeft className="size-4 shrink-0" />
-                    Voltar ao CRM
-                </Link>
-            </div>
-        </nav>
+            <SidebarNavFooterLink href="/" icon={ChevronLeft}>
+                Voltar ao CRM
+            </SidebarNavFooterLink>
+        </SidebarNav>
     );
 }
