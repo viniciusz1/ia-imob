@@ -44,8 +44,8 @@ describe("CrawlAgenciesClient", () => {
       />,
     );
 
-    expect(screen.getByText("onboarding")).toBeInTheDocument();
-    expect(screen.getByText("unknown")).toBeInTheDocument();
+    expect(screen.getByText("Em onboarding")).toBeInTheDocument();
+    expect(screen.getByText("Sem diagnóstico")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /imóveis litoral/i })).toHaveAttribute(
       "href",
       "/admin/crawler/agencies/42",
