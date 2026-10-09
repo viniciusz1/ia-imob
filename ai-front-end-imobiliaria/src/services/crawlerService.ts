@@ -699,3 +699,48 @@ export async function updateCrawlAgencySchedule(
   const response = await api.put<Resource<CrawlAgencySchedule>>(`${BASE}/crawl-agencies/${agencyId}/schedule`, payload);
   return response.data.data;
 }
+
+export interface AuctionCrawlerSource {
+  id: number;
+  name: string;
+  type: "sitemap" | "api" | "html";
+  config: Record<string, unknown>;
+  is_active: boolean;
+  last_run_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export async function listAuctionSources(): Promise<AuctionCrawlerSource[]> {
+  const response = await api.get<Resource<AuctionCrawlerSource[]>>(`${BASE}/auction-sources`);
+  return response.data.data;
+}
+
+export interface AuctionCrawlRun {
+  id: number;
+  status: string;
+  stage: string | null;
+  started_at: string | null;
+  finished_at: string | null;
+  ingested: number;
+  failed: number;
+  sitemaps_read: number;
+  urls_found: number;
+  processed: number;
+  log: Array<{level: string, message: string, at: string}>;
+}
+
+export async function listAuctionSourceRuns(id: number): Promise<AuctionCrawlRun[]> {
+  const response = await api.get<Resource<AuctionCrawlRun[]>>(`${BASE}/auction-sources/${id}/runs`);
+  return response.data.data;
+}
+
+export async function createAuctionSource(payload: { name: string; type: "sitemap" | "api" | "html"; config: Record<string, unknown> }): Promise<AuctionCrawlerSource> {
+  const response = await api.post<Resource<AuctionCrawlerSource>>(`${BASE}/auction-sources`, payload);
+  return response.data.data;
+}
+
+export async function dispatchAuctionSource(id: number): Promise<void> {
+  await api.post(`${BASE}/auction-sources/${id}/dispatch`);
+}
+

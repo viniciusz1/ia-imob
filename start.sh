@@ -52,6 +52,11 @@ cleanup() {
         echo -e "${GREEN}✅ Worker do crawler encerrado.${NC}"
     fi
 
+    if [ -n "$AUCTION_WORKER_PID" ] && kill -0 "$AUCTION_WORKER_PID" 2>/dev/null; then
+        kill "$AUCTION_WORKER_PID" 2>/dev/null
+        echo -e "${GREEN}✅ Worker de leilão encerrado.${NC}"
+    fi
+
     # Para o backend (Sail)
     echo -e "${YELLOW}🐳 Parando containers Docker (Sail)...${NC}"
     cd "$BACKEND_DIR" && ./vendor/bin/sail stop 2>/dev/null || true
@@ -161,13 +166,29 @@ echo -e "${GREEN}  [3/4] 🕷️  Iniciando Worker do Crawler${NC}"
 echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
 
-if [ -x "$CRAWLER_DIR/.venv/bin/python" ] && [ -f "$CRAWLER_DIR/.env" ]; then
+PYTHON_CMD=""
+if [ -x "$CRAWLER_DIR/.venv/bin/python" ]; then
+    PYTHON_CMD=".venv/bin/python"
+elif [ -x "$CRAWLER_DIR/.venv/Scripts/python" ]; then
+    PYTHON_CMD=".venv/Scripts/python"
+elif [ -x "$CRAWLER_DIR/.venv/Scripts/python.exe" ]; then
+    PYTHON_CMD=".venv/Scripts/python.exe"
+fi
+
+if [ -n "$PYTHON_CMD" ] && [ -f "$CRAWLER_DIR/.env" ]; then
     (
         cd "$CRAWLER_DIR"
-        .venv/bin/python -m crawler_machine worker --worker-key local-dev --version dev
+        $PYTHON_CMD -m crawler_machine worker --worker-key local-dev --version dev
     ) > "$CRAWLER_LOG" 2>&1 &
     CRAWLER_WORKER_PID=$!
-    echo -e "${GREEN}✅ Worker do crawler iniciado.${NC}"
+    echo -e "${GREEN}✅ Worker principal do crawler iniciado.${NC}"
+    
+    (
+        cd "$CRAWLER_DIR"
+        $PYTHON_CMD -m crawler_machine auction-worker --worker-key local-dev-auction
+    ) > "$CRAWLER_DIR/auction-worker-dev.log" 2>&1 &
+    AUCTION_WORKER_PID=$!
+    echo -e "${GREEN}✅ Worker de leilão iniciado.${NC}"
 else
     echo -e "${YELLOW}⚠️  Worker não iniciado: configure crawler-machine/.env e instale crawler-machine/.venv.${NC}"
     echo -e "${YELLOW}   Use: make install-crawler && make worker${NC}"

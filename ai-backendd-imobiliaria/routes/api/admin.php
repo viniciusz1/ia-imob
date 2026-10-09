@@ -71,6 +71,7 @@ Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.view
     ->prefix('crawler')
     ->group(function () {
         Route::get('/overview', CrawlerOverviewController::class);
+        Route::get('/auction-sources', [\App\Http\Controllers\Api\Admin\AuctionCrawlerSourceController::class, 'index']);
         Route::get('/crawl-agencies', [CrawlAgencyController::class, 'index']);
         Route::get('/crawl-agencies/{crawlAgency}', [CrawlAgencyController::class, 'show']);
         Route::get('/crawl-agencies/{crawlAgency}/profile-workflow-operations', [CrawlerOperationController::class, 'profileWorkflow']);
@@ -112,6 +113,8 @@ Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.oper
     ->prefix('crawler')
     ->group(function () {
         Route::post('/operations', [CrawlerOperationController::class, 'store']);
+        Route::get('/auction-sources/{id}/runs', [\App\Http\Controllers\Api\Admin\AuctionCrawlerSourceController::class, 'runs']);
+        Route::post('/auction-sources/{id}/dispatch', [\App\Http\Controllers\Api\Admin\AuctionCrawlerSourceController::class, 'dispatchOperation']);
         Route::post('/crawl-agencies/{crawlAgency}/sample-url-suggestion', SampleUrlSuggestionController::class);
         Route::post('/extraction-profiles/generate', [ExtractionProfileController::class, 'generate']);
         Route::post('/extraction-profiles/{extractionProfile}/validation', [ProfileValidationController::class, 'store']);
@@ -214,6 +217,7 @@ Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.agen
     ->prefix('crawler')
     ->group(function () {
         Route::post('/crawl-agencies', [CrawlAgencyController::class, 'store']);
+        Route::post('/auction-sources', [\App\Http\Controllers\Api\Admin\AuctionCrawlerSourceController::class, 'store']);
         Route::put('/crawl-agencies/{crawlAgency}', [CrawlAgencyController::class, 'update']);
         Route::patch('/crawl-agencies/{crawlAgency}/lifecycle', [CrawlAgencyController::class, 'transition']);
     });

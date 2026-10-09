@@ -11,6 +11,7 @@ class AuctionEvent extends Model
 {
     protected $fillable = [
         'crawl_agency_id',
+        'auction_crawler_source_id',
         'external_key',
         'canonical_url',
         'title',
@@ -34,6 +35,11 @@ class AuctionEvent extends Model
     public function agency(): BelongsTo
     {
         return $this->belongsTo(CrawlAgency::class, 'crawl_agency_id');
+    }
+
+    public function source(): BelongsTo
+    {
+        return $this->belongsTo(AuctionCrawlerSource::class, 'auction_crawler_source_id');
     }
 
     public function eventProperties(): HasMany

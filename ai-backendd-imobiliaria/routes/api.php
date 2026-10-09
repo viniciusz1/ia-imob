@@ -90,3 +90,11 @@ Route::post('/webhooks/asaas', [\App\Http\Controllers\Api\AsaasWebhookController
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/webhooks/crawler/auctions', [\App\Http\Controllers\Api\Crawler\AuctionIngestionController::class, 'store']);
 });
+
+// Auction Worker Routes (Internal)
+Route::prefix('webhooks/crawler/auctions/worker')->group(function () {
+    Route::post('/claim', [\App\Http\Controllers\Api\Crawler\AuctionWorkerController::class, 'claim']);
+    Route::post('/{run}/progress', [\App\Http\Controllers\Api\Crawler\AuctionWorkerController::class, 'progress']);
+    Route::post('/{run}/records', [\App\Http\Controllers\Api\Crawler\AuctionWorkerController::class, 'records']);
+    Route::post('/{run}/finish', [\App\Http\Controllers\Api\Crawler\AuctionWorkerController::class, 'finish']);
+});
