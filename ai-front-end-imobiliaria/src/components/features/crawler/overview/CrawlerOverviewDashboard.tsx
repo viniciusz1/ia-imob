@@ -7,23 +7,27 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { testCrawlerIntegration } from "@/services/crawlerService";
-import type { CrawlerIntegration, CrawlerOverview } from "@/types/crawler";
+import type { CrawlerIntegration, CrawlerOverview, WorkerInstance } from "@/types/crawler";
 
 export function CrawlerOverviewDashboard({
   initialOverview,
   integrations,
+  workers,
 }: {
   initialOverview: CrawlerOverview;
   integrations: CrawlerIntegration[];
+  workers: WorkerInstance[];
 }) {
   const [testResults, setTestResults] = useState<Record<string, string>>({});
   const metrics: { label: string; value: number; href?: string }[] = [
     { label: "Crawl Agencies", value: initialOverview.agencies.total, href: "/admin/crawler/agencies" },
     { label: "Operações ativas", value: initialOverview.operations.active },
     { label: "Falhas", value: initialOverview.operations.failed },
-    { label: "Circuitos abertos", value: initialOverview.open_circuits, href: "#alertas" },
+    { label: "Circuitos abertos", value: initialOverview.open_circuits },
     { label: "Snapshots em quarentena", value: initialOverview.quarantined_snapshots, href: "/admin/crawler/quality" },
   ];
+
+  const activeWorkers = workers.filter((worker) => worker.health_state !== "unavailable");
 
   const testIntegration = async (integration: CrawlerIntegration) => {
     const result = await testCrawlerIntegration(integration.key);
@@ -64,14 +68,11 @@ export function CrawlerOverviewDashboard({
       </Card>
     </div>
 
-    <Card id="alertas">
-      <CardHeader><CardTitle>Alertas internos</CardTitle></CardHeader>
-      <CardContent className="space-y-3">
-        {initialOverview.alerts.length === 0 && <p>Nenhum alerta operacional.</p>}
-        {initialOverview.alerts.map((alert, index) => <div className="rounded-md border p-3" key={`${alert.kind}-${index}`}>
-          <Link className="font-medium underline" href={alert.href}>{alert.title}</Link>
-          {alert.detail && <p className="text-sm text-muted-foreground">{alert.detail}</p>}
-        </div>)}
+    <Card>
+      <CardHeader><CardTitle>Workers ativos</CardTitle></CardHeader>
+      <CardContent className="flex flex-wrap gap-2">
+        {activeWorkers.length === 0 && <p>Nenhum worker ativo.</p>}
+        {activeWorkers.map((worker) => <Badge key={worker.id} variant="secondary">{worker.worker_key}</Badge>)}
       </CardContent>
     </Card>
 
