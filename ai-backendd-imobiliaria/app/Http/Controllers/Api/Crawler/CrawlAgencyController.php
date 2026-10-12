@@ -19,11 +19,18 @@ class CrawlAgencyController extends Controller
     {
         $search = trim((string) $request->query('search', ''));
         $perPage = min(100, max(1, $request->integer('per_page', 15)));
-        $sortByLatestUpdate = $request->query('sort') === '-updated_at';
+        $sort = (string) $request->query('sort', '');
 
         return CrawlAgencyResource::collection(
             CrawlAgency::query()
                 ->with('activeDiscoveryPolicy')
+                ->select('crawler.crawl_agencies.*')
+                ->selectRaw('
+                    GREATEST(
+                        (SELECT MAX(COALESCE(completed_at, started_at, created_at)) FROM crawler.crawl_runs WHERE crawl_agency_id = crawler.crawl_agencies.id),
+                        (SELECT MAX(COALESCE(completed_at, claimed_at, created_at)) FROM crawler.operations WHERE crawl_agency_id = crawler.crawl_agencies.id AND type IN (\'production_crawl\', \'profile_validation\'))
+                    ) as last_crawled_at
+                ')
                 ->when($search !== '', function ($query) use ($search): void {
                     $query->where(function ($query) use ($search): void {
                         $query->where('name', 'ilike', "%{$search}%")
@@ -33,9 +40,13 @@ class CrawlAgencyController extends Controller
                 ->when($request->filled('lifecycle_state'), fn ($query) => $query->where('lifecycle_state', $request->query('lifecycle_state')))
                 ->when($request->filled('health_state'), fn ($query) => $query->where('health_state', $request->query('health_state')))
                 ->when(
-                    $sortByLatestUpdate,
-                    fn ($query) => $query->orderByDesc('updated_at')->orderBy('name'),
-                    fn ($query) => $query->orderBy('name'),
+                    $sort === '-last_crawled_at',
+                    fn ($query) => $query->orderByRaw('last_crawled_at DESC NULLS LAST')->orderBy('name'),
+                    fn ($query) => $query->when(
+                        $sort === '-updated_at',
+                        fn ($q) => $q->orderByDesc('updated_at')->orderBy('name'),
+                        fn ($q) => $q->orderBy('name'),
+                    ),
                 )
                 ->paginate($perPage)
         );

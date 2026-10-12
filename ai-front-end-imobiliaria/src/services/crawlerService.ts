@@ -5,6 +5,7 @@ import type {
   CrawlAgencyInput,
   CrawlAgencyLifecycle,
   PaginatedCrawlAgencies,
+  PaginatedCrawlerOperations,
   MarketDataContract,
   MarketDataField,
   CrawlerOperation,
@@ -71,6 +72,11 @@ export async function activateMarketDataContract(id: number): Promise<MarketData
 export async function listCrawlerOperations(filters: CrawlerOperationFilters = {}): Promise<CrawlerOperation[]> {
   const response = await api.get<Resource<CrawlerOperation[]>>(`${BASE}/operations`, { params: filters });
   return response.data.data;
+}
+
+export async function listCrawlerOperationsPage(filters: CrawlerOperationFilters = {}): Promise<PaginatedCrawlerOperations> {
+  const response = await api.get<PaginatedCrawlerOperations>(`${BASE}/operations`, { params: filters });
+  return response.data;
 }
 
 export async function listProfileWorkflowOperations(agencyId: number): Promise<CrawlerOperation[]> {
@@ -655,7 +661,13 @@ export async function listCrawlAgencies(): Promise<CrawlAgency[]> {
 }
 
 export async function listCrawlAgenciesPage(
-  params: { page?: number; search?: string; sort?: "name" | "-updated_at" } = {},
+  params: {
+    lifecycle_state?: string;
+    page?: number;
+    per_page?: number;
+    search?: string;
+    sort?: "name" | "-updated_at" | "-last_crawled_at";
+  } = {},
 ): Promise<PaginatedCrawlAgencies> {
   const response = await api.get<PaginatedCrawlAgencies>(`${BASE}/crawl-agencies`, { params });
   return response.data;

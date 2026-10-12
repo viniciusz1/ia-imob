@@ -3,6 +3,7 @@
 namespace Tests\Feature\Crawler;
 
 use App\Models\Crawler\CrawlAgency;
+use App\Models\CrawlerRun;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -187,5 +188,50 @@ class CrawlAgencyApiTest extends TestCase
             ->assertJsonPath('data.0.name', 'Alpha')
             ->assertJsonPath('data.1.name', 'Beta')
             ->assertJsonPath('data.2.name', 'Gamma');
+    }
+
+    public function test_list_returns_last_crawled_at_and_filters_active_agencies(): void
+    {
+        $activeAgency = CrawlAgency::query()->create([
+            'name' => 'Active Agency',
+            'slug' => 'active-agency',
+            'base_url' => 'https://active.example.com',
+            'root_domain' => 'active.example.com',
+            'lifecycle_state' => 'active',
+        ]);
+
+        $onboardingAgency = CrawlAgency::query()->create([
+            'name' => 'Onboarding Agency',
+            'slug' => 'onboarding-agency',
+            'base_url' => 'https://onboarding.example.com',
+            'root_domain' => 'onboarding.example.com',
+            'lifecycle_state' => 'onboarding',
+        ]);
+
+        $crawlTime = now()->subHours(2)->startOfSecond();
+        CrawlerRun::factory()->create([
+            'crawl_agency_id' => $activeAgency->id,
+            'started_at' => $crawlTime,
+            'completed_at' => $crawlTime->copy()->addMinutes(5),
+        ]);
+
+        // Filter active only
+        $response = $this->actingAs($this->platformAdmin)
+            ->getJson('/api/v1/admin/crawler/crawl-agencies?lifecycle_state=active')
+            ->assertOk();
+
+        $activeData = collect($response->json('data'))->firstWhere('id', $activeAgency->id);
+        $this->assertNotNull($activeData);
+        $this->assertNotNull($activeData['last_crawled_at']);
+        $this->assertNull(collect($response->json('data'))->firstWhere('id', $onboardingAgency->id));
+
+        // Onboarding agency has null last_crawled_at
+        $onboardingResponse = $this->actingAs($this->platformAdmin)
+            ->getJson('/api/v1/admin/crawler/crawl-agencies?lifecycle_state=onboarding')
+            ->assertOk();
+
+        $onboardingData = collect($onboardingResponse->json('data'))->firstWhere('id', $onboardingAgency->id);
+        $this->assertNotNull($onboardingData);
+        $this->assertNull($onboardingData['last_crawled_at']);
     }
 }

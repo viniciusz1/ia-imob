@@ -13,6 +13,7 @@ export interface CrawlAgency {
   current_published_crawl_run_id: number | null;
   active_discovery_policy_version_id?: number | null;
   active_discovery_policy?: ResolvedOnboardingPolicy | null;
+  last_crawled_at?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -128,7 +129,11 @@ export interface CrawlerOperation {
   result: Record<string, unknown> | null;
   error: { code: string; message: string } | null;
   discovery_snapshot_id: number | null;
+  attempt?: number;
   created_at: string;
+  claimed_at?: string | null;
+  lease_expires_at?: string | null;
+  updated_at?: string | null;
   completed_at: string | null;
   timeline?: Array<{
     stage: "queue" | "discovery" | "profile" | "crawl" | "filter" | "normalization" | "quality" | "publication";
@@ -140,12 +145,28 @@ export interface CrawlerOperation {
 export interface CrawlerOperationFilters {
   type?: string;
   state?: CrawlerOperationState;
+  states?: CrawlerOperationState[];
+  sort?: "created_at" | "claimed_at" | "completed_at";
+  direction?: "asc" | "desc";
   crawl_agency_id?: number;
   group_id?: number;
   requested_by?: number;
   from?: string;
   to?: string;
+  page?: number;
   per_page?: number;
+}
+
+export interface PaginatedCrawlerOperations {
+  data: CrawlerOperation[];
+  meta: {
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+    from: number | null;
+    to: number | null;
+  };
 }
 
 export interface CrawlerAlert {
