@@ -327,6 +327,36 @@ class OnboardingFirstProductionApiTest extends TestCase
         );
     }
 
+    public function test_onboarding_can_be_approved_when_profile_was_already_approved_directly_in_profiles_tab(): void
+    {
+        [$execution, $profile, $snapshot, $discoveryPolicy] = $this->awaitingApproval(
+            'profile-already-approved',
+            'automated',
+        );
+
+        // Usuário aprova diretamente pela aba de Perfis de Extração
+        $this->actingAs($this->admin)
+            ->postJson("/api/v1/admin/crawler/extraction-profiles/{$profile->id}/decision", [
+                'decision' => 'approved',
+                'reason' => 'Aprovado diretamente pela aba de perfis',
+            ])
+            ->assertOk();
+
+        $this->assertSame('approved', $profile->refresh()->status);
+
+        // Usuário aprova a Execução de Onboarding pela tela de Onboarding
+        $this->actingAs($this->admin)
+            ->postJson("/api/v1/admin/crawler/onboarding-executions/{$execution->id}/approve", [
+                'reason' => 'Aprovado pelo onboarding',
+            ])
+            ->assertOk()
+            ->assertJsonPath('data.state', 'running')
+            ->assertJsonPath('data.current_step', 'first_production');
+
+        $this->assertSame('active', $profile->refresh()->status);
+        $this->assertSame('active', $execution->crawlAgency->refresh()->lifecycle_state);
+    }
+
     private function awaitingApproval(
         string $suffix,
         string $conduction,

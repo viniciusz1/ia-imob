@@ -41,11 +41,6 @@ class OnboardingCompletionService
             }
 
             [$report, $profile] = $this->validatedProfile($locked);
-            if (! $report->eligible && blank($reason)) {
-                throw ValidationException::withMessages([
-                    'reason' => 'Explain why an ineligible validation may proceed.',
-                ]);
-            }
 
             $discoveryPolicy = DiscoveryPolicyVersion::query()
                 ->whereKey($locked->discovery_policy_version_id)
@@ -71,16 +66,23 @@ class OnboardingCompletionService
                 ->where('status', 'active')
                 ->whereKeyNot($profile->id)
                 ->update(['status' => 'approved']);
+            if (! $report->eligible && blank($reason) && blank($profile->decision_reason)) {
+                throw ValidationException::withMessages([
+                    'reason' => 'Explain why an ineligible validation may proceed.',
+                ]);
+            }
+
             $decisionReason = filled($reason)
                 ? $reason
-                : 'Validation report met the onboarding approval criteria.';
+                : ($profile->decision_reason ?? 'Validation report met the onboarding approval criteria.');
+
             $profile->update([
                 'status' => 'active',
-                'decided_by' => $actor->id,
-                'decided_at' => now(),
+                'decided_by' => $profile->decided_by ?? $actor->id,
+                'decided_at' => $profile->decided_at ?? now(),
                 'decision_reason' => $decisionReason,
-                'activated_by' => $actor->id,
-                'activated_at' => now(),
+                'activated_by' => $profile->activated_by ?? $actor->id,
+                'activated_at' => $profile->activated_at ?? now(),
             ]);
             $locked->crawlAgency->update([
                 'lifecycle_state' => 'active',
@@ -194,7 +196,7 @@ class OnboardingCompletionService
             : ExtractionProfile::query()
                 ->whereKey($report->extraction_profile_id)
                 ->where('crawl_agency_id', $execution->crawl_agency_id)
-                ->whereIn('status', ['candidate', 'revalidation_required'])
+                ->whereIn('status', ['candidate', 'revalidation_required', 'approved', 'active'])
                 ->first();
         if ($report === null || $profile === null) {
             throw ValidationException::withMessages([
