@@ -11,6 +11,7 @@ function agency(overrides: Partial<AgencySummary> = {}): AgencySummary {
         name: "Imobiliária Exemplo",
         slug: "exemplo",
         is_active: true,
+        market_search_weekly_limit: 100,
         owner_user_id: null,
         created_at: new Date().toISOString(),
         updated_at: null,

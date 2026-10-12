@@ -56,7 +56,7 @@ const agency: CrawlAgency = {
     version: activePolicy.version,
     source: "agency_active",
     strategies: activePolicy.strategies,
-    configuration: activePolicy.configuration,
+    configuration: { ...activePolicy.configuration },
   },
   created_at: "2026-07-15T12:00:00Z",
   updated_at: "2026-07-15T12:00:00Z",
@@ -96,7 +96,7 @@ describe("ProductionCrawlPanel", () => {
         version: 2,
         source: "agency_active",
         strategies: overridePolicy.strategies,
-        configuration: overridePolicy.configuration,
+        configuration: { ...overridePolicy.configuration },
       },
     });
   });

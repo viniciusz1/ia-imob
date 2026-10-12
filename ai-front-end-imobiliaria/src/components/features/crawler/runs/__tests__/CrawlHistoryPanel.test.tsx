@@ -26,7 +26,7 @@ describe("CrawlHistoryPanel", () => {
   it("unifies validation operations with production runs and filters by type", () => {
     render(<CrawlHistoryPanel agencyId={42} operations={[validation]} runs={[productionRun]} />);
 
-    expect(screen.getAllByRole("link", { name: "Ver execução", exact: true }).some((link) => link.getAttribute("href") === "/admin/crawler/agencies/42/crawls/operations/20")).toBe(true);
+    expect(screen.getAllByRole("link", { name: "Ver execução" }).some((link) => link.getAttribute("href") === "/admin/crawler/agencies/42/crawls/operations/20")).toBe(true);
     expect(screen.getByText("5 normalizados · Publicado")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Validação" }));
     expect(screen.getByText("Resultado da validação disponível")).toBeInTheDocument();

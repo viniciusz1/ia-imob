@@ -14,6 +14,7 @@ vi.mock("@/services/crawlerService", () => ({
     alerts: [],
   }),
   listCrawlerIntegrations: vi.fn().mockResolvedValue([]),
+  listCrawlerWorkers: vi.fn().mockResolvedValue([]),
   testCrawlerIntegration: vi.fn(),
 }));
 
