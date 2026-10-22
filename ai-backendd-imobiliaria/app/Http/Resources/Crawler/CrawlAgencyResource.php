@@ -30,6 +30,7 @@ class CrawlAgencyResource extends JsonResource
                         'agency_active',
                     ),
             ),
+            'last_crawled_at' => $this->last_crawled_at?->toIso8601String(),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

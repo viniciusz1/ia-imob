@@ -131,4 +131,75 @@ describe("CrawlAgenciesClient", () => {
 
     expect(screen.queryByRole("button", { name: "Rodar todos os crawls ativos novamente" })).not.toBeInTheDocument();
   });
+
+  it("displays the último crawl column with formatted date or dash", () => {
+    render(
+      <CrawlAgenciesClient
+        initialAgencies={[
+          {
+            id: 1,
+            name: "Agency With Crawl",
+            slug: "agency-with-crawl",
+            base_url: "https://with-crawl.example.com",
+            root_domain: "with-crawl.example.com",
+            lifecycle_state: "active",
+            health_state: "healthy",
+            revalidation_required: false,
+            current_published_crawl_run_id: 10,
+            last_crawled_at: "2026-10-12T18:20:00Z",
+            created_at: "2026-07-15T12:00:00Z",
+            updated_at: "2026-07-15T12:00:00Z",
+          },
+          {
+            id: 2,
+            name: "Agency Without Crawl",
+            slug: "agency-without-crawl",
+            base_url: "https://without-crawl.example.com",
+            root_domain: "without-crawl.example.com",
+            lifecycle_state: "onboarding",
+            health_state: "unknown",
+            revalidation_required: false,
+            current_published_crawl_run_id: null,
+            last_crawled_at: null,
+            created_at: "2026-07-15T12:00:00Z",
+            updated_at: "2026-07-15T12:00:00Z",
+          },
+        ]}
+        initialSearch=""
+        pageCount={1}
+      />,
+    );
+
+    expect(screen.getByText("Último crawl")).toBeInTheDocument();
+    expect(screen.getByText("Agency With Crawl")).toBeInTheDocument();
+    expect(screen.getByText("Agency Without Crawl")).toBeInTheDocument();
+  });
+
+  it("updates query when lifecycle filter is changed to active", () => {
+    render(
+      <CrawlAgenciesClient initialAgencies={[]} initialSearch="" pageCount={1} />,
+    );
+
+    const lifecycleSelect = screen.getByRole("combobox", { name: "Filtrar por lifecycle" });
+    fireEvent.click(lifecycleSelect);
+
+    const activeOption = screen.getByRole("option", { name: "Ativas (usuário final)" });
+    fireEvent.click(activeOption);
+
+    expect(navigation.push).toHaveBeenCalledWith("/admin/crawler/agencies?lifecycle_state=active");
+  });
+
+  it("updates query when items per page is changed", () => {
+    render(
+      <CrawlAgenciesClient initialAgencies={[]} initialSearch="" pageCount={1} />,
+    );
+
+    const perPageSelect = screen.getByRole("combobox", { name: "Quantidade por página" });
+    fireEvent.click(perPageSelect);
+
+    const option50 = screen.getByRole("option", { name: "50 por página" });
+    fireEvent.click(option50);
+
+    expect(navigation.push).toHaveBeenCalledWith("/admin/crawler/agencies?per_page=50");
+  });
 });

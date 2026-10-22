@@ -21,6 +21,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { usePermission } from "@/hooks/usePermission";
 import { queueBulkProductionCrawls } from "@/services/crawlerService";
 import type { BulkProductionCrawlResult, CrawlAgency } from "@/types/crawler";
@@ -29,14 +36,17 @@ import { crawlerOperationErrorMessage } from "../crawlerOperationFeedback";
 
 interface CrawlAgenciesClientProps {
   initialAgencies: CrawlAgency[];
+  initialLifecycle?: string;
+  initialPerPage?: number;
   initialSearch: string;
   pageCount: number;
+  totalCount?: number;
 }
 
 const dateFormatter = new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short" });
 
-function formatUpdatedAt(value: string | null): string {
-  if (value === null) return "—";
+function formatDateTime(value: string | null | undefined): string {
+  if (value === null || value === undefined) return "—";
   const date = new Date(value);
   return Number.isNaN(date.getTime()) ? "—" : dateFormatter.format(date);
 }
@@ -63,21 +73,40 @@ const columns: ColumnDef<CrawlAgency>[] = [
     cell: ({ row }) => <Badge variant="secondary">{row.original.health_state}</Badge>,
   },
   {
+    accessorKey: "last_crawled_at",
+    header: "Último crawl",
+    cell: ({ row }) => (
+      <time className="text-muted-foreground" dateTime={row.original.last_crawled_at ?? undefined}>
+        {formatDateTime(row.original.last_crawled_at)}
+      </time>
+    ),
+  },
+  {
     accessorKey: "updated_at",
     header: "Modificado em",
     cell: ({ row }) => (
       <time className="text-muted-foreground" dateTime={row.original.updated_at}>
-        {formatUpdatedAt(row.original.updated_at)}
+        {formatDateTime(row.original.updated_at)}
       </time>
     ),
   },
 ];
 
-export function CrawlAgenciesClient({ initialAgencies, initialSearch, pageCount }: CrawlAgenciesClientProps) {
+export function CrawlAgenciesClient({
+  initialAgencies,
+  initialLifecycle = "",
+  initialPerPage = 15,
+  initialSearch,
+  pageCount,
+}: CrawlAgenciesClientProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+
   const [search, setSearch] = useState(initialSearch);
+  const [lifecycle, setLifecycle] = useState(initialLifecycle || "all");
+  const [perPage, setPerPage] = useState(initialPerPage);
+
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [bulkPending, setBulkPending] = useState(false);
   const [bulkResult, setBulkResult] = useState<BulkProductionCrawlResult | null>(null);
@@ -97,27 +126,62 @@ export function CrawlAgenciesClient({ initialAgencies, initialSearch, pageCount 
     }
   }
 
-  function applySearch(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  function updateQuery(nextParams: { search?: string; lifecycle?: string; perPage?: number }) {
     const params = new URLSearchParams(searchParams.toString());
-    const normalizedSearch = search.trim();
-
     params.delete("page");
-    if (normalizedSearch === "") params.delete("search");
-    else params.set("search", normalizedSearch);
+
+    const newSearch = (nextParams.search ?? search).trim();
+    if (newSearch === "") params.delete("search");
+    else params.set("search", newSearch);
+
+    const newLifecycle = nextParams.lifecycle ?? lifecycle;
+    if (!newLifecycle || newLifecycle === "all") params.delete("lifecycle_state");
+    else params.set("lifecycle_state", newLifecycle);
+
+    const newPerPage = nextParams.perPage ?? perPage;
+    if (newPerPage === 15) params.delete("per_page");
+    else params.set("per_page", newPerPage.toString());
 
     const query = params.toString();
     router.push(query === "" ? pathname : `${pathname}?${query}`);
   }
 
-  function clearSearch() {
+  function applySearch(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    updateQuery({ search });
+  }
+
+  function handleLifecycleChange(newLifecycle: string) {
+    setLifecycle(newLifecycle);
+    updateQuery({ lifecycle: newLifecycle });
+  }
+
+  function handlePerPageChange(newPerPageStr: string) {
+    const numeric = Number(newPerPageStr);
+    setPerPage(numeric);
+    updateQuery({ perPage: numeric });
+  }
+
+  function clearFilters() {
     setSearch("");
+    setLifecycle("all");
+    setPerPage(15);
     const params = new URLSearchParams(searchParams.toString());
     params.delete("page");
     params.delete("search");
+    params.delete("lifecycle_state");
+    params.delete("per_page");
     const query = params.toString();
     router.push(query === "" ? pathname : `${pathname}?${query}`);
   }
+
+  const isFiltered =
+    search !== "" ||
+    initialSearch !== "" ||
+    (lifecycle !== "all" && lifecycle !== "") ||
+    (initialLifecycle !== "" && initialLifecycle !== "all") ||
+    perPage !== 15 ||
+    initialPerPage !== 15;
 
   return (
     <section className="space-y-4">
@@ -188,17 +252,47 @@ export function CrawlAgenciesClient({ initialAgencies, initialSearch, pageCount 
         </div>
       )}
 
-      <form className="flex gap-2" onSubmit={applySearch}>
-        <Input
-          aria-label="Filtrar Crawl Agencies"
-          onChange={(event) => setSearch(event.target.value)}
-          placeholder="Nome ou domínio"
-          type="search"
-          value={search}
-        />
+      <form className="flex flex-wrap items-center gap-2" onSubmit={applySearch}>
+        <div className="min-w-[220px] flex-1">
+          <Input
+            aria-label="Filtrar Crawl Agencies"
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Nome ou domínio"
+            type="search"
+            value={search}
+          />
+        </div>
+
+        <Select onValueChange={handleLifecycleChange} value={lifecycle}>
+          <SelectTrigger aria-label="Filtrar por lifecycle" className="w-[190px]">
+            <SelectValue placeholder="Lifecycle" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos os lifecycles</SelectItem>
+            <SelectItem value="active">Ativas (usuário final)</SelectItem>
+            <SelectItem value="onboarding">Onboarding</SelectItem>
+            <SelectItem value="paused">Pausadas</SelectItem>
+            <SelectItem value="archived">Arquivadas</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select onValueChange={handlePerPageChange} value={String(perPage)}>
+          <SelectTrigger aria-label="Quantidade por página" className="w-[150px]">
+            <SelectValue placeholder="Por página" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="15">15 por página</SelectItem>
+            <SelectItem value="25">25 por página</SelectItem>
+            <SelectItem value="50">50 por página</SelectItem>
+            <SelectItem value="100">100 por página</SelectItem>
+          </SelectContent>
+        </Select>
+
         <Button type="submit">Buscar</Button>
-        {(search !== "" || initialSearch !== "") && (
-          <Button onClick={clearSearch} type="button" variant="outline">Limpar</Button>
+        {isFiltered && (
+          <Button onClick={clearFilters} type="button" variant="outline">
+            Limpar
+          </Button>
         )}
       </form>
 
