@@ -256,9 +256,10 @@ export async function queueProductionCrawl(payload: QueueProductionCrawlPayload)
   return response.data.data;
 }
 
-export async function queueBulkProductionCrawls(): Promise<BulkProductionCrawlResult> {
+export async function queueBulkProductionCrawls(requestKey?: string): Promise<BulkProductionCrawlResult> {
   const response = await api.post<Resource<BulkProductionCrawlResult>>(`${BASE}/production-crawls/bulk`, {
     confirmed: true,
+    ...(requestKey ? { request_key: requestKey } : {}),
   });
   return response.data.data;
 }

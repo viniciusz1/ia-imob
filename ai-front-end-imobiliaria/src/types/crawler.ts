@@ -225,6 +225,7 @@ export type BulkProductionCrawlSkipCode =
   | "configuration_invalid";
 
 export interface BulkProductionCrawlResult {
+  batch?: import("./productionBatch").ProductionBatch;
   summary: {
     active_agencies: number;
     enqueued: number;

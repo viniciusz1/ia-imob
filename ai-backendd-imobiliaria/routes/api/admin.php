@@ -22,6 +22,7 @@ use App\Http\Controllers\Api\Crawler\OnboardingExecutionController;
 use App\Http\Controllers\Api\Crawler\OnboardingExecutionModelVersionController;
 use App\Http\Controllers\Api\Crawler\OnboardingPlanController;
 use App\Http\Controllers\Api\Crawler\OperationGroupController;
+use App\Http\Controllers\Api\Crawler\ProductionCrawlBatchController;
 use App\Http\Controllers\Api\Crawler\ProductionCrawlController;
 use App\Http\Controllers\Api\Crawler\ProfileValidationController;
 use App\Http\Controllers\Api\Crawler\ProspectController;
@@ -70,6 +71,10 @@ Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:platform.age
 Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.view'])
     ->prefix('crawler')
     ->group(function () {
+        Route::get('/production-crawl-batches', [ProductionCrawlBatchController::class, 'index']);
+        Route::get('/production-crawl-batches/{batch}', [ProductionCrawlBatchController::class, 'show']);
+        Route::get('/production-crawl-batches/{batch}/items', [ProductionCrawlBatchController::class, 'items']);
+        Route::get('/production-crawl-batches/{batch}/diagnostics', [ProductionCrawlBatchController::class, 'diagnostics']);
         Route::get('/overview', CrawlerOverviewController::class);
         Route::get('/crawl-agencies', [CrawlAgencyController::class, 'index']);
         Route::get('/crawl-agencies/{crawlAgency}', [CrawlAgencyController::class, 'show']);
@@ -115,6 +120,7 @@ Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.oper
         Route::post('/crawl-agencies/{crawlAgency}/sample-url-suggestion', SampleUrlSuggestionController::class);
         Route::post('/extraction-profiles/generate', [ExtractionProfileController::class, 'generate']);
         Route::post('/extraction-profiles/{extractionProfile}/validation', [ProfileValidationController::class, 'store']);
+        Route::post('/production-crawl-batches/{batch}/rerun', [ProductionCrawlBatchController::class, 'rerun']);
         Route::post('/production-crawls/bulk', [ProductionCrawlController::class, 'bulk']);
         Route::post('/production-crawls', [ProductionCrawlController::class, 'store']);
         Route::post('/crawl-runs/{crawlRun}/quality-evaluation', [CrawlRunController::class, 'evaluate']);

@@ -15,6 +15,7 @@ class QueueBulkProductionCrawlRequest extends FormRequest
     {
         return [
             'confirmed' => ['required', 'accepted'],
+            'request_key' => ['nullable', 'uuid'],
         ];
     }
 }

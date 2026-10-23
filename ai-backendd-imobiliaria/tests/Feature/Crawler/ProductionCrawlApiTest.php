@@ -28,6 +28,120 @@ class ProductionCrawlApiTest extends TestCase
         $this->seed();
     }
 
+    public function test_bulk_keeps_blocked_agencies_in_a_durable_idempotent_batch(): void
+    {
+        [$admin, $agency] = $this->fixtures('durable-batch');
+        $agency->update(['revalidation_required' => true]);
+        $input = ['confirmed' => true, 'request_key' => (string) Str::uuid()];
+        $batch = $this->actingAs($admin)
+            ->postJson('/api/v1/admin/crawler/production-crawls/bulk', $input)
+            ->assertOk()
+            ->assertJsonPath('data.batch.counts.skipped', 1)
+            ->assertJsonPath('data.batch.state', 'completed')
+            ->assertJsonPath('data.batch.result', 'not_executed')
+            ->json('data.batch.id');
+        $this->postJson('/api/v1/admin/crawler/production-crawls/bulk', $input)
+            ->assertOk()->assertJsonPath('data.batch.id', $batch);
+        $agency->update(['name' => 'Renamed later']);
+        $this->getJson("/api/v1/admin/crawler/production-crawl-batches/{$batch}/items")
+            ->assertOk()->assertJsonPath('data.0.name', 'Production durable-batch')
+            ->assertJsonPath('data.0.outcome', 'skipped')
+            ->assertJsonPath('data.0.skip_code', 'revalidation_required');
+        $this->getJson('/api/v1/admin/crawler/production-crawl-batches')
+            ->assertOk()->assertJsonPath('meta.total', 1);
+    }
+
+    public function test_batch_waits_for_quality_and_keeps_the_initial_quarantine_verdict(): void
+    {
+        [$admin, $agency, $snapshot, $profile] = $this->fixtures('batch-quality');
+        $batch = $this->actingAs($admin)->postJson('/api/v1/admin/crawler/production-crawls/bulk', ['confirmed' => true])
+            ->assertOk()->json('data.batch.id');
+        $operation = CrawlerOperation::query()->where('type', 'production_crawl')->firstOrFail();
+        $operation->update(['state' => 'succeeded', 'claimed_at' => now()->subMinute(), 'completed_at' => now()]);
+        $run = CrawlerRun::query()->create([
+            'operation_id' => $operation->id, 'crawl_agency_id' => $agency->id,
+            'discovery_snapshot_id' => $snapshot->id, 'extraction_profile_id' => $profile->id,
+            'market_data_contract_version_id' => $profile->market_data_contract_version_id,
+            'quality_policy_version_id' => DB::table('crawler.quality_policy_versions')->where('status', 'active')->value('id'),
+            'technical_state' => 'succeeded', 'result_kind' => 'full', 'publication_state' => 'candidate',
+            'raw_count' => 1, 'normalized_count' => 0, 'rejected_count' => 1,
+            'started_at' => now()->subMinute(), 'completed_at' => now(),
+        ]);
+        $url = "/api/v1/admin/crawler/production-crawl-batches/{$batch}";
+        $this->getJson($url)->assertOk()->assertJsonPath('data.state', 'awaiting_quality')
+            ->assertJsonPath('data.counts.technical_succeeded', 1)->assertJsonPath('data.counts.published', 0);
+        $this->postJson("/api/v1/admin/crawler/crawl-runs/{$run->id}/quality-evaluation")->assertOk();
+        $this->getJson($url)->assertOk()->assertJsonPath('data.state', 'completed')
+            ->assertJsonPath('data.counts.quarantined', 1)->assertJsonPath('data.result', 'failed');
+        $this->getJson($url.'/diagnostics?stage=quality')
+            ->assertOk()->assertJsonPath('meta.total', 1)
+            ->assertJsonPath('data.0.outcome', 'blocked')
+            ->assertJsonPath('summary.errors.0.error_code', 'zero_valid_records');
+        // An exceptional publication must not rewrite the original quality verdict.
+        $run->refresh()->update(['publication_state' => 'published']);
+        $this->getJson($url)->assertOk()->assertJsonPath('data.counts.quarantined', 1);
+    }
+
+    public function test_batch_rerun_uses_current_configuration_and_is_idempotent(): void
+    {
+        [$admin, , , $profile] = $this->fixtures('batch-rerun');
+        $batch = $this->actingAs($admin)->postJson('/api/v1/admin/crawler/production-crawls/bulk', ['confirmed' => true])
+            ->assertOk()->json('data.batch.id');
+        $original = CrawlerOperation::query()->where('type', 'production_crawl')->firstOrFail();
+        $original->update(['state' => 'failed', 'completed_at' => now(), 'error_code' => 'worker_timeout']);
+        $profile->update(['schemas' => ['css' => ['baseSelector' => 'main']]]);
+        $input = ['confirmed' => true, 'request_key' => (string) Str::uuid()];
+        $url = "/api/v1/admin/crawler/production-crawl-batches/{$batch}/rerun";
+        $next = $this->postJson($url, $input)->assertAccepted()
+            ->assertJsonPath('data.batch.source_group_id', $batch)->assertJsonPath('data.batch.counts.enqueued', 1)->json('data.batch.id');
+        $this->postJson($url, $input)->assertAccepted()->assertJsonPath('data.batch.id', $next);
+        $item = $this->getJson("/api/v1/admin/crawler/production-crawl-batches/{$next}/items")->assertOk()->json('data.0');
+        $this->getJson('/api/v1/admin/crawler/operations/'.$item['operation_id'])->assertOk()
+            ->assertJsonPath('data.plan.extraction_profile.schemas.css.baseSelector', 'main');
+        $this->getJson("/api/v1/admin/crawler/production-crawl-batches/{$batch}/items")
+            ->assertOk()->assertJsonPath('data.0.outcome', 'failed');
+    }
+
+    public function test_batch_diagnostics_count_recovered_attempts_separately_from_field_coverage(): void
+    {
+        [$admin] = $this->fixtures('diagnostics');
+        $batch = $this->actingAs($admin)->postJson('/api/v1/admin/crawler/production-crawls/bulk', ['confirmed' => true])
+            ->assertOk()->json('data.batch.id');
+        $operation = CrawlerOperation::query()->where('type', 'production_crawl')->firstOrFail();
+        $base = ['operation_id' => $operation->id, 'created_at' => now(), 'stage' => 'extraction'];
+        foreach ([
+            ['kind' => 'attempt', 'strategy' => 'xpath', 'outcome' => 'failed', 'error_code' => 'strategy_failed'],
+            ['kind' => 'attempt', 'strategy' => 'css', 'outcome' => 'succeeded', 'fallback' => true, 'fields_present' => '["valor"]'],
+            ['kind' => 'url_completed', 'outcome' => 'succeeded', 'fields_present' => '["valor"]'],
+            ['kind' => 'url_completed', 'outcome' => 'rejected', 'fields_missing' => '["valor"]'],
+        ] as $event) {
+            DB::table('crawler.operation_diagnostics')->insert($event + $base + ['event_id' => (string) Str::uuid()]);
+        }
+        $url = "/api/v1/admin/crawler/production-crawl-batches/{$batch}/diagnostics";
+        $this->getJson($url.'?per_page=1')->assertOk()->assertJsonPath('meta.total', 4)
+            ->assertJsonPath('summary.fields.0.name', 'valor')->assertJsonPath('summary.fields.0.processed', 2)
+            ->assertJsonPath('summary.fields.0.present', 1)->assertJsonPath('summary.errors.0.occurrences', 1);
+        $this->getJson($url.'?strategy=css')->assertOk()->assertJsonPath('meta.total', 1)
+            ->assertJsonPath('summary.strategies.0.fallback_contributions', 1);
+        $this->getJson($url.'?operation_id=999999')->assertOk()->assertJsonPath('meta.total', 0);
+        $this->getJson($url.'?field=valor')->assertOk()->assertJsonPath('meta.total', 3);
+    }
+
+    public function test_batch_permissions_and_rerun_membership_are_enforced(): void
+    {
+        [$admin] = $this->fixtures('batch-authorization');
+        $batch = $this->actingAs($admin)->postJson('/api/v1/admin/crawler/production-crawls/bulk', ['confirmed' => true])
+            ->assertOk()->json('data.batch.id');
+        $url = "/api/v1/admin/crawler/production-crawl-batches/{$batch}";
+        $this->postJson($url.'/rerun', ['confirmed' => true, 'request_key' => (string) Str::uuid(), 'item_ids' => [999999]])->assertUnprocessable();
+        Role::query()->where('name', 'Platform Admin')->firstOrFail()->revokePermissionTo('crawler.operations.execute');
+        $this->getJson($url)->assertOk();
+        $this->postJson($url.'/rerun', ['confirmed' => true, 'request_key' => (string) Str::uuid()])->assertForbidden();
+        Role::query()->where('name', 'Platform Admin')->firstOrFail()->revokePermissionTo('crawler.view');
+        $this->getJson($url)->assertForbidden();
+        $this->getJson($url.'/diagnostics')->assertForbidden();
+    }
+
     public function test_manual_plan_pins_existing_discovery_approved_profile_and_contract(): void
     {
         [$admin, $agency, $snapshot, $activeProfile, $approvedProfile] = $this->fixtures();
