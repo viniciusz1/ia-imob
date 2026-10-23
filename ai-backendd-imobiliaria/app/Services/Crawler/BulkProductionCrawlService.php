@@ -12,13 +12,14 @@ use App\Models\Crawler\QualityPolicyVersion;
 use App\Models\CrawlerRun;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class BulkProductionCrawlService
 {
     public function __construct(
         private readonly ProductionCrawlService $production,
-        private readonly CrawlerOperationControlService $operationControl,
+        private readonly ProductionBatchReader $batches,
     ) {}
 
     /**
@@ -28,62 +29,101 @@ class BulkProductionCrawlService
      *     skipped: array<int, array{crawl_agency: array{id: int, name: string}, code: string, message: string}>
      * }
      */
-    public function queueAllActive(User $requester): array
+    public function queueAllActive(User $requester, ?string $requestKey = null): array
     {
-        return DB::transaction(function () use ($requester): array {
+        return $this->queueTargets($requester, $requestKey ?? (string) Str::uuid());
+    }
+
+    public function queueTargets(User $requester, string $requestKey, ?array $agencyIds = null, ?int $sourceGroupId = null): array
+    {
+        $fingerprint = hash('sha256', json_encode([$sourceGroupId, $agencyIds], JSON_THROW_ON_ERROR));
+
+        return DB::transaction(function () use ($requester, $requestKey, $agencyIds, $sourceGroupId, $fingerprint): array {
+            DB::select('SELECT pg_advisory_xact_lock(hashtextextended(?, 0))', ['batch:'.$requester->id.':'.$requestKey]);
+            $existing = OperationGroup::query()->where('requested_by', $requester->id)->where('request_key', $requestKey)->first();
+            if ($existing !== null) {
+                if ($existing->request_fingerprint !== $fingerprint) {
+                    throw ValidationException::withMessages(['request_key' => 'Esta chave já identifica outro comando.']);
+                }
+
+                return $this->resultFor($existing);
+            }
             $agencies = CrawlAgency::query()
-                ->where('lifecycle_state', 'active')
-                ->orderBy('id')
-                ->get();
+                ->when($agencyIds === null,
+                    fn ($query) => $query->where('lifecycle_state', 'active'),
+                    fn ($query) => $query->whereIn('id', $agencyIds))
+                ->orderBy('id')->get();
+            $group = OperationGroup::query()->create([
+                'name' => $sourceGroupId === null ? 'Reexecução de crawls ativos' : 'Reexecução de problemas do lote #'.$sourceGroupId,
+                'action' => 'bulk_production_crawl', 'requested_by' => $requester->id,
+                'request_key' => $requestKey, 'request_fingerprint' => $fingerprint,
+                'source_group_id' => $sourceGroupId, 'targets_complete' => true,
+            ]);
             $hasActiveQualityPolicy = QualityPolicyVersion::query()
                 ->where('status', 'active')
                 ->exists();
             $operations = collect();
-            $skipped = [];
 
             foreach ($agencies as $agency) {
-                $blocker = $this->blockerFor($agency, $hasActiveQualityPolicy);
+                $blocker = $agency->lifecycle_state !== 'active'
+                    ? ['code' => 'agency_not_active', 'message' => 'A Crawl Agency não está ativa.']
+                    : $this->blockerFor($agency, $hasActiveQualityPolicy);
                 if ($blocker !== null) {
-                    $skipped[] = $this->skippedAgency($agency, $blocker);
+                    $this->recordTarget($group, $agency, null, $blocker);
 
                     continue;
                 }
 
                 try {
-                    $operations->push($this->production->queue([
+                    $operation = $this->production->queue([
                         'crawl_agency_id' => $agency->id,
                         'discovery_mode' => 'fresh',
                         'trigger' => 'manual_bulk',
-                    ], $requester));
+                    ], $requester);
+                    $operations->push($operation);
+                    $this->recordTarget($group, $agency, $operation);
                 } catch (ValidationException $exception) {
                     $raceBlocker = $this->blockerFor($agency->refresh(), $hasActiveQualityPolicy);
-                    $skipped[] = $this->skippedAgency($agency, $raceBlocker ?? [
+                    $blocker = $raceBlocker ?? [
                         'code' => 'configuration_invalid',
                         'message' => collect($exception->errors())->flatten()->first()
                             ?? 'A configuração ativa da Crawl Agency não permite iniciar um crawl.',
-                    ]);
+                    ];
+                    $this->recordTarget($group, $agency, null, $blocker);
                 }
             }
 
-            $group = $operations->isEmpty()
-                ? null
-                : $this->operationControl->createGroup(
-                    'Reexecução de crawls ativos',
-                    $operations->pluck('id')->all(),
-                    $requester,
-                    'bulk_production_crawl',
-                );
+            $group->operations()->attach($operations->pluck('id'));
 
-            return [
-                'summary' => [
-                    'active_agencies' => $agencies->count(),
-                    'enqueued' => $operations->count(),
-                    'skipped' => count($skipped),
-                ],
-                'group' => $group,
-                'skipped' => $skipped,
-            ];
+            return $this->resultFor($group);
+
         });
+    }
+
+    private function recordTarget(OperationGroup $group, CrawlAgency $agency, ?CrawlerOperation $operation, ?array $blocker = null): void
+    {
+        DB::table('crawler.operation_group_targets')->insert([
+            'operation_group_id' => $group->id, 'crawl_agency_id' => $agency->id,
+            'operation_id' => $operation?->id, 'name' => $agency->name, 'root_domain' => $agency->root_domain,
+            'skip_code' => $blocker['code'] ?? null, 'skip_message' => $blocker['message'] ?? null,
+            'created_at' => now(),
+        ]);
+    }
+
+    private function resultFor(OperationGroup $group): array
+    {
+        $targets = DB::table('crawler.operation_group_targets')->where('operation_group_id', $group->id)->get();
+        $skipped = $targets->whereNull('operation_id');
+
+        return [
+            'summary' => ['active_agencies' => $targets->count(), 'enqueued' => $targets->whereNotNull('operation_id')->count(), 'skipped' => $skipped->count()],
+            'group' => $targets->whereNotNull('operation_id')->isEmpty() ? null : $group->load('operations'),
+            'batch' => $this->batches->find($group->id),
+            'skipped' => $skipped->map(fn ($item) => [
+                'crawl_agency' => ['id' => $item->crawl_agency_id, 'name' => $item->name],
+                'code' => $item->skip_code, 'message' => $item->skip_message,
+            ])->values()->all(),
+        ];
     }
 
     /**
@@ -168,18 +208,4 @@ class BulkProductionCrawlService
         return null;
     }
 
-    /**
-     * @param  array{code: string, message: string}  $blocker
-     * @return array{crawl_agency: array{id: int, name: string}, code: string, message: string}
-     */
-    private function skippedAgency(CrawlAgency $agency, array $blocker): array
-    {
-        return [
-            'crawl_agency' => [
-                'id' => $agency->id,
-                'name' => $agency->name,
-            ],
-            ...$blocker,
-        ];
-    }
 }

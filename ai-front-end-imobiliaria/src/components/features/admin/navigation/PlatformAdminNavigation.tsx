@@ -46,6 +46,8 @@ interface PlatformNavGroup {
 }
 
 const crawlerSubItems: PlatformNavSubItem[] = [
+    { label: "Execuções em lote", href: "/admin/crawler/batches", icon: ListOrdered, permission: "crawler.view",
+      isActive: (pathname) => pathname.startsWith("/admin/crawler/batches") },
     {
         label: "Visão geral",
         href: "/admin/crawler",
