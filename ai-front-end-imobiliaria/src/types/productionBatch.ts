@@ -49,6 +49,7 @@ export interface ProductionBatchItem {
   outcome: BatchOutcome;
   technical_state: string | null;
   stage: string | null;
+  attention_code: string | null;
   progress_percentage: number | null;
   processed_items: number | null;
   total_items: number | null;

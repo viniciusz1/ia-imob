@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Crawler\OperationGroup;
 use App\Services\Crawler\BulkProductionCrawlService;
 use App\Services\Crawler\ProductionBatchReader;
+use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -56,6 +57,12 @@ class ProductionCrawlBatchController extends Controller
         $page->through(function ($item) {
             foreach (['blockers', 'warnings'] as $key) {
                 $item->$key = json_decode($item->$key ?? '[]', true, flags: JSON_THROW_ON_ERROR);
+            }
+
+            foreach (['heartbeat_at', 'claimed_at', 'technical_completed_at', 'resolved_at', 'created_at'] as $key) {
+                if ($item->$key !== null) {
+                    $item->$key = CarbonImmutable::parse($item->$key)->toIso8601String();
+                }
             }
 
             return $item;
@@ -119,6 +126,8 @@ class ProductionCrawlBatchController extends Controller
         $page->through(function ($event) {
             $event->fields_present = json_decode($event->fields_present, true, flags: JSON_THROW_ON_ERROR);
             $event->fields_missing = json_decode($event->fields_missing, true, flags: JSON_THROW_ON_ERROR);
+
+            $event->created_at = CarbonImmutable::parse($event->created_at)->toIso8601String();
 
             return $event;
         });

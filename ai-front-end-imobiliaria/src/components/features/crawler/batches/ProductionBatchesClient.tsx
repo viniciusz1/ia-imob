@@ -62,7 +62,9 @@ export function ProductionBatchesClient({
           const data = new FormData(event.currentTarget);
           setFilters({
             state: String(data.get("state") || ""),
-            from: String(data.get("from") || ""),
+            from: data.get("from")
+              ? `${String(data.get("from"))}T00:00:00-03:00`
+              : "",
             to: data.get("to")
               ? `${String(data.get("to"))}T23:59:59.999-03:00`
               : "",
@@ -171,7 +173,7 @@ export function ProductionBatchesClient({
                       </p>
                     </td>
                     <td className="whitespace-nowrap p-3">
-                      {duration(batch.started_at, batch.completed_at)}
+                      {duration(batch.created_at, batch.completed_at)}
                     </td>
                   </tr>
                 ))}

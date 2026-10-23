@@ -1,5 +1,11 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type {
   BatchDiagnosticsPage,
@@ -9,13 +15,19 @@ import type {
 } from "@/types/productionBatch";
 import { ProductionBatchDetail } from "../ProductionBatchDetail";
 
-const mocks = vi.hoisted(() => ({ rerun: vi.fn(), push: vi.fn() }));
+const mocks = vi.hoisted(() => ({
+  batch: vi.fn(),
+  items: vi.fn(),
+  diagnostics: vi.fn(),
+  rerun: vi.fn(),
+  push: vi.fn(),
+}));
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: mocks.push }) }));
 vi.mock("@/hooks/usePermission", () => ({ usePermission: () => true }));
 vi.mock("@/services/productionBatchService", () => ({
-  getProductionBatch: vi.fn(),
-  listProductionBatchItems: vi.fn(),
-  getBatchDiagnostics: vi.fn(),
+  getProductionBatch: mocks.batch,
+  listProductionBatchItems: mocks.items,
+  getBatchDiagnostics: mocks.diagnostics,
   rerunProductionBatch: mocks.rerun,
 }));
 const meta = { current_page: 1, last_page: 1, per_page: 25, total: 0 };
@@ -72,6 +84,9 @@ function mount(current: ProductionBatch = batch) {
 describe("ProductionBatchDetail", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mocks.batch.mockResolvedValue(batch);
+    mocks.items.mockResolvedValue(items);
+    mocks.diagnostics.mockResolvedValue(diagnostics);
   });
   it("separates technical success from pending quality", () => {
     mount();
@@ -111,5 +126,29 @@ describe("ProductionBatchDetail", () => {
         confirmed: true,
       }),
     );
+  });
+  it("polls pending quality and stops when the batch finishes", async () => {
+    vi.useFakeTimers();
+    try {
+      mocks.batch.mockResolvedValue({
+        ...batch,
+        state: "completed",
+        result: "succeeded",
+        counts: { ...batch.counts, awaiting_quality: 0, published: 1 },
+      });
+      const view = mount();
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(5_050);
+      });
+      expect(mocks.batch).toHaveBeenCalledTimes(1);
+      expect(screen.getByText("Concluído com sucesso")).toBeInTheDocument();
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(10_000);
+      });
+      expect(mocks.batch).toHaveBeenCalledTimes(1);
+      view.unmount();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

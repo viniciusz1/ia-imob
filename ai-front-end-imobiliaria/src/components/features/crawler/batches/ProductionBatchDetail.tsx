@@ -117,7 +117,7 @@ export function ProductionBatchDetail({
           <p className="mt-1 text-xs text-muted-foreground">
             Solicitado por {batch.requester.name} em{" "}
             {dateTime(batch.created_at)} · Duração:{" "}
-            {duration(batch.started_at, batch.completed_at)}
+            {duration(batch.created_at, batch.completed_at)}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -379,6 +379,9 @@ export function ProductionBatchDetail({
                       <td className="max-w-sm p-3">
                         <p className="break-words">
                           {item.skip_message ??
+                            (item.attention_code === "missing_crawl_run"
+                              ? "Worker concluiu sem resultado persistido. Requer investigação."
+                              : null) ??
                             item.error_message ??
                             item.blockers.join(", ")}
                         </p>

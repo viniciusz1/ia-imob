@@ -2,6 +2,7 @@
 
 namespace App\Services\Crawler;
 
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
@@ -23,6 +24,7 @@ class ProductionBatchReader
                 'run.quality_policy_version_id', 'quality.verdict as quality_verdict',
                 'quality.blockers', 'quality.warnings')
             ->selectRaw('COALESCE(quality.evaluated_at, operation.completed_at, target.created_at) as resolved_at')
+            ->selectRaw("CASE WHEN operation.state = 'succeeded' AND run.id IS NULL THEN 'missing_crawl_run' ELSE NULL END as attention_code")
             ->selectRaw(<<<'SQL'
                 CASE
                     WHEN target.operation_id IS NULL THEN 'skipped'
@@ -103,8 +105,13 @@ class ProductionBatchReader
             'state' => $batch->state, 'result' => $result, 'counts' => $counts,
             'progress_percentage' => $batch->requested > 0 ? (int) round(100 * $resolved / $batch->requested) : null,
             'historical_incomplete' => ! $batch->targets_complete,
-            'created_at' => $batch->created_at, 'started_at' => $batch->started_at,
-            'completed_at' => $batch->state === 'completed' ? ($batch->resolved_at ?? $batch->created_at) : null,
+            'created_at' => $this->timestamp($batch->created_at), 'started_at' => $this->timestamp($batch->started_at),
+            'completed_at' => $batch->state === 'completed' ? $this->timestamp($batch->resolved_at ?? $batch->created_at) : null,
         ];
+    }
+
+    private function timestamp(?string $value): ?string
+    {
+        return $value === null ? null : CarbonImmutable::parse($value)->toIso8601String();
     }
 }

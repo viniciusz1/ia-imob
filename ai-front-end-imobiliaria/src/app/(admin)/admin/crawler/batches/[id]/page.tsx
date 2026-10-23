@@ -14,22 +14,20 @@ export default async function ProductionBatchPage({
   const { id } = await params;
   if (!/^\d+$/.test(id) || !Number.isSafeInteger(Number(id)) || Number(id) < 1)
     notFound();
-  try {
-    const [batch, items, diagnostics] = await Promise.all([
-      getProductionBatch(Number(id)),
-      listProductionBatchItems(Number(id)),
-      getBatchDiagnostics(Number(id)),
-    ]);
-    return (
-      <ProductionBatchDetail
-        key={batch.id}
-        initialBatch={batch}
-        initialItems={items}
-        initialDiagnostics={diagnostics}
-      />
-    );
-  } catch (error) {
+  const [batch, items, diagnostics] = await Promise.all([
+    getProductionBatch(Number(id)),
+    listProductionBatchItems(Number(id)),
+    getBatchDiagnostics(Number(id)),
+  ]).catch((error: unknown) => {
     if (isAxiosError(error) && error.response?.status === 404) notFound();
     throw error;
-  }
+  });
+  return (
+    <ProductionBatchDetail
+      key={batch.id}
+      initialBatch={batch}
+      initialItems={items}
+      initialDiagnostics={diagnostics}
+    />
+  );
 }
