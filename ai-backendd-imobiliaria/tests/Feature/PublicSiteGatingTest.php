@@ -2,9 +2,9 @@
 
 namespace Tests\Feature;
 
-use App\Models\SubscriptionPlan;
 use App\Models\Agency;
 use App\Models\AgencySubscription;
+use App\Models\SubscriptionPlan;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;

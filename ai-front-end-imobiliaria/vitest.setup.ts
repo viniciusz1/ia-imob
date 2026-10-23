@@ -9,5 +9,7 @@ class ResizeObserverMock {
 
 beforeAll(() => {
     global.ResizeObserver = ResizeObserverMock as unknown as typeof ResizeObserver;
-    window.HTMLElement.prototype.scrollIntoView = () => {};
+    if (typeof window !== 'undefined' && window.HTMLElement) {
+        window.HTMLElement.prototype.scrollIntoView = () => {};
+    }
 });
