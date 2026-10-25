@@ -14,3 +14,4 @@ Schedule::command('crawler:reconcile-onboarding-executions')->everyMinute()->wit
 Schedule::command('crawler:evaluate-candidates')->everyMinute()->withoutOverlapping();
 Schedule::command('crawler:update-circuits')->everyMinute()->withoutOverlapping();
 Schedule::command('crawler:dispatch-schedules')->everyMinute()->withoutOverlapping();
+Schedule::command('auctions:expire-finished')->everyTenMinutes()->withoutOverlapping();

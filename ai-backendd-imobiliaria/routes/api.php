@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AuctionController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\PermissionController;
 use App\Http\Controllers\Api\RoleController;
@@ -22,7 +23,7 @@ Route::middleware(['auth:sanctum', EnsureAgencyIsActive::class])->group(function
     Route::get('permissions', [PermissionController::class, 'index']);
 
     // Auctions Module
-    Route::get('auctions', [\App\Http\Controllers\Api\AuctionController::class, 'index']);
+    Route::get('auctions', [AuctionController::class, 'index']);
 
     // Properties Module
     Route::apiResource('properties', \App\Http\Controllers\Api\PropertyController::class);

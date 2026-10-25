@@ -12,10 +12,10 @@ class AuctionResource extends JsonResource
         $property = $this->property;
         $event = $this->event;
         $currentRound = $this->currentRound;
-        
+
         $images = [];
         $noticeUrl = null;
-        
+
         if ($this->relationLoaded('evidences')) {
             $images = $this->evidences->where('kind', 'photo')->pluck('url')->toArray();
             $noticeUrl = $this->evidences->where('kind', 'notice')->first()?->url;
@@ -28,7 +28,8 @@ class AuctionResource extends JsonResource
             'description' => $property->description,
             'property_type' => $property->property_type,
             'canonical_url' => $this->canonical_url ?? $event->canonical_url,
-            
+            'inventory_state' => $this->inventory_state,
+
             'address' => $property->address,
             'neighborhood' => $property->neighborhood,
             'city' => $property->city,
@@ -36,14 +37,14 @@ class AuctionResource extends JsonResource
             'built_area_m2' => $property->built_area_m2,
             'land_area_m2' => $property->land_area_m2,
             'occupancy_status' => $property->occupancy_status,
-            
+
             'event' => [
                 'title' => $event->title,
                 'sale_modality' => $event->sale_modality,
                 'status' => $event->status,
                 'auctioneer_name' => $event->auctioneer_name,
             ],
-            
+
             'round' => $currentRound ? [
                 'round_number' => $currentRound->round_number,
                 'starts_at' => $currentRound->starts_at?->toIso8601String(),
@@ -52,7 +53,19 @@ class AuctionResource extends JsonResource
                 'appraisal_value' => $currentRound->appraisal_value,
                 'status' => $currentRound->status,
             ] : null,
-            
+
+            'rounds' => $this->relationLoaded('rounds') ? $this->rounds->map(fn ($r) => [
+                'round_number' => $r->round_number,
+                'starts_at' => $r->starts_at?->toIso8601String(),
+                'ends_at' => $r->ends_at?->toIso8601String(),
+                'minimum_bid' => $r->minimum_bid,
+                'appraisal_value' => $r->appraisal_value,
+                'current_bid' => $r->current_bid,
+                'commission_rate' => $r->commission_rate,
+                'status' => $r->status,
+                'source_label' => $r->source_label,
+            ])->values()->all() : [],
+
             'images' => $images,
             'notice_url' => $noticeUrl,
         ];

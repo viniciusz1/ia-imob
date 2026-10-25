@@ -2,8 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Models\SubscriptionPlan;
 use App\Models\AgencySubscription;
+use App\Models\SubscriptionPlan;
 use App\Models\User;
 use App\Services\AsaasService;
 use Carbon\Carbon;
