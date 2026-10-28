@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\Crawler\CrawlAgencyDiscoveryPolicyController;
 use App\Http\Controllers\Api\Crawler\CrawlerIntegrationController;
 use App\Http\Controllers\Api\Crawler\CrawlerOperationControlController;
 use App\Http\Controllers\Api\Crawler\CrawlerOperationController;
+use App\Http\Controllers\Api\Crawler\CrawlerOperationQueueController;
 use App\Http\Controllers\Api\Crawler\CrawlerOverviewController;
 use App\Http\Controllers\Api\Crawler\CrawlerScheduleController;
 use App\Http\Controllers\Api\Crawler\CrawlRunController;
@@ -81,6 +82,7 @@ Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:crawler.view
         Route::get('/crawl-agencies/{crawlAgency}/profile-workflow-operations', [CrawlerOperationController::class, 'profileWorkflow']);
         Route::get('/market-data-contracts', [MarketDataContractController::class, 'index']);
         Route::get('/operations', [CrawlerOperationController::class, 'index']);
+        Route::get('/operation-queue', CrawlerOperationQueueController::class);
         Route::get('/operations/{operation}', [CrawlerOperationController::class, 'show']);
         Route::get('/discovery-snapshots/{discoverySnapshot}/urls', [DiscoverySnapshotController::class, 'urls']);
         Route::get('/crawl-agencies/{crawlAgency}/discovery-snapshots', [DiscoverySnapshotController::class, 'index']);

@@ -27,6 +27,7 @@ import type {
   ScheduleDefault,
   SchedulePreset,
   CrawlerOperationFilters,
+  CrawlerOperationQueue,
   CrawlerOverview,
   CrawlerIntegration,
   CrawlerIntegrationTest,
@@ -76,6 +77,11 @@ export async function listCrawlerOperations(filters: CrawlerOperationFilters = {
 
 export async function listCrawlerOperationsPage(filters: CrawlerOperationFilters = {}): Promise<PaginatedCrawlerOperations> {
   const response = await api.get<PaginatedCrawlerOperations>(`${BASE}/operations`, { params: filters });
+  return response.data;
+}
+
+export async function getCrawlerOperationQueue(page = 1): Promise<CrawlerOperationQueue> {
+  const response = await api.get<CrawlerOperationQueue>(`${BASE}/operation-queue`, { params: { page } });
   return response.data;
 }
 
