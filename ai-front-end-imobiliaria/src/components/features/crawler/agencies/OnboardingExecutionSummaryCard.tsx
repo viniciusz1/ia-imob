@@ -26,18 +26,6 @@ const STATE_TITLES: Record<OnboardingExecution["state"], string> = {
   cancelled: "Onboarding cancelado",
 };
 
-function primaryActionLabel(action: OnboardingExecution["next_action"]): string {
-  if (action === "review_configuration") return "Revisar configuração";
-  if (action === "retry_failed_operation") return "Retentar etapa";
-  if (action === "retry_first_production") return "Retentar primeira produção";
-  if (action === "decide_onboarding") return "Revisar e aprovar";
-  if (action === "start_first_production") return "Iniciar primeira produção";
-  if (action === "review_attention") return "Revisar atenção";
-  if (["wait_for_coordinator", "wait_for_current_operation"].includes(action ?? "")) return "Acompanhar execução";
-  if (action?.startsWith("run_") || action === "confirm_sample_url" || action === "correct_sample_url") return "Continuar etapa manual";
-  return "Ver resultado";
-}
-
 interface OnboardingExecutionSummaryCardProps {
   agencyId: number;
   execution: OnboardingExecution;
@@ -65,9 +53,8 @@ export function OnboardingExecutionSummaryCard({
           <p className="font-medium">Etapa atual: {STEP_LABELS[execution.current_step]}</p>
           {execution.attention?.message && <p className="mt-1 text-sm text-muted-foreground">{execution.attention.message}</p>}
         </div>
-        <div className="flex flex-wrap gap-2">
-          <Button asChild><Link href={href}>{primaryActionLabel(execution.next_action)}</Link></Button>
-          <Button asChild variant="outline"><Link href={href}>Abrir Onboarding</Link></Button>
+        <div>
+          <Button asChild><Link href={href}>Abrir Onboarding</Link></Button>
         </div>
       </CardContent>
     </Card>
