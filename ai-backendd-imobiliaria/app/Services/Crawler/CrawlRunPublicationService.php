@@ -9,12 +9,29 @@ use App\Models\Crawler\QualityPolicyVersion;
 use App\Models\CrawlerRun;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Throwable;
 
 class CrawlRunPublicationService
 {
-    public function __construct(private readonly ListingInventoryService $inventory) {}
+    public function __construct(private readonly ListingInventoryService $inventory, private readonly OperationDiagnosticRecorder $diagnostics) {}
 
     public function evaluate(CrawlerRun $run): QualityGateReport
+    {
+        try {
+            return $this->evaluateCandidate($run);
+        } catch (Throwable $exception) {
+            if ($run->operation_id !== null) {
+                try {
+                    $this->diagnostics->record($run->operation_id, 'quality', 'failed', 'quality_evaluation_failed');
+                } catch (Throwable $diagnosticException) {
+                    report($diagnosticException);
+                }
+            }
+            throw $exception;
+        }
+    }
+
+    private function evaluateCandidate(CrawlerRun $run): QualityGateReport
     {
         return DB::transaction(function () use ($run): QualityGateReport {
             $lockedRun = CrawlerRun::query()->lockForUpdate()->findOrFail($run->id);
@@ -113,6 +130,9 @@ class CrawlRunPublicationService
                 'evaluated_at' => now(),
             ]);
 
+            if ($lockedRun->operation_id !== null) {
+                $this->diagnostics->record($lockedRun->operation_id, 'quality', $blockers === [] ? 'approved' : 'blocked', $blockers[0] ?? null);
+            }
             if ($blockers !== []) {
                 $lockedRun->update([
                     'publication_state' => 'quarantined',

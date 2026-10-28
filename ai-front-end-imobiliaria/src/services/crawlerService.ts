@@ -27,6 +27,7 @@ import type {
   ScheduleDefault,
   SchedulePreset,
   CrawlerOperationFilters,
+  CrawlerOperationQueue,
   CrawlerOverview,
   CrawlerIntegration,
   CrawlerIntegrationTest,
@@ -79,6 +80,11 @@ export async function listCrawlerOperationsPage(filters: CrawlerOperationFilters
   return response.data;
 }
 
+export async function getCrawlerOperationQueue(page = 1): Promise<CrawlerOperationQueue> {
+  const response = await api.get<CrawlerOperationQueue>(`${BASE}/operation-queue`, { params: { page } });
+  return response.data;
+}
+
 export async function listProfileWorkflowOperations(agencyId: number): Promise<CrawlerOperation[]> {
   const response = await api.get<Resource<CrawlerOperation[]>>(`${BASE}/crawl-agencies/${agencyId}/profile-workflow-operations`);
   return response.data.data;
@@ -104,7 +110,7 @@ export async function getCrawlerOperation(id: number): Promise<CrawlerOperation>
   return response.data.data;
 }
 
-export type DiscoverySource = "sitemap" | "cc" | "wayback" | "crt" | "probe" | "robots" | "feed" | "homepage";
+export type DiscoverySource = "sitemap" | "cc" | "wayback" | "crt" | "probe" | "robots" | "feed" | "homepage" | "playwright";
 
 export interface DiscoveryPolicy {
   sources: DiscoverySource[];
@@ -256,9 +262,10 @@ export async function queueProductionCrawl(payload: QueueProductionCrawlPayload)
   return response.data.data;
 }
 
-export async function queueBulkProductionCrawls(): Promise<BulkProductionCrawlResult> {
+export async function queueBulkProductionCrawls(requestKey?: string): Promise<BulkProductionCrawlResult> {
   const response = await api.post<Resource<BulkProductionCrawlResult>>(`${BASE}/production-crawls/bulk`, {
     confirmed: true,
+    ...(requestKey ? { request_key: requestKey } : {}),
   });
   return response.data.data;
 }

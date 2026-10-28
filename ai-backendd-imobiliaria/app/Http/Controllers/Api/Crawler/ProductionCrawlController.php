@@ -24,10 +24,11 @@ class ProductionCrawlController extends Controller
         QueueBulkProductionCrawlRequest $request,
         BulkProductionCrawlService $service,
     ): JsonResponse {
-        $result = $service->queueAllActive($request->user());
+        $result = $service->queueAllActive($request->user(), $request->validated('request_key'));
 
         return response()->json(['data' => [
             'summary' => $result['summary'],
+            'batch' => $result['batch'],
             'group' => $result['group'] === null
                 ? null
                 : (new OperationGroupResource($result['group']))->resolve($request),

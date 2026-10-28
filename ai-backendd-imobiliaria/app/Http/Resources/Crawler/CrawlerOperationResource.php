@@ -54,6 +54,7 @@ class CrawlerOperationResource extends JsonResource
             'equivalent_failure_count' => (int) ($this->equivalent_failure_count ?? 0),
             'discovery_snapshot_id' => $this->discoverySnapshot?->id,
             'created_at' => $this->created_at,
+            'claimed_at' => $this->claimed_at,
             'completed_at' => $this->completed_at,
         ];
     }

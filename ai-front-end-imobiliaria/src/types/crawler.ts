@@ -169,6 +169,23 @@ export interface PaginatedCrawlerOperations {
   };
 }
 
+export interface CrawlerOperationQueueEntry {
+  position: number;
+  blocked_by_operation_id: number | null;
+  operation: CrawlerOperation;
+}
+
+export interface CrawlerOperationQueue {
+  running: CrawlerOperation[];
+  data: CrawlerOperationQueueEntry[];
+  meta: {
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+  };
+}
+
 export interface CrawlerAlert {
   kind: "circuit_open" | "operation_failure" | "quarantined_snapshot" | "worker_unavailable";
   title: string;
@@ -225,6 +242,7 @@ export type BulkProductionCrawlSkipCode =
   | "configuration_invalid";
 
 export interface BulkProductionCrawlResult {
+  batch?: import("./productionBatch").ProductionBatch;
   summary: {
     active_agencies: number;
     enqueued: number;

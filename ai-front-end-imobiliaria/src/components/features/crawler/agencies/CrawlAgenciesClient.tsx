@@ -3,7 +3,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import {
@@ -108,6 +108,7 @@ export function CrawlAgenciesClient({
   const [perPage, setPerPage] = useState(initialPerPage);
 
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const bulkRequestKey = useRef<string | null>(null);
   const [bulkPending, setBulkPending] = useState(false);
   const [bulkResult, setBulkResult] = useState<BulkProductionCrawlResult | null>(null);
   const canExecute = usePermission("crawler.operations.execute");
@@ -115,7 +116,9 @@ export function CrawlAgenciesClient({
   async function rerunActiveCrawls() {
     setBulkPending(true);
     try {
-      const result = await queueBulkProductionCrawls();
+      bulkRequestKey.current ??= crypto.randomUUID();
+      const result = await queueBulkProductionCrawls(bulkRequestKey.current);
+      bulkRequestKey.current = null;
       setBulkResult(result);
       setConfirmOpen(false);
       toast.success(`${result.summary.enqueued} crawl(s) enfileirado(s).`);
@@ -234,6 +237,7 @@ export function CrawlAgenciesClient({
               {bulkResult.summary.enqueued} de {bulkResult.summary.active_agencies} enfileirada(s); {bulkResult.summary.skipped} ignorada(s).
             </p>
           </div>
+          {bulkResult.batch && <Link className="text-sm font-medium underline" href={`/admin/crawler/batches/${bulkResult.batch.id}`}>Acompanhar lote #{bulkResult.batch.id}</Link>}
           {bulkResult.skipped.length > 0 && (
             <div>
               <p className="text-sm font-medium">Crawl Agencies ignoradas</p>
