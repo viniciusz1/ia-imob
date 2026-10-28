@@ -25,6 +25,7 @@ const DISCOVERY_SOURCES = [
   { value: "robots", label: "robots.txt" },
   { value: "feed", label: "Feeds RSS/Atom" },
   { value: "homepage", label: "Página inicial" },
+  { value: "playwright", label: "Listagem e paginação (Playwright)" },
 ] as const;
 
 const DEFAULT_SOURCES: DiscoverySource[] = ["sitemap", "cc", "crt", "probe"];
