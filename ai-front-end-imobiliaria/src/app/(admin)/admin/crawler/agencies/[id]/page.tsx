@@ -21,8 +21,8 @@ interface CrawlAgencyDetailPageProps {
 export default async function CrawlAgencyDetailPage({ params }: CrawlAgencyDetailPageProps) {
   const { id } = await params;
   const agencyId = Number(id);
-  const agency = await getCrawlAgency(agencyId);
   const [
+    agency,
     snapshots,
     profiles,
     runs,
@@ -30,11 +30,8 @@ export default async function CrawlAgencyDetailPage({ params }: CrawlAgencyDetai
     operations,
     onboardingPlan,
     executions,
-    discoveryStrategies,
-    discoveryPolicies,
-    extractionPolicies,
-    models,
   ] = await Promise.all([
+    getCrawlAgency(agencyId),
     listDiscoverySnapshots(agencyId),
     listExtractionProfiles(agencyId),
     listCrawlRuns(agencyId),
@@ -42,11 +39,24 @@ export default async function CrawlAgencyDetailPage({ params }: CrawlAgencyDetai
     listCrawlerOperations({ crawl_agency_id: agencyId }),
     getOnboardingPlan(agencyId).catch(() => null),
     listOnboardingExecutions(agencyId),
-    listDiscoveryStrategies(),
-    listDiscoveryPolicyVersions(),
-    listExtractionPolicyVersions(),
-    listOnboardingExecutionModelVersions(),
   ]);
+
+  const needsPlanCatalogs =
+    onboardingPlan?.status === "draft" && executions[0]?.state !== "completed";
+
+  const [
+    discoveryStrategies,
+    discoveryPolicies,
+    extractionPolicies,
+    models,
+  ] = needsPlanCatalogs
+    ? await Promise.all([
+        listDiscoveryStrategies(),
+        listDiscoveryPolicyVersions(),
+        listExtractionPolicyVersions(),
+        listOnboardingExecutionModelVersions(),
+      ])
+    : [[], [], [], []];
 
   return (
     <CrawlAgencyWorkspaceClient

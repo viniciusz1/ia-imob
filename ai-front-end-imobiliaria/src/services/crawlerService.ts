@@ -680,9 +680,21 @@ export async function listCrawlAgenciesPage(
   return response.data;
 }
 
+const inFlightCrawlAgencyRequests = new Map<number, Promise<CrawlAgency>>();
+
 export async function getCrawlAgency(id: number): Promise<CrawlAgency> {
-  const response = await api.get<Resource<CrawlAgency>>(`${BASE}/crawl-agencies/${id}`);
-  return response.data.data;
+  const existing = inFlightCrawlAgencyRequests.get(id);
+  if (existing) return existing;
+
+  const request = api
+    .get<Resource<CrawlAgency>>(`${BASE}/crawl-agencies/${id}`)
+    .then((response) => response.data.data)
+    .finally(() => {
+      inFlightCrawlAgencyRequests.delete(id);
+    });
+
+  inFlightCrawlAgencyRequests.set(id, request);
+  return request;
 }
 
 export async function createCrawlAgency(payload: CrawlAgencyInput): Promise<CrawlAgency> {

@@ -146,6 +146,15 @@ export function PlatformAdminNavigation() {
     const permissions = useAuthStore((state) => state.user?.permissions);
 
     const [userToggles, setUserToggles] = useState<Record<string, boolean>>({});
+    const [lastPathname, setLastPathname] = useState(pathname);
+    const [pendingHref, setPendingHref] = useState<string | null>(null);
+
+    if (lastPathname !== pathname) {
+        setLastPathname(pathname);
+        setPendingHref(null);
+    }
+
+    const currentPath = pendingHref ?? pathname;
 
     const toggleMenu = (href: string, currentlyExpanded: boolean) => {
         setUserToggles((prev) => ({
@@ -187,8 +196,8 @@ export function PlatformAdminNavigation() {
                         }
 
                         if (item.subItems && item.subItems.length > 0) {
-                            const isExpanded = userToggles[item.href] ?? item.isActive(pathname);
-                            const active = item.isActive(pathname);
+                            const isExpanded = userToggles[item.href] ?? item.isActive(currentPath);
+                            const active = item.isActive(currentPath);
                             const submenuId = `submenu-${item.label.toLowerCase().replace(/\s+/g, "-")}`;
 
                             return (
@@ -242,7 +251,7 @@ export function PlatformAdminNavigation() {
                                                     );
                                                 }
 
-                                                const subActive = subItem.isActive(pathname);
+                                                const subActive = subItem.isActive(currentPath);
 
                                                 return (
                                                     <Link
@@ -255,6 +264,7 @@ export function PlatformAdminNavigation() {
                                                         )}
                                                         href={subItem.href}
                                                         key={subItem.href}
+                                                        onClick={() => setPendingHref(subItem.href)}
                                                     >
                                                         <subItem.icon className="size-3.5 shrink-0" />
                                                         {subItem.label}
@@ -267,7 +277,7 @@ export function PlatformAdminNavigation() {
                             );
                         }
 
-                        const active = item.isActive(pathname);
+                        const active = item.isActive(currentPath);
 
                         return (
                             <Link
@@ -279,6 +289,7 @@ export function PlatformAdminNavigation() {
                                 )}
                                 href={item.href}
                                 key={item.href}
+                                onClick={() => setPendingHref(item.href)}
                             >
                                 <item.icon className="size-4 shrink-0" />
                                 {item.label}

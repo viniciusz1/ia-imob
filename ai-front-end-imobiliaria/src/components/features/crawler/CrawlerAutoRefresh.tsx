@@ -13,6 +13,10 @@ export function CrawlerAutoRefresh() {
 
   useEffect(() => {
     const interval = window.setInterval(() => {
+      if (typeof document !== "undefined" && document.visibilityState === "hidden") {
+        return;
+      }
+
       const nextSeconds = secondsUntilRefreshRef.current > 1
         ? secondsUntilRefreshRef.current - 1
         : CRAWLER_REFRESH_INTERVAL_SECONDS;
