@@ -110,7 +110,7 @@ export async function getCrawlerOperation(id: number): Promise<CrawlerOperation>
   return response.data.data;
 }
 
-export type DiscoverySource = "sitemap" | "cc" | "wayback" | "crt" | "probe" | "robots" | "feed" | "homepage";
+export type DiscoverySource = "sitemap" | "cc" | "wayback" | "crt" | "probe" | "robots" | "feed" | "homepage" | "playwright";
 
 export interface DiscoveryPolicy {
   sources: DiscoverySource[];
