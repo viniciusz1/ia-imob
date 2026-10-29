@@ -2,15 +2,10 @@ import { CrawlAgencyWorkspaceClient } from "@/components/features/crawler/agenci
 import {
   getCrawlAgency,
   getCrawlAgencySchedule,
-  getOnboardingPlan,
   listCrawlerOperations,
   listCrawlRuns,
-  listDiscoveryPolicyVersions,
   listDiscoverySnapshots,
-  listDiscoveryStrategies,
-  listExtractionPolicyVersions,
   listExtractionProfiles,
-  listOnboardingExecutionModelVersions,
   listOnboardingExecutions,
 } from "@/services/crawlerService";
 
@@ -28,7 +23,6 @@ export default async function CrawlAgencyDetailPage({ params }: CrawlAgencyDetai
     runs,
     schedule,
     operations,
-    onboardingPlan,
     executions,
   ] = await Promise.all([
     getCrawlAgency(agencyId),
@@ -37,37 +31,14 @@ export default async function CrawlAgencyDetailPage({ params }: CrawlAgencyDetai
     listCrawlRuns(agencyId),
     getCrawlAgencySchedule(agencyId),
     listCrawlerOperations({ crawl_agency_id: agencyId }),
-    getOnboardingPlan(agencyId).catch(() => null),
     listOnboardingExecutions(agencyId),
   ]);
-
-  const needsPlanCatalogs =
-    onboardingPlan?.status === "draft" && executions[0]?.state !== "completed";
-
-  const [
-    discoveryStrategies,
-    discoveryPolicies,
-    extractionPolicies,
-    models,
-  ] = needsPlanCatalogs
-    ? await Promise.all([
-        listDiscoveryStrategies(),
-        listDiscoveryPolicyVersions(),
-        listExtractionPolicyVersions(),
-        listOnboardingExecutionModelVersions(),
-      ])
-    : [[], [], [], []];
 
   return (
     <CrawlAgencyWorkspaceClient
       agency={agency}
-      discoveryPolicies={discoveryPolicies}
-      discoveryStrategies={discoveryStrategies}
       executions={executions}
-      extractionPolicies={extractionPolicies}
       initialOperations={operations}
-      models={models}
-      onboardingPlan={onboardingPlan}
       profiles={profiles}
       runs={runs}
       schedule={schedule}

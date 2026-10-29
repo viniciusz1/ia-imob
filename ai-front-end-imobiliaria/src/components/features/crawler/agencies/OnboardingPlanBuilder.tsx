@@ -48,6 +48,7 @@ interface OnboardingPlanBuilderProps {
   discoveryPolicies: DiscoveryPolicyVersion[];
   discoveryStrategies: DiscoveryStrategy[];
   extractionPolicies: ExtractionPolicyVersion[];
+  inModal?: boolean;
   models: OnboardingExecutionModelVersion[];
   onConfirmed: (execution: OnboardingExecution) => void;
   plan: OnboardingPlan;
@@ -131,6 +132,7 @@ export function OnboardingPlanBuilder({
   discoveryPolicies: initialDiscoveryPolicies,
   discoveryStrategies,
   extractionPolicies: initialExtractionPolicies,
+  inModal = false,
   models,
   onConfirmed,
   plan,
@@ -151,7 +153,9 @@ export function OnboardingPlanBuilder({
   const [conduction, setConduction] = useState<OnboardingConduction>(initialConduction);
   const [modelId, setModelId] = useState(initialModel?.id ?? 0);
   const [name, setName] = useState(
-    plan.name ?? suggestedName(agency, initialConduction, initialModel, plan.created_at),
+    plan.status === "draft" && plan.name
+      ? plan.name
+      : suggestedName(agency, initialConduction, initialModel, plan.created_at),
   );
   const [firstProductionMode, setFirstProductionMode] = useState<FirstProductionDiscoveryMode>(
     plan.first_production_discovery_mode ?? "fresh",
@@ -335,15 +339,8 @@ export function OnboardingPlanBuilder({
   };
 
   const disabled = !canExecute || pending !== null;
-  return (
-    <Card className="border-primary/30">
-      <CardHeader className="border-b bg-primary/5">
-        <CardTitle>Plano de Onboarding</CardTitle>
-        <CardDescription>
-          Monte, nomeie e revise a combinação. Nenhuma Operação do Crawler começa antes da confirmação.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-6">
+  const content = (
+    <div className="space-y-6">
         {!canExecute && (
           <p className="rounded-md border border-dashed p-3 text-sm text-muted-foreground">
             Modo somente leitura. Você pode revisar o plano, mas não vê ações de alteração ou execução.
@@ -542,6 +539,23 @@ export function OnboardingPlanBuilder({
             <Button disabled={pending !== null || validationMessage !== null || !reviewConfirmed} onClick={() => void confirm()} type="button">{pending === "confirm" ? "Confirmando…" : "Confirmar e iniciar execução"}</Button>
           </div>
         )}
+    </div>
+  );
+
+  if (inModal) {
+    return content;
+  }
+
+  return (
+    <Card className="border-primary/30">
+      <CardHeader className="border-b bg-primary/5">
+        <CardTitle>Plano de Onboarding</CardTitle>
+        <CardDescription>
+          Monte, nomeie e revise a combinação. Nenhuma Operação do Crawler começa antes da confirmação.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {content}
       </CardContent>
     </Card>
   );

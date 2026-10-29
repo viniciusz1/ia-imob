@@ -133,7 +133,7 @@ export function ProspectsClient({ initialProspects, initialSuggestions = [] }: {
     const result = await promoteProspect(prospect.id);
     setProspects((current) => current.map((item) => item.id === prospect.id ? { ...item, promoted_crawl_agency_id: result.crawl_agency.id } : item));
     toast.success("Crawl Agency e Plano de Onboarding em rascunho criados.");
-    router.push(`/admin/crawler/agencies/${result.crawl_agency.id}`);
+    router.push(`/admin/crawler/agencies/${result.crawl_agency.id}/onboarding?novo=true`);
   };
 
   return (
@@ -277,7 +277,7 @@ export function ProspectsClient({ initialProspects, initialSuggestions = [] }: {
                         <div className="flex items-center justify-between gap-4">
                           <p className="max-w-52 truncate text-sm text-muted-foreground" title={prospect.review_reason ?? undefined}>{prospect.review_reason || "Sem motivo registrado"}</p>
                           {prospect.review_state === "approved" && !prospect.promoted_crawl_agency_id && <Button onClick={() => void promote(prospect)} size="sm" variant="secondary">Iniciar onboarding</Button>}
-                          {prospect.promoted_crawl_agency_id && <Button asChild size="sm" variant="outline"><Link href={`/admin/crawler/agencies/${prospect.promoted_crawl_agency_id}`}>Ver onboarding</Link></Button>}
+                          {prospect.promoted_crawl_agency_id && <Button asChild size="sm" variant="outline"><Link href={`/admin/crawler/agencies/${prospect.promoted_crawl_agency_id}/onboarding`}>Ver onboarding</Link></Button>}
                         </div>
                       )}
                     </TableCell>

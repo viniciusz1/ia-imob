@@ -12,32 +12,21 @@ import type {
   CrawlAgencySchedule,
   CrawlerOperation,
   CrawlRun,
-  DiscoveryPolicyVersion,
   DiscoverySnapshot,
-  DiscoveryStrategy,
-  ExtractionPolicyVersion,
   ExtractionProfile,
   OnboardingExecution,
-  OnboardingExecutionModelVersion,
-  OnboardingPlan,
 } from "@/types/crawler";
 
 import { isActiveCrawlerOperation, useCrawlerOperationPolling } from "../useCrawlerOperationPolling";
 import { CrawlAgencyContextHeader } from "./CrawlAgencyContextHeader";
 import { CrawlAgencyOnboardingProgress } from "./CrawlAgencyOnboardingProgress";
 import { OnboardingExecutionSummaryCard } from "./OnboardingExecutionSummaryCard";
-import { OnboardingPlanBuilder } from "./OnboardingPlanBuilder";
 import { useOnboardingExecutionPolling } from "./useOnboardingExecutionPolling";
 
 interface CrawlAgencyWorkspaceClientProps {
   agency: CrawlAgency;
-  discoveryPolicies: DiscoveryPolicyVersion[];
-  discoveryStrategies: DiscoveryStrategy[];
   executions: OnboardingExecution[];
-  extractionPolicies: ExtractionPolicyVersion[];
   initialOperations: CrawlerOperation[];
-  models: OnboardingExecutionModelVersion[];
-  onboardingPlan: OnboardingPlan | null;
   profiles: ExtractionProfile[];
   runs: CrawlRun[];
   schedule: CrawlAgencySchedule;
@@ -49,7 +38,7 @@ function readiness(agency: CrawlAgency, profiles: ExtractionProfile[], runs: Cra
   if (agency.lifecycle_state === "onboarding") {
     const candidate = profiles.find((profile) => ["candidate", "revalidation_required"].includes(profile.status));
     if (candidate) return { label: "Aguardando validação", detail: `Perfil v${candidate.version} precisa passar pelo Crawl de Validação.`, href: "profiles", action: "Validar perfil" };
-    return { label: "Onboarding em andamento", detail: "Crie um Discovery e gere um Perfil de Extração Candidato.", href: "discoveries", action: "Continuar onboarding" };
+    return { label: "Onboarding em andamento", detail: "Crie um Discovery e gere um Perfil de Extração Candidato.", href: "onboarding", action: "Ir para Onboarding" };
   }
   if (!runs.some((run) => run.publication_state === "published")) return { label: "Sem snapshot publicado", detail: "A fonte está ativa, mas ainda não possui dados vigentes.", href: "crawls", action: "Rodar crawl manual" };
   return { label: "Apta para produção", detail: "Perfil e dados vigentes estão disponíveis.", href: "crawls", action: "Rodar crawl manual" };
@@ -57,13 +46,8 @@ function readiness(agency: CrawlAgency, profiles: ExtractionProfile[], runs: Cra
 
 export function CrawlAgencyWorkspaceClient({
   agency,
-  discoveryPolicies,
-  discoveryStrategies,
   executions: initialExecutions,
-  extractionPolicies,
   initialOperations,
-  models,
-  onboardingPlan,
   profiles,
   runs,
   schedule,
@@ -103,24 +87,11 @@ export function CrawlAgencyWorkspaceClient({
     <CrawlAgencyContextHeader agency={displayedAgency} area="Visão geral" description="Estado operacional, prontidão e atividade recente desta fonte." />
     <div className="flex flex-wrap gap-2"><Badge variant="outline">{displayedAgency.lifecycle_state}</Badge><Badge variant="secondary">Saúde: {displayedAgency.health_state}</Badge><Badge variant={displayedAgency.revalidation_required ? "destructive" : "outline"}>{state.label}</Badge></div>
 
-    {onboardingPlan?.status === "draft" && execution?.state !== "completed" && (
-      <OnboardingPlanBuilder
-        agency={agency}
-        discoveryPolicies={discoveryPolicies}
-        discoveryStrategies={discoveryStrategies}
-        extractionPolicies={extractionPolicies}
-        models={models}
-        onConfirmed={(confirmed) => setExecutions((current) => [confirmed, ...current.filter((item) => item.id !== confirmed.id)])}
-        plan={onboardingPlan}
-        snapshots={snapshots}
-      />
-    )}
-
     {execution && <OnboardingExecutionSummaryCard agencyId={agency.id} execution={execution} />}
 
-    {!onboardingPlan && <CrawlAgencyOnboardingProgress agency={agency} profiles={profiles} snapshots={snapshots} />}
+    {!execution && <CrawlAgencyOnboardingProgress agency={agency} profiles={profiles} snapshots={snapshots} />}
 
-    {!onboardingPlan && <Card className="border-primary/30 bg-primary/5"><CardHeader><CardTitle>Próxima ação recomendada</CardTitle><CardDescription>{state.detail}</CardDescription></CardHeader><CardContent><Button asChild className="cursor-pointer"><Link href={`${root}/${state.href}`}>{state.action}</Link></Button></CardContent></Card>}
+    {!execution && <Card className="border-primary/30 bg-primary/5"><CardHeader><CardTitle>Próxima ação recomendada</CardTitle><CardDescription>{state.detail}</CardDescription></CardHeader><CardContent><Button asChild className="cursor-pointer"><Link href={`${root}/${state.href}`}>{state.action}</Link></Button></CardContent></Card>}
 
     <div className="grid gap-4 lg:grid-cols-3">
       <Card><CardHeader><CardTitle>Operação atual</CardTitle></CardHeader><CardContent className="space-y-3">

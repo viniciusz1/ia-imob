@@ -785,6 +785,33 @@ class OnboardingExecutionApiTest extends TestCase
             );
     }
 
+    public function test_confirming_a_reconfigured_plan_cancels_current_execution_and_creates_new_one(): void
+    {
+        [$agency] = $this->promoteProspect('reconfigure-replace');
+        $first = $this->configuredExecution($agency, 'First execution');
+        $this->assertSame('queued', $first->state);
+
+        $this->actingAs($this->admin)
+            ->putJson("/api/v1/admin/crawler/crawl-agencies/{$agency->id}/onboarding-plan", [
+                'name' => 'Second execution',
+                'conduction' => 'automated',
+                'execution_model_version_id' => $first->execution_model_version_id,
+                'first_production_discovery_mode' => 'fresh',
+            ])
+            ->assertOk();
+
+        $second = $this->actingAs($this->admin)
+            ->postJson("/api/v1/admin/crawler/crawl-agencies/{$agency->id}/onboarding-plan/confirm")
+            ->assertCreated()
+            ->json('data');
+
+        $this->assertNotSame($first->id, $second['id']);
+        $this->assertSame('cancelled', $first->refresh()->state);
+        $this->assertNotNull($first->completed_at);
+        $this->assertSame('queued', $second['state']);
+        $this->assertSame('Second execution', $second['name']);
+    }
+
     private function promoteProspect(string $suffix = 'success'): array
     {
         $operationCount = CrawlerOperation::query()->count();
