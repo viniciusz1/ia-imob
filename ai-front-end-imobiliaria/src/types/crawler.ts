@@ -528,6 +528,7 @@ export interface OnboardingPlanInput {
   execution_model_version_id?: number | null;
   manual_configuration?: ManualOnboardingConfiguration | null;
   first_production_discovery_mode: FirstProductionDiscoveryMode;
+  replace_current?: boolean;
 }
 
 export interface ResolvedOnboardingPolicy {

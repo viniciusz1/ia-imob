@@ -797,6 +797,7 @@ class OnboardingExecutionApiTest extends TestCase
                 'conduction' => 'automated',
                 'execution_model_version_id' => $first->execution_model_version_id,
                 'first_production_discovery_mode' => 'fresh',
+                'replace_current' => true,
             ])
             ->assertOk();
 

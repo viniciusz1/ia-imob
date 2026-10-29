@@ -236,6 +236,7 @@ export function OnboardingPlanBuilder({
         conduction,
         execution_model_version_id: modelId,
         first_production_discovery_mode: firstProductionMode,
+        ...(inModal ? { replace_current: true } : {}),
       };
     }
 
@@ -271,6 +272,7 @@ export function OnboardingPlanBuilder({
       conduction,
       manual_configuration: manual,
       first_production_discovery_mode: firstProductionMode,
+      ...(inModal ? { replace_current: true } : {}),
     };
   };
 

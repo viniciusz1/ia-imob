@@ -17,6 +17,12 @@ class OnboardingPlanService
 {
     public function configure(OnboardingPlan $plan, array $data): OnboardingPlan
     {
+        if ($plan->status === 'in_progress' && ! ($data['replace_current'] ?? false)) {
+            throw ValidationException::withMessages([
+                'status' => 'Only a draft Onboarding Plan can be configured.',
+            ]);
+        }
+
         $plan->update([
             'name' => $data['name'],
             'conduction' => $data['conduction'],
