@@ -15,7 +15,7 @@
 
 A paginação é global por anúncio. `data` mantém os anúncios da página agrupados por Imobiliária de Origem; uma imobiliária pode aparecer em mais de uma página. A ordenação por identificação usa a data de publicação do snapshot que classificou o anúncio. Empates usam data decrescente e ID do anúncio para manter páginas estáveis.
 
-`meta.pagination` informa `page`, `per_page`, `total`, `last_page` e `has_more`. `meta.filtered_total` é a quantidade após os filtros. `meta.total_new` e `meta.total_opportunities` são os totais gerais do inventário classificado, antes dos filtros. `meta.filters` contém as opções disponíveis em todo o inventário classificado, inclusive quando a página atual não contém essas opções. `counts` em cada grupo também representa o snapshot inteiro daquela imobiliária.
+`meta.pagination` informa `page`, `per_page`, `total`, `last_page` e `has_more`. `meta.filtered_total` é a quantidade após os filtros. `meta.total_new` e `meta.total_opportunities` são os totais gerais do inventário classificado, antes dos filtros. `meta.filters` contém as opções disponíveis em todo o inventário classificado, inclusive quando a página atual não contém essas opções, com uma única opção para valores que diferem só em maiúsculas, acentos ou espaços. `counts` em cada grupo também representa o snapshot inteiro daquela imobiliária.
 
 Exemplos:
 

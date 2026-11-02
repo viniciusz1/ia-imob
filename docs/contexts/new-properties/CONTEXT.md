@@ -1,9 +1,10 @@
 # Definição de Novos Imóveis e Oportunidades
 
-**Status:** definição concluída e protótipo funcional validado localmente
+**Status:** módulo implementado e validado localmente em 02/11/2026
 
-**Entrega:** 27/08/2026
-**Implementação de código nesta etapa:** API e visualização inicial
+**Entrega:** definição em 27/08/2026 e consolidação em 05/11/2026
+
+As seções abaixo registram a definição original e as entregas em ordem. Para o comportamento atual, valem [Estado atual do módulo](#estado-atual-do-módulo), [API.md](./API.md) e os testes automatizados.
 
 ## Objetivo
 
@@ -18,15 +19,26 @@ As flags são independentes:
 
 Esta definição estabelece o contrato que orientará as próximas entregas. Depois da validação das regras, foi criada uma primeira versão funcional para demonstrar o fluxo com os dados do backup.
 
-## Estado da implementação em 27/08/2026
+## Estado atual do módulo
 
 - `GET /api/v1/new-properties` classifica os anúncios dos últimos Snapshots Publicados;
-- A consulta paginada e seus filtros estão documentados em [API.md](./API.md);
+- a consulta, seus filtros, a ordenação e a paginação global estão documentados em [API.md](./API.md);
 - a consulta compara Listing Identities com os snapshots publicados da mesma origem nos 30 dias anteriores;
 - a oportunidade usa a fórmula de preço por metro quadrado e mediana definida neste documento;
-- `/novos-imoveis` agrupa os cards pela Imobiliária de Origem e permite filtrar as duas flags;
-- a interface limita a quantidade inicial de cards renderizados e permite carregar mais;
-- preferências, alertas, paginação de API e deduplicação entre origens continuam fora do escopo.
+- `/novos-imoveis` agrupa os cards pela Imobiliária de Origem e oferece busca, filtros, ordenação e paginação pela API;
+- preferências, alertas e deduplicação entre origens continuam fora do escopo.
+
+A tela do cliente mostra só o resultado da classificação. A janela, os snapshots comparados, o aviso de histórico insuficiente e a data do snapshot ficam na API para auditoria e não aparecem na interface. Imobiliárias sem imóveis para mostrar também ficam ocultas.
+
+### Validação de 02/11/2026
+
+As regras, a API e a tela foram testadas, inclusive anúncios repetidos, falta de informações, acesso de usuários e filtros. O resultado está em [Evidências da consulta e validação](../../evidence/new-properties-complete/README.md).
+
+### Limitações conhecidas
+
+- **Área:** no backup validado, 2.645 dos 3.584 anúncios atuais (74%) não têm `area` preenchida e, por isso, não recebem Oportunidade. Em 917 deles a fonte traz `area_privada`, que ainda não é usada.
+- **Finalidade:** quando a fonte não informa venda ou locação e a URL também não indica, o anúncio fica sem finalidade e não forma amostra comparável.
+- **Mesmo imóvel em várias origens:** continua sendo tratado como anúncios separados.
 
 ## Entrega de 10/09/2026 — Preparação do Histórico
 
@@ -53,7 +65,7 @@ Se não houver Snapshot Publicado anterior na janela, nenhum anúncio recebe aut
 - a comparação usa `listing_identity_id`, e não preço, descrição, foto, URL ou o ID temporário da linha coletada;
 - a API informa janela, snapshots comparados, identidades observadas e o estado `sufficient` ou `insufficient`;
 - um índice parcial em `(crawl_agency_id, published_at)` acelera a busca desse histórico no PostgreSQL;
-- a API mantém os detalhes do histórico para auditoria, enquanto a tela do cliente mostra somente o resultado da classificação e um aviso simples quando ainda não há dados suficientes;
+- a API mantém os detalhes do histórico para auditoria, enquanto a tela do cliente mostra somente o resultado da classificação;
 - testes automatizados cobrem ausência de histórico, limite exato de 30 dias, isolamento entre imobiliárias, exclusão de snapshots não publicados e alterações no mesmo anúncio.
 
 As capturas do antes e depois e o roteiro simples de apresentação estão em [Evidências da preparação do histórico](../../evidence/new-properties-history/README.md).
@@ -217,7 +229,7 @@ A futura implementação deverá produzir, no mínimo:
 ```text
 is_opportunity: true | false
 opportunity_score: número de 0 a 100 ou null
-opportunity_reason: at_or_above_comparable_median | below_opportunity_threshold | insufficient_comparables | missing_price_or_area | invalid_comparable_segment
+opportunity_reason: price_below_comparable_median | at_or_above_comparable_median | below_opportunity_threshold | insufficient_comparables | missing_price_or_area | invalid_comparable_segment
 price_per_square_meter: valor do anúncio
 benchmark_price_per_square_meter: mediana da amostra
 price_advantage_percentage: percentual calculado
@@ -276,6 +288,8 @@ flowchart TD
 ```
 
 ### Informações mínimas do card
+
+Lista da definição original. A data do snapshot e as justificativas técnicas foram retiradas da tela do cliente, como descrito em [Estado atual do módulo](#estado-atual-do-módulo).
 
 - imagem principal ou fallback quando não houver imagem;
 - flags Novo e Oportunidade, quando aplicáveis;

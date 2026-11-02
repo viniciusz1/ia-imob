@@ -1,5 +1,6 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { AxiosError } from "axios";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { NewPropertiesClient } from "../NewPropertiesClient";
@@ -156,6 +157,7 @@ function filteredResponse(params: NewPropertiesParams = {}): NewPropertiesRespon
     if (params.flag === "opportunity" && !property.is_opportunity) return false;
     if (params.search && !property.title?.toLowerCase().includes(params.search.toLowerCase())) return false;
     if (params.bedrooms && property.quartos !== Number(params.bedrooms)) return false;
+    if (params.type && property.tipo !== params.type) return false;
     return true;
   });
 
@@ -314,6 +316,92 @@ describe("NewPropertiesClient", () => {
 
     await waitFor(() => expect(getNewProperties).toHaveBeenLastCalledWith(expect.objectContaining({ bedrooms: "4" })));
     expect(await screen.findByRole("heading", { name: "Casa com bom custo-benefício" })).toBeInTheDocument();
+  }, 15_000);
+
+  it.each([
+    ["Filtrar por imobiliária", "Imobiliária Exemplo", { agency_id: 7 }],
+    ["Filtrar por tipo", "Casa", { type: "Casa" }],
+    ["Filtrar por cidade", "Blumenau", { city: "Blumenau" }],
+    ["Filtrar por bairro", "América", { neighborhood: "América" }],
+    ["Filtrar por finalidade", "Venda", { purpose: "venda" }],
+    ["Filtrar por banheiros", "2 banheiros", { bathrooms: "2" }],
+    ["Filtrar por vagas", "5+ vagas", { parking: "5+" }],
+    ["Ordenar imóveis", "Melhor oportunidade", { sort: "opportunity_desc" }],
+  ])("sends %s to the API and returns to the first page", async (label, option, expected) => {
+    vi.mocked(getNewProperties).mockImplementation(async (params) => ({
+      ...response,
+      meta: {
+        ...response.meta,
+        pagination: { page: params?.page ?? 1, per_page: 24, total: 48, last_page: 2, has_more: params?.page !== 2 },
+      },
+    }));
+
+    renderClient();
+    fireEvent.click(await screen.findByRole("button", { name: "Próxima" }));
+    await waitFor(() => expect(getNewProperties).toHaveBeenLastCalledWith(expect.objectContaining({ page: 2 })));
+
+    fireEvent.click(await screen.findByRole("combobox", { name: label }));
+    fireEvent.click(await screen.findByRole("option", { name: option }));
+
+    await waitFor(() => expect(getNewProperties).toHaveBeenLastCalledWith(expect.objectContaining({ ...expected, page: 1 })));
+  }, 15_000);
+
+  it("restores every listing when the applied filters are cleared", async () => {
+    vi.mocked(getNewProperties).mockImplementation(async (params) => filteredResponse(params));
+
+    renderClient();
+    fireEvent.click(await screen.findByRole("combobox", { name: "Filtrar por tipo" }));
+    fireEvent.click(await screen.findByRole("option", { name: "Casa" }));
+    await waitFor(() => expect(getNewProperties).toHaveBeenLastCalledWith(expect.objectContaining({ type: "Casa" })));
+    await waitFor(() => expect(screen.queryByRole("heading", { name: "Apartamento novo no Centro" })).not.toBeInTheDocument());
+
+    fireEvent.click(await screen.findByRole("button", { name: /limpar filtros/i }));
+
+    expect(await screen.findByRole("heading", { name: "Apartamento novo no Centro" })).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: "Filtrar por tipo" })).toHaveTextContent("Todos os tipos");
+    expect(screen.queryByRole("button", { name: /limpar filtros/i })).not.toBeInTheDocument();
+  }, 15_000);
+
+  it("keeps a listing readable when the source did not provide its details", async () => {
+    vi.mocked(getNewProperties).mockResolvedValue({
+      ...response,
+      data: [{
+        ...response.data[0],
+        properties: [{
+          ...newProperty,
+          image: "",
+          title: null,
+          purpose: null,
+          tipo: "",
+          preco: 0,
+          bairro: "",
+          cidade: "",
+          quartos: 0,
+          suites: 0,
+          banheiros: 0,
+          vagas: 0,
+          area: 0,
+          descricao: "",
+          link_imovel: "",
+          opportunity_reason: "missing_price_or_area",
+          price_per_square_meter: null,
+          benchmark_price_per_square_meter: null,
+          price_advantage_percentage: null,
+          comparable_count: 0,
+          sample_size_indicator: null,
+        }],
+      }],
+    });
+
+    renderClient();
+
+    expect(await screen.findByRole("heading", { name: "Imóvel" })).toBeInTheDocument();
+    expect(screen.getByText("Imóvel sem imagem")).toBeInTheDocument();
+    expect(screen.getByText("Preço não informado")).toBeInTheDocument();
+    expect(screen.getByText("Localização não informada")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Anúncio original indisponível" })).toBeDisabled();
+    expect(screen.queryByText(/\/m²/)).not.toBeInTheDocument();
+    expect(screen.queryByText("Boa oportunidade")).not.toBeInTheDocument();
   });
 
   it("shows the empty state when there are no classified properties", async () => {
@@ -344,5 +432,17 @@ describe("NewPropertiesClient", () => {
 
     expect(await screen.findByRole("heading", { name: "Imobiliária Exemplo" })).toBeInTheDocument();
     await waitFor(() => expect(getNewProperties).toHaveBeenCalledTimes(2));
+  });
+
+  it("explains that access is denied instead of suggesting a connection problem", async () => {
+    vi.mocked(getNewProperties).mockRejectedValue(
+      Object.assign(new AxiosError("forbidden"), { response: { status: 403 } }),
+    );
+
+    renderClient();
+
+    expect(await screen.findByRole("heading", { name: "Você não tem acesso a esta tela" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Tentar novamente" })).not.toBeInTheDocument();
+    expect(screen.queryByText(/Verifique a conexão/i)).not.toBeInTheDocument();
   });
 });

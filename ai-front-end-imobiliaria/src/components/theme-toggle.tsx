@@ -2,7 +2,7 @@
 
 import { MoonIcon, SunIcon } from "lucide-react";
 import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -12,13 +12,11 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+const subscribeToNothing = () => () => {};
+
 export function ThemeToggle() {
     const { setTheme } = useTheme();
-    const [mounted, setMounted] = useState(false);
-
-    useEffect(() => {
-        setMounted(true);
-    }, []);
+    const mounted = useSyncExternalStore(subscribeToNothing, () => true, () => false);
 
     if (!mounted) {
         return (

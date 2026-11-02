@@ -164,15 +164,12 @@ class NewPropertiesQueryService
             foreach ($group['properties'] as $property) {
                 $model = $property['property'];
                 $facets['agencies'][(int) $group['crawl_agency']['id']] = $group['crawl_agency'];
-                foreach (['cities' => $model->cidade, 'neighborhoods' => $model->bairro] as $name => $value) {
-                    if (trim((string) $value) !== '') {
-                        $facets[$name][(string) $value] = (string) $value;
-                    }
-                }
-                $type = PropertyTypeCatalog::canonicalNameFor($model->tipo) ?? (string) $model->tipo;
-                if ($type !== '') {
-                    $facets['types'][$type] = $type;
-                }
+                $this->addFacetOption($facets['cities'], (string) $model->cidade);
+                $this->addFacetOption($facets['neighborhoods'], (string) $model->bairro);
+                $this->addFacetOption(
+                    $facets['types'],
+                    PropertyTypeCatalog::canonicalNameFor($model->tipo) ?? (string) $model->tipo,
+                );
                 if ($property['purpose'] !== null) {
                     $facets['purposes'][$property['purpose']] = $property['purpose'];
                 }
@@ -232,6 +229,32 @@ class NewPropertiesQueryService
                 ],
             ],
         ];
+    }
+
+    /**
+     * Sources spell the same value differently ("Centro", "CENTRO"). Filters already compare
+     * normalized text, so keep one option per value and prefer its best written form.
+     *
+     * @param  array<string, string>  $options
+     */
+    private function addFacetOption(array &$options, string $value): void
+    {
+        $label = (string) preg_replace('/\s+/u', ' ', trim($value));
+        $key = $this->normalize($label);
+        if ($key === null) {
+            return;
+        }
+
+        $rank = static fn (string $option): array => [
+            mb_strtoupper($option) !== $option,
+            mb_strtoupper(mb_substr($option, 0, 1)) === mb_substr($option, 0, 1),
+            strlen($option),
+            $option,
+        ];
+
+        if (! isset($options[$key]) || $rank($label) > $rank($options[$key])) {
+            $options[$key] = $label;
+        }
     }
 
     private function matchesOptions(array $property, array $group, array $options): bool

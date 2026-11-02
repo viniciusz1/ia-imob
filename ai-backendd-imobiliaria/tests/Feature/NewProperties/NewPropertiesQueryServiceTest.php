@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Services\Crawler\ListingInventoryService;
 use App\Services\NewProperties\NewPropertiesQueryService;
 use Carbon\CarbonImmutable;
+use Database\Seeders\PermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
@@ -234,7 +235,7 @@ class NewPropertiesQueryServiceTest extends TestCase
 
     public function test_api_filters_sorts_and_paginates_classified_listings_without_duplicates(): void
     {
-        $this->seed(\Database\Seeders\PermissionSeeder::class);
+        $this->seed(PermissionSeeder::class);
         $user = User::factory()->for(Agency::factory())->create();
         $user->givePermissionTo('properties.view');
         $publishedAt = CarbonImmutable::parse('2026-09-23 12:00:00', 'UTC');
@@ -320,7 +321,7 @@ class NewPropertiesQueryServiceTest extends TestCase
     public function test_api_rejects_unauthorized_users_and_handles_missing_listing_data(): void
     {
         $this->getJson('/api/v1/new-properties')->assertUnauthorized();
-        $this->seed(\Database\Seeders\PermissionSeeder::class);
+        $this->seed(PermissionSeeder::class);
         $agency = Agency::factory()->create();
         $user = User::factory()->for($agency)->create();
         $this->actingAs($user)->getJson('/api/v1/new-properties')->assertForbidden();
@@ -347,6 +348,245 @@ class NewPropertiesQueryServiceTest extends TestCase
 
         $agency->update(['is_active' => false]);
         $this->actingAs($user->fresh())->getJson('/api/v1/new-properties')->assertForbidden();
+    }
+
+    public function test_opportunity_reasons_explain_each_incomplete_or_unfavorable_listing(): void
+    {
+        $publishedAt = CarbonImmutable::parse('2026-10-01 12:00:00', 'UTC');
+        $agencyId = $this->createAgency('motivos-oportunidade', $publishedAt->subDay());
+        $this->createPublishedRun($agencyId, $publishedAt->subDay());
+        $runId = $this->createPublishedRun($agencyId, $publishedAt);
+        $this->pointAgencyToCurrentRun($agencyId, $runId);
+        $listing = fn (string $key, int $price, array $attributes = []): int => $this->createObservedProperty(
+            $agencyId,
+            $runId,
+            $key,
+            $price,
+            null,
+            $publishedAt,
+            $attributes,
+        )['property_id'];
+        $createPeers = function (string $neighborhood) use ($listing): void {
+            foreach (range(1, 5) as $number) {
+                $listing("{$neighborhood}-referencia-{$number}", 500_000, ['bairro' => $neighborhood]);
+            }
+        };
+
+        $fewComparables = $listing('poucos-candidato', 300_000, ['bairro' => 'Poucos']);
+        foreach (range(1, 3) as $number) {
+            $listing("poucos-{$number}", 500_000, ['bairro' => 'Poucos']);
+        }
+
+        $belowThreshold = $listing('limiar-candidato', 450_000, ['bairro' => 'Limiar']);
+        $createPeers('Limiar');
+
+        $exactThreshold = $listing('exato-candidato', 425_000, ['bairro' => 'Exato']);
+        $atMedian = $listing('exato-na-mediana', 500_000, ['bairro' => 'Exato']);
+        $createPeers('Exato');
+
+        $withoutNeighborhood = $listing('sem-bairro', 400_000, ['bairro' => null]);
+        $withoutPurpose = $listing('sem-finalidade', 400_000, [
+            'link_imovel' => 'https://example.test/imovel/sem-finalidade',
+            'payload' => '{}',
+        ]);
+
+        $result = app(NewPropertiesQueryService::class)->get();
+        $properties = collect($result['groups'][0]['properties'])
+            ->keyBy(fn (array $property): int => $property['property']->id);
+
+        $this->assertSame('insufficient_comparables', $properties[$fewComparables]['opportunity_reason']);
+        $this->assertSame(3, $properties[$fewComparables]['comparable_count']);
+        $this->assertNull($properties[$fewComparables]['sample_size_indicator']);
+        $this->assertSame('below_opportunity_threshold', $properties[$belowThreshold]['opportunity_reason']);
+        $this->assertFalse($properties[$belowThreshold]['is_opportunity']);
+        $this->assertNull($properties[$belowThreshold]['opportunity_score']);
+        $this->assertSame(10.0, $properties[$belowThreshold]['price_advantage_percentage']);
+        $this->assertTrue($properties[$exactThreshold]['is_opportunity']);
+        $this->assertSame(60, $properties[$exactThreshold]['opportunity_score']);
+        $this->assertSame('at_or_above_comparable_median', $properties[$atMedian]['opportunity_reason']);
+        $this->assertSame('invalid_comparable_segment', $properties[$withoutNeighborhood]['opportunity_reason']);
+        $this->assertSame('invalid_comparable_segment', $properties[$withoutPurpose]['opportunity_reason']);
+        $this->assertNull($properties[$withoutPurpose]['purpose']);
+    }
+
+    public function test_comparable_sample_respects_area_band_bedrooms_and_purpose(): void
+    {
+        $publishedAt = CarbonImmutable::parse('2026-10-01 12:00:00', 'UTC');
+        $agencyId = $this->createAgency('amostra-comparavel', $publishedAt->subDay());
+        $this->createPublishedRun($agencyId, $publishedAt->subDay());
+        $runId = $this->createPublishedRun($agencyId, $publishedAt);
+        $this->pointAgencyToCurrentRun($agencyId, $runId);
+        $listing = fn (string $key, array $attributes = []): int => $this->createObservedProperty(
+            $agencyId,
+            $runId,
+            $key,
+            500_000,
+            null,
+            $publishedAt,
+            $attributes,
+        )['property_id'];
+
+        $candidate = $listing('candidato');
+        $listing('limite-superior-a', ['area' => 125]);
+        $listing('limite-superior-b', ['area' => 125]);
+        $listing('limite-inferior-a', ['area' => 75]);
+        $listing('limite-inferior-b', ['area' => 75]);
+        $listing('quartos-desconhecidos', ['quartos' => null]);
+        $listing('area-acima', ['area' => 126]);
+        $listing('area-abaixo', ['area' => 74]);
+        $listing('outros-quartos', ['quartos' => 3]);
+        $listing('locacao', [
+            'link_imovel' => 'https://example.test/locacao/comparavel',
+            'payload' => json_encode(['purpose' => 'locacao'], JSON_THROW_ON_ERROR),
+        ]);
+
+        $result = app(NewPropertiesQueryService::class)->get();
+        $property = collect($result['groups'][0]['properties'])
+            ->first(fn (array $item): bool => $item['property']->id === $candidate);
+
+        $this->assertSame(5, $property['comparable_count']);
+        $this->assertSame('low', $property['sample_size_indicator']);
+    }
+
+    public function test_absent_and_removed_listings_leave_the_inventory_without_becoming_new_on_return(): void
+    {
+        $publishedAt = CarbonImmutable::parse('2026-10-01 12:00:00', 'UTC');
+        $agencyId = $this->createAgency('ausencia-e-retorno', $publishedAt->subDays(20));
+        $inventory = app(ListingInventoryService::class);
+        $publish = function (CarbonImmutable $at, array $externalIds) use ($agencyId, $inventory): void {
+            $run = CrawlerRun::query()->findOrFail($this->createPublishedRun($agencyId, $at));
+
+            foreach ($externalIds as $externalId => $payload) {
+                $this->createInventoryProperty(
+                    $run->id,
+                    $externalId,
+                    "https://example.test/venda/{$externalId}",
+                    500_000,
+                    'Mesmo anúncio',
+                    'https://example.test/foto.jpg',
+                    $payload,
+                );
+            }
+
+            $inventory->applyPublishedSnapshot($run);
+            $this->pointAgencyToCurrentRun($agencyId, $run->id);
+        };
+
+        $publish($publishedAt->subDays(20), ['some-e-volta' => [], 'permanece' => []]);
+        $publish($publishedAt->subDays(10), ['permanece' => []]);
+
+        $whileMissing = app(NewPropertiesQueryService::class)->get();
+        $this->assertSame(['total' => 1, 'new' => 0, 'opportunities' => 0], $whileMissing['groups'][0]['counts']);
+
+        $publish($publishedAt, [
+            'some-e-volta' => [],
+            'permanece' => [],
+            'vendido' => ['availability' => 'sold'],
+        ]);
+
+        $afterReturn = app(NewPropertiesQueryService::class)->get();
+        $returned = ListingIdentity::query()->where('listing_key', 'external:some-e-volta')->firstOrFail();
+
+        $this->assertSame(
+            ['new', 'missing', 'changed'],
+            $returned->versions()->orderBy('id')->pluck('classification')->all(),
+        );
+        $this->assertSame(['total' => 2, 'new' => 0, 'opportunities' => 0], $afterReturn['groups'][0]['counts']);
+    }
+
+    public function test_new_flag_ignores_listings_outside_the_window_and_from_other_agencies(): void
+    {
+        $publishedAt = CarbonImmutable::parse('2026-10-01 12:00:00', 'UTC');
+        $agencyId = $this->createAgency('agencia-observada', $publishedAt->subDays(31));
+        $otherAgencyId = $this->createAgency('agencia-repetida', $publishedAt->subDays(5));
+
+        $oldRunId = $this->createPublishedRun($agencyId, $publishedAt->subDays(31));
+        $oldListing = $this->createObservedProperty($agencyId, $oldRunId, 'antigo', 500_000, null, $publishedAt->subDays(31));
+        $windowRunId = $this->createPublishedRun($agencyId, $publishedAt->subDays(5));
+        $this->createObservedProperty($agencyId, $windowRunId, 'dentro-da-janela', 500_000, null, $publishedAt->subDays(5));
+        $otherRunId = $this->createPublishedRun($otherAgencyId, $publishedAt->subDays(5));
+        $this->createObservedProperty($otherAgencyId, $otherRunId, 'repetido-entre-origens', 500_000, null, $publishedAt->subDays(5));
+
+        $currentRunId = $this->createPublishedRun($agencyId, $publishedAt);
+        $this->createObservedProperty($agencyId, $currentRunId, 'antigo', 500_000, $oldListing['identity_id'], $publishedAt);
+        $this->createObservedProperty($agencyId, $currentRunId, 'repetido-entre-origens', 500_000, null, $publishedAt);
+        $this->pointAgencyToCurrentRun($agencyId, $currentRunId);
+
+        $result = app(NewPropertiesQueryService::class)->get();
+        $group = $result['groups'][0];
+
+        $this->assertSame(1, $group['history']['observed_identity_count']);
+        $this->assertSame(['total' => 2, 'new' => 2, 'opportunities' => 0], $group['counts']);
+        $this->assertSame(
+            ['absent_in_30_day_window', 'absent_in_30_day_window'],
+            collect($group['properties'])->pluck('new_reason')->all(),
+        );
+    }
+
+    public function test_api_filters_by_every_characteristic_and_lists_each_option_once(): void
+    {
+        $this->seed(PermissionSeeder::class);
+        $user = User::factory()->for(Agency::factory())->create();
+        $user->givePermissionTo('properties.view');
+        $publishedAt = CarbonImmutable::parse('2026-10-01 12:00:00', 'UTC');
+        $agencyId = $this->createAgency('filtros-restantes', $publishedAt->subDay());
+        $this->createPublishedRun($agencyId, $publishedAt->subDay());
+        $runId = $this->createPublishedRun($agencyId, $publishedAt);
+        $this->pointAgencyToCurrentRun($agencyId, $runId);
+        $listing = fn (string $key, array $attributes): int => $this->createObservedProperty(
+            $agencyId,
+            $runId,
+            $key,
+            500_000,
+            null,
+            $publishedAt,
+            $attributes,
+        )['property_id'];
+
+        $accented = $listing('acentuado', [
+            'tipo' => 'Sala',
+            'cidade' => 'Jaraguá do Sul',
+            'bairro' => 'Centro',
+            'banheiros' => 5,
+            'vagas' => 1,
+        ]);
+        $uppercase = $listing('maiusculo', [
+            'tipo' => 'sala',
+            'cidade' => 'JARAGUA DO SUL',
+            'bairro' => 'CENTRO',
+            'banheiros' => 2,
+            'vagas' => 6,
+        ]);
+        $rental = $listing('locacao', [
+            'tipo' => 'Sala',
+            'cidade' => 'Joinville',
+            'bairro' => 'América',
+            'banheiros' => 1,
+            'vagas' => 2,
+            'link_imovel' => 'https://example.test/locacao/filtros',
+            'payload' => json_encode(['purpose' => 'locacao'], JSON_THROW_ON_ERROR),
+        ]);
+
+        $this->actingAs($user);
+        $idsFor = fn (string $query): array => collect($this->getJson("/api/v1/new-properties?{$query}")->assertOk()->json('data'))
+            ->flatMap(fn (array $group): array => $group['properties'])
+            ->pluck('id')
+            ->all();
+
+        $this->assertSame([$accented], $idsFor('bathrooms=5%2B'));
+        $this->assertSame([$uppercase], $idsFor('bathrooms=2'));
+        $this->assertSame([$uppercase], $idsFor('parking=5%2B'));
+        $this->assertSame([$rental], $idsFor('parking=2'));
+        $this->assertSame([$rental], $idsFor('purpose=locacao'));
+        $this->assertSame([$accented, $uppercase], $idsFor('city=jaragua%20do%20sul'));
+        $this->assertSame([$accented, $uppercase], $idsFor('neighborhood=centro'));
+        $this->assertSame([$rental], $idsFor('neighborhood=AMERICA'));
+
+        $filters = $this->getJson('/api/v1/new-properties')->assertOk()->json('meta.filters');
+        $this->assertSame(['Jaraguá do Sul', 'Joinville'], $filters['cities']);
+        $this->assertSame(['América', 'Centro'], $filters['neighborhoods']);
+        $this->assertSame(['Sala'], $filters['types']);
+        $this->assertSame(['locacao', 'venda'], $filters['purposes']);
     }
 
     private function createPublishedRun(int $agencyId, CarbonImmutable $publishedAt): int
@@ -395,6 +635,7 @@ class NewPropertiesQueryServiceTest extends TestCase
         int $price,
         string $description,
         string $image,
+        array $payload = [],
     ): MarketProperty {
         return MarketProperty::query()->create([
             'crawler_run_id' => $runId,
@@ -414,6 +655,7 @@ class NewPropertiesQueryServiceTest extends TestCase
                 'descricao' => $description,
                 'imagem' => $image,
                 'purpose' => 'venda',
+                ...$payload,
             ],
             'normalization_warnings' => [],
             'extraction_trace' => [],
@@ -430,6 +672,7 @@ class NewPropertiesQueryServiceTest extends TestCase
         int $price,
         ?int $identityId,
         CarbonImmutable $observedAt,
+        array $attributes = [],
     ): array {
         $propertyId = DB::table('crawler.market_properties')->insertGetId([
             'crawler_run_id' => $runId,
@@ -442,6 +685,7 @@ class NewPropertiesQueryServiceTest extends TestCase
             'area' => 100,
             'payload' => json_encode(['purpose' => 'venda'], JSON_THROW_ON_ERROR),
             'created_at' => $observedAt,
+            ...$attributes,
         ]);
 
         if ($identityId === null) {

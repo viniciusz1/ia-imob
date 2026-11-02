@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { isAxiosError } from "axios";
 import {
   Building2,
   Loader2,
@@ -181,6 +182,7 @@ export function NewPropertiesClient() {
   }
 
   const visibleGroups = query.data?.data.filter((group) => group.properties.length > 0) ?? [];
+  const isForbidden = isAxiosError(query.error) && query.error.response?.status === 403;
 
   return (
     <div className="mx-auto w-full max-w-[1500px] space-y-6">
@@ -364,6 +366,13 @@ export function NewPropertiesClient() {
 
       {query.isPending ? (
         <NewPropertiesSkeleton />
+      ) : isForbidden ? (
+        <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-8 text-center">
+          <h2 className="text-lg font-semibold">Você não tem acesso a esta tela</h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Peça a um administrador da sua imobiliária a permissão para ver imóveis.
+          </p>
+        </div>
       ) : query.isError ? (
         <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-8 text-center">
           <h2 className="text-lg font-semibold">Não foi possível carregar os imóveis</h2>
