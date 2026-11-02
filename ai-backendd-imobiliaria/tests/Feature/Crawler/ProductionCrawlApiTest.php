@@ -44,7 +44,7 @@ class ProductionCrawlApiTest extends TestCase
             ->assertOk()->assertJsonPath('data.batch.id', $batch);
         $agency->update(['name' => 'Renamed later']);
         $this->getJson("/api/v1/admin/crawler/production-crawl-batches/{$batch}/items")
-            ->assertOk()->assertJsonPath('data.0.name', 'Production durable-batch')
+            ->assertOk()->assertJsonPath('data.0.name', 'Production Durable-Batch')
             ->assertJsonPath('data.0.outcome', 'skipped')
             ->assertJsonPath('data.0.skip_code', 'revalidation_required');
         $this->getJson('/api/v1/admin/crawler/production-crawl-batches')

@@ -60,7 +60,7 @@ class CrawlerOperationQueueApiTest extends TestCase
             ->assertJsonPath('data.0.blocked_by_operation_id', null)
             ->assertJsonPath('data.1.position', 2)
             ->assertJsonPath('data.1.operation.id', $blocked->id)
-            ->assertJsonPath('data.1.operation.crawl_agency.name', 'Queue busy')
+            ->assertJsonPath('data.1.operation.crawl_agency.name', 'Queue Busy')
             ->assertJsonPath('data.1.blocked_by_operation_id', $running->id)
             ->assertJsonPath('data.2.position', 3)
             ->assertJsonPath('data.2.operation.id', $tied->id)

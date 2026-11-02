@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Crawler;
 
 use App\Models\Crawler\CrawlAgency;
+use App\Support\Crawler\AgencyNameNormalizer;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -18,6 +19,13 @@ class UpdateCrawlAgencyRequest extends FormRequest
         $payload = [
             'root_domain' => strtolower(trim((string) $this->input('root_domain'))),
         ];
+
+        if ($this->has('name')) {
+            $payload['name'] = AgencyNameNormalizer::normalize(
+                (string) $this->input('name'),
+                $this->input('city') ? (string) $this->input('city') : null
+            );
+        }
 
         if ($this->has('city')) {
             $city = trim((string) $this->input('city'));

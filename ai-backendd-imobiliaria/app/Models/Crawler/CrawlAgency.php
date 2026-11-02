@@ -3,6 +3,7 @@
 namespace App\Models\Crawler;
 
 use App\Models\CrawlerRun;
+use App\Support\Crawler\AgencyNameNormalizer;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -34,6 +35,15 @@ class CrawlAgency extends Model
         return [
             'revalidation_required' => 'boolean',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::saving(function (self $agency): void {
+            if ($agency->isDirty('name') && ! empty($agency->name)) {
+                $agency->name = AgencyNameNormalizer::normalize($agency->name, $agency->city);
+            }
+        });
     }
 
     public function activeDiscoveryPolicy(): BelongsTo
