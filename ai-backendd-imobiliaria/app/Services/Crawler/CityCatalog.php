@@ -112,6 +112,28 @@ final class CityCatalog
         return $candidates[0];
     }
 
+    /**
+     * @return list<string>
+     */
+    public static function aliasesFor(string $name): array
+    {
+        $normalizedTarget = self::normalizeKey($name);
+
+        foreach (self::entries() as $entry) {
+            if (self::normalizeKey($entry['name']) === $normalizedTarget || $entry['slug'] === $normalizedTarget) {
+                return array_values(array_unique([
+                    $entry['name'],
+                    ...$entry['aliases'],
+                    $entry['name'].'-'.$entry['state'],
+                    $entry['name'].' / '.$entry['state'],
+                    $entry['name'].'/'.$entry['state'],
+                ]));
+            }
+        }
+
+        return [$name];
+    }
+
     public static function normalizeStoredMarketProperties(): int
     {
         $updated = 0;

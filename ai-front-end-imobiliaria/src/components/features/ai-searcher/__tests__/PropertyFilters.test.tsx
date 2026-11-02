@@ -176,4 +176,84 @@ describe("PropertyFilters", () => {
     expect(panel.className).toBe(initialPanelClassName);
     expect(document.querySelectorAll('[class*="overflow-y-auto"]')).toHaveLength(1);
   });
+
+  it("refetches filter options when a category changes and hides agencies without properties in the selected city", async () => {
+    vi.mocked(getMarketPropertyFilters).mockImplementation(async (params) => {
+      if (params?.cidade?.includes("Jaraguá do Sul")) {
+        return {
+          tipos: ["Apartamento"],
+          bairros: ["Vila Lenzi"],
+          bairros_por_cidade: { "Jaraguá do Sul": ["Vila Lenzi"] },
+          cidades: ["Jaraguá do Sul", "Joinville"],
+          imobiliarias: ["Imobiliária Jaraguá"],
+          quartos: [2],
+          suites: [1],
+          banheiros: [2],
+          vagas: [1],
+          comodidades: ["piscina"],
+        };
+      }
+
+      return {
+        tipos: ["Apartamento", "Casa"],
+        bairros: ["América", "Vila Lenzi"],
+        bairros_por_cidade: {
+          "Jaraguá do Sul": ["Vila Lenzi"],
+          Joinville: ["América"],
+        },
+        cidades: ["Jaraguá do Sul", "Joinville"],
+        imobiliarias: ["Imobiliária Jaraguá", "Imobiliária Joinville"],
+        quartos: [2, 4],
+        suites: [1, 3],
+        banheiros: [2, 4],
+        vagas: [1, 3],
+        comodidades: ["piscina", "churrasqueira"],
+      };
+    });
+
+    const onFilterStateChange = vi.fn();
+
+    render(
+      <PropertyFilters
+        properties={[]}
+        initialState={{
+          ...emptyState,
+          selectedImobiliarias: ["Imobiliária Joinville"],
+        }}
+        onFilterChange={vi.fn()}
+        onFilterStateChange={onFilterStateChange}
+      />
+    );
+
+    fireEvent.click(
+      screen.getByRole("button", { name: /^Cidade: Todas as cidades$/ })
+    );
+    fireEvent.click(await screen.findByLabelText("Jaraguá do Sul"));
+    fireEvent.click(screen.getByRole("button", { name: "Voltar para filtros" }));
+
+    fireEvent.click(
+      await screen.findByRole("button", { name: /^Imobiliária: Todas as imobiliárias$/ })
+    );
+
+    expect(await screen.findByLabelText("Imobiliária Jaraguá")).toBeInTheDocument();
+    expect(screen.queryByLabelText("Imobiliária Joinville")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Voltar para filtros" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: /^Quartos e vagas: Qualquer quantidade$/ })
+    );
+
+    expect(screen.getByLabelText("2 quartos")).toBeInTheDocument();
+    expect(screen.queryByLabelText("4 quartos")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("4+ quartos")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Buscar imóveis" }));
+
+    expect(onFilterStateChange).toHaveBeenCalledWith(
+      expect.objectContaining({
+        selectedCidades: ["Jaraguá do Sul"],
+        selectedImobiliarias: [],
+      })
+    );
+  });
 });

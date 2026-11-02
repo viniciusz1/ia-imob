@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Services\Crawler\CityCatalog;
 use App\Services\Crawler\NeighborhoodCatalog;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -133,6 +135,13 @@ class MarketProperty extends Model
                     $q->whereIn('cidade', $cidades);
                     foreach ($cidades as $cidade) {
                         $q->orWhereRaw('f_unaccent(LOWER(cidade)) = f_unaccent(LOWER(?))', [$cidade]);
+                        $aliases = CityCatalog::aliasesFor($cidade);
+                        if (! empty($aliases)) {
+                            $q->orWhereIn('cidade', $aliases);
+                            foreach ($aliases as $alias) {
+                                $q->orWhereRaw('f_unaccent(LOWER(cidade)) = f_unaccent(LOWER(?))', [$alias]);
+                            }
+                        }
                     }
                 });
             }
@@ -241,6 +250,28 @@ class MarketProperty extends Model
 
         if (! empty($filters['max'])) {
             $query->where('valor', '<=', $filters['max']);
+        }
+
+        if (! empty($filters['area_min'])) {
+            $query->where('area', '>=', (float) $filters['area_min']);
+        }
+
+        if (! empty($filters['area_max'])) {
+            $query->where('area', '<=', (float) $filters['area_max']);
+        }
+
+        if (! empty($filters['data_inicio'])) {
+            $from = CarbonImmutable::parse((string) $filters['data_inicio'])->startOfDay();
+            $query->whereHas('crawlerRun', function ($q) use ($from): void {
+                $q->where('completed_at', '>=', $from);
+            });
+        }
+
+        if (! empty($filters['data_fim'])) {
+            $to = CarbonImmutable::parse((string) $filters['data_fim'])->endOfDay();
+            $query->whereHas('crawlerRun', function ($q) use ($to): void {
+                $q->where('completed_at', '<=', $to);
+            });
         }
 
         if (! empty($filters['bairro_fuzzy']) || ! empty($filters['proximity_bairros'])) {

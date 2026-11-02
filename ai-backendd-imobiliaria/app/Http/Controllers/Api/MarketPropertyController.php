@@ -14,6 +14,24 @@ use Illuminate\Http\Request;
 
 class MarketPropertyController extends Controller
 {
+    private const BOOL_FILTERS = [
+        'piscina',
+        'churrasqueira',
+        'academia',
+        'salao_festas',
+        'playground',
+        'sacada',
+        'mobiliado',
+        'ar_condicionado',
+        'lavanderia',
+        'escritorio',
+        'closet',
+        'elevador',
+        'portaria_24h',
+        'aceita_permuta',
+        'financiamento',
+    ];
+
     public function index(Request $request, MarketSearchQuotaService $quota)
     {
         $request->validate([
@@ -28,40 +46,7 @@ class MarketPropertyController extends Controller
             return $quota->execute($agency, function () use ($request) {
                 $query = MarketProperty::query()->latestRun()->with(['crawlerRun.crawlAgency']);
 
-                $filters = [
-                    'tipo' => $request->input('tipo'),
-                    'bairro' => $request->input('bairro'),
-                    'cidade' => $request->input('cidade'),
-                    'imobiliaria' => $request->input('imobiliaria'),
-                    'quartos' => $request->input('quartos'),
-                    'quartos_plus' => $request->filled('quartos_plus'),
-                    'suites' => $request->input('suites'),
-                    'suites_plus' => $request->filled('suites_plus'),
-                    'banheiros' => $request->input('banheiros'),
-                    'banheiros_plus' => $request->filled('banheiros_plus'),
-                    'vagas' => $request->input('vagas'),
-                    'vagas_plus' => $request->filled('vagas_plus'),
-                    'piscina' => $request->filled('piscina'),
-                    'churrasqueira' => $request->filled('churrasqueira'),
-                    'academia' => $request->filled('academia'),
-                    'salao_festas' => $request->filled('salao_festas'),
-                    'playground' => $request->filled('playground'),
-                    'sacada' => $request->filled('sacada'),
-                    'mobiliado' => $request->filled('mobiliado'),
-                    'ar_condicionado' => $request->filled('ar_condicionado'),
-                    'lavanderia' => $request->filled('lavanderia'),
-                    'escritorio' => $request->filled('escritorio'),
-                    'closet' => $request->filled('closet'),
-                    'elevador' => $request->filled('elevador'),
-                    'portaria_24h' => $request->filled('portaria_24h'),
-                    'aceita_permuta' => $request->filled('aceita_permuta'),
-                    'financiamento' => $request->filled('financiamento'),
-                    'min' => $request->input('min'),
-                    'max' => $request->input('max'),
-                    'descricao' => $request->input('descricao'),
-                ];
-
-                $query->applyFilters($filters);
+                $query->applyFilters($this->extractFilters($request));
 
                 if ($request->filled('sort')) {
                     match ($request->input('sort')) {
@@ -92,11 +77,20 @@ class MarketPropertyController extends Controller
         }
     }
 
-    public function filters()
+    public function filters(?Request $request = null)
     {
-        $baseQuery = MarketProperty::query()->latestRun();
+        $request ??= request();
+        $activeFilters = $this->extractFilters($request);
 
-        $tipos = (clone $baseQuery)
+        $queryExcluding = function (array $excludedKeys) use ($activeFilters) {
+            $scopedFilters = array_diff_key($activeFilters, array_flip($excludedKeys));
+
+            return MarketProperty::query()
+                ->latestRun()
+                ->applyFilters($scopedFilters);
+        };
+
+        $tipos = $queryExcluding(['tipo'])
             ->whereNotNull('tipo')
             ->where('tipo', '!=', '')
             ->whereIn('tipo', array_column(PropertyTypeCatalog::entries(), 'name'))
@@ -104,7 +98,7 @@ class MarketPropertyController extends Controller
             ->orderBy('tipo')
             ->pluck('tipo');
 
-        $cidades = (clone $baseQuery)
+        $cidades = $queryExcluding(['cidade'])
             ->whereNotNull('cidade')
             ->where('cidade', '!=', '')
             ->distinct()
@@ -116,7 +110,9 @@ class MarketPropertyController extends Controller
             ->sort()
             ->values();
 
-        $bairrosPorCidade = (clone $baseQuery)
+        $bairrosQuery = $queryExcluding(['bairro']);
+
+        $bairrosPorCidade = (clone $bairrosQuery)
             ->whereNotNull('cidade')
             ->where('cidade', '!=', '')
             ->whereNotNull('bairro')
@@ -134,16 +130,7 @@ class MarketPropertyController extends Controller
                     return null;
                 }
 
-                $hasCityCatalog = NeighborhoodCatalog::hasCatalogFor($cidade);
-                $canonicalBairro = NeighborhoodCatalog::canonicalNameFor($rawBairro, $cidade);
-
-                if ($canonicalBairro !== null) {
-                    $bairro = $canonicalBairro;
-                } elseif (! $hasCityCatalog) {
-                    $bairro = $rawBairro;
-                } else {
-                    return null;
-                }
+                $bairro = NeighborhoodCatalog::canonicalNameFor($rawBairro, $cidade) ?? $rawBairro;
 
                 return [
                     'cidade' => $cidade,
@@ -155,9 +142,19 @@ class MarketPropertyController extends Controller
             ->sortKeys()
             ->map(fn ($properties) => $properties->pluck('bairro')->unique()->sort()->values());
 
-        $bairros = $bairrosPorCidade->flatten()->unique()->sort()->values();
+        $bairros = (clone $bairrosQuery)
+            ->whereNotNull('bairro')
+            ->where('bairro', '!=', '')
+            ->distinct()
+            ->orderBy('bairro')
+            ->pluck('bairro')
+            ->map(fn ($bairro) => NeighborhoodCatalog::canonicalNameFor((string) $bairro) ?? trim((string) $bairro))
+            ->reject(fn ($bairro) => CityCatalog::isInvalidLocationValue((string) $bairro) || NeighborhoodCatalog::isInvalidLocationValue((string) $bairro))
+            ->unique()
+            ->sort()
+            ->values();
 
-        $imobiliarias = (clone $baseQuery)
+        $imobiliarias = $queryExcluding(['imobiliaria'])
             ->join('crawler.crawl_runs as run', 'run.id', '=', 'crawler.market_properties.crawler_run_id')
             ->join('crawler.crawl_agencies as agency', 'agency.id', '=', 'run.crawl_agency_id')
             ->whereNotNull('agency.name')
@@ -166,33 +163,47 @@ class MarketPropertyController extends Controller
             ->orderBy('agency.name')
             ->pluck('agency.name');
 
-        $quartos = (clone $baseQuery)
+        $quartos = $queryExcluding(['quartos', 'quartos_plus'])
             ->whereNotNull('quartos')
             ->where('quartos', '>', 0)
             ->distinct()
             ->orderBy('quartos')
             ->pluck('quartos');
 
-        $suites = (clone $baseQuery)
+        $suites = $queryExcluding(['suites', 'suites_plus'])
             ->whereNotNull('suites')
             ->where('suites', '>', 0)
             ->distinct()
             ->orderBy('suites')
             ->pluck('suites');
 
-        $banheiros = (clone $baseQuery)
+        $banheiros = $queryExcluding(['banheiros', 'banheiros_plus'])
             ->whereNotNull('banheiros')
             ->where('banheiros', '>', 0)
             ->distinct()
             ->orderBy('banheiros')
             ->pluck('banheiros');
 
-        $vagas = (clone $baseQuery)
+        $vagas = $queryExcluding(['vagas', 'vagas_plus'])
             ->whereNotNull('vagas')
             ->where('vagas', '>', 0)
             ->distinct()
             ->orderBy('vagas')
             ->pluck('vagas');
+
+        $comodidadesSelect = implode(', ', array_map(
+            static fn (string $field): string => "BOOL_OR({$field}) as {$field}",
+            self::BOOL_FILTERS,
+        ));
+        $comodidadesRow = (array) ($queryExcluding([])
+            ->selectRaw($comodidadesSelect)
+            ->toBase()
+            ->first() ?? []);
+
+        $comodidades = array_values(array_filter(
+            self::BOOL_FILTERS,
+            static fn (string $field): bool => ! empty($comodidadesRow[$field]),
+        ));
 
         return response()->json([
             'tipos' => $tipos,
@@ -204,6 +215,40 @@ class MarketPropertyController extends Controller
             'suites' => $suites,
             'banheiros' => $banheiros,
             'vagas' => $vagas,
+            'comodidades' => $comodidades,
         ]);
+    }
+
+    private function extractFilters(Request $request): array
+    {
+        $comodidades = array_values(array_filter(array_map('strval', (array) $request->input('comodidade', []))));
+
+        $filters = [
+            'tipo' => $request->input('tipo'),
+            'bairro' => $request->input('bairro'),
+            'cidade' => $request->input('cidade'),
+            'imobiliaria' => $request->input('imobiliaria'),
+            'quartos' => $request->input('quartos'),
+            'quartos_plus' => $request->boolean('quartos_plus'),
+            'suites' => $request->input('suites'),
+            'suites_plus' => $request->boolean('suites_plus'),
+            'banheiros' => $request->input('banheiros'),
+            'banheiros_plus' => $request->boolean('banheiros_plus'),
+            'vagas' => $request->input('vagas'),
+            'vagas_plus' => $request->boolean('vagas_plus'),
+            'min' => $request->input('min'),
+            'max' => $request->input('max'),
+            'area_min' => $request->input('area_min'),
+            'area_max' => $request->input('area_max'),
+            'data_inicio' => $request->input('data_inicio'),
+            'data_fim' => $request->input('data_fim'),
+            'descricao' => $request->input('descricao'),
+        ];
+
+        foreach (self::BOOL_FILTERS as $field) {
+            $filters[$field] = $request->boolean($field) || in_array($field, $comodidades, true);
+        }
+
+        return $filters;
     }
 }

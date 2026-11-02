@@ -81,4 +81,40 @@ describe("MarketFiltersPanel", () => {
 
     expect(onChange).toHaveBeenCalledWith(EMPTY_FILTERS);
   });
+
+  it("requests narrowed filter options for the active filters and prunes excluded selections", async () => {
+    vi.mocked(getMarketPropertyFilters).mockResolvedValue({
+      tipos: ["Apartamento"],
+      bairros: ["Centro"],
+      bairros_por_cidade: { "Jaraguá do Sul": ["Centro"] },
+      cidades: ["Jaraguá do Sul", "Joinville"],
+      imobiliarias: ["ITAIVAN"],
+      quartos: [2],
+      suites: [1],
+      banheiros: [2],
+      vagas: [1],
+      comodidades: [],
+    });
+
+    const onChange = renderPanel({
+      ...EMPTY_FILTERS,
+      cidade: "Jaraguá do Sul",
+      imobiliaria: ["ITAIVAN", "IMOBILIARIA JOINVILLE"],
+    });
+
+    await waitFor(() =>
+      expect(getMarketPropertyFilters).toHaveBeenCalledWith({
+        cidade: ["Jaraguá do Sul"],
+        imobiliaria: ["ITAIVAN", "IMOBILIARIA JOINVILLE"],
+      })
+    );
+
+    await waitFor(() =>
+      expect(onChange).toHaveBeenCalledWith({
+        ...EMPTY_FILTERS,
+        cidade: "Jaraguá do Sul",
+        imobiliaria: ["ITAIVAN"],
+      })
+    );
+  });
 });

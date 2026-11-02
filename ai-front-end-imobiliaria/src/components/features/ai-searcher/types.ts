@@ -62,6 +62,7 @@ export interface AiSearcherFiltersOptions {
   suites: number[];
   banheiros: number[];
   vagas: number[];
+  comodidades?: string[];
 }
 
 export interface SavedFilter {

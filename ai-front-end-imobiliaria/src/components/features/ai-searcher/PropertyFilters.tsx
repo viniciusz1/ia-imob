@@ -43,7 +43,10 @@ import type {
   SavedFilter,
 } from "./types";
 import api, { API_PREFIX } from "@/services/api";
-import { getMarketPropertyFilters } from "@/services/marketPropertyService";
+import {
+  getMarketPropertyFilters,
+  type MarketPropertyFiltersQuery,
+} from "@/services/marketPropertyService";
 
 interface PropertyFiltersProps {
   properties: AiSearcherProperty[];
@@ -147,6 +150,119 @@ function summarizeRoomSelection(
   return `${selectedValues.join(", ")} ${label}`;
 }
 
+function buildFiltersQuery(
+  state: AiSearcherFiltersState
+): MarketPropertyFiltersQuery | undefined {
+  const query: MarketPropertyFiltersQuery = {};
+
+  if (state.selectedTipos.length > 0) query.tipo = state.selectedTipos;
+  if (state.selectedBairros.length > 0) query.bairro = state.selectedBairros;
+  if (state.selectedCidades.length > 0) query.cidade = state.selectedCidades;
+  if (state.selectedImobiliarias.length > 0) query.imobiliaria = state.selectedImobiliarias;
+  if (state.selectedQuartos.length > 0) query.quartos = state.selectedQuartos;
+  if (state.selectedQuartosPlus) query.quartos_plus = true;
+  if (state.selectedSuites.length > 0) query.suites = state.selectedSuites;
+  if (state.selectedSuitesPlus) query.suites_plus = true;
+  if (state.selectedBanheiros.length > 0) query.banheiros = state.selectedBanheiros;
+  if (state.selectedBanheirosPlus) query.banheiros_plus = true;
+  if (state.selectedVagas.length > 0) query.vagas = state.selectedVagas;
+  if (state.selectedVagasPlus) query.vagas_plus = true;
+  if (state.selectedComodidades.length > 0) query.comodidade = state.selectedComodidades;
+  if (state.minPrice) query.min = state.minPrice;
+  if (state.maxPrice) query.max = state.maxPrice;
+  if (state.descricao.trim()) query.descricao = state.descricao.trim();
+
+  return Object.keys(query).length > 0 ? query : undefined;
+}
+
+function pruneStateWithOptions(
+  current: AiSearcherFiltersState,
+  options: AiSearcherFiltersOptions
+): AiSearcherFiltersState {
+  const selectedCidades =
+    options.cidades.length > 0
+      ? current.selectedCidades.filter((c) => options.cidades.includes(c))
+      : current.selectedCidades;
+
+  const validBairros =
+    selectedCidades.length === 0 || Object.keys(options.bairros_por_cidade).length === 0
+      ? options.bairros
+      : selectedCidades.flatMap((cidade) => options.bairros_por_cidade[cidade] ?? []);
+
+  const selectedBairros = current.selectedBairros.filter((b) =>
+    validBairros.includes(b)
+  );
+  const selectedTipos =
+    options.tipos.length > 0 || options.comodidades !== undefined
+      ? current.selectedTipos.filter((t) => options.tipos.includes(t))
+      : current.selectedTipos;
+  const selectedImobiliarias = current.selectedImobiliarias.filter((i) =>
+    options.imobiliarias.includes(i)
+  );
+
+  const hasDynamicCounts = options.comodidades !== undefined;
+
+  const selectedQuartos =
+    hasDynamicCounts || options.quartos.length > 0
+      ? current.selectedQuartos.filter((q) => options.quartos.includes(q))
+      : current.selectedQuartos;
+  const selectedQuartosPlus =
+    hasDynamicCounts || options.quartos.length > 0
+      ? current.selectedQuartosPlus && options.quartos.some((q) => q >= 4)
+      : current.selectedQuartosPlus;
+
+  const selectedSuites =
+    hasDynamicCounts || options.suites.length > 0
+      ? current.selectedSuites.filter((s) => options.suites.includes(s))
+      : current.selectedSuites;
+  const selectedSuitesPlus =
+    hasDynamicCounts || options.suites.length > 0
+      ? current.selectedSuitesPlus && options.suites.some((s) => s >= 4)
+      : current.selectedSuitesPlus;
+
+  const selectedBanheiros =
+    hasDynamicCounts || options.banheiros.length > 0
+      ? current.selectedBanheiros.filter((b) => options.banheiros.includes(b))
+      : current.selectedBanheiros;
+  const selectedBanheirosPlus =
+    hasDynamicCounts || options.banheiros.length > 0
+      ? current.selectedBanheirosPlus && options.banheiros.some((b) => b >= 4)
+      : current.selectedBanheirosPlus;
+
+  const selectedVagas =
+    hasDynamicCounts || options.vagas.length > 0
+      ? current.selectedVagas.filter((v) => options.vagas.includes(v))
+      : current.selectedVagas;
+  const selectedVagasPlus =
+    hasDynamicCounts || options.vagas.length > 0
+      ? current.selectedVagasPlus && options.vagas.some((v) => v >= 4)
+      : current.selectedVagasPlus;
+
+  const selectedComodidades =
+    options.comodidades !== undefined
+      ? current.selectedComodidades.filter((c) => options.comodidades?.includes(c))
+      : current.selectedComodidades;
+
+  const next: AiSearcherFiltersState = {
+    ...current,
+    selectedCidades,
+    selectedBairros,
+    selectedTipos,
+    selectedImobiliarias,
+    selectedQuartos,
+    selectedQuartosPlus,
+    selectedSuites,
+    selectedSuitesPlus,
+    selectedBanheiros,
+    selectedBanheirosPlus,
+    selectedVagas,
+    selectedVagasPlus,
+    selectedComodidades,
+  };
+
+  return JSON.stringify(next) === JSON.stringify(current) ? current : next;
+}
+
 export function PropertyFilters(
   props: PropertyFiltersProps
 ) {
@@ -182,11 +298,25 @@ export function PropertyFilters(
   const isCommittingRef = useRef(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
+  const filterStateKey = JSON.stringify(filterState);
+
   useEffect(() => {
-    getMarketPropertyFilters()
-      .then((filters) => setFilterOptions(filters))
+    let active = true;
+    const query = buildFiltersQuery(filterState);
+
+    getMarketPropertyFilters(query)
+      .then((filters) => {
+        if (!active) return;
+        setFilterOptions(filters);
+        setFilterState((prev) => pruneStateWithOptions(prev, filters));
+      })
       .catch(console.error);
-  }, []);
+
+    return () => {
+      active = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filterStateKey]);
 
   useEffect(() => {
     setSavedFiltersLoading(true);
@@ -208,8 +338,6 @@ export function PropertyFilters(
     [initialState]
   );
 
-  const filterStateKey = JSON.stringify(filterState);
-
   useEffect(() => {
     if (isCommittingRef.current) return;
     if (initialStateKey !== filterStateKey) {
@@ -226,7 +354,13 @@ export function PropertyFilters(
     bairros_por_cidade: bairrosPorCidade,
     cidades,
     imobiliarias,
+    quartos: availableQuartos,
+    suites: availableSuites,
+    banheiros: availableBanheiros,
+    vagas: availableVagas,
+    comodidades: availableComodidades,
   } = filterOptions;
+  const hasDynamicFacets = availableComodidades !== undefined;
 
   const bairrosDisponiveis = useMemo(() => {
     if (filterState.selectedCidades.length === 0 || Object.keys(bairrosPorCidade).length === 0) {
@@ -797,6 +931,7 @@ export function PropertyFilters(
                 title="Quartos"
                 selectedItems={selectedQuartos}
                 selectedPlus={selectedQuartosPlus}
+                availableCounts={hasDynamicFacets || availableQuartos.length > 0 ? availableQuartos : undefined}
                 idPrefix="quartos"
                 labelSuffix="quarto"
                 onToggle={(value) =>
@@ -813,6 +948,7 @@ export function PropertyFilters(
                 title="Vagas"
                 selectedItems={selectedVagas}
                 selectedPlus={selectedVagasPlus}
+                availableCounts={hasDynamicFacets || availableVagas.length > 0 ? availableVagas : undefined}
                 idPrefix="vagas"
                 labelSuffix="vaga"
                 onToggle={(value) =>
@@ -833,6 +969,7 @@ export function PropertyFilters(
                 title="Suítes"
                 selectedItems={selectedSuites}
                 selectedPlus={selectedSuitesPlus}
+                availableCounts={hasDynamicFacets || availableSuites.length > 0 ? availableSuites : undefined}
                 idPrefix="suites"
                 labelSuffix="suíte"
                 onToggle={(value) =>
@@ -851,6 +988,7 @@ export function PropertyFilters(
                 title="Banheiros"
                 selectedItems={selectedBanheiros}
                 selectedPlus={selectedBanheirosPlus}
+                availableCounts={hasDynamicFacets || availableBanheiros.length > 0 ? availableBanheiros : undefined}
                 idPrefix="banheiros"
                 labelSuffix="banheiro"
                 onToggle={(value) =>
@@ -871,7 +1009,16 @@ export function PropertyFilters(
                 </h4>
                 <Accordion type="multiple" className="rounded-lg border px-3">
                   {COMODIDADE_GROUPS.map((group) => {
-                    const groupAllSelected = group.keys.every((key) =>
+                    const visibleKeys =
+                      availableComodidades !== undefined
+                        ? group.keys.filter((key) => availableComodidades.includes(key))
+                        : group.keys;
+
+                    if (visibleKeys.length === 0) {
+                      return null;
+                    }
+
+                    const groupAllSelected = visibleKeys.every((key) =>
                       selectedComodidades.includes(key)
                     );
 
@@ -887,7 +1034,7 @@ export function PropertyFilters(
                               className="mb-1 cursor-pointer text-xs text-primary hover:underline"
                               onClick={() => {
                                 if (groupAllSelected) {
-                                  group.keys.forEach((key) => {
+                                  visibleKeys.forEach((key) => {
                                     if (selectedComodidades.includes(key)) {
                                       handleToggle(
                                         "selectedComodidades",
@@ -897,7 +1044,7 @@ export function PropertyFilters(
                                     }
                                   });
                                 } else {
-                                  group.keys.forEach((key) => {
+                                  visibleKeys.forEach((key) => {
                                     if (!selectedComodidades.includes(key)) {
                                       handleToggle(
                                         "selectedComodidades",
@@ -913,7 +1060,7 @@ export function PropertyFilters(
                                 ? "Desmarcar tudo"
                                 : "Selecionar tudo"}
                             </button>
-                            {group.keys.map((key) => (
+                            {visibleKeys.map((key) => (
                               <div
                                 key={key}
                                 className="flex items-center space-x-2"
@@ -1069,6 +1216,7 @@ interface FixedRoomFilterSectionProps {
   title: string;
   selectedItems: number[];
   selectedPlus: boolean;
+  availableCounts?: number[];
   idPrefix: string;
   labelSuffix: string;
   onToggle: (value: number) => void;
@@ -1079,37 +1227,50 @@ function FixedRoomFilterSection({
   title,
   selectedItems,
   selectedPlus,
+  availableCounts,
   idPrefix,
   labelSuffix,
   onToggle,
   onPlusToggle,
 }: FixedRoomFilterSectionProps) {
-  const allSelected = FIXED_ROOM_OPTIONS.every((num) => selectedItems.includes(num));
+  const visibleRoomOptions =
+    availableCounts !== undefined
+      ? FIXED_ROOM_OPTIONS.filter((num) => availableCounts.includes(num))
+      : FIXED_ROOM_OPTIONS;
+  const showPlusOption =
+    availableCounts !== undefined
+      ? availableCounts.some((num) => num >= 4)
+      : true;
+  const allSelected =
+    visibleRoomOptions.length > 0 &&
+    visibleRoomOptions.every((num) => selectedItems.includes(num));
 
   return (
     <div>
       <div className="flex items-center justify-between mb-3">
         <h4 className="font-semibold text-foreground text-sm">{title}</h4>
-        <button
-          type="button"
-          className="text-xs text-primary hover:underline cursor-pointer"
-          onClick={() => {
-            if (allSelected) {
-              FIXED_ROOM_OPTIONS.forEach((num) => {
-                if (selectedItems.includes(num)) onToggle(num);
-              });
-            } else {
-              FIXED_ROOM_OPTIONS.forEach((num) => {
-                if (!selectedItems.includes(num)) onToggle(num);
-              });
-            }
-          }}
-        >
-          {allSelected ? "Desmarcar tudo" : "Selecionar tudo"}
-        </button>
+        {visibleRoomOptions.length > 0 && (
+          <button
+            type="button"
+            className="text-xs text-primary hover:underline cursor-pointer"
+            onClick={() => {
+              if (allSelected) {
+                visibleRoomOptions.forEach((num) => {
+                  if (selectedItems.includes(num)) onToggle(num);
+                });
+              } else {
+                visibleRoomOptions.forEach((num) => {
+                  if (!selectedItems.includes(num)) onToggle(num);
+                });
+              }
+            }}
+          >
+            {allSelected ? "Desmarcar tudo" : "Selecionar tudo"}
+          </button>
+        )}
       </div>
       <div className="space-y-2">
-        {FIXED_ROOM_OPTIONS.map((num) => (
+        {visibleRoomOptions.map((num) => (
           <div key={num} className="flex items-center space-x-2">
             <Checkbox
               id={`${idPrefix}-${num}`}
@@ -1124,19 +1285,26 @@ function FixedRoomFilterSection({
             </Label>
           </div>
         ))}
-        <div className="flex items-center space-x-2">
-          <Checkbox
-            id={`${idPrefix}-plus`}
-            checked={selectedPlus}
-            onCheckedChange={onPlusToggle}
-          />
-          <Label
-            htmlFor={`${idPrefix}-plus`}
-            className="text-sm text-muted-foreground cursor-pointer"
-          >
-            4+ {labelSuffix}s
-          </Label>
-        </div>
+        {showPlusOption && (
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id={`${idPrefix}-plus`}
+              checked={selectedPlus}
+              onCheckedChange={onPlusToggle}
+            />
+            <Label
+              htmlFor={`${idPrefix}-plus`}
+              className="text-sm text-muted-foreground cursor-pointer"
+            >
+              4+ {labelSuffix}s
+            </Label>
+          </div>
+        )}
+        {visibleRoomOptions.length === 0 && !showPlusOption && (
+          <p className="py-2 text-center text-sm text-muted-foreground">
+            Nenhuma opção disponível
+          </p>
+        )}
       </div>
     </div>
   );
