@@ -203,8 +203,17 @@ export async function queueExtractionProfileGeneration(payload: {
   return response.data.data;
 }
 
-export async function queueProfileValidation(profileId: number): Promise<CrawlerOperation> {
-  const response = await api.post<Resource<CrawlerOperation>>(`${BASE}/extraction-profiles/${profileId}/validation`);
+export async function queueProfileValidation(
+  profileId: number,
+  options?: { linkToOnboarding?: boolean; standalone?: boolean },
+): Promise<CrawlerOperation> {
+  const payload: { link_to_onboarding?: boolean; standalone?: boolean } = {};
+  if (options?.linkToOnboarding !== undefined) payload.link_to_onboarding = options.linkToOnboarding;
+  if (options?.standalone !== undefined) payload.standalone = options.standalone;
+  const response = await api.post<Resource<CrawlerOperation>>(
+    `${BASE}/extraction-profiles/${profileId}/validation`,
+    payload,
+  );
   return response.data.data;
 }
 
@@ -543,10 +552,15 @@ export async function actOnboardingExecution(
   id: number,
   action: OnboardingExecutionAction,
   sampleUrl?: string,
+  extractionProfileId?: number,
 ): Promise<OnboardingExecution> {
   const response = await api.post<Resource<OnboardingExecution>>(
     `${BASE}/onboarding-executions/${id}/actions`,
-    { action, ...(sampleUrl ? { sample_url: sampleUrl } : {}) },
+    {
+      action,
+      ...(sampleUrl ? { sample_url: sampleUrl } : {}),
+      ...(extractionProfileId ? { extraction_profile_id: extractionProfileId } : {}),
+    },
   );
   return response.data.data;
 }

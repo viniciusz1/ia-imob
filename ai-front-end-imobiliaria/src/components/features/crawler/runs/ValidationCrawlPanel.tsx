@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 import { CrawlerOperationStatus } from "@/components/features/crawler/CrawlerOperationStatus";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { usePermission } from "@/hooks/usePermission";
 import { queueProfileValidation } from "@/services/crawlerService";
@@ -34,6 +35,7 @@ export function ValidationCrawlPanel({ agencyId, activeOnboarding, initialOperat
     [profiles],
   );
   const [profileId, setProfileId] = useState(eligibleProfiles[0]?.id ?? null);
+  const [linkToOnboarding, setLinkToOnboarding] = useState(true);
   const [operations, setOperations] = useState(initialOperations.filter((operation) => operation.type === "profile_validation"));
   const [pending, setPending] = useState(false);
   const canExecute = usePermission("crawler.operations.execute");
@@ -50,9 +52,18 @@ export function ValidationCrawlPanel({ agencyId, activeOnboarding, initialOperat
     if (!selectedProfile) return;
     setPending(true);
     try {
-      const operation = await queueProfileValidation(selectedProfile.id);
+      const operation = activeOnboarding
+        ? await queueProfileValidation(selectedProfile.id, {
+            linkToOnboarding,
+            standalone: !linkToOnboarding,
+          })
+        : await queueProfileValidation(selectedProfile.id);
       setOperations((current) => [operation, ...current.filter((candidate) => candidate.id !== operation.id)]);
-      toast.success(`Crawl de Validação enfileirado como operação #${operation.id}.`);
+      if (activeOnboarding && linkToOnboarding) {
+        toast.success(`Crawl de Validação enfileirado como operação #${operation.id} e vinculado ao Onboarding #${activeOnboarding.id}.`);
+      } else {
+        toast.success(`Crawl de Validação enfileirado como operação #${operation.id}.`);
+      }
     } catch (error: unknown) {
       toast.error(crawlerOperationErrorMessage(error, "Não foi possível iniciar o Crawl de Validação."));
     } finally {
@@ -60,34 +71,36 @@ export function ValidationCrawlPanel({ agencyId, activeOnboarding, initialOperat
     }
   };
 
-  if (activeOnboarding) {
-    const validationOperation = [...activeOnboarding.operations]
-      .reverse()
-      .find((operation) => operation.step === "profile_validation");
-
-    return (
-      <div className="space-y-4 rounded-lg border border-amber-300 bg-amber-50/60 p-4">
-        <div className="space-y-1">
-          <p className="font-medium">Validação controlada pelo Onboarding</p>
-          <p className="text-sm text-muted-foreground">Existe uma Execução de Onboarding ativa. Para preservar a sequência, as tentativas e o histórico, este Crawl de Validação deve ser iniciado ou retomado no Onboarding.</p>
-          <p className="text-sm">Execução #{activeOnboarding.id} · etapa atual: {activeOnboarding.current_step}</p>
-          {validationOperation && <p className="text-sm">Operação de validação #{validationOperation.id} · {validationOperation.state}</p>}
-        </div>
-        <div className="flex flex-wrap gap-3">
-          {canExecute && <Button aria-describedby="onboarding-validation-reason" disabled type="button">Rodar Crawl de Validação</Button>}
-          <Button asChild variant="outline"><Link href={`/admin/crawler/agencies/${agencyId}/onboarding/${activeOnboarding.id}`}>Abrir Onboarding</Link></Button>
-        </div>
-        <p className="sr-only" id="onboarding-validation-reason">A validação deve ser comandada pela Execução de Onboarding ativa.</p>
-      </div>
-    );
-  }
-
   if (eligibleProfiles.length === 0) {
     return <p className="text-sm text-muted-foreground">Nenhum Perfil de Extração Candidato ou com Revalidação Necessária está disponível.</p>;
   }
 
   return (
     <div className="space-y-4">
+      {activeOnboarding && (
+        <div className="space-y-3 rounded-lg border border-amber-300 bg-amber-50/60 p-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="space-y-0.5">
+              <p className="font-medium text-amber-900 dark:text-amber-200">Validação integrada ao Onboarding</p>
+              <p className="text-sm text-muted-foreground">Existe uma Execução de Onboarding ativa (#{activeOnboarding.id} · etapa: {activeOnboarding.current_step}). Você pode selecionar o perfil desejado abaixo para validar e associar a esta execução.</p>
+            </div>
+            <Button asChild size="sm" variant="outline">
+              <Link href={`/admin/crawler/agencies/${agencyId}/onboarding/${activeOnboarding.id}`}>Abrir Onboarding</Link>
+            </Button>
+          </div>
+          <div className="flex items-center space-x-2 pt-1">
+            <Checkbox
+              checked={linkToOnboarding}
+              id="link-to-onboarding"
+              onCheckedChange={(checked) => setLinkToOnboarding(checked === true)}
+            />
+            <Label className="cursor-pointer text-xs font-normal" htmlFor="link-to-onboarding">
+              Vincular este Crawl de Validação à Execução de Onboarding #{activeOnboarding.id}
+            </Label>
+          </div>
+        </div>
+      )}
+
       <div className="space-y-2">
         <Label htmlFor="validation-profile">Perfil de Extração</Label>
         <select

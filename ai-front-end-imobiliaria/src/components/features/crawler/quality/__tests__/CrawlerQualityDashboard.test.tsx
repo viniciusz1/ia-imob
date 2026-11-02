@@ -69,12 +69,31 @@ describe("CrawlerQualityDashboard", () => {
 
     expect(screen.getByRole("heading", { name: "Qualidade" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Snapshots em quarentena" })).toBeInTheDocument();
+    expect(screen.getAllByRole("columnheader", { name: "Snapshot" })).toHaveLength(3);
+    expect(screen.getAllByRole("columnheader", { name: "Imobiliária" })).toHaveLength(3);
+    expect(screen.getAllByRole("columnheader", { name: "Criado em" })).toHaveLength(3);
     expect(screen.getByRole("link", { name: "Revisar snapshot #42" })).toHaveAttribute("href", "/admin/crawler/runs/42");
     expect(screen.getAllByText("stock_drop_above_threshold")).toHaveLength(3);
     expect(screen.getByRole("heading", { name: "Snapshots recusados" })).toBeInTheDocument();
     expect(screen.getByText(/operador confirmou que os dados não devem ser publicados/i)).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Publicações excepcionais" })).toBeInTheDocument();
     expect(screen.getByText(/inventory confirmed directly with the agency/i)).toBeInTheDocument();
+  });
+
+  it("renders real estate agency name and creation/quarantine timestamps in list table", () => {
+    render(<CrawlerQualityDashboard runs={[
+      crawlRun({
+        id: 50,
+        crawl_agency_id: 12,
+        crawl_agency: { id: 12, name: "Imobiliária Silva Imóveis" },
+        created_at: "2026-07-17T11:45:00Z",
+        quarantined_at: "2026-07-17T11:50:00Z",
+      }),
+    ]} />);
+
+    expect(screen.getByRole("link", { name: "Imobiliária Silva Imóveis" })).toHaveAttribute("href", "/admin/crawler/agencies/12");
+    expect(screen.getByText("Crawl Agency #12")).toBeInTheDocument();
+    expect(screen.getByText(/quarentena:/i)).toBeInTheDocument();
   });
 
   it("shows explicit empty states", () => {

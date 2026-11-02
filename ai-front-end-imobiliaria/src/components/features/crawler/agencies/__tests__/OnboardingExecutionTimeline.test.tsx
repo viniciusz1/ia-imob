@@ -2,9 +2,11 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
+  actOnboardingExecution,
   adoptOnboardingDiscoverySnapshot,
   approveOnboardingExecution,
   getOnboardingExecution,
+  listExtractionProfiles,
   listOnboardingDiscoverySnapshotCandidates,
   retryCrawlerOperation,
   saveOnboardingPointConfiguration,
@@ -20,6 +22,7 @@ vi.mock("@/services/crawlerService", () => ({
   adoptOnboardingDiscoverySnapshot: vi.fn(),
   approveOnboardingExecution: vi.fn(),
   getOnboardingExecution: vi.fn(),
+  listExtractionProfiles: vi.fn().mockResolvedValue([]),
   listOnboardingDiscoverySnapshotCandidates: vi.fn(),
   retryCrawlerOperation: vi.fn(),
   saveOnboardingPointConfiguration: vi.fn(),
@@ -559,5 +562,90 @@ describe("OnboardingExecutionTimeline", () => {
       "Litoral automatizado — Discovery",
     ));
     expect(onExecution).toHaveBeenCalledWith(versioned);
+  });
+
+  it("allows selecting a candidate extraction profile for validation", async () => {
+    const candidateProfiles = [
+      {
+        id: 10,
+        crawl_agency_id: 42,
+        discovery_snapshot_id: 21,
+        market_data_contract_version_id: 1,
+        version: 1,
+        status: "candidate" as const,
+        sample_url: "https://litoral.example.com/imovel/1",
+        schemas: {},
+        strategies: [],
+        fields: [],
+        parameters: {},
+        decided_by: null,
+        decided_at: null,
+        decision_reason: null,
+        activated_by: null,
+        activated_at: null,
+        latest_validation_report: null,
+        created_at: "2026-07-27T12:00:00Z",
+      },
+      {
+        id: 20,
+        crawl_agency_id: 42,
+        discovery_snapshot_id: 21,
+        market_data_contract_version_id: 1,
+        version: 2,
+        status: "candidate" as const,
+        sample_url: "https://litoral.example.com/imovel/2",
+        schemas: {},
+        strategies: [],
+        fields: [],
+        parameters: {},
+        decided_by: null,
+        decided_at: null,
+        decision_reason: null,
+        activated_by: null,
+        activated_at: null,
+        latest_validation_report: null,
+        created_at: "2026-07-28T12:00:00Z",
+      },
+    ];
+    vi.mocked(listExtractionProfiles).mockResolvedValue(candidateProfiles);
+    const manualValidation = execution({
+      conduction: "manual",
+      current_step: "profile_validation",
+      state: "awaiting_manual_step",
+      next_action: "run_profile_validation",
+    });
+    const updated = execution({ state: "running" });
+    vi.mocked(actOnboardingExecution).mockResolvedValue(updated);
+    const onExecution = vi.fn();
+
+    render(
+      <OnboardingExecutionTimeline
+        execution={manualValidation}
+        history={[manualValidation]}
+        onExecution={onExecution}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByLabelText("Perfil de Extração")).toBeInTheDocument();
+    });
+
+    const select = screen.getByLabelText("Perfil de Extração");
+    expect(select).toHaveValue("20");
+
+    fireEvent.change(select, { target: { value: "10" } });
+    expect(select).toHaveValue("10");
+
+    fireEvent.click(screen.getByRole("button", { name: "Executar Crawl de Validação" }));
+
+    await waitFor(() => {
+      expect(actOnboardingExecution).toHaveBeenCalledWith(
+        91,
+        "run_profile_validation",
+        undefined,
+        10,
+      );
+    });
+    expect(onExecution).toHaveBeenCalledWith(updated);
   });
 });

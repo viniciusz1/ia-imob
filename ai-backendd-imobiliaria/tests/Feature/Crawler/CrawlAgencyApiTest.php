@@ -3,7 +3,13 @@
 namespace Tests\Feature\Crawler;
 
 use App\Models\Crawler\CrawlAgency;
+use App\Models\Crawler\CrawlerOperation;
+use App\Models\Crawler\DiscoverySnapshot;
+use App\Models\Crawler\ExtractionProfile;
+use App\Models\Crawler\ListingIdentity;
+use App\Models\Crawler\MarketDataContractVersion;
 use App\Models\CrawlerRun;
+use App\Models\MarketProperty;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -233,5 +239,139 @@ class CrawlAgencyApiTest extends TestCase
         $onboardingData = collect($onboardingResponse->json('data'))->firstWhere('id', $onboardingAgency->id);
         $this->assertNotNull($onboardingData);
         $this->assertNull($onboardingData['last_crawled_at']);
+    }
+
+    public function test_operator_can_archive_an_agency_from_onboarding(): void
+    {
+        $agency = CrawlAgency::query()->create([
+            'name' => 'Agency To Archive',
+            'slug' => 'agency-to-archive',
+            'base_url' => 'https://to-archive.example.com',
+            'root_domain' => 'to-archive.example.com',
+            'lifecycle_state' => 'onboarding',
+        ]);
+
+        $this->actingAs($this->platformAdmin)
+            ->patchJson('/api/v1/admin/crawler/crawl-agencies/'.$agency->id.'/lifecycle', [
+                'lifecycle_state' => 'archived',
+            ])
+            ->assertOk()
+            ->assertJsonPath('data.lifecycle_state', 'archived');
+
+        $this->assertSame('archived', $agency->fresh()->lifecycle_state);
+    }
+
+    public function test_archiving_an_active_agency_stops_displaying_its_properties_in_latest_run_and_filters(): void
+    {
+        $agency = CrawlAgency::query()->create([
+            'name' => 'Active Scraped Agency',
+            'slug' => 'active-scraped-agency',
+            'base_url' => 'https://scraped.example.com',
+            'root_domain' => 'scraped.example.com',
+            'lifecycle_state' => 'active',
+        ]);
+
+        $run = CrawlerRun::factory()->create([
+            'crawl_agency_id' => $agency->id,
+            'publication_state' => 'published',
+            'technical_state' => 'succeeded',
+        ]);
+
+        $property = MarketProperty::factory()->create([
+            'crawler_run_id' => $run->id,
+            'tipo' => 'Apartamento',
+            'bairro' => 'Centro',
+            'cidade' => 'Itajaí',
+            'valor' => 500000,
+        ]);
+
+        ListingIdentity::query()->create([
+            'crawl_agency_id' => $agency->id,
+            'listing_key' => 'url:test-property-1',
+            'canonical_url' => 'https://scraped.example.com/imovel-1',
+            'inventory_state' => 'active',
+            'current_market_property_id' => $property->id,
+        ]);
+
+        // When agency is active, property is in latestRun
+        $this->assertTrue(MarketProperty::query()->latestRun()->where('crawler.market_properties.id', $property->id)->exists());
+
+        // Archive the agency
+        $this->actingAs($this->platformAdmin)
+            ->patchJson('/api/v1/admin/crawler/crawl-agencies/'.$agency->id.'/lifecycle', [
+                'lifecycle_state' => 'archived',
+            ])
+            ->assertOk()
+            ->assertJsonPath('data.lifecycle_state', 'archived');
+
+        // Once archived, property is stopped from being displayed in latestRun
+        $this->assertFalse(MarketProperty::query()->latestRun()->where('crawler.market_properties.id', $property->id)->exists());
+
+        // Filters endpoint does not list the archived agency
+        $filtersResponse = $this->actingAs($this->platformAdmin)
+            ->getJson('/api/v1/market-properties/filters')
+            ->assertOk();
+
+        $this->assertNotContains('Active Scraped Agency', $filtersResponse->json('imobiliarias'));
+    }
+
+    public function test_reactivating_an_archived_agency_requires_active_profile(): void
+    {
+        $agency = CrawlAgency::query()->create([
+            'name' => 'Archived Agency',
+            'slug' => 'archived-agency',
+            'base_url' => 'https://archived.example.com',
+            'root_domain' => 'archived.example.com',
+            'lifecycle_state' => 'archived',
+        ]);
+
+        // Attempting to activate without active extraction profile fails
+        $this->actingAs($this->platformAdmin)
+            ->patchJson('/api/v1/admin/crawler/crawl-agencies/'.$agency->id.'/lifecycle', [
+                'lifecycle_state' => 'active',
+            ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('lifecycle_state');
+
+        // Create an active profile
+        $contract = MarketDataContractVersion::query()->where('status', 'active')->firstOrFail();
+        $operation = CrawlerOperation::query()->create([
+            'type' => 'discovery',
+            'state' => 'succeeded',
+            'requested_by' => $this->platformAdmin->id,
+            'crawl_agency_id' => $agency->id,
+            'market_data_contract_version_id' => $contract->id,
+            'plan' => [],
+        ]);
+        $snapshot = DiscoverySnapshot::query()->create([
+            'operation_id' => $operation->id,
+            'crawl_agency_id' => $agency->id,
+            'url_count' => 1,
+            'content_hash' => hash('sha256', 'test-snapshot'),
+        ]);
+
+        ExtractionProfile::query()->create([
+            'crawl_agency_id' => $agency->id,
+            'discovery_snapshot_id' => $snapshot->id,
+            'market_data_contract_version_id' => $contract->id,
+            'created_by_operation_id' => $operation->id,
+            'version' => 1,
+            'status' => 'active',
+            'sample_url' => 'https://archived.example.com/imovel-1',
+            'schemas' => [],
+            'strategies' => ['xpath'],
+            'fields' => [],
+            'parameters' => [],
+        ]);
+
+        // Now reactivation succeeds
+        $this->actingAs($this->platformAdmin)
+            ->patchJson('/api/v1/admin/crawler/crawl-agencies/'.$agency->id.'/lifecycle', [
+                'lifecycle_state' => 'active',
+            ])
+            ->assertOk()
+            ->assertJsonPath('data.lifecycle_state', 'active');
+
+        $this->assertSame('active', $agency->fresh()->lifecycle_state);
     }
 }

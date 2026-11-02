@@ -358,6 +358,7 @@ export interface CrawlRun {
   id: number;
   operation_id: number;
   crawl_agency_id: number;
+  crawl_agency?: { id: number; name: string; slug?: string } | null;
   discovery_snapshot_id: number | null;
   extraction_profile_id: number;
   market_data_contract_version_id: number;

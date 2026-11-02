@@ -113,6 +113,10 @@ class ProductionCrawlService
                 ->whereIn('state', ['queued', 'running', 'cancellation_requested'])
                 ->first();
             if ($active !== null) {
+                if ($active->state === 'queued' && $active->equivalence_key === $equivalenceKey) {
+                    return $active;
+                }
+
                 throw ValidationException::withMessages([
                     'production_crawl' => 'A production crawl is already queued or running for this Crawl Agency.',
                 ]);

@@ -52,7 +52,7 @@ class ExceptionalPublicationService
             $this->inventory->applyPublishedSnapshot($lockedRun);
             $agency->update(['current_published_crawl_run_id' => $lockedRun->id]);
 
-            return $lockedRun->load(['qualityReport', 'exceptionalPublication', 'qualityRejection']);
+            return $lockedRun->load(['qualityReport', 'exceptionalPublication', 'qualityRejection', 'crawlAgency']);
         });
     }
 }

@@ -94,6 +94,8 @@ class MarketProperty extends Model
             $inventory->selectRaw('1')
                 ->from('crawler.listing_identities as current_listing')
                 ->whereColumn('current_listing.current_market_property_id', 'crawler.market_properties.id')
+                ->join('crawler.crawl_agencies as agency', 'agency.id', '=', 'current_listing.crawl_agency_id')
+                ->where('agency.lifecycle_state', 'active')
                 ->whereIn('current_listing.inventory_state', ['active', 'missing']);
         });
     }

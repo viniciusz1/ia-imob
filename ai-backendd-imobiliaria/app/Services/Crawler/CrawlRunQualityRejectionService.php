@@ -35,7 +35,7 @@ class CrawlRunQualityRejectionService
                 'rejected_at' => now(),
             ]);
 
-            return $lockedRun->load(['qualityReport', 'exceptionalPublication', 'qualityRejection']);
+            return $lockedRun->load(['qualityReport', 'exceptionalPublication', 'qualityRejection', 'crawlAgency']);
         });
     }
 }

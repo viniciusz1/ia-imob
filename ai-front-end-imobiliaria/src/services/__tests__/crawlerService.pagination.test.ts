@@ -5,6 +5,7 @@ import {
   adoptOnboardingDiscoverySnapshot,
   listCrawlAgencies,
   listCrawlAgenciesPage,
+  listCrawlerOperationsPage,
   listOnboardingDiscoverySnapshotCandidates,
   listProspects,
   queueBulkProductionCrawls,
@@ -35,6 +36,18 @@ describe("crawlerService pagination", () => {
       params: { page: 2, search: "seculus.net" },
     });
     expect(result).toEqual(response);
+  });
+
+  it("returns operations pagination metadata and forwards queue filters", async () => {
+    const response = {
+      data: [],
+      meta: { current_page: 1, last_page: 1, per_page: 50, total: 0, from: null, to: null },
+    };
+    vi.mocked(api.get).mockResolvedValue({ data: response });
+
+    const filters = { states: ["queued" as const], sort: "created_at" as const, direction: "asc" as const, per_page: 50 };
+    await expect(listCrawlerOperationsPage(filters)).resolves.toEqual(response);
+    expect(api.get).toHaveBeenCalledWith("/api/v1/admin/crawler/operations", { params: filters });
   });
 
   it("loads enough agencies for global operation controls", async () => {

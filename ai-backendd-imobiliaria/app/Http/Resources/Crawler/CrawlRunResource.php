@@ -13,6 +13,11 @@ class CrawlRunResource extends JsonResource
             'id' => $this->id,
             'operation_id' => $this->operation_id,
             'crawl_agency_id' => $this->crawl_agency_id,
+            'crawl_agency' => $this->whenLoaded('crawlAgency', fn () => $this->crawlAgency === null ? null : [
+                'id' => $this->crawlAgency->id,
+                'name' => $this->crawlAgency->name,
+                'slug' => $this->crawlAgency->slug,
+            ]),
             'discovery_snapshot_id' => $this->discovery_snapshot_id,
             'extraction_profile_id' => $this->extraction_profile_id,
             'market_data_contract_version_id' => $this->market_data_contract_version_id,

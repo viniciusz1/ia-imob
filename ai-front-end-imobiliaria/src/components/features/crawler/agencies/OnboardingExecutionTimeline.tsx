@@ -18,11 +18,13 @@ import {
   actOnboardingExecution,
   approveOnboardingExecution,
   getOnboardingExecution,
+  listExtractionProfiles,
   retryCrawlerOperation,
   saveOnboardingPointConfiguration,
   startOnboardingFirstProduction,
 } from "@/services/crawlerService";
 import type {
+  ExtractionProfile,
   FirstProductionDiscoveryMode,
   OnboardingExecution,
   OnboardingExecutionAction,
@@ -174,7 +176,10 @@ export function OnboardingExecutionTimeline({
     execution.first_production_discovery_mode,
   );
   const [showDiscoveryConfiguration, setShowDiscoveryConfiguration] = useState(false);
+  const [candidateProfiles, setCandidateProfiles] = useState<ExtractionProfile[]>([]);
+  const [selectedProfileId, setSelectedProfileId] = useState<number | null>(execution.extraction_profile_id ?? null);
   const [pending, setPending] = useState(false);
+  const isTerminal = ["completed", "cancelled"].includes(execution.state);
   const operationsByStep = useMemo(
     () => execution.operations.reduce<Partial<Record<OnboardingExecutionStepKey, OnboardingExecutionOperation[]>>>(
       (groups, operation) => ({
@@ -193,6 +198,31 @@ export function OnboardingExecutionTimeline({
   useEffect(() => {
     setProductionMode(execution.first_production_discovery_mode);
   }, [execution.first_production_discovery_mode]);
+
+  useEffect(() => {
+    let cancelled = false;
+    void listExtractionProfiles(execution.crawl_agency_id)
+      .then((profiles) => {
+        if (cancelled) return;
+        const candidates = profiles
+          .filter((profile) => profile.status === "candidate" || profile.status === "revalidation_required")
+          .sort((a, b) => b.version - a.version);
+        setCandidateProfiles(candidates);
+        if (candidates.length > 0) {
+          setSelectedProfileId((prev) => {
+            if (prev && candidates.some((candidate) => candidate.id === prev)) return prev;
+            if (execution.extraction_profile_id && candidates.some((candidate) => candidate.id === execution.extraction_profile_id)) {
+              return execution.extraction_profile_id;
+            }
+            return candidates[0].id;
+          });
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [execution.crawl_agency_id, execution.extraction_profile_id, execution.current_step]);
 
   const run = async (action: () => Promise<OnboardingExecution>, success: string) => {
     setPending(true);
@@ -214,7 +244,12 @@ export function OnboardingExecutionTimeline({
       return;
     }
     void run(
-      () => actOnboardingExecution(execution.id, action, needsUrl ? sampleUrl.trim() : undefined),
+      () => actOnboardingExecution(
+        execution.id,
+        action,
+        needsUrl ? sampleUrl.trim() : undefined,
+        action === "run_profile_validation" ? (selectedProfileId ?? undefined) : undefined,
+      ),
       "Etapa atualizada.",
     );
   };
@@ -378,6 +413,27 @@ export function OnboardingExecutionTimeline({
                     <Input disabled={pending} id="onboarding-sample-url" onChange={(event) => setSampleUrl(event.target.value)} type="url" value={sampleUrl} />
                   </div>
                 )}
+                {manualAction === "run_profile_validation" && candidateProfiles.length > 0 && (
+                  <div className="space-y-2">
+                    <Label htmlFor="onboarding-validation-profile">Perfil de Extração</Label>
+                    <select
+                      className="h-10 w-full rounded-md border bg-background px-3 text-sm"
+                      disabled={pending}
+                      id="onboarding-validation-profile"
+                      onChange={(event) => setSelectedProfileId(Number(event.target.value))}
+                      value={selectedProfileId ?? ""}
+                    >
+                      {candidateProfiles.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          Perfil v{p.version} · {p.status === "candidate" ? "Candidato" : "Revalidação necessária"} (Snapshot #{p.discovery_snapshot_id})
+                        </option>
+                      ))}
+                    </select>
+                    <p className="text-xs text-muted-foreground">
+                      Escolha qual perfil de extração candidato será validado nesta execução.
+                    </p>
+                  </div>
+                )}
                 <Button disabled={pending} onClick={() => runManualAction(manualAction)} type="button">{MANUAL_ACTIONS[manualAction]}</Button>
               </>
             )}
@@ -434,6 +490,18 @@ export function OnboardingExecutionTimeline({
                 onExecution={onExecution}
                 useExistingEnabled={useExistingDiscoveryRecovery?.enabled ?? false}
               />
+            )}
+
+            {!isTerminal && canExecute && !(useExistingDiscoveryRecovery?.enabled || createCustomDiscoveryRecovery?.enabled) && (
+              <div className="space-y-2 border-t pt-2">
+                <p className="text-xs font-medium text-muted-foreground">Substituição flexível de Discovery</p>
+                <OnboardingDiscoveryRecovery
+                  createCustomEnabled={true}
+                  execution={execution}
+                  onExecution={onExecution}
+                  useExistingEnabled={true}
+                />
+              </div>
             )}
 
             {(action === "retry_failed_operation" || retryRecovery?.enabled) && canExecute && (

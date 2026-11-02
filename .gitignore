@@ -108,3 +108,4 @@ Thumbs.db
 # Local checkout of the separated crawler repository.
 /crawler-machine/
 .vercel
+.claude/

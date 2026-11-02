@@ -21,8 +21,9 @@ class ManualOnboardingExecutionService
         string $action,
         ?string $sampleUrl,
         User $actor,
+        ?int $extractionProfileId = null,
     ): OnboardingExecution {
-        return DB::transaction(function () use ($action, $actor, $execution, $sampleUrl): OnboardingExecution {
+        return DB::transaction(function () use ($action, $actor, $execution, $extractionProfileId, $sampleUrl): OnboardingExecution {
             $locked = OnboardingExecution::query()
                 ->with(['crawlAgency', 'contract'])
                 ->lockForUpdate()
@@ -38,7 +39,7 @@ class ManualOnboardingExecutionService
                 'run_discovery' => $this->runDiscovery($locked, $actor),
                 'confirm_sample_url' => $this->confirmSampleUrl($locked, (string) $sampleUrl, false),
                 'run_profile_generation' => $this->runProfileGeneration($locked, $actor),
-                'run_profile_validation' => $this->runProfileValidation($locked, $actor),
+                'run_profile_validation' => $this->runProfileValidation($locked, $actor, $extractionProfileId),
                 'correct_sample_url' => $this->confirmSampleUrl($locked, (string) $sampleUrl, true),
                 'cancel' => $this->cancel($locked),
                 default => throw ValidationException::withMessages(['action' => 'Unsupported manual action.']),
@@ -149,25 +150,66 @@ class ManualOnboardingExecutionService
         $this->markRunning($execution);
     }
 
-    private function runProfileValidation(OnboardingExecution $execution, User $actor): void
-    {
+    private function runProfileValidation(
+        OnboardingExecution $execution,
+        User $actor,
+        ?int $extractionProfileId = null,
+    ): void {
         $this->ensureNextAction($execution, 'profile_validation');
-        $generation = $execution->operations()
-            ->where('onboarding_step', 'profile_generation')
-            ->where('state', 'succeeded')
-            ->latest('attempt')
-            ->first();
-        $profile = $generation === null
-            ? null
-            : ExtractionProfile::query()
-                ->where('created_by_operation_id', $generation->id)
-                ->where('status', 'candidate')
+
+        $profile = null;
+
+        if ($extractionProfileId !== null) {
+            $profile = ExtractionProfile::query()
+                ->whereKey($extractionProfileId)
+                ->where('crawl_agency_id', $execution->crawl_agency_id)
+                ->whereIn('status', ['candidate', 'revalidation_required'])
                 ->first();
+
+            if ($profile === null) {
+                throw ValidationException::withMessages([
+                    'extraction_profile_id' => 'The selected Extraction Profile must belong to this agency and be a candidate or require revalidation.',
+                ]);
+            }
+        } elseif ($execution->extraction_profile_id !== null) {
+            $profile = ExtractionProfile::query()
+                ->whereKey($execution->extraction_profile_id)
+                ->where('crawl_agency_id', $execution->crawl_agency_id)
+                ->whereIn('status', ['candidate', 'revalidation_required'])
+                ->first();
+        }
+
+        if ($profile === null) {
+            $generation = $execution->operations()
+                ->where('onboarding_step', 'profile_generation')
+                ->where('state', 'succeeded')
+                ->latest('attempt')
+                ->first();
+
+            $profile = $generation === null
+                ? null
+                : ExtractionProfile::query()
+                    ->where('created_by_operation_id', $generation->id)
+                    ->where('status', 'candidate')
+                    ->first();
+        }
+
+        if ($profile === null) {
+            $profile = ExtractionProfile::query()
+                ->where('crawl_agency_id', $execution->crawl_agency_id)
+                ->whereIn('status', ['candidate', 'revalidation_required'])
+                ->latest('version')
+                ->latest('id')
+                ->first();
+        }
+
         if ($profile === null) {
             throw ValidationException::withMessages([
-                'extraction_profile_id' => 'A candidate profile from a successful generation is required.',
+                'extraction_profile_id' => 'A candidate profile from a successful generation or candidate profile selection is required.',
             ]);
         }
+
+        $execution->update(['extraction_profile_id' => $profile->id]);
 
         $this->profiles->queueValidation(
             $profile,

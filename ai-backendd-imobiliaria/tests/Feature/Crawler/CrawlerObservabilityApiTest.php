@@ -108,6 +108,31 @@ class CrawlerObservabilityApiTest extends TestCase
         $this->assertDatabaseHas('crawler.operations', ['id' => $equivalent->id]);
     }
 
+    public function test_operations_filter_by_multiple_states_and_sort_for_queue_view(): void
+    {
+        $newest = $this->operation('production_crawl', 'queued', ['created_at' => now()->subMinute()]);
+        $oldest = $this->operation('production_crawl', 'queued', ['created_at' => now()->subHour()]);
+        $this->operation('production_crawl', 'running');
+        $this->operation('production_crawl', 'succeeded');
+
+        $this->actingAs($this->admin)->getJson('/api/v1/admin/crawler/operations?'.http_build_query([
+            'states' => ['queued'],
+            'sort' => 'created_at',
+            'direction' => 'asc',
+        ]))->assertOk()
+            ->assertJsonCount(2, 'data')
+            ->assertJsonPath('data.0.id', $oldest->id)
+            ->assertJsonPath('data.1.id', $newest->id)
+            ->assertJsonStructure(['data' => [['claimed_at', 'lease_expires_at', 'updated_at']]]);
+
+        $this->actingAs($this->admin)->getJson('/api/v1/admin/crawler/operations?'.http_build_query([
+            'states' => ['queued', 'running'],
+        ]))->assertOk()->assertJsonCount(3, 'data');
+
+        $this->actingAs($this->admin)->getJson('/api/v1/admin/crawler/operations?states[]=bogus')
+            ->assertUnprocessable();
+    }
+
     public function test_integrations_expose_only_sanitized_configuration_state(): void
     {
         config([

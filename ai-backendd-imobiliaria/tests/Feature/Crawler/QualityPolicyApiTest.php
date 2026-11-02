@@ -240,13 +240,16 @@ class QualityPolicyApiTest extends TestCase
             ->assertOk()
             ->assertJsonCount(3, 'data')
             ->assertJsonPath('data.0.id', $rejected->id)
+            ->assertJsonPath('data.0.crawl_agency.name', $agency->name)
             ->assertJsonPath(
                 'data.0.quality_rejection.reason',
                 'The operator confirmed that this snapshot must remain discarded.'
             )
             ->assertJsonPath('data.1.id', $quarantined->id)
+            ->assertJsonPath('data.1.crawl_agency.name', $agency->name)
             ->assertJsonPath('data.1.publication_state', 'quarantined')
             ->assertJsonPath('data.2.id', $exceptionallyPublished->id)
+            ->assertJsonPath('data.2.crawl_agency.name', $agency->name)
             ->assertJsonPath('data.2.publication_state', 'published')
             ->assertJsonPath(
                 'data.2.exceptional_publication.reason',
