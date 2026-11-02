@@ -7,6 +7,8 @@ export interface CrawlAgency {
   slug: string;
   base_url: string;
   root_domain: string;
+  city?: string | null;
+  state?: string | null;
   lifecycle_state: CrawlAgencyLifecycle;
   health_state: CrawlAgencyHealth;
   revalidation_required: boolean;
@@ -41,6 +43,8 @@ export interface CrawlAgencyInput {
   slug: string;
   base_url: string;
   root_domain: string;
+  city?: string | null;
+  state?: string | null;
 }
 
 export type SchedulePreset = "manual" | "daily" | "twice_weekly" | "weekly";

@@ -8,6 +8,7 @@ use App\Models\Crawler\DiscoverySnapshot;
 use App\Models\Crawler\ExtractionProfile;
 use App\Models\Crawler\ListingIdentity;
 use App\Models\Crawler\MarketDataContractVersion;
+use App\Models\Crawler\Prospect;
 use App\Models\CrawlerRun;
 use App\Models\MarketProperty;
 use App\Models\User;
@@ -147,6 +148,61 @@ class CrawlAgencyApiTest extends TestCase
             ->assertOk()
             ->assertJsonCount(1, 'data')
             ->assertJsonPath('data.0.name', 'Beta Norte');
+    }
+
+    public function test_list_returns_city_and_state_from_agency_or_linked_prospect_and_searches_by_city(): void
+    {
+        $directAgency = $this->actingAs($this->platformAdmin)
+            ->postJson('/api/v1/admin/crawler/crawl-agencies', [
+                'name' => 'Imobiliária Joinville',
+                'slug' => 'imobiliaria-joinville',
+                'base_url' => 'https://joinville.example.com',
+                'root_domain' => 'joinville.example.com',
+                'city' => 'Joinville',
+                'state' => 'sc',
+            ])
+            ->assertCreated()
+            ->assertJsonPath('data.city', 'Joinville')
+            ->assertJsonPath('data.state', 'SC')
+            ->json('data');
+
+        $prospectAgency = CrawlAgency::query()->create([
+            'name' => 'D2 Imóveis',
+            'slug' => 'd2-imoveis',
+            'base_url' => 'https://d2imoveis.example.com',
+            'root_domain' => 'd2imoveis.example.com',
+            'lifecycle_state' => 'onboarding',
+        ]);
+
+        Prospect::query()->create([
+            'root_domain' => 'd2imoveis.example.com',
+            'google_place_id' => 'place-d2',
+            'name' => 'D2 Imóveis',
+            'city' => 'Jaraguá do Sul',
+            'state' => 'SC',
+            'base_url' => 'https://d2imoveis.example.com',
+            'source' => 'google_places',
+            'automatic_classification' => 'candidate',
+            'review_state' => 'approved',
+            'promoted_crawl_agency_id' => $prospectAgency->id,
+            'metadata' => [],
+        ]);
+
+        $this->actingAs($this->platformAdmin)
+            ->getJson('/api/v1/admin/crawler/crawl-agencies?search=Jaraguá')
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.id', $prospectAgency->id)
+            ->assertJsonPath('data.0.city', 'Jaraguá do Sul')
+            ->assertJsonPath('data.0.state', 'SC');
+
+        $this->actingAs($this->platformAdmin)
+            ->getJson('/api/v1/admin/crawler/crawl-agencies?search=Joinville')
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.id', $directAgency['id'])
+            ->assertJsonPath('data.0.city', 'Joinville')
+            ->assertJsonPath('data.0.state', 'SC');
     }
 
     public function test_operator_can_request_a_larger_agency_page_for_global_controls(): void

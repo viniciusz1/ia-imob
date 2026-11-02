@@ -110,6 +110,8 @@ class ProspectingService
                 'slug' => Str::slug($locked->name).'-'.$locked->id,
                 'base_url' => $locked->base_url,
                 'root_domain' => $locked->root_domain,
+                'city' => $locked->city,
+                'state' => $locked->state,
                 'lifecycle_state' => 'onboarding',
             ]);
             $plan = OnboardingPlan::query()->create([

@@ -20,6 +20,8 @@ class CrawlAgency extends Model
         'slug',
         'base_url',
         'root_domain',
+        'city',
+        'state',
         'lifecycle_state',
         'health_state',
         'revalidation_required',

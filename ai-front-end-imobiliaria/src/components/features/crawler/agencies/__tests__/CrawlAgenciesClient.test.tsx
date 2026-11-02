@@ -142,6 +142,8 @@ describe("CrawlAgenciesClient", () => {
             slug: "agency-with-crawl",
             base_url: "https://with-crawl.example.com",
             root_domain: "with-crawl.example.com",
+            city: "Joinville",
+            state: "SC",
             lifecycle_state: "active",
             health_state: "healthy",
             revalidation_required: false,
@@ -156,6 +158,8 @@ describe("CrawlAgenciesClient", () => {
             slug: "agency-without-crawl",
             base_url: "https://without-crawl.example.com",
             root_domain: "without-crawl.example.com",
+            city: null,
+            state: null,
             lifecycle_state: "onboarding",
             health_state: "unknown",
             revalidation_required: false,
@@ -170,6 +174,8 @@ describe("CrawlAgenciesClient", () => {
       />,
     );
 
+    expect(screen.getByText("Cidade")).toBeInTheDocument();
+    expect(screen.getByText("Joinville/SC")).toBeInTheDocument();
     expect(screen.getByText("Último crawl")).toBeInTheDocument();
     expect(screen.getByText("Agency With Crawl")).toBeInTheDocument();
     expect(screen.getByText("Agency Without Crawl")).toBeInTheDocument();

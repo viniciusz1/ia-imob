@@ -51,6 +51,17 @@ function formatDateTime(value: string | null | undefined): string {
   return Number.isNaN(date.getTime()) ? "—" : dateFormatter.format(date);
 }
 
+function formatCityState(city?: string | null, state?: string | null): string {
+  const normalizedCity = city?.trim() ?? "";
+  const normalizedState = state?.trim().toUpperCase() ?? "";
+  if (normalizedCity !== "" && normalizedState !== "") {
+    return `${normalizedCity}/${normalizedState}`;
+  }
+  if (normalizedCity !== "") return normalizedCity;
+  if (normalizedState !== "") return normalizedState;
+  return "—";
+}
+
 const columns: ColumnDef<CrawlAgency>[] = [
   {
     accessorKey: "name",
@@ -62,6 +73,15 @@ const columns: ColumnDef<CrawlAgency>[] = [
     ),
   },
   { accessorKey: "root_domain", header: "Domínio" },
+  {
+    id: "city",
+    header: "Cidade",
+    cell: ({ row }) => (
+      <span className="text-muted-foreground">
+        {formatCityState(row.original.city, row.original.state)}
+      </span>
+    ),
+  },
   {
     accessorKey: "lifecycle_state",
     header: "Lifecycle",
@@ -261,7 +281,7 @@ export function CrawlAgenciesClient({
           <Input
             aria-label="Filtrar Crawl Agencies"
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Nome ou domínio"
+            placeholder="Nome, domínio ou cidade"
             type="search"
             value={search}
           />
