@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Api;
 
+use App\Services\Crawler\CityCatalog;
 use App\Services\Crawler\PropertyTypeCatalog;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -15,8 +16,8 @@ class MarketPropertyResource extends JsonResource
             'image' => $this->imagem ?: '',
             'tipo' => PropertyTypeCatalog::canonicalNameFor($this->tipo) ?? 'Imóvel',
             'preco' => (float) $this->valor ?: 0,
-            'bairro' => $this->bairro ?: '',
-            'cidade' => $this->cidade ?: '',
+            'bairro' => CityCatalog::isInvalidLocationValue($this->bairro) ? '' : ($this->bairro ?: ''),
+            'cidade' => CityCatalog::canonicalNameFor($this->cidade) ?? '',
             'imobiliaria' => $this->crawlerRun?->crawlAgency?->name ?: '',
             'quartos' => (int) $this->quartos ?: 0,
             'suites' => (int) $this->suites ?: 0,

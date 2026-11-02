@@ -6,6 +6,7 @@ use App\Exceptions\MarketSearchAllowanceExceeded;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\MarketPropertyResource;
 use App\Models\MarketProperty;
+use App\Services\Crawler\CityCatalog;
 use App\Services\Crawler\PropertyTypeCatalog;
 use App\Services\MarketSearchQuotaService;
 use Illuminate\Http\Request;
@@ -107,14 +108,21 @@ class MarketPropertyController extends Controller
             ->where('bairro', '!=', '')
             ->distinct()
             ->orderBy('bairro')
-            ->pluck('bairro');
+            ->pluck('bairro')
+            ->reject(fn ($bairro) => CityCatalog::isInvalidLocationValue((string) $bairro))
+            ->values();
 
         $cidades = (clone $baseQuery)
             ->whereNotNull('cidade')
             ->where('cidade', '!=', '')
             ->distinct()
             ->orderBy('cidade')
-            ->pluck('cidade');
+            ->pluck('cidade')
+            ->map(fn ($cidade) => CityCatalog::canonicalNameFor((string) $cidade))
+            ->filter()
+            ->unique()
+            ->sort()
+            ->values();
 
         $bairrosPorCidade = (clone $baseQuery)
             ->whereNotNull('cidade')
@@ -126,8 +134,23 @@ class MarketPropertyController extends Controller
             ->orderBy('cidade')
             ->orderBy('bairro')
             ->get()
+            ->map(function ($property): ?array {
+                $cidade = CityCatalog::canonicalNameFor((string) $property->cidade);
+                $bairro = trim((string) $property->bairro);
+
+                if ($cidade === null || CityCatalog::isInvalidLocationValue($bairro)) {
+                    return null;
+                }
+
+                return [
+                    'cidade' => $cidade,
+                    'bairro' => $bairro,
+                ];
+            })
+            ->filter()
             ->groupBy('cidade')
-            ->map(fn ($properties) => $properties->pluck('bairro')->values());
+            ->sortKeys()
+            ->map(fn ($properties) => $properties->pluck('bairro')->unique()->sort()->values());
 
         $imobiliarias = (clone $baseQuery)
             ->join('crawler.crawl_runs as run', 'run.id', '=', 'crawler.market_properties.crawler_run_id')

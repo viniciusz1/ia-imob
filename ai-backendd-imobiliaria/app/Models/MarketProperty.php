@@ -111,7 +111,15 @@ class MarketProperty extends Model
         }
 
         if (! empty($filters['cidade'])) {
-            $query->whereIn('cidade', (array) $filters['cidade']);
+            $cidades = array_values(array_filter(array_map('trim', (array) $filters['cidade'])));
+            if (! empty($cidades)) {
+                $query->where(function ($q) use ($cidades): void {
+                    $q->whereIn('cidade', $cidades);
+                    foreach ($cidades as $cidade) {
+                        $q->orWhereRaw('f_unaccent(LOWER(cidade)) = f_unaccent(LOWER(?))', [$cidade]);
+                    }
+                });
+            }
         }
 
         if (! empty($filters['imobiliaria'])) {
