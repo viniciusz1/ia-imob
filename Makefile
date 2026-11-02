@@ -195,9 +195,12 @@ clean: ## Remove local build artifacts and caches
 ag-tmux tmux-ag ag-grid: ## Open 4 terminals (2x2 grid) running ag/agy --dangerously-skip-permissions in tmux
 	@if tmux has-session -t $(TMUX_SESSION) 2>/dev/null; then \
 		echo "Sessão tmux '$(TMUX_SESSION)' já existe. Conectando..."; \
+		tmux set-option -t $(TMUX_SESSION) mouse on 2>/dev/null || true; \
 	else \
 		echo "Criando sessão tmux '$(TMUX_SESSION)' com 4 terminais ($(AG_CMD))..."; \
 		tmux new-session -d -s $(TMUX_SESSION) -c "$(CURDIR)"; \
+		tmux set-option -t $(TMUX_SESSION) mouse on; \
+		tmux set-option -t $(TMUX_SESSION) history-limit 50000; \
 		tmux split-window -h -t $(TMUX_SESSION) -c "$(CURDIR)"; \
 		tmux split-window -v -t $(TMUX_SESSION).0 -c "$(CURDIR)"; \
 		tmux split-window -v -t $(TMUX_SESSION).2 -c "$(CURDIR)"; \

@@ -76,7 +76,7 @@ export function CrawlRunDataTable({ runId, initialPage }: CrawlRunDataTableProps
                   {record.listing_reason && <p className="text-muted-foreground">Motivo: {record.listing_reason}</p>}
                   <details open>
                     <summary className="cursor-pointer">Ver payload e trace</summary>
-                    {record.normalization_warnings?.map((warning) => <p className="text-amber-700" key={warning}>{warning}</p>)}
+                    {record.normalization_warnings?.map((warning, index) => <p className="text-amber-700" key={`${warning}-${index}`}>{warning}</p>)}
                     <pre className="max-w-xl whitespace-pre-wrap">{JSON.stringify(record.raw_payload ?? record.payload, null, 2)}</pre>
                     <pre className="max-w-xl whitespace-pre-wrap">{JSON.stringify(record.extraction_trace ?? {}, null, 2)}</pre>
                     {record.missing_fields && <p>Campos ausentes: {record.missing_fields.join(", ")}</p>}
