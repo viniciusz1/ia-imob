@@ -21,6 +21,7 @@ interface NewPropertyCardProps {
   property: NewPropertyItem;
 }
 
+/** Formata o valor em reais, sem centavos. */
 function formatCurrency(value: number): string {
   return new Intl.NumberFormat("pt-BR", {
     style: "currency",
@@ -29,6 +30,7 @@ function formatCurrency(value: number): string {
   }).format(value);
 }
 
+/** Resume em linguagem simples por que o anúncio é uma oportunidade. */
 function opportunitySummary(property: NewPropertyItem): string | null {
   if (!property.is_opportunity) return null;
 
@@ -43,6 +45,7 @@ function opportunitySummary(property: NewPropertyItem): string | null {
   return "Preço por m² abaixo da referência de imóveis parecidos.";
 }
 
+/** Usa o título do anúncio ou monta um com o tipo e a localização. */
 function propertyTitle(property: NewPropertyItem): string {
   const title = property.title?.trim();
   if (title) return title;
@@ -53,8 +56,13 @@ function propertyTitle(property: NewPropertyItem): string {
   return location ? `${type} em ${location}` : type;
 }
 
+/**
+ * Card de um anúncio, com foto, selos, preço, características e score.
+ * Cada dado que a fonte não informou tem um texto próprio ou fica de fora do card.
+ */
 export function NewPropertyCard({ property }: NewPropertyCardProps) {
   const summary = opportunitySummary(property);
+  // Só mostra o botão de link quando o endereço é válido.
   const hasExternalLink = /^https?:\/\//i.test(property.link_imovel);
 
   return (

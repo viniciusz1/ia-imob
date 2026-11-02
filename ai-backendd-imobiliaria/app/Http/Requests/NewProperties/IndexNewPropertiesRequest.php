@@ -4,8 +4,15 @@ namespace App\Http\Requests\NewProperties;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+/**
+ * Controla o acesso e valida os parâmetros da consulta de Novos Imóveis.
+ */
 class IndexNewPropertiesRequest extends FormRequest
 {
+    /**
+     * Libera apenas usuários de uma Agência com a permissão de ver imóveis.
+     * Administradores da plataforma não têm Agência e, por isso, recebem 403.
+     */
     public function authorize(): bool
     {
         $user = $this->user();
@@ -15,6 +22,10 @@ class IndexNewPropertiesRequest extends FormRequest
             && $user->hasPermissionTo('properties.view');
     }
 
+    /**
+     * Valores fora destas regras são recusados com HTTP 422.
+     * O per_page tem limite para ninguém pedir o inventário inteiro de uma vez.
+     */
     public function rules(): array
     {
         return [

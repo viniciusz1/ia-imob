@@ -10,15 +10,32 @@ use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 
+/**
+ * Monta a lista de Novos Imóveis e Oportunidades entregue pela API.
+ *
+ * O trabalho acontece em duas etapas: primeiro todo o inventário dos últimos
+ * Snapshots Publicados é classificado; depois os filtros, a ordenação e a
+ * paginação são aplicados sobre esse resultado. Assim, filtrar a tela nunca
+ * muda quem é Novo ou Oportunidade.
+ *
+ * As regras completas estão em docs/contexts/new-properties/CONTEXT.md.
+ */
 class NewPropertiesQueryService
 {
+    /** Quantidade mínima de imóveis parecidos para confiar na mediana de preço. */
     private const MINIMUM_COMPARABLES = 5;
 
+    /** Vantagem mínima, em relação à mediana, para o anúncio virar Oportunidade. */
     private const OPPORTUNITY_THRESHOLD_PERCENT = 15.0;
 
     public function __construct(private readonly PublishedListingHistoryService $history) {}
 
     /**
+     * Retorna os anúncios agrupados por Imobiliária de Origem.
+     *
+     * Sem opções, devolve a classificação completa. Com opções, devolve apenas
+     * a página pedida, já filtrada e ordenada.
+     *
      * @return array{groups: list<array<string, mixed>>, meta: array<string, mixed>}
      */
     public function get(array $options = []): array
@@ -40,8 +57,9 @@ class NewPropertiesQueryService
             return $options === [] ? $empty : $this->applyQueryOptions($empty, $options);
         }
 
-        // A published snapshot is immutable. Reuse its classification when users
-        // browse different filters and pages; a new publication changes the key.
+        // Um Snapshot Publicado não muda depois de publicado. Por isso a classificação
+        // é reaproveitada enquanto o usuário troca filtros e páginas, e uma nova
+        // publicação gera outra chave de cache automaticamente.
         $cacheKey = 'new-properties:classified:v1:'.sha1($currentRuns
             ->map(fn (CrawlerRun $run): string => $run->id.':'.$run->published_at->toISOString())
             ->implode('|'));
@@ -53,6 +71,10 @@ class NewPropertiesQueryService
     }
 
     /**
+     * Aplica as flags Novo e Oportunidade em todos os anúncios atuais.
+     *
+     * As duas flags são independentes: um anúncio pode ter uma, as duas ou nenhuma.
+     *
      * @param  EloquentCollection<int, CrawlerRun>  $currentRuns
      * @return array{groups: list<array<string, mixed>>, meta: array<string, mixed>}
      */
@@ -64,6 +86,7 @@ class NewPropertiesQueryService
         $comparableCutoff = $currentRuns->max(
             fn (CrawlerRun $run): string => $run->published_at->toISOString(),
         );
+        // A amostra de comparáveis usa todas as imobiliárias, não só a do anúncio avaliado.
         $comparableIndex = $this->buildComparableIndex($properties);
         $groups = [];
 
@@ -79,6 +102,8 @@ class NewPropertiesQueryService
             foreach ($runProperties as $property) {
                 $identityId = (int) $property->getAttribute('new_properties_listing_identity_id');
                 $firstSeen = $historyFirstSeen[$identityId] ?? null;
+                // Sem snapshot anterior não há com o que comparar, então nada vira Novo.
+                // Isso evita marcar todo o inventário no primeiro crawl de uma imobiliária.
                 $isNew = $historyCount > 0 && $firstSeen === null;
                 $newReason = match (true) {
                     $historyCount === 0 => 'insufficient_history',
@@ -123,6 +148,7 @@ class NewPropertiesQueryService
                     'opportunities' => $opportunityCount,
                 ],
                 'history' => $historySummary,
+                // A tela lista só anúncios com alguma flag; counts vale para o snapshot inteiro.
                 'properties' => array_values(array_filter(
                     $classified,
                     fn (array $property): bool => $property['is_new'] || $property['is_opportunity'],
@@ -143,8 +169,9 @@ class NewPropertiesQueryService
     }
 
     /**
-     * Filter and paginate classified listings globally, then rebuild agency groups for this page.
-     * The comparable sample and classification remain based on the full published inventory.
+     * Filtra e pagina os anúncios classificados e remonta os grupos de imobiliárias da página.
+     * A paginação é por anúncio, então uma imobiliária pode aparecer em mais de uma página.
+     * A classificação e a amostra comparável continuam baseadas em todo o inventário publicado.
      *
      * @param  array{groups: list<array<string, mixed>>, meta: array<string, mixed>}  $result
      * @return array{groups: list<array<string, mixed>>, meta: array<string, mixed>}
@@ -160,6 +187,8 @@ class NewPropertiesQueryService
             'purposes' => [],
         ];
 
+        // As opções dos filtros vêm de todo o inventário classificado, e não só da página
+        // atual, para o usuário não perder opções ao trocar de página ou aplicar um filtro.
         foreach ($result['groups'] as $groupIndex => $group) {
             foreach ($group['properties'] as $property) {
                 $model = $property['property'];
@@ -180,6 +209,8 @@ class NewPropertiesQueryService
             }
         }
 
+        // O desempate pela data e pelo ID mantém a ordem estável: sem isso, um anúncio
+        // poderia se repetir ou desaparecer ao passar de uma página para outra.
         usort($entries, static function (array $left, array $right) use ($options): int {
             $a = $left['property'];
             $b = $right['property'];
@@ -198,6 +229,8 @@ class NewPropertiesQueryService
         $total = count($entries);
         $pageEntries = array_slice($entries, ($page - 1) * $perPage, $perPage);
         $groups = [];
+
+        // Reagrupa por imobiliária somente os anúncios que caíram nesta página.
 
         foreach ($pageEntries as $entry) {
             $index = $entry['group_index'];
@@ -232,8 +265,9 @@ class NewPropertiesQueryService
     }
 
     /**
-     * Sources spell the same value differently ("Centro", "CENTRO"). Filters already compare
-     * normalized text, so keep one option per value and prefer its best written form.
+     * As fontes escrevem o mesmo valor de formas diferentes ("Centro", "CENTRO", "São Luis").
+     * Os filtros já comparam o texto normalizado, então cada valor vira uma opção só,
+     * mostrando a forma mais bem escrita entre as encontradas.
      *
      * @param  array<string, string>  $options
      */
@@ -245,6 +279,8 @@ class NewPropertiesQueryService
             return;
         }
 
+        // Prefere, nesta ordem: não estar todo em maiúsculas, começar com maiúscula,
+        // ter mais caracteres acentuados e, no empate, a ordem alfabética.
         $rank = static fn (string $option): array => [
             mb_strtoupper($option) !== $option,
             mb_strtoupper(mb_substr($option, 0, 1)) === mb_substr($option, 0, 1),
@@ -257,6 +293,10 @@ class NewPropertiesQueryService
         }
     }
 
+    /**
+     * Confere se o anúncio atende a todos os filtros pedidos.
+     * Textos são comparados sem diferenciar maiúsculas, acentos ou espaços extras.
+     */
     private function matchesOptions(array $property, array $group, array $options): bool
     {
         $model = $property['property'];
@@ -267,6 +307,7 @@ class NewPropertiesQueryService
                 return true;
             }
 
+            // A opção "5+" da tela significa cinco ou mais.
             return $options[$filter] === '5+'
                 ? (int) $actual >= 5
                 : (int) $actual === (int) $options[$filter];
@@ -307,6 +348,11 @@ class NewPropertiesQueryService
     }
 
     /**
+     * Busca o snapshot publicado vigente de cada imobiliária.
+     *
+     * Parte de current_published_crawl_run_id e não do último crawl, que pode ter
+     * falhado, estar incompleto ou em quarentena sem nunca ter sido publicado.
+     *
      * @return EloquentCollection<int, CrawlerRun>
      */
     private function currentPublishedRuns(): EloquentCollection
@@ -327,6 +373,13 @@ class NewPropertiesQueryService
     }
 
     /**
+     * Busca os anúncios realmente observados nos snapshots informados.
+     *
+     * O join com listing_versions traz a Identidade do Anúncio, a chave usada para
+     * reconhecer o mesmo anúncio entre crawls. Anúncios ausentes não têm
+     * market_property_id e os marcados como removidos são descartados aqui, então
+     * nenhum dos dois aparece na tela ou entra na amostra de comparáveis.
+     *
      * @param  list<int>  $runIds
      * @return EloquentCollection<int, MarketProperty>
      */
@@ -350,6 +403,11 @@ class NewPropertiesQueryService
     }
 
     /**
+     * Agrupa os anúncios válidos por segmento (finalidade, cidade, bairro e tipo).
+     *
+     * Com esse índice, cada anúncio é comparado só com os do próprio segmento,
+     * em vez de percorrer o inventário inteiro a cada classificação.
+     *
      * @param  EloquentCollection<int, MarketProperty>  $properties
      * @return array<string, list<array{property: MarketProperty, identity_id: int, price_per_square_meter: float}>>
      */
@@ -377,6 +435,14 @@ class NewPropertiesQueryService
     }
 
     /**
+     * Decide se o anúncio é uma Oportunidade e registra o motivo da decisão.
+     *
+     * Fórmula: vantagem = (mediana por m² - preço por m² do anúncio) / mediana por m² × 100.
+     * O anúncio vira Oportunidade com pelo menos 5 comparáveis e vantagem de 15% ou mais.
+     * A pontuação é a vantagem multiplicada por 4, limitada entre 0 e 100.
+     *
+     * Exemplo: R$ 4.000/m² contra mediana de R$ 5.000/m² dá 20% de vantagem e pontuação 80.
+     *
      * @param  array<string, list<array{property: MarketProperty, identity_id: int, price_per_square_meter: float}>>  $index
      * @return array<string, mixed>
      */
@@ -389,6 +455,7 @@ class NewPropertiesQueryService
         $price = (float) $candidate->valor;
         $area = (float) $candidate->area;
         $pricePerSquareMeter = $price > 0 && $area > 0 ? $price / $area : null;
+        // Resultado padrão, ajustado abaixo conforme o anúncio avança nas verificações.
         $base = [
             'is_opportunity' => false,
             'opportunity_score' => null,
@@ -417,6 +484,8 @@ class NewPropertiesQueryService
             ];
         }
 
+        // Comparável é outro anúncio do mesmo segmento, com área entre 75% e 125% da área
+        // do candidato e a mesma quantidade de quartos quando os dois informam esse dado.
         $comparables = collect($index[$segment] ?? [])
             ->filter(function (array $comparable) use ($candidate, $identityId, $area): bool {
                 $property = $comparable['property'];
@@ -495,6 +564,11 @@ class NewPropertiesQueryService
         ];
     }
 
+    /**
+     * Monta a chave do segmento de comparação.
+     * Retorna null quando falta finalidade, cidade, bairro ou tipo, pois sem esses
+     * dados o anúncio seria comparado com imóveis que não têm relação com ele.
+     */
     private function segment(MarketProperty $property): ?string
     {
         $parts = [
@@ -511,6 +585,10 @@ class NewPropertiesQueryService
         return implode('|', $parts);
     }
 
+    /**
+     * Descobre se o anúncio é de venda ou locação.
+     * Usa primeiro os campos enviados pela fonte e, se não houver, tenta deduzir pela URL.
+     */
     private function purpose(MarketProperty $property): ?string
     {
         $payload = $property->payload;
@@ -545,6 +623,7 @@ class NewPropertiesQueryService
         $isSale = preg_match('/\b(venda|vender|comprar|compra)\b/', $normalized) === 1;
         $isRent = preg_match('/\b(locacao|aluguel|alugar)\b/', $normalized) === 1;
 
+        // Texto que cita venda e locação ao mesmo tempo fica sem finalidade, para não arriscar.
         return match (true) {
             $isSale && ! $isRent => 'venda',
             $isRent && ! $isSale => 'locacao',
@@ -552,6 +631,7 @@ class NewPropertiesQueryService
         };
     }
 
+    /** Padroniza o texto para comparação e devolve null quando ele fica vazio. */
     private function normalize(string $value): ?string
     {
         $normalized = TextNormalizer::normalize($value);
@@ -559,6 +639,7 @@ class NewPropertiesQueryService
         return $normalized === '' ? null : $normalized;
     }
 
+    /** Usa o título da fonte ou monta um a partir do tipo e da localização. */
     private function title(MarketProperty $property): string
     {
         $payloadTitle = $property->payload['titulo'] ?? $property->payload['title'] ?? null;
@@ -574,6 +655,8 @@ class NewPropertiesQueryService
     }
 
     /**
+     * Calcula a mediana, que sofre menos influência de preços muito fora da curva do que a média.
+     *
      * @param  Collection<int, float|int>  $values
      */
     private function median(Collection $values): float

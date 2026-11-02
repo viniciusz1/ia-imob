@@ -9,11 +9,25 @@ use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Collection;
 
+/**
+ * Prepara o histórico usado para descobrir quais anúncios são Novos.
+ *
+ * Para cada imobiliária, reúne os Snapshots Publicados dos 30 dias anteriores ao
+ * snapshot atual e registra as Identidades de Anúncio observadas neles. Como a
+ * comparação usa a identidade, e não preço, descrição, foto ou URL, um anúncio
+ * apenas atualizado não é confundido com um anúncio novo.
+ */
 class PublishedListingHistoryService
 {
+    /** Tamanho da janela de comparação, em dias. */
     public const WINDOW_DAYS = 30;
 
     /**
+     * Monta o histórico de cada snapshot atual, indexado pelo ID do snapshot.
+     *
+     * O summary fica disponível na API para auditoria. O first_seen_by_identity
+     * informa quando cada anúncio apareceu pela primeira vez dentro da janela.
+     *
      * @param  EloquentCollection<int, CrawlerRun>  $currentRuns
      * @return Collection<int, array{
      *     summary: array{
@@ -42,6 +56,8 @@ class PublishedListingHistoryService
         return $currentRuns->mapWithKeys(function (CrawlerRun $currentRun) use ($historyByAgency, $observedIdentitiesByRun): array {
             $windowEnd = CarbonImmutable::instance($currentRun->published_at);
             $windowStart = $windowEnd->subDays(self::WINDOW_DAYS);
+            // O início da janela é inclusivo e o fim é exclusivo. A comparação nunca
+            // cruza imobiliárias, pois a identidade só é única dentro de cada origem.
             $agencyHistory = $historyByAgency
                 ->get($currentRun->crawl_agency_id, collect())
                 ->filter(fn (CrawlerRun $historyRun): bool => $historyRun->published_at->greaterThanOrEqualTo($windowStart)
@@ -83,6 +99,11 @@ class PublishedListingHistoryService
     }
 
     /**
+     * Busca de uma vez os snapshots publicados de todas as imobiliárias.
+     *
+     * Cada imobiliária tem sua própria janela, então aqui a consulta usa o maior
+     * intervalo possível, e forCurrentRuns aplica depois o recorte exato de cada uma.
+     *
      * @param  EloquentCollection<int, CrawlerRun>  $currentRuns
      * @return EloquentCollection<int, CrawlerRun>
      */
@@ -105,6 +126,11 @@ class PublishedListingHistoryService
     }
 
     /**
+     * Lista as identidades realmente vistas em cada snapshot do histórico.
+     *
+     * Versões sem market_property_id representam ausência. Elas ficam de fora para que
+     * um anúncio que só constava como ausente não conte como observado naquele snapshot.
+     *
      * @param  EloquentCollection<int, CrawlerRun>  $historyRuns
      * @return array<int, list<int>>
      */

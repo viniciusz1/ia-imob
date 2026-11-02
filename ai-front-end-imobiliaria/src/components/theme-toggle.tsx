@@ -12,6 +12,8 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+// O tema depende do navegador, então o menu só é montado depois de carregar no cliente.
+// Até lá, o servidor e o navegador mostram o mesmo botão, evitando erro de hidratação.
 const subscribeToNothing = () => () => {};
 
 export function ThemeToggle() {

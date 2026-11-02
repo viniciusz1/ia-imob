@@ -33,6 +33,7 @@ import type {
   NewPropertiesParams,
 } from "@/types/newProperties";
 
+// Botões de classificação exibidos acima dos filtros.
 const FILTERS: Array<{ value: NewPropertyFlagFilter; label: string }> = [
   { value: "all", label: "Todos os imóveis" },
   { value: "new", label: "Novidades" },
@@ -40,9 +41,11 @@ const FILTERS: Array<{ value: NewPropertyFlagFilter; label: string }> = [
   { value: "both", label: "Novidades com oportunidade" },
 ];
 
+// Opções dos filtros de quartos, banheiros e vagas. "5+" significa cinco ou mais.
 const COUNT_FILTER_VALUES = ["1", "2", "3", "4", "5+"] as const;
 type CountFilterValue = "all" | (typeof COUNT_FILTER_VALUES)[number];
 
+/** Monta o texto da opção, usando o singular quando o valor é 1 ("1 quarto"). */
 function countLabel(value: (typeof COUNT_FILTER_VALUES)[number], unit: string): string {
   if (value === "5+") return `5+ ${unit}`;
   if (value === "1") return `1 ${unit.slice(0, -1)}`;
@@ -50,6 +53,7 @@ function countLabel(value: (typeof COUNT_FILTER_VALUES)[number], unit: string): 
   return `${value} ${unit}`;
 }
 
+/** Espaço reservado exibido enquanto a API responde. */
 function NewPropertiesSkeleton() {
   return (
     <div className="space-y-6" aria-label="Carregando novos imóveis">
@@ -64,6 +68,7 @@ function NewPropertiesSkeleton() {
   );
 }
 
+/** Bloco de uma imobiliária, com seus totais e os cards dos anúncios da página. */
 function AgencyGroup({ group }: { group: NewPropertyAgencyGroup }) {
   return (
     <Card className="gap-0 overflow-hidden border-border/80 py-0 shadow-sm">
@@ -114,6 +119,13 @@ function AgencyGroup({ group }: { group: NewPropertyAgencyGroup }) {
   );
 }
 
+/**
+ * Tela de Novos Imóveis.
+ *
+ * Os filtros ficam no estado da tela, mas quem filtra, ordena e pagina é a API.
+ * Toda mudança de filtro volta para a página 1, porque a página atual pode não
+ * existir no novo resultado.
+ */
 export function NewPropertiesClient() {
   const [filter, setFilter] = useState<NewPropertyFlagFilter>("all");
   const [search, setSearch] = useState("");
@@ -128,12 +140,15 @@ export function NewPropertiesClient() {
   const [bedrooms, setBedrooms] = useState<CountFilterValue>("all");
   const [bathrooms, setBathrooms] = useState<CountFilterValue>("all");
   const [parkingSpaces, setParkingSpaces] = useState<CountFilterValue>("all");
+
+  // Espera o usuário parar de digitar para não fazer uma consulta a cada letra.
   useEffect(() => {
     const timeout = window.setTimeout(() => setDebouncedSearch(search.trim()), 300);
 
     return () => window.clearTimeout(timeout);
   }, [search]);
 
+  // Só envia à API os filtros realmente escolhidos; "all" significa sem filtro.
   const params: NewPropertiesParams = {
     flag: filter,
     sort,
@@ -149,11 +164,13 @@ export function NewPropertiesClient() {
     ...(bathrooms !== "all" && { bathrooms }),
     ...(parkingSpaces !== "all" && { parking: parkingSpaces }),
   };
+  // Os parâmetros fazem parte da chave, então cada combinação de filtros tem seu cache.
   const query = useQuery({
     queryKey: ["new-properties", params],
     queryFn: () => getNewProperties(params),
     staleTime: 30_000,
   });
+  // As opções dos filtros vêm da API, de acordo com os dados realmente disponíveis.
   const filterOptions = query.data?.meta.filters;
 
   const hasPropertyFilters =
@@ -181,7 +198,9 @@ export function NewPropertiesClient() {
     setPage(1);
   }
 
+  // Imobiliárias sem anúncios nesta página não aparecem.
   const visibleGroups = query.data?.data.filter((group) => group.properties.length > 0) ?? [];
+  // Falta de permissão tem mensagem própria: tentar de novo não resolveria.
   const isForbidden = isAxiosError(query.error) && query.error.response?.status === 403;
 
   return (

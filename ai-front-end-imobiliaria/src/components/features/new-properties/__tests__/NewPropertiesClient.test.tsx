@@ -15,6 +15,7 @@ vi.mock("@/services/newPropertiesService", () => ({
   getNewProperties: vi.fn(),
 }));
 
+// Anúncio Novo usado como base nos cenários.
 const newProperty: NewPropertyItem = {
   id: 10,
   image: "https://images.example.com/apartamento.jpg",
@@ -49,6 +50,7 @@ const newProperty: NewPropertyItem = {
   sample_size_indicator: "medium",
 };
 
+// Anúncio que é Oportunidade, sem imagem, para cobrir o selo e o score.
 const opportunityProperty: NewPropertyItem = {
   ...newProperty,
   id: 11,
@@ -113,6 +115,7 @@ const response: NewPropertiesResponse = {
   },
 };
 
+// Imobiliária no primeiro snapshot, ainda sem histórico para indicar Novos.
 const insufficientResponse: NewPropertiesResponse = {
   data: [
     {
@@ -151,6 +154,7 @@ const insufficientResponse: NewPropertiesResponse = {
   },
 };
 
+/** Simula a API aplicando os filtros usados nos testes. */
 function filteredResponse(params: NewPropertiesParams = {}): NewPropertiesResponse {
   const properties = response.data[0].properties.filter((property) => {
     if (params.flag === "new" && !property.is_new) return false;
@@ -290,6 +294,7 @@ describe("NewPropertiesClient", () => {
     expect(await screen.findByRole("heading", { name: "Apartamento novo no Centro" })).toBeInTheDocument();
   });
 
+  // Busca, filtro de quartos e estado vazio quando nada atende ao filtro.
   it("searches listings and applies the main property filters", async () => {
     vi.mocked(getNewProperties).mockImplementation(async (params) => filteredResponse(params));
 
@@ -318,6 +323,7 @@ describe("NewPropertiesClient", () => {
     expect(await screen.findByRole("heading", { name: "Casa com bom custo-benefício" })).toBeInTheDocument();
   }, 15_000);
 
+  // Cada filtro precisa chegar à API e voltar para a página 1.
   it.each([
     ["Filtrar por imobiliária", "Imobiliária Exemplo", { agency_id: 7 }],
     ["Filtrar por tipo", "Casa", { type: "Casa" }],
@@ -362,6 +368,7 @@ describe("NewPropertiesClient", () => {
     expect(screen.queryByRole("button", { name: /limpar filtros/i })).not.toBeInTheDocument();
   }, 15_000);
 
+  // Falta de informações: o card continua legível mesmo sem nenhum dado da fonte.
   it("keeps a listing readable when the source did not provide its details", async () => {
     vi.mocked(getNewProperties).mockResolvedValue({
       ...response,
@@ -434,6 +441,7 @@ describe("NewPropertiesClient", () => {
     await waitFor(() => expect(getNewProperties).toHaveBeenCalledTimes(2));
   });
 
+  // Acesso de usuários: sem permissão, a tela não pode sugerir problema de conexão.
   it("explains that access is denied instead of suggesting a connection problem", async () => {
     vi.mocked(getNewProperties).mockRejectedValue(
       Object.assign(new AxiosError("forbidden"), { response: { status: 403 } }),

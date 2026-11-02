@@ -8,12 +8,17 @@ use App\Http\Resources\NewProperties\NewPropertyAgencyResource;
 use App\Services\NewProperties\NewPropertiesQueryService;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
+/**
+ * Endpoint GET /api/v1/new-properties, consumido pela tela de Novos Imóveis.
+ * Contrato completo em docs/contexts/new-properties/API.md.
+ */
 class NewPropertiesController extends Controller
 {
     public function __invoke(
         IndexNewPropertiesRequest $request,
         NewPropertiesQueryService $service,
     ): AnonymousResourceCollection {
+        // Valores padrão, substituídos pelos parâmetros já validados da requisição.
         $result = $service->get([
             'page' => 1,
             'per_page' => 24,

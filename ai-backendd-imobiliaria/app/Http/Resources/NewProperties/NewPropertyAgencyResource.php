@@ -5,6 +5,9 @@ namespace App\Http\Resources\NewProperties;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * Formato JSON de um grupo de anúncios de uma mesma Imobiliária de Origem.
+ */
 class NewPropertyAgencyResource extends JsonResource
 {
     public function toArray(Request $request): array

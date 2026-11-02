@@ -5,6 +5,10 @@ use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
+    /**
+     * Cria um índice parcial para acelerar a busca do histórico por imobiliária e data.
+     * Ele guarda só os snapshots publicados, que são os únicos usados pelo módulo.
+     */
     public function up(): void
     {
         DB::statement(<<<'SQL'

@@ -15,10 +15,15 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
+/**
+ * Valida as regras, a API e o controle de acesso do módulo de Novos Imóveis.
+ * Os cenários cobrem anúncios repetidos, falta de informações e filtros.
+ */
 class NewPropertiesQueryServiceTest extends TestCase
 {
     use RefreshDatabase;
 
+    /** Cenário completo: um anúncio já conhecido, um Novo e um que é Novo e Oportunidade. */
     public function test_it_classifies_new_listings_and_price_per_square_meter_opportunities(): void
     {
         $publishedAt = CarbonImmutable::parse('2026-08-27 12:00:00', 'UTC');
@@ -106,6 +111,7 @@ class NewPropertiesQueryServiceTest extends TestCase
         $this->assertSame('low', $candidate['sample_size_indicator']);
     }
 
+    /** Sem snapshot anterior, nenhum anúncio pode ser marcado como Novo. */
     public function test_it_reports_insufficient_history_without_marking_every_current_listing_as_new(): void
     {
         $publishedAt = CarbonImmutable::parse('2026-09-01 12:00:00', 'UTC');
@@ -139,6 +145,7 @@ class NewPropertiesQueryServiceTest extends TestCase
         ], $result['groups'][0]['history']);
     }
 
+    /** Anúncio repetido: mudar preço, descrição, foto ou URL não o transforma em Novo. */
     public function test_changed_content_and_url_keep_the_same_external_listing_identity_and_are_not_new(): void
     {
         $publishedAt = CarbonImmutable::parse('2026-09-01 12:00:00', 'UTC');
@@ -152,7 +159,7 @@ class NewPropertiesQueryServiceTest extends TestCase
             'codigo-123',
             'https://example.test/imovel/endereco-antigo',
             500_000,
-            'DescriÃ§Ã£o antiga',
+            'Descrição antiga',
             'https://example.test/foto-antiga.jpg',
         );
         app(ListingInventoryService::class)->applyPublishedSnapshot($historyRun);
@@ -165,7 +172,7 @@ class NewPropertiesQueryServiceTest extends TestCase
             'codigo-123',
             'https://example.test/imovel/endereco-novo',
             450_000,
-            'DescriÃ§Ã£o e preÃ§o alterados',
+            'Descrição e preço alterados',
             'https://example.test/foto-nova.jpg',
         );
         app(ListingInventoryService::class)->applyPublishedSnapshot($currentRun);
@@ -185,6 +192,7 @@ class NewPropertiesQueryServiceTest extends TestCase
         $this->assertSame(['total' => 1, 'new' => 0, 'opportunities' => 0], $result['groups'][0]['counts']);
     }
 
+    /** O histórico ignora snapshots fora da janela, não publicados e de outras imobiliárias. */
     public function test_history_uses_only_published_snapshots_from_the_same_agency_in_the_inclusive_30_day_window(): void
     {
         $publishedAt = CarbonImmutable::parse('2026-09-01 12:00:00', 'UTC');
@@ -233,6 +241,7 @@ class NewPropertiesQueryServiceTest extends TestCase
         $this->assertSame(0, $result['meta']['total_new']);
     }
 
+    /** Filtros, ordenação e paginação da API, sem anúncio repetido entre as páginas. */
     public function test_api_filters_sorts_and_paginates_classified_listings_without_duplicates(): void
     {
         $this->seed(PermissionSeeder::class);
@@ -318,6 +327,7 @@ class NewPropertiesQueryServiceTest extends TestCase
         $this->getJson('/api/v1/new-properties?sort=wrong&per_page=101')->assertUnprocessable();
     }
 
+    /** Acesso de usuários e resposta da API para anúncio sem preço, área ou foto. */
     public function test_api_rejects_unauthorized_users_and_handles_missing_listing_data(): void
     {
         $this->getJson('/api/v1/new-properties')->assertUnauthorized();
@@ -350,6 +360,7 @@ class NewPropertiesQueryServiceTest extends TestCase
         $this->actingAs($user->fresh())->getJson('/api/v1/new-properties')->assertForbidden();
     }
 
+    /** Falta de informações: cada anúncio sem Oportunidade precisa trazer o motivo correto. */
     public function test_opportunity_reasons_explain_each_incomplete_or_unfavorable_listing(): void
     {
         $publishedAt = CarbonImmutable::parse('2026-10-01 12:00:00', 'UTC');
@@ -409,6 +420,7 @@ class NewPropertiesQueryServiceTest extends TestCase
         $this->assertNull($properties[$withoutPurpose]['purpose']);
     }
 
+    /** Só entram na amostra os imóveis realmente parecidos com o candidato. */
     public function test_comparable_sample_respects_area_band_bedrooms_and_purpose(): void
     {
         $publishedAt = CarbonImmutable::parse('2026-10-01 12:00:00', 'UTC');
@@ -448,6 +460,7 @@ class NewPropertiesQueryServiceTest extends TestCase
         $this->assertSame('low', $property['sample_size_indicator']);
     }
 
+    /** Anúncio que some e volta não é Novo, e anúncio vendido sai do inventário. */
     public function test_absent_and_removed_listings_leave_the_inventory_without_becoming_new_on_return(): void
     {
         $publishedAt = CarbonImmutable::parse('2026-10-01 12:00:00', 'UTC');
@@ -494,6 +507,7 @@ class NewPropertiesQueryServiceTest extends TestCase
         $this->assertSame(['total' => 2, 'new' => 0, 'opportunities' => 0], $afterReturn['groups'][0]['counts']);
     }
 
+    /** Conhecido só antes da janela volta a ser Novo, e outra imobiliária não interfere. */
     public function test_new_flag_ignores_listings_outside_the_window_and_from_other_agencies(): void
     {
         $publishedAt = CarbonImmutable::parse('2026-10-01 12:00:00', 'UTC');
@@ -523,6 +537,7 @@ class NewPropertiesQueryServiceTest extends TestCase
         );
     }
 
+    /** Filtros restantes e opções sem repetição, mesmo com grafias diferentes na fonte. */
     public function test_api_filters_by_every_characteristic_and_lists_each_option_once(): void
     {
         $this->seed(PermissionSeeder::class);
@@ -589,6 +604,7 @@ class NewPropertiesQueryServiceTest extends TestCase
         $this->assertSame(['locacao', 'venda'], $filters['purposes']);
     }
 
+    /** Cria um snapshot já publicado para a imobiliária. */
     private function createPublishedRun(int $agencyId, CarbonImmutable $publishedAt): int
     {
         return $this->createRun($agencyId, $publishedAt, 'published');
@@ -621,6 +637,7 @@ class NewPropertiesQueryServiceTest extends TestCase
         ]);
     }
 
+    /** Define qual snapshot é o publicado vigente da imobiliária. */
     private function pointAgencyToCurrentRun(int $agencyId, int $runId): void
     {
         DB::table('crawler.crawl_agencies')
@@ -628,6 +645,7 @@ class NewPropertiesQueryServiceTest extends TestCase
             ->update(['current_published_crawl_run_id' => $runId]);
     }
 
+    /** Cria um anúncio para ser processado pelo serviço real de inventário do crawler. */
     private function createInventoryProperty(
         int $runId,
         string $externalId,
@@ -663,6 +681,9 @@ class NewPropertiesQueryServiceTest extends TestCase
     }
 
     /**
+     * Cria um anúncio observado no snapshot, reaproveitando a identidade quando informada.
+     * Os atributos extras substituem os valores padrão do imóvel.
+     *
      * @return array{property_id: int, identity_id: int}
      */
     private function createObservedProperty(
