@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\Crawler\NeighborhoodCatalog;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -107,7 +108,22 @@ class MarketProperty extends Model
         }
 
         if (! empty($filters['bairro'])) {
-            $query->whereIn('bairro', (array) $filters['bairro']);
+            $bairros = array_values(array_filter(array_map('trim', (array) $filters['bairro'])));
+            if (! empty($bairros)) {
+                $query->where(function ($q) use ($bairros): void {
+                    $q->whereIn('bairro', $bairros);
+                    foreach ($bairros as $bairro) {
+                        $q->orWhereRaw('f_unaccent(LOWER(bairro)) = f_unaccent(LOWER(?))', [$bairro]);
+                        $aliases = NeighborhoodCatalog::aliasesFor($bairro);
+                        if (! empty($aliases)) {
+                            $q->orWhereIn('bairro', $aliases);
+                            foreach ($aliases as $alias) {
+                                $q->orWhereRaw('f_unaccent(LOWER(bairro)) = f_unaccent(LOWER(?))', [$alias]);
+                            }
+                        }
+                    }
+                });
+            }
         }
 
         if (! empty($filters['cidade'])) {

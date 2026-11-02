@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\MarketPropertyResource;
 use App\Models\MarketProperty;
 use App\Services\Crawler\CityCatalog;
+use App\Services\Crawler\NeighborhoodCatalog;
 use App\Services\Crawler\PropertyTypeCatalog;
 use App\Services\MarketSearchQuotaService;
 use Illuminate\Http\Request;
@@ -103,15 +104,6 @@ class MarketPropertyController extends Controller
             ->orderBy('tipo')
             ->pluck('tipo');
 
-        $bairros = (clone $baseQuery)
-            ->whereNotNull('bairro')
-            ->where('bairro', '!=', '')
-            ->distinct()
-            ->orderBy('bairro')
-            ->pluck('bairro')
-            ->reject(fn ($bairro) => CityCatalog::isInvalidLocationValue((string) $bairro))
-            ->values();
-
         $cidades = (clone $baseQuery)
             ->whereNotNull('cidade')
             ->where('cidade', '!=', '')
@@ -136,9 +128,20 @@ class MarketPropertyController extends Controller
             ->get()
             ->map(function ($property): ?array {
                 $cidade = CityCatalog::canonicalNameFor((string) $property->cidade);
-                $bairro = trim((string) $property->bairro);
+                $rawBairro = trim((string) $property->bairro);
 
-                if ($cidade === null || CityCatalog::isInvalidLocationValue($bairro)) {
+                if ($cidade === null || CityCatalog::isInvalidLocationValue($rawBairro) || NeighborhoodCatalog::isInvalidLocationValue($rawBairro)) {
+                    return null;
+                }
+
+                $hasCityCatalog = NeighborhoodCatalog::hasCatalogFor($cidade);
+                $canonicalBairro = NeighborhoodCatalog::canonicalNameFor($rawBairro, $cidade);
+
+                if ($canonicalBairro !== null) {
+                    $bairro = $canonicalBairro;
+                } elseif (! $hasCityCatalog) {
+                    $bairro = $rawBairro;
+                } else {
                     return null;
                 }
 
@@ -151,6 +154,8 @@ class MarketPropertyController extends Controller
             ->groupBy('cidade')
             ->sortKeys()
             ->map(fn ($properties) => $properties->pluck('bairro')->unique()->sort()->values());
+
+        $bairros = $bairrosPorCidade->flatten()->unique()->sort()->values();
 
         $imobiliarias = (clone $baseQuery)
             ->join('crawler.crawl_runs as run', 'run.id', '=', 'crawler.market_properties.crawler_run_id')

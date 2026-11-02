@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\AiParseCache;
 use App\Models\MarketProperty;
 use App\Services\Ai\Providers\LlmProvider;
+use App\Services\Crawler\NeighborhoodCatalog;
 use App\Services\Crawler\PropertyTypeCatalog;
 use App\Services\Overpass\ProximityResolver;
 use Illuminate\Support\Facades\Log;
@@ -457,6 +458,11 @@ PROMPT;
 
     private function normalizeNeighborhoodName(string $bairro, ?string $city): string
     {
+        $canonical = NeighborhoodCatalog::canonicalNameFor($bairro, $city);
+        if ($canonical !== null) {
+            return $canonical;
+        }
+
         return $this->proximityResolver->normalizeNeighborhoodName($bairro, $city);
     }
 

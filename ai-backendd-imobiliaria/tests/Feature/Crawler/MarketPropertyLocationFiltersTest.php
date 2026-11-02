@@ -5,6 +5,7 @@ namespace Tests\Feature\Crawler;
 use App\Http\Controllers\Api\MarketPropertyController;
 use App\Models\MarketProperty;
 use App\Services\Crawler\CityCatalog;
+use App\Services\Crawler\NeighborhoodCatalog;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -66,5 +67,61 @@ class MarketPropertyLocationFiltersTest extends TestCase
         $this->assertSame('Jaraguá do Sul', $composite->refresh()->cidade);
         $this->assertNull($urlRow->refresh()->cidade);
         $this->assertNull($urlRow->refresh()->bairro);
+    }
+
+    public function test_it_standardizes_jaragua_do_sul_neighborhoods_in_filters(): void
+    {
+        MarketProperty::factory()->create(['cidade' => 'Jaraguá do Sul', 'bairro' => 'Tres Rios do Norte']);
+        MarketProperty::factory()->create(['cidade' => 'Jaraguá do Sul', 'bairro' => 'Três Rios do Norte']);
+        MarketProperty::factory()->create(['cidade' => 'Jaraguá do Sul', 'bairro' => 'Três Rios no Norte']);
+        MarketProperty::factory()->create(['cidade' => 'Jaraguá do Sul', 'bairro' => 'Sao Luis']);
+        MarketProperty::factory()->create(['cidade' => 'Jaraguá do Sul', 'bairro' => 'São Luis']);
+        MarketProperty::factory()->create(['cidade' => 'Jaraguá do Sul', 'bairro' => 'Santo Antonio']);
+        MarketProperty::factory()->create(['cidade' => 'Jaraguá do Sul', 'bairro' => 'Santo Antônio']);
+        MarketProperty::factory()->create(['cidade' => 'Jaraguá do Sul', 'bairro' => 'Vieiras']);
+        MarketProperty::factory()->create(['cidade' => 'Jaraguá do Sul', 'bairro' => 'Vieira']);
+        MarketProperty::factory()->create(['cidade' => 'Jaraguá do Sul', 'bairro' => 'Vila de chartres']);
+        MarketProperty::factory()->create(['cidade' => 'Jaraguá do Sul', 'bairro' => 'Vila Chartres']);
+        MarketProperty::factory()->create(['cidade' => 'Jaraguá do Sul', 'bairro' => 'Vila Rau']);
+        MarketProperty::factory()->create(['cidade' => 'Jaraguá do Sul', 'bairro' => 'Tifa Monos']);
+        MarketProperty::factory()->create(['cidade' => 'Jaraguá do Sul', 'bairro' => 'Tifa dos Monos']);
+        MarketProperty::factory()->create(['cidade' => 'Jaraguá do Sul', 'bairro' => 'APARTAMENTO NO BAIRRO VIEIRAS']);
+        MarketProperty::factory()->create(['cidade' => 'Jaraguá do Sul', 'bairro' => '2 quartos e 1 banheiro social']);
+
+        $data = app(MarketPropertyController::class)->filters()->getData(true);
+
+        $this->assertSame([
+            'Rau',
+            'Santo Antônio',
+            'São Luís',
+            'Tifa dos Monos',
+            'Três Rios do Norte',
+            'Vieira',
+            'Vila Chartres',
+        ], $data['bairros_por_cidade']['Jaraguá do Sul']);
+    }
+
+    public function test_it_normalizes_stored_market_property_neighborhoods(): void
+    {
+        $unaccented = MarketProperty::factory()->create(['cidade' => 'Jaraguá do Sul', 'bairro' => 'Tres Rios do Norte']);
+        $alias = MarketProperty::factory()->create(['cidade' => 'Jaraguá do Sul', 'bairro' => 'Vila de chartres']);
+        $embedded = MarketProperty::factory()->create(['cidade' => 'Jaraguá do Sul', 'bairro' => 'APARTAMENTO NO BAIRRO VIEIRAS']);
+        $junk = MarketProperty::factory()->create(['cidade' => 'Jaraguá do Sul', 'bairro' => '02 vagas de garagem. Aluguel R$ 2.200']);
+
+        NeighborhoodCatalog::normalizeStoredMarketProperties('Jaraguá do Sul');
+
+        $this->assertSame('Três Rios do Norte', $unaccented->refresh()->bairro);
+        $this->assertSame('Vila Chartres', $alias->refresh()->bairro);
+        $this->assertSame('Vieira', $embedded->refresh()->bairro);
+        $this->assertNull($junk->refresh()->bairro);
+    }
+
+    public function test_scope_apply_filters_matches_neighborhood_aliases(): void
+    {
+        MarketProperty::factory()->create(['cidade' => 'Jaraguá do Sul', 'bairro' => 'Tres Rios no Norte']);
+
+        $results = MarketProperty::query()->applyFilters(['bairro' => ['Três Rios do Norte']])->get();
+
+        $this->assertCount(1, $results);
     }
 }
