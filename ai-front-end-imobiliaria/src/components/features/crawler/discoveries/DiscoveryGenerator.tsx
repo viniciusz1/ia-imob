@@ -35,7 +35,7 @@ export function DiscoveryGenerator({ agencyId, contracts }: DiscoveryGeneratorPr
   const [contractId, setContractId] = useState(activeContracts[0]?.id.toString() ?? "");
   const [isQueueing, setIsQueueing] = useState(false);
   const [sources, setSources] = useState<DiscoverySource[]>(DEFAULT_SOURCES);
-  const [maxUrls, setMaxUrls] = useState("500");
+  const [maxUrls, setMaxUrls] = useState("5000");
   const [includeSubdomains, setIncludeSubdomains] = useState(true);
   const [useBrowserForHomepage, setUseBrowserForHomepage] = useState(false);
   const [query, setQuery] = useState("");
