@@ -208,7 +208,7 @@ O foco passa a ser:
 
 ## Crawls e Qualidade
 
-As áreas de Crawls e Qualidade são rotas distintas. Crawls apresenta dois fluxos visivelmente separados: **Validar Perfil de Extração** e **Executar Crawl de Produção**. O histórico cronológico é único, pode ser filtrado por tipo e abre detalhes compartilháveis; um crawl de produção mostra apenas o estado resumido do Portão de Qualidade e oferece link para Qualidade.
+As áreas de Crawls e Qualidade são rotas distintas. Crawls apresenta um bloco unificado **Executar Crawl** com seleção via checkbox entre o crawl normal de produção e o crawl de validação (para perfis candidatos ou com revalidação pendente). O histórico cronológico é único, pode ser filtrado por tipo e abre detalhes compartilháveis; um crawl de produção mostra apenas o estado resumido do Portão de Qualidade e oferece link para Qualidade.
 
 O comando de Crawl de Validação existe somente em Crawls. Perfis de Extração mostra o estado e oferece `Validar em Crawls`; aprovação, rejeição e ativação continuam pertencendo ao perfil. Quando uma Execução de Onboarding ativa coordena a validação, Crawls mostra a execução e a etapa, desabilita o comando com uma explicação acessível e oferece `Abrir Onboarding`. Não cria uma validação avulsa paralela.
 
