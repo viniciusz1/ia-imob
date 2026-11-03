@@ -74,7 +74,7 @@ describe("CrawlerModuleNavigation", () => {
     expect(screen.queryByRole("link", { name: "Cadastrar agência" })).not.toBeInTheDocument();
   });
 
-  it("shows contextual action on agencies page", () => {
+  it("does not duplicate register agency action on agencies page", () => {
     mocks.pathname = "/admin/crawler/agencies";
     useAuthStore.getState().setUser({
       id: 2,
@@ -90,7 +90,7 @@ describe("CrawlerModuleNavigation", () => {
 
     render(<CrawlerModuleNavigation />);
 
-    expect(screen.getByRole("link", { name: "Cadastrar agência" })).toHaveAttribute("href", "/admin/crawler/agencies/new");
+    expect(screen.queryByRole("link", { name: "Cadastrar agência" })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Nova prospecção" })).not.toBeInTheDocument();
   });
 

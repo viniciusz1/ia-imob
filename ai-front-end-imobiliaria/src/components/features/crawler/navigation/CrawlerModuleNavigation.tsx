@@ -38,10 +38,6 @@ function actionsForPath(pathname: string) {
     return [newProspectingAction];
   }
 
-  if (pathname === `${moduleRoot}/agencies`) {
-    return [registerAgencyAction];
-  }
-
   return [];
 }
 

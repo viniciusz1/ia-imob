@@ -71,7 +71,7 @@ const crawlerSubItems: PlatformNavSubItem[] = [
         isActive: (pathname) => pathname.startsWith("/admin/crawler/queue"),
     },
     {
-        label: "Crawl Agencies",
+        label: "Agências",
         href: "/admin/crawler/agencies",
         icon: Building2,
         permission: "crawler.view",

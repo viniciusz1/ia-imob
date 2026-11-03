@@ -65,6 +65,11 @@ describe("CrawlAgenciesClient", () => {
       />,
     );
 
+    expect(screen.getByRole("heading", { name: "Agências" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Nova Agência" })).toHaveAttribute(
+      "href",
+      "/admin/crawler/agencies/new",
+    );
     expect(screen.getByText("onboarding")).toBeInTheDocument();
     expect(screen.getByText("unknown")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /imóveis litoral/i })).toHaveAttribute(
@@ -79,7 +84,7 @@ describe("CrawlAgenciesClient", () => {
       <CrawlAgenciesClient initialAgencies={[]} initialSearch="" pageCount={2} />,
     );
 
-    fireEvent.change(screen.getByRole("searchbox", { name: "Filtrar Crawl Agencies" }), {
+    fireEvent.change(screen.getByRole("searchbox", { name: "Filtrar Agências" }), {
       target: { value: "seculus.net" },
     });
     fireEvent.click(screen.getByRole("button", { name: "Buscar" }));

@@ -53,7 +53,9 @@ describe("PlatformAdminNavigation", () => {
         expect(screen.getByRole("link", { name: "Visão geral do Crawler" })).toHaveAttribute("href", "/admin/crawler");
         expect(screen.getByRole("link", { name: "Prospecção" })).toHaveAttribute("href", "/admin/crawler/prospects");
         expect(screen.getByRole("link", { name: "Fila" })).toHaveAttribute("href", "/admin/crawler/queue");
-        expect(screen.getByRole("link", { name: "Crawl Agencies" })).toHaveAttribute("href", "/admin/crawler/agencies");
+        expect(
+            screen.getAllByRole("link", { name: "Agências" }).map((link) => link.getAttribute("href")),
+        ).toEqual(["/admin/agencies", "/admin/crawler/agencies"]);
         expect(screen.getByRole("link", { name: "Qualidade" })).toHaveAttribute("href", "/admin/crawler/quality");
         expect(screen.getByRole("link", { name: "Configurações" })).toHaveAttribute("href", "/admin/crawler/settings");
 
@@ -72,7 +74,10 @@ describe("PlatformAdminNavigation", () => {
         const crawlerButton = screen.getByRole("button", { name: "Crawler" });
         expect(crawlerButton).toHaveAttribute("aria-expanded", "true");
 
-        expect(screen.getByRole("link", { name: "Crawl Agencies" })).toHaveAttribute("aria-current", "page");
+        const crawlerAgenciesLink = screen
+            .getAllByRole("link", { name: "Agências" })
+            .find((link) => link.getAttribute("href") === "/admin/crawler/agencies");
+        expect(crawlerAgenciesLink).toHaveAttribute("aria-current", "page");
         expect(screen.getByRole("link", { name: "Visão geral do Crawler" })).not.toHaveAttribute("aria-current");
         expect(screen.getByRole("link", { name: "Visão geral" })).not.toHaveAttribute("aria-current");
     });
@@ -97,13 +102,16 @@ describe("PlatformAdminNavigation", () => {
         expect(screen.getByRole("link", { name: "Visão geral do Crawler" })).not.toHaveAttribute("aria-current");
     });
 
-    it("keeps Crawl Agencies active on agency workflow detail pages", () => {
+    it("keeps Agências active on agency workflow detail pages", () => {
         mocks.pathname = "/admin/crawler/runs/42";
         signIn(["platform.agencies.view", "crawler.view"]);
 
         render(<PlatformAdminNavigation />);
 
-        expect(screen.getByRole("link", { name: "Crawl Agencies" })).toHaveAttribute("aria-current", "page");
+        const crawlerAgenciesLink = screen
+            .getAllByRole("link", { name: "Agências" })
+            .find((link) => link.getAttribute("href") === "/admin/crawler/agencies");
+        expect(crawlerAgenciesLink).toHaveAttribute("aria-current", "page");
     });
 
     it("marks Quality active throughout the quality workflow", () => {

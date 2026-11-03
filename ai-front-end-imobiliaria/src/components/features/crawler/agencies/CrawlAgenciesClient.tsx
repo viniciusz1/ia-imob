@@ -210,9 +210,9 @@ export function CrawlAgenciesClient({
     <section className="space-y-4">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h2 className="text-lg font-semibold">Crawl Agencies</h2>
+          <h2 className="text-lg font-semibold">Agências</h2>
           <p className="text-muted-foreground">
-            Fontes globais de dados de mercado, independentes das Agencies clientes.
+            Fontes globais de dados de mercado, independentes das agências clientes.
           </p>
         </div>
         <div className="flex flex-wrap justify-end gap-2">
@@ -225,7 +225,7 @@ export function CrawlAgenciesClient({
                 <AlertDialogHeader>
                   <AlertDialogTitle>Rodar todos os crawls ativos novamente?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    Esta ação considera todas as Crawl Agencies com lifecycle ativo, independentemente da busca e da página atual. Cada execução usará Discovery novo e a configuração atualmente ativa.
+                    Esta ação considera todas as agências com lifecycle ativo, independentemente da busca e da página atual. Cada execução usará Discovery novo e a configuração atualmente ativa.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
@@ -244,7 +244,7 @@ export function CrawlAgenciesClient({
             </AlertDialog>
           )}
           <Link className="rounded-md bg-primary px-4 py-2 text-primary-foreground" href="/admin/crawler/agencies/new">
-            Nova Crawl Agency
+            Nova Agência
           </Link>
         </div>
       </div>
@@ -260,7 +260,7 @@ export function CrawlAgenciesClient({
           {bulkResult.batch && <Link className="text-sm font-medium underline" href={`/admin/crawler/batches/${bulkResult.batch.id}`}>Acompanhar lote #{bulkResult.batch.id}</Link>}
           {bulkResult.skipped.length > 0 && (
             <div>
-              <p className="text-sm font-medium">Crawl Agencies ignoradas</p>
+              <p className="text-sm font-medium">Agências ignoradas</p>
               <ul className="mt-1 space-y-1 text-sm text-muted-foreground">
                 {bulkResult.skipped.map((skipped) => (
                   <li key={skipped.crawl_agency.id}>
@@ -279,7 +279,7 @@ export function CrawlAgenciesClient({
       <form className="flex flex-wrap items-center gap-2" onSubmit={applySearch}>
         <div className="min-w-[220px] flex-1">
           <Input
-            aria-label="Filtrar Crawl Agencies"
+            aria-label="Filtrar Agências"
             onChange={(event) => setSearch(event.target.value)}
             placeholder="Nome, domínio ou cidade"
             type="search"
@@ -323,7 +323,7 @@ export function CrawlAgenciesClient({
       <DataTable
         columns={columns}
         data={initialAgencies}
-        emptyMessage="Nenhuma Crawl Agency encontrada."
+        emptyMessage="Nenhuma agência encontrada."
         pageCount={pageCount}
       />
     </section>
