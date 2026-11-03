@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -39,8 +39,14 @@ export function ExecuteCrawlPanel({
   snapshots,
   defaultIsValidation,
 }: ExecuteCrawlPanelProps) {
-  const hasUsableProductionProfiles = profiles.some((profile) => ["active", "approved"].includes(profile.status));
-  const hasEligibleValidationProfiles = profiles.some(
+  const [profileList, setProfileList] = useState(profiles);
+
+  useEffect(() => {
+    setProfileList(profiles);
+  }, [profiles]);
+
+  const hasUsableProductionProfiles = profileList.some((profile) => ["active", "approved"].includes(profile.status));
+  const hasEligibleValidationProfiles = profileList.some(
     (profile) => profile.status === "candidate" || profile.status === "revalidation_required",
   );
 
@@ -86,7 +92,10 @@ export function ExecuteCrawlPanel({
           activeOnboarding={activeOnboarding}
           agencyId={agency.id}
           initialOperations={initialOperations}
-          profiles={profiles}
+          onProfileChange={(updated) => {
+            setProfileList((current) => current.map((p) => p.id === updated.id ? updated : (p.status === "active" ? { ...p, status: "approved" as const } : p)));
+          }}
+          profiles={profileList}
         />
       ) : (
         <ProductionCrawlPanel
@@ -94,7 +103,7 @@ export function ExecuteCrawlPanel({
           discoveryPolicies={discoveryPolicies}
           hasActiveQualityPolicy={hasActiveQualityPolicy}
           pendingCandidateRunId={pendingCandidateRunId}
-          profiles={profiles}
+          profiles={profileList}
           snapshots={snapshots}
         />
       )}

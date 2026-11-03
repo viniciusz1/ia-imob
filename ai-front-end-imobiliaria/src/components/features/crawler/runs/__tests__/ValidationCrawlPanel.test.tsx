@@ -1,13 +1,14 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { queueProfileValidation } from "@/services/crawlerService";
+import { activateExtractionProfile, queueProfileValidation } from "@/services/crawlerService";
 import { useAuthStore } from "@/store/useAuthStore";
 import type { CrawlerOperation, ExtractionProfile } from "@/types/crawler";
 
 import { ValidationCrawlPanel } from "../ValidationCrawlPanel";
 
 vi.mock("@/services/crawlerService", () => ({
+  activateExtractionProfile: vi.fn(),
   getCrawlerOperation: vi.fn(),
   queueProfileValidation: vi.fn(),
 }));
@@ -85,6 +86,33 @@ describe("ValidationCrawlPanel", () => {
         linkToOnboarding: true,
         standalone: false,
       });
+    });
+  });
+
+  it("activates selected candidate profile directly from validation crawl panel", async () => {
+    const candidateProfile = profile(2, 2, "candidate");
+    vi.mocked(activateExtractionProfile).mockResolvedValue({
+      ...candidateProfile,
+      status: "active",
+      activated_by: 1,
+      activated_at: "2026-07-02T13:00:00Z",
+    });
+
+    render(
+      <ValidationCrawlPanel
+        activeOnboarding={null}
+        agencyId={42}
+        initialOperations={[]}
+        profiles={[profile(1, 1, "candidate"), candidateProfile]}
+      />,
+    );
+
+    const activateBtn = screen.getByRole("button", { name: "Ativar Perfil" });
+    expect(activateBtn).toBeInTheDocument();
+    fireEvent.click(activateBtn);
+
+    await waitFor(() => {
+      expect(activateExtractionProfile).toHaveBeenCalledWith(2);
     });
   });
 });

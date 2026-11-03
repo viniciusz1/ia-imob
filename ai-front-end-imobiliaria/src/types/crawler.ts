@@ -324,7 +324,7 @@ export interface ExtractionProfile {
   activated_by: number | null;
   activator?: { id: number; name: string } | null;
   activated_at: string | null;
-  latest_validation_report: ProfileValidationReport | null;
+  latest_validation_report?: ProfileValidationReport | null;
   created_at: string;
 }
 
@@ -510,7 +510,7 @@ export interface ManualOnboardingConfiguration {
 
 export interface OnboardingPlan {
   id: number;
-  prospect_id: number;
+  prospect_id: number | null;
   crawl_agency_id: number;
   name: string | null;
   conduction: OnboardingConduction | null;
@@ -522,7 +522,7 @@ export interface OnboardingPlan {
   first_production_discovery_mode: FirstProductionDiscoveryMode;
   confirmed_by: number | null;
   confirmed_at: string | null;
-  created_by: number;
+  created_by: number | null;
   created_at: string;
   updated_at: string;
 }

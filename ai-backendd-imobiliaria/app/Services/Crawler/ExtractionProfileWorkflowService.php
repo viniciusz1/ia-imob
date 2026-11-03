@@ -130,13 +130,13 @@ class ExtractionProfileWorkflowService
             'decision_reason' => $reason,
         ]);
 
-        return $profile->refresh();
+        return $profile->refresh()->load(['latestValidationReport', 'decider', 'activator']);
     }
 
     public function activate(ExtractionProfile $profile, User $actor): ExtractionProfile
     {
-        if ($profile->status !== 'approved') {
-            throw ValidationException::withMessages(['status' => 'Only an approved profile can be activated.']);
+        if (! in_array($profile->status, ['approved', 'candidate', 'revalidation_required'], true)) {
+            throw ValidationException::withMessages(['status' => 'Only an approved, candidate, or revalidation required profile can be activated.']);
         }
 
         if ($profile->market_data_contract_version_id !== $profile->contract()->where('status', 'active')->value('id')) {
@@ -151,12 +151,15 @@ class ExtractionProfileWorkflowService
                 ->update(['status' => 'approved']);
             $profile->update([
                 'status' => 'active',
+                'decided_by' => $profile->decided_by ?? $actor->id,
+                'decided_at' => $profile->decided_at ?? now(),
+                'decision_reason' => $profile->decision_reason ?? 'Ativado diretamente.',
                 'activated_by' => $actor->id,
                 'activated_at' => now(),
             ]);
             $profile->crawlAgency()->update(['revalidation_required' => false]);
 
-            return $profile->refresh();
+            return $profile->refresh()->load(['latestValidationReport', 'decider', 'activator']);
         });
     }
 }

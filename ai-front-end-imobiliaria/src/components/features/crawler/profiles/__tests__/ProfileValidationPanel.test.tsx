@@ -110,6 +110,30 @@ describe("ProfileValidationPanel", () => {
     expect(screen.getByText("Ativo")).toBeInTheDocument();
   });
 
+  it("activates a candidate profile directly from the profile list without prior approval", async () => {
+    vi.mocked(activateExtractionProfile).mockResolvedValue({
+      ...profile,
+      status: "active",
+      activated_by: 1,
+      activated_at: "2026-07-16T13:00:00Z",
+    });
+    render(<ProfileValidationPanel agencyLifecycle="active" initialProfile={profile} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Ativar Perfil de Extração" }));
+
+    await waitFor(() => expect(activateExtractionProfile).toHaveBeenCalledWith(9));
+    expect(screen.getByText("Ativo")).toBeInTheDocument();
+  });
+
+  it("handles profile without latest_validation_report safely without crashing", () => {
+    const profileWithoutReport: ExtractionProfile = {
+      ...profile,
+      latest_validation_report: undefined,
+    };
+    render(<ProfileValidationPanel agencyLifecycle="active" initialProfile={profileWithoutReport} />);
+    expect(screen.getByText("Perfil v1")).toBeInTheDocument();
+  });
+
   it("keeps agency activation on the active profile after removing the next-action band", async () => {
     vi.mocked(activateCrawlAgency).mockResolvedValue({
       id: 42,

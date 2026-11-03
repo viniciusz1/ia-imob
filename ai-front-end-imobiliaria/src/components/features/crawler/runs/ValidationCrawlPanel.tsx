@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { CrawlerOperationStatus } from "@/components/features/crawler/CrawlerOperationStatus";
@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { usePermission } from "@/hooks/usePermission";
-import { queueProfileValidation } from "@/services/crawlerService";
+import { activateExtractionProfile, queueProfileValidation } from "@/services/crawlerService";
 import type { CrawlerOperation, ExtractionProfile, OnboardingExecution } from "@/types/crawler";
 
 import { crawlerOperationErrorMessage } from "../crawlerOperationFeedback";
@@ -20,6 +20,7 @@ interface ValidationCrawlPanelProps {
   activeOnboarding: Pick<OnboardingExecution, "id" | "current_step" | "operations"> | null;
   initialOperations: CrawlerOperation[];
   profiles: ExtractionProfile[];
+  onProfileChange?: (profile: ExtractionProfile) => void;
 }
 
 function operationProfileId(operation: CrawlerOperation): number | null {
@@ -27,19 +28,28 @@ function operationProfileId(operation: CrawlerOperation): number | null {
   return typeof value === "number" ? value : null;
 }
 
-export function ValidationCrawlPanel({ agencyId, activeOnboarding, initialOperations, profiles }: ValidationCrawlPanelProps) {
+export function ValidationCrawlPanel({ agencyId, activeOnboarding, initialOperations, profiles, onProfileChange }: ValidationCrawlPanelProps) {
+  const [profileList, setProfileList] = useState(profiles);
+  const [activating, setActivating] = useState(false);
+  const canExecute = usePermission("crawler.operations.execute");
+  const canActivate = usePermission(["crawler.profiles.approve", "crawler.operations.execute"]);
+
+  useEffect(() => {
+    setProfileList(profiles);
+  }, [profiles]);
+
   const eligibleProfiles = useMemo(
-    () => profiles
+    () => profileList
       .filter((profile) => profile.status === "candidate" || profile.status === "revalidation_required")
       .sort((left, right) => right.version - left.version),
-    [profiles],
+    [profileList],
   );
   const [profileId, setProfileId] = useState(eligibleProfiles[0]?.id ?? null);
   const [linkToOnboarding, setLinkToOnboarding] = useState(true);
   const [operations, setOperations] = useState(initialOperations.filter((operation) => operation.type === "profile_validation"));
   const [pending, setPending] = useState(false);
-  const canExecute = usePermission("crawler.operations.execute");
   const selectedProfile = eligibleProfiles.find((profile) => profile.id === profileId) ?? null;
+  const latestOperation = operations.find((operation) => operationProfileId(operation) === profileId) ?? null;
   const activeOperation = operations.find((operation) => operationProfileId(operation) === profileId && isActiveCrawlerOperation(operation)) ?? null;
 
   useCrawlerOperationPolling({
@@ -68,6 +78,21 @@ export function ValidationCrawlPanel({ agencyId, activeOnboarding, initialOperat
       toast.error(crawlerOperationErrorMessage(error, "Não foi possível iniciar o Crawl de Validação."));
     } finally {
       setPending(false);
+    }
+  };
+
+  const activateSelectedProfile = async () => {
+    if (!selectedProfile) return;
+    setActivating(true);
+    try {
+      const updated = await activateExtractionProfile(selectedProfile.id);
+      setProfileList((current) => current.map((p) => p.id === updated.id ? updated : (p.status === "active" ? { ...p, status: "approved" as const } : p)));
+      onProfileChange?.(updated);
+      toast.success(`Perfil v${selectedProfile.version} ativado com sucesso.`);
+    } catch (error: unknown) {
+      toast.error(crawlerOperationErrorMessage(error, "Não foi possível ativar o Perfil de Extração."));
+    } finally {
+      setActivating(false);
     }
   };
 
@@ -105,7 +130,7 @@ export function ValidationCrawlPanel({ agencyId, activeOnboarding, initialOperat
         <Label htmlFor="validation-profile">Perfil de Extração</Label>
         <select
           className="h-10 w-full rounded-md border bg-background px-3 text-sm"
-          disabled={!canExecute || pending || activeOperation !== null}
+          disabled={!canExecute || pending || activeOperation !== null || activating}
           id="validation-profile"
           onChange={(event) => setProfileId(Number(event.target.value))}
           value={profileId ?? ""}
@@ -114,8 +139,26 @@ export function ValidationCrawlPanel({ agencyId, activeOnboarding, initialOperat
         </select>
       </div>
       {selectedProfile && <dl className="grid gap-3 rounded-lg border bg-muted/20 p-4 text-sm sm:grid-cols-3"><div><dt className="text-muted-foreground">Snapshot de Discovery</dt><dd>#{selectedProfile.discovery_snapshot_id}</dd></div><div><dt className="text-muted-foreground">Contrato de Dados</dt><dd>#{selectedProfile.market_data_contract_version_id}</dd></div><div><dt className="text-muted-foreground">Criado em</dt><dd>{new Intl.DateTimeFormat("pt-BR", { dateStyle: "short" }).format(new Date(selectedProfile.created_at))}</dd></div></dl>}
-      {activeOperation && <CrawlerOperationStatus operation={activeOperation} />}
-      {canExecute && <Button disabled={pending || activeOperation !== null} onClick={() => void queue()} type="button">{pending ? "Enfileirando…" : activeOperation ? "Validação em andamento" : "Rodar Crawl de Validação"}</Button>}
+      {(activeOperation || (latestOperation && latestOperation.state === "succeeded")) && (
+        <CrawlerOperationStatus operation={activeOperation ?? latestOperation!} />
+      )}
+      <div className="flex flex-wrap gap-2">
+        {canExecute && (
+          <Button disabled={pending || activeOperation !== null || activating} onClick={() => void queue()} type="button">
+            {pending ? "Enfileirando…" : activeOperation ? "Validação em andamento" : "Rodar Crawl de Validação"}
+          </Button>
+        )}
+        {canActivate && selectedProfile && selectedProfile.status !== "active" && (
+          <Button
+            disabled={pending || activeOperation !== null || activating}
+            onClick={() => void activateSelectedProfile()}
+            type="button"
+            variant="outline"
+          >
+            {activating ? "Ativando…" : "Ativar Perfil"}
+          </Button>
+        )}
+      </div>
     </div>
   );
 }

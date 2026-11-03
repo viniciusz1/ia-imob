@@ -78,6 +78,26 @@ class ExtractionProfileValidationApiTest extends TestCase
             ->assertJsonPath('data.lifecycle_state', 'active');
     }
 
+    public function test_candidate_profile_can_be_activated_directly_without_prior_manual_approval(): void
+    {
+        [$admin, , , , $profile] = $this->fixtures();
+
+        $this->assertSame('candidate', $profile->status);
+
+        $response = $this->actingAs($admin)
+            ->postJson("/api/v1/admin/crawler/extraction-profiles/{$profile->id}/activate")
+            ->assertOk()
+            ->assertJsonPath('data.status', 'active')
+            ->assertJsonPath('data.latest_validation_report', null);
+
+        $profile->refresh();
+        $this->assertSame('active', $profile->status);
+        $this->assertSame($admin->id, $profile->activated_by);
+        $this->assertNotNull($profile->activated_at);
+        $this->assertSame($admin->id, $profile->decided_by);
+        $this->assertSame('Ativado diretamente.', $profile->decision_reason);
+    }
+
     public function test_validation_plan_prioritizes_urls_matching_the_detail_profile(): void
     {
         [$admin, , , $snapshot, $profile] = $this->fixtures();
