@@ -163,6 +163,14 @@ describe("ExtractionProfilesWorkspace", () => {
     expect(screen.queryByText("Próxima ação")).not.toBeInTheDocument();
   });
 
+  it("keeps the generation block always open and does not render hide/show button when active profiles exist", () => {
+    renderWorkspace({ profiles: [profile("active", true)] });
+
+    expect(screen.getByTestId("profile-generator")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /ocultar formulário/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /mostrar formulário/i })).not.toBeInTheDocument();
+  });
+
   it("labels the versioned list as Perfis de Extração", () => {
     renderWorkspace({ profiles: [profile("approved", true)] });
 
