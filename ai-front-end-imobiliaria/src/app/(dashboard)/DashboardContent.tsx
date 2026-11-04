@@ -12,6 +12,10 @@ export function DashboardContent() {
     const userPermissions = Array.isArray(user?.permissions) ? user.permissions : null;
 
     const visibleModules = dashboardModules.filter((module) => {
+        if (module.agencyOnly && user?.is_platform_admin === true) {
+            return false;
+        }
+
         if (module.platformOnly && user?.is_platform_admin !== true) {
             return false;
         }

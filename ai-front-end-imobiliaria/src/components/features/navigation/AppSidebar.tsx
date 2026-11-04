@@ -41,6 +41,7 @@ const navItems = [
         href: "/",
         icon: LayoutDashboard,
         permissions: [],
+        agencyOnly: false,
         platformOnly: false,
     },
     ...dashboardModules,
@@ -70,6 +71,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
 
     const userPermissions = Array.isArray(user?.permissions) ? user.permissions : null;
     const visibleNavItems = navItems.filter((item) => {
+        if (item.agencyOnly && user?.is_platform_admin === true) return false;
         if (item.platformOnly && user?.is_platform_admin !== true) return false;
         if (item.permissions.length === 0) return true;
         if (userPermissions === null) return false;
