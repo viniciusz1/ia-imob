@@ -40,6 +40,14 @@ class PropertyTypeCatalogTest extends TestCase
             'Apartamento',
             PropertyTypeCatalog::canonicalNameFor('  APTO EM CONDOMÍNIO  '),
         );
+        $this->assertSame('Apartamento', PropertyTypeCatalog::canonicalNameFor('Apartamento garden'));
+        $this->assertSame('Apartamento', PropertyTypeCatalog::canonicalNameFor('Apartamento Alto Padrão'));
+        $this->assertSame('Casa', PropertyTypeCatalog::canonicalNameFor('Casa Alto Padrão'));
+        $this->assertSame('Geminado', PropertyTypeCatalog::canonicalNameFor('Geminado Triplex'));
+        $this->assertSame('Terreno', PropertyTypeCatalog::canonicalNameFor('Loteamento'));
+        $this->assertSame('Terreno', PropertyTypeCatalog::canonicalNameFor('Terreno Lote'));
+        $this->assertSame('Sala Comercial', PropertyTypeCatalog::canonicalNameFor('Sala'));
+        $this->assertSame('Ponto Comercial', PropertyTypeCatalog::canonicalNameFor('Ponto'));
         $this->assertSame('Galpão', PropertyTypeCatalog::canonicalNameFor('barracao'));
         $this->assertSame('Sala Comercial', PropertyTypeCatalog::canonicalNameFor('office-room'));
         $this->assertNull(PropertyTypeCatalog::canonicalNameFor('Millenium'));
