@@ -125,3 +125,14 @@ Valuations of monthly rent for houses, apartments, and townhouses in urban neigh
 ## Deployment
 
 Run `php artisan migrate` in the backend to add the purpose and monthly-rent columns. Deploy the backend before the updated frontend. The crawler implementation is not included in this checkout; its ingestion must adopt the price contract above before rental valuations have a usable sample. Missing rental prices produce Insufficient Sample rather than an estimate derived from sales.
+
+## Registration price suggestion
+
+**Sugestão de Faixa de Preço (Price Range Suggestion)** is a transient Market Range requested from the property registration form. It does not create a Saved Valuation, a valuation code, a report, or a Property. Applying its central value only edits the local form until the Property is saved.
+
+- `POST /api/v1/valuations/price-suggestion` requires authentication, an active Agency under the existing CRM middleware, and the existing `valuations.create` Permission. It is limited to 30 requests per minute. No new Permission or migration is introduced; the frontend uses the serialized permission list.
+- Inputs reuse valuation names and validation: explicit `purpose` (`sale` or `rent`), one-element `city` and `neighborhood` arrays, `residential_type`, `area` (20–2,000 m²), integer bedrooms/bathrooms/garage spaces (0–10), and explicit boolean `flood_risk`. Manual `comparable_reviews` are prohibited.
+- The service calls `MarketValuationCalculator::calculate`, preserving the automatic minimum of five valid comparables, selection, outlier handling, published inventory, purpose-specific prices and flood adjustment. It returns `data.status`, `data.purpose`, `data.range` (`min`, `central`, `max`, rounded to cents), `data.flood_adjustment_percent`, and `data.sample_summary`. Insufficient Sample returns HTTP 200 with a null range; invalid inputs return 422, missing permission 403.
+- The Values step maps `casa`/`apartamento`/`sobrado` to the existing residential types and uses `usable_area` explicitly, without substituting total or land area. Other property types remain unsupported. `venda_locacao` offers independent sale and monthly rental requests.
+- Missing inputs are shown before requesting a suggestion. Zero bedrooms, bathrooms or garage spaces are valid. Rental estimates exclude condominium fees, tax and other charges. Flood risk is an explicit option for the transient suggestion; it is not stored as a Property characteristic.
+- A suggestion is requested by button and never overwrites a price automatically. The user can apply its central value to the corresponding price field or keep entering prices manually. Relevant input changes discard displayed results and late responses; errors and insufficient samples leave manual entry available.
