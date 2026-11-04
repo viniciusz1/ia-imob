@@ -601,11 +601,11 @@ export function AiSearcherClient() {
         </ToggleGroup>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-8">
+      <div className="flex flex-col gap-8 lg:flex-row lg:items-start">
         {!isAiMode && (
           <fieldset
             disabled={allowanceExhausted}
-            className="lg:w-80 shrink-0"
+            className="w-full min-w-0 shrink-0 lg:w-80 lg:max-w-80 lg:flex-none"
           >
             <PropertyFilters
               properties={properties}
@@ -616,7 +616,7 @@ export function AiSearcherClient() {
           </fieldset>
         )}
 
-        <main className="flex-1 min-w-0">
+        <main className="min-w-0 flex-1">
           {isAiMode && (
             <div className="mb-6">
               <AiPromptInput

@@ -25,6 +25,7 @@ const DISCOVERY_SOURCES = [
   { value: "robots", label: "robots.txt" },
   { value: "feed", label: "Feeds RSS/Atom" },
   { value: "homepage", label: "Página inicial" },
+  { value: "playwright", label: "Listagem e paginação (Playwright)" },
 ] as const;
 
 const DEFAULT_SOURCES: DiscoverySource[] = ["sitemap", "cc", "crt", "probe"];
@@ -34,7 +35,7 @@ export function DiscoveryGenerator({ agencyId, contracts }: DiscoveryGeneratorPr
   const [contractId, setContractId] = useState(activeContracts[0]?.id.toString() ?? "");
   const [isQueueing, setIsQueueing] = useState(false);
   const [sources, setSources] = useState<DiscoverySource[]>(DEFAULT_SOURCES);
-  const [maxUrls, setMaxUrls] = useState("500");
+  const [maxUrls, setMaxUrls] = useState("5000");
   const [includeSubdomains, setIncludeSubdomains] = useState(true);
   const [useBrowserForHomepage, setUseBrowserForHomepage] = useState(false);
   const [query, setQuery] = useState("");

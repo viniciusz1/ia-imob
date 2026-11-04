@@ -12,32 +12,21 @@ import type {
   CrawlAgencySchedule,
   CrawlerOperation,
   CrawlRun,
-  DiscoveryPolicyVersion,
   DiscoverySnapshot,
-  DiscoveryStrategy,
-  ExtractionPolicyVersion,
   ExtractionProfile,
   OnboardingExecution,
-  OnboardingExecutionModelVersion,
-  OnboardingPlan,
 } from "@/types/crawler";
 
 import { isActiveCrawlerOperation, useCrawlerOperationPolling } from "../useCrawlerOperationPolling";
 import { CrawlAgencyContextHeader } from "./CrawlAgencyContextHeader";
 import { CrawlAgencyOnboardingProgress } from "./CrawlAgencyOnboardingProgress";
 import { OnboardingExecutionSummaryCard } from "./OnboardingExecutionSummaryCard";
-import { OnboardingPlanBuilder } from "./OnboardingPlanBuilder";
 import { useOnboardingExecutionPolling } from "./useOnboardingExecutionPolling";
 
 interface CrawlAgencyWorkspaceClientProps {
   agency: CrawlAgency;
-  discoveryPolicies: DiscoveryPolicyVersion[];
-  discoveryStrategies: DiscoveryStrategy[];
   executions: OnboardingExecution[];
-  extractionPolicies: ExtractionPolicyVersion[];
   initialOperations: CrawlerOperation[];
-  models: OnboardingExecutionModelVersion[];
-  onboardingPlan: OnboardingPlan | null;
   profiles: ExtractionProfile[];
   runs: CrawlRun[];
   schedule: CrawlAgencySchedule;
@@ -49,7 +38,7 @@ function readiness(agency: CrawlAgency, profiles: ExtractionProfile[], runs: Cra
   if (agency.lifecycle_state === "onboarding") {
     const candidate = profiles.find((profile) => ["candidate", "revalidation_required"].includes(profile.status));
     if (candidate) return { label: "Aguardando validação", detail: `Perfil v${candidate.version} precisa passar pelo Crawl de Validação.`, href: "profiles", action: "Validar perfil" };
-    return { label: "Onboarding em andamento", detail: "Crie um Discovery e gere um Perfil de Extração Candidato.", href: "discoveries", action: "Continuar onboarding" };
+    return { label: "Onboarding em andamento", detail: "Crie um Discovery e gere um Perfil de Extração Candidato.", href: "onboarding", action: "Ir para Onboarding" };
   }
   if (!runs.some((run) => run.publication_state === "published")) return { label: "Sem snapshot publicado", detail: "A fonte está ativa, mas ainda não possui dados vigentes.", href: "crawls", action: "Rodar crawl manual" };
   return { label: "Apta para produção", detail: "Perfil e dados vigentes estão disponíveis.", href: "crawls", action: "Rodar crawl manual" };
@@ -57,13 +46,8 @@ function readiness(agency: CrawlAgency, profiles: ExtractionProfile[], runs: Cra
 
 export function CrawlAgencyWorkspaceClient({
   agency,
-  discoveryPolicies,
-  discoveryStrategies,
   executions: initialExecutions,
-  extractionPolicies,
   initialOperations,
-  models,
-  onboardingPlan,
   profiles,
   runs,
   schedule,
@@ -80,7 +64,7 @@ export function CrawlAgencyWorkspaceClient({
     [agency, execution?.approval],
   );
   const publishedRun = runs.find((run) => run.publication_state === "published");
-  const quarantinedRun = runs.find((run) => run.publication_state === "quarantined");
+  const quarantinedRun = runs.find((run) => run.publication_state === "quarantined" && run.quality_rejection === null);
   const state = useMemo(() => readiness(displayedAgency, profiles, runs), [displayedAgency, profiles, runs]);
 
   useCrawlerOperationPolling({
@@ -103,28 +87,15 @@ export function CrawlAgencyWorkspaceClient({
     <CrawlAgencyContextHeader agency={displayedAgency} area="Visão geral" description="Estado operacional, prontidão e atividade recente desta fonte." />
     <div className="flex flex-wrap gap-2"><Badge variant="outline">{displayedAgency.lifecycle_state}</Badge><Badge variant="secondary">Saúde: {displayedAgency.health_state}</Badge><Badge variant={displayedAgency.revalidation_required ? "destructive" : "outline"}>{state.label}</Badge></div>
 
-    {onboardingPlan?.status === "draft" && execution?.state !== "completed" && (
-      <OnboardingPlanBuilder
-        agency={agency}
-        discoveryPolicies={discoveryPolicies}
-        discoveryStrategies={discoveryStrategies}
-        extractionPolicies={extractionPolicies}
-        models={models}
-        onConfirmed={(confirmed) => setExecutions((current) => [confirmed, ...current.filter((item) => item.id !== confirmed.id)])}
-        plan={onboardingPlan}
-        snapshots={snapshots}
-      />
-    )}
-
     {execution && <OnboardingExecutionSummaryCard agencyId={agency.id} execution={execution} />}
 
-    {!onboardingPlan && <CrawlAgencyOnboardingProgress agency={agency} profiles={profiles} snapshots={snapshots} />}
+    {!execution && <CrawlAgencyOnboardingProgress agency={agency} profiles={profiles} snapshots={snapshots} />}
 
-    {!onboardingPlan && <Card className="border-primary/30 bg-primary/5"><CardHeader><CardTitle>Próxima ação recomendada</CardTitle><CardDescription>{state.detail}</CardDescription></CardHeader><CardContent><Button asChild className="cursor-pointer"><Link href={`${root}/${state.href}`}>{state.action}</Link></Button></CardContent></Card>}
+    {!execution && <Card className="border-primary/30 bg-primary/5"><CardHeader><CardTitle>Próxima ação recomendada</CardTitle><CardDescription>{state.detail}</CardDescription></CardHeader><CardContent><Button asChild className="cursor-pointer"><Link href={`${root}/${state.href}`}>{state.action}</Link></Button></CardContent></Card>}
 
     <div className="grid gap-4 lg:grid-cols-3">
       <Card><CardHeader><CardTitle>Operação atual</CardTitle></CardHeader><CardContent className="space-y-3">
-        {activeOperation ? <><div className="flex justify-between gap-2"><span>#{activeOperation.id} · {activeOperation.type}</span><Badge>{activeOperation.state}</Badge></div><Progress value={activeOperation.progress.percentage} /><p className="text-sm">{activeOperation.progress.stage} · {activeOperation.progress.percentage}% · {activeOperation.progress.processed}/{activeOperation.progress.total ?? "—"}</p><p className="text-sm text-muted-foreground">{activeOperation.progress.message ?? "Aguardando atualização"} · heartbeat {formatDate(activeOperation.progress.heartbeat_at)}</p><Link className="cursor-pointer text-sm underline" href={`/admin/crawler/operations?crawl_agency_id=${agency.id}`}>Abrir na fila global</Link></> : <><p>Nenhuma operação em andamento.</p><p className="text-sm text-muted-foreground">Crawl livre para iniciar.</p></>}
+        {activeOperation ? <><div className="flex justify-between gap-2"><span>#{activeOperation.id} · {activeOperation.type}</span><Badge>{activeOperation.state}</Badge></div><Progress value={activeOperation.progress.percentage} /><p className="text-sm">{activeOperation.progress.stage} · {activeOperation.progress.percentage}% · {activeOperation.progress.processed}/{activeOperation.progress.total ?? "—"}</p><p className="text-sm text-muted-foreground">{activeOperation.progress.message ?? "Aguardando atualização"} · heartbeat {formatDate(activeOperation.progress.heartbeat_at)}</p></> : <><p>Nenhuma operação em andamento.</p><p className="text-sm text-muted-foreground">Crawl livre para iniciar.</p></>}
       </CardContent></Card>
       <Card><CardHeader><CardTitle>Dados vigentes</CardTitle></CardHeader><CardContent className="space-y-2">
         {publishedRun ? <><Link className="cursor-pointer font-medium underline" href={`/admin/crawler/runs/${publishedRun.id}`}>Snapshot #{publishedRun.id} publicado</Link><p>{publishedRun.counts.normalized} imóveis normalizados</p><p className="text-sm text-muted-foreground">Publicado em {formatDate(publishedRun.published_at)}</p></> : <p className="text-muted-foreground">Nenhum snapshot publicado.</p>}
@@ -134,6 +105,6 @@ export function CrawlAgencyWorkspaceClient({
 
     {(quarantinedRun || agency.revalidation_required) && <Card><CardHeader><CardTitle>Precisa de atenção</CardTitle></CardHeader><CardContent className="space-y-2">{agency.revalidation_required && <Link className="block cursor-pointer underline" href={`${root}/profiles`}>Revalidação necessária: revise e valide o Perfil de Extração.</Link>}{quarantinedRun && <Link className="block cursor-pointer underline" href={`/admin/crawler/runs/${quarantinedRun.id}`}>Snapshot #{quarantinedRun.id} está em quarentena. Revisar qualidade.</Link>}</CardContent></Card>}
 
-    <Card><CardHeader><CardTitle>Atividade recente</CardTitle><CardDescription>Operações desta Crawl Agency.</CardDescription></CardHeader><CardContent><ol className="space-y-3">{recent.length === 0 ? <li className="text-muted-foreground">Nenhuma atividade registrada.</li> : recent.map((operation) => <li className="flex flex-wrap items-center justify-between gap-2 border-b pb-3 last:border-0" key={operation.id}><span>#{operation.id} · {operation.type} · {operation.state}</span><Link className="cursor-pointer text-sm underline" href={`/admin/crawler/operations?crawl_agency_id=${agency.id}`}>Ver operação</Link></li>)}</ol></CardContent></Card>
+    <Card><CardHeader><CardTitle>Atividade recente</CardTitle><CardDescription>Operações desta Crawl Agency.</CardDescription></CardHeader><CardContent><ol className="space-y-3">{recent.length === 0 ? <li className="text-muted-foreground">Nenhuma atividade registrada.</li> : recent.map((operation) => <li className="flex flex-wrap items-center justify-between gap-2 border-b pb-3 last:border-0" key={operation.id}><span>#{operation.id} · {operation.type} · {operation.state}</span></li>)}</ol></CardContent></Card>
   </section>;
 }

@@ -8,21 +8,19 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import { Textarea } from "@/components/ui/textarea";
 import { usePermission } from "@/hooks/usePermission";
 import {
   actOnboardingExecution,
-  approveOnboardingExecution,
   getOnboardingExecution,
+  listExtractionProfiles,
   retryCrawlerOperation,
-  saveOnboardingPointConfiguration,
   startOnboardingFirstProduction,
 } from "@/services/crawlerService";
 import type {
+  ExtractionProfile,
   FirstProductionDiscoveryMode,
   OnboardingExecution,
   OnboardingExecutionAction,
@@ -131,7 +129,6 @@ function OperationAttempt({ execution, operation }: { execution: OnboardingExecu
   const profileId = typeof operation.result?.extraction_profile_id === "number"
     ? operation.result.extraction_profile_id
     : null;
-  const detailHref = `/admin/crawler/operations?crawl_agency_id=${execution.crawl_agency_id}#operation-${operation.id}`;
 
   return (
     <li className="space-y-2 rounded-lg border bg-muted/10 p-3">
@@ -151,8 +148,6 @@ function OperationAttempt({ execution, operation }: { execution: OnboardingExecu
         </details>
       )}
       <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm">
-        <Link className="underline" href="/admin/crawler/operations">Abrir fila global</Link>
-        <Link className="underline" href={detailHref}>Ver detalhes da operação</Link>
         {snapshotId && <Link className="underline" href={`/admin/crawler/discoveries/${snapshotId}`}>Ver Snapshot de Discovery</Link>}
         {runId && <Link className="underline" href={`/admin/crawler/runs/${runId}`}>Ver dados do crawl</Link>}
         {profileId && <Link className="underline" href={`/admin/crawler/agencies/${execution.crawl_agency_id}/profiles`}>Ver Perfil #{profileId}</Link>}
@@ -167,17 +162,15 @@ export function OnboardingExecutionTimeline({
   onExecution,
 }: OnboardingExecutionTimelineProps) {
   const canExecute = usePermission("crawler.operations.execute");
-  const canApprove = usePermission(["crawler.profiles.approve", "crawler.agencies.activate"], "all");
-  const canManagePolicies = usePermission("crawler.policies.manage");
   const [sampleUrl, setSampleUrl] = useState(execution.sample_url ?? "");
-  const [approvalReason, setApprovalReason] = useState("");
-  const [discoveryPolicyName, setDiscoveryPolicyName] = useState(`${execution.name} — Discovery`);
-  const [discoveryPolicyConfirmed, setDiscoveryPolicyConfirmed] = useState(false);
   const [productionMode, setProductionMode] = useState<FirstProductionDiscoveryMode>(
     execution.first_production_discovery_mode,
   );
   const [showDiscoveryConfiguration, setShowDiscoveryConfiguration] = useState(false);
+  const [candidateProfiles, setCandidateProfiles] = useState<ExtractionProfile[]>([]);
+  const [selectedProfileId, setSelectedProfileId] = useState<number | null>(execution.extraction_profile_id ?? null);
   const [pending, setPending] = useState(false);
+  const isTerminal = ["completed", "cancelled"].includes(execution.state);
   const operationsByStep = useMemo(
     () => execution.operations.reduce<Partial<Record<OnboardingExecutionStepKey, OnboardingExecutionOperation[]>>>(
       (groups, operation) => ({
@@ -196,6 +189,31 @@ export function OnboardingExecutionTimeline({
   useEffect(() => {
     setProductionMode(execution.first_production_discovery_mode);
   }, [execution.first_production_discovery_mode]);
+
+  useEffect(() => {
+    let cancelled = false;
+    void listExtractionProfiles(execution.crawl_agency_id)
+      .then((profiles) => {
+        if (cancelled) return;
+        const candidates = profiles
+          .filter((profile) => profile.status === "candidate" || profile.status === "revalidation_required")
+          .sort((a, b) => b.version - a.version);
+        setCandidateProfiles(candidates);
+        if (candidates.length > 0) {
+          setSelectedProfileId((prev) => {
+            if (prev && candidates.some((candidate) => candidate.id === prev)) return prev;
+            if (execution.extraction_profile_id && candidates.some((candidate) => candidate.id === execution.extraction_profile_id)) {
+              return execution.extraction_profile_id;
+            }
+            return candidates[0].id;
+          });
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [execution.crawl_agency_id, execution.extraction_profile_id, execution.current_step]);
 
   const run = async (action: () => Promise<OnboardingExecution>, success: string) => {
     setPending(true);
@@ -217,7 +235,12 @@ export function OnboardingExecutionTimeline({
       return;
     }
     void run(
-      () => actOnboardingExecution(execution.id, action, needsUrl ? sampleUrl.trim() : undefined),
+      () => actOnboardingExecution(
+        execution.id,
+        action,
+        needsUrl ? sampleUrl.trim() : undefined,
+        action === "run_profile_validation" ? (selectedProfileId ?? undefined) : undefined,
+      ),
       "Etapa atualizada.",
     );
   };
@@ -242,6 +265,9 @@ export function OnboardingExecutionTimeline({
   };
 
   const action = execution.next_action;
+  const isAwaitingApproval = execution.current_step === "approval"
+    || execution.state === "awaiting_approval"
+    || action === "decide_onboarding";
   const retryRecovery = execution.recovery_actions.find(
     (recoveryAction) => recoveryAction.key === "retry_failed_operation",
   );
@@ -254,33 +280,10 @@ export function OnboardingExecutionTimeline({
   const createCustomDiscoveryRecovery = execution.recovery_actions.find(
     (recoveryAction) => recoveryAction.key === "create_custom_discovery",
   );
-  const needsDiscoveryPolicy = action === "decide_onboarding"
-    && execution.discovery_policy_version_id === null
-    && execution.resolved_configuration.discovery_policy.source === "point_configuration";
   const manualAction = action !== null && action in MANUAL_ACTIONS
     ? action as OnboardingExecutionAction
     : null;
-  const canShowMutation = needsDiscoveryPolicy
-    ? canManagePolicies
-    : action === "decide_onboarding" ? canApprove : canExecute;
-
-  const saveDiscoveryPolicy = () => {
-    if (!discoveryPolicyName.trim() || !discoveryPolicyConfirmed) return;
-    setPending(true);
-    void saveOnboardingPointConfiguration(
-      execution.crawl_agency_id,
-      "discovery",
-      discoveryPolicyName.trim(),
-    )
-      .then(() => getOnboardingExecution(execution.id))
-      .then((updated) => {
-        onExecution(updated);
-        setDiscoveryPolicyConfirmed(false);
-        toast.success("Nova política ativa criada e vinculada explicitamente. A aprovação continua sendo a próxima decisão.");
-      })
-      .catch((error: unknown) => toast.error(crawlerOperationErrorMessage(error, "Não foi possível salvar a política de Discovery.")))
-      .finally(() => setPending(false));
-  };
+  const canShowMutation = canExecute;
 
   return (
     <Card className="overflow-hidden border-primary/30">
@@ -323,6 +326,7 @@ export function OnboardingExecutionTimeline({
         <ol aria-label="Timeline da Execução de Onboarding" className="space-y-4">
           {execution.steps.map((step, index) => {
             const attempts = operationsByStep[step.key] ?? [];
+            const showApprovalCrawlsLink = step.key === "approval" && (step.state === "awaiting_approval" || isAwaitingApproval);
             return (
               <li className="relative grid gap-3 sm:grid-cols-[2.75rem_minmax(0,1fr)]" key={step.key}>
                 {index < execution.steps.length - 1 && <div aria-hidden="true" className="absolute bottom-[-1rem] left-[1.35rem] top-11 w-px bg-border" />}
@@ -333,7 +337,16 @@ export function OnboardingExecutionTimeline({
                       <p className="font-medium">{index + 1}. {STEP_LABELS[step.key]}</p>
                       <p className="text-xs text-muted-foreground">{STEP_STATE_LABELS[step.state] ?? step.state}{step.attempt ? ` · tentativa ${step.attempt}` : ""}</p>
                     </div>
-                    {step.operation_id && <Badge variant="outline">Operação #{step.operation_id}</Badge>}
+                    <div className="flex flex-wrap items-center gap-2">
+                      {showApprovalCrawlsLink && (
+                        <Button asChild size="sm">
+                          <Link href={`/admin/crawler/agencies/${execution.crawl_agency_id}/crawls`}>
+                            Ir para Crawls
+                          </Link>
+                        </Button>
+                      )}
+                      {step.operation_id && <Badge variant="outline">Operação #{step.operation_id}</Badge>}
+                    </div>
                   </div>
                   {attempts.length > 0 && <ol aria-label={`Tentativas de ${STEP_LABELS[step.key]}`} className="space-y-2">{attempts.map((operation) => <OperationAttempt execution={execution} key={operation.id} operation={operation} />)}</ol>}
                 </div>
@@ -342,7 +355,7 @@ export function OnboardingExecutionTimeline({
           })}
         </ol>
 
-        {action !== null && (
+        {action !== null && !isAwaitingApproval && (
           <section aria-label="Próxima ação da Execução de Onboarding" className="space-y-4 rounded-lg border-2 border-primary/40 bg-primary/5 p-4">
             <div>
               <h3 className="font-medium">Próxima ação</h3>
@@ -381,32 +394,28 @@ export function OnboardingExecutionTimeline({
                     <Input disabled={pending} id="onboarding-sample-url" onChange={(event) => setSampleUrl(event.target.value)} type="url" value={sampleUrl} />
                   </div>
                 )}
+                {manualAction === "run_profile_validation" && candidateProfiles.length > 0 && (
+                  <div className="space-y-2">
+                    <Label htmlFor="onboarding-validation-profile">Perfil de Extração</Label>
+                    <select
+                      className="h-10 w-full rounded-md border bg-background px-3 text-sm"
+                      disabled={pending}
+                      id="onboarding-validation-profile"
+                      onChange={(event) => setSelectedProfileId(Number(event.target.value))}
+                      value={selectedProfileId ?? ""}
+                    >
+                      {candidateProfiles.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          Perfil v{p.version} · {p.status === "candidate" ? "Candidato" : "Revalidação necessária"} (Snapshot #{p.discovery_snapshot_id})
+                        </option>
+                      ))}
+                    </select>
+                    <p className="text-xs text-muted-foreground">
+                      Escolha qual perfil de extração candidato será validado nesta execução.
+                    </p>
+                  </div>
+                )}
                 <Button disabled={pending} onClick={() => runManualAction(manualAction)} type="button">{MANUAL_ACTIONS[manualAction]}</Button>
-              </>
-            )}
-
-            {needsDiscoveryPolicy && canManagePolicies && (
-              <>
-                <p className="text-sm text-muted-foreground">O Discovery usou uma Configuração Pontual. Antes da aprovação, crie explicitamente a versão que poderá ser ativada para a agência.</p>
-                <div className="space-y-2">
-                  <Label htmlFor="approval-discovery-policy-name">Nome da nova Política de Discovery</Label>
-                  <Input disabled={pending} id="approval-discovery-policy-name" onChange={(event) => setDiscoveryPolicyName(event.target.value)} value={discoveryPolicyName} />
-                </div>
-                <div className="flex items-start gap-2">
-                  <Checkbox checked={discoveryPolicyConfirmed} disabled={pending} id="confirm-approval-discovery-policy" onCheckedChange={(checked) => setDiscoveryPolicyConfirmed(checked === true)} />
-                  <Label className="font-normal" htmlFor="confirm-approval-discovery-policy">Confirmo a criação desta nova política ativa. Nenhuma política existente será sobrescrita.</Label>
-                </div>
-                <Button disabled={pending || !discoveryPolicyName.trim() || !discoveryPolicyConfirmed} onClick={saveDiscoveryPolicy} type="button">Salvar como nova política ativa</Button>
-              </>
-            )}
-
-            {action === "decide_onboarding" && !needsDiscoveryPolicy && canApprove && (
-              <>
-                <div className="space-y-2">
-                  <Label htmlFor="onboarding-approval-reason">Justificativa da aprovação</Label>
-                  <Textarea disabled={pending} id="onboarding-approval-reason" onChange={(event) => setApprovalReason(event.target.value)} placeholder="Obrigatória quando a validação tiver bloqueios." value={approvalReason} />
-                </div>
-                <Button disabled={pending} onClick={() => void run(() => approveOnboardingExecution(execution.id, approvalReason), "Onboarding aprovado. O restante do fluxo pode continuar.")} type="button">Aprovar e continuar</Button>
               </>
             )}
 
@@ -437,6 +446,18 @@ export function OnboardingExecutionTimeline({
                 onExecution={onExecution}
                 useExistingEnabled={useExistingDiscoveryRecovery?.enabled ?? false}
               />
+            )}
+
+            {!isTerminal && canExecute && !(useExistingDiscoveryRecovery?.enabled || createCustomDiscoveryRecovery?.enabled) && (
+              <div className="space-y-2 border-t pt-2">
+                <p className="text-xs font-medium text-muted-foreground">Substituição flexível de Discovery</p>
+                <OnboardingDiscoveryRecovery
+                  createCustomEnabled={true}
+                  execution={execution}
+                  onExecution={onExecution}
+                  useExistingEnabled={true}
+                />
+              </div>
             )}
 
             {(action === "retry_failed_operation" || retryRecovery?.enabled) && canExecute && (

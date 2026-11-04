@@ -70,8 +70,18 @@ class OnboardingPlanController extends Controller
 
     private function planFor(CrawlAgency $crawlAgency): OnboardingPlan
     {
-        return OnboardingPlan::query()
-            ->where('crawl_agency_id', $crawlAgency->id)
-            ->firstOrFail();
+        return OnboardingPlan::query()->firstOrCreate(
+            ['crawl_agency_id' => $crawlAgency->id],
+            [
+                'status' => 'draft',
+                'steps' => [
+                    ['key' => 'review_agency', 'state' => 'pending'],
+                    ['key' => 'discovery', 'state' => 'pending'],
+                    ['key' => 'extraction_profile', 'state' => 'pending'],
+                    ['key' => 'profile_validation', 'state' => 'pending'],
+                    ['key' => 'activation', 'state' => 'pending'],
+                ],
+            ],
+        );
     }
 }

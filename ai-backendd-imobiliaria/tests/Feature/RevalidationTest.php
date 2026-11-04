@@ -2,9 +2,9 @@
 
 namespace Tests\Feature;
 
-use App\Models\Property;
 use App\Models\Agency;
 use App\Models\AgencySiteSettings;
+use App\Models\Property;
 use App\Services\RevalidationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request;

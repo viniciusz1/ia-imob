@@ -8,6 +8,7 @@ use App\Http\Resources\Crawler\CrawlRunResource;
 use App\Models\Crawler\QualityGateReport;
 use App\Models\Crawler\QualityPolicyException;
 use App\Models\CrawlerRun;
+use App\Services\Crawler\CrawlRunQualityRejectionService;
 use App\Services\Crawler\ExceptionalPublicationService;
 use Illuminate\Http\JsonResponse;
 
@@ -31,6 +32,16 @@ class QualityDecisionController extends Controller
         ExceptionalPublicationService $publication,
     ): JsonResponse {
         return (new CrawlRunResource($publication->publish($crawlRun, $request->user(), $request->validated('reason'))))
+            ->response()
+            ->setStatusCode(201);
+    }
+
+    public function reject(
+        QualityDecisionRequest $request,
+        CrawlerRun $crawlRun,
+        CrawlRunQualityRejectionService $rejection,
+    ): JsonResponse {
+        return (new CrawlRunResource($rejection->reject($crawlRun, $request->user(), $request->validated('reason'))))
             ->response()
             ->setStatusCode(201);
     }

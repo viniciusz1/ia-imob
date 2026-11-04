@@ -19,19 +19,67 @@ class CrawlAgencyController extends Controller
     {
         $search = trim((string) $request->query('search', ''));
         $perPage = min(100, max(1, $request->integer('per_page', 15)));
+        $sort = (string) $request->query('sort', '');
 
         return CrawlAgencyResource::collection(
             CrawlAgency::query()
                 ->with('activeDiscoveryPolicy')
+                ->select('crawler.crawl_agencies.*')
+                ->selectRaw('
+                    COALESCE(
+                        crawler.crawl_agencies.city,
+                        (
+                            SELECT p.city
+                            FROM crawler.prospects p
+                            WHERE p.promoted_crawl_agency_id = crawler.crawl_agencies.id
+                               OR LOWER(p.root_domain) = LOWER(crawler.crawl_agencies.root_domain)
+                            ORDER BY (p.promoted_crawl_agency_id = crawler.crawl_agencies.id) DESC, p.id DESC
+                            LIMIT 1
+                        )
+                    ) as city,
+                    COALESCE(
+                        crawler.crawl_agencies.state,
+                        (
+                            SELECT p.state
+                            FROM crawler.prospects p
+                            WHERE p.promoted_crawl_agency_id = crawler.crawl_agencies.id
+                               OR LOWER(p.root_domain) = LOWER(crawler.crawl_agencies.root_domain)
+                            ORDER BY (p.promoted_crawl_agency_id = crawler.crawl_agencies.id) DESC, p.id DESC
+                            LIMIT 1
+                        )
+                    ) as state,
+                    GREATEST(
+                        (SELECT MAX(COALESCE(completed_at, started_at, created_at)) FROM crawler.crawl_runs WHERE crawl_agency_id = crawler.crawl_agencies.id),
+                        (SELECT MAX(COALESCE(completed_at, claimed_at, created_at)) FROM crawler.operations WHERE crawl_agency_id = crawler.crawl_agencies.id AND type IN (\'production_crawl\', \'profile_validation\'))
+                    ) as last_crawled_at
+                ')
                 ->when($search !== '', function ($query) use ($search): void {
                     $query->where(function ($query) use ($search): void {
                         $query->where('name', 'ilike', "%{$search}%")
-                            ->orWhere('root_domain', 'ilike', "%{$search}%");
+                            ->orWhere('root_domain', 'ilike', "%{$search}%")
+                            ->orWhere('city', 'ilike', "%{$search}%")
+                            ->orWhereExists(function ($subquery) use ($search): void {
+                                $subquery->selectRaw('1')
+                                    ->from('crawler.prospects as p')
+                                    ->where(function ($match): void {
+                                        $match->whereColumn('p.promoted_crawl_agency_id', 'crawler.crawl_agencies.id')
+                                            ->orWhereRaw('LOWER(p.root_domain) = LOWER(crawler.crawl_agencies.root_domain)');
+                                    })
+                                    ->where('p.city', 'ilike', "%{$search}%");
+                            });
                     });
                 })
                 ->when($request->filled('lifecycle_state'), fn ($query) => $query->where('lifecycle_state', $request->query('lifecycle_state')))
                 ->when($request->filled('health_state'), fn ($query) => $query->where('health_state', $request->query('health_state')))
-                ->orderBy('name')
+                ->when(
+                    $sort === '-last_crawled_at',
+                    fn ($query) => $query->orderByRaw('last_crawled_at DESC NULLS LAST')->orderBy('name'),
+                    fn ($query) => $query->when(
+                        $sort === '-updated_at',
+                        fn ($q) => $q->orderByDesc('updated_at')->orderBy('name'),
+                        fn ($q) => $q->orderBy('name'),
+                    ),
+                )
                 ->paginate($perPage)
         );
     }

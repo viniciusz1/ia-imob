@@ -28,14 +28,11 @@ describe("OnboardingExecutionSummaryCard", () => {
     expect(screen.getByRole("heading", { name: "Onboarding requer atenção" })).toBeInTheDocument();
     expect(screen.getByText("Etapa atual: Discovery")).toBeInTheDocument();
     expect(screen.getByText(/fonte sem suporte do worker/i)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Revisar configuração" })).toHaveAttribute(
-      "href",
-      "/admin/crawler/agencies/42/onboarding",
-    );
     expect(screen.getByRole("link", { name: "Abrir Onboarding" })).toHaveAttribute(
       "href",
       "/admin/crawler/agencies/42/onboarding",
     );
+    expect(screen.queryByRole("link", { name: "Revisar configuração" })).not.toBeInTheDocument();
     expect(screen.queryByRole("list", { name: "Timeline da Execução de Onboarding" })).not.toBeInTheDocument();
   });
 });

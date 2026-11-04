@@ -29,6 +29,7 @@ function crawlRun(overrides: Partial<CrawlRun>): CrawlRun {
       evaluated_at: "2026-07-17T12:00:00Z",
     },
     exceptional_publication: null,
+    quality_rejection: null,
     counts: { raw: 100, normalized: 20, rejected: 2, errors: 1 },
     error_summary: [],
     started_at: "2026-07-17T11:00:00Z",
@@ -56,20 +57,50 @@ describe("CrawlerQualityDashboard", () => {
         published_at: "2026-07-17T13:00:00Z",
         quarantined_at: "2026-07-17T12:30:00Z",
       }),
+      crawlRun({
+        id: 40,
+        quality_rejection: {
+          rejected_by: 6,
+          reason: "O operador confirmou que os dados não devem ser publicados.",
+          rejected_at: "2026-07-17T13:30:00Z",
+        },
+      }),
     ]} />);
 
     expect(screen.getByRole("heading", { name: "Qualidade" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Snapshots em quarentena" })).toBeInTheDocument();
+    expect(screen.getAllByRole("columnheader", { name: "Snapshot" })).toHaveLength(3);
+    expect(screen.getAllByRole("columnheader", { name: "Imobiliária" })).toHaveLength(3);
+    expect(screen.getAllByRole("columnheader", { name: "Criado em" })).toHaveLength(3);
     expect(screen.getByRole("link", { name: "Revisar snapshot #42" })).toHaveAttribute("href", "/admin/crawler/runs/42");
-    expect(screen.getAllByText("stock_drop_above_threshold")).toHaveLength(2);
+    expect(screen.getAllByText("stock_drop_above_threshold")).toHaveLength(3);
+    expect(screen.getByRole("heading", { name: "Snapshots recusados" })).toBeInTheDocument();
+    expect(screen.getByText(/operador confirmou que os dados não devem ser publicados/i)).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Publicações excepcionais" })).toBeInTheDocument();
     expect(screen.getByText(/inventory confirmed directly with the agency/i)).toBeInTheDocument();
+  });
+
+  it("renders real estate agency name and creation/quarantine timestamps in list table", () => {
+    render(<CrawlerQualityDashboard runs={[
+      crawlRun({
+        id: 50,
+        crawl_agency_id: 12,
+        crawl_agency: { id: 12, name: "Imobiliária Silva Imóveis" },
+        created_at: "2026-07-17T11:45:00Z",
+        quarantined_at: "2026-07-17T11:50:00Z",
+      }),
+    ]} />);
+
+    expect(screen.getByRole("link", { name: "Imobiliária Silva Imóveis" })).toHaveAttribute("href", "/admin/crawler/agencies/12");
+    expect(screen.getByText("Crawl Agency #12")).toBeInTheDocument();
+    expect(screen.getByText(/quarentena:/i)).toBeInTheDocument();
   });
 
   it("shows explicit empty states", () => {
     render(<CrawlerQualityDashboard runs={[]} />);
 
     expect(screen.getByText("Nenhum snapshot em quarentena.")).toBeInTheDocument();
+    expect(screen.getByText("Nenhuma publicação recusada.")).toBeInTheDocument();
     expect(screen.getByText("Nenhuma publicação excepcional registrada.")).toBeInTheDocument();
   });
 });

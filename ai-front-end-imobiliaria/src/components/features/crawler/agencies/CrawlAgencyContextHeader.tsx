@@ -1,27 +1,67 @@
+"use client";
+
+import { useEffect } from "react";
 import Link from "next/link";
 
 import type { CrawlAgency } from "@/types/crawler";
 
 import { CrawlAgencyNavigation } from "./CrawlAgencyNavigation";
+import { useCrawlAgencyLayout } from "./CrawlAgencyLayoutContext";
 
 interface CrawlAgencyContextHeaderProps {
   agency: CrawlAgency;
   area: string;
   description?: string;
+  forceRender?: boolean;
+  onNavigate?: (href: string) => void;
 }
 
-export function CrawlAgencyContextHeader({ agency, area, description }: CrawlAgencyContextHeaderProps) {
+export function CrawlAgencyContextHeader({
+  agency,
+  area,
+  description,
+  forceRender = false,
+  onNavigate,
+}: CrawlAgencyContextHeaderProps) {
+  const { inLayout, setHeaderData } = useCrawlAgencyLayout();
+
+  useEffect(() => {
+    if (inLayout && !forceRender) {
+      setHeaderData({ agency, area, description });
+    }
+  }, [inLayout, forceRender, setHeaderData, agency, area, description]);
+
+  if (inLayout && !forceRender) {
+    return null;
+  }
+
   const agencyHref = `/admin/crawler/agencies/${agency.id}`;
 
   return (
     <header className="space-y-5">
       <nav aria-label="Breadcrumb">
         <ol className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-          <li><Link className="cursor-pointer rounded-sm underline-offset-4 hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" href="/admin/crawler/agencies">Crawl Agencies</Link></li>
+          <li>
+            <Link
+              className="cursor-pointer rounded-sm underline-offset-4 hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              href="/admin/crawler/agencies"
+            >
+              Crawl Agencies
+            </Link>
+          </li>
           <li aria-hidden="true">/</li>
-          <li><Link className="cursor-pointer rounded-sm underline-offset-4 hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" href={agencyHref}>{agency.name}</Link></li>
+          <li>
+            <Link
+              className="cursor-pointer rounded-sm underline-offset-4 hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              href={agencyHref}
+            >
+              {agency.name}
+            </Link>
+          </li>
           <li aria-hidden="true">/</li>
-          <li aria-current="page" className="text-foreground">{area}</li>
+          <li aria-current="page" className="text-foreground">
+            {area}
+          </li>
         </ol>
       </nav>
 
@@ -36,7 +76,7 @@ export function CrawlAgencyContextHeader({ agency, area, description }: CrawlAge
         </div>
       </div>
 
-      <CrawlAgencyNavigation agencyId={agency.id} />
+      <CrawlAgencyNavigation agencyId={agency.id} onNavigate={onNavigate} />
     </header>
   );
 }

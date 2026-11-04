@@ -145,14 +145,42 @@ class OnboardingExecutionCoordinator
 
     private function queueProfileValidation(OnboardingExecution $execution, User $requester): CrawlerOperation
     {
-        $generationOperation = $execution->operations()
-            ->where('onboarding_step', 'profile_generation')
-            ->where('state', 'succeeded')
-            ->latest('attempt')
-            ->firstOrFail();
-        $profile = ExtractionProfile::query()
-            ->where('created_by_operation_id', $generationOperation->id)
-            ->firstOrFail();
+        $profile = null;
+        if ($execution->extraction_profile_id !== null) {
+            $profile = ExtractionProfile::query()
+                ->whereKey($execution->extraction_profile_id)
+                ->where('crawl_agency_id', $execution->crawl_agency_id)
+                ->whereIn('status', ['candidate', 'revalidation_required'])
+                ->first();
+        }
+
+        if ($profile === null) {
+            $generationOperation = $execution->operations()
+                ->where('onboarding_step', 'profile_generation')
+                ->where('state', 'succeeded')
+                ->latest('attempt')
+                ->first();
+
+            $profile = $generationOperation === null
+                ? null
+                : ExtractionProfile::query()
+                    ->where('created_by_operation_id', $generationOperation->id)
+                    ->whereIn('status', ['candidate', 'revalidation_required'])
+                    ->first();
+        }
+
+        if ($profile === null) {
+            $profile = ExtractionProfile::query()
+                ->where('crawl_agency_id', $execution->crawl_agency_id)
+                ->whereIn('status', ['candidate', 'revalidation_required'])
+                ->latest('version')
+                ->latest('id')
+                ->firstOrFail();
+        }
+
+        if ($execution->extraction_profile_id !== $profile->id) {
+            $execution->update(['extraction_profile_id' => $profile->id]);
+        }
 
         return $this->profiles->queueValidation(
             $profile,

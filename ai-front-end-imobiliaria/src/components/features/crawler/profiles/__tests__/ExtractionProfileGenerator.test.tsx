@@ -115,7 +115,7 @@ describe("ExtractionProfileGenerator", () => {
 
     expect(screen.getByText(/operação #91/i)).toBeInTheDocument();
     expect(screen.getByText(/gerando schemas/i)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /abrir na fila global/i })).toHaveAttribute("href", "/admin/crawler/operations?crawl_agency_id=42");
+    expect(screen.queryByRole("link", { name: /abrir na fila global/i })).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: /gerar perfil candidato/i })).toBeDisabled();
     expect(screen.getByText(/já existe uma geração em andamento/i)).toBeInTheDocument();
   });
@@ -153,7 +153,7 @@ describe("ExtractionProfileGenerator", () => {
 
     expect(screen.getByText(label)).toBeInTheDocument();
     if (message) expect(screen.getByText(message)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /abrir na fila global/i })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /abrir na fila global/i })).not.toBeInTheDocument();
   });
 
   it("refreshes the version history when generation succeeds", async () => {

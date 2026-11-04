@@ -21,8 +21,16 @@ class ProfileValidationController extends Controller
         ExtractionProfile $extractionProfile,
         ExtractionProfileWorkflowService $workflow,
     ): CrawlerOperationResource {
+        $linkToOnboarding = $request->boolean('link_to_onboarding', false);
+        $forceStandalone = $request->boolean('standalone', false);
+
         return new CrawlerOperationResource(
-            $workflow->queueValidation($extractionProfile, $request->user())
+            $workflow->queueValidation(
+                profile: $extractionProfile,
+                requester: $request->user(),
+                linkToOnboarding: $linkToOnboarding,
+                forceStandalone: $forceStandalone,
+            )
         );
     }
 

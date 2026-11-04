@@ -116,6 +116,6 @@ describe("ProspectsClient", () => {
     fireEvent.click(screen.getByRole("button", { name: "Iniciar onboarding" }));
 
     await waitFor(() => expect(promoteProspect).toHaveBeenCalledWith(1));
-    expect(mocks.push).toHaveBeenCalledWith("/admin/crawler/agencies/42");
+    expect(mocks.push).toHaveBeenCalledWith("/admin/crawler/agencies/42/onboarding?novo=true");
   });
 });

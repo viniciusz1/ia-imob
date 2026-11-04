@@ -1,0 +1,190 @@
+[
+  {
+    "source": {
+      "external_id": "3781",
+      "canonical_url": "https://www.leiloeiropublico.com.br/DetalheLote.aspx?Leilao=22.190&Lote=3781&Sublote=1"
+    },
+    "event": {
+      "title": "Venda Pública 22.190 Justiça Federal PGFN (Sistema Comprei): Imóvel CHAPECÓ/SC: Plataforma de Vendas Públicas Rodolfo Schöntag",
+      "sale_modality": "Extrajudicial",
+      "status": "open",
+      "auctioneer_name": "Rodolfo Schöntag",
+      "seller_or_court": "Leiloeiro Público",
+      "published_at": null
+    },
+    "property": {
+      "lot_number": "1",
+      "property_type": "outro",
+      "city": "Desconhecida",
+      "state": "ND",
+      "title": "Venda Pública 22.190 Justiça Federal PGFN (Sistema Comprei): Imóvel CHAPECÓ/SC: Plataforma de Vendas Públicas Rodolfo Schöntag",
+      "description": "Detalhes no site do leiloeiro.",
+      "address": null,
+      "neighborhood": null,
+      "postal_code": null,
+      "built_area_m2": null,
+      "land_area_m2": null,
+      "occupancy_status": "occupied",
+      "registration_number": null
+    },
+    "rounds": [
+      {
+        "round_number": 1,
+        "starts_at": "2026-10-01T14:00:00-03:00",
+        "appraisal_value": 100000.0,
+        "minimum_bid": 50000.0,
+        "current_bid": null,
+        "commission_rate": null,
+        "status": "scheduled",
+        "source_label": "1ª Praça"
+      }
+    ],
+    "evidence": [
+      {
+        "kind": "detail",
+        "url": "https://www.leiloeiropublico.com.br/DetalheLote.aspx?Leilao=22.190&Lote=3781&Sublote=1"
+      }
+    ]
+  },
+  {
+    "source": {
+      "external_id": "4105",
+      "canonical_url": "https://www.leiloeiropublico.com.br/DetalheLote.aspx?Leilao=22.190&Lote=4105&Sublote=1"
+    },
+    "event": {
+      "title": "Venda Pública 22.190 Justiça Federal PGFN (Sistema Comprei): Imóvel BALNEÁRIO CAMBORIÚ/SC: Plataforma de Vendas Públicas Rodolfo Schöntag",
+      "sale_modality": "Extrajudicial",
+      "status": "open",
+      "auctioneer_name": "Rodolfo Schöntag",
+      "seller_or_court": "Leiloeiro Público",
+      "published_at": null
+    },
+    "property": {
+      "lot_number": "1",
+      "property_type": "outro",
+      "city": "Desconhecida",
+      "state": "ND",
+      "title": "Venda Pública 22.190 Justiça Federal PGFN (Sistema Comprei): Imóvel BALNEÁRIO CAMBORIÚ/SC: Plataforma de Vendas Públicas Rodolfo Schöntag",
+      "description": "Detalhes no site do leiloeiro.",
+      "address": null,
+      "neighborhood": null,
+      "postal_code": null,
+      "built_area_m2": null,
+      "land_area_m2": null,
+      "occupancy_status": "occupied",
+      "registration_number": null
+    },
+    "rounds": [
+      {
+        "round_number": 1,
+        "starts_at": "2026-10-01T14:00:00-03:00",
+        "appraisal_value": 100000.0,
+        "minimum_bid": 50000.0,
+        "current_bid": null,
+        "commission_rate": null,
+        "status": "scheduled",
+        "source_label": "1ª Praça"
+      }
+    ],
+    "evidence": [
+      {
+        "kind": "detail",
+        "url": "https://www.leiloeiropublico.com.br/DetalheLote.aspx?Leilao=22.190&Lote=4105&Sublote=1"
+      }
+    ]
+  },
+  {
+    "source": {
+      "external_id": "1",
+      "canonical_url": "https://www.leiloeiropublico.com.br/DetalheLote.aspx?Leilao=26.115&Lote=1&Sublote=1"
+    },
+    "event": {
+      "title": "Leilões Judiciais TJ/SP: 3ª V. C. de Taubaté,  Apto. com Vaga em Taubaté (SP): Plataforma de Vendas Públicas Rodolfo Schöntag",
+      "sale_modality": "Extrajudicial",
+      "status": "open",
+      "auctioneer_name": "Rodolfo Schöntag",
+      "seller_or_court": "Leiloeiro Público",
+      "published_at": null
+    },
+    "property": {
+      "lot_number": "1",
+      "property_type": "outro",
+      "city": "Taubaté",
+      "state": "SP",
+      "title": "Leilões Judiciais TJ/SP: 3ª V. C. de Taubaté,  Apto. com Vaga em Taubaté (SP): Plataforma de Vendas Públicas Rodolfo Schöntag",
+      "description": "Detalhes no site do leiloeiro.",
+      "address": null,
+      "neighborhood": null,
+      "postal_code": null,
+      "built_area_m2": null,
+      "land_area_m2": null,
+      "occupancy_status": "occupied",
+      "registration_number": null
+    },
+    "rounds": [
+      {
+        "round_number": 1,
+        "starts_at": "2026-10-01T14:00:00-03:00",
+        "appraisal_value": 100000.0,
+        "minimum_bid": 50000.0,
+        "current_bid": null,
+        "commission_rate": null,
+        "status": "scheduled",
+        "source_label": "1ª Praça"
+      }
+    ],
+    "evidence": [
+      {
+        "kind": "detail",
+        "url": "https://www.leiloeiropublico.com.br/DetalheLote.aspx?Leilao=26.115&Lote=1&Sublote=1"
+      }
+    ]
+  },
+  {
+    "source": {
+      "external_id": "1",
+      "canonical_url": "https://www.leiloeiropublico.com.br/DetalheLote.aspx?Leilao=26.120&Lote=1&Sublote=1"
+    },
+    "event": {
+      "title": "Leilões da Lei 9.514/97: Cresol, Imóvel em Sinop (MT): Plataforma de Vendas Públicas Rodolfo Schöntag",
+      "sale_modality": "Extrajudicial",
+      "status": "open",
+      "auctioneer_name": "Rodolfo Schöntag",
+      "seller_or_court": "Leiloeiro Público",
+      "published_at": null
+    },
+    "property": {
+      "lot_number": "1",
+      "property_type": "outro",
+      "city": "Sinop",
+      "state": "MT",
+      "title": "Leilões da Lei 9.514/97: Cresol, Imóvel em Sinop (MT): Plataforma de Vendas Públicas Rodolfo Schöntag",
+      "description": "Detalhes no site do leiloeiro.",
+      "address": null,
+      "neighborhood": null,
+      "postal_code": null,
+      "built_area_m2": null,
+      "land_area_m2": null,
+      "occupancy_status": "occupied",
+      "registration_number": null
+    },
+    "rounds": [
+      {
+        "round_number": 1,
+        "starts_at": "2026-10-01T14:00:00-03:00",
+        "appraisal_value": 100000.0,
+        "minimum_bid": 50000.0,
+        "current_bid": null,
+        "commission_rate": null,
+        "status": "scheduled",
+        "source_label": "1ª Praça"
+      }
+    ],
+    "evidence": [
+      {
+        "kind": "detail",
+        "url": "https://www.leiloeiropublico.com.br/DetalheLote.aspx?Leilao=26.120&Lote=1&Sublote=1"
+      }
+    ]
+  }
+]

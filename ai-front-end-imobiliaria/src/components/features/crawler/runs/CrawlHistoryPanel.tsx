@@ -57,7 +57,7 @@ export function CrawlHistoryPanel({ agencyId, operations, runs }: CrawlHistoryPa
                 : run ? `/admin/crawler/runs/${run.id}` : `/admin/crawler/agencies/${agencyId}/crawls/operations/${operation?.id}`;
               const result = validation
                 ? operation?.state === "succeeded" ? "Resultado da validação disponível" : "—"
-                : run ? `${run.counts.normalized} normalizados · ${run.publication_state === "candidate" ? "Qualidade pendente" : run.publication_state === "quarantined" ? "Em quarentena" : "Publicado"}` : "Aguardando resultado técnico";
+                : run ? `${run.counts.normalized} normalizados · ${run.quality_rejection ? "Publicação recusada" : run.publication_state === "candidate" ? "Qualidade pendente" : run.publication_state === "quarantined" ? "Em quarentena" : "Publicado"}` : "Aguardando resultado técnico";
               const state = operation ? stateLabels[operation.state] : run?.technical_state === "succeeded" ? "Concluído" : run?.technical_state ?? "—";
               const createdAt = operation?.created_at ?? run?.created_at;
               return <tr className="border-b" key={operation?.id ?? `run-${run?.id}`}><td className="px-3 py-3"><Badge variant="outline">{validation ? "Validação" : "Produção"}</Badge></td><td className="px-3 py-3">#{operation?.id ?? run?.operation_id}</td><td className="px-3 py-3">{state}</td><td className="px-3 py-3">{result}</td><td className="px-3 py-3">{createdAt ? new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short" }).format(new Date(createdAt)) : "—"}</td><td className="px-3 py-3"><Link className="underline" href={href}>Ver execução</Link></td></tr>;

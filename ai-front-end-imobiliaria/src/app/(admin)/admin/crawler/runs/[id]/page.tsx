@@ -25,7 +25,7 @@ export default async function CrawlRunPage({ params }: CrawlRunPageProps) {
       <div className="flex flex-wrap items-center gap-3">
         <h2 className="text-lg font-semibold">Crawl Run #{run.id}</h2>
         <Badge variant="outline">{run.technical_state}</Badge>
-        <Badge variant={run.result_kind === "partial" ? "destructive" : "secondary"}>{run.result_kind === "partial" ? "Resultado parcial · não publicável" : run.publication_state}</Badge>
+        <Badge variant={run.result_kind === "partial" ? "destructive" : "secondary"}>{run.result_kind === "partial" ? "Resultado parcial · não publicável" : run.quality_rejection ? "publicação recusada" : run.publication_state}</Badge>
       </div>
       <Card>
         <CardHeader><CardTitle>Evidências de qualidade</CardTitle></CardHeader>

@@ -120,6 +120,11 @@ class OnboardingPolicyCatalogApiTest extends TestCase
                 'key' => 'sitemap',
                 'kind' => 'native',
                 'safety_status' => 'safe',
+            ])
+            ->assertJsonFragment([
+                'key' => 'playwright',
+                'kind' => 'native',
+                'safety_status' => 'safe',
             ]);
 
         $blocked = $this->actingAs($this->admin)

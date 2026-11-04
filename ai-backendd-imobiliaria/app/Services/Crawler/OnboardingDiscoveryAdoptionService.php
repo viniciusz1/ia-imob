@@ -29,19 +29,13 @@ class OnboardingDiscoveryAdoptionService
             $existingAdoption = OnboardingDiscoveryAdoption::query()
                 ->where('onboarding_execution_id', $locked->id)
                 ->first();
-            if ($existingAdoption !== null) {
-                if ($existingAdoption->discovery_snapshot_id !== $snapshot->id) {
-                    throw ValidationException::withMessages([
-                        'discovery_snapshot_id' => 'This execution already adopted another Discovery Snapshot.',
-                    ]);
-                }
-
+            if ($existingAdoption !== null && $existingAdoption->discovery_snapshot_id === $snapshot->id) {
                 return $locked;
             }
 
-            if ($locked->state !== 'requires_attention' || $locked->current_step !== 'discovery') {
+            if (in_array($locked->state, ['completed', 'cancelled'], true)) {
                 throw ValidationException::withMessages([
-                    'state' => 'A Discovery Snapshot can only be adopted while the Discovery step requires attention.',
+                    'state' => 'A Discovery Snapshot cannot be adopted for a terminal execution.',
                 ]);
             }
             if ($snapshot->crawl_agency_id !== $locked->crawl_agency_id) {
@@ -61,11 +55,6 @@ class OnboardingDiscoveryAdoptionService
                     'discovery_snapshot_id' => 'The Snapshot must come from a successful Discovery operation.',
                 ]);
             }
-            if ($locked->operations()->where('onboarding_step', '!=', 'discovery')->exists()) {
-                throw ValidationException::withMessages([
-                    'state' => 'A Snapshot cannot be adopted after a later onboarding step has started.',
-                ]);
-            }
 
             $sampleUrl = $this->selectSampleUrl($snapshot, $locked->crawlAgency->root_domain);
             if ($sampleUrl === null) {
@@ -77,18 +66,25 @@ class OnboardingDiscoveryAdoptionService
                 ->where('onboarding_step', 'discovery')
                 ->whereIn('state', ['failed', 'cancelled', 'succeeded'])
                 ->latest('attempt')
-                ->firstOrFail();
+                ->first();
 
-            OnboardingDiscoveryAdoption::query()->create([
-                'onboarding_execution_id' => $locked->id,
-                'discovery_snapshot_id' => $snapshot->id,
-                'source_operation_id' => $sourceOperation->id,
-                'replaced_operation_id' => $replacedOperation->id,
-                'adopted_by' => $actor->id,
-                'original_discovery_configuration' => $locked->resolved_configuration['discovery_policy'],
-                'note' => filled($note) ? trim($note) : null,
-                'adopted_at' => now(),
-            ]);
+            $replacedOperationId = $replacedOperation?->id
+                ?? $existingAdoption?->replaced_operation_id
+                ?? $sourceOperation->id;
+
+            OnboardingDiscoveryAdoption::query()->updateOrCreate(
+                ['onboarding_execution_id' => $locked->id],
+                [
+                    'discovery_snapshot_id' => $snapshot->id,
+                    'source_operation_id' => $sourceOperation->id,
+                    'replaced_operation_id' => $replacedOperationId,
+                    'adopted_by' => $actor->id,
+                    'original_discovery_configuration' => $existingAdoption?->original_discovery_configuration
+                        ?? $locked->resolved_configuration['discovery_policy'],
+                    'note' => filled($note) ? trim($note) : null,
+                    'adopted_at' => now(),
+                ]
+            );
 
             $manual = $locked->conduction === 'manual';
             $locked->update([
@@ -126,21 +122,17 @@ class OnboardingDiscoveryAdoptionService
     public function candidates(OnboardingExecution $execution): Collection
     {
         $execution->loadMissing('crawlAgency');
-        $laterStepStarted = $execution->operations()
-            ->where('onboarding_step', '!=', 'discovery')
-            ->exists();
 
         return DiscoverySnapshot::query()
             ->where('crawl_agency_id', $execution->crawl_agency_id)
             ->orderByDesc('created_at')
             ->orderByDesc('id')
             ->get()
-            ->map(function (DiscoverySnapshot $snapshot) use ($execution, $laterStepStarted): array {
+            ->map(function (DiscoverySnapshot $snapshot) use ($execution): array {
                 $sourceOperation = CrawlerOperation::query()->find($snapshot->operation_id);
                 $sampleUrl = $this->selectSampleUrl($snapshot, $execution->crawlAgency->root_domain);
                 $reason = match (true) {
-                    $execution->state !== 'requires_attention' || $execution->current_step !== 'discovery' => 'A execução não está aguardando recuperação da etapa de Discovery.',
-                    $laterStepStarted => 'Uma etapa posterior do onboarding já foi iniciada.',
+                    in_array($execution->state, ['completed', 'cancelled'], true) => 'A execução de onboarding já está finalizada.',
                     $sourceOperation === null
                         || $sourceOperation->crawl_agency_id !== $execution->crawl_agency_id
                         || $sourceOperation->type !== 'discovery' => 'A Operação do Crawler de origem não é um Discovery desta Crawl Agency.',

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AuctionController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\NewPropertiesController;
 use App\Http\Controllers\Api\PermissionController;
@@ -21,6 +22,9 @@ Route::middleware(['auth:sanctum', EnsureAgencyIsActive::class])->group(function
 
     Route::apiResource('roles', RoleController::class);
     Route::get('permissions', [PermissionController::class, 'index']);
+
+    // Auctions Module
+    Route::get('auctions', [AuctionController::class, 'index']);
 
     // Properties Module
     Route::apiResource('properties', \App\Http\Controllers\Api\PropertyController::class);
@@ -61,6 +65,8 @@ Route::middleware(['auth:sanctum', EnsureAgencyIsActive::class])->group(function
     require __DIR__.'/api/user_routes.php';
 });
 
+require __DIR__.'/api/analytics.php';
+
 Route::prefix('admin')->group(function () {
     require __DIR__.'/api/admin.php';
 });
@@ -84,3 +90,8 @@ Route::get('/plans', [\App\Http\Controllers\Api\PlanController::class, 'index'])
 
 // Asaas Webhook (Public POST)
 Route::post('/webhooks/asaas', [\App\Http\Controllers\Api\AsaasWebhookController::class, 'handle']);
+
+// Crawler Webhooks (Authenticated via Sanctum Token)
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::post('/webhooks/crawler/auctions', [\App\Http\Controllers\Api\Crawler\AuctionIngestionController::class, 'store']);
+});

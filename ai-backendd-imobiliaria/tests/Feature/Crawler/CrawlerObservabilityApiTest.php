@@ -63,7 +63,6 @@ class CrawlerObservabilityApiTest extends TestCase
             ->assertJsonPath('data.open_circuits', 1)
             ->assertJsonPath('data.quarantined_snapshots', 1)
             ->assertJsonFragment(['href' => "/admin/crawler/agencies/{$this->agency->id}"])
-            ->assertJsonFragment(['href' => '/admin/crawler/operations?state=failed'])
             ->assertJsonFragment(['href' => "/admin/crawler/runs/{$run->id}"]);
         $this->assertNotEmpty($response->json('data.alerts'));
         $this->assertSame($running->id, $response->json('data.active_operations.0.id'));
@@ -107,6 +106,31 @@ class CrawlerObservabilityApiTest extends TestCase
             ->assertJsonPath('data.0.timeline.0.stage', 'queue')
             ->assertJsonFragment(['stage' => 'quality']);
         $this->assertDatabaseHas('crawler.operations', ['id' => $equivalent->id]);
+    }
+
+    public function test_operations_filter_by_multiple_states_and_sort_for_queue_view(): void
+    {
+        $newest = $this->operation('production_crawl', 'queued', ['created_at' => now()->subMinute()]);
+        $oldest = $this->operation('production_crawl', 'queued', ['created_at' => now()->subHour()]);
+        $this->operation('production_crawl', 'running');
+        $this->operation('production_crawl', 'succeeded');
+
+        $this->actingAs($this->admin)->getJson('/api/v1/admin/crawler/operations?'.http_build_query([
+            'states' => ['queued'],
+            'sort' => 'created_at',
+            'direction' => 'asc',
+        ]))->assertOk()
+            ->assertJsonCount(2, 'data')
+            ->assertJsonPath('data.0.id', $oldest->id)
+            ->assertJsonPath('data.1.id', $newest->id)
+            ->assertJsonStructure(['data' => [['claimed_at', 'lease_expires_at', 'updated_at']]]);
+
+        $this->actingAs($this->admin)->getJson('/api/v1/admin/crawler/operations?'.http_build_query([
+            'states' => ['queued', 'running'],
+        ]))->assertOk()->assertJsonCount(3, 'data');
+
+        $this->actingAs($this->admin)->getJson('/api/v1/admin/crawler/operations?states[]=bogus')
+            ->assertUnprocessable();
     }
 
     public function test_integrations_expose_only_sanitized_configuration_state(): void

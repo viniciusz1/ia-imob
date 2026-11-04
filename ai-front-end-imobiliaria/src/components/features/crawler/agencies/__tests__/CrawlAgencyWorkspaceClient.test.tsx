@@ -53,13 +53,8 @@ describe("CrawlAgencyWorkspaceClient", () => {
     render(
       <CrawlAgencyWorkspaceClient
         agency={agency}
-        discoveryPolicies={[]}
-        discoveryStrategies={[]}
         executions={[execution]}
-        extractionPolicies={[]}
         initialOperations={[]}
-        models={[]}
-        onboardingPlan={null}
         profiles={[]}
         runs={[]}
         schedule={schedule}
@@ -72,6 +67,7 @@ describe("CrawlAgencyWorkspaceClient", () => {
       "href",
       "/admin/crawler/agencies/42/onboarding",
     );
+    expect(screen.queryByText("Plano de Onboarding")).not.toBeInTheDocument();
     expect(screen.queryByRole("list", { name: "Timeline da Execução de Onboarding" })).not.toBeInTheDocument();
   });
 });

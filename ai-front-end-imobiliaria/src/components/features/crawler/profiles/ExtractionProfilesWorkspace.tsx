@@ -44,9 +44,6 @@ export function ExtractionProfilesWorkspace({
   const [lifecycle, setLifecycle] = useState(agency.lifecycle_state);
   const [operations, setOperations] = useState(initialOperations);
   const [profiles, setProfiles] = useState(initialProfiles);
-  const [generationOpen, setGenerationOpen] = useState(() => (
-    snapshots.length > 0 && initialProfiles.every((profile) => profile.status === "rejected")
-  ));
   const orderedProfiles = useMemo(() => [...profiles].sort((left, right) => right.version - left.version), [profiles]);
   const hasCurrentProfile = orderedProfiles.some((profile) => profile.status !== "rejected");
   const activeOperation = operations.find((candidate) => (
@@ -66,7 +63,7 @@ export function ExtractionProfilesWorkspace({
     setProfiles(await listExtractionProfiles(agency.id));
   }, [agency.id]);
 
-  const generatorOwnsPolling = generationOpen
+  const generatorOwnsPolling = snapshots.length > 0
     && activeOperation !== null
     && (activeOperation.type === "sample_url_suggestion" || activeOperation.type === "profile_generation");
   useCrawlerOperationPolling({
@@ -94,12 +91,37 @@ export function ExtractionProfilesWorkspace({
   return (
     <div className="space-y-6">
       <Card>
-        <CardHeader className="flex-row items-center justify-between gap-3">
-          <div><CardTitle>Gerar Perfil Candidato</CardTitle><CardDescription>{snapshots.length === 0 ? "Crie um Snapshot de Discovery antes de gerar um perfil." : hasCurrentProfile ? "Fluxo alternativo para criar uma nova versão." : "Prepare uma URL de amostra e gere o primeiro Perfil de Extração Candidato."}</CardDescription></div>
-          {snapshots.length > 0 && hasCurrentProfile && <Button onClick={() => setGenerationOpen((current) => !current)} type="button" variant="outline">{generationOpen ? "Ocultar formulário" : "Mostrar formulário"}</Button>}
+        <CardHeader>
+          <CardTitle>Gerar Perfil Candidato</CardTitle>
+          <CardDescription>
+            {snapshots.length === 0
+              ? "Crie um Snapshot de Discovery antes de gerar um perfil."
+              : hasCurrentProfile
+                ? "Fluxo alternativo para criar uma nova versão."
+                : "Prepare uma URL de amostra e gere o primeiro Perfil de Extração Candidato."}
+          </CardDescription>
         </CardHeader>
-        {snapshots.length === 0 && <CardContent><Button asChild variant="outline"><Link href={`/admin/crawler/agencies/${agency.id}/discoveries`}>Criar Discovery</Link></Button></CardContent>}
-        {generationOpen && <CardContent><ExtractionProfileGenerator agencyId={agency.id} contracts={contracts} initialOperations={operations} onOperationChange={updateOperation} onProfilesChanged={reloadProfiles} primaryAction={!hasCurrentProfile} prototypeVariant={prototypeVariant} snapshots={snapshots} /></CardContent>}
+        {snapshots.length === 0 && (
+          <CardContent>
+            <Button asChild variant="outline">
+              <Link href={`/admin/crawler/agencies/${agency.id}/discoveries`}>Criar Discovery</Link>
+            </Button>
+          </CardContent>
+        )}
+        {snapshots.length > 0 && (
+          <CardContent>
+            <ExtractionProfileGenerator
+              agencyId={agency.id}
+              contracts={contracts}
+              initialOperations={operations}
+              onOperationChange={updateOperation}
+              onProfilesChanged={reloadProfiles}
+              primaryAction={!hasCurrentProfile}
+              prototypeVariant={prototypeVariant}
+              snapshots={snapshots}
+            />
+          </CardContent>
+        )}
       </Card>
 
       <Card>

@@ -25,6 +25,7 @@ describe("AdminNewAgencyPage", () => {
             name: "Nova Agência",
             slug: "nova-agencia",
             is_active: true,
+            market_search_weekly_limit: 100,
             owner_user_id: null,
             created_at: "2026-06-14T12:00:00Z",
             updated_at: null,

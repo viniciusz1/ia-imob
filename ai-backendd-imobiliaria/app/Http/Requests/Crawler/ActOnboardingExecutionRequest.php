@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Crawler;
 
+use App\Models\Crawler\ExtractionProfile;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
@@ -27,6 +28,11 @@ class ActOnboardingExecutionRequest extends FormRequest
                 ]),
             ],
             'sample_url' => ['nullable', 'url:http,https', 'max:2048'],
+            'extraction_profile_id' => [
+                'nullable',
+                'integer',
+                Rule::exists(ExtractionProfile::class, 'id'),
+            ],
         ];
     }
 
@@ -52,6 +58,14 @@ class ActOnboardingExecutionRequest extends FormRequest
                     $validator->errors()->add(
                         'sample_url',
                         'The sample URL is only accepted by confirmation or correction actions.',
+                    );
+                }
+
+                $hasProfileId = filled($this->input('extraction_profile_id'));
+                if ($hasProfileId && $action !== 'run_profile_validation') {
+                    $validator->errors()->add(
+                        'extraction_profile_id',
+                        'The extraction profile ID is only accepted for the profile validation action.',
                     );
                 }
             },
