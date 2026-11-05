@@ -1,11 +1,21 @@
 import { notFound } from "next/navigation";
 import { PropertyForm } from "@/components/properties/PropertyForm";
+import { PageHeader } from "@/components/layout/PageHeader";
 import { getPropertyById } from "@/services/propertyService";
+import type { Property } from "@/types/property";
 
 export const dynamic = 'force-dynamic';
 
 interface EditPropertyPageProps {
     params: Promise<{ id: string }>;
+}
+
+async function loadProperty(id: number): Promise<Property | null> {
+    try {
+        return await getPropertyById(id);
+    } catch {
+        return null;
+    }
 }
 
 export default async function EditPropertyPage({ params }: EditPropertyPageProps) {
@@ -16,19 +26,20 @@ export default async function EditPropertyPage({ params }: EditPropertyPageProps
         notFound();
     }
 
-    try {
-        const property = await getPropertyById(propertyId);
+    const property = await loadProperty(propertyId);
 
-        return (
-            <div className="container mx-auto py-8 space-y-4">
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight">Editar Imóvel</h1>
-                    <p className="text-muted-foreground mt-1">{property.title}</p>
-                </div>
-                <PropertyForm mode="edit" initialData={property} />
-            </div>
-        );
-    } catch {
+    if (!property) {
         notFound();
     }
+
+    return (
+        <div className="space-y-6">
+            <PageHeader
+                backHref="/properties"
+                description={property.title}
+                title="Editar imóvel"
+            />
+            <PropertyForm mode="edit" initialData={property} />
+        </div>
+    );
 }

@@ -2,18 +2,46 @@
 
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Loader2, Save, Globe, Palette, Share2 } from "lucide-react";
+import { Globe, LayoutTemplate, Loader2, Palette, Save, Settings, Share2 } from "lucide-react";
 import {
     type SiteSettingsData,
     type SiteSettingsPayload,
     getSiteSettings,
     updateSiteSettings,
 } from "@/services/siteSettingsService";
+import { EmptyState } from "@/components/layout/EmptyState";
+import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { FormField } from "@/components/ui/form-field";
+import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Textarea } from "@/components/ui/textarea";
+import { formatPhoneBR } from "@/lib/brazilianFormats";
+import { type SiteSettingsField, siteSettingsErrors } from "@/schemas/siteSettingsSchema";
+
+const FIELD_LABELS: Record<SiteSettingsField, string> = {
+    logo_path: "URL do logotipo",
+    favicon_path: "URL do favicon",
+    color_primary: "Cor primária",
+    color_secondary: "Cor secundária",
+    color_accent: "Cor de destaque",
+    color_bg: "Fundo da página",
+    color_surface: "Superfície (cards)",
+    color_text: "Texto",
+    color_muted: "Texto secundário",
+    default_whatsapp: "WhatsApp padrão",
+    facebook_url: "Facebook",
+    instagram_url: "Instagram",
+    google_analytics_id: "Google Analytics ID",
+    meta_pixel_id: "Meta Pixel ID",
+    hero_title: "Título do hero",
+    hero_subtitle: "Subtítulo do hero",
+    about_text: "Sobre a imobiliária",
+};
+
+const PAGE_TITLE = "Configurações do site";
+const PAGE_DESCRIPTION = "Personalize a aparência e o conteúdo do seu site público.";
 
 const COLOR_FIELDS: { key: keyof SiteSettingsPayload; label: string }[] = [
     { key: "color_primary", label: "Cor primária" },
@@ -29,6 +57,8 @@ export function SiteSettingsPanel() {
     const [settings, setSettings] = useState<SiteSettingsData | null>(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    // Fields the user has edited: their errors show live, the others stay quiet.
+    const [touched, setTouched] = useState<ReadonlySet<SiteSettingsField>>(() => new Set());
 
     useEffect(() => {
         getSiteSettings()
@@ -39,22 +69,42 @@ export function SiteSettingsPanel() {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center py-20">
-                <Loader2 className="size-6 animate-spin text-muted-foreground" />
-            </div>
+            <section aria-busy="true" className="space-y-6" role="status">
+                <span className="sr-only">Carregando configurações…</span>
+                <div className="space-y-2">
+                    <Skeleton className="h-8 w-64" />
+                    <Skeleton className="h-4 w-96 max-w-full" />
+                </div>
+                <div className="grid gap-6 xl:grid-cols-2">
+                    <Skeleton className="h-64 rounded-xl" />
+                    <Skeleton className="h-64 rounded-xl" />
+                </div>
+                <Skeleton className="h-56 rounded-xl" />
+                <Skeleton className="h-56 rounded-xl" />
+            </section>
         );
     }
 
     if (!settings) {
-        return <p className="py-8 text-center text-muted-foreground">Nenhuma configuração encontrada.</p>;
+        return (
+            <div className="space-y-6">
+                <PageHeader description={PAGE_DESCRIPTION} title={PAGE_TITLE} />
+                <EmptyState icon={Settings} title="Nenhuma configuração encontrada." />
+            </div>
+        );
     }
 
     function update<K extends keyof SiteSettingsPayload>(key: K, value: SiteSettingsPayload[K]) {
         setSettings((prev) => (prev ? { ...prev, [key]: value } : prev));
+        setTouched((prev) => (prev.has(key as SiteSettingsField) ? prev : new Set(prev).add(key as SiteSettingsField)));
     }
 
+    const errors = siteSettingsErrors(settings);
+    const invalidFields = Object.keys(errors) as SiteSettingsField[];
+    const fieldError = (key: SiteSettingsField) => (touched.has(key) ? errors[key] : undefined);
+
     async function handleSave() {
-        if (!settings) return;
+        if (!settings || invalidFields.length > 0) return;
         setSaving(true);
 
         const payload: SiteSettingsPayload = {
@@ -88,112 +138,131 @@ export function SiteSettingsPanel() {
         }
     }
 
-    return (
-        <div className="mx-auto max-w-3xl space-y-6">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-2xl font-bold tracking-tight">Configurações do Site</h1>
-                    <p className="text-sm text-muted-foreground">
-                        Personalize a aparência e o conteúdo do seu site público.
-                    </p>
-                </div>
-                <Button onClick={handleSave} disabled={saving}>
-                    {saving ? <Loader2 className="mr-2 size-4 animate-spin" /> : <Save className="mr-2 size-4" />}
-                    Salvar
-                </Button>
-            </div>
+    const saveButton = (
+        <Button onClick={handleSave} disabled={saving || invalidFields.length > 0}>
+            {saving ? <Loader2 className="animate-spin" /> : <Save />}
+            Salvar
+        </Button>
+    );
+    const invalidHint =
+        invalidFields.length > 0 ? (
+            <p className="text-[0.8125rem] text-subtle">
+                Corrija: {invalidFields.map((field) => FIELD_LABELS[field]).join(", ")}
+            </p>
+        ) : null;
 
-            {/* Branding */}
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <Globe className="size-5" /> Identidade visual
-                    </CardTitle>
-                    <CardDescription>Logotipo e cores da sua marca.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    <div className="grid gap-4 sm:grid-cols-2">
-                        <div className="space-y-2">
-                            <Label htmlFor="logo">URL do logotipo</Label>
+    return (
+        <div className="space-y-6">
+            <PageHeader
+                actions={
+                    <div className="flex flex-wrap items-center justify-end gap-3">
+                        {invalidHint}
+                        {saveButton}
+                    </div>
+                }
+                description={PAGE_DESCRIPTION}
+                title={PAGE_TITLE}
+            />
+
+            <div className="grid gap-6 xl:grid-cols-2">
+                {/* Branding */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <Globe className="size-4 text-muted-foreground" />
+                            Identidade visual
+                        </CardTitle>
+                        <CardDescription>Logotipo e ícone que aparecem no seu site.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                        <FormField error={fieldError("logo_path")} htmlFor="logo" label="URL do logotipo">
                             <Input
                                 id="logo"
                                 value={settings.logo_path ?? ""}
                                 onChange={(e) => update("logo_path", e.target.value || null)}
                                 placeholder="https://exemplo.com/logo.png"
                             />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="favicon">URL do favicon</Label>
+                        </FormField>
+                        <FormField error={fieldError("favicon_path")} htmlFor="favicon" label="URL do favicon">
                             <Input
                                 id="favicon"
                                 value={settings.favicon_path ?? ""}
                                 onChange={(e) => update("favicon_path", e.target.value || null)}
                                 placeholder="https://exemplo.com/favicon.ico"
                             />
-                        </div>
-                    </div>
+                        </FormField>
+                    </CardContent>
+                </Card>
 
-                    <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-7">
-                        {COLOR_FIELDS.map(({ key, label }) => (
-                            <div key={key} className="space-y-2">
-                                <Label htmlFor={key}>{label}</Label>
-                                <div className="flex gap-2">
-                                    <input
-                                        id={key}
-                                        type="color"
-                                        value={String(settings[key] ?? "")}
-                                        onChange={(e) => update(key, e.target.value)}
-                                        className="h-9 w-9 cursor-pointer rounded border"
-                                    />
-                                    <Input
-                                        value={String(settings[key] ?? "")}
-                                        onChange={(e) => update(key, e.target.value)}
-                                        className="flex-1 font-mono text-xs"
-                                    />
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </CardContent>
-            </Card>
+                {/* Content */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <LayoutTemplate className="size-4 text-muted-foreground" />
+                            Conteúdo da página inicial
+                        </CardTitle>
+                        <CardDescription>Título e texto exibidos no topo da página inicial do seu site.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                        <FormField error={fieldError("hero_title")} htmlFor="hero_title" label="Título do hero">
+                            <Input
+                                id="hero_title"
+                                value={settings.hero_title ?? ""}
+                                onChange={(e) => update("hero_title", e.target.value || null)}
+                                placeholder="Encontre o imóvel dos seus sonhos"
+                            />
+                        </FormField>
+                        <FormField error={fieldError("hero_subtitle")} htmlFor="hero_subtitle" label="Subtítulo do hero">
+                            <Input
+                                id="hero_subtitle"
+                                value={settings.hero_subtitle ?? ""}
+                                onChange={(e) => update("hero_subtitle", e.target.value || null)}
+                                placeholder="Imóveis selecionados à venda e para alugar."
+                            />
+                        </FormField>
+                        <FormField className="sm:col-span-2" error={fieldError("about_text")} htmlFor="about_text" label="Sobre a imobiliária">
+                            <Textarea
+                                id="about_text"
+                                rows={4}
+                                value={settings.about_text ?? ""}
+                                onChange={(e) => update("about_text", e.target.value || null)}
+                                placeholder="Breve descrição da imobiliária..."
+                            />
+                        </FormField>
+                    </CardContent>
+                </Card>
+            </div>
 
-            {/* Content */}
+            {/* Colors */}
             <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                        <Palette className="size-5" /> Conteúdo da página inicial
+                        <Palette className="size-4 text-muted-foreground" />
+                        Cores da marca
                     </CardTitle>
-                    <CardDescription>Título e texto exibidos no topo da página inicial do seu site.</CardDescription>
+                    <CardDescription>Paleta aplicada ao site público. Escolha no seletor ou digite o código hex.</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="hero_title">Título do hero</Label>
-                        <Input
-                            id="hero_title"
-                            value={settings.hero_title ?? ""}
-                            onChange={(e) => update("hero_title", e.target.value || null)}
-                            placeholder="Encontre o imóvel dos seus sonhos"
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="hero_subtitle">Subtítulo do hero</Label>
-                        <Input
-                            id="hero_subtitle"
-                            value={settings.hero_subtitle ?? ""}
-                            onChange={(e) => update("hero_subtitle", e.target.value || null)}
-                            placeholder="Imóveis selecionados à venda e para alugar."
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="about_text">Sobre a imobiliária</Label>
-                        <Textarea
-                            id="about_text"
-                            rows={4}
-                            value={settings.about_text ?? ""}
-                            onChange={(e) => update("about_text", e.target.value || null)}
-                            placeholder="Breve descrição da imobiliária..."
-                        />
-                    </div>
+                <CardContent className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                    {COLOR_FIELDS.map(({ key, label }) => (
+                        <FormField error={fieldError(key as SiteSettingsField)} key={key} htmlFor={key} label={label}>
+                            <div className="flex gap-2">
+                                <input
+                                    id={key}
+                                    type="color"
+                                    value={String(settings[key] ?? "")}
+                                    onChange={(e) => update(key, e.target.value)}
+                                    className="size-10 shrink-0 cursor-pointer rounded-lg border border-input bg-background p-1"
+                                />
+                                <Input
+                                    aria-invalid={Boolean(fieldError(key as SiteSettingsField)) || undefined}
+                                    aria-label={`${label} (hex)`}
+                                    value={String(settings[key] ?? "")}
+                                    onChange={(e) => update(key, e.target.value)}
+                                    className="flex-1 font-mono uppercase"
+                                />
+                            </div>
+                        </FormField>
+                    ))}
                 </CardContent>
             </Card>
 
@@ -201,62 +270,60 @@ export function SiteSettingsPanel() {
             <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                        <Share2 className="size-5" /> Redes sociais e analytics
+                        <Share2 className="size-4 text-muted-foreground" />
+                        Redes sociais e analytics
                     </CardTitle>
                     <CardDescription>Links de contato e códigos de rastreamento.</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="whatsapp">WhatsApp padrão</Label>
+                <CardContent className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+                    <FormField error={fieldError("default_whatsapp")} htmlFor="whatsapp" label="WhatsApp padrão">
                         <Input
                             id="whatsapp"
                             value={settings.default_whatsapp ?? ""}
-                            onChange={(e) => update("default_whatsapp", e.target.value || null)}
+                            inputMode="tel"
+                            onChange={(e) => update("default_whatsapp", formatPhoneBR(e.target.value) || null)}
                             placeholder="(47) 99999-0000"
                         />
-                    </div>
-                    <div className="grid gap-4 sm:grid-cols-2">
-                        <div className="space-y-2">
-                            <Label htmlFor="facebook">Facebook</Label>
-                            <Input
-                                id="facebook"
-                                value={settings.facebook_url ?? ""}
-                                onChange={(e) => update("facebook_url", e.target.value || null)}
-                                placeholder="https://facebook.com/suapagina"
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="instagram">Instagram</Label>
-                            <Input
-                                id="instagram"
-                                value={settings.instagram_url ?? ""}
-                                onChange={(e) => update("instagram_url", e.target.value || null)}
-                                placeholder="https://instagram.com/seuperfil"
-                            />
-                        </div>
-                    </div>
-                    <div className="grid gap-4 sm:grid-cols-2">
-                        <div className="space-y-2">
-                            <Label htmlFor="ga">Google Analytics ID</Label>
-                            <Input
-                                id="ga"
-                                value={settings.google_analytics_id ?? ""}
-                                onChange={(e) => update("google_analytics_id", e.target.value || null)}
-                                placeholder="G-XXXXXXXXXX"
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="pixel">Meta Pixel ID</Label>
-                            <Input
-                                id="pixel"
-                                value={settings.meta_pixel_id ?? ""}
-                                onChange={(e) => update("meta_pixel_id", e.target.value || null)}
-                                placeholder="1234567890"
-                            />
-                        </div>
-                    </div>
+                    </FormField>
+                    <FormField error={fieldError("facebook_url")} htmlFor="facebook" label="Facebook">
+                        <Input
+                            id="facebook"
+                            value={settings.facebook_url ?? ""}
+                            onChange={(e) => update("facebook_url", e.target.value || null)}
+                            placeholder="https://facebook.com/suapagina"
+                        />
+                    </FormField>
+                    <FormField error={fieldError("instagram_url")} htmlFor="instagram" label="Instagram">
+                        <Input
+                            id="instagram"
+                            value={settings.instagram_url ?? ""}
+                            onChange={(e) => update("instagram_url", e.target.value || null)}
+                            placeholder="https://instagram.com/seuperfil"
+                        />
+                    </FormField>
+                    <FormField error={fieldError("google_analytics_id")} htmlFor="ga" label="Google Analytics ID">
+                        <Input
+                            id="ga"
+                            value={settings.google_analytics_id ?? ""}
+                            onChange={(e) => update("google_analytics_id", e.target.value || null)}
+                            placeholder="G-XXXXXXXXXX"
+                        />
+                    </FormField>
+                    <FormField error={fieldError("meta_pixel_id")} htmlFor="pixel" label="Meta Pixel ID">
+                        <Input
+                            id="pixel"
+                            value={settings.meta_pixel_id ?? ""}
+                            onChange={(e) => update("meta_pixel_id", e.target.value || null)}
+                            placeholder="1234567890"
+                        />
+                    </FormField>
                 </CardContent>
             </Card>
+
+            <div className="flex flex-wrap items-center justify-end gap-3">
+                {invalidHint}
+                {saveButton}
+            </div>
         </div>
     );
 }

@@ -1,5 +1,10 @@
-import { getPaginatedRoles } from "@/services/roleService";
+import { CircleAlert } from "lucide-react";
+
+import { EmptyState } from "@/components/layout/EmptyState";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { getRoles } from "@/services/roleService";
 import { RolesClient } from "@/components/features/roles/RolesClient";
+import type { Role } from "@/types/role";
 
 export const dynamic = 'force-dynamic';
 
@@ -7,31 +12,30 @@ export const dynamic = 'force-dynamic';
 // Server Component - Grupos de Usuários Page
 // =============================================================================
 
-export default async function GruposPage({
-    searchParams,
-}: {
-    searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-}) {
-    const resolvedParams = await searchParams;
-    const page = Number(resolvedParams.page) || 1;
+export default async function GruposPage() {
+    // The API returns every group at once; the table pages them in the browser.
+    let roles: Role[];
 
     try {
-        const response = await getPaginatedRoles(page);
-
-        return (
-            <RolesClient
-                initialData={response.data}
-                pageCount={response.meta?.last_page || 1}
-            />
-        );
-    } catch (error) {
+        roles = await getRoles();
+    } catch {
         // Fallback básico para erro de API
         return (
-            <div className="container mx-auto py-8 text-center text-red-500 mt-20">
-                <h1 className="text-2xl font-bold mb-4">Erro ao carregar grupos</h1>
-                <p>Verifique sua conexão ou se a API está online.</p>
+            <div className="space-y-6">
+                <PageHeader
+                    description="Gerencie os perfis de acesso e permissões do sistema."
+                    title="Grupos de usuários"
+                />
+                <EmptyState
+                    description="Verifique sua conexão ou se a API está online."
+                    icon={CircleAlert}
+                    title="Erro ao carregar grupos"
+                />
             </div>
         );
     }
-}
 
+    return (
+        <RolesClient initialData={roles} />
+    );
+}

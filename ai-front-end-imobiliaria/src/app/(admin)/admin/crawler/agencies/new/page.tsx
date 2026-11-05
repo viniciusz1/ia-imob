@@ -1,11 +1,15 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CrawlAgencyForm } from "@/components/features/crawler/agencies/CrawlAgencyForm";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 export default function NewCrawlAgencyPage() {
   return (
-    <Card className="mx-auto max-w-2xl">
-      <CardHeader><CardTitle>Nova Crawl Agency</CardTitle></CardHeader>
-      <CardContent><CrawlAgencyForm /></CardContent>
-    </Card>
+    <div className="space-y-6">
+      <PageHeader
+        backHref="/admin/crawler/agencies"
+        description="Cadastre uma nova fonte de dados de mercado para o Crawler."
+        title="Nova Crawl Agency"
+      />
+      <CrawlAgencyForm />
+    </div>
   );
 }

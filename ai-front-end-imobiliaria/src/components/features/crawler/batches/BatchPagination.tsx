@@ -1,5 +1,11 @@
-import { Button } from "@/components/ui/button";
+import { PaginationFooter } from "@/components/layout/PaginationFooter";
+import { cn } from "@/lib/utils";
 import type { BatchPage } from "@/types/productionBatch";
+
+/**
+ * The shared table pagination fed by a batch page's meta. While a page is
+ * loading the controls are inert, as before.
+ */
 export function BatchPagination({
   meta,
   onPage,
@@ -10,27 +16,16 @@ export function BatchPagination({
   pending?: boolean;
 }) {
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-muted-foreground">
-      <span>
-        {meta.total} resultado(s) · Página {meta.current_page} de{" "}
-        {meta.last_page}
-      </span>
-      <div className="flex gap-2">
-        <Button
-          variant="outline"
-          disabled={pending || meta.current_page <= 1}
-          onClick={() => onPage(meta.current_page - 1)}
-        >
-          Anterior
-        </Button>
-        <Button
-          variant="outline"
-          disabled={pending || meta.current_page >= meta.last_page}
-          onClick={() => onPage(meta.current_page + 1)}
-        >
-          Próxima
-        </Button>
-      </div>
+    <div aria-busy={pending || undefined} className={cn(pending && "pointer-events-none opacity-60")}>
+      <PaginationFooter
+        onPageChange={(page) => {
+          if (!pending) onPage(page);
+        }}
+        page={meta.current_page}
+        pageCount={meta.last_page}
+        pageSize={meta.per_page}
+        total={meta.total}
+      />
     </div>
   );
 }

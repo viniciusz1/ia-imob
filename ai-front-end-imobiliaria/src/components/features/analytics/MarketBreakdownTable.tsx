@@ -1,6 +1,9 @@
 "use client";
 
 import { useMemo } from "react";
+import { ChartColumn, SearchX } from "lucide-react";
+import { EmptyState } from "@/components/layout/EmptyState";
+import { ShareBar } from "@/components/ui/charts";
 import {
   Table,
   TableBody,
@@ -12,7 +15,7 @@ import {
 import type { MarketPricing, MarketRankings } from "@/types/analytics";
 import { PaginationFooter, usePagedItems } from "./PagedList";
 import { TabbedPanel } from "./TabbedPanel";
-import { EMPTY_VALUE, formatCount, formatCurrency, formatSquareMetrePrice } from "./format";
+import { EMPTY_VALUE, formatCount, formatCurrency } from "./format";
 
 interface BreakdownRow {
   label: string;
@@ -66,6 +69,7 @@ export function MarketBreakdownTable({ pricing, rankings }: MarketBreakdownTable
 
   return (
     <TabbedPanel
+      icon={ChartColumn}
       title="Preço por recorte"
       description="Mediana calculada dentro de cada grupo. Imóveis conta os anúncios com preço válido que sustentam a mediana."
       tabs={[
@@ -87,46 +91,51 @@ export function MarketBreakdownTable({ pricing, rankings }: MarketBreakdownTable
 
 function BreakdownRows({ rows, groupLabel }: { rows: BreakdownRow[]; groupLabel: string }) {
   const paged = usePagedItems(rows);
+  // Bars compare each group with the largest one across all pages.
+  const largestSample = Math.max(0, ...rows.map((row) => row.sampleSize));
 
   if (rows.length === 0) {
-    return <p className="text-sm text-muted-foreground">Sem imóveis neste recorte.</p>;
+    return (
+      <div>
+        <EmptyState icon={SearchX} title="Sem imóveis neste recorte." variant="inline" />
+        <PaginationFooter paged={paged} noun="grupos" />
+      </div>
+    );
   }
 
   return (
     <div>
-      {/* CardContent recua 24px de cada lado, o que deixava as divisórias das
-          linhas paradas antes da borda do card. A sangria negativa devolve a
-          largura à tabela e o recuo volta nas células das pontas. */}
-      <div className="-mx-6">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="pl-6">{groupLabel}</TableHead>
-              <TableHead className="text-right">Imóveis</TableHead>
-              <TableHead className="text-right">Mediana</TableHead>
-              <TableHead className="pr-6 text-right">R$/m²</TableHead>
+      <Table>
+        <TableHeader>
+          <TableRow className="hover:bg-transparent">
+            <TableHead>{groupLabel}</TableHead>
+            <TableHead className="text-right">Imóveis</TableHead>
+            <TableHead className="text-right">Mediana</TableHead>
+            <TableHead className="text-right">R$/m²</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {paged.pageItems.map((row) => (
+            <TableRow key={row.label}>
+              <TableCell className="font-medium text-foreground">{row.label}</TableCell>
+              <TableCell className="text-right tabular-nums">
+                <span className="inline-flex items-center justify-end gap-3">
+                  <ShareBar className="hidden sm:inline-flex" max={largestSample} value={row.sampleSize} />
+                  <span className="min-w-10 text-foreground">{formatCount(row.sampleSize)}</span>
+                </span>
+              </TableCell>
+              <TableCell className="text-right tabular-nums">
+                {row.insufficientSample ? EMPTY_VALUE : formatCurrency(row.median)}
+              </TableCell>
+              <TableCell className="text-right tabular-nums">
+                {row.insufficientSample
+                  ? EMPTY_VALUE
+                  : formatCurrency(row.medianPerSquareMetre)}
+              </TableCell>
             </TableRow>
-          </TableHeader>
-          <TableBody>
-            {paged.pageItems.map((row) => (
-              <TableRow key={row.label}>
-                <TableCell className="pl-6 font-medium">{row.label}</TableCell>
-                <TableCell className="text-right tabular-nums text-muted-foreground">
-                  {formatCount(row.sampleSize)}
-                </TableCell>
-                <TableCell className="text-right tabular-nums">
-                  {row.insufficientSample ? EMPTY_VALUE : formatCurrency(row.median)}
-                </TableCell>
-                <TableCell className="pr-6 text-right tabular-nums">
-                  {row.insufficientSample
-                    ? EMPTY_VALUE
-                    : formatSquareMetrePrice(row.medianPerSquareMetre)}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+          ))}
+        </TableBody>
+      </Table>
       <PaginationFooter paged={paged} noun="grupos" />
     </div>
   );

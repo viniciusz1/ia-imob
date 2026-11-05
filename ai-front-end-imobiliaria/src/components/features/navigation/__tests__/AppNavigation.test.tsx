@@ -1,43 +1,55 @@
 import { render, screen } from "@testing-library/react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { AppSidebar } from "../AppSidebar";
-import { SidebarProvider } from "@/components/ui/sidebar";
+import { AppNavigation } from "../AppNavigation";
 import { useAuthStore } from "@/store/useAuthStore";
 
+const mocks = vi.hoisted(() => ({ pathname: "/" }));
+
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/",
-  useRouter: () => ({
-    push: vi.fn(),
-  }),
+  usePathname: () => mocks.pathname,
 }));
 
 function renderSidebar() {
-  const queryClient = new QueryClient();
-
-  return render(
-    <QueryClientProvider client={queryClient}>
-      <SidebarProvider>
-        <AppSidebar />
-      </SidebarProvider>
-    </QueryClientProvider>
-  );
+  return render(<AppNavigation />);
 }
 
-describe("AppSidebar", () => {
+describe("AppNavigation", () => {
   beforeEach(() => {
-    window.matchMedia = vi.fn().mockImplementation((query: string) => ({
-      matches: false,
-      media: query,
-      onchange: null,
-      addEventListener: vi.fn(),
-      removeEventListener: vi.fn(),
-      addListener: vi.fn(),
-      removeListener: vi.fn(),
-      dispatchEvent: vi.fn(),
-    }));
+    mocks.pathname = "/";
     useAuthStore.getState().clearAuth();
+  });
+
+  it("marks the module of the current route as the active page", () => {
+    mocks.pathname = "/properties/12/edit";
+    useAuthStore.getState().setUser({
+      id: 1,
+      name: "Corretor",
+      email: "corretor@example.com",
+      is_platform_admin: false,
+      permissions: ["properties.view"],
+    });
+
+    renderSidebar();
+
+    expect(screen.getByRole("link", { name: /^imóveis$/i })).toHaveAttribute("aria-current", "page");
+    expect(screen.getByRole("link", { name: /^dashboard$/i })).not.toHaveAttribute("aria-current");
+  });
+
+  it("does not confuse Avaliar imóvel with Análise de avaliações", () => {
+    mocks.pathname = "/analitico/avaliacoes";
+    useAuthStore.getState().setUser({
+      id: 1,
+      name: "Corretor",
+      email: "corretor@example.com",
+      is_platform_admin: false,
+      permissions: ["valuations.view", "analytics.market.view"],
+    });
+
+    renderSidebar();
+
+    expect(screen.getByRole("link", { name: /análise de avaliações/i })).toHaveAttribute("aria-current", "page");
+    expect(screen.getByRole("link", { name: /avaliar imóvel/i })).not.toHaveAttribute("aria-current");
   });
 
   it("shows Avaliar imóvel for users with valuation permissions", () => {

@@ -1,3 +1,7 @@
+import { CircleAlert } from "lucide-react";
+
+import { EmptyState } from "@/components/layout/EmptyState";
+import { PageHeader } from "@/components/layout/PageHeader";
 import { PlatformOverviewClient } from "@/components/features/admin/overview/PlatformOverviewClient";
 import { listAgencies, type AgencySummary } from "@/services/adminApi";
 
@@ -14,12 +18,13 @@ export default async function AdminOverviewPage() {
 
     if (agencies === null) {
         return (
-            <div className="p-6">
-                <h1 className="text-2xl font-semibold tracking-tight">Visão geral da plataforma</h1>
-                <p className="mt-2 text-sm text-destructive">
-                    Não foi possível carregar as agências. Verifique se a API está online e recarregue a
-                    página.
-                </p>
+            <div className="space-y-6">
+                <PageHeader title="Visão geral da plataforma" />
+                <EmptyState
+                    description="Verifique se a API está online e recarregue a página."
+                    icon={CircleAlert}
+                    title="Não foi possível carregar as agências"
+                />
             </div>
         );
     }

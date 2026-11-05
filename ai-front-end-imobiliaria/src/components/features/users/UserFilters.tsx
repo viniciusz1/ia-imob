@@ -11,7 +11,6 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { Card, CardContent } from "@/components/ui/card";
 import { Search, X } from "lucide-react";
 
 export function UserFilters() {
@@ -76,92 +75,96 @@ export function UserFilters() {
     };
 
     return (
-        <Card className="mb-6">
-            <CardContent className="p-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <Input
-                        placeholder="Filtrar por Código..."
-                        value={filterId}
-                        onChange={(e) => setFilterId(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                    />
-                    <Input
-                        placeholder="Filtrar por Nome..."
-                        value={filterName}
-                        onChange={(e) => setFilterName(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                    />
-                    <Input
-                        placeholder="Filtrar por Usuário (login)..."
-                        value={filterUsername}
-                        onChange={(e) => setFilterUsername(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                    />
+        <div className="flex flex-wrap items-center gap-3">
+            <div className="relative min-w-48 flex-1">
+                <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                    aria-label="Filtrar por nome"
+                    className="pl-9"
+                    placeholder="Buscar por nome..."
+                    size="sm"
+                    value={filterName}
+                    onChange={(e) => setFilterName(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                />
+            </div>
+            <Input
+                aria-label="Filtrar por código"
+                className="w-full sm:w-24"
+                placeholder="Código"
+                size="sm"
+                value={filterId}
+                onChange={(e) => setFilterId(e.target.value)}
+                onKeyDown={handleKeyDown}
+            />
+            <Input
+                aria-label="Filtrar por usuário (login)"
+                className="w-full sm:w-40"
+                placeholder="Usuário (login)"
+                size="sm"
+                value={filterUsername}
+                onChange={(e) => setFilterUsername(e.target.value)}
+                onKeyDown={handleKeyDown}
+            />
 
-                    <Select
-                        value={searchParams.get("filterStatus") || ""}
-                        onValueChange={(val) => handleSelectChange("filterStatus", val)}
-                    >
-                        <SelectTrigger>
-                            <SelectValue placeholder="Status" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="none" disabled>
-                                Selecione um status
-                            </SelectItem>
-                            <SelectItem value="1">Ativo</SelectItem>
-                            <SelectItem value="0">Inativo</SelectItem>
-                        </SelectContent>
-                    </Select>
+            <Select
+                value={searchParams.get("filterStatus") || ""}
+                onValueChange={(val) => handleSelectChange("filterStatus", val)}
+            >
+                <SelectTrigger aria-label="Status" className="w-full sm:w-32" size="sm">
+                    <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="none" disabled>
+                        Selecione um status
+                    </SelectItem>
+                    <SelectItem value="1">Ativo</SelectItem>
+                    <SelectItem value="0">Inativo</SelectItem>
+                </SelectContent>
+            </Select>
 
-                    <Select
-                        value={searchParams.get("filterSite") || ""}
-                        onValueChange={(val) => handleSelectChange("filterSite", val)}
-                    >
-                        <SelectTrigger>
-                            <SelectValue placeholder="Mostrar no Site" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="none" disabled>
-                                Selecione
-                            </SelectItem>
-                            <SelectItem value="1">Sim</SelectItem>
-                            <SelectItem value="0">Não</SelectItem>
-                        </SelectContent>
-                    </Select>
+            <Select
+                value={searchParams.get("filterSite") || ""}
+                onValueChange={(val) => handleSelectChange("filterSite", val)}
+            >
+                <SelectTrigger aria-label="Mostrar no site" className="w-full sm:w-40" size="sm">
+                    <SelectValue placeholder="Mostrar no site" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="none" disabled>
+                        Selecione
+                    </SelectItem>
+                    <SelectItem value="1">Sim</SelectItem>
+                    <SelectItem value="0">Não</SelectItem>
+                </SelectContent>
+            </Select>
 
-                    <Select
-                        value={searchParams.get("filterOnline") || ""}
-                        onValueChange={(val) => handleSelectChange("filterOnline", val)}
-                    >
-                        <SelectTrigger>
-                            <SelectValue placeholder="Status Online" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="none" disabled>
-                                Selecione
-                            </SelectItem>
-                            <SelectItem value="true">Online</SelectItem>
-                            <SelectItem value="false">Offline</SelectItem>
-                        </SelectContent>
-                    </Select>
+            <Select
+                value={searchParams.get("filterOnline") || ""}
+                onValueChange={(val) => handleSelectChange("filterOnline", val)}
+            >
+                <SelectTrigger aria-label="Status online" className="w-full sm:w-36" size="sm">
+                    <SelectValue placeholder="Status online" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="none" disabled>
+                        Selecione
+                    </SelectItem>
+                    <SelectItem value="true">Online</SelectItem>
+                    <SelectItem value="false">Offline</SelectItem>
+                </SelectContent>
+            </Select>
 
-                    <div className="flex gap-2 w-full lg:col-span-2">
-                        <Button
-                            className="flex-1"
-                            variant="default"
-                            onClick={applyTextFilters}
-                        >
-                            <Search className="h-4 w-4 mr-2" />
-                            Filtrar
-                        </Button>
-                        <Button className="flex-1" variant="outline" onClick={clearFilters}>
-                            <X className="h-4 w-4 mr-2" />
-                            Limpar
-                        </Button>
-                    </div>
-                </div>
-            </CardContent>
-        </Card>
+            <div className="flex gap-2">
+                <Button size="sm" variant="default" onClick={applyTextFilters}>
+                    <Search />
+                    Filtrar
+                </Button>
+                <Button size="sm" variant="ghost" onClick={clearFilters}>
+                    <X />
+                    Limpar
+                </Button>
+            </div>
+        </div>
     );
 }

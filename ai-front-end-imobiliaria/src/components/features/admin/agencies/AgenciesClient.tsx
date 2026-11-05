@@ -3,11 +3,14 @@
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Edit, Power, PowerOff, Plus } from "lucide-react";
+import { CircleAlert, Landmark, Pencil, Plus, Power, PowerOff } from "lucide-react";
 
+import { EmptyState } from "@/components/layout/EmptyState";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { PaginationFooter } from "@/components/layout/PaginationFooter";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import {
     Table,
     TableBody,
@@ -22,10 +25,12 @@ import {
     useAdminAgencies,
     useDeactivateAgency,
 } from "@/hooks/useAdminAgencies";
+import { useClientPagination } from "@/hooks/useClientPagination";
 import { usePermission } from "@/hooks/usePermission";
-import { AdminPageHeader } from "@/components/features/admin/AdminPageHeader";
 import { AgencyFormModal } from "./AgencyFormModal";
 import type { AgencySummary } from "@/services/adminApi";
+
+const NO_AGENCIES: AgencySummary[] = [];
 
 interface AgenciesClientProps {
     initialData: AgencySummary[];
@@ -38,7 +43,7 @@ function formatDate(date: string | null): string {
 
 function StatusBadge({ isActive }: { isActive: boolean }) {
     return (
-        <Badge variant={isActive ? "default" : "secondary"}>
+        <Badge variant={isActive ? "success" : "muted"}>
             {isActive ? "Ativa" : "Inativa"}
         </Badge>
     );
@@ -78,6 +83,7 @@ export function AgenciesClient({ initialData }: AgenciesClientProps) {
     const canDeactivate = usePermission("platform.agencies.deactivate");
     const canUpdate = usePermission("platform.agencies.update");
     const { handleActivate, handleDeactivate, isPending } = useStatusActions();
+    const pagination = useClientPagination(agencies ?? NO_AGENCIES);
 
     const [modalOpen, setModalOpen] = useState(false);
     const [editingAgency, setEditingAgency] = useState<AgencySummary | null>(null);
@@ -95,12 +101,12 @@ export function AgenciesClient({ initialData }: AgenciesClientProps) {
     };
 
     return (
-        <div className="flex flex-col gap-6">
-            <AdminPageHeader
+        <div className="space-y-6">
+            <PageHeader
                 actions={(
                     <Button asChild>
                         <Link href="/admin/agencies/new">
-                            <Plus className="mr-2 h-4 w-4" />
+                            <Plus />
                             Nova agência
                         </Link>
                     </Button>
@@ -109,100 +115,113 @@ export function AgenciesClient({ initialData }: AgenciesClientProps) {
                 title="Agências"
             />
 
-            <Card>
-                <CardContent>
-                    {isLoading && <AgenciesTableSkeleton />}
-                    {error && (
-                        <p className="text-sm text-red-600">
-                            Erro ao carregar agências. Tente novamente.
-                        </p>
-                    )}
-                    {!isLoading && !error && (
-                        <div className="rounded-md border">
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>ID</TableHead>
-                                        <TableHead>Nome</TableHead>
-                                        <TableHead>Slug</TableHead>
-                                        <TableHead>Status</TableHead>
-                                        <TableHead>Criada em</TableHead>
-                                        <TableHead className="text-right">Ações</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {agencies?.map((agency) => (
-                                        <TableRow key={agency.id}>
-                                            <TableCell>{agency.id}</TableCell>
-                                            <TableCell>
-                                                <Link
-                                                    href={`/admin/agencies/${agency.id}`}
-                                                    className="font-medium text-primary hover:underline"
+            <Card className="gap-0 overflow-hidden py-0">
+                {isLoading && <AgenciesTableSkeleton />}
+                {error && (
+                    <EmptyState
+                        description="Tente novamente em instantes."
+                        icon={CircleAlert}
+                        title="Erro ao carregar agências."
+                        variant="inline"
+                    />
+                )}
+                {!isLoading && !error && (
+                    <Table>
+                        <TableHeader>
+                            <TableRow className="hover:bg-transparent">
+                                <TableHead>Agência</TableHead>
+                                <TableHead>Status</TableHead>
+                                <TableHead className="hidden md:table-cell">Criada em</TableHead>
+                                <TableHead className="w-px">
+                                    <span className="sr-only">Ações</span>
+                                </TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {pagination.pageItems.map((agency) => (
+                                <TableRow key={agency.id}>
+                                    <TableCell>
+                                        <Link
+                                            className="block max-w-[320px] truncate text-sm text-foreground hover:text-primary hover:underline"
+                                            href={`/admin/agencies/${agency.id}`}
+                                        >
+                                            {agency.name}
+                                        </Link>
+                                        <p className="mt-0.5 text-xs text-muted-foreground">{agency.slug}</p>
+                                    </TableCell>
+                                    <TableCell>
+                                        <StatusBadge isActive={agency.is_active} />
+                                    </TableCell>
+                                    <TableCell className="hidden text-muted-foreground tabular-nums md:table-cell">
+                                        {formatDate(agency.created_at)}
+                                    </TableCell>
+                                    <TableCell className="px-2">
+                                        <div className="flex items-center justify-end gap-0.5">
+                                            {canUpdate && (
+                                                <Button
+                                                    aria-label="Editar"
+                                                    className="text-muted-foreground hover:text-foreground"
+                                                    onClick={() => handleEdit(agency)}
+                                                    size="icon-sm"
+                                                    title="Editar"
+                                                    variant="ghost"
                                                 >
-                                                    {agency.name}
-                                                </Link>
-                                            </TableCell>
-                                            <TableCell>{agency.slug}</TableCell>
-                                            <TableCell>
-                                                <StatusBadge isActive={agency.is_active} />
-                                            </TableCell>
-                                            <TableCell>{formatDate(agency.created_at)}</TableCell>
-                                            <TableCell className="text-right">
-                                                <div className="flex justify-end gap-2">
-                                                    {canUpdate && (
-                                                        <Button
-                                                            variant="outline"
-                                                            size="sm"
-                                                            onClick={() => handleEdit(agency)}
-                                                        >
-                                                            <Edit className="mr-2 h-4 w-4" />
-                                                            Editar
-                                                        </Button>
-                                                    )}
-                                                    {canDeactivate && (
-                                                        <>
-                                                            {agency.is_active ? (
-                                                                <Button
-                                                                    variant="outline"
-                                                                    size="sm"
-                                                                    onClick={() => void handleDeactivate(agency)}
-                                                                    disabled={isPending}
-                                                                >
-                                                                    <PowerOff className="mr-2 h-4 w-4" />
-                                                                    Desativar
-                                                                </Button>
-                                                            ) : (
-                                                                <Button
-                                                                    variant="outline"
-                                                                    size="sm"
-                                                                    onClick={() => void handleActivate(agency)}
-                                                                    disabled={isPending}
-                                                                >
-                                                                    <Power className="mr-2 h-4 w-4" />
-                                                                    Ativar
-                                                                </Button>
-                                                            )}
-                                                        </>
-                                                    )}
-                                                </div>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))}
-                                    {agencies?.length === 0 && (
-                                        <TableRow>
-                                            <TableCell
-                                                colSpan={6}
-                                                className="h-24 text-center text-muted-foreground"
-                                            >
-                                                Nenhuma agência cadastrada.
-                                            </TableCell>
-                                        </TableRow>
-                                    )}
-                                </TableBody>
-                            </Table>
-                        </div>
-                    )}
-                </CardContent>
+                                                    <Pencil />
+                                                </Button>
+                                            )}
+                                            {canDeactivate && (agency.is_active ? (
+                                                <Button
+                                                    aria-label="Desativar"
+                                                    className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                                                    disabled={isPending}
+                                                    onClick={() => void handleDeactivate(agency)}
+                                                    size="icon-sm"
+                                                    title="Desativar"
+                                                    variant="ghost"
+                                                >
+                                                    <PowerOff />
+                                                </Button>
+                                            ) : (
+                                                <Button
+                                                    aria-label="Ativar"
+                                                    className="text-muted-foreground hover:bg-success/10 hover:text-success"
+                                                    disabled={isPending}
+                                                    onClick={() => void handleActivate(agency)}
+                                                    size="icon-sm"
+                                                    title="Ativar"
+                                                    variant="ghost"
+                                                >
+                                                    <Power />
+                                                </Button>
+                                            ))}
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                            {agencies?.length === 0 && (
+                                <TableRow className="hover:bg-transparent">
+                                    <TableCell colSpan={4}>
+                                        <EmptyState
+                                            description="Use o botão Nova agência para cadastrar a primeira."
+                                            icon={Landmark}
+                                            title="Nenhuma agência cadastrada."
+                                            variant="inline"
+                                        />
+                                    </TableCell>
+                                </TableRow>
+                            )}
+                        </TableBody>
+                    </Table>
+                )}
+                {!isLoading && !error && (
+                    <PaginationFooter
+                        onPageChange={pagination.setPage}
+                        page={pagination.page}
+                        pageCount={pagination.pageCount}
+                        pageSize={pagination.pageSize}
+                        total={pagination.total}
+                    />
+                )}
             </Card>
 
             <AgencyFormModal
@@ -216,10 +235,16 @@ export function AgenciesClient({ initialData }: AgenciesClientProps) {
 
 function AgenciesTableSkeleton() {
     return (
-        <div className="space-y-2">
-            <Skeleton className="h-8 w-full" />
-            <Skeleton className="h-8 w-full" />
-            <Skeleton className="h-8 w-full" />
+        <div className="divide-y">
+            {Array.from({ length: 4 }, (_, index) => (
+                <div className="flex items-center gap-4 px-4 py-4" key={index}>
+                    <div className="space-y-2">
+                        <Skeleton className="h-3.5 w-48" />
+                        <Skeleton className="h-3 w-24" />
+                    </div>
+                    <Skeleton className="ml-auto h-5 w-16 rounded-full" />
+                </div>
+            ))}
         </div>
     );
 }

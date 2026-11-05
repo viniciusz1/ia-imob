@@ -72,7 +72,7 @@ describe("MarketBreakdownTable", () => {
 
     expect(screen.getByText("Casa")).toBeInTheDocument();
     expect(screen.getByText("R$ 690.000")).toBeInTheDocument();
-    expect(screen.getByText("R$ 4.200/m²")).toBeInTheDocument();
+    expect(screen.getByText("R$ 4.200")).toBeInTheDocument();
     expect(screen.getByText("1.200")).toBeInTheDocument();
   });
 
@@ -97,7 +97,7 @@ describe("MarketBreakdownTable", () => {
     selectTab("Bairro");
 
     expect(screen.getByText("Bairro 1")).toBeInTheDocument();
-    expect(screen.getByText("R$ 8.100/m²")).toBeInTheDocument();
+    expect(screen.getByText("R$ 8.100")).toBeInTheDocument();
   });
 
   it("paginates the neighbourhood grouping", () => {
@@ -105,8 +105,10 @@ describe("MarketBreakdownTable", () => {
 
     selectTab("Bairro");
 
-    expect(screen.getByText("Bairro 20")).toBeInTheDocument();
-    expect(screen.queryByText("Bairro 21")).not.toBeInTheDocument();
-    expect(screen.getByText("1-20 de 50 grupos")).toBeInTheDocument();
+    expect(screen.getByText("Bairro 10")).toBeInTheDocument();
+    expect(screen.queryByText("Bairro 11")).not.toBeInTheDocument();
+    expect(
+      screen.getByText((_, element) => element?.tagName === "P" && element.textContent === "Exibindo 1–10 de 50 grupos"),
+    ).toBeInTheDocument();
   });
 });

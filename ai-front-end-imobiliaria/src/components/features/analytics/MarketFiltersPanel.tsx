@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { ChevronDown, X } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useDebouncedValue } from "@/hooks/useDebouncedValue";
+import { ChevronDown, RotateCcw, SlidersHorizontal } from "lucide-react";
+import { SectionHeader } from "@/components/layout/SectionHeader";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { DatePicker } from "@/components/ui/date-picker";
+import { Card } from "@/components/ui/card";
+import { FormField } from "@/components/ui/form-field";
 import {
   Select,
   SelectContent,
@@ -112,17 +114,26 @@ export function MarketFiltersPanel({ filters, onChange }: MarketFiltersPanelProp
   const [showSecondary, setShowSecondary] = useState(false);
 
   const filtersKey = JSON.stringify(filters);
+  // Typed fields (price, area) change on every keystroke; the options request
+  // only goes out once the user pauses.
+  const requestKey = useDebouncedValue(filtersKey);
+  const latestKeyRef = useRef(filtersKey);
+  latestKeyRef.current = filtersKey;
 
   useEffect(() => {
     let active = true;
-    const query = buildAnalyticsFiltersQuery(filters);
+    const requested = JSON.parse(requestKey) as MarketAnalyticsFilters;
+    const query = buildAnalyticsFiltersQuery(requested);
 
     getMarketPropertyFilters(query)
       .then((response) => {
         if (!active) return;
         setOptions(response);
-        const pruned = pruneAnalyticsFilters(filters, response);
-        if (JSON.stringify(pruned) !== filtersKey) {
+        // The user may have kept typing while this was in flight; only prune
+        // the filters this response was computed for.
+        if (latestKeyRef.current !== requestKey) return;
+        const pruned = pruneAnalyticsFilters(requested, response);
+        if (JSON.stringify(pruned) !== requestKey) {
           onChange(pruned);
         }
       })
@@ -134,7 +145,7 @@ export function MarketFiltersPanel({ filters, onChange }: MarketFiltersPanelProp
       active = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filtersKey]);
+  }, [requestKey]);
 
   const neighbourhoods = useMemo(() => {
     if (options === null) return [];
@@ -175,18 +186,31 @@ export function MarketFiltersPanel({ filters, onChange }: MarketFiltersPanelProp
   const update = (patch: Partial<MarketAnalyticsFilters>) => onChange({ ...filters, ...patch });
 
   return (
-    <Card className="mb-6">
-      <CardContent className="space-y-4 p-4">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="space-y-2">
-            <Label htmlFor="analytics-city">Cidade</Label>
+    <Card className="gap-0 overflow-hidden py-0">
+      <SectionHeader
+        actions={
+          hasAnyFilter ? (
+            <Button variant="ghost" size="sm" onClick={() => onChange({ ...EMPTY_FILTERS })}>
+              <RotateCcw aria-hidden />
+              Limpar filtros
+            </Button>
+          ) : null
+        }
+        description="Os filtros valem para todos os indicadores da página."
+        icon={SlidersHorizontal}
+        title="Filtros"
+      />
+
+      <div className="space-y-4 px-6 pb-6 sm:px-8 sm:pb-8">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <FormField htmlFor="analytics-city" label="Cidade">
             <Select
               value={filters.cidade || ALL_CITIES}
               onValueChange={(value) =>
                 update({ cidade: value === ALL_CITIES ? "" : value, bairro: [] })
               }
             >
-              <SelectTrigger id="analytics-city" className="w-full">
+              <SelectTrigger id="analytics-city" className="w-full" size="sm">
                 <SelectValue placeholder="Todas as cidades" />
               </SelectTrigger>
               <SelectContent>
@@ -198,7 +222,7 @@ export function MarketFiltersPanel({ filters, onChange }: MarketFiltersPanelProp
                 ))}
               </SelectContent>
             </Select>
-          </div>
+          </FormField>
 
           <MultiSelectFilter
             label="Tipo de imóvel"
@@ -229,7 +253,7 @@ export function MarketFiltersPanel({ filters, onChange }: MarketFiltersPanelProp
         </div>
 
         {showSecondary ? (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-4 border-t pt-4 sm:grid-cols-2 xl:grid-cols-4">
             <NumberRangeField
               id="analytics-area"
               label="Área"
@@ -241,29 +265,25 @@ export function MarketFiltersPanel({ filters, onChange }: MarketFiltersPanelProp
               onChange={(range) => update({ area_min: range.min, area_max: range.max })}
             />
 
-            <div className="space-y-2">
-              <Label htmlFor="analytics-start-date">Período das coletas</Label>
-              {/* Um campo de data nativo pede 152px para o indicador não cobrir
-                  o texto, e dois lado a lado nesta coluna ficam com menos de
-                  120px. Empilhados, cada um recebe a coluna inteira. */}
-              <div className="flex flex-col gap-2">
-                <Input
+            <FormField htmlFor="analytics-start-date" label="Período das coletas">
+              <div className="grid grid-cols-2 gap-2">
+                <DatePicker
                   id="analytics-start-date"
                   aria-label="Data inicial das coletas"
-                  className="min-w-0"
-                  type="date"
+                  placeholder="De"
+                  size="sm"
                   value={filters.data_inicio}
-                  onChange={(event) => update({ data_inicio: event.target.value })}
+                  onChange={(value) => update({ data_inicio: value })}
                 />
-                <Input
+                <DatePicker
                   aria-label="Data final das coletas"
-                  className="min-w-0"
-                  type="date"
+                  placeholder="Até"
+                  size="sm"
                   value={filters.data_fim}
-                  onChange={(event) => update({ data_fim: event.target.value })}
+                  onChange={(value) => update({ data_fim: value })}
                 />
               </div>
-            </div>
+            </FormField>
 
             <MultiSelectFilter
               label="Imobiliária"
@@ -293,7 +313,7 @@ export function MarketFiltersPanel({ filters, onChange }: MarketFiltersPanelProp
           </div>
         ) : null}
 
-        <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Button
             variant="ghost"
             size="sm"
@@ -302,21 +322,14 @@ export function MarketFiltersPanel({ filters, onChange }: MarketFiltersPanelProp
           >
             <ChevronDown
               aria-hidden
-              className={cn("mr-2 h-4 w-4 transition-transform", showSecondary && "rotate-180")}
+              className={cn("transition-transform", showSecondary && "rotate-180")}
             />
             {showSecondary
               ? "Menos filtros"
               : `Mais filtros${hiddenActiveCount > 0 ? ` (${hiddenActiveCount})` : ""}`}
           </Button>
-
-          {hasAnyFilter ? (
-            <Button variant="outline" size="sm" onClick={() => onChange({ ...EMPTY_FILTERS })}>
-              <X aria-hidden className="mr-2 h-4 w-4" />
-              Limpar filtros
-            </Button>
-          ) : null}
         </div>
-      </CardContent>
+      </div>
     </Card>
   );
 }

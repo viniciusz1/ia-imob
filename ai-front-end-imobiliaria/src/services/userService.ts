@@ -21,6 +21,7 @@ export async function getUsers(
     const queryParams: Record<string, string> = {};
 
     if (params.page) queryParams.page = String(params.page);
+    if (params.perPage) queryParams.per_page = String(params.perPage);
     if (params.filterId) queryParams.id = params.filterId;
     if (params.filterName) queryParams.name = params.filterName;
     if (params.filterUsername) queryParams.username = params.filterUsername;

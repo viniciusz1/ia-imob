@@ -46,10 +46,10 @@ describe("CrawlAgencySettingsForm", () => {
   it("lets the operator correct the source identity", async () => {
     render(<CrawlAgencySettingsForm agency={agency} />);
 
-    fireEvent.change(screen.getByLabelText("URL base"), {
+    fireEvent.change(screen.getByLabelText(/^URL base/), {
       target: { value: "https://6035.apre.me/" },
     });
-    fireEvent.change(screen.getByLabelText("Domínio raiz"), {
+    fireEvent.change(screen.getByLabelText(/^Domínio raiz/), {
       target: { value: "6035.apre.me" },
     });
     fireEvent.click(screen.getByRole("button", { name: "Salvar identidade" }));

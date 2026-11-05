@@ -1,109 +1,193 @@
 /* ============================================================================
-   THEME — Midnight Galaxy
+   THEME — single source of truth for the app's colors.
    ----------------------------------------------------------------------------
-   SINGLE SOURCE OF TRUTH for the app's colors.
+   Layout reference: the Hubstrom dashboards. Values below were sampled from
+   the reference screenshots:
 
-   👉  To switch to a different theme later, edit ONLY the 4 values in the
-       "PALETTE" block below. Every UI color (light + dark) is derived from
-       them with color-mix(), so changing these 4 hexes re-skins the whole app.
+     rail / topbar / cards   #151922      page            #2b313c
+     blocks inside a card    #20242d      row dividers    #292f3a
+     primary (green)         #41b798      active icon     #34cca3
+     mustard #cdae4b · coral #e05d5d · blue #1796b3 · slate #6b7484
+     segmented control: track #2b313c, selected pill #b9c0ca, dark text
+
+   👉  To re-theme, edit the PALETTE block. Everything else derives from it.
    ============================================================================ */
 
-:root {
+:root,
+.light {
   /* ======================= PALETTE — edit to re-theme ======================= */
-  --brand-darkest: #2b1e3e; /* Deep Purple  — rich dark base    */
-  --brand-mid: #4a4e8f; /* Cosmic Blue  — mystical mid-tone */
-  --brand-accent: #a490c2; /* Lavender     — soft accent       */
-  --brand-lightest: #e6e6fa; /* Silver       — light highlights  */
+  --green: #41b798;
+  --green-bright: #34cca3;
+  --mustard: #cdae4b;
+  --coral: #e05d5d;
+  --blue: #1796b3;
+  --slate: #6b7484;
+
+  --navy-950: #12151c;
+  --navy-900: #151922; /* rail, topbar, cards */
+  --navy-850: #1a1e27;
+  --navy-800: #20242d; /* blocks inside a card */
+  --navy-700: #2b313c; /* page, segmented track */
+  --navy-600: #363d4a;
+  --silver: #b9c0ca; /* selected segmented pill */
+  /* Brand button, from the reference stylesheet (--button-brand-default/hover). */
+  --green-button: #249f64;
+  --green-button-hover: #1d8252;
   /* ========================================================================== */
 
-  /* Corner rounding (shared by both modes) */
-  --radius: 0.625rem;
+  /* Corner rounding. Cards use rounded-2xl, controls rounded-lg. */
+  --radius: 0.5rem;
 
-  /* ------------------------- LIGHT MODE (derived) --------------------------- */
-  --background: color-mix(in oklab, var(--brand-lightest) 45%, white);
-  --foreground: var(--brand-darkest);
+  /* ------------------------------ LIGHT MODE -------------------------------- */
+  --background: #eef0f3;
+  --foreground: #151922;
 
   --card: #ffffff;
-  --card-foreground: var(--brand-darkest);
+  --card-foreground: #151922;
+  /* Outline of a card against the page; dark mode has none. */
+  --card-edge: #e3e6eb;
 
   --popover: #ffffff;
-  --popover-foreground: var(--brand-darkest);
+  --popover-foreground: #151922;
 
-  --primary: var(--brand-mid);
-  --primary-foreground: var(--brand-lightest);
+  --primary: #2f9d80;
+  --primary-foreground: #ffffff;
 
-  --secondary: color-mix(in oklab, var(--brand-lightest) 75%, white);
-  --secondary-foreground: var(--brand-darkest);
+  --secondary: #eceef2;
+  --secondary-foreground: #151922;
 
-  --muted: color-mix(in oklab, var(--brand-lightest) 60%, white);
-  --muted-foreground: color-mix(in oklab, var(--brand-darkest) 58%, white);
+  --muted: #f3f4f7;
+  --muted-foreground: #6b7180;
 
-  --accent: color-mix(in oklab, var(--brand-accent) 28%, white);
-  --accent-foreground: var(--brand-darkest);
+  --accent: #eceef2;
+  --accent-foreground: #151922;
 
-  --destructive: oklch(0.577 0.245 27.325);
+  --destructive: #cf4b4b;
+  --destructive-foreground: #ffffff;
 
-  --border: color-mix(in oklab, var(--brand-accent) 34%, white);
-  --input: color-mix(in oklab, var(--brand-accent) 34%, white);
-  --ring: var(--brand-accent);
+  --success: #2f9d80;
+  --success-foreground: #ffffff;
+  --warning: #b8932a;
+  --warning-foreground: #ffffff;
+  --info: #147f99;
+  --info-foreground: #ffffff;
 
-  --chart-1: var(--brand-mid);
-  --chart-2: var(--brand-accent);
-  --chart-3: color-mix(in oklab, var(--brand-mid) 55%, var(--brand-accent));
-  --chart-4: color-mix(in oklab, var(--brand-accent) 60%, white);
-  --chart-5: color-mix(in oklab, var(--brand-mid) 65%, var(--brand-darkest));
+  --border: #e3e6eb;
+  --input: #d5d9e0;
+  --field: #ffffff;
+  --ring: #2f9d80;
+  --brand-button: var(--green-button);
+  --brand-button-hover: var(--green-button-hover);
+  --brand-button-foreground: #ffffff;
+  /* Solid secondary action (reference --button-main-default): dark slate in
+     light mode, light silver in dark mode — evidence by fill, not border. */
+  --contrast-button: #1f2633;
+  --contrast-button-hover: #2d3544;
+  --contrast-button-foreground: #ffffff;
+  /* Everyday buttons: a filled tone that shows on both page and card. */
+  --muted-button: #e6e8ec;
+  --muted-button-hover: #d9dce2;
+  /* Card subtitle color (--text-subtle). */
+  --subtle: #64748b;
 
-  --sidebar: color-mix(in oklab, var(--brand-lightest) 60%, white);
-  --sidebar-foreground: var(--brand-darkest);
-  --sidebar-primary: var(--brand-mid);
-  --sidebar-primary-foreground: var(--brand-lightest);
-  --sidebar-accent: color-mix(in oklab, var(--brand-accent) 24%, white);
-  --sidebar-accent-foreground: var(--brand-darkest);
-  --sidebar-border: color-mix(in oklab, var(--brand-accent) 34%, white);
-  --sidebar-ring: var(--brand-accent);
+  --topbar: #ffffff;
+  --topbar-foreground: #151922;
+
+  --segment: #e8eaee;
+  --segment-foreground: #3b4250;
+  --segment-active: #ffffff;
+  --segment-active-foreground: #151922;
+
+  --chart-1: #2f9d80;
+  --chart-2: #c4a13a;
+  --chart-3: #d65353;
+  --chart-4: #1789a6;
+  --chart-5: var(--slate);
+
+  /* The rail stays dark in both modes, as in the reference. */
+  --sidebar: var(--navy-900);
+  --sidebar-foreground: #eef0f3;
+  --sidebar-muted: #a3a9b4;
+  --sidebar-primary: color-mix(in oklab, var(--green) 16%, var(--navy-900));
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: var(--navy-800);
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: var(--navy-700);
+  --sidebar-ring: var(--green);
+  --sidebar-highlight: var(--green-bright);
 }
 
 .dark {
-  /* ------------------------- DARK MODE (derived) ---------------------------- */
-  --background: var(--brand-darkest);
-  --foreground: var(--brand-lightest);
+  /* ------------------------------- DARK MODE -------------------------------- */
+  --background: var(--navy-700);
+  --foreground: #eef0f3;
 
-  --card: color-mix(in oklab, var(--brand-darkest) 82%, var(--brand-mid));
-  --card-foreground: var(--brand-lightest);
+  --card: var(--navy-900);
+  --card-foreground: #eef0f3;
+  --card-edge: transparent;
 
-  --popover: color-mix(in oklab, var(--brand-darkest) 82%, var(--brand-mid));
-  --popover-foreground: var(--brand-lightest);
+  --popover: var(--navy-850);
+  --popover-foreground: #eef0f3;
 
-  --primary: var(--brand-accent);
-  --primary-foreground: var(--brand-darkest);
+  --primary: var(--green);
+  --primary-foreground: var(--navy-900);
 
-  --secondary: color-mix(in oklab, var(--brand-darkest) 62%, var(--brand-mid));
-  --secondary-foreground: var(--brand-lightest);
+  --secondary: var(--navy-700);
+  --secondary-foreground: #eef0f3;
 
-  --muted: color-mix(in oklab, var(--brand-darkest) 70%, var(--brand-mid));
-  --muted-foreground: color-mix(in oklab, var(--brand-lightest) 62%, var(--brand-mid));
+  --muted: var(--navy-800);
+  --muted-foreground: #979ea7;
 
-  --accent: color-mix(in oklab, var(--brand-mid) 55%, var(--brand-darkest));
-  --accent-foreground: var(--brand-lightest);
+  --accent: var(--navy-700);
+  --accent-foreground: #eef0f3;
 
-  --destructive: oklch(0.704 0.191 22.216);
+  --destructive: var(--coral);
+  --destructive-foreground: var(--navy-900);
 
-  --border: color-mix(in oklab, var(--brand-lightest) 14%, transparent);
-  --input: color-mix(in oklab, var(--brand-lightest) 18%, transparent);
-  --ring: var(--brand-accent);
+  --success: var(--green);
+  --success-foreground: var(--navy-900);
+  --warning: var(--mustard);
+  --warning-foreground: var(--navy-900);
+  --info: var(--blue);
+  --info-foreground: #ffffff;
 
-  --chart-1: var(--brand-accent);
-  --chart-2: var(--brand-mid);
-  --chart-3: color-mix(in oklab, var(--brand-accent) 55%, var(--brand-mid));
-  --chart-4: color-mix(in oklab, var(--brand-accent) 70%, white);
-  --chart-5: color-mix(in oklab, var(--brand-mid) 60%, var(--brand-lightest));
+  --border: #292f3a;
+  /* Fields are filled a step above the card so they read as inputs, not holes. */
+  --input: #323946;
+  --field: #1d2129;
+  --ring: var(--green);
+  --brand-button: var(--green-button);
+  --brand-button-hover: var(--green-button-hover);
+  --brand-button-foreground: #ffffff;
+  --contrast-button: #d8dbe2;
+  --contrast-button-hover: #eceef2;
+  --contrast-button-foreground: var(--navy-900);
+  --muted-button: var(--navy-600);
+  --muted-button-hover: #414958;
+  --subtle: #8c95a3;
 
-  --sidebar: color-mix(in oklab, var(--brand-darkest) 88%, var(--brand-mid));
-  --sidebar-foreground: var(--brand-lightest);
-  --sidebar-primary: var(--brand-accent);
-  --sidebar-primary-foreground: var(--brand-darkest);
-  --sidebar-accent: color-mix(in oklab, var(--brand-mid) 55%, var(--brand-darkest));
-  --sidebar-accent-foreground: var(--brand-lightest);
-  --sidebar-border: color-mix(in oklab, var(--brand-lightest) 14%, transparent);
-  --sidebar-ring: var(--brand-accent);
+  --topbar: var(--navy-900);
+  --topbar-foreground: #ffffff;
+
+  --segment: var(--navy-700);
+  --segment-foreground: #e6e8ec;
+  --segment-active: var(--silver);
+  --segment-active-foreground: var(--navy-900);
+
+  --chart-1: var(--green);
+  --chart-2: var(--mustard);
+  --chart-3: var(--coral);
+  --chart-4: var(--blue);
+  --chart-5: var(--slate);
+
+  --sidebar: var(--navy-900);
+  --sidebar-foreground: #eef0f3;
+  --sidebar-muted: #a3a9b4;
+  --sidebar-primary: color-mix(in oklab, var(--green) 16%, var(--navy-900));
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: var(--navy-800);
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: var(--navy-700);
+  --sidebar-ring: var(--green);
+  --sidebar-highlight: var(--green-bright);
 }

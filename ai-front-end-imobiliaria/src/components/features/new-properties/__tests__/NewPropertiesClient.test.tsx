@@ -255,7 +255,7 @@ describe("NewPropertiesClient", () => {
     renderClient();
     await screen.findByRole("heading", { name: "Apartamento novo no Centro" });
 
-    fireEvent.click(screen.getByRole("button", { name: "Oportunidades" }));
+    fireEvent.click(screen.getByRole("radio", { name: "Oportunidades" }));
 
     await waitFor(() => expect(getNewProperties).toHaveBeenLastCalledWith(expect.objectContaining({ flag: "opportunity" })));
     expect(await screen.findByRole("heading", { name: "Casa com bom custo-benefício" })).toBeInTheDocument();

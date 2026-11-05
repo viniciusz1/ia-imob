@@ -3,8 +3,11 @@
 namespace App\Http\Requests;
 
 use App\Models\User;
+use App\Support\PermissionGuard;
+use App\Support\PlatformPermissions;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Exists;
 
 class StoreUserRequest extends FormRequest
 {
@@ -15,7 +18,7 @@ class StoreUserRequest extends FormRequest
 
     public function rules(): array
     {
-        $guard = (string) config('auth.defaults.guard', 'web');
+        $guard = PermissionGuard::name();
 
         return [
             'name' => ['required', 'string', 'max:255'],
@@ -26,7 +29,7 @@ class StoreUserRequest extends FormRequest
             'person_type' => ['required', 'string', 'size:1', 'in:F,J'],
             'notes' => ['nullable', 'string'],
             'group_id' => ['prohibited'],
-            'role_id' => ['nullable', 'integer', Rule::exists('roles', 'id')->where('guard_name', $guard)],
+            'role_id' => ['nullable', 'integer', $this->roleExistsRule($guard)],
             'team_id' => ['nullable', 'integer'],
             'username' => ['required', 'string', 'max:100', 'unique:users,username'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
@@ -43,5 +46,17 @@ class StoreUserRequest extends FormRequest
             'instagram_link' => ['nullable', 'url', 'max:500'],
             'description' => ['nullable', 'string'],
         ];
+    }
+
+    /** Agency users can't hand out a group that carries platform capabilities. */
+    private function roleExistsRule(string $guard): Exists
+    {
+        $rule = Rule::exists('roles', 'id')->where('guard_name', $guard);
+
+        if (PlatformPermissions::isAgencyActor($this->user())) {
+            $rule->whereNotIn('id', PlatformPermissions::platformRoleIds());
+        }
+
+        return $rule;
     }
 }

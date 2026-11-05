@@ -1,7 +1,7 @@
 import { CrawlAgencyContextHeader } from "@/components/features/crawler/agencies/CrawlAgencyContextHeader";
 import { CrawlAgencyLifecycleSettings } from "@/components/features/crawler/agencies/CrawlAgencyLifecycleSettings";
 import { CrawlAgencySettingsForm } from "@/components/features/crawler/agencies/CrawlAgencySettingsForm";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getCrawlAgency } from "@/services/crawlerService";
 
 export default async function SettingsPage({ params }: { params: Promise<{ id: string }> }) {
@@ -9,24 +9,22 @@ export default async function SettingsPage({ params }: { params: Promise<{ id: s
   const agency = await getCrawlAgency(agencyId);
 
   return (
-    <section className="space-y-6">
-      <CrawlAgencyContextHeader agency={agency} area="Configuração" description="Identidade e estado administrativo da fonte." />
+    <div className="space-y-6">
+      <CrawlAgencyContextHeader
+        agency={agency}
+        area="Configuração"
+        description="Identidade e estado administrativo da fonte."
+      />
+      <CrawlAgencySettingsForm agency={agency} />
       <Card>
         <CardHeader>
-          <CardTitle>Identidade da Crawl Agency</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <CrawlAgencySettingsForm agency={agency} />
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader>
-          <CardTitle>Estado Administrativo e Ciclo de Vida</CardTitle>
+          <CardTitle>Estado administrativo e ciclo de vida</CardTitle>
+          <CardDescription>Ative, pause ou arquive a fonte de acordo com a operação.</CardDescription>
         </CardHeader>
         <CardContent>
           <CrawlAgencyLifecycleSettings agency={agency} />
         </CardContent>
       </Card>
-    </section>
+    </div>
   );
 }

@@ -1,3 +1,5 @@
+import { format, startOfMonth } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -59,13 +61,18 @@ describe("ValuationDashboardClient", () => {
     renderDashboard();
     await screen.findByText("Avaliações realizadas");
 
-    fireEvent.change(screen.getByLabelText("Data inicial das avaliações"), {
-      target: { value: "2026-09-01" },
-    });
+    // The calendar opens on the current month; pick its first day.
+    const firstOfMonth = startOfMonth(new Date());
+    fireEvent.click(screen.getByRole("button", { name: "Data inicial das avaliações" }));
+    fireEvent.click(
+      await screen.findByRole("button", {
+        name: new RegExp(`\\b${format(firstOfMonth, "d 'de' MMMM 'de' yyyy", { locale: ptBR })}`, "i"),
+      }),
+    );
 
     await waitFor(() =>
       expect(getValuationAnalytics).toHaveBeenLastCalledWith({
-        data_inicio: "2026-09-01",
+        data_inicio: format(firstOfMonth, "yyyy-MM-dd"),
         data_fim: "",
       }),
     );

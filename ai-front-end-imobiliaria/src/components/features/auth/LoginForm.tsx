@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -30,6 +29,7 @@ export function LoginForm() {
         register,
         handleSubmit,
         setError,
+        watch,
         formState: { errors },
     } = useForm<LoginFormData>({
         resolver: zodResolver(loginSchema),
@@ -38,7 +38,35 @@ export function LoginForm() {
             password: "",
             remember: false,
         },
+        // Messages after leaving a field, then live while correcting it.
+        mode: "onTouched",
+        reValidateMode: "onChange",
     });
+
+    const loginValue = watch("login");
+    const passwordValue = watch("password");
+    // Browsers may autofill saved credentials without firing input events, so a
+    // detected autofill also counts as "filled" for enabling the button.
+    const [autofilled, setAutofilled] = useState(false);
+
+    useEffect(() => {
+        const detect = () => {
+            try {
+                const filled = document.querySelectorAll("#login:-webkit-autofill, #password:-webkit-autofill").length === 2;
+                if (filled) setAutofilled(true);
+            } catch {
+                // Selector not supported (non-Chromium); typing still enables the button.
+            }
+        };
+        const timers = [window.setTimeout(detect, 300), window.setTimeout(detect, 1200)];
+        return () => timers.forEach((timer) => window.clearTimeout(timer));
+    }, []);
+
+    const missingFields = [
+        !loginValue && "Usuário ou e-mail",
+        !passwordValue && "Senha",
+    ].filter((field): field is string => Boolean(field));
+    const canSubmit = autofilled || missingFields.length === 0;
 
     const onSubmit = async (data: LoginFormData) => {
         try {
@@ -76,26 +104,8 @@ export function LoginForm() {
 
     return (
         <div className="w-full">
-            {/* Duas versões da logo: o wordmark é escuro e some no tema
-                escuro, então a variante clara entra no lugar */}
-            <Image
-                src="/prospectai-logo.png"
-                alt="Prospectai"
-                width={825}
-                height={200}
-                priority
-                className="h-11 w-auto dark:hidden"
-            />
-            <Image
-                src="/prospectai-logo-dark.png"
-                alt="Prospectai"
-                width={825}
-                height={200}
-                priority
-                className="hidden h-11 w-auto dark:block"
-            />
-
-            <div className="mt-10 space-y-2">
+            {/* The logo lives on the brand panel (desktop) and the brand strip (mobile). */}
+            <div className="space-y-2">
                 <h1 className="text-3xl font-semibold tracking-tight">
                     Acesse sua conta
                 </h1>
@@ -178,7 +188,7 @@ export function LoginForm() {
                     type="submit"
                     size="lg"
                     className="mt-2 h-11 w-full text-sm font-semibold"
-                    disabled={isLoading}
+                    disabled={isLoading || !canSubmit}
                 >
                     {isLoading ? (
                         <>
@@ -189,6 +199,11 @@ export function LoginForm() {
                         "Entrar no Sistema"
                     )}
                 </Button>
+                {!canSubmit && (
+                    <p className="text-center text-[0.8125rem] text-subtle">
+                        Preencha: {missingFields.join(", ")}
+                    </p>
+                )}
             </form>
         </div>
     );

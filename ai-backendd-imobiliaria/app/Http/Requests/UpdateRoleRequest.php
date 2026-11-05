@@ -2,8 +2,11 @@
 
 namespace App\Http\Requests;
 
+use App\Support\PermissionGuard;
+use App\Support\PlatformPermissions;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Exists;
 
 class UpdateRoleRequest extends FormRequest
 {
@@ -23,7 +26,7 @@ class UpdateRoleRequest extends FormRequest
     public function rules(): array
     {
         $roleId = $this->route('role')->id ?? $this->route('role');
-        $guard = (string) config('auth.defaults.guard', 'web');
+        $guard = PermissionGuard::name();
 
         return [
             'name' => [
@@ -35,7 +38,19 @@ class UpdateRoleRequest extends FormRequest
                     ->ignore($roleId),
             ],
             'permissions' => ['required', 'array'],
-            'permissions.*' => ['integer', Rule::exists('permissions', 'id')],
+            'permissions.*' => ['integer', $this->permissionExistsRule()],
         ];
+    }
+
+    /** Agency users may only grant agency-level permissions. */
+    private function permissionExistsRule(): Exists
+    {
+        $rule = Rule::exists('permissions', 'id');
+
+        if (PlatformPermissions::isAgencyActor($this->user())) {
+            $rule->where(fn ($query) => PlatformPermissions::whereAgency($query));
+        }
+
+        return $rule;
     }
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { TriangleAlert } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -7,7 +8,10 @@ import { toast } from "sonner";
 import { CrawlerOperationStatus } from "@/components/features/crawler/CrawlerOperationStatus";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { FormField } from "@/components/ui/form-field";
 import { Label } from "@/components/ui/label";
+import { NativeSelect } from "@/components/ui/native-select";
+import { MissingFieldsHint, missingFields } from "@/components/features/crawler/requiredFields";
 import { usePermission } from "@/hooks/usePermission";
 import { activateExtractionProfile, queueProfileValidation } from "@/services/crawlerService";
 import type { CrawlerOperation, ExtractionProfile, OnboardingExecution } from "@/types/crawler";
@@ -97,23 +101,33 @@ export function ValidationCrawlPanel({ agencyId, activeOnboarding, initialOperat
   };
 
   if (eligibleProfiles.length === 0) {
-    return <p className="text-sm text-muted-foreground">Nenhum Perfil de Extração Candidato ou com Revalidação Necessária está disponível.</p>;
+    return (
+      <p className="text-sm text-muted-foreground">
+        Nenhum Perfil de Extração Candidato ou com Revalidação Necessária está disponível.
+      </p>
+    );
   }
 
   return (
     <div className="space-y-4">
       {activeOnboarding && (
-        <div className="space-y-3 rounded-lg border border-amber-300 bg-amber-50/60 p-4">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <div className="space-y-0.5">
-              <p className="font-medium text-amber-900 dark:text-amber-200">Validação integrada ao Onboarding</p>
-              <p className="text-sm text-muted-foreground">Existe uma Execução de Onboarding ativa (#{activeOnboarding.id} · etapa: {activeOnboarding.current_step}). Você pode selecionar o perfil desejado abaixo para validar e associar a esta execução.</p>
+        <div className="space-y-3 rounded-lg border border-warning/30 bg-warning/10 px-4 py-3 text-sm">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="flex min-w-0 items-start gap-3">
+              <TriangleAlert className="mt-0.5 size-4 shrink-0 text-warning" />
+              <div className="min-w-0 space-y-1">
+                <p className="text-foreground">Validação integrada ao Onboarding</p>
+                <p className="text-muted-foreground">
+                  Existe uma Execução de Onboarding ativa (#{activeOnboarding.id} · etapa: {activeOnboarding.current_step}).
+                  Você pode selecionar o perfil desejado abaixo para validar e associar a esta execução.
+                </p>
+              </div>
             </div>
             <Button asChild size="sm" variant="outline">
               <Link href={`/admin/crawler/agencies/${agencyId}/onboarding/${activeOnboarding.id}`}>Abrir Onboarding</Link>
             </Button>
           </div>
-          <div className="flex items-center space-x-2 pt-1">
+          <div className="flex items-center gap-2 pl-7">
             <Checkbox
               checked={linkToOnboarding}
               id="link-to-onboarding"
@@ -126,25 +140,48 @@ export function ValidationCrawlPanel({ agencyId, activeOnboarding, initialOperat
         </div>
       )}
 
-      <div className="space-y-2">
-        <Label htmlFor="validation-profile">Perfil de Extração</Label>
-        <select
-          className="h-10 w-full rounded-md border bg-background px-3 text-sm"
+      <FormField htmlFor="validation-profile" label="Perfil de Extração">
+        <NativeSelect
           disabled={!canExecute || pending || activeOperation !== null || activating}
           id="validation-profile"
           onChange={(event) => setProfileId(Number(event.target.value))}
           value={profileId ?? ""}
         >
-          {eligibleProfiles.map((profile) => <option key={profile.id} value={profile.id}>Perfil v{profile.version} · {profile.status === "candidate" ? "Candidato" : "Revalidação necessária"}</option>)}
-        </select>
-      </div>
-      {selectedProfile && <dl className="grid gap-3 rounded-lg border bg-muted/20 p-4 text-sm sm:grid-cols-3"><div><dt className="text-muted-foreground">Snapshot de Discovery</dt><dd>#{selectedProfile.discovery_snapshot_id}</dd></div><div><dt className="text-muted-foreground">Contrato de Dados</dt><dd>#{selectedProfile.market_data_contract_version_id}</dd></div><div><dt className="text-muted-foreground">Criado em</dt><dd>{new Intl.DateTimeFormat("pt-BR", { dateStyle: "short" }).format(new Date(selectedProfile.created_at))}</dd></div></dl>}
-      {(activeOperation || (latestOperation && latestOperation.state === "succeeded")) && (
+          {eligibleProfiles.map((profile) => (
+            <option key={profile.id} value={profile.id}>
+              Perfil v{profile.version} · {profile.status === "candidate" ? "Candidato" : "Revalidação necessária"}
+            </option>
+          ))}
+        </NativeSelect>
+      </FormField>
+      {selectedProfile && (
+        <dl className="grid gap-4 rounded-xl border border-transparent bg-muted p-4 text-sm sm:grid-cols-3">
+          <div className="space-y-1">
+            <dt className="text-xs uppercase tracking-wide text-muted-foreground">Snapshot de Discovery</dt>
+            <dd className="tabular-nums">#{selectedProfile.discovery_snapshot_id}</dd>
+          </div>
+          <div className="space-y-1">
+            <dt className="text-xs uppercase tracking-wide text-muted-foreground">Contrato de Dados</dt>
+            <dd className="tabular-nums">#{selectedProfile.market_data_contract_version_id}</dd>
+          </div>
+          <div className="space-y-1">
+            <dt className="text-xs uppercase tracking-wide text-muted-foreground">Criado em</dt>
+            <dd className="tabular-nums">
+              {new Intl.DateTimeFormat("pt-BR", { dateStyle: "short" }).format(new Date(selectedProfile.created_at))}
+            </dd>
+          </div>
+        </dl>
+      )}
+      {(activeOperation || latestOperation?.state === "succeeded") && (
         <CrawlerOperationStatus operation={activeOperation ?? latestOperation!} />
       )}
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         {canExecute && (
-          <Button disabled={pending || activeOperation !== null || activating} onClick={() => void queue()} type="button">
+          <Button
+            disabled={!profileId || pending || activeOperation !== null || activating}
+            onClick={() => void queue()}
+            type="button"
+          >
             {pending ? "Enfileirando…" : activeOperation ? "Validação em andamento" : "Rodar Crawl de Validação"}
           </Button>
         )}
@@ -158,6 +195,7 @@ export function ValidationCrawlPanel({ agencyId, activeOnboarding, initialOperat
             {activating ? "Ativando…" : "Ativar Perfil"}
           </Button>
         )}
+        {canExecute && <MissingFieldsHint missing={missingFields([["Perfil de extração", Boolean(profileId)]])} />}
       </div>
     </div>
   );

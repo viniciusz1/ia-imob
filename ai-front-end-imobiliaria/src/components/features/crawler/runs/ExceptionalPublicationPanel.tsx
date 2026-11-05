@@ -1,5 +1,6 @@
 "use client";
 
+import { CircleAlert } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -17,8 +18,10 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { FormField } from "@/components/ui/form-field";
 import { Textarea } from "@/components/ui/textarea";
+import { MissingFieldsHint, missingFields, textError, useTouchedFields } from "@/components/features/crawler/requiredFields";
 import { usePermission } from "@/hooks/usePermission";
 import {
   createQualityException,
@@ -35,6 +38,9 @@ export function ExceptionalPublicationPanel({ initialRun }: { initialRun: CrawlR
   const [run, setRun] = useState(initialRun);
   const [reason, setReason] = useState("");
   const [pendingAction, setPendingAction] = useState<"exception" | "publish" | "reject" | null>(null);
+  // QualityDecisionRequest: reason required, 10 to 2000 characters.
+  const reasonError = textError(reason, { min: 10, max: 2000 });
+  const { touch, shown } = useTouchedFields();
   if (!run.quality_report) return null;
 
   const registerException = async () => {
@@ -79,44 +85,103 @@ export function ExceptionalPublicationPanel({ initialRun }: { initialRun: CrawlR
 
   const awaitingDecision = run.publication_state === "quarantined" && run.quality_rejection === null;
   const canAct = canManagePolicies || canPublishExceptionally || canReviewSnapshot;
-  const actionDisabled = reason.trim().length < 10 || pendingAction !== null;
+  const actionDisabled = reasonError !== null || pendingAction !== null;
 
   return (
-    <div className="space-y-3 rounded-md border p-4">
-      <h3 className="font-semibold">Decisão de qualidade</h3>
-      {run.quality_report.blockers.map((blocker) => <p className="text-destructive" key={blocker}>{blocker}</p>)}
-      <pre className="whitespace-pre-wrap text-xs">{JSON.stringify(run.quality_report.evidence, null, 2)}</pre>
-      {awaitingDecision && canAct && (
-        <>
-          <Label htmlFor="quality-decision-reason">Justificativa</Label>
-          <Textarea disabled={pendingAction !== null} id="quality-decision-reason" onChange={(event) => setReason(event.target.value)} value={reason} />
-          <div className="flex flex-wrap gap-2">
-            {canManagePolicies && <Button disabled={actionDisabled} onClick={() => void registerException()} type="button" variant="outline">{pendingAction === "exception" ? "Registrando…" : "Registrar exceção"}</Button>}
-            {canReviewSnapshot && (
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button disabled={actionDisabled} type="button" variant="destructive">Recusar publicação</Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Recusar a publicação deste snapshot?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      O snapshot não substituirá os dados vigentes. A decisão e a justificativa serão preservadas e um novo crawl será necessário para outra revisão.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Voltar</AlertDialogCancel>
-                    <AlertDialogAction disabled={pendingAction !== null} onClick={() => void reject()} variant="destructive">{pendingAction === "reject" ? "Recusando…" : "Confirmar recusa"}</AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            )}
-            {canPublishExceptionally && <Button disabled={actionDisabled} onClick={() => void publish()} type="button">{pendingAction === "publish" ? "Publicando…" : "Publicar excepcionalmente"}</Button>}
+    <Card>
+      <CardHeader>
+        <CardTitle>
+          <h2>Decisão de qualidade</h2>
+        </CardTitle>
+        <CardDescription>Registre uma exceção, recuse ou publique o snapshot com justificativa.</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {run.quality_report.blockers.map((blocker) => (
+          <div
+            className="flex items-start gap-3 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm"
+            key={blocker}
+          >
+            <CircleAlert className="mt-0.5 size-4 shrink-0 text-destructive" />
+            <p className="text-destructive">{blocker}</p>
           </div>
-        </>
-      )}
-      {run.exceptional_publication && <p>Publicado por #{run.exceptional_publication.published_by}: {run.exceptional_publication.reason}</p>}
-      {run.quality_rejection && <p>Publicação recusada por #{run.quality_rejection.rejected_by}: {run.quality_rejection.reason}</p>}
-    </div>
+        ))}
+        <div className="space-y-1.5">
+          <p className="text-xs uppercase tracking-wide text-muted-foreground">Evidências</p>
+          <pre className="overflow-x-auto whitespace-pre-wrap rounded-lg bg-muted p-3 font-mono text-xs">
+            {JSON.stringify(run.quality_report.evidence, null, 2)}
+          </pre>
+        </div>
+        {awaitingDecision && canAct && (
+          <>
+            <FormField
+              error={shown("reason", reasonError)}
+              hint={`Entre 10 e 2.000 caracteres (${reason.trim().length}).`}
+              htmlFor="quality-decision-reason"
+              label="Justificativa"
+              required
+            >
+              <Textarea
+                disabled={pendingAction !== null}
+                id="quality-decision-reason"
+                maxLength={2000}
+                onBlur={() => touch("reason")}
+                onChange={(event) => {
+                  setReason(event.target.value);
+                  touch("reason");
+                }}
+                value={reason}
+              />
+            </FormField>
+            <div className="flex flex-wrap items-center justify-end gap-3">
+              <MissingFieldsHint
+                className="mr-auto"
+                missing={missingFields([["Justificativa (mínimo 10 caracteres)", reasonError === null]])}
+              />
+              {canManagePolicies && (
+                <Button disabled={actionDisabled} onClick={() => void registerException()} type="button" variant="outline">
+                  {pendingAction === "exception" ? "Registrando…" : "Registrar exceção"}
+                </Button>
+              )}
+              {canReviewSnapshot && (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button disabled={actionDisabled} type="button" variant="destructive">Recusar publicação</Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Recusar a publicação deste snapshot?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        O snapshot não substituirá os dados vigentes. A decisão e a justificativa serão preservadas e um novo crawl será necessário para outra revisão.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Voltar</AlertDialogCancel>
+                      <AlertDialogAction disabled={pendingAction !== null} onClick={() => void reject()} variant="destructive">
+                        {pendingAction === "reject" ? "Recusando…" : "Confirmar recusa"}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              )}
+              {canPublishExceptionally && (
+                <Button disabled={actionDisabled} onClick={() => void publish()} type="button">
+                  {pendingAction === "publish" ? "Publicando…" : "Publicar excepcionalmente"}
+                </Button>
+              )}
+            </div>
+          </>
+        )}
+        {run.exceptional_publication && (
+          <div className="rounded-lg border border-primary bg-primary/5 p-4 text-sm">
+            Publicado por #{run.exceptional_publication.published_by}: {run.exceptional_publication.reason}
+          </div>
+        )}
+        {run.quality_rejection && (
+          <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm">
+            Publicação recusada por #{run.quality_rejection.rejected_by}: {run.quality_rejection.reason}
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }

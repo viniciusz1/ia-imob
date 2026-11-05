@@ -4,7 +4,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { PropertyFilters } from "../PropertyFilters";
 import type { AiSearcherFiltersState } from "../types";
 import api from "@/services/api";
-import { getMarketPropertyFilters } from "@/services/marketPropertyService";
+import {
+  getMarketPropertyFilters,
+  type MarketPropertyFiltersResponse,
+} from "@/services/marketPropertyService";
 
 vi.mock("sonner", () => ({
   toast: {
@@ -178,7 +181,7 @@ describe("PropertyFilters", () => {
   });
 
   it("refetches filter options when a category changes and hides agencies without properties in the selected city", async () => {
-    vi.mocked(getMarketPropertyFilters).mockImplementation(async (params) => {
+    vi.mocked(getMarketPropertyFilters).mockImplementation(async (params): Promise<MarketPropertyFiltersResponse> => {
       if (params?.cidade?.includes("Jaraguá do Sul")) {
         return {
           tipos: ["Apartamento"],

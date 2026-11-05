@@ -149,7 +149,7 @@ describe("OnboardingCatalogsClient", () => {
     renderCatalogs();
 
     activateTab("Extração");
-    fireEvent.change(screen.getByLabelText("Nome da política"), {
+    fireEvent.change(screen.getByLabelText(/^Nome da política/), {
       target: { value: "Fallback premium" },
     });
     fireEvent.click(screen.getByLabelText("HTML completo + IA"));
@@ -173,14 +173,14 @@ describe("OnboardingCatalogsClient", () => {
     renderCatalogs();
 
     activateTab("Discovery");
-    fireEvent.change(screen.getByLabelText("Nome da política"), {
+    fireEvent.change(screen.getByLabelText(/^Nome da política/), {
       target: { value: "Duplicada" },
     });
     fireEvent.click(screen.getByLabelText("Sitemap"));
     fireEvent.click(screen.getByRole("button", { name: "Criar rascunho" }));
 
     await waitFor(() => expect(toastMocks.error).toHaveBeenCalledWith("Este nome já está em uso."));
-    expect(screen.getByLabelText("Nome da política")).toHaveValue("Duplicada");
+    expect(screen.getByLabelText(/^Nome da política/)).toHaveValue("Duplicada");
   });
 });
 

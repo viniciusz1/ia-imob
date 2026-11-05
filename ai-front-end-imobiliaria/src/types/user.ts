@@ -37,6 +37,7 @@ export interface User {
 
 export interface UserFiltersParams {
   page?: number;
+  perPage?: number;
   filterId?: string;
   filterName?: string;
   filterUsername?: string;
