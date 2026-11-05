@@ -19,7 +19,6 @@ import {
   formatCount,
   formatCurrency,
   formatReferenceDate,
-  formatSquareMetrePrice,
 } from "./format";
 import { useMarketAnalyticsFilters } from "./useMarketAnalyticsFilters";
 
@@ -89,9 +88,7 @@ export function MarketDashboardClient() {
             <StatTile
               icon={Ruler}
               label="Preço mediano por m²"
-              value={formatSquareMetrePrice(
-                pricing.data?.data.median_price_per_square_metre.value,
-              )}
+              value={formatCurrency(pricing.data?.data.median_price_per_square_metre.value)}
               insufficientSample={
                 pricing.data?.data.median_price_per_square_metre.insufficient_sample
               }

@@ -36,7 +36,7 @@ export function SectionHeader({
                 )}
                 <div className="min-w-0">
                     <Heading className="truncate text-xl leading-6 font-semibold tracking-[-0.01em] text-foreground">{title}</Heading>
-                    {description && <p className="mt-2 truncate text-sm leading-4 font-semibold text-subtle">{description}</p>}
+                    {description && <p className="mt-2 line-clamp-2 text-sm leading-4 font-semibold text-subtle">{description}</p>}
                 </div>
             </div>
             {href ? (

@@ -42,7 +42,6 @@ import {
   formatCurrency,
   formatReferenceDate,
   formatShare,
-  formatSquareMetrePrice,
 } from "./format";
 
 interface ValuationRow {
@@ -143,7 +142,7 @@ export function ValuationDashboardClient() {
             <StatTile
               icon={Ruler}
               label="Valor mediano por m²"
-              value={formatSquareMetrePrice(indicators.median_price_per_square_metre.value)}
+              value={formatCurrency(indicators.median_price_per_square_metre.value)}
             />
           </>
         )}

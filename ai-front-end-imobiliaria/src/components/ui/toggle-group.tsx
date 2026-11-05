@@ -26,7 +26,7 @@ function ToggleGroup({
       <div
         data-slot="toggle-group"
         className={cn(
-          "inline-flex items-center gap-2 rounded-md bg-segment px-3 py-2 text-segment-foreground",
+          "inline-flex max-w-full items-center gap-1 overflow-x-auto rounded-lg border bg-muted p-1 text-muted-foreground",
           className
         )}
         {...props}
@@ -56,9 +56,9 @@ function ToggleGroupItem({
       data-slot="toggle-group-item"
       data-state={isSelected ? "on" : "off"}
       className={cn(
-        "inline-flex h-8 items-center justify-center whitespace-nowrap rounded-sm px-3 text-[0.8125rem] font-semibold ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
-        isSelected && "bg-segment-active text-segment-active-foreground shadow-xs",
-        !isSelected && "hover:text-foreground",
+        "inline-flex h-8 shrink-0 cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap rounded-md px-3.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+        isSelected && "bg-primary/15 text-primary ring-1 ring-inset ring-primary/40",
+        !isSelected && "hover:bg-secondary hover:text-foreground",
         className
       )}
       onClick={() => onValueChange?.(itemValue)}

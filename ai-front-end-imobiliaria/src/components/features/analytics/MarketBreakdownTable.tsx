@@ -15,7 +15,7 @@ import {
 import type { MarketPricing, MarketRankings } from "@/types/analytics";
 import { PaginationFooter, usePagedItems } from "./PagedList";
 import { TabbedPanel } from "./TabbedPanel";
-import { EMPTY_VALUE, formatCount, formatCurrency, formatSquareMetrePrice } from "./format";
+import { EMPTY_VALUE, formatCount, formatCurrency } from "./format";
 
 interface BreakdownRow {
   label: string;
@@ -130,7 +130,7 @@ function BreakdownRows({ rows, groupLabel }: { rows: BreakdownRow[]; groupLabel:
               <TableCell className="text-right tabular-nums">
                 {row.insufficientSample
                   ? EMPTY_VALUE
-                  : formatSquareMetrePrice(row.medianPerSquareMetre)}
+                  : formatCurrency(row.medianPerSquareMetre)}
               </TableCell>
             </TableRow>
           ))}

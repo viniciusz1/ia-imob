@@ -72,7 +72,7 @@ describe("MarketBreakdownTable", () => {
 
     expect(screen.getByText("Casa")).toBeInTheDocument();
     expect(screen.getByText("R$ 690.000")).toBeInTheDocument();
-    expect(screen.getByText("R$ 4.200/m²")).toBeInTheDocument();
+    expect(screen.getByText("R$ 4.200")).toBeInTheDocument();
     expect(screen.getByText("1.200")).toBeInTheDocument();
   });
 
@@ -97,7 +97,7 @@ describe("MarketBreakdownTable", () => {
     selectTab("Bairro");
 
     expect(screen.getByText("Bairro 1")).toBeInTheDocument();
-    expect(screen.getByText("R$ 8.100/m²")).toBeInTheDocument();
+    expect(screen.getByText("R$ 8.100")).toBeInTheDocument();
   });
 
   it("paginates the neighbourhood grouping", () => {

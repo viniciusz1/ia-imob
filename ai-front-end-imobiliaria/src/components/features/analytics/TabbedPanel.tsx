@@ -28,17 +28,21 @@ interface TabbedPanelProps {
 export function TabbedPanel({ title, description, icon, tabs, className }: TabbedPanelProps) {
   return (
     <Card className={cn("gap-0 overflow-hidden py-0", className)}>
-      <SectionHeader description={description} icon={icon} title={title} />
       <Tabs className="gap-0" defaultValue={tabs[0]?.value}>
-        <div className="px-6 pb-4 sm:px-8">
-          <TabsList className="flex-wrap">
-            {tabs.map((tab) => (
-              <TabsTrigger key={tab.value} value={tab.value}>
-                {tab.label}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </div>
+        <SectionHeader
+          actions={
+            <TabsList>
+              {tabs.map((tab) => (
+                <TabsTrigger key={tab.value} value={tab.value}>
+                  {tab.label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          }
+          description={description}
+          icon={icon}
+          title={title}
+        />
         {tabs.map((tab) => (
           <TabsContent key={tab.value} value={tab.value}>
             {tab.content}
