@@ -100,7 +100,7 @@ export function PaginationFooter({
                             <Button
                                 aria-current={slot === current ? "page" : undefined}
                                 aria-label={`Página ${slot}`}
-                                className={cn("tabular-nums", slot !== current && "text-muted-foreground")}
+                                className="tabular-nums"
                                 key={slot}
                                 onClick={() => onPageChange(slot)}
                                 size="icon-sm"
