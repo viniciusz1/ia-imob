@@ -1,10 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { CrawlExecutionModal } from "@/components/features/crawler/runs/CrawlExecutionModal";
 import type { CrawlerOperation, CrawlRun } from "@/types/crawler";
 
 interface CrawlHistoryPanelProps {
@@ -26,6 +26,10 @@ const stateLabels: Record<CrawlerOperation["state"], string> = {
 
 export function CrawlHistoryPanel({ agencyId, operations, runs }: CrawlHistoryPanelProps) {
   const [type, setType] = useState<CrawlType>("all");
+  const [selectedExecution, setSelectedExecution] = useState<{
+    operation: CrawlerOperation | null;
+    run: CrawlRun | null;
+  } | null>(null);
   const rows = useMemo(() => {
     const relevantOperations = operations.filter((operation) => operation.type === "profile_validation" || operation.type === "production_crawl");
     const operationRows = relevantOperations.map((operation) => ({ operation, run: runs.find((run) => run.operation_id === operation.id) ?? null }));
@@ -52,19 +56,51 @@ export function CrawlHistoryPanel({ agencyId, operations, runs }: CrawlHistoryPa
             <thead><tr className="border-b"><th className="px-3 py-2">Tipo</th><th className="px-3 py-2">Execução</th><th className="px-3 py-2">Estado</th><th className="px-3 py-2">Resultado</th><th className="px-3 py-2">Criado em</th><th className="px-3 py-2"><span className="sr-only">Ações</span></th></tr></thead>
             <tbody>{rows.map(({ operation, run }) => {
               const validation = operation?.type === "profile_validation";
-              const href = validation
-                ? `/admin/crawler/agencies/${agencyId}/crawls/operations/${operation.id}`
-                : run ? `/admin/crawler/runs/${run.id}` : `/admin/crawler/agencies/${agencyId}/crawls/operations/${operation?.id}`;
               const result = validation
                 ? operation?.state === "succeeded" ? "Resultado da validação disponível" : "—"
                 : run ? `${run.counts.normalized} normalizados · ${run.quality_rejection ? "Publicação recusada" : run.publication_state === "candidate" ? "Qualidade pendente" : run.publication_state === "quarantined" ? "Em quarentena" : "Publicado"}` : "Aguardando resultado técnico";
               const state = operation ? stateLabels[operation.state] : run?.technical_state === "succeeded" ? "Concluído" : run?.technical_state ?? "—";
               const createdAt = operation?.created_at ?? run?.created_at;
-              return <tr className="border-b" key={operation?.id ?? `run-${run?.id}`}><td className="px-3 py-3"><Badge variant="outline">{validation ? "Validação" : "Produção"}</Badge></td><td className="px-3 py-3">#{operation?.id ?? run?.operation_id}</td><td className="px-3 py-3">{state}</td><td className="px-3 py-3">{result}</td><td className="px-3 py-3">{createdAt ? new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short" }).format(new Date(createdAt)) : "—"}</td><td className="px-3 py-3"><Link className="underline" href={href}>Ver execução</Link></td></tr>;
+              return (
+                <tr className="border-b" key={operation?.id ?? `run-${run?.id}`}>
+                  <td className="px-3 py-3">
+                    <Badge variant="outline">{validation ? "Validação" : "Produção"}</Badge>
+                  </td>
+                  <td className="px-3 py-3">#{operation?.id ?? run?.operation_id}</td>
+                  <td className="px-3 py-3">{state}</td>
+                  <td className="px-3 py-3">{result}</td>
+                  <td className="px-3 py-3">
+                    {createdAt
+                      ? new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short" }).format(
+                          new Date(createdAt),
+                        )
+                      : "—"}
+                  </td>
+                  <td className="px-3 py-3">
+                    <Button
+                      className="h-auto p-0 font-normal underline hover:text-foreground"
+                      onClick={() => setSelectedExecution({ operation, run })}
+                      type="button"
+                      variant="link"
+                    >
+                      Ver execução
+                    </Button>
+                  </td>
+                </tr>
+              );
             })}</tbody>
           </table>
         </div>
       )}
+      <CrawlExecutionModal
+        agencyId={agencyId}
+        onOpenChange={(open) => {
+          if (!open) setSelectedExecution(null);
+        }}
+        open={selectedExecution !== null}
+        operation={selectedExecution?.operation ?? null}
+        run={selectedExecution?.run ?? null}
+      />
     </div>
   );
 }
