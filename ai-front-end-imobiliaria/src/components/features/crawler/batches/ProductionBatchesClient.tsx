@@ -26,6 +26,7 @@ import type {
   BatchPage,
   ProductionBatch,
 } from "@/types/productionBatch";
+import { dateRangeError } from "@/components/features/crawler/requiredFields";
 import { BatchPagination } from "./BatchPagination";
 import {
   dateTime,
@@ -40,6 +41,10 @@ export function ProductionBatchesClient({
   initialPage: BatchPage<ProductionBatch>;
 }) {
   const [filters, setFilters] = useState<BatchFilters>({});
+  // Mirrors the date inputs only to check the range; the submit still reads the form.
+  const [rangeFrom, setRangeFrom] = useState("");
+  const [rangeTo, setRangeTo] = useState("");
+  const rangeError = dateRangeError(rangeFrom, rangeTo);
   const interval = useBatchPollInterval();
   const query = useQuery({
     queryKey: ["production-batches", filters],
@@ -98,12 +103,12 @@ export function ProductionBatchesClient({
             </NativeSelect>
           </FormField>
           <FormField htmlFor="batch-from" label="De">
-            <Input id="batch-from" type="date" name="from" />
+            <Input id="batch-from" type="date" name="from" onChange={(event) => setRangeFrom(event.target.value)} />
           </FormField>
-          <FormField htmlFor="batch-to" label="Até">
-            <Input id="batch-to" type="date" name="to" />
+          <FormField error={rangeError} htmlFor="batch-to" label="Até">
+            <Input id="batch-to" type="date" name="to" onChange={(event) => setRangeTo(event.target.value)} />
           </FormField>
-          <Button type="submit">
+          <Button disabled={rangeError !== null} type="submit">
             <Filter />
             Filtrar
           </Button>

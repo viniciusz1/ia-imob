@@ -12,7 +12,25 @@ import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle }
 import { Checkbox } from "@/components/ui/checkbox";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
-import { MissingFieldsHint, isIntegerInRange, missingFields } from "@/components/features/crawler/requiredFields";
+import {
+  MissingFieldsHint,
+  integerError,
+  isIntegerInRange,
+  missingFields,
+  textError,
+} from "@/components/features/crawler/requiredFields";
+
+/** DiscoveryPolicyVersion configuration.max_urls: integer 1–10.000. */
+const maxUrlsError = (value: number) => integerError(Number.isFinite(value) ? value : null, 1, 10000);
+
+/** Discovery strategy key: lowercase snake_case starting with a letter, up to 80 characters. */
+function strategyKeyError(value: string) {
+  const base = textError(value, { max: 80 });
+  if (base) return base;
+  return /^[a-z][a-z0-9_]*$/.test(value.trim())
+    ? null
+    : "Use letras minúsculas, números e _ começando por letra (ex.: partner_feed).";
+}
 import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -195,14 +213,20 @@ function DiscoveryVersionCard({
               prefix={`discovery-${policy.id}`}
               selected={selected}
             />
-            <FormField className="max-w-xs" htmlFor={`discovery-max-${policy.id}`} label="Limite de URLs">
+            <FormField
+              className="max-w-xs"
+              error={maxUrlsError(maxUrls)}
+              htmlFor={`discovery-max-${policy.id}`}
+              label="Limite de URLs"
+              required
+            >
               <Input
                 id={`discovery-max-${policy.id}`}
                 max={10000}
                 min={1}
                 onChange={(event) => setMaxUrls(event.target.valueAsNumber)}
                 type="number"
-                value={maxUrls}
+                value={Number.isFinite(maxUrls) ? maxUrls : ""}
               />
             </FormField>
           </>
@@ -765,17 +789,17 @@ function DiscoveryCreationCard({
       </CardHeader>
       <CardContent className="space-y-5">
         <div className="grid gap-5 md:grid-cols-[1fr_12rem]">
-          <FormField htmlFor="new-discovery-name" label="Nome da política">
-            <Input id="new-discovery-name" onChange={(event) => setName(event.target.value)} value={name} />
+          <FormField htmlFor="new-discovery-name" label="Nome da política" required>
+            <Input id="new-discovery-name" maxLength={160} onChange={(event) => setName(event.target.value)} value={name} />
           </FormField>
-          <FormField htmlFor="new-discovery-max" label="Limite de URLs">
+          <FormField error={maxUrlsError(maxUrls)} htmlFor="new-discovery-max" label="Limite de URLs" required>
             <Input
               id="new-discovery-max"
               max={10000}
               min={1}
               onChange={(event) => setMaxUrls(event.target.valueAsNumber)}
               type="number"
-              value={maxUrls}
+              value={Number.isFinite(maxUrls) ? maxUrls : ""}
             />
           </FormField>
         </div>
@@ -826,11 +850,17 @@ function CustomStrategyCard({ onCreated }: { onCreated: (strategy: DiscoveryStra
         <CardTitle>Registrar estratégia customizada</CardTitle>
       </CardHeader>
       <CardContent className="grid gap-5 md:grid-cols-[1fr_1fr_12rem_auto]">
-        <FormField htmlFor="strategy-key" label="Identificador">
-          <Input id="strategy-key" onChange={(event) => setKey(event.target.value)} placeholder="partner_feed" value={key} />
+        <FormField error={key.trim() ? strategyKeyError(key) : null} htmlFor="strategy-key" label="Identificador" required>
+          <Input
+            id="strategy-key"
+            maxLength={80}
+            onChange={(event) => setKey(event.target.value)}
+            placeholder="partner_feed"
+            value={key}
+          />
         </FormField>
-        <FormField htmlFor="strategy-label" label="Nome">
-          <Input id="strategy-label" onChange={(event) => setLabel(event.target.value)} value={label} />
+        <FormField htmlFor="strategy-label" label="Nome" required>
+          <Input id="strategy-label" maxLength={160} onChange={(event) => setLabel(event.target.value)} value={label} />
         </FormField>
         <FormField htmlFor="strategy-safety" label="Segurança">
           <NativeSelect
@@ -844,11 +874,11 @@ function CustomStrategyCard({ onCreated }: { onCreated: (strategy: DiscoveryStra
         </FormField>
         <MissingFieldsHint
           className="md:order-last md:col-span-4"
-          missing={missingFields([["Identificador", key.trim() !== ""], ["Nome", label.trim() !== ""]])}
+          missing={missingFields([["Identificador válido", strategyKeyError(key) === null], ["Nome", label.trim() !== ""]])}
         />
         <Button
           className="self-end"
-          disabled={pending || key.trim() === "" || label.trim() === ""}
+          disabled={pending || strategyKeyError(key) !== null || label.trim() === ""}
           onClick={() => void execute(
             () => createDiscoveryStrategy({
               key: key.trim(),
@@ -891,8 +921,8 @@ function ExtractionCreationCard({
         <CardDescription>O fallback sempre segue a ordem exibida. Selecione uma ou mais estratégias.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-5">
-        <FormField className="max-w-xl" htmlFor="new-extraction-name" label="Nome da política">
-          <Input id="new-extraction-name" onChange={(event) => setName(event.target.value)} value={name} />
+        <FormField className="max-w-xl" htmlFor="new-extraction-name" label="Nome da política" required>
+          <Input id="new-extraction-name" maxLength={160} onChange={(event) => setName(event.target.value)} value={name} />
         </FormField>
         <StrategyChoices
           onChange={updateSelection}
@@ -966,8 +996,8 @@ function ModelCreationCard({
           </div>
         ) : (
           <div className="grid gap-5 md:grid-cols-3">
-            <FormField htmlFor="new-model-name" label="Nome da execução">
-              <Input id="new-model-name" onChange={(event) => setName(event.target.value)} value={name} />
+            <FormField htmlFor="new-model-name" label="Nome da execução" required>
+              <Input id="new-model-name" maxLength={160} onChange={(event) => setName(event.target.value)} value={name} />
             </FormField>
             <PolicySelect
               id="new-model-discovery"

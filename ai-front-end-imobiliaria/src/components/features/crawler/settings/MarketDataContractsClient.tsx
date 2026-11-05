@@ -3,7 +3,7 @@
 import { TriangleAlert } from "lucide-react";
 import { useState } from "react";
 
-import { MissingFieldsHint, isFilled, missingFields } from "@/components/features/crawler/requiredFields";
+import { MissingFieldsHint, missingFields, textError } from "@/components/features/crawler/requiredFields";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
@@ -54,8 +54,12 @@ export function MarketDataContractsClient({ initialContracts }: MarketDataContra
   };
 
   const duplicateName = pendingFields.some((field) => field.name === fieldName.trim());
+  // StoreMarketDataContractRequest: fields.*.name up to 100 characters, distinct.
+  const fieldNameError = fieldName.trim()
+    ? (textError(fieldName, { max: 100 }) ?? (duplicateName ? "Esse campo já está na lista." : null))
+    : null;
   const fieldMissing = missingFields([
-    ["Nome do campo", isFilled(fieldName)],
+    ["Nome do campo", textError(fieldName, { max: 100 }) === null],
     ["um nome que ainda não está na lista", !duplicateName],
   ]).slice(0, 1);
   const [isCreatingDraft, setIsCreatingDraft] = useState(false);
@@ -98,8 +102,8 @@ export function MarketDataContractsClient({ initialContracts }: MarketDataContra
         </CardHeader>
         <CardContent className="space-y-5">
           <div className="grid gap-5 md:grid-cols-4">
-            <FormField htmlFor="contract-field-name" label="Nome do campo">
-              <Input id="contract-field-name" onChange={(event) => setFieldName(event.target.value)} value={fieldName} />
+            <FormField error={fieldNameError} htmlFor="contract-field-name" label="Nome do campo" required>
+              <Input id="contract-field-name" maxLength={100} onChange={(event) => setFieldName(event.target.value)} value={fieldName} />
             </FormField>
             <FormField htmlFor="contract-field-type" label="Tipo">
               <NativeSelect
@@ -136,7 +140,7 @@ export function MarketDataContractsClient({ initialContracts }: MarketDataContra
             <MissingFieldsHint
               className="mr-auto"
               missing={
-                duplicateName && isFilled(fieldName)
+                duplicateName && fieldName.trim() !== ""
                   ? ["um nome que ainda não está na lista"]
                   : pendingFields.length === 0
                     ? ["Nome do campo e clique em Adicionar campo"]

@@ -3,7 +3,7 @@
 import { CircleAlert } from "lucide-react";
 import { useState } from "react";
 
-import { MissingFieldsHint, isFilled, missingFields } from "@/components/features/crawler/requiredFields";
+import { MissingFieldsHint, missingFields, timezoneError } from "@/components/features/crawler/requiredFields";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
@@ -101,6 +101,7 @@ export function CrawlAgencySchedulePanel({ initialSchedule }: { initialSchedule:
           preset={preset}
           presetLabel="Frequência"
           timezone={timezone}
+          timezoneError={inheritDefault ? null : timezoneError(timezone)}
           timezoneLabel="Fuso horário"
         />
 
@@ -108,10 +109,10 @@ export function CrawlAgencySchedulePanel({ initialSchedule }: { initialSchedule:
           <div className="flex flex-wrap items-center justify-end gap-3">
             <MissingFieldsHint
               className="mr-auto"
-              missing={inheritDefault ? [] : missingFields([["Fuso horário", isFilled(timezone)]])}
+              missing={inheritDefault ? [] : missingFields([["Fuso horário", timezoneError(timezone) === null]])}
             />
             <Button
-              disabled={!inheritDefault && !isFilled(timezone)}
+              disabled={!inheritDefault && timezoneError(timezone) !== null}
               onClick={() => void save()}
               type="button"
             >

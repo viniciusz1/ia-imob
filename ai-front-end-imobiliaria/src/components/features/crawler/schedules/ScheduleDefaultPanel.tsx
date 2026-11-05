@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { MissingFieldsHint, isFilled, missingFields } from "@/components/features/crawler/requiredFields";
+import { MissingFieldsHint, missingFields, timezoneError } from "@/components/features/crawler/requiredFields";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -16,7 +16,9 @@ export function ScheduleDefaultPanel({ initialDefault }: { initialDefault: Sched
   const [timezone, setTimezone] = useState(initialDefault.timezone);
 
   const [isSaving, setIsSaving] = useState(false);
-  const missing = missingFields([["Fuso horário padrão", isFilled(timezone)]]);
+  // ScheduleDefaultRequest: timezone required and a real IANA zone.
+  const timezoneFieldError = timezoneError(timezone);
+  const missing = missingFields([["Fuso horário padrão", timezoneFieldError === null]]);
 
   const save = async () => {
     setIsSaving(true);
@@ -44,6 +46,7 @@ export function ScheduleDefaultPanel({ initialDefault }: { initialDefault: Sched
             preset={preset}
             presetLabel="Frequência padrão"
             timezone={timezone}
+            timezoneError={timezoneFieldError}
             timezoneLabel="Fuso horário padrão"
           />
           <div className="flex flex-wrap items-center justify-end gap-3">

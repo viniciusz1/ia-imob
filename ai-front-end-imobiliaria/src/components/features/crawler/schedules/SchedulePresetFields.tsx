@@ -16,6 +16,7 @@ export function SchedulePresetFields({
   presetLabel,
   timezone,
   timezoneLabel,
+  timezoneError,
   onPresetChange,
   onTimezoneChange,
 }: {
@@ -24,6 +25,8 @@ export function SchedulePresetFields({
   presetLabel: string;
   timezone: string;
   timezoneLabel: string;
+  /** Message shown under the time zone field (red border). */
+  timezoneError?: string | null;
   onPresetChange: (preset: SchedulePreset) => void;
   onTimezoneChange: (timezone: string) => void;
 }) {
@@ -42,7 +45,7 @@ export function SchedulePresetFields({
           ))}
         </NativeSelect>
       </FormField>
-      <FormField htmlFor={`${timezoneLabel}-timezone`} label={timezoneLabel}>
+      <FormField error={timezoneError} htmlFor={`${timezoneLabel}-timezone`} label={timezoneLabel} required>
         <Input
           aria-label={timezoneLabel}
           disabled={disabled}

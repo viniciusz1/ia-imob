@@ -3,7 +3,7 @@
 import { ChevronDown, LoaderCircle } from "lucide-react";
 import { useState } from "react";
 
-import { MissingFieldsHint, isIntegerInRange, missingFields } from "@/components/features/crawler/requiredFields";
+import { MissingFieldsHint, integerError, missingFields, textError } from "@/components/features/crawler/requiredFields";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -46,9 +46,13 @@ export function DiscoveryGenerator({ agencyId, contracts }: DiscoveryGeneratorPr
   const [includeSubdomains, setIncludeSubdomains] = useState(true);
   const [useBrowserForHomepage, setUseBrowserForHomepage] = useState(false);
   const [query, setQuery] = useState("");
+  // StoreCrawlerOperationRequest: discovery_policy.max_urls integer 1–10.000.
+  const maxUrlsError = integerError(maxUrls, 1, 10000);
+  const queryError = textError(query, { required: false, max: 255 });
   const discoveryMissing = missingFields([
     ["ao menos uma fonte", sources.length > 0],
-    ["Limite de URLs (1 a 10.000)", isIntegerInRange(maxUrls, 1, 10000)],
+    ["Limite de URLs (1 a 10.000)", maxUrlsError === null],
+    ["Consulta de relevância (até 255 caracteres)", queryError === null],
     ["Contrato de dados", contractId !== ""],
   ]);
 
@@ -131,7 +135,13 @@ export function DiscoveryGenerator({ agencyId, contracts }: DiscoveryGeneratorPr
           />
         </summary>
         <div className="grid gap-4 border-t p-4 md:grid-cols-2">
-          <FormField hint="Máximo de URLs mantidas neste Snapshot." htmlFor="discovery-max-urls" label="Limite de URLs">
+          <FormField
+            error={maxUrlsError}
+            hint="Máximo de URLs mantidas neste Snapshot (1 a 10.000)."
+            htmlFor="discovery-max-urls"
+            label="Limite de URLs"
+            required
+          >
             <Input
               id="discovery-max-urls"
               max="10000"
@@ -142,6 +152,7 @@ export function DiscoveryGenerator({ agencyId, contracts }: DiscoveryGeneratorPr
             />
           </FormField>
           <FormField
+            error={queryError}
             hint="Ajuda o DomainMapper a priorizar URLs relacionadas."
             htmlFor="discovery-query"
             label="Consulta de relevância"

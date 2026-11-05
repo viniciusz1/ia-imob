@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { MissingFieldsHint, missingFields } from "@/components/features/crawler/requiredFields";
+import { MissingFieldsHint, missingFields, numberError } from "@/components/features/crawler/requiredFields";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
@@ -20,7 +20,9 @@ export function QualityPoliciesClient({ initialPolicies }: { initialPolicies: Qu
   const [rejectionRatio, setRejectionRatio] = useState(30);
 
   const [isCreating, setIsCreating] = useState(false);
-  const withinPercent = (value: number) => Number.isFinite(value) && value >= 0 && value <= 100;
+  // StoreQualityPolicyRequest: each ratio between 0 and 1 (0–100% here).
+  const percentError = (value: number) => numberError(Number.isFinite(value) ? value : null, 0, 100);
+  const withinPercent = (value: number) => percentError(value) === null;
   const missing = missingFields([
     ["Queda máxima de estoque (0 a 100)", withinPercent(stockDrop)],
     ["Erros máximos (0 a 100)", withinPercent(errorRatio)],
@@ -56,34 +58,34 @@ export function QualityPoliciesClient({ initialPolicies }: { initialPolicies: Qu
         </CardHeader>
         <CardContent className="space-y-5">
           <div className="grid gap-5 md:grid-cols-3">
-            <FormField htmlFor="stock-drop" label="Queda máxima de estoque (%)">
+            <FormField error={percentError(stockDrop)} htmlFor="stock-drop" label="Queda máxima de estoque (%)" required>
               <Input
                 id="stock-drop"
                 max={100}
                 min={0}
                 onChange={(event) => setStockDrop(event.target.valueAsNumber)}
                 type="number"
-                value={stockDrop}
+                value={Number.isFinite(stockDrop) ? stockDrop : ""}
               />
             </FormField>
-            <FormField htmlFor="error-ratio" label="Erros máximos (%)">
+            <FormField error={percentError(errorRatio)} htmlFor="error-ratio" label="Erros máximos (%)" required>
               <Input
                 id="error-ratio"
                 max={100}
                 min={0}
                 onChange={(event) => setErrorRatio(event.target.valueAsNumber)}
                 type="number"
-                value={errorRatio}
+                value={Number.isFinite(errorRatio) ? errorRatio : ""}
               />
             </FormField>
-            <FormField htmlFor="rejection-ratio" label="Rejeições máximas (%)">
+            <FormField error={percentError(rejectionRatio)} htmlFor="rejection-ratio" label="Rejeições máximas (%)" required>
               <Input
                 id="rejection-ratio"
                 max={100}
                 min={0}
                 onChange={(event) => setRejectionRatio(event.target.valueAsNumber)}
                 type="number"
-                value={rejectionRatio}
+                value={Number.isFinite(rejectionRatio) ? rejectionRatio : ""}
               />
             </FormField>
           </div>

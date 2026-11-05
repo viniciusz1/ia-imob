@@ -9,7 +9,13 @@ import { toast } from "sonner";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PaginationFooter } from "@/components/layout/PaginationFooter";
 import { Badge } from "@/components/ui/badge";
-import { MissingFieldsHint, isFilled, missingFields } from "@/components/features/crawler/requiredFields";
+import {
+  MissingFieldsHint,
+  missingFields,
+  stateError,
+  textError,
+  useTouchedFields,
+} from "@/components/features/crawler/requiredFields";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -94,14 +100,34 @@ export function ProspectsClient({ initialProspects, initialSuggestions = [] }: {
       .map(([batchCity, batchState]) => ({ city: batchCity, state: batchState.toUpperCase() }));
   };
 
-  // A line only counts when it parses as "Cidade, UF" (the same rule `cities()` sends).
-  const validBatchCount = prospectingMode === "batch" ? cities().length : 0;
+  // Same limits as the API (ProspectingCitiesRequest): city up to 120
+  // characters, a real 2-letter UF, at most 50 cities per batch.
+  const { touch, shown } = useTouchedFields();
+  const cityError = textError(city, { max: 120 });
+  const stateFieldError = stateError(state);
+  const batchLines = batchCities.split("\n").map((line) => line.trim()).filter(Boolean);
+  const invalidBatchLines = batchLines
+    .map((line, index) => {
+      const parts = line.split(",").map((part) => part.trim());
+      const valid = parts.length === 2 && textError(parts[0], { max: 120 }) === null && stateError(parts[1]) === null;
+      return valid ? null : index + 1;
+    })
+    .filter((line): line is number => line !== null);
+  const batchError =
+    batchLines.length === 0
+      ? "Informe ao menos uma linha no formato \"Cidade, UF\"."
+      : invalidBatchLines.length > 0
+        ? `Use "Cidade, UF" com uma UF válida — confira a(s) linha(s) ${invalidBatchLines.join(", ")}.`
+        : batchLines.length > 50
+          ? "Informe no máximo 50 cidades por vez."
+          : null;
   const prospectingMissing = prospectingMode === "batch"
-    ? missingFields([["ao menos uma linha \"Cidade, UF\"", validBatchCount > 0]])
+    ? missingFields([["lista de cidades válida", batchError === null]])
     : missingFields([
-      ["Cidade", isFilled(city)],
-      ["UF com 2 letras", state.trim().length === 2],
+      ["Cidade", cityError === null],
+      ["UF válida", stateFieldError === null],
     ]);
+  const batchReasonError = textError(batchReason, { max: 2000 });
   const canQueue = prospectingMissing.length === 0;
   const requeryPending = requeryKnown && (!requeryPreview || !requeryConfirmed);
 
@@ -175,22 +201,30 @@ export function ProspectsClient({ initialProspects, initialSuggestions = [] }: {
 
           {prospectingMode === "single" ? (
             <div className="grid max-w-2xl gap-5 sm:grid-cols-[minmax(0,1fr)_7rem]">
-              <FormField htmlFor="prospect-city" label="Cidade">
+              <FormField error={shown("city", cityError)} htmlFor="prospect-city" label="Cidade" required>
                 <Input
                   autoComplete="address-level2"
                   id="prospect-city"
-                  onChange={(event) => setCity(event.target.value)}
+                  onBlur={() => touch("city")}
+                  onChange={(event) => {
+                    setCity(event.target.value);
+                    touch("city");
+                  }}
                   placeholder="Ex.: Jaraguá do Sul"
                   value={city}
                 />
               </FormField>
-              <FormField htmlFor="prospect-state" label="UF">
+              <FormField error={shown("state", stateFieldError)} htmlFor="prospect-state" label="UF" required>
                 <Input
                   autoComplete="address-level1"
                   className="uppercase"
                   id="prospect-state"
                   maxLength={2}
-                  onChange={(event) => setState(event.target.value)}
+                  onBlur={() => touch("state")}
+                  onChange={(event) => {
+                    setState(event.target.value);
+                    touch("state");
+                  }}
                   placeholder="SC"
                   value={state}
                 />
@@ -199,14 +233,20 @@ export function ProspectsClient({ initialProspects, initialSuggestions = [] }: {
           ) : (
             <FormField
               className="max-w-2xl"
-              hint="Informe uma cidade e a UF por linha, separadas por vírgula."
+              error={shown("batch", batchError)}
+              hint="Informe uma cidade e a UF por linha, separadas por vírgula (até 50)."
               htmlFor="prospect-batch"
               label="Lista de cidades"
+              required
             >
               <Textarea
                 className="min-h-32 font-mono text-sm"
                 id="prospect-batch"
-                onChange={(event) => setBatchCities(event.target.value)}
+                onBlur={() => touch("batch")}
+                onChange={(event) => {
+                  setBatchCities(event.target.value);
+                  touch("batch");
+                }}
                 placeholder={"Jaraguá do Sul, SC\nJoinville, SC\nCuritiba, PR"}
                 value={batchCities}
               />
@@ -362,6 +402,7 @@ export function ProspectsClient({ initialProspects, initialSuggestions = [] }: {
             <div className="flex flex-col gap-3 xl:flex-row xl:items-end">
               <FormField
                 className="min-w-64 flex-1"
+                error={selectedPendingCount > 0 ? shown("batchReason", batchReasonError) : null}
                 hint={selectedPendingCount > 0 && !batchReason.trim() ? "Preencha: Motivo da decisão" : undefined}
                 htmlFor="batch-prospect-reason"
                 label="Motivo da decisão"
@@ -369,21 +410,26 @@ export function ProspectsClient({ initialProspects, initialSuggestions = [] }: {
                 <Input
                   disabled={!selectedPendingCount}
                   id="batch-prospect-reason"
-                  onChange={(event) => setBatchReason(event.target.value)}
+                  maxLength={2000}
+                  onBlur={() => touch("batchReason")}
+                  onChange={(event) => {
+                    setBatchReason(event.target.value);
+                    touch("batchReason");
+                  }}
                   placeholder="Ex.: sites revisados manualmente"
                   value={batchReason}
                 />
               </FormField>
               <div className="flex flex-col gap-2 sm:flex-row">
                 <Button
-                  disabled={!selectedPendingCount || !batchReason.trim() || isDeciding}
+                  disabled={!selectedPendingCount || batchReasonError !== null || isDeciding}
                   onClick={() => void decideSelected("approved")}
                 >
                   <Check />
                   Aprovar selecionados ({selectedPendingCount})
                 </Button>
                 <Button
-                  disabled={!selectedPendingCount || !batchReason.trim() || isDeciding}
+                  disabled={!selectedPendingCount || batchReasonError !== null || isDeciding}
                   onClick={() => void decideSelected("rejected")}
                   variant="outline"
                 >

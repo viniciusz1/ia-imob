@@ -54,13 +54,13 @@ describe("ProspectsClient", () => {
     }]} />);
 
     expect(screen.getByRole("heading", { name: "Prospecção" })).toBeInTheDocument();
-    expect(screen.getByLabelText("Cidade")).toBeInTheDocument();
-    expect(screen.getByLabelText("UF")).toBeInTheDocument();
+    expect(screen.getByLabelText(/^Cidade/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/^UF/)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Prospectar cidade" })).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Várias cidades" }));
 
-    expect(screen.getByLabelText("Lista de cidades")).toBeInTheDocument();
+    expect(screen.getByLabelText(/^Lista de cidades/)).toBeInTheDocument();
     expect(screen.getByLabelText(/incluir domínios já conhecidos/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/filtrar por operação/i)).toBeInTheDocument();
     expect(screen.getByText("no_website")).toBeInTheDocument();
@@ -119,20 +119,28 @@ describe("ProspectsClient", () => {
     expect(mocks.push).toHaveBeenCalledWith("/admin/crawler/agencies/42/onboarding?novo=true");
   });
 
-  it("keeps prospecting disabled until the city and a 2-letter UF are filled", () => {
+  it("keeps prospecting disabled until the city and a valid UF are filled", () => {
     render(<ProspectsClient initialProspects={[]} initialSuggestions={[]} />);
 
     const button = screen.getByRole("button", { name: "Prospectar cidade" });
     expect(button).toBeDisabled();
-    expect(screen.getByText("Preencha: Cidade, UF com 2 letras")).toBeInTheDocument();
+    expect(screen.getByText("Preencha: Cidade, UF válida")).toBeInTheDocument();
+    // Pristine fields never show red errors.
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
 
-    fireEvent.change(screen.getByLabelText("Cidade"), { target: { value: "Joinville" } });
+    fireEvent.change(screen.getByLabelText(/^Cidade/), { target: { value: "Joinville" } });
     expect(button).toBeDisabled();
-    expect(screen.getByText("Preencha: UF com 2 letras")).toBeInTheDocument();
+    expect(screen.getByText("Preencha: UF válida")).toBeInTheDocument();
 
-    fireEvent.change(screen.getByLabelText("UF"), { target: { value: "SC" } });
+    fireEvent.change(screen.getByLabelText(/^UF/), { target: { value: "XX" } });
+    expect(button).toBeDisabled();
+    expect(screen.getByRole("alert")).toHaveTextContent("UF inexistente.");
+    expect(screen.getByLabelText(/^UF/)).toHaveAttribute("aria-invalid", "true");
+
+    fireEvent.change(screen.getByLabelText(/^UF/), { target: { value: "SC" } });
     expect(button).toBeEnabled();
     expect(screen.queryByText(/Preencha:/)).not.toBeInTheDocument();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 
   it("only enables the city list when at least one line parses as \"Cidade, UF\"", () => {
@@ -140,10 +148,15 @@ describe("ProspectsClient", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Várias cidades" }));
     const button = screen.getByRole("button", { name: "Prospectar cidades" });
-    const list = screen.getByLabelText("Lista de cidades");
+    const list = screen.getByLabelText(/^Lista de cidades/);
 
     fireEvent.change(list, { target: { value: "Joinville sem UF" } });
     expect(button).toBeDisabled();
+    expect(screen.getByRole("alert")).toHaveTextContent("linha(s) 1");
+
+    fireEvent.change(list, { target: { value: "Joinville, SC\nCuritiba, XY" } });
+    expect(button).toBeDisabled();
+    expect(screen.getByRole("alert")).toHaveTextContent("linha(s) 2");
 
     fireEvent.change(list, { target: { value: "Joinville, SC" } });
     expect(button).toBeEnabled();

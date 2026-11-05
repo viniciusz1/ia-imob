@@ -21,7 +21,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { FormField } from "@/components/ui/form-field";
 import { Textarea } from "@/components/ui/textarea";
-import { MissingFieldsHint, missingFields } from "@/components/features/crawler/requiredFields";
+import { MissingFieldsHint, missingFields, textError, useTouchedFields } from "@/components/features/crawler/requiredFields";
 import { usePermission } from "@/hooks/usePermission";
 import {
   createQualityException,
@@ -38,6 +38,9 @@ export function ExceptionalPublicationPanel({ initialRun }: { initialRun: CrawlR
   const [run, setRun] = useState(initialRun);
   const [reason, setReason] = useState("");
   const [pendingAction, setPendingAction] = useState<"exception" | "publish" | "reject" | null>(null);
+  // QualityDecisionRequest: reason required, 10 to 2000 characters.
+  const reasonError = textError(reason, { min: 10, max: 2000 });
+  const { touch, shown } = useTouchedFields();
   if (!run.quality_report) return null;
 
   const registerException = async () => {
@@ -82,7 +85,7 @@ export function ExceptionalPublicationPanel({ initialRun }: { initialRun: CrawlR
 
   const awaitingDecision = run.publication_state === "quarantined" && run.quality_rejection === null;
   const canAct = canManagePolicies || canPublishExceptionally || canReviewSnapshot;
-  const actionDisabled = reason.trim().length < 10 || pendingAction !== null;
+  const actionDisabled = reasonError !== null || pendingAction !== null;
 
   return (
     <Card>
@@ -110,18 +113,29 @@ export function ExceptionalPublicationPanel({ initialRun }: { initialRun: CrawlR
         </div>
         {awaitingDecision && canAct && (
           <>
-            <FormField htmlFor="quality-decision-reason" hint="Mínimo de 10 caracteres." label="Justificativa">
+            <FormField
+              error={shown("reason", reasonError)}
+              hint={`Entre 10 e 2.000 caracteres (${reason.trim().length}).`}
+              htmlFor="quality-decision-reason"
+              label="Justificativa"
+              required
+            >
               <Textarea
                 disabled={pendingAction !== null}
                 id="quality-decision-reason"
-                onChange={(event) => setReason(event.target.value)}
+                maxLength={2000}
+                onBlur={() => touch("reason")}
+                onChange={(event) => {
+                  setReason(event.target.value);
+                  touch("reason");
+                }}
                 value={reason}
               />
             </FormField>
             <div className="flex flex-wrap items-center justify-end gap-3">
               <MissingFieldsHint
                 className="mr-auto"
-                missing={missingFields([["Justificativa (mínimo 10 caracteres)", reason.trim().length >= 10]])}
+                missing={missingFields([["Justificativa (mínimo 10 caracteres)", reasonError === null]])}
               />
               {canManagePolicies && (
                 <Button disabled={actionDisabled} onClick={() => void registerException()} type="button" variant="outline">

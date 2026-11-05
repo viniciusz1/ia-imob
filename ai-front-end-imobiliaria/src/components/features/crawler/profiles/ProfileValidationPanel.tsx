@@ -6,7 +6,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
-import { MissingFieldsHint, missingFields } from "@/components/features/crawler/requiredFields";
+import { MissingFieldsHint, missingFields, textError } from "@/components/features/crawler/requiredFields";
 import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
@@ -373,9 +373,15 @@ export function ProfileValidationPanel({
                   <p className="text-sm text-foreground">
                     Registre a justificativa da decisão. É possível aprovar abaixo da recomendação após revisar as evidências.
                   </p>
-                  <FormField htmlFor={`profile-decision-reason-${profile.id}`} label="Motivo da decisão">
+                  <FormField
+                    error={reason.trim() ? textError(reason, { max: 2000 }) : null}
+                    htmlFor={`profile-decision-reason-${profile.id}`}
+                    label="Motivo da decisão"
+                    required
+                  >
                     <Input
                       id={`profile-decision-reason-${profile.id}`}
+                      maxLength={2000}
                       onChange={(event) => setReason(event.target.value)}
                       value={reason}
                     />

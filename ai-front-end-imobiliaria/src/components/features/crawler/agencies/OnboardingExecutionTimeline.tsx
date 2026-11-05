@@ -21,7 +21,7 @@ import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle }
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { NativeSelect } from "@/components/ui/native-select";
-import { MissingFieldsHint, isValidUrl, missingFields } from "@/components/features/crawler/requiredFields";
+import { MissingFieldsHint, missingFields, urlError } from "@/components/features/crawler/requiredFields";
 import { Progress } from "@/components/ui/progress";
 import { usePermission } from "@/hooks/usePermission";
 import { cn } from "@/lib/utils";
@@ -517,7 +517,12 @@ export function OnboardingExecutionTimeline({
             {manualAction && canExecute && (
               <>
                 {["confirm_sample_url", "correct_sample_url"].includes(manualAction) && (
-                  <FormField htmlFor="onboarding-sample-url" label="URL de Amostra">
+                  <FormField
+                    error={sampleUrl.trim() ? urlError(sampleUrl) : null}
+                    htmlFor="onboarding-sample-url"
+                    label="URL de Amostra"
+                    required
+                  >
                     <Input
                       disabled={pending}
                       id="onboarding-sample-url"
@@ -551,7 +556,7 @@ export function OnboardingExecutionTimeline({
                   <Button
                     disabled={
                       pending
-                      || (["confirm_sample_url", "correct_sample_url"].includes(manualAction) && !isValidUrl(sampleUrl))
+                      || (["confirm_sample_url", "correct_sample_url"].includes(manualAction) && urlError(sampleUrl) !== null)
                     }
                     onClick={() => runManualAction(manualAction)}
                     type="button"
@@ -559,7 +564,7 @@ export function OnboardingExecutionTimeline({
                     {MANUAL_ACTIONS[manualAction]}
                   </Button>
                   {["confirm_sample_url", "correct_sample_url"].includes(manualAction) && (
-                    <MissingFieldsHint missing={missingFields([["URL de Amostra válida", isValidUrl(sampleUrl)]])} />
+                    <MissingFieldsHint missing={missingFields([["URL de Amostra válida", urlError(sampleUrl) === null]])} />
                   )}
                 </div>
               </>
