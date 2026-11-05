@@ -1,8 +1,10 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { Building2, CalendarClock, Coins, Ruler, TrendingUp } from "lucide-react";
+import { useMemo } from "react";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
@@ -27,20 +29,31 @@ const NEIGHBOURHOOD_LIMIT = 50;
 
 export function MarketDashboardClient() {
   const { filters, setFilters } = useMarketAnalyticsFilters();
-  const key = queryKeyFor(filters);
+  // The inputs follow the URL instantly; the requests wait for a pause in
+  // typing (price, area) so each keystroke doesn't become three requests.
+  const key = useDebouncedValue(queryKeyFor(filters));
+  const requested = useMemo(() => JSON.parse(key) as MarketAnalyticsFilters, [key]);
 
+  // keepPreviousData: changing a filter keeps the numbers on screen until the
+  // new ones arrive instead of flashing back to skeletons.
   const overview = useQuery({
     queryKey: ["market-analytics", "overview", key],
-    queryFn: () => getMarketOverview(filters),
+    queryFn: () => getMarketOverview(requested),
+    placeholderData: keepPreviousData,
   });
   const pricing = useQuery({
     queryKey: ["market-analytics", "pricing", key],
-    queryFn: () => getMarketPricing(filters),
+    queryFn: () => getMarketPricing(requested),
+    placeholderData: keepPreviousData,
   });
   const rankings = useQuery({
     queryKey: ["market-analytics", "rankings", key],
-    queryFn: () => getMarketRankings(filters, NEIGHBOURHOOD_LIMIT),
+    queryFn: () => getMarketRankings(requested, NEIGHBOURHOOD_LIMIT),
+    placeholderData: keepPreviousData,
   });
+  const isRefreshing =
+    (overview.isPlaceholderData || pricing.isPlaceholderData || rankings.isPlaceholderData) &&
+    (overview.isFetching || pricing.isFetching || rankings.isFetching);
 
   const meta = overview.data?.meta ?? pricing.data?.meta ?? null;
 
@@ -61,7 +74,10 @@ export function MarketDashboardClient() {
 
       <MarketFiltersPanel filters={filters} onChange={setFilters} />
 
-      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <section
+        aria-busy={isRefreshing}
+        className={cn("grid gap-4 transition-opacity duration-200 sm:grid-cols-2 lg:grid-cols-4", isRefreshing && "opacity-60")}
+      >
         {overview.isPending || pricing.isPending ? (
           <PanelSkeleton count={4} className="h-[7.5rem]" />
         ) : (
@@ -98,7 +114,9 @@ export function MarketDashboardClient() {
       </section>
 
       {pricing.data && rankings.data ? (
-        <MarketBreakdownTable pricing={pricing.data.data} rankings={rankings.data.data} />
+        <div aria-busy={isRefreshing} className={cn("transition-opacity duration-200", isRefreshing && "opacity-60")}>
+          <MarketBreakdownTable pricing={pricing.data.data} rankings={rankings.data.data} />
+        </div>
       ) : (
         <PanelSkeleton count={1} />
       )}

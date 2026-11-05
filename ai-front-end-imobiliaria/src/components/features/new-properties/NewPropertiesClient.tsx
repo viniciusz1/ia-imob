@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
 import {
   Building2,
@@ -16,6 +16,7 @@ import {
 import { NewPropertyCard } from "./NewPropertyCard";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { StatCard } from "@/components/layout/StatCard";
+import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -30,6 +31,7 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { cn } from "@/lib/utils";
 import { getNewProperties } from "@/services/newPropertiesService";
 import type {
   NewPropertyAgencyGroup,
@@ -124,7 +126,6 @@ function AgencyGroup({ group }: { group: NewPropertyAgencyGroup }) {
 export function NewPropertiesClient() {
   const [filter, setFilter] = useState<NewPropertyFlagFilter>("all");
   const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [agency, setAgency] = useState("all");
   const [propertyType, setPropertyType] = useState("all");
   const [city, setCity] = useState("all");
@@ -137,11 +138,7 @@ export function NewPropertiesClient() {
   const [parkingSpaces, setParkingSpaces] = useState<CountFilterValue>("all");
 
   // Espera o usuário parar de digitar para não fazer uma consulta a cada letra.
-  useEffect(() => {
-    const timeout = window.setTimeout(() => setDebouncedSearch(search.trim()), 300);
-
-    return () => window.clearTimeout(timeout);
-  }, [search]);
+  const debouncedSearch = useDebouncedValue(search.trim());
 
   // Só envia à API os filtros realmente escolhidos; "all" significa sem filtro.
   const params: NewPropertiesParams = {
@@ -164,7 +161,12 @@ export function NewPropertiesClient() {
     queryKey: ["new-properties", params],
     queryFn: () => getNewProperties(params),
     staleTime: 30_000,
+    // Ao trocar filtro ou página, a tela continua mostrando o resultado anterior
+    // até o novo chegar, em vez de sumir e voltar.
+    placeholderData: keepPreviousData,
   });
+  // Novo resultado a caminho com o anterior ainda na tela.
+  const isRefreshing = query.isPlaceholderData && query.isFetching;
   // As opções dos filtros vêm da API, de acordo com os dados realmente disponíveis.
   const filterOptions = query.data?.meta.filters;
 
@@ -181,7 +183,6 @@ export function NewPropertiesClient() {
 
   function clearPropertyFilters() {
     setSearch("");
-    setDebouncedSearch("");
     setAgency("all");
     setPropertyType("all");
     setCity("all");
@@ -400,7 +401,19 @@ export function NewPropertiesClient() {
           </p>
         </div>
       ) : (
-        <div className="space-y-6">
+        <div
+          aria-busy={isRefreshing}
+          className={cn("relative space-y-6 transition-opacity duration-200", isRefreshing && "pointer-events-none opacity-60")}
+        >
+          {isRefreshing && (
+            <div
+              className="absolute inset-x-0 -top-3 h-0.5 overflow-hidden rounded-full bg-primary/20"
+              role="progressbar"
+              aria-label="Atualizando imóveis"
+            >
+              <div className="h-full w-1/3 animate-pulse rounded-full bg-primary" />
+            </div>
+          )}
           {visibleGroups.map((group) => (
             <AgencyGroup key={group.crawl_agency.id} group={group} />
           ))}

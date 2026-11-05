@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import {
   CalendarClock,
   CalendarRange,
@@ -53,9 +53,12 @@ interface ValuationRow {
 export function ValuationDashboardClient() {
   const [period, setPeriod] = useState({ data_inicio: "", data_fim: "" });
 
+  // keepPreviousData: changing the period keeps the numbers on screen until
+  // the new ones arrive instead of flashing back to skeletons.
   const { data, isPending } = useQuery({
     queryKey: ["valuation-analytics", period],
     queryFn: () => getValuationAnalytics(period),
+    placeholderData: keepPreviousData,
   });
 
   const indicators = data?.data;

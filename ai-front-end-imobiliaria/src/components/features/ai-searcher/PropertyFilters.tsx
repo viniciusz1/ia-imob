@@ -52,6 +52,7 @@ import {
   getMarketPropertyFilters,
   type MarketPropertyFiltersQuery,
 } from "@/services/marketPropertyService";
+import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 
 
 interface PropertyFiltersProps {
@@ -305,10 +306,13 @@ export function PropertyFilters(
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   const filterStateKey = JSON.stringify(filterState);
+  // Typing a price changes the state on every keystroke; the available
+  // options are only requested again once the user pauses.
+  const optionsRequestKey = useDebouncedValue(filterStateKey);
 
   useEffect(() => {
     let active = true;
-    const query = buildFiltersQuery(filterState);
+    const query = buildFiltersQuery(JSON.parse(optionsRequestKey) as typeof filterState);
 
     getMarketPropertyFilters(query)
       .then((filters) => {
@@ -321,8 +325,7 @@ export function PropertyFilters(
     return () => {
       active = false;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filterStateKey]);
+  }, [optionsRequestKey]);
 
   useEffect(() => {
     setSavedFiltersLoading(true);

@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { ChevronDown, RotateCcw, SlidersHorizontal } from "lucide-react";
 import { SectionHeader } from "@/components/layout/SectionHeader";
 import { Button } from "@/components/ui/button";
@@ -113,17 +114,26 @@ export function MarketFiltersPanel({ filters, onChange }: MarketFiltersPanelProp
   const [showSecondary, setShowSecondary] = useState(false);
 
   const filtersKey = JSON.stringify(filters);
+  // Typed fields (price, area) change on every keystroke; the options request
+  // only goes out once the user pauses.
+  const requestKey = useDebouncedValue(filtersKey);
+  const latestKeyRef = useRef(filtersKey);
+  latestKeyRef.current = filtersKey;
 
   useEffect(() => {
     let active = true;
-    const query = buildAnalyticsFiltersQuery(filters);
+    const requested = JSON.parse(requestKey) as MarketAnalyticsFilters;
+    const query = buildAnalyticsFiltersQuery(requested);
 
     getMarketPropertyFilters(query)
       .then((response) => {
         if (!active) return;
         setOptions(response);
-        const pruned = pruneAnalyticsFilters(filters, response);
-        if (JSON.stringify(pruned) !== filtersKey) {
+        // The user may have kept typing while this was in flight; only prune
+        // the filters this response was computed for.
+        if (latestKeyRef.current !== requestKey) return;
+        const pruned = pruneAnalyticsFilters(requested, response);
+        if (JSON.stringify(pruned) !== requestKey) {
           onChange(pruned);
         }
       })
@@ -135,7 +145,7 @@ export function MarketFiltersPanel({ filters, onChange }: MarketFiltersPanelProp
       active = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filtersKey]);
+  }, [requestKey]);
 
   const neighbourhoods = useMemo(() => {
     if (options === null) return [];
