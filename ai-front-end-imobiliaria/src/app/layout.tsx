@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { Geist_Mono, Questrial } from "next/font/google";
+import { Geist_Mono, Poppins } from "next/font/google";
 import "./globals.css";
 
-const questrial = Questrial({
-  variable: "--font-questrial",
+const poppins = Poppins({
+  variable: "--font-poppins",
   subsets: ["latin"],
-  weight: "400",
+  weight: ["400", "500", "600", "700"],
   display: "swap",
 });
 
@@ -29,10 +29,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${questrial.variable} ${geistMono.variable} antialiased`}
-      >
+    // Font variables live on <html>: Tailwind resolves font-sans there.
+    <html className={`${poppins.variable} ${geistMono.variable}`} lang="en" suppressHydrationWarning>
+      <body className="antialiased">
         <Providers>
           <TooltipProvider>{children}</TooltipProvider>
         </Providers>

@@ -36,7 +36,8 @@ export default async function SiteLayout({
     return (
         <div
             style={brandStyle(branding)}
-            className="flex min-h-screen flex-col bg-[var(--brand-bg)] text-[var(--brand-text)]"
+            // "light" keeps the agency site on light tokens when the app runs in dark mode.
+            className="light flex min-h-screen flex-col bg-[var(--brand-bg)] text-[var(--brand-text)]"
         >
             <SiteHeader branding={branding} />
             <main className="flex-1">{children}</main>

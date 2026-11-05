@@ -3,12 +3,14 @@
 @import "shadcn/tailwind.css";
 @import "./theme.css";
 
-@custom-variant dark (&:is(.dark *));
+/* `.light` re-scopes a subtree (e.g. the public agency site) back to the
+   light tokens even when the app runs in dark mode. */
+@custom-variant dark (&:is(.dark *):not(:is(.light, .light *)));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-questrial), "Helvetica Neue", Arial, sans-serif;
+  --font-sans: var(--font-poppins), "Helvetica Neue", Arial, sans-serif;
   --font-mono: var(--font-geist-mono);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -19,6 +21,13 @@
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-muted: var(--sidebar-muted);
   --color-sidebar: var(--sidebar);
+  --color-sidebar-highlight: var(--sidebar-highlight);
+  --color-field: var(--field);
+  --color-topbar: var(--topbar);
+  --color-topbar-foreground: var(--topbar-foreground);
+  --color-segment: var(--segment);
+  --color-segment-active: var(--segment-active);
+  --color-segment-active-foreground: var(--segment-active-foreground);
   --color-chart-5: var(--chart-5);
   --color-chart-4: var(--chart-4);
   --color-chart-3: var(--chart-3);
@@ -66,8 +75,7 @@
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
-    /* Questrial ships a single 400 weight. Without this the browser fakes
-       bold, so hierarchy comes from size and color only. */
+    /* Poppins is loaded in 400/500/600/700; never let the browser fake one. */
     font-synthesis: none;
   }
 
@@ -88,7 +96,7 @@
   }
 
   ::-webkit-scrollbar-track {
-    background: var(--muted);
+    background: transparent;
   }
 
   ::-webkit-scrollbar-thumb {
