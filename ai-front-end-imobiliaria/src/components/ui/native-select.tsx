@@ -28,7 +28,7 @@ function NativeSelect({
         data-size={size}
         className={cn(
           "w-full min-w-0 cursor-pointer appearance-none rounded-lg border border-input bg-field py-2 pr-10 pl-3.5 text-sm shadow-xs shadow-black/5 transition-colors outline-none hover:border-muted-foreground/30 disabled:cursor-not-allowed disabled:opacity-50",
-          "data-[size=default]:h-11 data-[size=sm]:h-10",
+          "data-[size=default]:h-11 data-[size=sm]:h-11",
           "focus-visible:border-primary focus-visible:ring-[3px] focus-visible:ring-primary/25",
           "aria-invalid:border-destructive aria-invalid:ring-destructive/20",
           className
