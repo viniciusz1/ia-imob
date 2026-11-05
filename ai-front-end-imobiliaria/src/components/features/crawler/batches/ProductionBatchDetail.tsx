@@ -3,10 +3,24 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
+import { Building2, Layers, RefreshCw, RotateCcw, Search } from "lucide-react";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { SectionHeader } from "@/components/layout/SectionHeader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { NativeSelect } from "@/components/ui/native-select";
+import { Progress } from "@/components/ui/progress";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -107,88 +121,95 @@ export function ProductionBatchDetail({
   ] as const;
   return (
     <section className="space-y-6">
-      <Link className="text-sm underline" href="/admin/crawler/batches">
-        Voltar para execuções em lote
-      </Link>
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-xl font-semibold">Lote #{batch.id}</h1>
-          <p className="text-muted-foreground">{batch.name}</p>
-          <p className="mt-1 text-xs text-muted-foreground">
-            Solicitado por {batch.requester.name} em{" "}
-            {dateTime(batch.created_at)} · Duração:{" "}
-            {duration(batch.created_at, batch.completed_at)}
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="outline">
+      <PageHeader
+        actions={
+          <>
+            <Button
+              variant="outline"
+              onClick={() => {
+                void batchQuery.refetch();
+                void itemsQuery.refetch();
+              }}
+              disabled={batchQuery.isFetching}
+            >
+              <RefreshCw className={cn(batchQuery.isFetching && "animate-spin")} />
+              Atualizar
+            </Button>
+            {canExecute && problems > 0 && (
+              <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+                <AlertDialogTrigger asChild>
+                  <Button>
+                    <RotateCcw />
+                    Reexecutar{" "}
+                    {selected.length > 0
+                      ? `${selected.length} selecionada(s)`
+                      : "problemas"}
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>
+                      Reexecutar agências com problemas?
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Será criado outro lote com Discovery novo e as configurações
+                      atualmente ativas. Agências bloqueadas serão registradas
+                      como ignoradas no novo lote.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  {rerun.isError && (
+                    <p role="alert" className="text-sm text-destructive">
+                      {crawlerOperationErrorMessage(
+                        rerun.error,
+                        "Não foi possível iniciar a reexecução.",
+                      )}
+                    </p>
+                  )}
+                  <AlertDialogFooter>
+                    <AlertDialogCancel disabled={rerun.isPending}>
+                      Cancelar
+                    </AlertDialogCancel>
+                    <AlertDialogAction
+                      disabled={rerun.isPending}
+                      onClick={(event) => {
+                        event.preventDefault();
+                        rerun.mutate();
+                      }}
+                    >
+                      {rerun.isPending ? "Enfileirando…" : "Confirmar reexecução"}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
+          </>
+        }
+        backHref="/admin/crawler/batches"
+        badge={
+          <Badge variant={batchStateVariant(batch)}>
             {batch.state === "completed"
               ? resultLabels[batch.result]
               : outcomeLabels[batch.state]}
           </Badge>
-          <Button
-            variant="outline"
-            onClick={() => {
-              void batchQuery.refetch();
-              void itemsQuery.refetch();
-            }}
-            disabled={batchQuery.isFetching}
-          >
-            Atualizar
-          </Button>
-          {canExecute && problems > 0 && (
-            <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-              <AlertDialogTrigger asChild>
-                <Button>
-                  Reexecutar{" "}
-                  {selected.length > 0
-                    ? `${selected.length} selecionada(s)`
-                    : "problemas"}
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>
-                    Reexecutar agências com problemas?
-                  </AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Será criado outro lote com Discovery novo e as configurações
-                    atualmente ativas. Agências bloqueadas serão registradas
-                    como ignoradas no novo lote.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                {rerun.isError && (
-                  <p role="alert" className="text-sm text-destructive">
-                    {crawlerOperationErrorMessage(
-                      rerun.error,
-                      "Não foi possível iniciar a reexecução.",
-                    )}
-                  </p>
-                )}
-                <AlertDialogFooter>
-                  <AlertDialogCancel disabled={rerun.isPending}>
-                    Cancelar
-                  </AlertDialogCancel>
-                  <AlertDialogAction
-                    disabled={rerun.isPending}
-                    onClick={(event) => {
-                      event.preventDefault();
-                      rerun.mutate();
-                    }}
-                  >
-                    {rerun.isPending ? "Enfileirando…" : "Confirmar reexecução"}
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          )}
-        </div>
-      </div>
+        }
+        description={
+          <>
+            {batch.name}
+            <span className="mt-1 block text-[0.8125rem] font-normal">
+              Solicitado por {batch.requester.name} em{" "}
+              {dateTime(batch.created_at)} · Duração:{" "}
+              {duration(batch.created_at, batch.completed_at)}
+            </span>
+          </>
+        }
+        title={`Lote #${batch.id}`}
+      />
       {batch.source_group_id !== null && (
-        <p className="text-sm">
+        <p className="flex items-center gap-2 rounded-xl bg-info/10 px-4 py-3 text-sm text-foreground">
+          <RotateCcw className="size-4 text-info" />
           Reexecução do{" "}
           <Link
-            className="underline"
+            className="font-medium text-info underline-offset-4 hover:underline"
             href={`/admin/crawler/batches/${batch.source_group_id}`}
           >
             lote #{batch.source_group_id}
@@ -197,100 +218,119 @@ export function ProductionBatchDetail({
         </p>
       )}
       {batch.historical_incomplete && (
-        <p className="rounded-xl border border-transparent bg-muted p-3 text-sm">
+        <p className="rounded-xl border border-warning/30 bg-warning/10 px-4 py-3 text-sm text-foreground">
           Lote histórico: total solicitado e agências ignoradas não foram
           registrados. Os nomes disponíveis correspondem ao cadastro recuperado
           na migração.
         </p>
       )}
       {(batchQuery.isError || itemsQuery.isError) && (
-        <p role="alert">
+        <p
+          className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+          role="alert"
+        >
           Não foi possível atualizar o lote. Os últimos dados disponíveis foram
           preservados.
         </p>
       )}
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        {metrics.map(([label, value]) => (
-          <Card key={label}>
-            <CardContent className="p-4">
-              <p className="text-xs text-muted-foreground">{label}</p>
-              <p className="mt-1 text-2xl font-semibold tabular-nums">
-                {value ?? "—"}
-              </p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-      <div className="space-y-2 rounded-xl border border-transparent bg-muted p-4">
-        <div className="flex justify-between text-sm">
-          <span>
-            {batch.state === "completed"
-              ? "Processamento encerrado"
-              : outcomeLabels[batch.state]}
-          </span>
-          <span>
-            {batch.progress_percentage !== null
-              ? `${batch.progress_percentage}% resolvido`
-              : "Sem execuções"}
-          </span>
-        </div>
-        {batch.progress_percentage !== null && (
-          <progress
-            className="h-2 w-full accent-primary"
-            max={100}
-            value={batch.progress_percentage}
-            aria-label="Progresso do lote"
-          />
-        )}
-        <p className="text-xs text-muted-foreground">
-          {counts.queued} na fila · {counts.running} em execução ·{" "}
-          {counts.awaiting_quality} aguardando qualidade. O término técnico do
-          worker não significa publicação.
-        </p>
-      </div>
-      <section className="space-y-3" aria-label="Agências do lote">
-        <h2 className="text-lg font-semibold">Agências do lote</h2>
-        <form
-          className="flex flex-wrap gap-2"
-          onSubmit={(event) => {
-            event.preventDefault();
-            const data = new FormData(event.currentTarget);
-            setFilters({
-              search: String(data.get("search") || ""),
-              outcome: String(data.get("outcome") || ""),
-            });
-          }}
-        >
-          <Input
-            className="max-w-sm"
-            name="search"
-            placeholder="Nome ou domínio"
-            aria-label="Filtrar agências do lote"
-          />
-          <select
-            className="rounded-md border bg-background px-3 text-sm"
-            name="outcome"
-            aria-label="Filtrar resultado"
-          >
-            <option value="">Todos os resultados</option>
-            {Object.entries(outcomeLabels)
-              .filter(([key]) => key !== "completed")
-              .map(([key, label]) => (
-                <option key={key} value={key}>
+      <Card className="gap-0 py-0">
+        <SectionHeader
+          description="Contagem das agências do lote em cada etapa."
+          icon={Layers}
+          title="Resumo do lote"
+        />
+        <div className="space-y-5 px-6 pb-6 sm:px-8 sm:pb-8">
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            {metrics.map(([label, value]) => (
+              <div className="rounded-xl bg-muted p-4" key={label}>
+                <p className="text-[0.8125rem] leading-4 font-semibold text-subtle">
                   {label}
-                </option>
-              ))}
-          </select>
-          <Button type="submit" variant="outline">
-            Buscar
-          </Button>
-        </form>
-        {itemsQuery.data && (
-          <>
-            <div className="overflow-x-auto rounded-lg border">
-              <table className="w-full text-left text-sm">
-                <thead className="bg-muted/40">
-                  <tr>
+                </p>
+                <p className="mt-2 text-2xl leading-8 font-semibold text-foreground tabular-nums">
+                  {value ?? "—"}
+                </p>
+              </div>
+            ))}
+          </div>
+          <div className="space-y-2.5 rounded-xl bg-muted p-4">
+            <div className="flex justify-between gap-3 text-sm">
+              <span className="font-medium text-foreground">
+                {batch.state === "completed"
+                  ? "Processamento encerrado"
+                  : outcomeLabels[batch.state]}
+              </span>
+              <span className="text-muted-foreground tabular-nums">
+                {batch.progress_percentage !== null
+                  ? `${batch.progress_percentage}% resolvido`
+                  : "Sem execuções"}
+              </span>
+            </div>
+            {batch.progress_percentage !== null && (
+              <Progress
+                aria-label="Progresso do lote"
+                value={batch.progress_percentage}
+              />
+            )}
+            <p className="text-[0.8125rem] text-subtle">
+              {counts.queued} na fila · {counts.running} em execução ·{" "}
+              {counts.awaiting_quality} aguardando qualidade. O término técnico do
+              worker não significa publicação.
+            </p>
+          </div>
+        </div>
+      </Card>
+      <section aria-label="Agências do lote">
+        <Card className="gap-0 overflow-hidden py-0">
+          <SectionHeader
+            as="h2"
+            description="Resultado de cada agência, com diagnóstico e evidências."
+            icon={Building2}
+            title="Agências do lote"
+          />
+          <form
+            className="flex flex-col gap-3 px-6 pb-6 sm:flex-row sm:items-center sm:px-8"
+            onSubmit={(event) => {
+              event.preventDefault();
+              const data = new FormData(event.currentTarget);
+              setFilters({
+                search: String(data.get("search") || ""),
+                outcome: String(data.get("outcome") || ""),
+              });
+            }}
+          >
+            <div className="relative w-full sm:max-w-sm">
+              <Search className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                className="pl-10"
+                name="search"
+                placeholder="Nome ou domínio"
+                aria-label="Filtrar agências do lote"
+              />
+            </div>
+            <NativeSelect
+              name="outcome"
+              aria-label="Filtrar resultado"
+              wrapperClassName="sm:w-60"
+            >
+              <option value="">Todos os resultados</option>
+              {Object.entries(outcomeLabels)
+                .filter(([key]) => key !== "completed")
+                .map(([key, label]) => (
+                  <option key={key} value={key}>
+                    {label}
+                  </option>
+                ))}
+            </NativeSelect>
+            <Button type="submit">
+              <Search />
+              Buscar
+            </Button>
+          </form>
+          {itemsQuery.data && (
+            <>
+              <Table>
+                <TableHeader>
+                  <TableRow className="hover:bg-transparent">
                     {[
                       "Selecionar",
                       "Agência",
@@ -299,19 +339,18 @@ export function ProductionBatchDetail({
                       "Registros",
                       "Diagnóstico / evidências",
                     ].map((title) => (
-                      <th className="p-3" key={title}>
-                        {title}
-                      </th>
+                      <TableHead key={title}>{title}</TableHead>
                     ))}
-                  </tr>
-                </thead>
-                <tbody>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                   {itemsQuery.data.data.map((item) => (
-                    <tr className="border-t align-top" key={item.id}>
-                      <td className="p-3">
+                    <TableRow className="align-top" key={item.id}>
+                      <TableCell className="align-top">
                         {canExecute && problemOutcomes.has(item.outcome) && (
                           <input
                             type="checkbox"
+                            className="size-4 cursor-pointer accent-primary"
                             aria-label={`Selecionar ${item.name}`}
                             checked={selected.includes(item.id)}
                             onChange={(event) => {
@@ -324,60 +363,56 @@ export function ProductionBatchDetail({
                             }}
                           />
                         )}
-                      </td>
-                      <td className="min-w-44 p-3">
+                      </TableCell>
+                      <TableCell className="min-w-44 align-top">
                         <Link
-                          className="font-medium underline-offset-4 hover:underline"
+                          className="font-medium text-foreground underline-offset-4 hover:text-primary hover:underline"
                           href={`/admin/crawler/agencies/${item.crawl_agency_id}`}
                         >
                           {item.name}
                         </Link>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-[0.8125rem] text-subtle">
                           {item.root_domain}
                         </p>
-                      </td>
-                      <td className="p-3">
-                        <Badge
-                          variant={
-                            problemOutcomes.has(item.outcome)
-                              ? "destructive"
-                              : "outline"
-                          }
-                        >
+                      </TableCell>
+                      <TableCell className="align-top whitespace-normal">
+                        <Badge variant={itemOutcomeVariant(item.outcome)}>
                           {outcomeLabels[item.outcome]}
                         </Badge>
                         {item.quality_verdict === "blocked" &&
                           item.publication_state === "published" && (
-                            <p className="mt-1 text-xs">
+                            <p className="mt-1.5 max-w-48 text-[0.8125rem] leading-4 text-subtle">
                               Publicado excepcionalmente depois da quarentena.
                             </p>
                           )}
-                      </td>
-                      <td className="p-3">
-                        <p>
+                      </TableCell>
+                      <TableCell className="align-top">
+                        <p className="text-foreground">
                           {item.stage
                             ? (stageLabels[item.stage] ?? item.stage)
                             : "—"}
                         </p>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-[0.8125rem] text-subtle tabular-nums">
                           {item.processed_items ?? 0} /{" "}
                           {item.total_items ?? "?"} URLs
                         </p>
                         {item.technical_state === "running" && (
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-[0.8125rem] text-subtle">
                             Heartbeat: {dateTime(item.heartbeat_at)}
                           </p>
                         )}
-                      </td>
-                      <td className="whitespace-nowrap p-3">
-                        <p>{item.normalized_count ?? 0} válidos</p>
-                        <p className="text-xs text-muted-foreground">
+                      </TableCell>
+                      <TableCell className="align-top tabular-nums">
+                        <p className="text-foreground">
+                          {item.normalized_count ?? 0} válidos
+                        </p>
+                        <p className="text-[0.8125rem] text-subtle">
                           {item.raw_count ?? 0} brutos ·{" "}
                           {item.rejected_count ?? 0} rejeitados
                         </p>
-                      </td>
-                      <td className="max-w-sm p-3">
-                        <p className="break-words">
+                      </TableCell>
+                      <TableCell className="max-w-sm align-top whitespace-normal">
+                        <p className="break-words text-foreground">
                           {item.skip_message ??
                             (item.attention_code === "missing_crawl_run"
                               ? "Worker concluiu sem resultado persistido. Requer investigação."
@@ -385,55 +420,57 @@ export function ProductionBatchDetail({
                             item.error_message ??
                             item.blockers.join(", ")}
                         </p>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-[0.8125rem] text-subtle">
                           {item.skip_code ?? item.error_code}
                         </p>
-                        {item.operation_id && (
-                          <Link
-                            className="mr-3 inline-block text-xs underline"
-                            href={`/admin/crawler/agencies/${item.crawl_agency_id}/crawls/operations/${item.operation_id}`}
-                          >
-                            Operação #{item.operation_id}
-                          </Link>
-                        )}
-                        {item.crawl_run_id && (
-                          <Link
-                            className="inline-block text-xs underline"
-                            href={`/admin/crawler/runs/${item.crawl_run_id}`}
-                          >
-                            Snapshot #{item.crawl_run_id}
-                          </Link>
-                        )}
+                        <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1">
+                          {item.operation_id && (
+                            <Link
+                              className="text-[0.8125rem] font-medium text-primary underline-offset-4 hover:underline"
+                              href={`/admin/crawler/agencies/${item.crawl_agency_id}/crawls/operations/${item.operation_id}`}
+                            >
+                              Operação #{item.operation_id}
+                            </Link>
+                          )}
+                          {item.crawl_run_id && (
+                            <Link
+                              className="text-[0.8125rem] font-medium text-primary underline-offset-4 hover:underline"
+                              href={`/admin/crawler/runs/${item.crawl_run_id}`}
+                            >
+                              Snapshot #{item.crawl_run_id}
+                            </Link>
+                          )}
+                        </div>
                         {item.extraction_profile_id && (
-                          <p className="mt-1 text-xs text-muted-foreground">
+                          <p className="mt-1 text-[0.8125rem] text-subtle">
                             Perfil #{item.extraction_profile_id} · Contrato #
                             {item.market_data_contract_version_id} · Qualidade #
                             {item.quality_policy_version_id}
                           </p>
                         )}
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   ))}
                   {itemsQuery.data.data.length === 0 && (
-                    <tr>
-                      <td
+                    <TableRow className="hover:bg-transparent">
+                      <TableCell
                         colSpan={6}
-                        className="p-6 text-center text-muted-foreground"
+                        className="h-20 text-center text-muted-foreground"
                       >
                         Nenhuma agência neste filtro.
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   )}
-                </tbody>
-              </table>
-            </div>
-            <BatchPagination
-              meta={itemsQuery.data.meta}
-              pending={itemsQuery.isFetching}
-              onPage={(page) => setFilters({ ...filters, page })}
-            />
-          </>
-        )}
+                </TableBody>
+              </Table>
+              <BatchPagination
+                meta={itemsQuery.data.meta}
+                pending={itemsQuery.isFetching}
+                onPage={(page) => setFilters({ ...filters, page })}
+              />
+            </>
+          )}
+        </Card>
       </section>
       <ProductionBatchDiagnostics
         batchId={batch.id}
@@ -442,4 +479,30 @@ export function ProductionBatchDetail({
       />
     </section>
   );
+}
+
+type ChipVariant = "success" | "warning" | "destructive" | "info" | "muted";
+
+/** Tone of the batch chip: by result once completed, by state while running. */
+function batchStateVariant(batch: ProductionBatch): ChipVariant {
+  if (batch.state !== "completed") {
+    return batch.state === "awaiting_quality" ? "warning" : batch.state === "running" ? "info" : "muted";
+  }
+  const byResult: Record<ProductionBatch["result"], ChipVariant> = {
+    succeeded: "success",
+    partial: "warning",
+    failed: "destructive",
+    in_progress: "info",
+    not_executed: "muted",
+  };
+  return byResult[batch.result];
+}
+
+/** Problem outcomes stay red as before; the others get their own tone. */
+function itemOutcomeVariant(outcome: ProductionBatchItem["outcome"]): ChipVariant {
+  if (problemOutcomes.has(outcome)) return "destructive";
+  if (outcome === "published") return "success";
+  if (outcome === "running") return "info";
+  if (outcome === "awaiting_quality") return "warning";
+  return "muted";
 }
