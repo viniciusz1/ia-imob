@@ -1,0 +1,127 @@
+name: Release Deploy (Vercel Validation)
+
+on:
+  push:
+    tags:
+      - '*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag na branch main para publicar (ex: v1.0.0)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: vercel-validation-release
+  cancel-in-progress: false
+
+jobs:
+  deploy-validation:
+    name: Deploy Release to Vercel (API & Web Validation)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify tag belongs to main branch
+        id: verify_tag
+        env:
+          INPUT_TAG: ${{ github.event.inputs.tag }}
+        run: |
+          set -euo pipefail
+
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TAG_NAME="${INPUT_TAG}"
+          else
+            TAG_NAME="${GITHUB_REF_NAME}"
+          fi
+
+          git fetch origin main:refs/remotes/origin/main --tags --force
+
+          if ! git rev-parse "refs/tags/${TAG_NAME}" >/dev/null 2>&1; then
+            echo "::error::Tag '${TAG_NAME}' não encontrada no repositório."
+            exit 1
+          fi
+
+          TAG_SHA="$(git rev-list -n 1 "refs/tags/${TAG_NAME}")"
+          MAIN_SHA="$(git rev-parse refs/remotes/origin/main)"
+
+          if ! git merge-base --is-ancestor "${TAG_SHA}" refs/remotes/origin/main; then
+            echo "::error::A tag '${TAG_NAME}' (${TAG_SHA}) não pertence à branch principal (main). Deploy bloqueado."
+            exit 1
+          fi
+
+          echo "tag=${TAG_NAME}" >> "${GITHUB_OUTPUT}"
+          echo "tag_sha=${TAG_SHA}" >> "${GITHUB_OUTPUT}"
+          echo "main_sha=${MAIN_SHA}" >> "${GITHUB_OUTPUT}"
+          echo "Tag '${TAG_NAME}' (${TAG_SHA}) validada na branch main (${MAIN_SHA})."
+
+      - name: Create or update GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ steps.verify_tag.outputs.tag }}
+        run: |
+          set -euo pipefail
+
+          if gh release view "${TAG_NAME}" >/dev/null 2>&1; then
+            echo "GitHub Release '${TAG_NAME}' já existe."
+          else
+            gh release create "${TAG_NAME}" \
+              --verify-tag \
+              --title "Release ${TAG_NAME}" \
+              --generate-notes
+            echo "GitHub Release '${TAG_NAME}' criada com sucesso."
+          fi
+
+      - name: Trigger Vercel Deploy — ia-imob-api-validation
+        env:
+          DEPLOY_HOOK_URL: ${{ secrets.VERCEL_DEPLOY_HOOK_API_VALIDATION }}
+          TAG_NAME: ${{ steps.verify_tag.outputs.tag }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${DEPLOY_HOOK_URL}" ]; then
+            echo "::error::Secret VERCEL_DEPLOY_HOOK_API_VALIDATION não configurada."
+            exit 1
+          fi
+
+          RESPONSE="$(curl --fail --silent --show-error -X POST "${DEPLOY_HOOK_URL}")"
+          echo "Resposta Vercel (ia-imob-api-validation): ${RESPONSE}"
+
+      - name: Trigger Vercel Deploy — ia-imob-web-validation
+        env:
+          DEPLOY_HOOK_URL: ${{ secrets.VERCEL_DEPLOY_HOOK_WEB_VALIDATION }}
+          TAG_NAME: ${{ steps.verify_tag.outputs.tag }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${DEPLOY_HOOK_URL}" ]; then
+            echo "::error::Secret VERCEL_DEPLOY_HOOK_WEB_VALIDATION não configurada."
+            exit 1
+          fi
+
+          RESPONSE="$(curl --fail --silent --show-error -X POST "${DEPLOY_HOOK_URL}")"
+          echo "Resposta Vercel (ia-imob-web-validation): ${RESPONSE}"
+
+      - name: Publish Release Summary
+        env:
+          TAG_NAME: ${{ steps.verify_tag.outputs.tag }}
+          TAG_SHA: ${{ steps.verify_tag.outputs.tag_sha }}
+        run: |
+          {
+            echo "## Release \`${TAG_NAME}\` enviada para a Vercel"
+            echo ""
+            echo "- **Tag:** \`${TAG_NAME}\`"
+            echo "- **Commit:** \`${TAG_SHA}\`"
+            echo "- **Branch:** \`main\`"
+            echo ""
+            echo "| Servidor | Painel Vercel | URL de Validação |"
+            echo "| :--- | :--- | :--- |"
+            echo "| **API Validation** | [viniciusz1s-projects/ia-imob-api-validation](https://vercel.com/viniciusz1s-projects/ia-imob-api-validation) | https://ia-imob-api-validation.vercel.app |"
+            echo "| **Web Validation** | [viniciusz1s-projects/ia-imob-web-validation](https://vercel.com/viniciusz1s-projects/ia-imob-web-validation) | https://ia-imob-web-validation.vercel.app |"
+          } >> "${GITHUB_STEP_SUMMARY}"
