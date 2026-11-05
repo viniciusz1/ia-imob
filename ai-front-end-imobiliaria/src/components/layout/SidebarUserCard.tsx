@@ -17,15 +17,15 @@ export function SidebarUserCard({ roleLabel }: { roleLabel?: string }) {
     if (!user) return null;
 
     return (
-        <div className="flex items-center gap-3 px-1">
+        <div className="flex items-center gap-3 rounded-xl bg-sidebar-accent p-2.5">
             <span
                 aria-hidden="true"
-                className="flex size-8 shrink-0 items-center justify-center rounded-full bg-white/15 text-xs text-sidebar-foreground"
+                className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-sidebar-primary text-xs font-semibold text-sidebar-highlight"
             >
                 {initialsOf(user.name)}
             </span>
             <div className="min-w-0 flex-1">
-                <p className="truncate text-sm text-sidebar-foreground">{user.name}</p>
+                <p className="truncate text-sm font-medium text-sidebar-foreground">{user.name}</p>
                 <p className="truncate text-xs text-sidebar-muted">{roleLabel ?? user.email}</p>
             </div>
         </div>

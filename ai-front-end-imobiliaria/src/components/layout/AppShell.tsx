@@ -30,11 +30,11 @@ interface AppShellProps {
 }
 
 /**
- * The authenticated application frame: a brand-colored sidebar, a white
- * topbar and a scrolling content area with the standard page gutter.
+ * The authenticated application frame: a dark navy sidebar, a topbar band
+ * and a scrolling content area with the standard page gutter.
  *
  * The sidebar is static from `lg` up and an off-canvas drawer below it. The
- * logo row and the topbar are both `h-16` so their bottom borders line up.
+ * logo row and the topbar share the same height so their borders line up.
  */
 export function AppShell({
     brand,
@@ -72,11 +72,11 @@ export function AppShell({
 
             <aside
                 className={cn(
-                    "fixed inset-y-0 left-0 z-50 flex w-60 flex-col bg-sidebar text-sidebar-foreground transition-transform lg:static lg:translate-x-0",
+                    "fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground transition-transform lg:static lg:translate-x-0",
                     sidebarOpen ? "translate-x-0" : "-translate-x-full",
                 )}
             >
-                <div className="flex h-16 shrink-0 items-center gap-3 border-b border-sidebar-border px-4">
+                <div className="flex h-16 shrink-0 items-center gap-3 border-b border-sidebar-border px-5 sm:h-[4.5rem]">
                     {brand}
                     <button
                         aria-label="Fechar menu"
@@ -88,7 +88,7 @@ export function AppShell({
                     </button>
                 </div>
 
-                <div className="flex-1 overflow-y-auto px-3 py-4">{navigation}</div>
+                <div className="flex-1 overflow-y-auto px-3 py-5">{navigation}</div>
 
                 {sidebarFooter && (
                     <div className="shrink-0 border-t border-sidebar-border p-3">{sidebarFooter}</div>
@@ -96,7 +96,7 @@ export function AppShell({
             </aside>
 
             <div className="flex min-w-0 flex-1 flex-col">
-                <header className="flex h-14 shrink-0 items-center gap-2 border-b bg-card px-4 sm:h-16 sm:gap-4 sm:px-6">
+                <header className="flex h-16 shrink-0 items-center gap-2 border-b bg-topbar px-4 text-topbar-foreground sm:h-[4.5rem] sm:gap-4 sm:px-6 lg:px-8">
                     <button
                         aria-label="Abrir menu"
                         className="shrink-0 rounded-md p-1 text-muted-foreground hover:text-foreground lg:hidden"

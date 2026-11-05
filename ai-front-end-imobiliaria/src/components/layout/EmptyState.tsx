@@ -25,10 +25,10 @@ export function EmptyState({ icon: Icon, title, description, action, variant = "
     if (variant === "inline") {
         return (
             <div className={cn("flex flex-col items-center justify-center px-4 py-10 text-center", className)}>
-                <div className="flex size-10 items-center justify-center rounded-full bg-muted">
+                <div className="flex size-11 items-center justify-center rounded-xl bg-muted">
                     <Icon className="size-5 text-muted-foreground" />
                 </div>
-                <p className="mt-3 text-sm text-foreground">{title}</p>
+                <p className="mt-3 text-sm font-medium text-foreground">{title}</p>
                 {description && <div className="mt-1 max-w-xs text-xs text-muted-foreground">{description}</div>}
                 {action && <div className="mt-4">{action}</div>}
             </div>
@@ -37,10 +37,10 @@ export function EmptyState({ icon: Icon, title, description, action, variant = "
 
     return (
         <Card className={cn("items-center justify-center gap-0 border-dashed py-16 shadow-none", className)}>
-            <div className="flex size-14 items-center justify-center rounded-full bg-muted">
+            <div className="flex size-14 items-center justify-center rounded-2xl bg-muted">
                 <Icon className="size-7 text-muted-foreground" />
             </div>
-            <h3 className="mt-4 text-lg text-foreground">{title}</h3>
+            <h3 className="mt-4 text-lg font-semibold text-foreground">{title}</h3>
             {description && (
                 <div className="mt-1.5 max-w-sm px-4 text-center text-sm text-muted-foreground">{description}</div>
             )}

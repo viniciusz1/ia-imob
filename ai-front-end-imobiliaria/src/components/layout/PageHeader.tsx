@@ -32,7 +32,7 @@ export function PageHeader({ title, description, actions, badge, backHref }: Pag
                 )}
                 <div className="min-w-0 space-y-1">
                     <div className="flex flex-wrap items-center gap-2">
-                        <h1 className="text-2xl tracking-tight text-foreground sm:text-[1.75rem]">{title}</h1>
+                        <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-[1.75rem]">{title}</h1>
                         {badge}
                     </div>
                     {description && <div className="text-sm text-muted-foreground">{description}</div>}

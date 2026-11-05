@@ -29,17 +29,21 @@ export function SectionHeader({
     as: Heading = "h2",
 }: SectionHeaderProps) {
     return (
-        <div className="flex items-start justify-between gap-3 border-b px-4 py-4 sm:px-5">
+        <div className="flex items-start justify-between gap-3 border-b px-4 py-4 sm:px-5 sm:py-5">
             <div className="flex min-w-0 items-center gap-3">
-                {Icon && <Icon className="size-4 shrink-0 text-muted-foreground" />}
+                {Icon && (
+                    <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+                        <Icon className="size-4" />
+                    </span>
+                )}
                 <div className="min-w-0">
-                    <Heading className="truncate text-base text-foreground">{title}</Heading>
-                    {description && <p className="truncate text-xs text-muted-foreground">{description}</p>}
+                    <Heading className="truncate text-base font-semibold text-foreground sm:text-lg">{title}</Heading>
+                    {description && <p className="mt-0.5 truncate text-xs text-muted-foreground sm:text-[0.8125rem]">{description}</p>}
                 </div>
             </div>
             {href ? (
                 <Link
-                    className="flex shrink-0 items-center gap-1 rounded-md text-sm text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+                    className="flex shrink-0 items-center gap-1 rounded-md text-sm font-medium text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
                     href={href}
                 >
                     {linkLabel}

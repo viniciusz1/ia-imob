@@ -59,7 +59,7 @@ export function Breadcrumbs({ labels, pathLabels = {}, rootLabel, unlinkedPaths 
                             <ChevronRight className="hidden size-3.5 shrink-0 text-muted-foreground/60 sm:block" />
                         )}
                         {isLast ? (
-                            <span aria-current="page" className="truncate text-foreground">
+                            <span aria-current="page" className="truncate font-medium text-foreground">
                                 {crumb.label}
                             </span>
                         ) : crumb.linkable ? (

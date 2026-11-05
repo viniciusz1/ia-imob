@@ -34,12 +34,12 @@ export function StatCard({ title, value, hint, icon: Icon, tone = "primary", hre
             )}
         >
             <div className="flex items-start justify-between gap-3">
-                <p className="text-sm text-muted-foreground">{title}</p>
-                <span className={cn("flex size-10 shrink-0 items-center justify-center rounded-lg", STAT_TONES[tone])}>
+                <p className="text-[0.8125rem] text-muted-foreground">{title}</p>
+                <span className={cn("flex size-10 shrink-0 items-center justify-center rounded-xl", STAT_TONES[tone])}>
                     <Icon className="size-5" />
                 </span>
             </div>
-            <p className="mt-2 text-3xl leading-none tracking-tight text-foreground tabular-nums">
+            <p className="mt-2 text-[1.75rem] leading-none font-semibold tracking-tight text-foreground tabular-nums">
                 {typeof value === "number" ? value.toLocaleString("pt-BR") : value}
             </p>
             {hint && <p className="mt-2 text-xs text-muted-foreground">{hint}</p>}
@@ -49,7 +49,7 @@ export function StatCard({ title, value, hint, icon: Icon, tone = "primary", hre
     if (!href) return card;
 
     return (
-        <Link className="group rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40" href={href}>
+        <Link className="group rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40" href={href}>
             {card}
         </Link>
     );

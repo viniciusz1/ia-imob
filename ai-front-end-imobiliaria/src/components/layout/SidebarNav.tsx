@@ -5,9 +5,10 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 const focusRing = "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring/60";
-const itemClasses = cn("flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors", focusRing);
-const childClasses = cn("flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm transition-colors", focusRing);
-const activeClasses = "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm";
+const itemClasses = cn("flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors", focusRing);
+const childClasses = cn("flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[0.8125rem] transition-colors", focusRing);
+// Selected item: a lighter navy tile, white label and the icon in the brand highlight.
+const activeClasses = "bg-sidebar-primary font-medium text-sidebar-primary-foreground [&>svg]:text-sidebar-highlight";
 const inactiveClasses = "text-sidebar-muted hover:bg-sidebar-accent hover:text-sidebar-foreground";
 
 /** Root of a sidebar menu: labelled sections stacked with a fixed rhythm. */
@@ -22,7 +23,7 @@ export function SidebarNav({ label, children }: { label: string; children: React
 export function SidebarNavSection({ label, children }: { label?: string; children: ReactNode }) {
     return (
         <div className="flex flex-col gap-0.5">
-            {label && <p className="px-3 pb-1.5 text-xs uppercase tracking-wide text-sidebar-muted/80">{label}</p>}
+            {label && <p className="px-3 pb-2 text-[0.6875rem] font-medium uppercase tracking-wider text-sidebar-muted/70">{label}</p>}
             {children}
         </div>
     );
@@ -35,7 +36,7 @@ interface SidebarNavLinkProps {
     children: ReactNode;
 }
 
-/** Top-level item; the active one is a white pill. */
+/** Top-level item; the active one is a lighter tile with a highlighted icon. */
 export function SidebarNavLink({ href, icon: Icon, active, children }: SidebarNavLinkProps) {
     return (
         <Link
@@ -71,13 +72,13 @@ interface SidebarNavModuleProps {
 
 /**
  * Module entry with its pages listed underneath while the module is open. The
- * module link reads as the open section; the child item carries the pill.
+ * module link reads as the open section; the child item carries the tile.
  */
 export function SidebarNavModule({ href, icon: Icon, label, open, children }: SidebarNavModuleProps) {
     return (
         <div>
             <Link
-                className={cn(itemClasses, open ? "bg-sidebar-accent text-sidebar-foreground" : inactiveClasses)}
+                className={cn(itemClasses, open ? "bg-sidebar-accent text-sidebar-foreground [&>svg:first-child]:text-sidebar-highlight" : inactiveClasses)}
                 href={href}
             >
                 <Icon className="size-4 shrink-0" />
@@ -88,7 +89,7 @@ export function SidebarNavModule({ href, icon: Icon, label, open, children }: Si
                 />
             </Link>
             {open && (
-                <div className="mt-0.5 mb-1 ml-4 flex flex-col gap-0.5 border-l border-sidebar-border pl-3">
+                <div className="mt-1 mb-1.5 ml-[1.375rem] flex flex-col gap-0.5 border-l border-sidebar-border pl-3">
                     {children}
                 </div>
             )}
