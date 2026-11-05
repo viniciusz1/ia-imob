@@ -103,4 +103,20 @@ describe("LoginForm", () => {
       expect(mocks.push).toHaveBeenCalledWith("/admin/crawler");
     });
   });
+
+  it("keeps Entrar disabled until both login and password are filled", () => {
+    render(<LoginForm />);
+    const submit = screen.getByRole("button", { name: /entrar no sistema/i });
+
+    expect(submit).toBeDisabled();
+    expect(screen.getByText("Preencha: Usuário ou e-mail, Senha")).toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText(/usuário ou e-mail/i), { target: { value: "admin" } });
+    expect(submit).toBeDisabled();
+    expect(screen.getByText("Preencha: Senha")).toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText(/^senha$/i), { target: { value: "password" } });
+    expect(submit).toBeEnabled();
+    expect(screen.queryByText(/^Preencha:/)).not.toBeInTheDocument();
+  });
 });

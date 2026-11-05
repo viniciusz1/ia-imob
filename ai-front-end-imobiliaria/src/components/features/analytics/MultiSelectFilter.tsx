@@ -50,7 +50,8 @@ export function MultiSelectFilter<TValue extends string | number>({
         <DropdownMenuTrigger asChild>
           <Button
             variant="outline"
-            className="w-full min-w-0 justify-between border-input bg-transparent font-normal hover:bg-accent/50 dark:bg-input/30 dark:hover:bg-input/50"
+            size="sm"
+            className="h-11 w-full min-w-0 justify-between rounded-lg bg-field px-3.5 text-sm font-normal has-[>svg]:px-3.5 hover:border-muted-foreground/30 hover:bg-field hover:text-foreground"
             disabled={values.length === 0}
           >
             <span
@@ -59,7 +60,7 @@ export function MultiSelectFilter<TValue extends string | number>({
             >
               {summary}
             </span>
-            <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
+            <ChevronDown aria-hidden className="shrink-0 text-muted-foreground" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-(--radix-dropdown-menu-trigger-width)">

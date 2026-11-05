@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Actions\User;
 
 use App\Models\User;
+use App\Support\PermissionGuard;
 use Spatie\Permission\Models\Role;
 
 class AssignRoleToUserAction
@@ -14,7 +15,7 @@ class AssignRoleToUserAction
      */
     public function execute(User $user, int|string|null $roleIdentifier): void
     {
-        $guard = (string) config('auth.defaults.guard', 'web');
+        $guard = PermissionGuard::name();
 
         if (empty($roleIdentifier)) {
             $user->syncRoles([]);

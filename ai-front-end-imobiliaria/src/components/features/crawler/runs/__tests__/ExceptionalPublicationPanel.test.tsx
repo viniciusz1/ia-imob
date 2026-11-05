@@ -81,6 +81,25 @@ describe("ExceptionalPublicationPanel", () => {
     expect(screen.getByRole("button", { name: /publicar excepcionalmente/i })).toBeDisabled();
   });
 
+  it("explains the missing justification and enables the actions once it has 10 characters", () => {
+    render(<ExceptionalPublicationPanel initialRun={run} />);
+
+    expect(screen.getByText(/Preencha: Justificativa \(mínimo 10 caracteres\)/)).toBeInTheDocument();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+
+    const field = screen.getByRole("textbox", { name: /justificativa/i });
+    fireEvent.change(field, { target: { value: "Curta" } });
+    expect(screen.getByRole("alert")).toHaveTextContent("Informe pelo menos 10 caracteres.");
+    expect(field).toHaveAttribute("aria-invalid", "true");
+    expect(screen.getByRole("button", { name: /publicar excepcionalmente/i })).toBeDisabled();
+
+    fireEvent.change(field, { target: { value: "Queda explicada pela troca de portal." } });
+
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    expect(screen.queryByText(/Preencha:/)).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /publicar excepcionalmente/i })).toBeEnabled();
+  });
+
   it("lets the operator refuse publication and preserves the decision", async () => {
     mockedReject.mockResolvedValue({
       ...run,

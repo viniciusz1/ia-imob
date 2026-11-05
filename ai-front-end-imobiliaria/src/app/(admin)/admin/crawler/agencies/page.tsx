@@ -13,7 +13,7 @@ export default async function CrawlAgenciesPage({ searchParams }: CrawlAgenciesP
   const page = Number.isInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1;
   const search = first(query.search)?.trim() ?? "";
   const requestedPerPage = Number(first(query.per_page));
-  const perPage = Number.isInteger(requestedPerPage) && requestedPerPage > 0 ? requestedPerPage : 15;
+  const perPage = Number.isInteger(requestedPerPage) && requestedPerPage > 0 ? requestedPerPage : 10;
   const lifecycle = first(query.lifecycle_state)?.trim() ?? "";
 
   const agencies = await listCrawlAgenciesPage({
@@ -31,7 +31,8 @@ export default async function CrawlAgenciesPage({ searchParams }: CrawlAgenciesP
       initialPerPage={perPage}
       initialSearch={search}
       pageCount={agencies.meta.last_page}
-      totalCount={agencies.meta.total}
+      pageSize={agencies.meta.per_page}
+      total={agencies.meta.total}
     />
   );
 }

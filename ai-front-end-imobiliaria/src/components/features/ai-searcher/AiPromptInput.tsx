@@ -1,10 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import { Search, Loader2, ArrowUp } from "lucide-react";
+import { useId, useRef, useState } from "react";
+import { ArrowUp, BedDouble, CircleAlert, Loader2, MapPin, Search, Sparkles, Wallet, type LucideIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { DEFAULT_PAGE_SIZE } from "@/components/layout/PaginationFooter";
 import type { AiSearchResponse, AiParsedFilter, SortMode } from "./types";
 import api, { API_PREFIX } from "@/services/api";
 import {
@@ -99,6 +102,20 @@ function parseFiltersToLabels(filters: Record<string, unknown>): AiParsedFilter[
   return labels;
 }
 
+const PROMPT_SUGGESTIONS = [
+  "Apartamento de 2 quartos com sacada",
+  "Casa com piscina e churrasqueira",
+  "Imóvel até R$ 500 mil com 2 vagas",
+  "Apartamento mobiliado com elevador",
+];
+
+// Explains what the AI turns into filters; shown under the first search.
+const PROMPT_TIPS: Array<{ title: string; description: string; icon: LucideIcon }> = [
+  { title: "Tipo e localização", description: "Casa, apartamento, terreno; cidade e bairro citados no texto.", icon: MapPin },
+  { title: "Cômodos e vagas", description: "Quartos, suítes, banheiros e vagas de garagem.", icon: BedDouble },
+  { title: "Preço e comodidades", description: "Faixa de valor e itens como piscina, sacada ou elevador.", icon: Wallet },
+];
+
 interface AiPromptInputProps {
   onResults: (response: AiSearchResponse, prompt: string) => void;
   onLoadingChange: (loading: boolean) => void;
@@ -121,6 +138,8 @@ export function AiPromptInput({
   const [prompt, setPrompt] = useState("");
   const [activeFilters, setActiveFilters] = useState<AiParsedFilter[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const inputId = useId();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -134,7 +153,7 @@ export function AiPromptInput({
     try {
       const response = await api.post(`${API_PREFIX}/market-properties/ai-search`, {
         prompt: trimmed,
-        per_page: 21,
+        per_page: DEFAULT_PAGE_SIZE,
         sort,
       });
 
@@ -152,58 +171,139 @@ export function AiPromptInput({
     }
   }
 
-  return (
-    <div className={`w-full mx-auto space-y-4 ${large ? "max-w-4xl" : "max-w-2xl"}`}>
-      <form onSubmit={handleSubmit}>
-        <div className="space-y-2">
-          <Label className="text-lg font-semibold text-foreground text-center block">
-            Busque seu imóvel com IA
-          </Label>
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              placeholder='Ex: "Apartamento de 3 quartos no bairro Amizade com piscina"'
-              className={`w-full pl-10 pr-12 text-base ${large ? "h-16 text-lg" : "h-12"}`}
-              disabled={isLoading || disabled}
-            />
-            {prompt && !isLoading && !disabled && (
-              <button
-                type="submit"
-                className="absolute right-2 top-1/2 -translate-y-1/2 size-8 flex items-center justify-center rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
-              >
-                <ArrowUp className="h-4 w-4" />
-              </button>
-            )}
-            {isLoading && (
-              <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
-            )}
+  function handleSuggestionClick(suggestion: string) {
+    setPrompt(suggestion);
+    inputRef.current?.focus();
+  }
+
+  const searchForm = (
+    <form onSubmit={handleSubmit} className="relative">
+      <Search className="pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-muted-foreground" />
+      <Input
+        id={inputId}
+        ref={inputRef}
+        value={prompt}
+        onChange={(e) => setPrompt(e.target.value)}
+        placeholder='Ex: "Apartamento de 3 quartos no bairro Amizade com piscina"'
+        className="h-14 rounded-xl pr-36 pl-12 text-base data-[size=default]:h-14"
+        disabled={isLoading || disabled}
+      />
+      {prompt.trim() && !isLoading && !disabled && (
+        <Button
+          type="submit"
+          aria-label="Buscar com IA"
+          className="absolute top-1/2 right-2 -translate-y-1/2"
+        >
+          <Sparkles />
+          Buscar
+          <ArrowUp className="hidden sm:block" />
+        </Button>
+      )}
+      {isLoading && (
+        <Loader2 className="absolute top-1/2 right-4 size-5 -translate-y-1/2 animate-spin text-primary" />
+      )}
+    </form>
+  );
+
+  const errorBanner = error && (
+    <div className="flex items-start gap-3 rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-left text-sm text-foreground">
+      <CircleAlert className="mt-0.5 size-4 shrink-0 text-destructive" />
+      <p>{error}</p>
+    </div>
+  );
+
+  if (large) {
+    return (
+      <Card className="gap-0 py-0">
+        <div className="flex items-start gap-3 px-6 pt-6 pb-5 sm:px-8 sm:pt-8 sm:pb-6">
+          <Sparkles aria-hidden="true" className="size-6 shrink-0 text-sidebar-highlight" strokeWidth={2} />
+          <div className="min-w-0 space-y-2">
+            <Label
+              htmlFor={inputId}
+              className="text-xl leading-6 font-semibold tracking-[-0.01em] text-foreground"
+            >
+              Busque seu imóvel com IA
+            </Label>
+            <p className="text-sm leading-4 font-semibold text-subtle">
+              Descreva com suas palavras o imóvel que procura. A IA transforma o
+              texto em filtros de tipo, localização, cômodos, preço e comodidades.
+            </p>
           </div>
         </div>
-      </form>
 
-      {error && (
-        <div className="rounded-md bg-destructive/10 border border-destructive/30 px-4 py-3 text-sm text-destructive">
-          {error}
+        <div className="space-y-6 px-6 pb-6 sm:px-8 sm:pb-8">
+          <div className="space-y-4">
+            {searchForm}
+            {errorBanner}
+          </div>
+
+          <div className="space-y-3">
+            <p className="text-sm leading-4 font-semibold text-subtle">Experimente</p>
+            <div className="flex flex-wrap gap-2">
+              {PROMPT_SUGGESTIONS.map((suggestion) => (
+                <button
+                  key={suggestion}
+                  type="button"
+                  onClick={() => handleSuggestionClick(suggestion)}
+                  disabled={isLoading || disabled}
+                  className="flex cursor-pointer items-center gap-2 rounded-lg bg-muted px-3.5 py-2.5 text-sm text-foreground transition-colors outline-none hover:bg-secondary focus-visible:ring-[3px] focus-visible:ring-primary disabled:pointer-events-none disabled:opacity-50"
+                >
+                  <Search className="size-3.5 text-subtle" aria-hidden="true" />
+                  {suggestion}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid gap-4 border-t pt-6 md:grid-cols-3">
+            {PROMPT_TIPS.map((tip) => (
+              <div className="flex items-start gap-3 rounded-xl bg-muted p-4" key={tip.title}>
+                <span className="flex shrink-0 items-center justify-center rounded-xl bg-primary/15 p-[9px] text-primary">
+                  <tip.icon className="size-5" aria-hidden="true" />
+                </span>
+                <div className="min-w-0 space-y-1">
+                  <p className="text-sm font-semibold text-foreground">{tip.title}</p>
+                  <p className="text-[0.8125rem] leading-5 text-subtle">{tip.description}</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-      )}
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="gap-5 px-6 py-6 sm:px-8">
+      <div className="flex items-center gap-3">
+        <span className="hidden shrink-0 items-center justify-center rounded-xl bg-primary/15 p-[9px] text-primary sm:flex">
+          <Sparkles className="size-5" />
+        </span>
+        <div className="min-w-0 flex-1">
+          <Label htmlFor={inputId} className="sr-only">
+            Busque seu imóvel com IA
+          </Label>
+          {searchForm}
+        </div>
+      </div>
+
+      {errorBanner}
 
       {activeFilters.length > 0 && (
         <div className="space-y-2">
-          <p className="text-xs text-muted-foreground font-medium">
-            Filtros interpretados pela IA:
+          <p className="text-sm leading-4 font-semibold text-subtle">
+            Filtros interpretados pela IA
           </p>
-          <div className="flex flex-wrap gap-1.5">
+          <div className="flex flex-wrap gap-2">
             {activeFilters.map((f) => (
-              <Badge key={f.key} variant="secondary" className="text-xs">
-                <span className="font-medium">{f.label}:</span>
-                <span className="ml-1 text-muted-foreground">{f.value}</span>
+              <Badge key={f.key} variant="secondary" className="px-2.5 py-1 text-[0.8125rem] font-medium">
+                <span className="text-muted-foreground">{f.label}:</span>
+                <span>{f.value}</span>
               </Badge>
             ))}
           </div>
         </div>
       )}
-    </div>
+    </Card>
   );
 }

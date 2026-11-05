@@ -1,7 +1,11 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
-import { Building2, Coins, Ruler, TrendingUp } from "lucide-react";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { Building2, CalendarClock, Coins, Ruler, TrendingUp } from "lucide-react";
+import { useMemo } from "react";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { useDebouncedValue } from "@/hooks/useDebouncedValue";
+import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import {
@@ -17,7 +21,6 @@ import {
   formatCount,
   formatCurrency,
   formatReferenceDate,
-  formatSquareMetrePrice,
 } from "./format";
 import { useMarketAnalyticsFilters } from "./useMarketAnalyticsFilters";
 
@@ -26,44 +29,57 @@ const NEIGHBOURHOOD_LIMIT = 50;
 
 export function MarketDashboardClient() {
   const { filters, setFilters } = useMarketAnalyticsFilters();
-  const key = queryKeyFor(filters);
+  // The inputs follow the URL instantly; the requests wait for a pause in
+  // typing (price, area) so each keystroke doesn't become three requests.
+  const key = useDebouncedValue(queryKeyFor(filters));
+  const requested = useMemo(() => JSON.parse(key) as MarketAnalyticsFilters, [key]);
 
+  // keepPreviousData: changing a filter keeps the numbers on screen until the
+  // new ones arrive instead of flashing back to skeletons.
   const overview = useQuery({
     queryKey: ["market-analytics", "overview", key],
-    queryFn: () => getMarketOverview(filters),
+    queryFn: () => getMarketOverview(requested),
+    placeholderData: keepPreviousData,
   });
   const pricing = useQuery({
     queryKey: ["market-analytics", "pricing", key],
-    queryFn: () => getMarketPricing(filters),
+    queryFn: () => getMarketPricing(requested),
+    placeholderData: keepPreviousData,
   });
   const rankings = useQuery({
     queryKey: ["market-analytics", "rankings", key],
-    queryFn: () => getMarketRankings(filters, NEIGHBOURHOOD_LIMIT),
+    queryFn: () => getMarketRankings(requested, NEIGHBOURHOOD_LIMIT),
+    placeholderData: keepPreviousData,
   });
+  const isRefreshing =
+    (overview.isPlaceholderData || pricing.isPlaceholderData || rankings.isPlaceholderData) &&
+    (overview.isFetching || pricing.isFetching || rankings.isFetching);
 
   const meta = overview.data?.meta ?? pricing.data?.meta ?? null;
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Análise de mercado</h1>
-          <p className="text-muted-foreground mt-1">
-            Estoque, preços e rankings da coleta publicada mais recente de cada imobiliária.
-          </p>
-        </div>
-        {meta === null ? null : (
-          <p className="shrink-0 text-sm text-muted-foreground">
-            Coleta de referência: {formatReferenceDate(meta.data_reference_date)}
-          </p>
-        )}
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        actions={
+          meta === null ? null : (
+            <Badge variant="info">
+              <CalendarClock aria-hidden />
+              Coleta de referência: {formatReferenceDate(meta.data_reference_date)}
+            </Badge>
+          )
+        }
+        description="Estoque, preços e rankings da coleta publicada mais recente de cada imobiliária."
+        title="Análise de mercado"
+      />
 
       <MarketFiltersPanel filters={filters} onChange={setFilters} />
 
-      <section className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <section
+        aria-busy={isRefreshing}
+        className={cn("grid gap-4 transition-opacity duration-200 sm:grid-cols-2 lg:grid-cols-4", isRefreshing && "opacity-60")}
+      >
         {overview.isPending || pricing.isPending ? (
-          <PanelSkeleton count={4} className="h-24" />
+          <PanelSkeleton count={4} className="h-[7.5rem]" />
         ) : (
           <>
             <StatTile
@@ -74,21 +90,21 @@ export function MarketDashboardClient() {
             <StatTile
               icon={Coins}
               label="Preço mediano"
+              tone="success"
               value={formatCurrency(pricing.data?.data.median_price.value)}
               insufficientSample={pricing.data?.data.median_price.insufficient_sample}
             />
             <StatTile
               icon={TrendingUp}
               label="Preço médio"
+              tone="info"
               value={formatCurrency(pricing.data?.data.average_price.value)}
               insufficientSample={pricing.data?.data.average_price.insufficient_sample}
             />
             <StatTile
               icon={Ruler}
               label="Preço mediano por m²"
-              value={formatSquareMetrePrice(
-                pricing.data?.data.median_price_per_square_metre.value,
-              )}
+              value={formatCurrency(pricing.data?.data.median_price_per_square_metre.value)}
               insufficientSample={
                 pricing.data?.data.median_price_per_square_metre.insufficient_sample
               }
@@ -98,7 +114,9 @@ export function MarketDashboardClient() {
       </section>
 
       {pricing.data && rankings.data ? (
-        <MarketBreakdownTable pricing={pricing.data.data} rankings={rankings.data.data} />
+        <div aria-busy={isRefreshing} className={cn("transition-opacity duration-200", isRefreshing && "opacity-60")}>
+          <MarketBreakdownTable pricing={pricing.data.data} rankings={rankings.data.data} />
+        </div>
       ) : (
         <PanelSkeleton count={1} />
       )}
@@ -119,7 +137,3 @@ function PanelSkeleton({ count, className = "h-72" }: { count: number; className
 function queryKeyFor(filters: MarketAnalyticsFilters): string {
   return JSON.stringify(filters);
 }
-
-
-
-

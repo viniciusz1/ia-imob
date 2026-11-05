@@ -690,7 +690,9 @@ export async function listCrawlAgenciesPage(
     sort?: "name" | "-updated_at" | "-last_crawled_at";
   } = {},
 ): Promise<PaginatedCrawlAgencies> {
-  const response = await api.get<PaginatedCrawlAgencies>(`${BASE}/crawl-agencies`, { params });
+  const response = await api.get<PaginatedCrawlAgencies>(`${BASE}/crawl-agencies`, {
+    params: { per_page: 10, ...params },
+  });
   return response.data;
 }
 

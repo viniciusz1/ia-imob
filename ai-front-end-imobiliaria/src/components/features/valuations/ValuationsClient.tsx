@@ -1,21 +1,43 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
-import { Calculator, Check, Download, ExternalLink, FileSpreadsheet, FileText, Loader2, Plus, Search, X } from "lucide-react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import {
+  Calculator,
+  Check,
+  CircleAlert,
+  Download,
+  ExternalLink,
+  FileSpreadsheet,
+  FileText,
+  History,
+  Home,
+  ListChecks,
+  Loader2,
+  Lock,
+  Plus,
+  Search,
+  ShieldAlert,
+  Target,
+  TrendingDown,
+  TrendingUp,
+  Users,
+  X,
+  type LucideIcon,
+} from "lucide-react";
 import { toast } from "sonner";
 
+import { EmptyState } from "@/components/layout/EmptyState";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { DEFAULT_PAGE_SIZE, PaginationFooter } from "@/components/layout/PaginationFooter";
+import { SectionHeader } from "@/components/layout/SectionHeader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { MultiSelect } from "@/components/ui/multi-select";
 import {
   Select,
   SelectContent,
@@ -24,6 +46,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Table,
   TableBody,
@@ -44,6 +67,7 @@ import {
 import { getMarketPropertyFilters } from "@/services/marketPropertyService";
 import { authService } from "@/services/authService";
 import { useAuthStore } from "@/store/useAuthStore";
+import { useClientPagination } from "@/hooks/useClientPagination";
 import type {
   ComparableCandidate,
   ComparableReview,
@@ -52,6 +76,7 @@ import type {
   ResidentialType,
   Valuation,
   ValuationInput,
+  ValuationRange,
 } from "@/types/valuation";
 
 const residentialTypes: Array<{ value: ResidentialType; label: string }> = [
@@ -73,11 +98,53 @@ const initialInput: ValuationInput = {
 
 type DownloadFormat = "pdf" | "word" | "excel";
 
+type NumberField = keyof Pick<ValuationInput, "area" | "bedrooms" | "bathrooms" | "garage_spaces">;
+
+// Limits the form enforces before searching comparables; the inputs only accept digits up to maxLength.
+const numberFieldLimits: Record<NumberField, { min: number; max: number; maxLength: number; message: string }> = {
+  area: { min: 20, max: 2000, maxLength: 4, message: "Informe entre 20 e 2.000 m²." },
+  bedrooms: { min: 0, max: 10, maxLength: 2, message: "Informe um número entre 0 e 10." },
+  bathrooms: { min: 0, max: 10, maxLength: 2, message: "Informe um número entre 0 e 10." },
+  garage_spaces: { min: 0, max: 10, maxLength: 2, message: "Informe um número entre 0 e 10." },
+};
+
+const numberFields = Object.keys(numberFieldLimits) as NumberField[];
+
+const numberFieldLabels: Record<NumberField, string> = {
+  area: "Metragem",
+  bedrooms: "Quartos",
+  bathrooms: "Banheiros",
+  garage_spaces: "Vagas",
+};
+
+function numberFieldErrors(form: ValuationInput): Partial<Record<NumberField, string>> {
+  const errors: Partial<Record<NumberField, string>> = {};
+
+  for (const field of numberFields) {
+    const { min, max, message } = numberFieldLimits[field];
+    const value = form[field];
+
+    if (!Number.isInteger(value) || value < min || value > max) {
+      errors[field] = message;
+    }
+  }
+
+  return errors;
+}
+
 const reviewStatusLabels: Record<ComparableReviewStatus, string> = {
   pending: "Pendente",
   approved: "Válido",
   rejected: "Inválido",
 };
+
+type ValuationView = "valuation" | "history";
+
+function formatDate(value: string): string {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "-";
+  return new Intl.DateTimeFormat("pt-BR", { dateStyle: "short" }).format(date);
+}
 
 function formatNumber(value: number): string {
   return new Intl.NumberFormat("pt-BR", {
@@ -101,14 +168,26 @@ function nextReviewStatus(status: ComparableReviewStatus): ComparableReviewStatu
 
 function reviewStatusClassName(status: ComparableReviewStatus): string {
   if (status === "approved") {
-    return "border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 dark:hover:bg-emerald-950/70";
+    return "border-success/30 bg-success/10 text-success hover:bg-success/15 hover:text-success dark:bg-success/10 dark:hover:bg-success/15";
   }
 
   if (status === "rejected") {
-    return "border-red-200 bg-red-50 text-red-700 hover:bg-red-100 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300 dark:hover:bg-red-950/70";
+    return "border-destructive/30 bg-destructive/5 text-destructive hover:bg-destructive/10 hover:text-destructive dark:bg-destructive/5 dark:hover:bg-destructive/10";
   }
 
   return "border-border bg-muted text-muted-foreground hover:bg-muted/70";
+}
+
+const reviewStatusBadgeVariants: Record<ComparableReviewStatus, "muted" | "success" | "destructive"> = {
+  pending: "muted",
+  approved: "success",
+  rejected: "destructive",
+};
+
+function valuationStatusBadgeVariant(status: Valuation["status"]): "success" | "warning" | "muted" {
+  if (status === "calculated") return "success";
+  if (status === "insufficient_sample") return "warning";
+  return "muted";
 }
 
 function comparableReviewsFrom(candidates: ComparableCandidate[]): ComparableReview[] | null {
@@ -133,9 +212,15 @@ export function ValuationsClient() {
   const setUser = useAuthStore((state) => state.setUser);
   const [form, setForm] = useState<ValuationInput>(initialInput);
   const [valuations, setValuations] = useState<Valuation[]>([]);
+  const [historyPage, setHistoryPage] = useState({ page: 1, pageCount: 1, total: 0 });
+  const [view, setView] = useState<ValuationView>("valuation");
+  const resultRef = useRef<HTMLDivElement>(null);
+  const [scrollToResult, setScrollToResult] = useState(false);
   const [selected, setSelected] = useState<Valuation | null>(null);
   const [candidates, setCandidates] = useState<ComparableCandidate[]>([]);
   const [selectedCandidateIds, setSelectedCandidateIds] = useState<Set<number>>(() => new Set());
+  // Bumped on every search so the review table starts again on its first page.
+  const [candidateSearch, setCandidateSearch] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoadingCandidates, setIsLoadingCandidates] = useState(false);
   const [isLoadingHistory, setIsLoadingHistory] = useState(true);
@@ -145,6 +230,7 @@ export function ValuationsClient() {
   const [availableNeighborhoods, setAvailableNeighborhoods] = useState<string[]>([]);
   const [neighborhoodsByCity, setNeighborhoodsByCity] = useState<Record<string, string[]>>({});
   const [isLoadingFilters, setIsLoadingFilters] = useState(true);
+  const [touchedFields, setTouchedFields] = useState<Set<NumberField>>(() => new Set());
   const permissions = Array.isArray(user?.permissions) ? user.permissions : null;
   const canCreate = permissions?.includes("valuations.create") ?? false;
   const canView = permissions?.includes("valuations.view") ?? false;
@@ -218,11 +304,23 @@ export function ValuationsClient() {
     void loadFilters();
   }, []);
 
-  async function loadHistory() {
+  // After opening a valuation from the history, bring the result into view.
+  useEffect(() => {
+    if (!scrollToResult || view !== "valuation") return;
+    resultRef.current?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+    setScrollToResult(false);
+  }, [scrollToResult, view]);
+
+  async function loadHistory(page = 1) {
     setIsLoadingHistory(true);
     try {
-      const response = await getValuations();
+      const response = await getValuations(page, DEFAULT_PAGE_SIZE);
       setValuations(response.data);
+      setHistoryPage({
+        page: response.meta.current_page,
+        pageCount: response.meta.last_page,
+        total: response.meta.total,
+      });
       setSelected((current) => current ?? response.data[0] ?? null);
     } catch (error) {
       console.error("Erro ao carregar avaliações", error);
@@ -231,12 +329,30 @@ export function ValuationsClient() {
     }
   }
 
-  function updateNumber(field: keyof Pick<ValuationInput, "area" | "bedrooms" | "bathrooms" | "garage_spaces">, value: string) {
+  function updateNumber(field: NumberField, value: string) {
+    // Digits only, capped to the field length, so letters and absurd values never reach the form.
+    const digits = value.replace(/\D/g, "").slice(0, numberFieldLimits[field].maxLength);
+
     setForm((current) => ({
       ...current,
-      [field]: Number(value),
+      [field]: Number(digits),
     }));
+    setTouchedFields((current) => new Set(current).add(field));
   }
+
+  const fieldErrors = numberFieldErrors(form);
+
+  function visibleNumberError(field: NumberField): string | undefined {
+    return touchedFields.has(field) ? fieldErrors[field] : undefined;
+  }
+
+  // "Buscar comparáveis" stays disabled until these are filled; the hint lists what is missing.
+  const missingForSearch = [
+    form.city.length === 0 && "Cidade",
+    form.neighborhood.length === 0 && "Bairro",
+    ...numberFields.filter((field) => fieldErrors[field]).map((field) => numberFieldLabels[field]),
+  ].filter((label): label is string => Boolean(label));
+  const canSearch = missingForSearch.length === 0;
 
   const visibleNeighborhoods = useMemo(() => {
     if (form.city.length === 0 || Object.keys(neighborhoodsByCity).length === 0) {
@@ -248,8 +364,7 @@ export function ValuationsClient() {
     );
   }, [availableNeighborhoods, form.city, neighborhoodsByCity]);
 
-  function updateMultiSelect(field: "city" | "neighborhood", select: HTMLSelectElement) {
-    const selected: string[] = Array.from(select.selectedOptions).map((option) => option.value);
+  function updateMultiSelect(field: "city" | "neighborhood", selected: string[]) {
 
     setForm((current) => {
       if (field === "city") {
@@ -273,15 +388,15 @@ export function ValuationsClient() {
     event.preventDefault();
     if (!canCreate) return;
 
-    if (form.city.length === 0 || form.neighborhood.length === 0) {
-      toast.error("Selecione pelo menos uma cidade e um bairro.");
-      return;
-    }
+    // The button is disabled in these states; this only guards other submit paths.
+    if (form.city.length === 0 || form.neighborhood.length === 0) return;
+    if (Object.keys(numberFieldErrors(form)).length > 0) return;
 
     setIsLoadingCandidates(true);
     try {
       const comparableCandidates = await getValuationCandidates(form);
       setCandidates(comparableCandidates);
+      setCandidateSearch((current) => current + 1);
       setSelectedCandidateIds(new Set());
       toast.success(`${comparableCandidates.length} comparáveis encontrados para revisão.`);
     } catch (error) {
@@ -403,8 +518,15 @@ export function ValuationsClient() {
     }
   }
 
+  async function openFromHistory(valuationId: number) {
+    await handleSelect(valuationId);
+    setView("valuation");
+    setScrollToResult(true);
+  }
+
   function handleNewValuation() {
     setForm(initialInput);
+    setTouchedFields(new Set());
     setCandidates([]);
     setSelectedCandidateIds(new Set());
     setSelected(null);
@@ -413,7 +535,7 @@ export function ValuationsClient() {
   if (isLoadingAccess) {
     return (
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <Loader2 className="h-4 w-4 animate-spin" />
+        <Loader2 className="size-4 animate-spin" />
         Carregando permissões...
       </div>
     );
@@ -421,184 +543,200 @@ export function ValuationsClient() {
 
   if (!hasValuationAccess) {
     return (
-      <div className="mx-auto max-w-3xl rounded-md border p-6">
-        <h1 className="text-2xl font-semibold">Acesso indisponível</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Você não tem permissão para avaliar imóveis ou consultar avaliações.
-        </p>
+      <div className="space-y-6">
+        <PageHeader title="Avaliar imóvel" />
+        <EmptyState
+          description="Você não tem permissão para avaliar imóveis ou consultar avaliações."
+          icon={Lock}
+          title="Acesso indisponível"
+        />
       </div>
     );
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-        <div className="flex flex-col gap-2">
-          <h1 className="text-3xl font-bold tracking-tight">Avaliar imóvel</h1>
-          <p className="text-muted-foreground">
-            Calcule uma avaliação de mercado com base em imóveis comparáveis da base.
-          </p>
-        </div>
-        {canCreate && (
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleNewValuation}
-            className="mt-1 shrink-0"
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Nova avaliação
-          </Button>
+    <div className="space-y-6">
+      <PageHeader
+        actions={
+          canCreate && (
+            <Button
+              type="button"
+              onClick={() => {
+                handleNewValuation();
+                setView("valuation");
+              }}
+            >
+              <Plus />
+              Nova avaliação
+            </Button>
+          )
+        }
+        description="Calcule uma avaliação de mercado com base em imóveis comparáveis da base."
+        title="Avaliar imóvel"
+      />
+
+      <Tabs className="gap-6" onValueChange={(value) => setView(value as ValuationView)} value={view}>
+        {canView && (
+          <TabsList aria-label="Visualização da avaliação">
+            <TabsTrigger value="valuation">
+              <Calculator />
+              Avaliação
+            </TabsTrigger>
+            <TabsTrigger value="history">
+              <History />
+              Histórico
+              <span className="rounded-md bg-background/60 px-1.5 py-0.5 text-xs font-semibold tabular-nums">
+                {historyPage.total}
+              </span>
+            </TabsTrigger>
+          </TabsList>
         )}
-      </div>
 
-      <div className={canCreate ? "grid gap-6 lg:grid-cols-[360px_minmax(0,1fr)]" : "grid gap-6"}>
-        {canCreate && <Card className="h-fit">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Calculator className="h-5 w-5" />
-              Imóvel avaliado
-            </CardTitle>
-            <CardDescription>
-              Informe as características usadas para buscar comparáveis.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form className="space-y-4" onSubmit={handleSubmit}>
-              <div className="space-y-2">
-                <Label htmlFor="city">Cidade</Label>
-                <select
-                  id="city"
-                  multiple
-                  value={form.city}
-                  onChange={(event) => updateMultiSelect("city", event.target as HTMLSelectElement)}
-                  disabled={isLoadingFilters}
-                  className="border-input bg-background focus-visible:ring-ring aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive w-full rounded-md border px-3 py-2 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50"
-                  size={5}
-                  required
-                >
-                  {availableCities.map((city) => (
-                    <option key={city} value={city}>
-                      {city}
-                    </option>
-                  ))}
-                </select>
-                <p className="text-xs text-muted-foreground">Segure Ctrl (ou Cmd) para selecionar várias cidades.</p>
-              </div>
+        <TabsContent className="space-y-6" value="valuation">
+          {canCreate && (
+            <Card className="gap-0 py-0">
+              <SectionHeader
+                description="Informe as características usadas para buscar imóveis comparáveis na base."
+                icon={Calculator}
+                title="Imóvel avaliado"
+              />
+              <form className="space-y-6 px-6 pb-6 sm:px-8 sm:pb-8" onSubmit={handleSubmit}>
+                <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+                  <FormField htmlFor="city" label="Cidade">
+                    <MultiSelect
+                      disabled={isLoadingFilters}
+                      emptyMessage="Nenhuma cidade encontrada."
+                      id="city"
+                      onChange={(values) => updateMultiSelect("city", values)}
+                      options={availableCities}
+                      placeholder="Selecione as cidades"
+                      searchPlaceholder="Buscar cidade"
+                      value={form.city}
+                    />
+                  </FormField>
 
-              <div className="space-y-2">
-                <Label htmlFor="neighborhood">Bairro</Label>
-                <select
-                  id="neighborhood"
-                  multiple
-                  value={form.neighborhood}
-                  onChange={(event) => updateMultiSelect("neighborhood", event.target as HTMLSelectElement)}
-                  disabled={isLoadingFilters}
-                  className="border-input bg-background focus-visible:ring-ring aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive w-full rounded-md border px-3 py-2 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50"
-                  size={5}
-                  required
-                >
-                  {visibleNeighborhoods.map((neighborhood) => (
-                    <option key={neighborhood} value={neighborhood}>
-                      {neighborhood}
-                    </option>
-                  ))}
-                </select>
-                <p className="text-xs text-muted-foreground">Segure Ctrl (ou Cmd) para selecionar vários bairros.</p>
-              </div>
+                  <FormField htmlFor="neighborhood" label="Bairro">
+                    <MultiSelect
+                      disabled={isLoadingFilters}
+                      emptyMessage="Nenhum bairro encontrado."
+                      id="neighborhood"
+                      onChange={(values) => updateMultiSelect("neighborhood", values)}
+                      options={visibleNeighborhoods}
+                      placeholder="Selecione os bairros"
+                      searchPlaceholder="Buscar bairro"
+                      value={form.neighborhood}
+                    />
+                  </FormField>
 
-              <div className="space-y-2">
-                <Label>Tipo residencial</Label>
-                <Select
-                  value={form.residential_type}
-                  onValueChange={(value) =>
-                    setForm((current) => ({ ...current, residential_type: value as ResidentialType }))
-                  }
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {residentialTypes.map((type) => (
-                      <SelectItem key={type.value} value={type.value}>
-                        {type.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-2">
-                  <Label htmlFor="area">Metragem</Label>
-                  <Input
-                    id="area"
-                    type="number"
-                    min={20}
-                    max={2000}
-                    value={form.area}
-                    onChange={(event) => updateNumber("area", event.target.value)}
-                    required
-                  />
+                  <FormField className="md:col-span-2 xl:col-span-1" htmlFor="residential_type" label="Tipo residencial">
+                    <Select
+                      value={form.residential_type}
+                      onValueChange={(value) =>
+                        setForm((current) => ({ ...current, residential_type: value as ResidentialType }))
+                      }
+                    >
+                      <SelectTrigger className="w-full" id="residential_type">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {residentialTypes.map((type) => (
+                          <SelectItem key={type.value} value={type.value}>
+                            {type.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FormField>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="bedrooms">Quartos</Label>
-                  <Input
-                    id="bedrooms"
-                    type="number"
-                    min={0}
-                    max={10}
-                    value={form.bedrooms}
-                    onChange={(event) => updateNumber("bedrooms", event.target.value)}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="bathrooms">Banheiros</Label>
-                  <Input
-                    id="bathrooms"
-                    type="number"
-                    min={0}
-                    max={10}
-                    value={form.bathrooms}
-                    onChange={(event) => updateNumber("bathrooms", event.target.value)}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="garage_spaces">Vagas</Label>
-                  <Input
-                    id="garage_spaces"
-                    type="number"
-                    min={0}
-                    max={10}
-                    value={form.garage_spaces}
-                    onChange={(event) => updateNumber("garage_spaces", event.target.value)}
-                    required
-                  />
-                </div>
-              </div>
 
-              <div className="flex items-center justify-between rounded-md border p-3">
-                <Label htmlFor="flood_risk">Risco de enchente</Label>
-                <Switch
-                  id="flood_risk"
-                  checked={form.flood_risk}
-                  onCheckedChange={(checked) => setForm((current) => ({ ...current, flood_risk: checked }))}
-                />
-              </div>
+                <div className="grid grid-cols-2 gap-5 md:grid-cols-4">
+                  <FormField error={visibleNumberError("area")} htmlFor="area" label="Metragem">
+                    <div className="relative">
+                      <Input
+                        aria-invalid={Boolean(visibleNumberError("area"))}
+                        className="pr-12"
+                        id="area"
+                        inputMode="numeric"
+                        type="text"
+                        value={form.area}
+                        onChange={(event) => updateNumber("area", event.target.value)}
+                        required
+                      />
+                      <span className="pointer-events-none absolute top-1/2 right-3.5 -translate-y-1/2 text-sm text-muted-foreground">
+                        m²
+                      </span>
+                    </div>
+                  </FormField>
+                  <FormField error={visibleNumberError("bedrooms")} htmlFor="bedrooms" label="Quartos">
+                    <Input
+                      aria-invalid={Boolean(visibleNumberError("bedrooms"))}
+                      id="bedrooms"
+                      inputMode="numeric"
+                      type="text"
+                      value={form.bedrooms}
+                      onChange={(event) => updateNumber("bedrooms", event.target.value)}
+                      required
+                    />
+                  </FormField>
+                  <FormField error={visibleNumberError("bathrooms")} htmlFor="bathrooms" label="Banheiros">
+                    <Input
+                      aria-invalid={Boolean(visibleNumberError("bathrooms"))}
+                      id="bathrooms"
+                      inputMode="numeric"
+                      type="text"
+                      value={form.bathrooms}
+                      onChange={(event) => updateNumber("bathrooms", event.target.value)}
+                      required
+                    />
+                  </FormField>
+                  <FormField error={visibleNumberError("garage_spaces")} htmlFor="garage_spaces" label="Vagas">
+                    <Input
+                      aria-invalid={Boolean(visibleNumberError("garage_spaces"))}
+                      id="garage_spaces"
+                      inputMode="numeric"
+                      type="text"
+                      value={form.garage_spaces}
+                      onChange={(event) => updateNumber("garage_spaces", event.target.value)}
+                      required
+                    />
+                  </FormField>
+                </div>
 
-              <Button type="submit" className="w-full" disabled={isLoadingCandidates || isLoadingFilters}>
-                {isLoadingCandidates ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Search className="mr-2 h-4 w-4" />}
-                Buscar comparáveis
-              </Button>
-            </form>
-          </CardContent>
-        </Card>}
+                <div className="flex flex-col gap-4 border-t pt-6 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex items-center gap-3">
+                    <Switch
+                      id="flood_risk"
+                      checked={form.flood_risk}
+                      onCheckedChange={(checked) => setForm((current) => ({ ...current, flood_risk: checked }))}
+                    />
+                    <div className="space-y-1">
+                      <Label htmlFor="flood_risk">Risco de enchente</Label>
+                      <p className="text-[0.8125rem] leading-4 text-subtle">Aplica um ajuste negativo ao valor final.</p>
+                    </div>
+                  </div>
 
-        <div className="flex flex-col gap-6">
+                  <div className="flex flex-col items-stretch gap-2 sm:items-end">
+                    <Button
+                      className="w-full sm:w-auto sm:min-w-56"
+                      disabled={isLoadingCandidates || isLoadingFilters || !canSearch}
+                      size="lg"
+                      type="submit"
+                    >
+                      {isLoadingCandidates ? <Loader2 className="animate-spin" /> : <Search />}
+                      Buscar comparáveis
+                    </Button>
+                    {!canSearch && !isLoadingFilters && (
+                      <p className="text-[0.8125rem] text-subtle sm:text-right">Preencha: {missingForSearch.join(", ")}</p>
+                    )}
+                  </div>
+                </div>
+              </form>
+            </Card>
+          )}
+
           {canCreate && candidates.length > 0 && (
             <ComparableReviewPanel
+              key={candidateSearch}
               candidates={candidates}
               selectedCandidateIds={selectedCandidateIds}
               pendingCount={pendingCandidates}
@@ -615,163 +753,302 @@ export function ValuationsClient() {
             />
           )}
 
-          <Card>
-            <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-              <div>
-                <CardTitle>Resultado</CardTitle>
-                <CardDescription>
-                  {selected ? `${selected.code} - ${selected.status_label}` : "Nenhuma avaliação selecionada"}
-                </CardDescription>
-              </div>
-              {selected && (
-                <Badge variant={selected.status === "calculated" ? "default" : "secondary"}>
-                  {selected.status_label}
-                </Badge>
-              )}
-            </CardHeader>
-            <CardContent className="space-y-5">
+          <div className="scroll-mt-28" ref={resultRef}>
+            <Card className="gap-0 overflow-hidden py-0">
+              <SectionHeader
+                actions={
+                  selected && (
+                    <Badge variant={valuationStatusBadgeVariant(selected.status)}>
+                      {selected.status_label}
+                    </Badge>
+                  )
+                }
+                description={selected ? `${selected.code} - ${selected.status_label}` : "Nenhuma avaliação selecionada"}
+                icon={Target}
+                title="Resultado"
+              />
               {!selected ? (
-                <p className="text-sm text-muted-foreground">
-                  Crie uma avaliação ou selecione um registro do histórico.
-                </p>
+                <div className="px-6 pb-6 sm:px-8 sm:pb-8">
+                  <div className="flex flex-col items-start gap-4 rounded-xl bg-muted px-5 py-5 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex items-center gap-3">
+                      <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary">
+                        <Calculator className="size-5" />
+                      </span>
+                      <p className="text-sm text-muted-foreground">
+                        Preencha o formulário e busque comparáveis, ou abra uma avaliação do histórico.
+                      </p>
+                    </div>
+                    {canView && (
+                      <Button onClick={() => setView("history")} type="button" variant="outline">
+                        <History />
+                        Ver histórico
+                      </Button>
+                    )}
+                  </div>
+                </div>
               ) : (
-                <>
+                <div className="flex flex-col gap-5 px-6 pb-6 sm:px-8 sm:pb-8">
                   {selectedRange ? (
-                    <div className="grid gap-3 md:grid-cols-3">
-                      <div className="rounded-md border p-4">
-                        <p className="text-sm text-muted-foreground">Mínimo</p>
-                        <p className="text-2xl font-semibold">{selectedRange.display.min}</p>
+                    <div className="grid gap-4 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+                      <div className="flex flex-col justify-center rounded-xl border border-primary bg-primary/10 p-5 sm:p-6">
+                        <p className="text-sm leading-4 font-semibold text-primary">Valor estimado</p>
+                        <p className="mt-3 text-[2.25rem] leading-10 font-semibold tracking-[-0.01em] text-foreground tabular-nums">
+                          {selectedRange.display.central}
+                        </p>
+                        <p className="mt-2 text-sm text-subtle tabular-nums">
+                          Faixa de mercado entre {selectedRange.display.min} e {selectedRange.display.max}
+                        </p>
+                        <RangeBar range={selectedRange} />
                       </div>
-                      <div className="rounded-md border p-4">
-                        <p className="text-sm text-muted-foreground">Central</p>
-                        <p className="text-2xl font-semibold">{selectedRange.display.central}</p>
-                      </div>
-                      <div className="rounded-md border p-4">
-                        <p className="text-sm text-muted-foreground">Máximo</p>
-                        <p className="text-2xl font-semibold">{selectedRange.display.max}</p>
+
+                      <div className="grid gap-3">
+                        <RangeTile icon={TrendingDown} label="Mínimo" tone="info" value={selectedRange.display.min} />
+                        <RangeTile icon={Target} label="Central" tone="primary" value={selectedRange.display.central} />
+                        <RangeTile icon={TrendingUp} label="Máximo" tone="success" value={selectedRange.display.max} />
                       </div>
                     </div>
                   ) : (
-                    <div className="rounded-md border border-dashed p-4">
-                      <p className="font-medium">Amostra insuficiente</p>
-                      <p className="text-sm text-muted-foreground">{selected.calculation_summary}</p>
+                    <div className="flex items-start gap-3 rounded-xl border border-warning/40 bg-warning/10 p-4 text-sm">
+                      <CircleAlert className="mt-0.5 size-5 shrink-0 text-warning" />
+                      <div className="space-y-1.5">
+                        <p className="font-semibold text-foreground">Amostra insuficiente</p>
+                        <p className="leading-5 text-muted-foreground">{selected.calculation_summary}</p>
+                      </div>
                     </div>
                   )}
 
-                  <div className="grid gap-3 md:grid-cols-2">
-                    <div className="rounded-md border p-4 text-sm">
-                      <p className="font-medium">Imóvel avaliado</p>
-                      <p className="text-muted-foreground">
-                        {selected.subject_property.residential_type_label} em {selected.subject_property.neighborhood},{" "}
-                        {selected.subject_property.city}
-                      </p>
-                      <p className="text-muted-foreground">
-                        {formatNumber(selected.subject_property.area)} m², {selected.subject_property.bedrooms} quartos,{" "}
-                        {selected.subject_property.bathrooms} banheiros, {selected.subject_property.garage_spaces} vagas
-                      </p>
-                    </div>
-                    <div className="rounded-md border p-4 text-sm">
-                      <p className="font-medium">Amostra</p>
-                      <p className="text-muted-foreground">{sampleLabel}</p>
-                      <p className="text-muted-foreground">{selected.calculation_summary}</p>
-                    </div>
-                  </div>
+                    {selected.flood_adjustment_percent !== null && (
+                      <div className="flex items-start gap-3 rounded-xl border border-warning/40 bg-warning/10 p-4 text-sm">
+                        <ShieldAlert className="mt-0.5 size-5 shrink-0 text-warning" />
+                        <p className="text-foreground">
+                          Ajuste aplicado: -{selected.flood_adjustment_percent}% por risco de enchente informado.
+                        </p>
+                      </div>
+                    )}
 
-                  {selected.flood_adjustment_percent !== null && (
-                    <div className="rounded-md border p-4 text-sm">
-                      Ajuste aplicado: -{selected.flood_adjustment_percent}% por risco de enchente informado.
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div className="rounded-xl border border-transparent bg-muted p-5 text-sm">
+                        <p className="flex items-center gap-2 text-[0.8125rem] leading-4 font-semibold text-subtle">
+                          <Home className="size-4" />
+                          Imóvel avaliado
+                        </p>
+                        <p className="mt-3 text-[0.9375rem] leading-5 font-medium text-foreground">
+                          {selected.subject_property.residential_type_label} em {selected.subject_property.neighborhood},{" "}
+                          {selected.subject_property.city}
+                        </p>
+                        <p className="mt-1.5 text-muted-foreground tabular-nums">
+                          {formatNumber(selected.subject_property.area)} m², {selected.subject_property.bedrooms} quartos,{" "}
+                          {selected.subject_property.bathrooms} banheiros, {selected.subject_property.garage_spaces} vagas
+                        </p>
+                      </div>
+                      <div className="rounded-xl border border-transparent bg-muted p-5 text-sm">
+                        <p className="flex items-center gap-2 text-[0.8125rem] leading-4 font-semibold text-subtle">
+                          <Users className="size-4" />
+                          Amostra
+                        </p>
+                        <p className="mt-3 text-[0.9375rem] leading-5 font-medium text-foreground tabular-nums">{sampleLabel}</p>
+                        {selectedRange && <p className="mt-1.5 text-muted-foreground">{selected.calculation_summary}</p>}
+                      </div>
                     </div>
-                  )}
 
-                  {selected.can_download_report && canView && (
-                    <div className="flex flex-wrap gap-2">
-                      <Button
-                        type="button"
-                        onClick={() => void handleDownload("pdf")}
-                        disabled={downloadingFormat === "pdf"}
-                      >
-                        {downloadingFormat === "pdf" ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}
-                        Baixar PDF
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => void handleDownload("word")}
-                        disabled={downloadingFormat === "word"}
-                      >
-                        {downloadingFormat === "word" ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileText className="mr-2 h-4 w-4" />}
-                        Baixar Word
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => void handleDownload("excel")}
-                        disabled={downloadingFormat === "excel"}
-                      >
-                        {downloadingFormat === "excel" ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileSpreadsheet className="mr-2 h-4 w-4" />}
-                        Exportar Excel
-                      </Button>
-                    </div>
-                  )}
-
-                  <ComparableTable comparables={selectedComparables} />
-                </>
+                    {selected.can_download_report && canView && (
+                      <div className="flex flex-wrap justify-end gap-2 border-t pt-5">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => void handleDownload("excel")}
+                          disabled={downloadingFormat === "excel"}
+                        >
+                          {downloadingFormat === "excel" ? <Loader2 className="animate-spin" /> : <FileSpreadsheet />}
+                          Exportar Excel
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => void handleDownload("word")}
+                          disabled={downloadingFormat === "word"}
+                        >
+                          {downloadingFormat === "word" ? <Loader2 className="animate-spin" /> : <FileText />}
+                          Baixar Word
+                        </Button>
+                        <Button
+                          type="button"
+                          onClick={() => void handleDownload("pdf")}
+                          disabled={downloadingFormat === "pdf"}
+                        >
+                          {downloadingFormat === "pdf" ? <Loader2 className="animate-spin" /> : <Download />}
+                          Baixar PDF
+                        </Button>
+                      </div>
+                    )}
+                </div>
               )}
-            </CardContent>
-          </Card>
+            </Card>
+          </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FileText className="h-5 w-5" />
-                Histórico
-              </CardTitle>
-              <CardDescription>Avaliações salvas da imobiliária.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {!canView ? (
-                <p className="text-sm text-muted-foreground">Você pode criar avaliações, mas não tem permissão para consultar o histórico.</p>
-              ) : isLoadingHistory ? (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Loader2 className="h-4 w-4 animate-spin" />
+          {selected && <ComparableTable comparables={selectedComparables} key={selected.id} />}
+        </TabsContent>
+
+        {canView && (
+          <TabsContent value="history">
+            <Card className="gap-0 overflow-hidden py-0">
+              <SectionHeader
+                description="Avaliações salvas da imobiliária. Abra uma para ver o resultado completo."
+                icon={History}
+                title="Avaliações salvas"
+              />
+              {isLoadingHistory ? (
+                <div className="flex items-center gap-2 px-6 pb-6 text-sm text-muted-foreground sm:px-8">
+                  <Loader2 className="size-4 animate-spin" />
                   Carregando avaliações...
                 </div>
               ) : valuations.length === 0 ? (
-                <p className="text-sm text-muted-foreground">Nenhuma avaliação salva.</p>
+                <EmptyState
+                  description="As avaliações calculadas aparecem aqui."
+                  icon={FileText}
+                  title="Nenhuma avaliação salva."
+                  variant="inline"
+                />
               ) : (
                 <Table>
                   <TableHeader>
-                    <TableRow>
-                      <TableHead>Código</TableHead>
-                      <TableHead>Status</TableHead>
+                    <TableRow className="hover:bg-transparent">
+                      <TableHead>Avaliação</TableHead>
                       <TableHead>Imóvel</TableHead>
-                      <TableHead>Valor central</TableHead>
-                      <TableHead />
+                      <TableHead>Status</TableHead>
+                      <TableHead className="text-right">Valor central</TableHead>
+                      <TableHead>Data</TableHead>
+                      <TableHead className="w-px">
+                        <span className="sr-only">Ações</span>
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {valuations.map((valuation) => (
-                      <TableRow key={valuation.id}>
-                        <TableCell>{valuation.code}</TableCell>
-                        <TableCell>{valuation.status_label}</TableCell>
-                        <TableCell>
-                          {valuation.subject_property.neighborhood}, {valuation.subject_property.city}
-                        </TableCell>
-                        <TableCell>{valuation.final_range?.display.central ?? "-"}</TableCell>
-                        <TableCell className="text-right">
-                          <Button type="button" variant="outline" size="sm" onClick={() => void handleSelect(valuation.id)}>
-                            Abrir
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                    {valuations.map((valuation) => {
+                      const isSelected = selected?.id === valuation.id;
+
+                      return (
+                        <TableRow
+                          className="cursor-pointer"
+                          data-state={isSelected ? "selected" : undefined}
+                          key={valuation.id}
+                          onClick={() => void openFromHistory(valuation.id)}
+                        >
+                          <TableCell>
+                            <p className="font-semibold text-foreground tabular-nums">{valuation.code}</p>
+                            <p className="mt-0.5 text-[0.8125rem] text-subtle">
+                              {valuation.subject_property.neighborhood}, {valuation.subject_property.city}
+                            </p>
+                          </TableCell>
+                          <TableCell className="text-muted-foreground tabular-nums">
+                            {valuation.subject_property.residential_type_label} ·{" "}
+                            {formatNumber(valuation.subject_property.area)} m²
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant={valuationStatusBadgeVariant(valuation.status)}>
+                              {valuation.status_label}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-right font-semibold text-foreground tabular-nums">
+                            {valuation.final_range?.display.central ?? "-"}
+                          </TableCell>
+                          <TableCell className="text-muted-foreground tabular-nums">
+                            {formatDate(valuation.created_at)}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Button
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                void openFromHistory(valuation.id);
+                              }}
+                              size="sm"
+                              type="button"
+                              variant={isSelected ? "default" : "outline"}
+                            >
+                              Abrir
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
                   </TableBody>
                 </Table>
               )}
-            </CardContent>
-          </Card>
-        </div>
+              <PaginationFooter
+                onPageChange={(page) => void loadHistory(page)}
+                page={historyPage.page}
+                pageCount={historyPage.pageCount}
+                pageSize={DEFAULT_PAGE_SIZE}
+                total={historyPage.total}
+              />
+            </Card>
+          </TabsContent>
+        )}
+      </Tabs>
+    </div>
+  );
+}
+
+const rangeTileTones = {
+  primary: "bg-primary/15 text-primary",
+  success: "bg-success/15 text-success",
+  info: "bg-info/15 text-info",
+} as const;
+
+const rangeValueTones: Record<keyof typeof rangeTileTones, string> = {
+  primary: "text-foreground",
+  success: "text-success",
+  info: "text-info",
+};
+
+/** Market range drawn as a bar from the minimum to the maximum, with the central value marked. */
+function RangeBar({ range }: { range: ValuationRange }) {
+  const span = range.max - range.min;
+  const centralShare = span > 0 ? Math.min(Math.max((range.central - range.min) / span, 0), 1) : 0.5;
+
+  return (
+    <div aria-hidden="true" className="mt-6">
+      <div className="relative h-2.5 rounded-full bg-gradient-to-r from-info via-primary to-success">
+        <span
+          className="absolute top-1/2 size-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-[3px] border-card bg-foreground"
+          style={{ left: `${centralShare * 100}%` }}
+        />
       </div>
+      <div className="relative mt-2.5 flex h-4 justify-between text-[0.8125rem] leading-4 text-subtle">
+        <span>Mínimo</span>
+        {/* Kept clear of the end labels so they never overlap. */}
+        <span
+          className="absolute -translate-x-1/2 font-semibold text-foreground"
+          style={{ left: `${Math.min(Math.max(centralShare, 0.18), 0.82) * 100}%` }}
+        >
+          Central
+        </span>
+        <span>Máximo</span>
+      </div>
+    </div>
+  );
+}
+
+function RangeTile({
+  icon: Icon,
+  label,
+  tone,
+  value,
+}: {
+  icon: LucideIcon;
+  label: string;
+  tone: keyof typeof rangeTileTones;
+  value: string;
+}) {
+  return (
+    <div className="flex items-center justify-between gap-4 rounded-xl bg-muted px-4 py-3.5">
+      <div className="flex items-center gap-3">
+        <span className={`flex shrink-0 items-center justify-center rounded-xl p-2 ${rangeTileTones[tone]}`}>
+          <Icon className="size-5" />
+        </span>
+        <p className="text-sm leading-4 font-semibold text-subtle">{label}</p>
+      </div>
+      <p className={`text-xl leading-7 font-semibold tracking-[-0.01em] tabular-nums ${rangeValueTones[tone]}`}>{value}</p>
     </div>
   );
 }
@@ -808,198 +1085,225 @@ function ComparableReviewPanel({
   onCalculate,
 }: ComparableReviewPanelProps) {
   const selectedCount = selectedCandidateIds.size;
+  const pagination = useClientPagination(candidates);
 
   return (
-    <Card>
-      <CardHeader className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-        <div>
-          <CardTitle>Revisão de comparáveis</CardTitle>
-          <CardDescription>
-            {candidates.length} candidatos encontrados. Resolva todos os pendentes antes de calcular.
-          </CardDescription>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Badge variant="outline" className={reviewStatusClassName("pending")}>
-            {pendingCount} pendentes
-          </Badge>
-          <Badge variant="outline" className={reviewStatusClassName("approved")}>
-            {approvedCount} válidos
-          </Badge>
-          <Badge variant="outline" className={reviewStatusClassName("rejected")}>
-            {rejectedCount} inválidos
-          </Badge>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex flex-wrap items-center gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => onMarkSelected("approved")}
-            disabled={selectedCount === 0}
-          >
-            <Check className="mr-2 h-4 w-4" />
-            Marcar como válido
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="border-red-200 text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-300 dark:hover:bg-red-950/40"
-            onClick={() => onMarkSelected("rejected")}
-            disabled={selectedCount === 0}
-          >
-            <X className="mr-2 h-4 w-4" />
-            Marcar como inválido
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={onSelectAll}
-            disabled={candidates.length === 0}
-          >
-            Selecionar todos
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={onClearSelection}
-            disabled={selectedCount === 0}
-          >
-            Limpar seleção
-          </Button>
-          <span className="text-sm text-muted-foreground">
-            {selectedCount} selecionados
-          </span>
-        </div>
+    <Card className="gap-0 overflow-hidden py-0">
+      <SectionHeader
+        actions={
+          <>
+            <Badge variant="muted" className="tabular-nums">
+              {pendingCount} pendentes
+            </Badge>
+            <Badge variant="success" className="tabular-nums">
+              {approvedCount} válidos
+            </Badge>
+            <Badge variant="destructive" className="tabular-nums">
+              {rejectedCount} inválidos
+            </Badge>
+          </>
+        }
+        description={`${candidates.length} candidatos encontrados. Resolva todos os pendentes antes de calcular.`}
+        icon={ListChecks}
+        title="Revisão de comparáveis"
+      />
 
-        <div className="overflow-x-auto rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-10" />
-                <TableHead>Status</TableHead>
-                <TableHead>Origem</TableHead>
-                <TableHead>Bairro</TableHead>
-                <TableHead>Área</TableHead>
-                <TableHead>Valor</TableHead>
-                <TableHead>Valor/m²</TableHead>
-                <TableHead>Imóvel</TableHead>
+      <div className="flex flex-wrap items-center gap-2 px-6 pb-5 sm:px-8 sm:pb-6">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className={reviewStatusClassName("approved")}
+          onClick={() => onMarkSelected("approved")}
+          disabled={selectedCount === 0}
+        >
+          <Check />
+          Marcar como válido
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className={reviewStatusClassName("rejected")}
+          onClick={() => onMarkSelected("rejected")}
+          disabled={selectedCount === 0}
+        >
+          <X />
+          Marcar como inválido
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={onSelectAll}
+          disabled={candidates.length === 0}
+        >
+          Selecionar todos
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={onClearSelection}
+          disabled={selectedCount === 0}
+        >
+          Limpar seleção
+        </Button>
+        <span className="text-sm text-muted-foreground tabular-nums sm:ml-auto">
+          {selectedCount} selecionados
+        </span>
+      </div>
+
+      <Table>
+        <TableHeader>
+          <TableRow className="hover:bg-transparent">
+            <TableHead className="w-10" />
+            <TableHead>Status</TableHead>
+            <TableHead>Origem</TableHead>
+            <TableHead>Bairro</TableHead>
+            <TableHead className="text-right">Área</TableHead>
+            <TableHead className="text-right">Valor</TableHead>
+            <TableHead className="text-right">Valor/m²</TableHead>
+            <TableHead>Imóvel</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {pagination.pageItems.map((candidate) => {
+            const agencyLabel = candidate.agency ?? `#${candidate.market_property_id}`;
+            const isSelected = selectedCandidateIds.has(candidate.market_property_id);
+
+            return (
+              <TableRow key={candidate.market_property_id} data-state={isSelected ? "selected" : undefined}>
+                <TableCell>
+                  <Checkbox
+                    aria-label={`Selecionar comparável ${agencyLabel}`}
+                    checked={isSelected}
+                    onCheckedChange={(checked) => onToggleSelected(candidate.market_property_id, checked === true)}
+                  />
+                </TableCell>
+                <TableCell>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="xs"
+                    className={`rounded-full ${reviewStatusClassName(candidate.review_status)}`}
+                    onClick={() => onCycleStatus(candidate.market_property_id)}
+                    aria-label={`Status do comparável ${agencyLabel}: ${reviewStatusLabels[candidate.review_status]}`}
+                  >
+                    {reviewStatusLabels[candidate.review_status]}
+                  </Button>
+                </TableCell>
+                <TableCell className="text-foreground">{candidate.agency ?? "-"}</TableCell>
+                <TableCell className="text-muted-foreground">{candidate.neighborhood}</TableCell>
+                <TableCell className="text-right tabular-nums">{formatNumber(candidate.area)} m²</TableCell>
+                <TableCell className="text-right text-foreground tabular-nums">{formatMoney(candidate.price)}</TableCell>
+                <TableCell className="text-right tabular-nums">{formatMoney(candidate.price_per_square_meter)}</TableCell>
+                <TableCell>
+                  {candidate.link ? (
+                    <a
+                      className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
+                      href={candidate.link}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Visualizar imóvel
+                      <ExternalLink className="size-3.5" />
+                    </a>
+                  ) : (
+                    "-"
+                  )}
+                </TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {candidates.map((candidate) => {
-                const agencyLabel = candidate.agency ?? `#${candidate.market_property_id}`;
+            );
+          })}
+        </TableBody>
+      </Table>
 
-                return (
-                  <TableRow key={candidate.market_property_id}>
-                    <TableCell>
-                      <Checkbox
-                        aria-label={`Selecionar comparável ${agencyLabel}`}
-                        checked={selectedCandidateIds.has(candidate.market_property_id)}
-                        onCheckedChange={(checked) => onToggleSelected(candidate.market_property_id, checked === true)}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className={reviewStatusClassName(candidate.review_status)}
-                        onClick={() => onCycleStatus(candidate.market_property_id)}
-                        aria-label={`Status do comparável ${agencyLabel}: ${reviewStatusLabels[candidate.review_status]}`}
-                      >
-                        {reviewStatusLabels[candidate.review_status]}
-                      </Button>
-                    </TableCell>
-                    <TableCell>{candidate.agency ?? "-"}</TableCell>
-                    <TableCell>{candidate.neighborhood}</TableCell>
-                    <TableCell>{formatNumber(candidate.area)} m²</TableCell>
-                    <TableCell>{formatMoney(candidate.price)}</TableCell>
-                    <TableCell>{formatMoney(candidate.price_per_square_meter)}</TableCell>
-                    <TableCell>
-                      {candidate.link ? (
-                        <a
-                          className="inline-flex items-center gap-1 text-sm font-medium text-primary underline-offset-4 hover:underline"
-                          href={candidate.link}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          Visualizar imóvel
-                          <ExternalLink className="h-3.5 w-3.5" />
-                        </a>
-                      ) : (
-                        "-"
-                      )}
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </div>
+      <PaginationFooter
+        onPageChange={pagination.setPage}
+        page={pagination.page}
+        pageCount={pagination.pageCount}
+        pageSize={pagination.pageSize}
+        total={pagination.total}
+      />
 
-        <div className="flex justify-end">
-          <Button type="button" onClick={onCalculate} disabled={!canCalculate || isSubmitting}>
-            {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Calculator className="mr-2 h-4 w-4" />}
-            Calcular avaliação
-          </Button>
-        </div>
-      </CardContent>
+      <div className="flex flex-wrap items-center justify-between gap-3 border-t px-6 py-4 sm:px-8">
+        <p className="text-sm text-subtle">
+          {canCalculate
+            ? "Todos os comparáveis foram revisados."
+            : "Marque cada comparável como válido ou inválido para liberar o cálculo."}
+        </p>
+        <Button type="button" onClick={onCalculate} disabled={!canCalculate || isSubmitting}>
+          {isSubmitting ? <Loader2 className="animate-spin" /> : <Calculator />}
+          Calcular avaliação
+        </Button>
+      </div>
     </Card>
   );
 }
 
 function ComparableTable({ comparables }: { comparables: Valuation["comparable_evidence"] }) {
+  const pagination = useClientPagination(comparables);
+
   if (comparables.length === 0) {
     return null;
   }
 
+  const hasReviewStatus = comparables.some((comparable) => comparable.review_status);
+
   return (
-    <div className="space-y-2">
-      <h2 className="text-lg font-semibold">Evidências comparáveis</h2>
+    <Card className="gap-0 overflow-hidden py-0">
+      <SectionHeader
+        description={`${comparables.length} imóveis usados no cálculo.`}
+        icon={ListChecks}
+        title="Evidências comparáveis"
+      />
       <Table>
         <TableHeader>
-          <TableRow>
-            <TableHead>Status</TableHead>
+          <TableRow className="hover:bg-transparent">
+            {hasReviewStatus && <TableHead>Status</TableHead>}
             <TableHead>Bairro</TableHead>
-            <TableHead>Área</TableHead>
-            <TableHead>Valor</TableHead>
-            <TableHead>Valor/m²</TableHead>
+            <TableHead className="text-right">Área</TableHead>
+            <TableHead className="text-right">Valor</TableHead>
+            <TableHead className="text-right">Valor/m²</TableHead>
             <TableHead>Origem</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {comparables.map((comparable) => (
+          {pagination.pageItems.map((comparable) => (
             <TableRow key={comparable.market_property_id}>
-              <TableCell>
-                {comparable.review_status ? (
-                  <Badge variant="outline" className={reviewStatusClassName(comparable.review_status)}>
-                    {reviewStatusLabels[comparable.review_status]}
-                  </Badge>
-                ) : (
-                  "-"
-                )}
-              </TableCell>
-              <TableCell>{comparable.neighborhood}</TableCell>
-              <TableCell>{formatNumber(comparable.area)} m²</TableCell>
-              <TableCell>{formatMoney(comparable.price)}</TableCell>
-              <TableCell>{formatMoney(comparable.price_per_square_meter)}</TableCell>
+              {hasReviewStatus && (
+                <TableCell>
+                  {comparable.review_status ? (
+                    <Badge variant={reviewStatusBadgeVariants[comparable.review_status]}>
+                      {reviewStatusLabels[comparable.review_status]}
+                    </Badge>
+                  ) : (
+                    "-"
+                  )}
+                </TableCell>
+              )}
+              <TableCell className="text-foreground">{comparable.neighborhood}</TableCell>
+              <TableCell className="text-right tabular-nums">{formatNumber(comparable.area)} m²</TableCell>
+              <TableCell className="text-right text-foreground tabular-nums">{formatMoney(comparable.price)}</TableCell>
+              <TableCell className="text-right tabular-nums">{formatMoney(comparable.price_per_square_meter)}</TableCell>
               <TableCell>
                 {comparable.link ? (
-                  <div className="flex flex-col gap-1">
-                    <span className="text-sm text-muted-foreground">{comparable.agency ?? "Origem externa"}</span>
+                  <div className="flex flex-col gap-0.5">
+                    <span
+                      className="block max-w-72 truncate text-sm text-foreground"
+                      title={comparable.agency ?? undefined}
+                    >
+                      {comparable.agency ?? "Origem externa"}
+                    </span>
                     <a
-                      className="inline-flex items-center gap-1 text-sm font-medium text-primary underline-offset-4 hover:underline"
+                      className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
                       href={comparable.link}
                       target="_blank"
                       rel="noreferrer"
                     >
                       Visualizar imóvel
-                      <ExternalLink className="h-3.5 w-3.5" />
+                      <ExternalLink className="size-3.5" />
                     </a>
                   </div>
                 ) : (
@@ -1010,6 +1314,14 @@ function ComparableTable({ comparables }: { comparables: Valuation["comparable_e
           ))}
         </TableBody>
       </Table>
-    </div>
+
+      <PaginationFooter
+        onPageChange={pagination.setPage}
+        page={pagination.page}
+        pageCount={pagination.pageCount}
+        pageSize={pagination.pageSize}
+        total={pagination.total}
+      />
+    </Card>
   );
 }

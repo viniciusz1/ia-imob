@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\Role;
 
+use App\Support\PermissionGuard;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
@@ -14,7 +15,7 @@ class CreateRoleAction
      */
     public function execute(string $name, array $permissions): Role
     {
-        $guard = (string) config('auth.defaults.guard', 'web');
+        $guard = PermissionGuard::name();
 
         $role = Role::create([
             'name' => $name,

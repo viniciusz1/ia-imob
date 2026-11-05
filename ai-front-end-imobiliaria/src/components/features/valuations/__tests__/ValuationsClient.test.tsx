@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ValuationsClient } from "../ValuationsClient";
@@ -6,6 +6,20 @@ import * as valuationService from "@/services/valuationService";
 import * as marketPropertyService from "@/services/marketPropertyService";
 import { useAuthStore } from "@/store/useAuthStore";
 import type { ComparableCandidate, PaginatedValuationsResponse, Valuation } from "@/types/valuation";
+
+/** Opens a MultiSelect and returns the labels of its options. */
+function openOptions(trigger: HTMLElement): string[] {
+  fireEvent.click(trigger);
+  const listbox = screen.getByRole("listbox");
+  return within(listbox).getAllByRole("option").map((option) => option.textContent ?? "");
+}
+
+/** Opens a MultiSelect, ticks one option and closes it again. */
+function pickOption(trigger: HTMLElement, label: string) {
+  fireEvent.click(trigger);
+  fireEvent.click(within(screen.getByRole("listbox")).getByRole("checkbox", { name: label }));
+  fireEvent.click(trigger);
+}
 
 vi.mock("sonner", () => ({
   toast: {
@@ -219,16 +233,16 @@ describe("ValuationsClient", () => {
 
     render(<ValuationsClient />);
 
-    const citySelect = await screen.findByLabelText("Cidade") as HTMLSelectElement;
-    const neighborhoodSelect = await screen.findByLabelText("Bairro") as HTMLSelectElement;
+    const cityTrigger = await screen.findByLabelText("Cidade");
+    const neighborhoodTrigger = await screen.findByLabelText("Bairro");
 
     await waitFor(() => {
-      expect(citySelect.options.length).toBeGreaterThan(0);
-      expect(neighborhoodSelect.options.length).toBeGreaterThan(0);
+      expect(cityTrigger).toBeEnabled();
+      expect(neighborhoodTrigger).toBeEnabled();
     });
 
-    fireEvent.change(citySelect, { target: { value: "Jaraguá do Sul" } });
-    fireEvent.change(neighborhoodSelect, { target: { value: "Centro" } });
+    pickOption(cityTrigger, "Jaraguá do Sul");
+    pickOption(neighborhoodTrigger, "Centro");
 
     fireEvent.click(screen.getByRole("button", { name: /buscar comparáveis/i }));
 
@@ -280,6 +294,46 @@ describe("ValuationsClient", () => {
     expect(valuationService.getValuations).not.toHaveBeenCalled();
   });
 
+  it("pages the valuation history through the API, ten at a time", async () => {
+    const firstPage = paginated([calculatedValuation]);
+    vi.mocked(valuationService.getValuations).mockResolvedValue({
+      ...firstPage,
+      meta: { ...firstPage.meta, last_page: 3, per_page: 10, total: 25, to: 10 },
+    });
+
+    render(<ValuationsClient />);
+
+    // The history lives in its own view, behind the "Histórico" tab.
+    fireEvent.mouseDown(await screen.findByRole("tab", { name: /histórico/i }));
+    const history = await screen.findByRole("tabpanel");
+
+    expect(valuationService.getValuations).toHaveBeenCalledWith(1, 10);
+    expect(await within(history).findByText("1–10")).toBeInTheDocument();
+
+    fireEvent.click(within(history).getByRole("button", { name: /próxima/i }));
+
+    await waitFor(() => {
+      expect(valuationService.getValuations).toHaveBeenCalledWith(2, 10);
+    });
+  });
+
+  it("opens a valuation from the history in the result view", async () => {
+    vi.mocked(valuationService.getValuations).mockResolvedValue(paginated([calculatedValuation]));
+    vi.mocked(valuationService.getValuation).mockResolvedValue(calculatedValuation);
+
+    render(<ValuationsClient />);
+
+    fireEvent.mouseDown(await screen.findByRole("tab", { name: /histórico/i }));
+    const history = await screen.findByRole("tabpanel");
+    fireEvent.click(await within(history).findByRole("button", { name: "Abrir" }));
+
+    await waitFor(() => {
+      expect(valuationService.getValuation).toHaveBeenCalledWith(calculatedValuation.id);
+    });
+    expect(await screen.findByRole("tab", { name: /avaliação/i, selected: true })).toBeInTheDocument();
+    expect(screen.getByText("AVL-2026-000002 - Calculada")).toBeInTheDocument();
+  });
+
   it("renders calculated valuation details and downloads the report", async () => {
     vi.mocked(valuationService.getValuations).mockResolvedValue(paginated([calculatedValuation]));
     vi.mocked(valuationService.downloadValuationComparables).mockResolvedValue();
@@ -318,6 +372,62 @@ describe("ValuationsClient", () => {
     expect(screen.queryByRole("button", { name: /exportar excel/i })).not.toBeInTheDocument();
   });
 
+  it("keeps numeric fields within their limits and blocks the search while invalid", async () => {
+    vi.mocked(valuationService.getValuations).mockResolvedValue(paginated([]));
+
+    render(<ValuationsClient />);
+
+    const cityTrigger = await screen.findByLabelText("Cidade");
+    const neighborhoodTrigger = await screen.findByLabelText("Bairro");
+    await waitFor(() => expect(cityTrigger).toBeEnabled());
+
+    const area = screen.getByLabelText("Metragem") as HTMLInputElement;
+    fireEvent.change(area, { target: { value: "12ab345" } });
+    expect(area.value).toBe("1234");
+
+    fireEvent.change(area, { target: { value: "5" } });
+    expect(screen.getByText("Informe entre 20 e 2.000 m².")).toBeInTheDocument();
+
+    const bedrooms = screen.getByLabelText("Quartos") as HTMLInputElement;
+    fireEvent.change(bedrooms, { target: { value: "345" } });
+    expect(bedrooms.value).toBe("34");
+    expect(screen.getByText("Informe um número entre 0 e 10.")).toBeInTheDocument();
+
+    pickOption(cityTrigger, "Jaraguá do Sul");
+    pickOption(neighborhoodTrigger, "Centro");
+
+    const search = screen.getByRole("button", { name: /buscar comparáveis/i });
+    expect(search).toBeDisabled();
+    expect(screen.getByText("Preencha: Metragem, Quartos")).toBeInTheDocument();
+    fireEvent.click(search);
+    expect(valuationService.getValuationCandidates).not.toHaveBeenCalled();
+
+    fireEvent.change(area, { target: { value: "120" } });
+    fireEvent.change(bedrooms, { target: { value: "3" } });
+    expect(search).toBeEnabled();
+  });
+
+  it("keeps the search disabled and lists the missing city and neighbourhood", async () => {
+    vi.mocked(valuationService.getValuations).mockResolvedValue(paginated([]));
+
+    render(<ValuationsClient />);
+
+    const cityTrigger = await screen.findByLabelText("Cidade");
+    const neighborhoodTrigger = await screen.findByLabelText("Bairro");
+    await waitFor(() => expect(cityTrigger).toBeEnabled());
+
+    const search = screen.getByRole("button", { name: /buscar comparáveis/i });
+    expect(search).toBeDisabled();
+    expect(screen.getByText("Preencha: Cidade, Bairro")).toBeInTheDocument();
+
+    pickOption(cityTrigger, "Jaraguá do Sul");
+    expect(screen.getByText("Preencha: Bairro")).toBeInTheDocument();
+
+    pickOption(neighborhoodTrigger, "Centro");
+    expect(search).toBeEnabled();
+    expect(screen.queryByText(/^Preencha:/)).not.toBeInTheDocument();
+  });
+
   it("narrows available neighborhoods to the selected cities", async () => {
     vi.mocked(valuationService.getValuations).mockResolvedValue(paginated([]));
     vi.mocked(marketPropertyService.getMarketPropertyFilters).mockResolvedValue({
@@ -337,17 +447,18 @@ describe("ValuationsClient", () => {
 
     render(<ValuationsClient />);
 
-    const citySelect = (await screen.findByLabelText("Cidade")) as HTMLSelectElement;
-    const neighborhoodSelect = (await screen.findByLabelText("Bairro")) as HTMLSelectElement;
+    const cityTrigger = await screen.findByLabelText("Cidade");
+    const neighborhoodTrigger = await screen.findByLabelText("Bairro");
 
-    await waitFor(() => {
-      expect(citySelect.options.length).toBe(2);
-      expect(neighborhoodSelect.options.length).toBe(3);
-    });
+    await waitFor(() => expect(cityTrigger).toBeEnabled());
 
-    fireEvent.change(citySelect, { target: { value: "Jaraguá do Sul" } });
+    expect(openOptions(cityTrigger)).toEqual(["Jaraguá do Sul", "Joinville"]);
+    fireEvent.click(cityTrigger);
+    expect(openOptions(neighborhoodTrigger)).toEqual(["América", "Centro", "Vila Lalau"]);
+    fireEvent.click(neighborhoodTrigger);
 
-    const optionValues = Array.from(neighborhoodSelect.options).map((opt) => opt.value);
-    expect(optionValues).toEqual(["Centro", "Vila Lalau"]);
+    pickOption(cityTrigger, "Jaraguá do Sul");
+
+    expect(openOptions(neighborhoodTrigger)).toEqual(["Centro", "Vila Lalau"]);
   });
 });

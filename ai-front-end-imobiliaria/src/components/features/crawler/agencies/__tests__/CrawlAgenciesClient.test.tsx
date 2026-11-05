@@ -38,7 +38,7 @@ describe("CrawlAgenciesClient", () => {
       name: "Crawler Operator",
       email: "crawler@example.com",
       is_platform_admin: true,
-      permissions: ["crawler.view", "crawler.operations.execute"],
+      permissions: ["crawler.view", "crawler.operations.execute", "crawler.agencies.manage"],
     });
   });
 
@@ -70,13 +70,13 @@ describe("CrawlAgenciesClient", () => {
       "href",
       "/admin/crawler/agencies/new",
     );
-    expect(screen.getByText("onboarding")).toBeInTheDocument();
-    expect(screen.getByText("unknown")).toBeInTheDocument();
+    expect(screen.getByText("Em onboarding")).toBeInTheDocument();
+    expect(screen.getByText("Sem diagnóstico")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /imóveis litoral/i })).toHaveAttribute(
       "href",
       "/admin/crawler/agencies/42",
     );
-    expect(screen.getByText("Mostrando página 2 de 2")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Página 2" })).toHaveAttribute("aria-current", "page");
   });
 
   it("sends the search to the server and resets pagination", () => {
@@ -135,6 +135,7 @@ describe("CrawlAgenciesClient", () => {
     render(<CrawlAgenciesClient initialAgencies={[]} initialSearch="" pageCount={1} />);
 
     expect(screen.queryByRole("button", { name: "Rodar todos os crawls ativos novamente" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Nova Agência" })).not.toBeInTheDocument();
   });
 
   it("displays the último crawl column with formatted date or dash", () => {
@@ -191,7 +192,7 @@ describe("CrawlAgenciesClient", () => {
       <CrawlAgenciesClient initialAgencies={[]} initialSearch="" pageCount={1} />,
     );
 
-    const lifecycleSelect = screen.getByRole("combobox", { name: "Filtrar por lifecycle" });
+    const lifecycleSelect = screen.getByRole("combobox", { name: "Filtrar por ciclo de vida" });
     fireEvent.click(lifecycleSelect);
 
     const activeOption = screen.getByRole("option", { name: "Ativas (usuário final)" });

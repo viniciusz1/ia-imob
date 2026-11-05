@@ -8,10 +8,12 @@ import { User } from "@/types/user";
 interface UsersDataTableProps {
     data: User[];
     pageCount: number;
+    pageSize?: number;
+    total?: number;
     onEdit: (user: User) => void;
 }
 
-export function UsersDataTable({ data, pageCount, onEdit }: UsersDataTableProps) {
+export function UsersDataTable({ data, pageCount, pageSize, total, onEdit }: UsersDataTableProps) {
     const columns = useMemo(() => getColumns(onEdit), [onEdit]);
 
     return (
@@ -20,6 +22,8 @@ export function UsersDataTable({ data, pageCount, onEdit }: UsersDataTableProps)
             data={data}
             emptyMessage="Nenhum usuário encontrado."
             pageCount={pageCount}
+            pageSize={pageSize}
+            total={total}
         />
     );
 }

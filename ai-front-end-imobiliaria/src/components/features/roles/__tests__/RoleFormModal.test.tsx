@@ -10,46 +10,40 @@ vi.mock('@/hooks/useRoles', () => ({
     useUpdateRole: vi.fn(),
 }));
 
-// Mock do UI components (ScrollArea tem problema no jsdom às vezes sem ResizeObserver)
-vi.mock('@/components/ui/scroll-area', () => ({
-    ScrollArea: ({ children }: any) => <div>{children}</div>
-}));
-
 describe('RoleFormModal', () => {
     const mockMutateAsync = vi.fn();
 
     beforeEach(() => {
         vi.clearAllMocks();
 
-        (usePermissions as any).mockReturnValue({
+        vi.mocked(usePermissions).mockReturnValue({
             data: [
                 { id: 1, name: 'users.create', label: 'Criar Usuários' },
                 { id: 2, name: 'properties.edit', label: 'Editar Imóveis' },
             ],
             isLoading: false,
-        });
+        } as unknown as ReturnType<typeof usePermissions>);
 
-        (useCreateRole as any).mockReturnValue({
+        vi.mocked(useCreateRole).mockReturnValue({
             mutateAsync: mockMutateAsync,
             isPending: false,
-        });
+        } as unknown as ReturnType<typeof useCreateRole>);
 
-        (useUpdateRole as any).mockReturnValue({
+        vi.mocked(useUpdateRole).mockReturnValue({
             mutateAsync: vi.fn(),
             isPending: false,
-        });
+        } as unknown as ReturnType<typeof useUpdateRole>);
     });
 
     it('deve enviar as permissões selecionadas no payload de criação', async () => {
         render(<RoleFormModal open={true} onOpenChange={vi.fn()} initialData={null} />);
 
         // Preenche o nome
-        const nameInput = screen.getByLabelText(/Nome do Grupo \*/i);
+        const nameInput = screen.getByLabelText(/Nome do Grupo/i);
         fireEvent.change(nameInput, { target: { value: 'Gerentes' } });
 
-        // Expande o grupo de permissões
-        const groupTrigger = screen.getByRole('button', { name: /Usuários/i });
-        fireEvent.click(groupTrigger);
+        // As permissões aparecem agrupadas por módulo
+        expect(screen.getByRole('group', { name: 'Usuários' })).toBeInTheDocument();
 
         // Seleciona a primeira permissão
         const permissionCheckbox1 = screen.getByLabelText('Criar Usuários');
@@ -66,5 +60,31 @@ describe('RoleFormModal', () => {
             name: 'Gerentes',
             permissions: [1],
         });
+    });
+
+    it('mantém Criar Grupo desabilitado até informar o nome e uma permissão', () => {
+        render(<RoleFormModal open={true} onOpenChange={vi.fn()} initialData={null} />);
+
+        const submitButton = screen.getByRole('button', { name: /Criar Grupo/i });
+        expect(submitButton).toBeDisabled();
+        expect(screen.getByText('Preencha: Nome do grupo, Pelo menos uma permissão')).toBeInTheDocument();
+
+        fireEvent.change(screen.getByLabelText(/Nome do Grupo/i), { target: { value: 'Gerentes' } });
+        expect(submitButton).toBeDisabled();
+        expect(screen.getByText('Preencha: Pelo menos uma permissão')).toBeInTheDocument();
+
+        fireEvent.click(screen.getByLabelText('Criar Usuários'));
+        expect(submitButton).toBeEnabled();
+    });
+
+    it('mostra que o nome do grupo é obrigatório quando o campo é apagado', async () => {
+        render(<RoleFormModal open={true} onOpenChange={vi.fn()} initialData={null} />);
+
+        const nameInput = screen.getByLabelText(/Nome do Grupo/i);
+        fireEvent.change(nameInput, { target: { value: 'G' } });
+        fireEvent.change(nameInput, { target: { value: '   ' } });
+
+        expect(await screen.findByText('Nome do grupo é obrigatório')).toBeInTheDocument();
+        expect(nameInput).toHaveAttribute('aria-invalid', 'true');
     });
 });

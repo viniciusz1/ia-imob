@@ -2,7 +2,8 @@ import { Check, CircleDot, LockKeyhole } from "lucide-react";
 import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 import type { CrawlAgency, DiscoverySnapshot, ExtractionProfile } from "@/types/crawler";
 
 interface CrawlAgencyOnboardingProgressProps {
@@ -68,65 +69,59 @@ function StepIcon({ state }: { state: OnboardingStep["state"] }) {
   return <LockKeyhole className="size-4" />;
 }
 
-function stepStyle(state: OnboardingStep["state"]) {
-  if (state === "completed") return "border-emerald-600 bg-emerald-600 text-white";
-  if (state === "current") return "border-primary bg-primary text-primary-foreground";
-  return "border-border bg-background text-muted-foreground";
-}
-
 function stateLabel(state: OnboardingStep["state"]) {
   if (state === "completed") return "Concluída";
   if (state === "current") return "Etapa atual";
   return "Pendente";
 }
 
+const STEP_STYLES: Record<OnboardingStep["state"], { bar: string; icon: string }> = {
+  completed: { bar: "bg-success", icon: "bg-success/10 text-success" },
+  current: { bar: "bg-primary", icon: "bg-primary text-primary-foreground" },
+  pending: { bar: "bg-muted", icon: "bg-muted text-muted-foreground" },
+};
+
 export function CrawlAgencyOnboardingProgress({ agency, profiles, snapshots }: CrawlAgencyOnboardingProgressProps) {
   const steps = onboardingSteps(agency, snapshots, profiles);
   const completed = steps.filter((step) => step.state === "completed").length;
 
   return (
-    <Card className="overflow-hidden border-primary/25">
-      <CardHeader className="border-b bg-muted/20">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <CardTitle>Jornada de ativação</CardTitle>
-            <CardDescription className="mt-1">Acompanhe o onboarding da fonte até ela estar pronta para produção.</CardDescription>
-          </div>
-          <Badge variant="secondary">{completed} de {steps.length} concluídas</Badge>
-        </div>
+    <Card>
+      <CardHeader>
+        <CardTitle>Jornada de ativação</CardTitle>
+        <CardDescription>Acompanhe o onboarding da fonte até ela estar pronta para produção.</CardDescription>
+        <CardAction>
+          <Badge className="tabular-nums" variant={completed === steps.length ? "success" : "muted"}>
+            {completed} de {steps.length} concluídas
+          </Badge>
+        </CardAction>
       </CardHeader>
       <CardContent>
-        <ol aria-label="Etapas da jornada de ativação" className="space-y-4">
+        <ol aria-label="Etapas da jornada de ativação" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
           {steps.map((step, index) => (
-            <li className="relative grid gap-3 sm:grid-cols-[2.5rem_minmax(0,1fr)]" key={step.label}>
-              {index < steps.length - 1 && (
-                <div aria-hidden="true" className="absolute bottom-[-1rem] left-[1.2rem] top-10 w-px bg-border" />
-              )}
-              <span className={`relative z-10 flex size-10 items-center justify-center rounded-full border-2 ${stepStyle(step.state)}`}>
-                <StepIcon state={step.state} />
-              </span>
-              <div className="rounded-lg border bg-muted/10 p-3 transition-colors hover:bg-muted/20">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <Link
-                    className="font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                    href={step.href}
+            <li key={step.label}>
+              <Link
+                aria-current={step.state === "current" ? "step" : undefined}
+                className="flex h-full flex-col gap-3 rounded-lg p-2 transition-colors hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+                href={step.href}
+              >
+                <span aria-hidden="true" className={cn("h-1 rounded-full", STEP_STYLES[step.state].bar)} />
+                <span className="flex items-start gap-3">
+                  <span
+                    className={cn(
+                      "mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full",
+                      STEP_STYLES[step.state].icon,
+                    )}
                   >
-                    {index + 1}. {step.label}
-                  </Link>
-                  <Badge
-                    variant={
-                      step.state === "completed"
-                        ? "default"
-                        : step.state === "current"
-                          ? "secondary"
-                          : "outline"
-                    }
-                  >
-                    {stateLabel(step.state)}
-                  </Badge>
-                </div>
-                <p className="mt-1 text-xs text-muted-foreground">{step.description}</p>
-              </div>
+                    <StepIcon state={step.state} />
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block text-sm font-medium text-foreground">{index + 1}. {step.label}</span>
+                    <span className="block text-xs text-muted-foreground">{stateLabel(step.state)}</span>
+                    <span className="mt-1 block text-xs leading-snug text-muted-foreground/80">{step.description}</span>
+                  </span>
+                </span>
+              </Link>
             </li>
           ))}
         </ol>

@@ -1,5 +1,6 @@
 "use client";
 
+import { CircleAlert, TriangleAlert } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -36,11 +37,29 @@ export function QualityEvaluationPanel({ initialRun }: { initialRun: CrawlRun })
   };
 
   return (
-    <div className="space-y-3">
-      <p>Contrato v{run.market_data_contract_version_id} · Política v{run.quality_policy_version_id}</p>
-      {run.quality_report?.blockers.map((blocker) => <p className="text-destructive" key={blocker}>{blocker}</p>)}
-      {run.quality_report?.warnings.map((warning) => <p className="text-amber-700" key={warning}>{warning}</p>)}
-      {!run.quality_report && <p className="text-muted-foreground">Aguardando avaliação do portão de qualidade.</p>}
+    <div className="space-y-4">
+      <p className="text-sm text-muted-foreground tabular-nums">
+        Contrato v{run.market_data_contract_version_id} · Política v{run.quality_policy_version_id}
+      </p>
+      {run.quality_report?.blockers.map((blocker) => (
+        <div
+          className="flex items-start gap-3 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm"
+          key={blocker}
+        >
+          <CircleAlert className="mt-0.5 size-4 shrink-0 text-destructive" />
+          <p className="text-destructive">{blocker}</p>
+        </div>
+      ))}
+      {run.quality_report?.warnings.map((warning) => (
+        <div
+          className="flex items-start gap-3 rounded-lg border border-warning/30 bg-warning/10 px-4 py-3 text-sm"
+          key={warning}
+        >
+          <TriangleAlert className="mt-0.5 size-4 shrink-0 text-warning" />
+          <p className="text-foreground">{warning}</p>
+        </div>
+      ))}
+      {!run.quality_report && <p className="text-sm text-muted-foreground">Aguardando avaliação do portão de qualidade.</p>}
       {canEvaluate && (
         <Button disabled={isEvaluating} onClick={() => void evaluate()} type="button">
           {isEvaluating ? "Avaliando…" : "Avaliar qualidade agora"}

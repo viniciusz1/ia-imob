@@ -5,7 +5,7 @@ import { ContactForm } from "../ContactForm";
 // Mock the server action
 const mockSubmitLead = vi.fn();
 vi.mock("@/services/public/actions", () => ({
-    submitLead: (...args: any[]) => mockSubmitLead(...args),
+    submitLead: (...args: unknown[]) => mockSubmitLead(...args),
 }));
 
 describe("ContactForm", () => {

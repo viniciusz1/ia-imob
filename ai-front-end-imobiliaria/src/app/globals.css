@@ -3,12 +3,14 @@
 @import "shadcn/tailwind.css";
 @import "./theme.css";
 
-@custom-variant dark (&:is(.dark *));
+/* `.light` re-scopes a subtree (e.g. the public agency site) back to the
+   light tokens even when the app runs in dark mode. */
+@custom-variant dark (&:is(.dark *):not(:is(.light, .light *)));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-questrial), "Helvetica Neue", Arial, sans-serif;
+  --font-sans: var(--font-poppins), "Helvetica Neue", Arial, sans-serif;
   --font-mono: var(--font-geist-mono);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -17,7 +19,26 @@
   --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
   --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-muted: var(--sidebar-muted);
   --color-sidebar: var(--sidebar);
+  --color-sidebar-highlight: var(--sidebar-highlight);
+  --color-field: var(--field);
+  --color-topbar: var(--topbar);
+  --color-topbar-foreground: var(--topbar-foreground);
+  --color-segment: var(--segment);
+  --color-segment-foreground: var(--segment-foreground);
+  --color-card-edge: var(--card-edge);
+  --color-brand-button: var(--brand-button);
+  --color-brand-button-hover: var(--brand-button-hover);
+  --color-brand-button-foreground: var(--brand-button-foreground);
+  --color-subtle: var(--subtle);
+  --color-contrast-button: var(--contrast-button);
+  --color-contrast-button-hover: var(--contrast-button-hover);
+  --color-contrast-button-foreground: var(--contrast-button-foreground);
+  --color-muted-button: var(--muted-button);
+  --color-muted-button-hover: var(--muted-button-hover);
+  --color-segment-active: var(--segment-active);
+  --color-segment-active-foreground: var(--segment-active-foreground);
   --color-chart-5: var(--chart-5);
   --color-chart-4: var(--chart-4);
   --color-chart-3: var(--chart-3);
@@ -27,6 +48,13 @@
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
@@ -57,5 +85,62 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    /* Poppins is loaded in 400/500/600/700; never let the browser fake one. */
+    font-synthesis: none;
+  }
+
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: color-mix(in oklab, var(--muted-foreground) 30%, transparent);
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in oklab, var(--muted-foreground) 50%, transparent);
+  }
+}
+
+/* A FormField with an error paints whatever control it holds red, including
+   wrapped controls (inputs with an adornment, selects, date pickers). */
+@layer components {
+  [data-slot="form-field"][data-invalid="true"]
+    :is([data-slot="input"], textarea, [data-slot="select-trigger"], [data-slot="native-select"], [data-slot="multi-select"], [data-slot="date-picker"] button) {
+    border-color: var(--destructive);
+  }
+  [data-slot="form-field"][data-invalid="true"]
+    :is([data-slot="input"], textarea, [data-slot="select-trigger"], [data-slot="native-select"], [data-slot="multi-select"], [data-slot="date-picker"] button):focus-visible {
+    border-color: var(--destructive);
+    box-shadow: 0 0 0 1px var(--destructive);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

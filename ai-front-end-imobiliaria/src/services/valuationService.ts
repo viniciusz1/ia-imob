@@ -19,9 +19,9 @@ export async function getValuationCandidates(input: ValuationInput): Promise<Com
   return data.data;
 }
 
-export async function getValuations(page = 1): Promise<PaginatedValuationsResponse> {
+export async function getValuations(page = 1, perPage = 10): Promise<PaginatedValuationsResponse> {
   const { data } = await api.get<PaginatedValuationsResponse>(BASE_PATH, {
-    params: { page },
+    params: { page, per_page: perPage },
   });
   return data;
 }

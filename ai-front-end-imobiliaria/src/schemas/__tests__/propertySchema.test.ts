@@ -74,5 +74,56 @@ describe("Property schema validation", () => {
         const result = propertySchema.safeParse(validPayload);
         expect(result.success).toBe(true);
     });
-});
 
+    it("requires bedrooms, bathrooms and parking spaces to be informed", () => {
+        const result = propertySchema.safeParse({ ...validPayload, bedrooms: null, bathrooms: null, garage_spaces: null });
+
+        expect(result.success).toBe(false);
+        const messages = result.success ? [] : result.error.issues.map((issue) => issue.message);
+        expect(messages).toEqual(
+            expect.arrayContaining([
+                "Informe a quantidade de quartos",
+                "Informe a quantidade de banheiros",
+                "Informe a quantidade de vagas",
+            ]),
+        );
+    });
+
+    it("accepts zero bedrooms when informed (e.g. a plot)", () => {
+        expect(propertySchema.safeParse({ ...validPayload, bedrooms: 0, suites: 0 }).success).toBe(true);
+    });
+
+    it("requires a usable area greater than zero and accepts large areas", () => {
+        expect(propertySchema.safeParse({ ...validPayload, usable_area: null }).success).toBe(false);
+        expect(propertySchema.safeParse({ ...validPayload, usable_area: 0 }).success).toBe(false);
+        expect(propertySchema.safeParse({ ...validPayload, usable_area: 20000, total_area: 25000 }).success).toBe(true);
+    });
+
+    it("limits the construction year to ten years ahead", () => {
+        const year = new Date().getFullYear();
+
+        expect(propertySchema.safeParse({ ...validPayload, build_year: year + 10 }).success).toBe(true);
+        expect(propertySchema.safeParse({ ...validPayload, build_year: year + 11 }).success).toBe(false);
+        expect(propertySchema.safeParse({ ...validPayload, build_year: 1799 }).success).toBe(false);
+    });
+
+    it("requires the price that matches the purpose", () => {
+        expect(propertySchema.safeParse({ ...validPayload, purpose: "venda", sale_price: null }).success).toBe(false);
+        expect(
+            propertySchema.safeParse({ ...validPayload, purpose: "locacao", sale_price: null, rent_price: null }).success,
+        ).toBe(false);
+        expect(
+            propertySchema.safeParse({ ...validPayload, purpose: "locacao", sale_price: null, rent_price: 2500 }).success,
+        ).toBe(true);
+    });
+
+    it("rejects more suites than bedrooms and a total area below the usable area", () => {
+        expect(propertySchema.safeParse({ ...validPayload, bedrooms: 1, suites: 2 }).success).toBe(false);
+        expect(propertySchema.safeParse({ ...validPayload, usable_area: 120, total_area: 100 }).success).toBe(false);
+    });
+
+    it("requires a CEP with 8 digits", () => {
+        expect(propertySchema.safeParse({ ...validPayload, zip_code: "0131010" }).success).toBe(false);
+        expect(propertySchema.safeParse({ ...validPayload, zip_code: "01310-100" }).success).toBe(true);
+    });
+});

@@ -1,40 +1,62 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { User } from "@/types/user";
+import { Pencil } from "lucide-react";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Edit, MoreHorizontal, Trash } from "lucide-react";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
+import { User } from "@/types/user";
+
+function getInitials(name: string): string {
+    const parts = name.trim().split(/\s+/).filter(Boolean);
+    if (parts.length === 0) return "?";
+    const first = parts[0].charAt(0);
+    const last = parts.length > 1 ? parts[parts.length - 1].charAt(0) : "";
+    return `${first}${last}`.toUpperCase();
+}
 
 export function getColumns(onEdit: (user: User) => void): ColumnDef<User>[] {
     return [
         {
             accessorKey: "id",
             header: "Código",
+            cell: ({ row }) => (
+                <span className="text-muted-foreground tabular-nums">
+                    {row.original.id}
+                </span>
+            ),
         },
         {
             accessorKey: "name",
             header: "Nome",
             cell: ({ row }) => (
-                <div className="flex flex-col">
-                    <span className="font-medium">{row.original.name}</span>
-                    <span className="text-sm text-muted-foreground">
-                        {row.original.email}
+                <div className="flex min-w-0 items-center gap-3">
+                    <span
+                        aria-hidden="true"
+                        className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs text-primary"
+                    >
+                        {getInitials(row.original.name)}
                     </span>
+                    <div className="min-w-0">
+                        <p className="truncate text-sm text-foreground">
+                            {row.original.name}
+                        </p>
+                        <p className="truncate text-xs text-muted-foreground">
+                            {row.original.email}
+                        </p>
+                    </div>
                 </div>
             ),
         },
         {
             accessorKey: "username",
             header: "Usuário",
+            cell: ({ row }) => (
+                <span className="text-muted-foreground">
+                    {row.original.username}
+                </span>
+            ),
         },
         {
             accessorKey: "is_active",
@@ -42,7 +64,7 @@ export function getColumns(onEdit: (user: User) => void): ColumnDef<User>[] {
             cell: ({ row }) => {
                 const isActive = row.original.is_active;
                 return (
-                    <Badge variant={isActive ? "default" : "destructive"}>
+                    <Badge variant={isActive ? "success" : "muted"}>
                         {isActive ? "Ativo" : "Inativo"}
                     </Badge>
                 );
@@ -54,48 +76,43 @@ export function getColumns(onEdit: (user: User) => void): ColumnDef<User>[] {
             cell: ({ row }) => {
                 const isOnline = row.original.is_online;
                 return (
-                    <Badge
-                        variant="outline"
-                        className={
-                            isOnline
-                                ? "text-green-600 border-green-600 dark:text-green-400 dark:border-green-400"
-                                : "text-muted-foreground"
-                        }
+                    <span
+                        className={cn(
+                            "inline-flex items-center gap-1.5 text-xs",
+                            isOnline ? "text-success" : "text-muted-foreground"
+                        )}
                     >
+                        <span
+                            aria-hidden="true"
+                            className={cn(
+                                "size-2 rounded-full",
+                                isOnline ? "bg-success" : "bg-muted-foreground/40"
+                            )}
+                        />
                         {isOnline ? "Online" : "Offline"}
-                    </Badge>
+                    </span>
                 );
             },
         },
         {
             id: "actions",
+            header: () => <span className="sr-only">Ações</span>,
             cell: ({ row }) => {
                 const user = row.original;
 
                 return (
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0">
-                                <span className="sr-only">Abrir menu</span>
-                                <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Ações</DropdownMenuLabel>
-                            <DropdownMenuItem
-                                className="cursor-pointer"
-                                onClick={() => onEdit(user)}
-                            >
-                                <Edit className="mr-2 h-4 w-4" />
-                                Editar
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem className="cursor-pointer text-red-600">
-                                <Trash className="mr-2 h-4 w-4" />
-                                Excluir
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                    <div className="flex items-center justify-end gap-0.5">
+                        <Button
+                            aria-label={`Editar ${user.name}`}
+                            className="text-muted-foreground hover:text-foreground"
+                            onClick={() => onEdit(user)}
+                            size="icon-sm"
+                            title="Editar"
+                            variant="ghost"
+                        >
+                            <Pencil />
+                        </Button>
+                    </div>
                 );
             },
         },

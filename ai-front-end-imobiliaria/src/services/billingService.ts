@@ -1,3 +1,5 @@
+import axios from "axios";
+
 import api, { API_PREFIX } from "@/services/api";
 import type {
   SubscriptionPlan,
@@ -14,8 +16,8 @@ export async function fetchCurrentSubscription(): Promise<AgencySubscription | n
   try {
     const { data } = await api.get(`${API_PREFIX}/subscriptions/current`);
     return data;
-  } catch (error: any) {
-    if (error?.response?.status === 404) return null;
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error) && error.response?.status === 404) return null;
     throw error;
   }
 }

@@ -13,9 +13,22 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Activity, ListOrdered, Loader2, RefreshCw } from "lucide-react";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { SectionHeader } from "@/components/layout/SectionHeader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 import { usePermission } from "@/hooks/usePermission";
 import {
   cancelCrawlerOperation,
@@ -52,15 +65,15 @@ function OperationCell({ operation }: { operation: CrawlerOperation }) {
     <>
       {detailHref ? (
         <Link
-          className="font-medium underline-offset-4 hover:underline"
+          className="font-medium text-foreground underline-offset-4 hover:text-primary hover:underline"
           href={detailHref}
         >
           #{operation.id}
         </Link>
       ) : (
-        <span className="font-medium">#{operation.id}</span>
+        <span className="font-medium text-foreground">#{operation.id}</span>
       )}
-      <p className="text-xs text-muted-foreground">
+      <p className="text-[0.8125rem] text-subtle">
         {typeLabels[operation.type] ?? operation.type}
       </p>
     </>
@@ -71,7 +84,7 @@ function TargetCell({ operation }: { operation: CrawlerOperation }) {
   if (operation.crawl_agency) {
     return (
       <Link
-        className="underline-offset-4 hover:underline"
+        className="text-foreground underline-offset-4 hover:text-primary hover:underline"
         href={`/admin/crawler/agencies/${operation.crawl_agency.id}`}
       >
         {operation.crawl_agency.name}
@@ -99,10 +112,10 @@ function QueueSituation({
   if (entry.blocked_by_operation_id !== null) {
     return (
       <>
-        <Badge variant="outline">
+        <Badge variant="warning">
           Aguardando #{entry.blocked_by_operation_id}
         </Badge>
-        <p className="mt-1 max-w-64 text-xs text-muted-foreground">
+        <p className="mt-1.5 max-w-64 text-[0.8125rem] leading-4 text-subtle">
           O worker pula esta operação até o crawl #
           {entry.blocked_by_operation_id} da mesma agência terminar.
         </p>
@@ -110,23 +123,23 @@ function QueueSituation({
     );
   }
   return isNext ? (
-    <Badge>Próxima</Badge>
+    <Badge variant="success">Próxima</Badge>
   ) : (
-    <span className="text-muted-foreground">Na fila</span>
+    <Badge variant="muted">Na fila</Badge>
   );
 }
 
-function TableHead({ titles }: { titles: string[] }) {
+function HeaderRow({ titles }: { titles: string[] }) {
   return (
-    <thead className="bg-muted/40">
-      <tr>
+    <TableHeader>
+      <TableRow className="hover:bg-transparent">
         {titles.map((title, index) => (
-          <th className="whitespace-nowrap p-3 font-medium" key={index}>
-            {title}
-          </th>
+          <TableHead key={index}>
+            {title || <span className="sr-only">Ações</span>}
+          </TableHead>
         ))}
-      </tr>
-    </thead>
+      </TableRow>
+    </TableHeader>
   );
 }
 
@@ -189,34 +202,43 @@ export function CrawlerOperationQueueClient({
 
   return (
     <section className="space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="text-xl font-semibold">Fila</h1>
-          <p className="text-sm text-muted-foreground">
-            O que o worker está executando agora e a ordem em que pegará as
-            próximas operações.
-          </p>
-        </div>
-        <Button
-          variant="outline"
-          disabled={query.isFetching}
-          onClick={() => void query.refetch()}
-        >
-          Atualizar
-        </Button>
-      </div>
+      <PageHeader
+        actions={
+          <Button
+            variant="outline"
+            disabled={query.isFetching}
+            onClick={() => void query.refetch()}
+          >
+            <RefreshCw className={cn(query.isFetching && "animate-spin")} />
+            Atualizar
+          </Button>
+        }
+        description="O que o worker está executando agora e a ordem em que pegará as próximas operações."
+        title="Fila"
+      />
       {query.isError && (
-        <p role="alert">Não foi possível atualizar a fila. Tente novamente.</p>
+        <p
+          className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+          role="alert"
+        >
+          Não foi possível atualizar a fila. Tente novamente.
+        </p>
       )}
       {queue ? (
         <>
-          <section aria-labelledby="queue-running" className="space-y-3">
-            <h2 className="font-semibold" id="queue-running">
-              Em execução agora ({queue.running.length})
-            </h2>
-            <div className="overflow-x-auto rounded-lg border">
-              <table className="w-full text-left text-sm">
-                <TableHead
+          <section aria-labelledby="queue-running">
+            <Card className="gap-0 overflow-hidden py-0">
+              <SectionHeader
+                description="Operações que o worker já pegou e está processando."
+                icon={Activity}
+                title={
+                  <span id="queue-running">
+                    Em execução agora ({queue.running.length})
+                  </span>
+                }
+              />
+              <Table>
+                <HeaderRow
                   titles={[
                     "Operação",
                     "Alvo",
@@ -226,25 +248,25 @@ export function CrawlerOperationQueueClient({
                     ...(canCancel ? [""] : []),
                   ]}
                 />
-                <tbody>
+                <TableBody>
                   {queue.running.map((operation) => (
-                    <tr className="border-t align-top" key={operation.id}>
-                      <td className="p-3">
+                    <TableRow key={operation.id}>
+                      <TableCell>
                         <OperationCell operation={operation} />
-                      </td>
-                      <td className="p-3">
+                      </TableCell>
+                      <TableCell>
                         <TargetCell operation={operation} />
-                      </td>
-                      <td className="p-3">
+                      </TableCell>
+                      <TableCell>
                         {operation.worker?.worker_key ?? "—"}
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-[0.8125rem] text-subtle">
                           Último sinal{" "}
                           {dateTime(operation.progress.heartbeat_at)}
                         </p>
-                      </td>
-                      <td className="min-w-48 space-y-1 p-3">
+                      </TableCell>
+                      <TableCell className="min-w-56 space-y-1.5">
                         <Progress value={operation.progress.percentage} />
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-[0.8125rem] text-subtle">
                           {stageLabels[operation.progress.stage] ??
                             operation.progress.stage}{" "}
                           · {operation.progress.percentage}%
@@ -252,54 +274,53 @@ export function CrawlerOperationQueueClient({
                             ? ` · ${operation.progress.processed}/${operation.progress.total}`
                             : ""}
                         </p>
-                      </td>
-                      <td className="whitespace-nowrap p-3">
+                      </TableCell>
+                      <TableCell className="tabular-nums">
                         {dateTime(operation.claimed_at ?? null)}
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-[0.8125rem] text-subtle">
                           há {duration(operation.claimed_at ?? null, null)}
                         </p>
-                      </td>
+                      </TableCell>
                       {canCancel && (
-                        <td className="p-3 text-right">
+                        <TableCell className="text-right">
                           {operation.state === "cancellation_requested" ? (
-                            <Badge variant="outline">
+                            <Badge variant="warning">
                               Cancelamento solicitado
                             </Badge>
                           ) : (
                             cancelButton(operation)
                           )}
-                        </td>
+                        </TableCell>
                       )}
-                    </tr>
+                    </TableRow>
                   ))}
                   {queue.running.length === 0 && (
-                    <tr>
-                      <td
+                    <TableRow className="hover:bg-transparent">
+                      <TableCell
                         colSpan={canCancel ? 6 : 5}
-                        className="p-6 text-center text-muted-foreground"
+                        className="h-20 text-center text-muted-foreground"
                       >
                         Nenhuma operação em execução.
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   )}
-                </tbody>
-              </table>
-            </div>
+                </TableBody>
+              </Table>
+            </Card>
           </section>
-          <section aria-labelledby="queue-waiting" className="space-y-3">
-            <div>
-              <h2 className="font-semibold" id="queue-waiting">
-                Próximas na fila ({queue.meta.total})
-              </h2>
-              <p className="text-xs text-muted-foreground">
-                O worker sempre pega a operação mais antiga. Um Crawl de
-                Produção espera enquanto outro crawl da mesma agência estiver
-                em execução.
-              </p>
-            </div>
-            <div className="overflow-x-auto rounded-lg border">
-              <table className="w-full text-left text-sm">
-                <TableHead
+          <section aria-labelledby="queue-waiting">
+            <Card className="gap-0 overflow-hidden py-0">
+              <SectionHeader
+                description="O worker sempre pega a operação mais antiga. Um Crawl de Produção espera enquanto outro crawl da mesma agência estiver em execução."
+                icon={ListOrdered}
+                title={
+                  <span id="queue-waiting">
+                    Próximas na fila ({queue.meta.total})
+                  </span>
+                }
+              />
+              <Table>
+                <HeaderRow
                   titles={[
                     "Posição",
                     "Operação",
@@ -310,65 +331,68 @@ export function CrawlerOperationQueueClient({
                     ...(canCancel ? [""] : []),
                   ]}
                 />
-                <tbody>
+                <TableBody>
                   {queue.data.map((entry) => (
-                    <tr
-                      className="border-t align-top"
-                      key={entry.operation.id}
-                    >
-                      <td className="p-3 font-semibold tabular-nums">
+                    <TableRow key={entry.operation.id}>
+                      <TableCell className="font-semibold text-foreground tabular-nums">
                         {entry.position}º
-                      </td>
-                      <td className="p-3">
+                      </TableCell>
+                      <TableCell>
                         <OperationCell operation={entry.operation} />
-                      </td>
-                      <td className="p-3">
+                      </TableCell>
+                      <TableCell>
                         <TargetCell operation={entry.operation} />
-                      </td>
-                      <td className="p-3">
+                      </TableCell>
+                      <TableCell>
                         {entry.operation.requester?.name ?? "—"}
-                      </td>
-                      <td className="whitespace-nowrap p-3">
+                      </TableCell>
+                      <TableCell className="tabular-nums">
                         {dateTime(entry.operation.created_at)}
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-[0.8125rem] text-subtle">
                           há {duration(entry.operation.created_at, null)}
                         </p>
-                      </td>
-                      <td className="p-3">
+                      </TableCell>
+                      <TableCell className="whitespace-normal">
                         <QueueSituation
                           entry={entry}
                           isNext={entry.operation.id === nextOperationId}
                         />
-                      </td>
+                      </TableCell>
                       {canCancel && (
-                        <td className="p-3 text-right">
+                        <TableCell className="text-right">
                           {cancelButton(entry.operation)}
-                        </td>
+                        </TableCell>
                       )}
-                    </tr>
+                    </TableRow>
                   ))}
                   {queue.data.length === 0 && (
-                    <tr>
-                      <td
+                    <TableRow className="hover:bg-transparent">
+                      <TableCell
                         colSpan={canCancel ? 7 : 6}
-                        className="p-6 text-center text-muted-foreground"
+                        className="h-20 text-center text-muted-foreground"
                       >
                         Nenhuma operação aguardando.
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   )}
-                </tbody>
-              </table>
-            </div>
-            <BatchPagination
-              meta={queue.meta}
-              pending={query.isFetching}
-              onPage={setPage}
-            />
+                </TableBody>
+              </Table>
+              <BatchPagination
+                meta={queue.meta}
+                pending={query.isFetching}
+                onPage={setPage}
+              />
+            </Card>
           </section>
         </>
       ) : (
-        <p role="status">Carregando fila…</p>
+        <p
+          className="flex items-center gap-2 text-sm text-muted-foreground"
+          role="status"
+        >
+          <Loader2 className="size-4 animate-spin" />
+          Carregando fila…
+        </p>
       )}
       <AlertDialog
         open={cancelling !== null}

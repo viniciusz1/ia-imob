@@ -1,8 +1,22 @@
 "use client";
 
 import { useState } from "react";
+import { isAxiosError } from "axios";
+import { KeyRound, Loader2, Plus, ShieldAlert, ShieldCheck } from "lucide-react";
+
+import { PageHeader } from "@/components/layout/PageHeader";
+import { StatCard } from "@/components/layout/StatCard";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
 import { RolesDataTable } from "@/components/features/roles/RolesDataTable";
 import { RoleFormModal } from "@/components/features/roles/RoleFormModal";
 import { Role } from "@/types/role";
@@ -15,17 +29,24 @@ import { toast } from "sonner";
 
 interface RolesClientProps {
     initialData: Role[];
-    pageCount: number;
 }
 
 // =============================================================================
 // Client Component — Orquestra listagem + modal
 // =============================================================================
 
-export function RolesClient({ initialData, pageCount }: RolesClientProps) {
+export function RolesClient({ initialData }: RolesClientProps) {
     const [modalOpen, setModalOpen] = useState(false);
     const [editingRole, setEditingRole] = useState<Role | null>(null);
     const deleteMutation = useDeleteRole();
+    const [pendingDelete, setPendingDelete] = useState<Role | null>(null);
+
+    const permissionsInUse = new Set(
+        initialData.flatMap((role) => (role.permissions || []).map((permission) => permission.id))
+    ).size;
+    const rolesWithoutPermissions = initialData.filter(
+        (role) => (role.permissions || []).length === 0
+    ).length;
 
     const handleCreate = () => {
         setEditingRole(null);
@@ -37,14 +58,21 @@ export function RolesClient({ initialData, pageCount }: RolesClientProps) {
         setModalOpen(true);
     };
 
-    const handleDelete = async (role: Role) => {
-        if (confirm(`Tem certeza que deseja excluir o grupo '${role.name}'?`)) {
-            try {
-                await deleteMutation.mutateAsync(role.id);
-                toast.success("Grupo excluído com sucesso.");
-            } catch (error: any) {
-                toast.error(error.response?.data?.message || "Não foi possível excluir o grupo.");
-            }
+    const handleDelete = (role: Role) => {
+        setPendingDelete(role);
+    };
+
+    const confirmDelete = async (role: Role) => {
+        try {
+            await deleteMutation.mutateAsync(role.id);
+            toast.success("Grupo excluído com sucesso.");
+        } catch (error: unknown) {
+            toast.error(
+                (isAxiosError<{ message?: string }>(error) && error.response?.data?.message) ||
+                "Não foi possível excluir o grupo."
+            );
+        } finally {
+            setPendingDelete(null);
         }
     };
 
@@ -56,23 +84,43 @@ export function RolesClient({ initialData, pageCount }: RolesClientProps) {
     };
 
     return (
-        <div className="container mx-auto py-8">
-            <div className="flex justify-between items-center mb-6">
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight">Grupos de Usuários</h1>
-                    <p className="text-muted-foreground mt-1">
-                        Gerencie os perfis de acesso e permissões do sistema.
-                    </p>
-                </div>
-                <Button onClick={handleCreate}>
-                    <Plus className="mr-2 h-4 w-4" />
-                    Novo Grupo
-                </Button>
+        <div className="space-y-6">
+            <PageHeader
+                actions={(
+                    <Button onClick={handleCreate}>
+                        <Plus />
+                        Novo grupo
+                    </Button>
+                )}
+                description="Gerencie os perfis de acesso e permissões do sistema."
+                title="Grupos de usuários"
+            />
+
+            <div className="grid gap-4 sm:grid-cols-3">
+                <StatCard
+                    icon={ShieldCheck}
+                    title="Grupos"
+                    tone="primary"
+                    value={initialData.length}
+                />
+                <StatCard
+                    hint="Permissões distintas atribuídas a algum grupo"
+                    icon={KeyRound}
+                    title="Permissões em uso"
+                    tone="info"
+                    value={permissionsInUse}
+                />
+                <StatCard
+                    hint="Usuários desses grupos não acessam nenhum módulo"
+                    icon={ShieldAlert}
+                    title="Grupos sem permissão"
+                    tone={rolesWithoutPermissions > 0 ? "warning" : "success"}
+                    value={rolesWithoutPermissions}
+                />
             </div>
 
             <RolesDataTable
                 data={initialData}
-                pageCount={pageCount}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
             />
@@ -82,6 +130,37 @@ export function RolesClient({ initialData, pageCount }: RolesClientProps) {
                 onOpenChange={handleModalChange}
                 initialData={editingRole}
             />
+
+            <AlertDialog
+                onOpenChange={(open) => {
+                    if (!open && !deleteMutation.isPending) setPendingDelete(null);
+                }}
+                open={pendingDelete !== null}
+            >
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Excluir grupo?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            O grupo &quot;{pendingDelete?.name}&quot; será excluído. Essa ação não pode ser desfeita.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={deleteMutation.isPending}>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction
+                            disabled={deleteMutation.isPending}
+                            onClick={(event) => {
+                                // Keep the dialog open until the API answers.
+                                event.preventDefault();
+                                if (pendingDelete) void confirmDelete(pendingDelete);
+                            }}
+                            variant="destructive"
+                        >
+                            {deleteMutation.isPending && <Loader2 className="animate-spin" />}
+                            Excluir
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     );
 }

@@ -99,7 +99,7 @@ describe("MarketDashboardClient", () => {
 
     expect(screen.getByText("R$ 490.000")).toBeInTheDocument();
     expect(screen.getByText("R$ 624.443")).toBeInTheDocument();
-    expect(screen.getByText("R$ 4.053/m²")).toBeInTheDocument();
+    expect(screen.getByText("R$ 4.053")).toBeInTheDocument();
   });
 
   it("keeps each KPI card down to a label and a figure", async () => {

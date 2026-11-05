@@ -43,9 +43,9 @@ describe("DataTable", () => {
     );
 
     expect(screen.getByText("Ana")).toBeInTheDocument();
-    expect(screen.getByText("Mostrando página 2 de 3")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Página 2" })).toHaveAttribute("aria-current", "page");
 
-    fireEvent.click(screen.getByRole("button", { name: "Próxima" }));
+    fireEvent.click(screen.getByRole("button", { name: /próxima/i }));
 
     expect(navigation.push).toHaveBeenCalledWith("/usuarios?page=3&filterName=Ana");
   });

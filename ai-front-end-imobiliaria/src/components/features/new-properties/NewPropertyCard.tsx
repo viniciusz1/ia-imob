@@ -14,7 +14,6 @@ import {
 import { ImageWithFallback } from "@/components/features/ai-searcher/ImageWithFallback";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import type { NewPropertyItem } from "@/types/newProperties";
 
 interface NewPropertyCardProps {
@@ -66,8 +65,8 @@ export function NewPropertyCard({ property }: NewPropertyCardProps) {
   const hasExternalLink = /^https?:\/\//i.test(property.link_imovel);
 
   return (
-    <Card className="group h-full overflow-hidden border-border/80 py-0 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg">
-      <div className="relative h-56 overflow-hidden bg-muted">
+    <article className="group flex h-full flex-col overflow-hidden rounded-2xl bg-muted transition-colors duration-200 hover:bg-secondary/70">
+      <div className="relative h-52 overflow-hidden bg-secondary">
         {property.image ? (
           <ImageWithFallback
             src={property.image}
@@ -81,15 +80,15 @@ export function NewPropertyCard({ property }: NewPropertyCardProps) {
           </div>
         )}
 
-        <div className="absolute left-3 top-3 flex flex-wrap gap-2">
+        <div className="absolute left-4 top-4 flex flex-wrap gap-2">
           {property.is_new && (
-            <Badge className="gap-1 bg-sky-600 text-white hover:bg-sky-600">
+            <Badge className="gap-1 bg-info text-info-foreground hover:bg-info">
               <Sparkles className="size-3" aria-hidden="true" />
               Novo
             </Badge>
           )}
           {property.is_opportunity && (
-            <Badge className="gap-1 bg-emerald-600 text-white hover:bg-emerald-600">
+            <Badge className="gap-1 bg-success text-success-foreground hover:bg-success">
               <TrendingDown className="size-3" aria-hidden="true" />
               Oportunidade
             </Badge>
@@ -97,9 +96,9 @@ export function NewPropertyCard({ property }: NewPropertyCardProps) {
         </div>
       </div>
 
-      <CardContent className="flex flex-1 flex-col gap-4 p-5">
+      <div className="flex flex-1 flex-col gap-4 p-5 sm:p-6">
         <div className="space-y-1.5">
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <div className="flex items-center gap-2 text-[0.8125rem] text-subtle">
             <Building2 className="size-3.5" aria-hidden="true" />
             <span>{property.tipo || "Imóvel"}</span>
             {property.purpose && (
@@ -109,10 +108,10 @@ export function NewPropertyCard({ property }: NewPropertyCardProps) {
               </>
             )}
           </div>
-          <h3 className="line-clamp-2 text-lg font-semibold leading-tight">
+          <h3 className="line-clamp-2 text-base leading-5 font-semibold">
             {propertyTitle(property)}
           </h3>
-          <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+          <div className="flex items-center gap-1.5 text-[0.8125rem] text-subtle">
             <MapPin className="size-4 shrink-0" aria-hidden="true" />
             <span className="truncate">
               {[property.bairro, property.cidade].filter(Boolean).join(" — ") || "Localização não informada"}
@@ -121,17 +120,17 @@ export function NewPropertyCard({ property }: NewPropertyCardProps) {
         </div>
 
         <div>
-          <p className="text-2xl font-bold">
+          <p className="text-xl leading-7 font-semibold tracking-[-0.01em]">
             {property.preco > 0 ? formatCurrency(property.preco) : "Preço não informado"}
           </p>
           {property.price_per_square_meter !== null && (
-            <p className="text-sm text-muted-foreground">
+            <p className="text-[0.8125rem] text-subtle">
               {formatCurrency(property.price_per_square_meter)}/m²
             </p>
           )}
         </div>
 
-        <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted-foreground">
+        <div className="flex flex-wrap gap-x-4 gap-y-2 text-[0.8125rem] text-subtle">
           {property.quartos > 0 && (
             <span className="inline-flex items-center gap-1">
               <BedDouble className="size-4" aria-hidden="true" />
@@ -159,21 +158,21 @@ export function NewPropertyCard({ property }: NewPropertyCardProps) {
         </div>
 
         {property.is_opportunity && (
-          <div className="rounded-xl border border-emerald-200 bg-emerald-50/80 p-3.5 text-emerald-950 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-50">
+          <div className="rounded-xl border border-success/30 bg-success/10 p-4 text-foreground">
             <div className="flex gap-3">
-              <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/60 dark:text-emerald-200">
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-success/15 text-success">
                 <TrendingDown className="size-4" aria-hidden="true" />
               </span>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-sm font-semibold">Boa oportunidade</span>
                   {property.opportunity_score !== null && (
-                    <Badge variant="outline" className="shrink-0 border-emerald-400 bg-transparent text-current">
+                    <Badge variant="outline" className="shrink-0 border-success/50 bg-transparent text-success">
                       Score {property.opportunity_score}/100
                     </Badge>
                   )}
                 </div>
-                {summary && <p className="mt-1 text-xs leading-5 text-emerald-900/80 dark:text-emerald-100/80">{summary}</p>}
+                {summary && <p className="mt-1 text-xs leading-5 text-muted-foreground">{summary}</p>}
               </div>
             </div>
           </div>
@@ -185,7 +184,7 @@ export function NewPropertyCard({ property }: NewPropertyCardProps) {
           </p>
         )}
 
-        <div className="mt-auto border-t pt-3">
+        <div className="mt-auto border-t pt-4">
           {hasExternalLink ? (
             <Button asChild className="w-full">
               <a href={property.link_imovel} target="_blank" rel="noreferrer">
@@ -199,7 +198,7 @@ export function NewPropertyCard({ property }: NewPropertyCardProps) {
             </Button>
           )}
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </article>
   );
 }

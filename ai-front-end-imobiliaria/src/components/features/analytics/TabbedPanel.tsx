@@ -1,8 +1,11 @@
 "use client";
 
+import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { SectionHeader } from "@/components/layout/SectionHeader";
+import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
 
 export interface PanelTab {
   value: string;
@@ -13,35 +16,39 @@ export interface PanelTab {
 interface TabbedPanelProps {
   title: string;
   description?: string;
+  icon?: LucideIcon;
   tabs: PanelTab[];
   className?: string;
 }
 
-export function TabbedPanel({ title, description, tabs, className }: TabbedPanelProps) {
+/**
+ * Card de seção com abas. O conteúdo de cada aba encosta nas bordas do card,
+ * então tabelas e rodapés trazem o próprio recuo.
+ */
+export function TabbedPanel({ title, description, icon, tabs, className }: TabbedPanelProps) {
   return (
-    <Card className={className}>
-      <CardHeader>
-        <CardTitle className="text-lg">{title}</CardTitle>
-        {description === undefined ? null : (
-          <p className="text-sm text-muted-foreground">{description}</p>
-        )}
-      </CardHeader>
-      <CardContent>
-        <Tabs defaultValue={tabs[0]?.value}>
-          <TabsList className="mb-4 flex-wrap">
-            {tabs.map((tab) => (
-              <TabsTrigger key={tab.value} value={tab.value}>
-                {tab.label}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-          {tabs.map((tab) => (
-            <TabsContent key={tab.value} value={tab.value}>
-              {tab.content}
-            </TabsContent>
-          ))}
-        </Tabs>
-      </CardContent>
+    <Card className={cn("gap-0 overflow-hidden py-0", className)}>
+      <Tabs className="gap-0" defaultValue={tabs[0]?.value}>
+        <SectionHeader
+          actions={
+            <TabsList>
+              {tabs.map((tab) => (
+                <TabsTrigger key={tab.value} value={tab.value}>
+                  {tab.label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          }
+          description={description}
+          icon={icon}
+          title={title}
+        />
+        {tabs.map((tab) => (
+          <TabsContent key={tab.value} value={tab.value}>
+            {tab.content}
+          </TabsContent>
+        ))}
+      </Tabs>
     </Card>
   );
 }

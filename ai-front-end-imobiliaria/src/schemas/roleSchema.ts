@@ -7,6 +7,7 @@ import { z } from "zod";
 export const roleFormSchema = z.object({
     name: z
         .string({ message: "Nome do grupo é obrigatório" })
+        .trim()
         .min(1, "Nome do grupo é obrigatório")
         .max(255, "Nome do grupo deve ter no máximo 255 caracteres"),
     permissions: z

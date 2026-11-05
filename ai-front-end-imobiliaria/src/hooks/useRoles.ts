@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import {
     getRoles,
     getPaginatedRoles,
@@ -46,34 +47,46 @@ export function usePermissions() {
 
 export function useCreateRole() {
     const queryClient = useQueryClient();
+    // The list pages render their data on the server, so the cache alone
+    // doesn't update them: refresh the route after a change.
+    const router = useRouter();
 
     return useMutation({
         mutationFn: (data: RoleFormData) => createRole(data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ROLES_QUERY_KEY });
+            router.refresh();
         },
     });
 }
 
 export function useUpdateRole(id: number) {
     const queryClient = useQueryClient();
+    // The list pages render their data on the server, so the cache alone
+    // doesn't update them: refresh the route after a change.
+    const router = useRouter();
 
     return useMutation({
         mutationFn: (data: RoleFormData) => updateRole(id, data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ROLES_QUERY_KEY });
             queryClient.invalidateQueries({ queryKey: [...ROLES_QUERY_KEY, id] });
+            router.refresh();
         },
     });
 }
 
 export function useDeleteRole() {
     const queryClient = useQueryClient();
+    // The list pages render their data on the server, so the cache alone
+    // doesn't update them: refresh the route after a change.
+    const router = useRouter();
 
     return useMutation({
         mutationFn: (id: number) => deleteRole(id),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ROLES_QUERY_KEY });
+            router.refresh();
         },
     });
 }

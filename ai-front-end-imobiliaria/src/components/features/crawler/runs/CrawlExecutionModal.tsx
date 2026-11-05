@@ -266,20 +266,20 @@ export function CrawlExecutionModal({
                   </CardHeader>
                   <CardContent className="space-y-5">
                     <div className="grid gap-3 sm:grid-cols-3">
-                      <div className="rounded-md border p-3">
+                      <div className="rounded-xl border border-transparent bg-muted p-3">
                         <p className="text-xs text-muted-foreground">Registros válidos</p>
                         <p className="text-lg font-semibold">
                           {report.valid_record_count}/{report.sampled_url_count} ·{" "}
                           {Math.round(report.valid_ratio * 100)}%
                         </p>
                       </div>
-                      <div className="rounded-md border p-3">
+                      <div className="rounded-xl border border-transparent bg-muted p-3">
                         <p className="text-xs text-muted-foreground">Cobertura obrigatória</p>
                         <p className="text-lg font-semibold">
                           {coverageRecommended ? "Atendida" : "Abaixo do recomendado"}
                         </p>
                       </div>
-                      <div className="rounded-md border p-3">
+                      <div className="rounded-xl border border-transparent bg-muted p-3">
                         <p className="text-xs text-muted-foreground">Falhas Críticas de Validação</p>
                         <p className="text-lg font-semibold">{report.blocking_failures.length}</p>
                       </div>
@@ -290,7 +290,7 @@ export function CrawlExecutionModal({
                       </p>
                     ))}
                     {report.warnings.map((warning) => (
-                      <p className="text-sm text-amber-700" key={warning}>
+                      <p className="text-sm text-warning" key={warning}>
                         {warning}
                       </p>
                     ))}

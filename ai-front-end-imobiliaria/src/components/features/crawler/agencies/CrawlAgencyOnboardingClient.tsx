@@ -1,11 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { CircleAlert, History, Plus, Rocket, TriangleAlert } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
 
+import { EmptyState } from "@/components/layout/EmptyState";
+import { SectionHeader } from "@/components/layout/SectionHeader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -50,6 +53,8 @@ interface CrawlAgencyOnboardingClientProps {
   snapshots?: DiscoverySnapshot[];
 }
 
+type StateBadgeVariant = "success" | "warning" | "info" | "destructive" | "muted";
+
 const STEP_LABELS: Record<OnboardingExecutionStepKey, string> = {
   discovery: "Discovery",
   sample_url_confirmation: "Confirmação da URL de Amostra",
@@ -71,6 +76,17 @@ const STATE_LABELS: Record<OnboardingExecution["state"], string> = {
   cancelled: "Cancelada",
 };
 
+const STATE_BADGE_VARIANTS: Record<OnboardingExecution["state"], StateBadgeVariant> = {
+  queued: "muted",
+  running: "info",
+  awaiting_manual_step: "warning",
+  requires_attention: "destructive",
+  awaiting_approval: "warning",
+  awaiting_first_production: "warning",
+  completed: "success",
+  cancelled: "muted",
+};
+
 function formatDate(value: string | null): string {
   if (value === null) return "—";
   return new Intl.DateTimeFormat("pt-BR", {
@@ -83,6 +99,10 @@ function shouldOpenFromLocation(): boolean {
   if (typeof window === "undefined") return false;
   const params = new URLSearchParams(window.location.search);
   return params.get("novo") === "true" || params.get("new") === "true";
+}
+
+function isOpenExecution(execution: OnboardingExecution): boolean {
+  return !["completed", "cancelled"].includes(execution.state);
 }
 
 export function CrawlAgencyOnboardingClient({
@@ -147,16 +167,16 @@ export function CrawlAgencyOnboardingClient({
   };
 
   return (
-    <section className="space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="min-w-0 flex-1">
-          <CrawlAgencyContextHeader
-            agency={agency}
-            area="Onboarding"
-            description="Execução atual, recuperação e histórico imutável desta Crawl Agency."
-          />
-        </div>
+    <div className="space-y-6">
+      <CrawlAgencyContextHeader
+        agency={agency}
+        area="Onboarding"
+        description="Execução atual, recuperação e histórico imutável desta Crawl Agency."
+      />
+
+      <div className="flex justify-end">
         <Button onClick={() => setIsModalOpen(true)} type="button">
+          <Plus />
           Novo Onboarding
         </Button>
       </div>
@@ -170,12 +190,18 @@ export function CrawlAgencyOnboardingClient({
             </DialogDescription>
           </DialogHeader>
 
-          {currentExecution !== null && !["completed", "cancelled"].includes(currentExecution.state) && (
-            <div className="rounded-md border border-amber-500/40 bg-amber-500/10 p-3 text-sm" role="note">
-              <p className="font-medium">Substituição do Onboarding atual</p>
-              <p className="mt-1 text-muted-foreground">
-                A execução atual (#{currentExecution.id} · {currentExecution.name}) será cancelada e substituída por esta nova execução ao confirmar.
-              </p>
+          {currentExecution !== null && isOpenExecution(currentExecution) && (
+            <div
+              className="flex items-start gap-3 rounded-lg border border-warning/30 bg-warning/5 px-4 py-3 text-sm"
+              role="note"
+            >
+              <TriangleAlert aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-warning" />
+              <div>
+                <p className="text-foreground">Substituição do Onboarding atual</p>
+                <p className="mt-1 text-muted-foreground">
+                  A execução atual (#{currentExecution.id} · {currentExecution.name}) será cancelada e substituída por esta nova execução ao confirmar.
+                </p>
+              </div>
             </div>
           )}
 
@@ -194,7 +220,7 @@ export function CrawlAgencyOnboardingClient({
                 ...current
                   .filter((execution) => execution.id !== confirmed.id)
                   .map((execution) =>
-                    !["completed", "cancelled"].includes(execution.state)
+                    isOpenExecution(execution)
                       ? { ...execution, state: "cancelled" as const, completed_at: new Date().toISOString() }
                       : execution,
                   ),
@@ -207,25 +233,30 @@ export function CrawlAgencyOnboardingClient({
       </Dialog>
 
       {pollingFailed && (
-        <p className="rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm" role="alert">
-          Não foi possível atualizar a Execução de Onboarding. Os últimos dados recebidos continuam visíveis.
-        </p>
+        <div
+          className="flex items-start gap-3 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm"
+          role="alert"
+        >
+          <CircleAlert aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-destructive" />
+          <p>Não foi possível atualizar a Execução de Onboarding. Os últimos dados recebidos continuam visíveis.</p>
+        </div>
       )}
 
       {currentExecution === null && (
-        <Card>
-          <CardHeader><CardTitle>Execuções de Onboarding</CardTitle></CardHeader>
-          <CardContent className="text-muted-foreground">
-            Nenhuma Execução de Onboarding foi iniciada.
-          </CardContent>
+        <Card className="gap-0 overflow-hidden py-0">
+          <SectionHeader as="h3" icon={Rocket} title="Execuções de Onboarding" />
+          <EmptyState icon={Rocket} title="Nenhuma Execução de Onboarding foi iniciada." variant="inline" />
         </Card>
       )}
 
       {currentExecution !== null && (
-        <section aria-labelledby="current-onboarding-execution" className="space-y-3">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <h3 className="text-lg font-semibold" id="current-onboarding-execution">Execução atual</h3>
-            <Link className="rounded-sm text-sm underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" href={`/admin/crawler/agencies/${agency.id}/onboarding/${currentExecution.id}`}>
+        <section aria-labelledby="current-onboarding-execution" className="space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h3 className="text-base text-foreground" id="current-onboarding-execution">Execução atual</h3>
+            <Link
+              className="rounded-sm text-sm text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+              href={`/admin/crawler/agencies/${agency.id}/onboarding/${currentExecution.id}`}
+            >
               Abrir detalhe da execução #{currentExecution.id}
             </Link>
           </div>
@@ -238,80 +269,76 @@ export function CrawlAgencyOnboardingClient({
       )}
 
       <section aria-label="Histórico de Execuções de Onboarding">
-        <Card>
-          <CardHeader>
-            <CardTitle>Histórico de Versões</CardTitle>
-            <CardDescription>Todas as versões de onboarding executadas para esta Crawl Agency.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {executions.length === 0 ? (
-              <p className="text-sm text-muted-foreground">Nenhuma versão registrada no histórico.</p>
-            ) : (
-              <div className="overflow-x-auto rounded-lg border">
-                <Table>
-                  <TableHeader className="bg-muted/40">
-                    <TableRow>
-                      <TableHead>Versão / Execução</TableHead>
-                      <TableHead>Condução e Modelo</TableHead>
-                      <TableHead>Etapa</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Período</TableHead>
-                      <TableHead>Responsável</TableHead>
-                      <TableHead className="text-right">Ações</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {executions.map((execution, index) => {
-                      const versionNumber = executions.length - index;
-                      const isCurrent = execution.id === currentExecution?.id;
-                      const model = execution.resolved_configuration.execution_model;
-                      const modelLabel = model === null ? "Sem modelo" : `${model.name} v${model.version}`;
+        <Card className="gap-0 overflow-hidden py-0">
+          <SectionHeader
+            as="h3"
+            description="Todas as versões de onboarding executadas para esta Crawl Agency."
+            icon={History}
+            title="Histórico de versões"
+          />
+          {executions.length === 0 ? (
+            <EmptyState icon={History} title="Nenhuma versão registrada no histórico." variant="inline" />
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow className="hover:bg-transparent">
+                  <TableHead>Versão / Execução</TableHead>
+                  <TableHead>Condução e modelo</TableHead>
+                  <TableHead>Etapa</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Período</TableHead>
+                  <TableHead>Responsável</TableHead>
+                  <TableHead className="text-right">Ações</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {executions.map((execution, index) => {
+                  const versionNumber = executions.length - index;
+                  const isCurrent = execution.id === currentExecution?.id;
+                  const model = execution.resolved_configuration.execution_model;
+                  const modelLabel = model === null ? "Sem modelo" : `${model.name} v${model.version}`;
 
-                      return (
-                        <TableRow key={execution.id}>
-                          <TableCell>
-                            <div className="flex flex-wrap items-center gap-2">
-                              <Badge variant={isCurrent ? "default" : "outline"}>v{versionNumber}</Badge>
-                              <span className="font-medium">#{execution.id} · {execution.name}</span>
-                              {isCurrent && <Badge variant="secondary">Atual</Badge>}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <span>{execution.conduction === "automated" ? "Automatizada" : "Manual"} · {modelLabel}</span>
-                          </TableCell>
-                          <TableCell className="text-muted-foreground">
-                            Última etapa: {STEP_LABELS[execution.current_step]}
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant={execution.state === "requires_attention" ? "destructive" : execution.state === "completed" ? "default" : "outline"}>
-                              {STATE_LABELS[execution.state]}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="text-xs text-muted-foreground">
-                            <div>Início: {formatDate(execution.started_at)}</div>
-                            <div>Término: {formatDate(execution.completed_at)}</div>
-                          </TableCell>
-                          <TableCell className="text-muted-foreground">
-                            Responsável: {execution.created_by.name}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <Link
-                              className="inline-flex rounded-sm text-sm underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                              href={`/admin/crawler/agencies/${agency.id}/onboarding/${execution.id}`}
-                            >
-                              Abrir execução #{execution.id}
-                            </Link>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-              </div>
-            )}
-          </CardContent>
+                  return (
+                    <TableRow key={execution.id}>
+                      <TableCell>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <Badge variant={isCurrent ? "info" : "muted"}>v{versionNumber}</Badge>
+                          <span className="text-foreground">#{execution.id} · {execution.name}</span>
+                          {isCurrent && <Badge variant="outline">Atual</Badge>}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {execution.conduction === "automated" ? "Automatizada" : "Manual"} · {modelLabel}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        Última etapa: {STEP_LABELS[execution.current_step]}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={STATE_BADGE_VARIANTS[execution.state]}>{STATE_LABELS[execution.state]}</Badge>
+                      </TableCell>
+                      <TableCell className="text-xs text-muted-foreground tabular-nums">
+                        <div>Início: {formatDate(execution.started_at)}</div>
+                        <div>Término: {formatDate(execution.completed_at)}</div>
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        Responsável: {execution.created_by.name}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Link
+                          className="inline-flex rounded-sm text-sm text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+                          href={`/admin/crawler/agencies/${agency.id}/onboarding/${execution.id}`}
+                        >
+                          Abrir execução #{execution.id}
+                        </Link>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          )}
         </Card>
       </section>
-    </section>
+    </div>
   );
 }

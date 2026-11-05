@@ -1,10 +1,11 @@
+import type { ComponentPropsWithoutRef } from "react";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { PropertyDetail } from "../PropertyDetail";
 import type { PublicPropertyDetail } from "@/services/public/types";
 
 vi.mock("next/link", () => ({
-    default: ({ href, children, ...props }: any) => (
+    default: ({ href, children, ...props }: ComponentPropsWithoutRef<"a">) => (
         <a href={href} {...props}>
             {children}
         </a>

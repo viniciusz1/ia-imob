@@ -12,7 +12,6 @@ use App\Models\Crawler\ProfileValidationRecord;
 use App\Models\Crawler\ProfileValidationReport;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
 
 class ExtractionProfileValidationApiTest extends TestCase

@@ -1,11 +1,14 @@
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
+import { Plus, Search } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { type FormEvent, useRef, useState } from "react";
 import { toast } from "sonner";
 
+import { HealthBadge, LifecycleBadge } from "@/components/features/crawler/CrawlerStatusBadges";
+import { PageHeader } from "@/components/layout/PageHeader";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,9 +20,9 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
+import { FilterSelect } from "@/components/ui/filter-select";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -40,8 +43,21 @@ interface CrawlAgenciesClientProps {
   initialPerPage?: number;
   initialSearch: string;
   pageCount: number;
-  totalCount?: number;
+  total?: number;
+  pageSize?: number;
 }
+
+const DEFAULT_PER_PAGE = 10;
+
+const LIFECYCLE_OPTIONS = [
+  { value: "all", label: "Todos os ciclos de vida" },
+  { value: "active", label: "Ativas (usuário final)" },
+  { value: "onboarding", label: "Onboarding" },
+  { value: "paused", label: "Pausadas" },
+  { value: "archived", label: "Arquivadas" },
+];
+
+const PER_PAGE_OPTIONS = [10, 25, 50, 100];
 
 const dateFormatter = new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short" });
 
@@ -67,12 +83,19 @@ const columns: ColumnDef<CrawlAgency>[] = [
     accessorKey: "name",
     header: "Nome",
     cell: ({ row }) => (
-      <Link className="font-medium underline-offset-4 hover:underline" href={`/admin/crawler/agencies/${row.original.id}`}>
+      <Link
+        className="text-sm text-foreground hover:text-primary hover:underline"
+        href={`/admin/crawler/agencies/${row.original.id}`}
+      >
         {row.original.name}
       </Link>
     ),
   },
-  { accessorKey: "root_domain", header: "Domínio" },
+  {
+    accessorKey: "root_domain",
+    header: "Domínio",
+    cell: ({ row }) => <span className="text-muted-foreground">{row.original.root_domain}</span>,
+  },
   {
     id: "city",
     header: "Cidade",
@@ -84,13 +107,13 @@ const columns: ColumnDef<CrawlAgency>[] = [
   },
   {
     accessorKey: "lifecycle_state",
-    header: "Lifecycle",
-    cell: ({ row }) => <Badge variant="outline">{row.original.lifecycle_state}</Badge>,
+    header: "Ciclo de vida",
+    cell: ({ row }) => <LifecycleBadge state={row.original.lifecycle_state} />,
   },
   {
     accessorKey: "health_state",
     header: "Saúde",
-    cell: ({ row }) => <Badge variant="secondary">{row.original.health_state}</Badge>,
+    cell: ({ row }) => <HealthBadge state={row.original.health_state} />,
   },
   {
     accessorKey: "last_crawled_at",
@@ -115,9 +138,11 @@ const columns: ColumnDef<CrawlAgency>[] = [
 export function CrawlAgenciesClient({
   initialAgencies,
   initialLifecycle = "",
-  initialPerPage = 15,
+  initialPerPage = DEFAULT_PER_PAGE,
   initialSearch,
   pageCount,
+  total,
+  pageSize,
 }: CrawlAgenciesClientProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -132,6 +157,7 @@ export function CrawlAgenciesClient({
   const [bulkPending, setBulkPending] = useState(false);
   const [bulkResult, setBulkResult] = useState<BulkProductionCrawlResult | null>(null);
   const canExecute = usePermission("crawler.operations.execute");
+  const canManage = usePermission("crawler.agencies.manage");
 
   async function rerunActiveCrawls() {
     setBulkPending(true);
@@ -162,7 +188,7 @@ export function CrawlAgenciesClient({
     else params.set("lifecycle_state", newLifecycle);
 
     const newPerPage = nextParams.perPage ?? perPage;
-    if (newPerPage === 15) params.delete("per_page");
+    if (newPerPage === DEFAULT_PER_PAGE) params.delete("per_page");
     else params.set("per_page", newPerPage.toString());
 
     const query = params.toString();
@@ -188,7 +214,7 @@ export function CrawlAgenciesClient({
   function clearFilters() {
     setSearch("");
     setLifecycle("all");
-    setPerPage(15);
+    setPerPage(DEFAULT_PER_PAGE);
     const params = new URLSearchParams(searchParams.toString());
     params.delete("page");
     params.delete("search");
@@ -203,68 +229,75 @@ export function CrawlAgenciesClient({
     initialSearch !== "" ||
     (lifecycle !== "all" && lifecycle !== "") ||
     (initialLifecycle !== "" && initialLifecycle !== "all") ||
-    perPage !== 15 ||
-    initialPerPage !== 15;
+    perPage !== DEFAULT_PER_PAGE ||
+    initialPerPage !== DEFAULT_PER_PAGE;
 
   return (
-    <section className="space-y-4">
-      <div className="flex items-center justify-between gap-4">
-        <div>
-          <h2 className="text-lg font-semibold">Agências</h2>
-          <p className="text-muted-foreground">
-            Fontes globais de dados de mercado, independentes das agências clientes.
-          </p>
-        </div>
-        <div className="flex flex-wrap justify-end gap-2">
-          {canExecute && (
-            <AlertDialog onOpenChange={setConfirmOpen} open={confirmOpen}>
-              <AlertDialogTrigger asChild>
-                <Button type="button" variant="outline">Rodar todos os crawls ativos novamente</Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Rodar todos os crawls ativos novamente?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Esta ação considera todas as agências com lifecycle ativo, independentemente da busca e da página atual. Cada execução usará Discovery novo e a configuração atualmente ativa.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel disabled={bulkPending}>Cancelar</AlertDialogCancel>
-                  <AlertDialogAction
-                    disabled={bulkPending}
-                    onClick={(event) => {
-                      event.preventDefault();
-                      void rerunActiveCrawls();
-                    }}
-                  >
-                    {bulkPending ? "Enfileirando…" : "Confirmar e enfileirar"}
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          )}
-          <Link className="rounded-md bg-primary px-4 py-2 text-primary-foreground" href="/admin/crawler/agencies/new">
-            Nova Agência
-          </Link>
-        </div>
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        actions={
+          <>
+            {canExecute && (
+              <AlertDialog onOpenChange={setConfirmOpen} open={confirmOpen}>
+                <AlertDialogTrigger asChild>
+                  <Button type="button" variant="outline">Rodar todos os crawls ativos novamente</Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Rodar todos os crawls ativos novamente?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Esta ação considera todas as agências com ciclo de vida ativo, independentemente da busca e da página atual. Cada execução usará Discovery novo e a configuração atualmente ativa.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel disabled={bulkPending}>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction
+                      disabled={bulkPending}
+                      onClick={(event) => {
+                        event.preventDefault();
+                        void rerunActiveCrawls();
+                      }}
+                    >
+                      {bulkPending ? "Enfileirando…" : "Confirmar e enfileirar"}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
+            {canManage && (
+              <Button asChild>
+                <Link href="/admin/crawler/agencies/new">
+                  <Plus />
+                  Nova Agência
+                </Link>
+              </Button>
+            )}
+          </>
+        }
+        description="Fontes globais de dados de mercado, independentes das agências clientes."
+        title="Agências"
+      />
 
       {bulkResult && (
-        <div className="space-y-3 rounded-lg border bg-muted/20 p-4" role="status">
+        <div className="space-y-3 rounded-xl border bg-muted/30 p-4" role="status">
           <div>
-            <p className="font-medium">Reexecução dos crawls ativos</p>
+            <p className="text-sm font-medium text-foreground">Reexecução dos crawls ativos</p>
             <p className="text-sm text-muted-foreground">
               {bulkResult.summary.enqueued} de {bulkResult.summary.active_agencies} enfileirada(s); {bulkResult.summary.skipped} ignorada(s).
             </p>
           </div>
-          {bulkResult.batch && <Link className="text-sm font-medium underline" href={`/admin/crawler/batches/${bulkResult.batch.id}`}>Acompanhar lote #{bulkResult.batch.id}</Link>}
+          {bulkResult.batch && (
+            <Link className="text-sm text-primary hover:underline" href={`/admin/crawler/batches/${bulkResult.batch.id}`}>
+              Acompanhar lote #{bulkResult.batch.id}
+            </Link>
+          )}
           {bulkResult.skipped.length > 0 && (
             <div>
-              <p className="text-sm font-medium">Agências ignoradas</p>
+              <p className="text-sm font-medium text-foreground">Agências ignoradas</p>
               <ul className="mt-1 space-y-1 text-sm text-muted-foreground">
                 {bulkResult.skipped.map((skipped) => (
                   <li key={skipped.crawl_agency.id}>
-                    <Link className="underline" href={`/admin/crawler/agencies/${skipped.crawl_agency.id}`}>
+                    <Link className="text-foreground hover:text-primary hover:underline" href={`/admin/crawler/agencies/${skipped.crawl_agency.id}`}>
                       {skipped.crawl_agency.name}
                     </Link>
                     {`: ${skipped.message}`}
@@ -276,48 +309,42 @@ export function CrawlAgenciesClient({
         </div>
       )}
 
-      <form className="flex flex-wrap items-center gap-2" onSubmit={applySearch}>
-        <div className="min-w-[220px] flex-1">
+      <form className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center" onSubmit={applySearch}>
+        <div className="relative w-full sm:max-w-sm">
+          <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             aria-label="Filtrar Agências"
+            className="pl-9"
             onChange={(event) => setSearch(event.target.value)}
             placeholder="Nome, domínio ou cidade"
             type="search"
             value={search}
           />
         </div>
-
-        <Select onValueChange={handleLifecycleChange} value={lifecycle}>
-          <SelectTrigger aria-label="Filtrar por lifecycle" className="w-[190px]">
-            <SelectValue placeholder="Lifecycle" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todos os lifecycles</SelectItem>
-            <SelectItem value="active">Ativas (usuário final)</SelectItem>
-            <SelectItem value="onboarding">Onboarding</SelectItem>
-            <SelectItem value="paused">Pausadas</SelectItem>
-            <SelectItem value="archived">Arquivadas</SelectItem>
-          </SelectContent>
-        </Select>
-
+        <FilterSelect
+          aria-label="Filtrar por ciclo de vida"
+          className="w-full sm:w-60"
+          emptyValue="all"
+          onValueChange={handleLifecycleChange}
+          options={LIFECYCLE_OPTIONS}
+          value={lifecycle}
+        />
         <Select onValueChange={handlePerPageChange} value={String(perPage)}>
-          <SelectTrigger aria-label="Quantidade por página" className="w-[150px]">
+          <SelectTrigger aria-label="Quantidade por página" className="w-full sm:w-40" size="sm">
             <SelectValue placeholder="Por página" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="15">15 por página</SelectItem>
-            <SelectItem value="25">25 por página</SelectItem>
-            <SelectItem value="50">50 por página</SelectItem>
-            <SelectItem value="100">100 por página</SelectItem>
+            {PER_PAGE_OPTIONS.map((option) => (
+              <SelectItem key={option} value={String(option)}>{option} por página</SelectItem>
+            ))}
           </SelectContent>
         </Select>
-
-        <Button type="submit">Buscar</Button>
-        {isFiltered && (
-          <Button onClick={clearFilters} type="button" variant="outline">
-            Limpar
-          </Button>
-        )}
+        <div className="flex gap-2">
+          <Button type="submit" variant="outline">Buscar</Button>
+          {isFiltered && (
+            <Button onClick={clearFilters} type="button" variant="ghost">Limpar</Button>
+          )}
+        </div>
       </form>
 
       <DataTable
@@ -325,7 +352,9 @@ export function CrawlAgenciesClient({
         data={initialAgencies}
         emptyMessage="Nenhuma agência encontrada."
         pageCount={pageCount}
+        pageSize={pageSize}
+        total={total}
       />
-    </section>
+    </div>
   );
 }
