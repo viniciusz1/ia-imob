@@ -12,8 +12,10 @@ vi.mock('next/navigation', () => ({
     useSearchParams: () => new URLSearchParams('status=disponivel'),
 }));
 
+const mutateAsync = vi.fn();
+
 vi.mock('@/hooks/useProperties', () => ({
-    useDeleteProperty: () => ({ isPending: false, mutateAsync: vi.fn() }),
+    useDeleteProperty: () => ({ isPending: false, mutateAsync }),
 }));
 
 function property(id: number): Property {
@@ -35,6 +37,29 @@ function property(id: number): Property {
 describe('PropertiesClient', () => {
     beforeEach(() => {
         push.mockReset();
+        mutateAsync.mockReset();
+    });
+
+    it('opens the property when any part of the row is clicked', () => {
+        render(<PropertiesClient initialData={[property(7)]} page={1} pageCount={1} pageSize={10} total={1} />);
+
+        fireEvent.click(screen.getByText('Joinville'));
+
+        expect(push).toHaveBeenCalledWith('/properties/7/edit');
+    });
+
+    it('asks for confirmation in a dialog before deleting', () => {
+        render(<PropertiesClient initialData={[property(7)]} page={1} pageCount={1} pageSize={10} total={1} />);
+
+        fireEvent.click(screen.getByRole('button', { name: 'Excluir' }));
+
+        expect(push).not.toHaveBeenCalled();
+        expect(screen.getByRole('alertdialog')).toHaveTextContent('O imóvel "Imóvel 7" será excluído.');
+
+        fireEvent.click(screen.getByRole('button', { name: 'Cancelar' }));
+
+        expect(mutateAsync).not.toHaveBeenCalled();
+        expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
     });
 
     it('shows the API page summary and navigates through the URL', () => {

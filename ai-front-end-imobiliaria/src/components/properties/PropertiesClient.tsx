@@ -2,15 +2,25 @@
 
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useState, type MouseEvent } from "react";
 import { isAxiosError } from "axios";
-import { Building2, Pencil, Plus, Star, Trash2 } from "lucide-react";
+import { Building2, Loader2, Pencil, Plus, Star, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useDeleteProperty } from "@/hooks/useProperties";
 import type { Property } from "@/types/property";
 import { EmptyState } from "@/components/layout/EmptyState";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PaginationFooter } from "@/components/layout/PaginationFooter";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -56,6 +66,17 @@ function formatMoney(value: number | null): string {
     }).format(value);
 }
 
+function editHref(property: Property): string {
+    return `/properties/${property.id}/edit`;
+}
+
+// Clicks on the row's own controls (name link, edit/delete buttons) keep their
+// behaviour; any other click on the row opens the property.
+function isInteractiveTarget(event: MouseEvent<HTMLElement>): boolean {
+    const target = event.target as HTMLElement;
+    return target.closest("a, button, input, label, [role='checkbox'], [role='menuitem']") !== null;
+}
+
 function StatusBadge({ status }: { status: string }) {
     const badge = STATUS_BADGES[status];
 
@@ -73,6 +94,7 @@ export function PropertiesClient({ initialData, page, pageCount, pageSize, total
     const [properties, setProperties] = useState(initialData);
     const [loadedData, setLoadedData] = useState(initialData);
     const deleteMutation = useDeleteProperty();
+    const [pendingDelete, setPendingDelete] = useState<Property | null>(null);
 
     // A new page from the server replaces the local list.
     if (initialData !== loadedData) {
@@ -87,10 +109,6 @@ export function PropertiesClient({ initialData, page, pageCount, pageSize, total
     }
 
     async function handleDelete(property: Property) {
-        if (!confirm(`Deseja excluir o imóvel "${property.title}"?`)) {
-            return;
-        }
-
         try {
             await deleteMutation.mutateAsync(property.id);
             setProperties((current) => current.filter((item) => item.id !== property.id));
@@ -102,7 +120,14 @@ export function PropertiesClient({ initialData, page, pageCount, pageSize, total
                 (isAxiosError<{ message?: string }>(error) && error.response?.data?.message) ||
                 "Não foi possível excluir o imóvel."
             );
+        } finally {
+            setPendingDelete(null);
         }
+    }
+
+    function handleRowClick(event: MouseEvent<HTMLTableRowElement>, property: Property) {
+        if (isInteractiveTarget(event)) return;
+        router.push(editHref(property));
     }
 
     return (
@@ -137,12 +162,16 @@ export function PropertiesClient({ initialData, page, pageCount, pageSize, total
                     </TableHeader>
                     <TableBody>
                         {properties.map((property) => (
-                            <TableRow key={property.id}>
+                            <TableRow
+                                className="cursor-pointer"
+                                key={property.id}
+                                onClick={(event) => handleRowClick(event, property)}
+                            >
                                 <TableCell>
                                     <div className="flex items-center gap-2">
                                         <Link
                                             className="block max-w-[320px] truncate text-sm text-foreground hover:text-primary hover:underline"
-                                            href={`/properties/${property.id}/edit`}
+                                            href={editHref(property)}
                                         >
                                             {property.title}
                                         </Link>
@@ -188,7 +217,7 @@ export function PropertiesClient({ initialData, page, pageCount, pageSize, total
                                         >
                                             <Link
                                                 aria-label="Editar"
-                                                href={`/properties/${property.id}/edit`}
+                                                href={editHref(property)}
                                                 title="Editar"
                                             >
                                                 <Pencil />
@@ -198,7 +227,7 @@ export function PropertiesClient({ initialData, page, pageCount, pageSize, total
                                             aria-label="Excluir"
                                             className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                                             disabled={deleteMutation.isPending}
-                                            onClick={() => void handleDelete(property)}
+                                            onClick={() => setPendingDelete(property)}
                                             size="icon-sm"
                                             title="Excluir"
                                             variant="ghost"
@@ -232,6 +261,37 @@ export function PropertiesClient({ initialData, page, pageCount, pageSize, total
                     total={total}
                 />
             </Card>
+
+            <AlertDialog
+                onOpenChange={(open) => {
+                    if (!open && !deleteMutation.isPending) setPendingDelete(null);
+                }}
+                open={pendingDelete !== null}
+            >
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Excluir imóvel?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            O imóvel &quot;{pendingDelete?.title}&quot; será excluído. Essa ação não pode ser desfeita.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={deleteMutation.isPending}>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction
+                            disabled={deleteMutation.isPending}
+                            onClick={(event) => {
+                                // Keep the dialog open until the API answers.
+                                event.preventDefault();
+                                if (pendingDelete) void handleDelete(pendingDelete);
+                            }}
+                            variant="destructive"
+                        >
+                            {deleteMutation.isPending && <Loader2 className="animate-spin" />}
+                            Excluir
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     );
 }

@@ -2,10 +2,20 @@
 
 import { useState } from "react";
 import { isAxiosError } from "axios";
-import { KeyRound, Plus, ShieldAlert, ShieldCheck } from "lucide-react";
+import { KeyRound, Loader2, Plus, ShieldAlert, ShieldCheck } from "lucide-react";
 
 import { PageHeader } from "@/components/layout/PageHeader";
 import { StatCard } from "@/components/layout/StatCard";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { RolesDataTable } from "@/components/features/roles/RolesDataTable";
 import { RoleFormModal } from "@/components/features/roles/RoleFormModal";
@@ -29,6 +39,7 @@ export function RolesClient({ initialData }: RolesClientProps) {
     const [modalOpen, setModalOpen] = useState(false);
     const [editingRole, setEditingRole] = useState<Role | null>(null);
     const deleteMutation = useDeleteRole();
+    const [pendingDelete, setPendingDelete] = useState<Role | null>(null);
 
     const permissionsInUse = new Set(
         initialData.flatMap((role) => (role.permissions || []).map((permission) => permission.id))
@@ -47,17 +58,21 @@ export function RolesClient({ initialData }: RolesClientProps) {
         setModalOpen(true);
     };
 
-    const handleDelete = async (role: Role) => {
-        if (confirm(`Tem certeza que deseja excluir o grupo '${role.name}'?`)) {
-            try {
-                await deleteMutation.mutateAsync(role.id);
-                toast.success("Grupo excluído com sucesso.");
-            } catch (error: unknown) {
-                toast.error(
-                    (isAxiosError<{ message?: string }>(error) && error.response?.data?.message) ||
-                    "Não foi possível excluir o grupo."
-                );
-            }
+    const handleDelete = (role: Role) => {
+        setPendingDelete(role);
+    };
+
+    const confirmDelete = async (role: Role) => {
+        try {
+            await deleteMutation.mutateAsync(role.id);
+            toast.success("Grupo excluído com sucesso.");
+        } catch (error: unknown) {
+            toast.error(
+                (isAxiosError<{ message?: string }>(error) && error.response?.data?.message) ||
+                "Não foi possível excluir o grupo."
+            );
+        } finally {
+            setPendingDelete(null);
         }
     };
 
@@ -115,6 +130,37 @@ export function RolesClient({ initialData }: RolesClientProps) {
                 onOpenChange={handleModalChange}
                 initialData={editingRole}
             />
+
+            <AlertDialog
+                onOpenChange={(open) => {
+                    if (!open && !deleteMutation.isPending) setPendingDelete(null);
+                }}
+                open={pendingDelete !== null}
+            >
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Excluir grupo?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            O grupo &quot;{pendingDelete?.name}&quot; será excluído. Essa ação não pode ser desfeita.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={deleteMutation.isPending}>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction
+                            disabled={deleteMutation.isPending}
+                            onClick={(event) => {
+                                // Keep the dialog open until the API answers.
+                                event.preventDefault();
+                                if (pendingDelete) void confirmDelete(pendingDelete);
+                            }}
+                            variant="destructive"
+                        >
+                            {deleteMutation.isPending && <Loader2 className="animate-spin" />}
+                            Excluir
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     );
 }
