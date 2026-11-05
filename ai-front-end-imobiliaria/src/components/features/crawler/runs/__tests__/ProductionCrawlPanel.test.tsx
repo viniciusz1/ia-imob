@@ -56,7 +56,7 @@ const agency: CrawlAgency = {
     version: activePolicy.version,
     source: "agency_active",
     strategies: activePolicy.strategies,
-    configuration: activePolicy.configuration,
+    configuration: { ...activePolicy.configuration },
   },
   created_at: "2026-07-15T12:00:00Z",
   updated_at: "2026-07-15T12:00:00Z",
@@ -96,7 +96,7 @@ describe("ProductionCrawlPanel", () => {
         version: 2,
         source: "agency_active",
         strategies: overridePolicy.strategies,
-        configuration: overridePolicy.configuration,
+        configuration: { ...overridePolicy.configuration },
       },
     });
   });
@@ -125,6 +125,33 @@ describe("ProductionCrawlPanel", () => {
       crawl_agency_id: 42,
       discovery_mode: "existing",
       discovery_snapshot_id: 5,
+      extraction_profile_id: 8,
+    }));
+  });
+
+  it("allows an existing snapshot without an active discovery policy", async () => {
+    render(
+      <ProductionCrawlPanel
+        agency={{
+          ...agency,
+          active_discovery_policy_version_id: null,
+          active_discovery_policy: null,
+        }}
+        discoveryPolicies={[]}
+        profiles={[{ id: 8, version: 1, status: "approved", sample_url: "https://example.com/1" }]}
+        snapshots={[{ id: 33, url_count: 500, created_at: "2026-07-15T12:00:00Z" }]}
+      />,
+    );
+
+    fireEvent.change(screen.getByRole("combobox", { name: /discovery do crawl/i }), {
+      target: { value: "33" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Rodar Crawl" }));
+
+    await waitFor(() => expect(mockedQueue).toHaveBeenCalledWith({
+      crawl_agency_id: 42,
+      discovery_mode: "existing",
+      discovery_snapshot_id: 33,
       extraction_profile_id: 8,
     }));
   });
@@ -202,5 +229,23 @@ describe("ProductionCrawlPanel", () => {
 
     expect(screen.queryByRole("button", { name: "Rodar Crawl" })).not.toBeInTheDocument();
     expect(screen.getByLabelText("Política para esta operação")).toBeDisabled();
+  });
+
+  it("explains quality prerequisites and blocks a new production", () => {
+    render(
+      <ProductionCrawlPanel
+        agency={agency}
+        discoveryPolicies={[activePolicy]}
+        hasActiveQualityPolicy={false}
+        pendingCandidateRunId={33}
+        profiles={[{ id: 7, version: 1, status: "active", sample_url: "https://example.com/1" }]}
+        snapshots={[]}
+      />,
+    );
+
+    expect(screen.getByText("Nenhuma Política de Qualidade ativa")).toBeInTheDocument();
+    expect(screen.getByText(/Snapshot Candidato aguardando Qualidade/i)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Resolver em Qualidade" })).toHaveAttribute("href", "/admin/crawler/agencies/42/quality");
+    expect(screen.getByRole("button", { name: "Rodar Crawl" })).toBeDisabled();
   });
 });

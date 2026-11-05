@@ -1,11 +1,15 @@
 import {
+  BarChart3,
   Bot,
   Building2,
   Calculator,
+  ClipboardList,
   CreditCard,
+  Gavel,
   Globe,
   Landmark,
   Radar,
+  Sparkles,
   ShieldCheck,
   Users,
   type LucideIcon,
@@ -17,6 +21,7 @@ export interface DashboardModule {
   href: string;
   icon: LucideIcon;
   permissions: string[];
+  agencyOnly?: boolean;
   platformOnly?: boolean;
   dashboard?: {
     title: string;
@@ -34,6 +39,29 @@ export const dashboardModules: DashboardModule[] = [
     dashboard: {
       title: "Gerenciar imóveis",
       description: "Cadastre, edite e acompanhe seus imóveis.",
+    },
+  },
+  {
+    id: "new-properties",
+    title: "Novos imóveis",
+    href: "/novos-imoveis",
+    icon: Sparkles,
+    permissions: ["properties.view"],
+    agencyOnly: true,
+    dashboard: {
+      title: "Novos imóveis",
+      description: "Veja anúncios recentes e oportunidades agrupados por imobiliária.",
+    },
+  },
+  {
+    id: "auctions",
+    title: "Leilões de Imóveis",
+    href: "/leiloes",
+    icon: Gavel,
+    permissions: [],
+    dashboard: {
+      title: "Módulo de Leilões",
+      description: "Oportunidades em Jaraguá do Sul e região (Judiciais, Extrajudiciais e CAIXA).",
     },
   },
   {
@@ -59,6 +87,28 @@ export const dashboardModules: DashboardModule[] = [
     dashboard: {
       title: "Buscar com IA",
       description: "Encontre imóveis usando linguagem natural.",
+    },
+  },
+  {
+    id: "market-analytics",
+    title: "Análise de mercado",
+    href: "/analitico/mercado",
+    icon: BarChart3,
+    permissions: ["analytics.market.view"],
+    dashboard: {
+      title: "Análise de mercado",
+      description: "Acompanhe estoque, preços e rankings do mercado coletado.",
+    },
+  },
+  {
+    id: "valuation-analytics",
+    title: "Análise de avaliações",
+    href: "/analitico/avaliacoes",
+    icon: ClipboardList,
+    permissions: ["analytics.market.view"],
+    dashboard: {
+      title: "Análise de avaliações",
+      description: "Acompanhe volume, resultado e valores das avaliações da imobiliária.",
     },
   },
   {

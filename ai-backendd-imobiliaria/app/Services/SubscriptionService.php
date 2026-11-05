@@ -4,8 +4,8 @@ namespace App\Services;
 
 use App\Enums\BillingType;
 use App\Enums\SubscriptionStatus;
-use App\Models\SubscriptionPlan;
 use App\Models\AgencySubscription;
+use App\Models\SubscriptionPlan;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;

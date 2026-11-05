@@ -13,19 +13,39 @@ class ListingInventoryService
 
     public function applyPublishedSnapshot(CrawlerRun $run): void
     {
+        $urlsByExternalId = [];
+        $run->marketProperties()->orderBy('id')->each(function (MarketProperty $property) use (&$urlsByExternalId): void {
+            $payload = $property->payload;
+            $externalId = $this->keys->externalId($payload);
+            if ($externalId === null) {
+                return;
+            }
+            $url = $property->link_imovel ?? ($payload['url'] ?? null);
+            $canonicalUrl = $this->keys->canonicalizeUrl((string) $url);
+            $urlsByExternalId[$externalId][$canonicalUrl] = true;
+        });
+
         $observedIdentityIds = [];
-        $run->marketProperties()->orderBy('id')->each(function (MarketProperty $property) use ($run, &$observedIdentityIds): void {
+        $run->marketProperties()->orderBy('id')->each(function (MarketProperty $property) use ($run, $urlsByExternalId, &$observedIdentityIds): void {
             $payload = $property->payload;
             $url = $property->link_imovel ?? ($payload['url'] ?? null);
-            $listingKey = $this->keys->resolve($payload, is_string($url) ? $url : null);
+            $rawExternalId = $this->keys->externalId($payload);
+            $hasUniqueExternalId = $rawExternalId !== null && count($urlsByExternalId[$rawExternalId] ?? []) === 1;
+            $externalId = $hasUniqueExternalId ? $rawExternalId : null;
+            $listingKey = $hasUniqueExternalId
+                ? $this->keys->resolve($payload, is_string($url) ? $url : null)
+                : $this->keys->resolveUrlKey(is_string($url) ? $url : null);
             $identity = ListingIdentity::query()->firstOrCreate(
                 ['crawl_agency_id' => $run->crawl_agency_id, 'listing_key' => $listingKey],
                 [
-                    'external_id' => $this->keys->externalId($payload),
+                    'external_id' => $externalId,
                     'canonical_url' => $this->keys->canonicalizeUrl((string) $url),
                     'inventory_state' => 'active',
                 ],
             );
+            if (in_array($identity->id, $observedIdentityIds, true)) {
+                return;
+            }
             $isNew = $identity->wasRecentlyCreated;
             $identity->refresh();
             $previousVersion = $identity->current_version_id === null
@@ -53,7 +73,7 @@ class ListingInventoryService
                 'observed_at' => now(),
             ]);
             $identity->update([
-                'external_id' => $this->keys->externalId($payload),
+                'external_id' => $externalId,
                 'canonical_url' => $this->keys->canonicalizeUrl((string) $url),
                 'inventory_state' => $removalReason === null ? 'active' : 'removed',
                 'consecutive_absences' => $removalReason === null ? 0 : 2,

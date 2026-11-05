@@ -5,8 +5,10 @@ import {
   adoptOnboardingDiscoverySnapshot,
   listCrawlAgencies,
   listCrawlAgenciesPage,
+  listCrawlerOperationsPage,
   listOnboardingDiscoverySnapshotCandidates,
   listProspects,
+  queueBulkProductionCrawls,
 } from "../crawlerService";
 
 vi.mock("../api", () => ({
@@ -36,6 +38,18 @@ describe("crawlerService pagination", () => {
     expect(result).toEqual(response);
   });
 
+  it("returns operations pagination metadata and forwards queue filters", async () => {
+    const response = {
+      data: [],
+      meta: { current_page: 1, last_page: 1, per_page: 50, total: 0, from: null, to: null },
+    };
+    vi.mocked(api.get).mockResolvedValue({ data: response });
+
+    const filters = { states: ["queued" as const], sort: "created_at" as const, direction: "asc" as const, per_page: 50 };
+    await expect(listCrawlerOperationsPage(filters)).resolves.toEqual(response);
+    expect(api.get).toHaveBeenCalledWith("/api/v1/admin/crawler/operations", { params: filters });
+  });
+
   it("loads enough agencies for global operation controls", async () => {
     vi.mocked(api.get).mockResolvedValue({ data: { data: [] } });
 
@@ -43,6 +57,21 @@ describe("crawlerService pagination", () => {
     expect(api.get).toHaveBeenCalledWith("/api/v1/admin/crawler/crawl-agencies", {
       params: { per_page: 100 },
     });
+  });
+
+  it("confirms the bulk production crawl command", async () => {
+    const result = {
+      summary: { active_agencies: 2, enqueued: 2, skipped: 0 },
+      group: null,
+      skipped: [],
+    };
+    vi.mocked(api.post).mockResolvedValue({ data: { data: result } });
+
+    await expect(queueBulkProductionCrawls()).resolves.toEqual(result);
+    expect(api.post).toHaveBeenCalledWith(
+      "/api/v1/admin/crawler/production-crawls/bulk",
+      { confirmed: true },
+    );
   });
 
   it("loads enough prospects for the review workspace", async () => {

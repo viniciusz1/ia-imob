@@ -5,6 +5,7 @@ namespace Tests\Feature\Crawler;
 use App\Models\Crawler\CrawlAgency;
 use App\Models\Crawler\CrawlerOperation;
 use App\Models\Crawler\DiscoverySnapshot;
+use App\Models\Crawler\MarketDataContractVersion;
 use App\Models\Crawler\WorkerInstance;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -61,13 +62,13 @@ class DiscoveryOperationApiTest extends TestCase
             'name' => 'Policy Source', 'slug' => 'policy-source',
             'base_url' => 'https://policy.example.com', 'root_domain' => 'policy.example.com',
         ]);
-        $contract = \App\Models\Crawler\MarketDataContractVersion::query()->where('status', 'active')->sole();
+        $contract = MarketDataContractVersion::query()->where('status', 'active')->sole();
 
         $this->actingAs($admin)->postJson('/api/v1/admin/crawler/operations', [
             'type' => 'discovery', 'crawl_agency_id' => $agency->id,
             'market_data_contract_version_id' => $contract->id,
             'discovery_policy' => [
-                'sources' => ['sitemap', 'robots', 'homepage'],
+                'sources' => ['sitemap', 'robots', 'homepage', 'playwright'],
                 'max_urls' => 250,
                 'include_subdomains' => false,
                 'use_browser_for_homepage' => true,
@@ -75,7 +76,7 @@ class DiscoveryOperationApiTest extends TestCase
                 'probe_paths' => ['/imoveis'],
             ],
         ])->assertCreated()
-            ->assertJsonPath('data.plan.discovery_policy.sources', ['sitemap', 'robots', 'homepage'])
+            ->assertJsonPath('data.plan.discovery_policy.sources', ['sitemap', 'robots', 'homepage', 'playwright'])
             ->assertJsonPath('data.plan.discovery_policy.max_urls', 250)
             ->assertJsonPath('data.plan.discovery_policy.include_subdomains', false)
             ->assertJsonPath('data.plan.discovery_policy.use_browser_for_homepage', true);

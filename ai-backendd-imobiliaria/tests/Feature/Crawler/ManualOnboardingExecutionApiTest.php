@@ -660,6 +660,216 @@ class ManualOnboardingExecutionApiTest extends TestCase
         ])->save();
     }
 
+    public function test_manual_onboarding_can_specify_candidate_extraction_profile_for_validation(): void
+    {
+        [$agency] = $this->promoteProspect('mutable-profile');
+        $execution = $this->confirmInlineManualPlan($agency, 'Mutable profile');
+        $coordinator = app(OnboardingExecutionCoordinator::class);
+
+        $this->actingAs($this->admin)
+            ->postJson("/api/v1/admin/crawler/onboarding-executions/{$execution->id}/actions", [
+                'action' => 'run_discovery',
+            ])
+            ->assertOk();
+        $discoveryOperation = $execution->operations()->where('onboarding_step', 'discovery')->firstOrFail();
+        $snapshot = $this->snapshotFor($discoveryOperation, $agency, ["{$agency->base_url}/property/1"]);
+        $this->succeed($discoveryOperation, ['discovery_snapshot_id' => $snapshot->id]);
+        $coordinator->reconcile($execution->refresh());
+
+        $this->actingAs($this->admin)
+            ->postJson("/api/v1/admin/crawler/onboarding-executions/{$execution->id}/actions", [
+                'action' => 'confirm_sample_url',
+                'sample_url' => "{$agency->base_url}/property/1",
+            ])
+            ->assertOk();
+
+        $this->actingAs($this->admin)
+            ->postJson("/api/v1/admin/crawler/onboarding-executions/{$execution->id}/actions", [
+                'action' => 'run_profile_generation',
+            ])
+            ->assertOk();
+        $generationOperation = $execution->operations()->where('onboarding_step', 'profile_generation')->firstOrFail();
+        $this->succeed($generationOperation, ['fields_detected' => 2]);
+        $this->profileFor($generationOperation, $snapshot, $execution);
+        $coordinator->reconcile($execution->refresh());
+
+        // Create profile v2 created by another generation operation
+        $generationOperation2 = CrawlerOperation::query()->create([
+            'type' => 'profile_generation',
+            'state' => 'succeeded',
+            'stage' => 'completed',
+            'progress_percentage' => 100,
+            'requested_by' => $this->admin->id,
+            'crawl_agency_id' => $agency->id,
+            'market_data_contract_version_id' => $execution->market_data_contract_version_id,
+            'plan' => ['sample_url' => "{$agency->base_url}/property/2"],
+        ]);
+        $profileV2 = ExtractionProfile::query()->create([
+            'crawl_agency_id' => $agency->id,
+            'discovery_snapshot_id' => $snapshot->id,
+            'market_data_contract_version_id' => $execution->market_data_contract_version_id,
+            'created_by_operation_id' => $generationOperation2->id,
+            'version' => 2,
+            'status' => 'candidate',
+            'sample_url' => "{$agency->base_url}/property/2",
+            'schemas' => ['xpath' => ['baseSelector' => '//body', 'fields' => []]],
+            'strategies' => ['xpath'],
+            'fields' => $execution->resolved_configuration['market_data_contract']['fields'],
+            'parameters' => [],
+        ]);
+
+        $this->actingAs($this->admin)
+            ->postJson("/api/v1/admin/crawler/onboarding-executions/{$execution->id}/actions", [
+                'action' => 'run_profile_validation',
+                'extraction_profile_id' => $profileV2->id,
+            ])
+            ->assertOk();
+
+        $validationOperation = $execution->operations()->where('onboarding_step', 'profile_validation')->firstOrFail();
+        $this->assertSame($profileV2->id, $validationOperation->plan['extraction_profile_id']);
+        $this->assertSame($profileV2->id, $execution->refresh()->extraction_profile_id);
+    }
+
+    public function test_profile_validation_endpoint_with_link_to_onboarding_links_to_active_execution(): void
+    {
+        [$agency] = $this->promoteProspect('link-validation');
+        $execution = $this->confirmInlineManualPlan($agency, 'Link validation');
+        $coordinator = app(OnboardingExecutionCoordinator::class);
+
+        $this->actingAs($this->admin)
+            ->postJson("/api/v1/admin/crawler/onboarding-executions/{$execution->id}/actions", [
+                'action' => 'run_discovery',
+            ])
+            ->assertOk();
+        $discoveryOperation = $execution->operations()->where('onboarding_step', 'discovery')->firstOrFail();
+        $snapshot = $this->snapshotFor($discoveryOperation, $agency, ["{$agency->base_url}/property/1"]);
+        $this->succeed($discoveryOperation, ['discovery_snapshot_id' => $snapshot->id]);
+        $coordinator->reconcile($execution->refresh());
+
+        $this->actingAs($this->admin)
+            ->postJson("/api/v1/admin/crawler/onboarding-executions/{$execution->id}/actions", [
+                'action' => 'confirm_sample_url',
+                'sample_url' => "{$agency->base_url}/property/1",
+            ])
+            ->assertOk();
+
+        $this->actingAs($this->admin)
+            ->postJson("/api/v1/admin/crawler/onboarding-executions/{$execution->id}/actions", [
+                'action' => 'run_profile_generation',
+            ])
+            ->assertOk();
+        $generationOperation = $execution->operations()->where('onboarding_step', 'profile_generation')->firstOrFail();
+        $this->succeed($generationOperation, ['fields_detected' => 2]);
+        $this->profileFor($generationOperation, $snapshot, $execution);
+        $coordinator->reconcile($execution->refresh());
+
+        $generationOperation2 = CrawlerOperation::query()->create([
+            'type' => 'profile_generation',
+            'state' => 'succeeded',
+            'stage' => 'completed',
+            'progress_percentage' => 100,
+            'requested_by' => $this->admin->id,
+            'crawl_agency_id' => $agency->id,
+            'market_data_contract_version_id' => $execution->market_data_contract_version_id,
+            'plan' => ['sample_url' => "{$agency->base_url}/property/2"],
+        ]);
+        $profileV2 = ExtractionProfile::query()->create([
+            'crawl_agency_id' => $agency->id,
+            'discovery_snapshot_id' => $snapshot->id,
+            'market_data_contract_version_id' => $execution->market_data_contract_version_id,
+            'created_by_operation_id' => $generationOperation2->id,
+            'version' => 2,
+            'status' => 'candidate',
+            'sample_url' => "{$agency->base_url}/property/2",
+            'schemas' => ['xpath' => ['baseSelector' => '//body', 'fields' => []]],
+            'strategies' => ['xpath'],
+            'fields' => $execution->resolved_configuration['market_data_contract']['fields'],
+            'parameters' => [],
+        ]);
+
+        $this->actingAs($this->admin)
+            ->postJson("/api/v1/admin/crawler/extraction-profiles/{$profileV2->id}/validation", [
+                'link_to_onboarding' => true,
+            ])
+            ->assertCreated();
+
+        $this->assertSame($profileV2->id, $execution->refresh()->extraction_profile_id);
+        $this->assertSame('profile_validation', $execution->current_step);
+        $this->assertSame('running', $execution->state);
+
+        $validationOperation = $execution->operations()->where('onboarding_step', 'profile_validation')->firstOrFail();
+        $this->assertSame($profileV2->id, $validationOperation->plan['extraction_profile_id']);
+    }
+
+    public function test_discovery_snapshot_can_be_swapped_after_profile_generation(): void
+    {
+        [$agency] = $this->promoteProspect('swap-discovery');
+        $execution = $this->confirmInlineManualPlan($agency, 'Swap discovery');
+        $coordinator = app(OnboardingExecutionCoordinator::class);
+
+        $this->actingAs($this->admin)
+            ->postJson("/api/v1/admin/crawler/onboarding-executions/{$execution->id}/actions", [
+                'action' => 'run_discovery',
+            ])
+            ->assertOk();
+        $discoveryOperation = $execution->operations()->where('onboarding_step', 'discovery')->firstOrFail();
+        $snapshot1 = $this->snapshotFor($discoveryOperation, $agency, ["{$agency->base_url}/property/1"]);
+        $this->succeed($discoveryOperation, ['discovery_snapshot_id' => $snapshot1->id]);
+        $coordinator->reconcile($execution->refresh());
+
+        $this->actingAs($this->admin)
+            ->postJson("/api/v1/admin/crawler/onboarding-executions/{$execution->id}/actions", [
+                'action' => 'confirm_sample_url',
+                'sample_url' => "{$agency->base_url}/property/1",
+            ])
+            ->assertOk();
+
+        $this->actingAs($this->admin)
+            ->postJson("/api/v1/admin/crawler/onboarding-executions/{$execution->id}/actions", [
+                'action' => 'run_profile_generation',
+            ])
+            ->assertOk();
+        $generationOperation = $execution->operations()->where('onboarding_step', 'profile_generation')->firstOrFail();
+        $this->succeed($generationOperation, ['fields_detected' => 2]);
+        $this->profileFor($generationOperation, $snapshot1, $execution);
+        $coordinator->reconcile($execution->refresh());
+
+        // Create a new independent discovery operation & snapshot
+        $independentDiscovery = CrawlerOperation::query()->create([
+            'type' => 'discovery',
+            'state' => 'succeeded',
+            'stage' => 'completed',
+            'progress_percentage' => 100,
+            'requested_by' => $this->admin->id,
+            'crawl_agency_id' => $agency->id,
+            'plan' => ['base_url' => $agency->base_url],
+        ]);
+        $snapshot2 = DiscoverySnapshot::query()->create([
+            'operation_id' => $independentDiscovery->id,
+            'crawl_agency_id' => $agency->id,
+            'url_count' => 1,
+            'content_hash' => str_repeat('b', 64),
+        ]);
+        DiscoverySnapshotUrl::query()->create([
+            'discovery_snapshot_id' => $snapshot2->id,
+            'url' => "{$agency->base_url}/property/999",
+            'url_hash' => hash('sha256', "{$agency->base_url}/property/999"),
+        ]);
+
+        $this->actingAs($this->admin)
+            ->postJson("/api/v1/admin/crawler/onboarding-executions/{$execution->id}/adopt-discovery-snapshot", [
+                'discovery_snapshot_id' => $snapshot2->id,
+                'note' => 'Swapped discovery to snapshot2 after generation step',
+            ])
+            ->assertOk();
+
+        $refreshed = $execution->refresh();
+        $this->assertSame($snapshot2->id, $refreshed->discovery_snapshot_id);
+        $this->assertSame('sample_url_confirmation', $refreshed->current_step);
+        $this->assertSame('awaiting_manual_step', $refreshed->state);
+        $this->assertSame("{$agency->base_url}/property/999", $refreshed->sample_url);
+    }
+
     private function executionJson(int $executionId): array
     {
         return $this->actingAs($this->admin)

@@ -7,12 +7,15 @@ export interface CrawlAgency {
   slug: string;
   base_url: string;
   root_domain: string;
+  city?: string | null;
+  state?: string | null;
   lifecycle_state: CrawlAgencyLifecycle;
   health_state: CrawlAgencyHealth;
   revalidation_required: boolean;
   current_published_crawl_run_id: number | null;
   active_discovery_policy_version_id?: number | null;
   active_discovery_policy?: ResolvedOnboardingPolicy | null;
+  last_crawled_at?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -40,6 +43,8 @@ export interface CrawlAgencyInput {
   slug: string;
   base_url: string;
   root_domain: string;
+  city?: string | null;
+  state?: string | null;
 }
 
 export type SchedulePreset = "manual" | "daily" | "twice_weekly" | "weekly";
@@ -128,7 +133,11 @@ export interface CrawlerOperation {
   result: Record<string, unknown> | null;
   error: { code: string; message: string } | null;
   discovery_snapshot_id: number | null;
+  attempt?: number;
   created_at: string;
+  claimed_at?: string | null;
+  lease_expires_at?: string | null;
+  updated_at?: string | null;
   completed_at: string | null;
   timeline?: Array<{
     stage: "queue" | "discovery" | "profile" | "crawl" | "filter" | "normalization" | "quality" | "publication";
@@ -140,11 +149,45 @@ export interface CrawlerOperation {
 export interface CrawlerOperationFilters {
   type?: string;
   state?: CrawlerOperationState;
+  states?: CrawlerOperationState[];
+  sort?: "created_at" | "claimed_at" | "completed_at";
+  direction?: "asc" | "desc";
   crawl_agency_id?: number;
   group_id?: number;
   requested_by?: number;
   from?: string;
   to?: string;
+  page?: number;
+  per_page?: number;
+}
+
+export interface PaginatedCrawlerOperations {
+  data: CrawlerOperation[];
+  meta: {
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+    from: number | null;
+    to: number | null;
+  };
+}
+
+export interface CrawlerOperationQueueEntry {
+  position: number;
+  blocked_by_operation_id: number | null;
+  operation: CrawlerOperation;
+}
+
+export interface CrawlerOperationQueue {
+  running: CrawlerOperation[];
+  data: CrawlerOperationQueueEntry[];
+  meta: {
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+  };
 }
 
 export interface CrawlerAlert {
@@ -189,6 +232,32 @@ export interface OperationGroup {
   result: "in_progress" | "succeeded" | "failed" | "partial";
   operations: CrawlerOperation[];
   created_at: string;
+}
+
+export type BulkProductionCrawlSkipCode =
+  | "revalidation_required"
+  | "circuit_open"
+  | "production_in_progress"
+  | "candidate_snapshot_pending"
+  | "missing_active_discovery_policy"
+  | "missing_active_profile"
+  | "inactive_contract"
+  | "missing_active_quality_policy"
+  | "configuration_invalid";
+
+export interface BulkProductionCrawlResult {
+  batch?: import("./productionBatch").ProductionBatch;
+  summary: {
+    active_agencies: number;
+    enqueued: number;
+    skipped: number;
+  };
+  group: OperationGroup | null;
+  skipped: Array<{
+    crawl_agency: { id: number; name: string };
+    code: BulkProductionCrawlSkipCode;
+    message: string;
+  }>;
 }
 
 export interface WorkerInstance {
@@ -255,7 +324,7 @@ export interface ExtractionProfile {
   activated_by: number | null;
   activator?: { id: number; name: string } | null;
   activated_at: string | null;
-  latest_validation_report: ProfileValidationReport | null;
+  latest_validation_report?: ProfileValidationReport | null;
   created_at: string;
 }
 
@@ -293,6 +362,7 @@ export interface CrawlRun {
   id: number;
   operation_id: number;
   crawl_agency_id: number;
+  crawl_agency?: { id: number; name: string; slug?: string } | null;
   discovery_snapshot_id: number | null;
   extraction_profile_id: number;
   market_data_contract_version_id: number;
@@ -303,6 +373,7 @@ export interface CrawlRun {
   publishable: boolean;
   quality_report: QualityGateReport | null;
   exceptional_publication: { published_by: number; reason: string; published_at: string } | null;
+  quality_rejection: { rejected_by: number; reason: string; rejected_at: string } | null;
   counts: { raw: number; normalized: number; rejected: number; errors: number };
   error_summary: Array<Record<string, unknown>>;
   started_at: string;
@@ -439,7 +510,7 @@ export interface ManualOnboardingConfiguration {
 
 export interface OnboardingPlan {
   id: number;
-  prospect_id: number;
+  prospect_id: number | null;
   crawl_agency_id: number;
   name: string | null;
   conduction: OnboardingConduction | null;
@@ -451,7 +522,7 @@ export interface OnboardingPlan {
   first_production_discovery_mode: FirstProductionDiscoveryMode;
   confirmed_by: number | null;
   confirmed_at: string | null;
-  created_by: number;
+  created_by: number | null;
   created_at: string;
   updated_at: string;
 }
@@ -462,6 +533,7 @@ export interface OnboardingPlanInput {
   execution_model_version_id?: number | null;
   manual_configuration?: ManualOnboardingConfiguration | null;
   first_production_discovery_mode: FirstProductionDiscoveryMode;
+  replace_current?: boolean;
 }
 
 export interface ResolvedOnboardingPolicy {

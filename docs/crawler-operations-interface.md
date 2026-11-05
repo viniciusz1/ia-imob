@@ -52,6 +52,8 @@ Um Perfil de Extração Candidato deve passar por um Crawl de Validação com at
 
 A recomendação técnica é ao menos 80% das URLs com registros normalizados válidos, cada campo obrigatório da versão fixada do Contrato de Dados de Mercado com 90% de cobertura antes do filtro e nenhuma Falha Crítica de Validação. Abaixo da recomendação, inclusive quando houver Falhas Críticas de Validação, um Platform Admin pode aprovar explicitamente o perfil com justificativa preservada. Essas falhas exigem revisão humana, mas não são Falhas Bloqueantes do Portão de Qualidade de produção. A recomendação nunca aprova nem ativa automaticamente o perfil, e resultados de validação nunca são publicados como dados de mercado.
 
+A área **Perfis de Extração** não exibe uma faixa separada de “Próxima ação”. Cada perfil apresenta seu estado e suas próprias ações contextuais na listagem. Versões `approved` oferecem **Ativar Perfil de Extração** diretamente no cartão; ao ativar uma versão, o perfil anteriormente ativo volta a `approved`. Quando a Crawl Agency ainda está em onboarding, o perfil `active` oferece **Ativar Crawl Agency** no mesmo local. A seção antes denominada “Versões do perfil” usa o título **Perfis de Extração**.
+
 ## Dados de um Crawl Run
 
 Cada Crawl Run possui a ação **Visualizar dados** com três visões somente leitura:
@@ -61,6 +63,8 @@ Cada Crawl Run possui a ação **Visualizar dados** com três visões somente le
 - **Rejeitados**: motivo e campos ausentes.
 
 As três visões usam paginação, filtros e ordenação no backend. O detalhe de linha mostra payload, warnings de normalização e trace. A visão normalizada também permite filtrar a comparação com o Snapshot Publicado anterior por `novo`, `alterado`, `inalterado`, `ausente` ou `removido`. Runs falhos ou cancelados exibem Resultados Parciais claramente identificados, que não podem ser publicados.
+
+Na revisão de um Snapshot em Quarentena, o Platform Admin pode registrar uma **Recusa de Publicação** com justificativa. A decisão preserva responsável e data, retira o snapshot das pendências de atenção e impede sua Publicação Excepcional; os dados continuam disponíveis somente para diagnóstico e outra revisão exige um novo crawl.
 
 Um anúncio apenas ausente permanece disponível por uma publicação e é removido após duas ausências consecutivas. Sinal explícito de indisponibilidade ou resposta `404`/`410` remove imediatamente. A tabela identifica o motivo e a contagem de ausências; se o anúncio reaparecer, reutiliza sua identidade e recebe uma nova versão.
 

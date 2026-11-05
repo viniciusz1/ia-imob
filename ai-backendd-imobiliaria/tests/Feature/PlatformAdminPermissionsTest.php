@@ -50,6 +50,7 @@ class PlatformAdminPermissionsTest extends TestCase
             'crawler.operations.cancel',
             'crawler.profiles.approve',
             'crawler.agencies.activate',
+            'crawler.snapshots.review',
             'crawler.snapshots.publish_exceptionally',
             'crawler.policies.manage',
             'crawler.schedules.manage',
@@ -109,6 +110,7 @@ class PlatformAdminPermissionsTest extends TestCase
         $this->assertContains('platform.agencies.create', $permissions);
         $this->assertContains('platform.agencies.update', $permissions);
         $this->assertContains('platform.agencies.deactivate', $permissions);
+        $this->assertContains('crawler.snapshots.review', $permissions);
     }
 
     public function test_user_endpoint_excludes_platform_permissions_for_agency_user(): void

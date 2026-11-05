@@ -199,9 +199,10 @@ describe("ValuationsClient", () => {
     vi.mocked(valuationService.getValuation).mockReset();
     vi.mocked(valuationService.getValuations).mockReset();
     vi.mocked(marketPropertyService.getMarketPropertyFilters).mockReset();
-    vi.mocked(marketPropertyService.getMarketPropertyFilters).mockImplementation(async (city) => ({
+    vi.mocked(marketPropertyService.getMarketPropertyFilters).mockImplementation(async (query) => ({
       tipos: ["casa", "apartamento"],
-      bairros: city === "Joinville" ? ["América"] : ["Centro", "Vila Lalau"],
+      bairros: query?.cidade?.[0] === "Joinville" ? ["América"] : ["Centro", "Vila Lalau"],
+      bairros_por_cidade: { "Jaraguá do Sul": ["Centro", "Vila Lalau"], Joinville: ["América"] },
       cidades: ["Jaraguá do Sul", "Joinville"],
       imobiliarias: [],
       quartos: [3],
@@ -295,7 +296,7 @@ describe("ValuationsClient", () => {
       expect(neighborhood).toBeDisabled();
       await waitFor(() => expect(neighborhood).toBeEnabled());
       const expectedNeighborhood = name === "Joinville" ? "América" : "Centro";
-      expect(marketPropertyService.getMarketPropertyFilters).toHaveBeenLastCalledWith(name);
+      expect(marketPropertyService.getMarketPropertyFilters).toHaveBeenLastCalledWith({ cidade: [name] });
       expect(Array.from(neighborhood.options).map((option) => option.value)).not.toContain(name === "Joinville" ? "Centro" : "América");
       fireEvent.change(neighborhood, { target: { value: expectedNeighborhood } });
       fireEvent.click(screen.getByRole("button", { name: /buscar comparáveis/i }));
@@ -363,7 +364,7 @@ describe("ValuationsClient", () => {
     await waitFor(() => expect(neighborhood).toBeEnabled());
     fireEvent.change(neighborhood, { target: { value: "América" } });
     await act(async () => {
-      resolveOld({ tipos: [], cidades: [], bairros: ["Centro"], imobiliarias: [], quartos: [], suites: [], banheiros: [], vagas: [] });
+      resolveOld({ tipos: [], cidades: [], bairros: ["Centro"], bairros_por_cidade: {}, imobiliarias: [], quartos: [], suites: [], banheiros: [], vagas: [] });
       await oldResponse;
     });
     expect(neighborhood).toHaveValue("América");
@@ -507,5 +508,38 @@ describe("ValuationsClient", () => {
     expect(screen.queryByRole("button", { name: /baixar pdf/i })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /baixar word/i })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /exportar excel/i })).not.toBeInTheDocument();
+  });
+
+  it("narrows available neighborhoods to the selected city", async () => {
+    vi.mocked(valuationService.getValuations).mockResolvedValue(paginated([]));
+    const neighborhoodsByCity: Record<string, string[]> = {
+      "Jaraguá do Sul": ["Centro", "Vila Lalau"],
+      Joinville: ["América"],
+    };
+    vi.mocked(marketPropertyService.getMarketPropertyFilters).mockImplementation(async (query) => ({
+      tipos: ["Casa", "Apartamento"],
+      bairros: query?.cidade ? query.cidade.flatMap((city) => neighborhoodsByCity[city] ?? []) : ["América", "Centro", "Vila Lalau"],
+      bairros_por_cidade: neighborhoodsByCity,
+      cidades: ["Jaraguá do Sul", "Joinville"],
+      imobiliarias: [],
+      quartos: [3],
+      suites: [],
+      banheiros: [2],
+      vagas: [1],
+    }));
+
+    render(<ValuationsClient />);
+
+    const citySelect = (await screen.findByLabelText("Cidade")) as HTMLSelectElement;
+    const neighborhoodSelect = (await screen.findByLabelText("Bairro")) as HTMLSelectElement;
+
+    await waitFor(() => expect(citySelect).toBeEnabled());
+    expect(Array.from(citySelect.options).map((opt) => opt.value).filter(Boolean)).toEqual(["Jaraguá do Sul", "Joinville"]);
+
+    fireEvent.change(citySelect, { target: { value: "Jaraguá do Sul" } });
+    await waitFor(() => expect(neighborhoodSelect).toBeEnabled());
+
+    const optionValues = Array.from(neighborhoodSelect.options).map((opt) => opt.value).filter(Boolean);
+    expect(optionValues).toEqual(["Centro", "Vila Lalau"]);
   });
 });

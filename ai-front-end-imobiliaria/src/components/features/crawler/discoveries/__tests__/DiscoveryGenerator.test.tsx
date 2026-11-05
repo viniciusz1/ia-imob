@@ -54,7 +54,7 @@ describe("DiscoveryGenerator", () => {
 
     await waitFor(() => expect(mockedQueueDiscovery).toHaveBeenCalledWith(42, 2, {
       sources: ["sitemap", "cc", "crt", "probe"],
-      max_urls: 500,
+      max_urls: 5000,
       include_subdomains: true,
       use_browser_for_homepage: false,
     }));
@@ -80,12 +80,13 @@ describe("DiscoveryGenerator", () => {
     );
 
     fireEvent.click(screen.getByRole("checkbox", { name: /wayback machine/i }));
+    fireEvent.click(screen.getByRole("checkbox", { name: /listagem e paginação \(playwright\)/i }));
     fireEvent.click(screen.getByRole("checkbox", { name: /common crawl/i }));
     fireEvent.click(screen.getByRole("button", { name: /enfileirar discovery/i }));
 
     await waitFor(() => expect(mockedQueueDiscovery).toHaveBeenCalledWith(42, 2, {
-      sources: ["sitemap", "crt", "probe", "wayback"],
-      max_urls: 500,
+      sources: ["sitemap", "crt", "probe", "wayback", "playwright"],
+      max_urls: 5000,
       include_subdomains: true,
       use_browser_for_homepage: false,
     }));

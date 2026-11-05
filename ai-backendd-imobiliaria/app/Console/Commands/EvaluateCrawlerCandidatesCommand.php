@@ -2,8 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Models\CrawlerRun;
 use App\Services\Crawler\CrawlRunPublicationService;
 use Illuminate\Console\Command;
+use Throwable;
 
 class EvaluateCrawlerCandidatesCommand extends Command
 {
@@ -13,12 +15,21 @@ class EvaluateCrawlerCandidatesCommand extends Command
 
     public function handle(CrawlRunPublicationService $publication): int
     {
-        \App\Models\CrawlerRun::query()
+        $failed = false;
+
+        CrawlerRun::query()
             ->where('publication_state', 'candidate')
             ->whereNotNull('completed_at')
             ->orderBy('id')
-            ->each(fn (\App\Models\CrawlerRun $run) => $publication->evaluate($run));
+            ->each(function (CrawlerRun $run) use (&$failed, $publication): void {
+                try {
+                    $publication->evaluate($run);
+                } catch (Throwable $exception) {
+                    $failed = true;
+                    $this->error("Quality evaluation failed for Candidate Snapshot #{$run->id}: {$exception->getMessage()}");
+                }
+            });
 
-        return self::SUCCESS;
+        return $failed ? self::FAILURE : self::SUCCESS;
     }
 }

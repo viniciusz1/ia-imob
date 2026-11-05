@@ -125,6 +125,21 @@ class ListingInventoryServiceTest extends TestCase
         $this->assertNotContains($gone->current_market_property_id, MarketProperty::query()->latestRun()->pluck('id')->all());
     }
 
+    public function test_non_unique_external_id_within_run_falls_back_to_canonical_url_and_deduplicates_identical_keys(): void
+    {
+        $run = $this->publish([
+            ['codigo' => 'Código: 2659', 'link_imovel' => 'https://inventory.example.com/imovel/2659/comprar/apartamento', 'valor' => 320000],
+            ['codigo' => 'Código: 2659', 'link_imovel' => 'https://inventory.example.com/imovel/2659/alugar/apartamento', 'valor' => 320000],
+            ['codigo' => 'Código: 9999', 'link_imovel' => 'https://inventory.example.com/imovel/9999?utm_source=a', 'valor' => 450000],
+            ['codigo' => 'Código: 9999', 'link_imovel' => 'https://inventory.example.com/imovel/9999?utm_source=b', 'valor' => 450000],
+        ]);
+
+        $this->assertSame('published', $run->publication_state);
+        $this->assertDatabaseCount('crawler.listing_identities', 3);
+        $this->assertDatabaseCount('crawler.listing_versions', 3);
+        $this->assertCount(3, MarketProperty::query()->latestRun()->pluck('id')->all());
+    }
+
     private function publish(array $properties): CrawlerRun
     {
         $contract = MarketDataContractVersion::query()->where('status', 'active')->firstOrFail();

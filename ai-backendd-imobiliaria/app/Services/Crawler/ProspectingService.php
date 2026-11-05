@@ -7,6 +7,7 @@ use App\Models\Crawler\CrawlerOperation;
 use App\Models\Crawler\OnboardingPlan;
 use App\Models\Crawler\Prospect;
 use App\Models\User;
+use App\Support\Crawler\AgencyNameNormalizer;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -105,11 +106,14 @@ class ProspectingService
                 throw ValidationException::withMessages(['root_domain' => 'A website domain is required for promotion.']);
             }
 
+            $normalizedName = AgencyNameNormalizer::normalize($locked->name, $locked->city);
             $agency = CrawlAgency::query()->create([
-                'name' => $locked->name,
-                'slug' => Str::slug($locked->name).'-'.$locked->id,
+                'name' => $normalizedName,
+                'slug' => Str::slug($normalizedName).'-'.$locked->id,
                 'base_url' => $locked->base_url,
                 'root_domain' => $locked->root_domain,
+                'city' => $locked->city,
+                'state' => $locked->state,
                 'lifecycle_state' => 'onboarding',
             ]);
             $plan = OnboardingPlan::query()->create([

@@ -1,0 +1,674 @@
+<?php
+
+namespace App\Services\NewProperties;
+
+use App\Domain\Valuation\TextNormalizer;
+use App\Models\CrawlerRun;
+use App\Models\MarketProperty;
+use App\Services\Crawler\PropertyTypeCatalog;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
+
+/**
+ * Monta a lista de Novos Imóveis e Oportunidades entregue pela API.
+ *
+ * O trabalho acontece em duas etapas: primeiro todo o inventário dos últimos
+ * Snapshots Publicados é classificado; depois os filtros, a ordenação e a
+ * paginação são aplicados sobre esse resultado. Assim, filtrar a tela nunca
+ * muda quem é Novo ou Oportunidade.
+ *
+ * As regras completas estão em docs/contexts/new-properties/CONTEXT.md.
+ */
+class NewPropertiesQueryService
+{
+    /** Quantidade mínima de imóveis parecidos para confiar na mediana de preço. */
+    private const MINIMUM_COMPARABLES = 5;
+
+    /** Vantagem mínima, em relação à mediana, para o anúncio virar Oportunidade. */
+    private const OPPORTUNITY_THRESHOLD_PERCENT = 15.0;
+
+    public function __construct(private readonly PublishedListingHistoryService $history) {}
+
+    /**
+     * Retorna os anúncios agrupados por Imobiliária de Origem.
+     *
+     * Sem opções, devolve a classificação completa. Com opções, devolve apenas
+     * a página pedida, já filtrada e ordenada.
+     *
+     * @return array{groups: list<array<string, mixed>>, meta: array<string, mixed>}
+     */
+    public function get(array $options = []): array
+    {
+        $currentRuns = $this->currentPublishedRuns();
+
+        if ($currentRuns->isEmpty()) {
+            $empty = [
+                'groups' => [],
+                'meta' => [
+                    'updated_at' => null,
+                    'total' => 0,
+                    'total_groups' => 0,
+                    'total_new' => 0,
+                    'total_opportunities' => 0,
+                ],
+            ];
+
+            return $options === [] ? $empty : $this->applyQueryOptions($empty, $options);
+        }
+
+        // Um Snapshot Publicado não muda depois de publicado. Por isso a classificação
+        // é reaproveitada enquanto o usuário troca filtros e páginas, e uma nova
+        // publicação gera outra chave de cache automaticamente.
+        $cacheKey = 'new-properties:classified:v1:'.sha1($currentRuns
+            ->map(fn (CrawlerRun $run): string => $run->id.':'.$run->published_at->toISOString())
+            ->implode('|'));
+        $result = app()->environment('testing')
+            ? $this->classifyCurrentInventory($currentRuns)
+            : Cache::remember($cacheKey, now()->addMinutes(5), fn (): array => $this->classifyCurrentInventory($currentRuns));
+
+        return $options === [] ? $result : $this->applyQueryOptions($result, $options);
+    }
+
+    /**
+     * Aplica as flags Novo e Oportunidade em todos os anúncios atuais.
+     *
+     * As duas flags são independentes: um anúncio pode ter uma, as duas ou nenhuma.
+     *
+     * @param  EloquentCollection<int, CrawlerRun>  $currentRuns
+     * @return array{groups: list<array<string, mixed>>, meta: array<string, mixed>}
+     */
+    private function classifyCurrentInventory(EloquentCollection $currentRuns): array
+    {
+        $histories = $this->history->forCurrentRuns($currentRuns);
+        $properties = $this->currentObservedProperties($currentRuns->pluck('id')->all());
+        $propertiesByRun = $properties->groupBy('crawler_run_id');
+        $comparableCutoff = $currentRuns->max(
+            fn (CrawlerRun $run): string => $run->published_at->toISOString(),
+        );
+        // A amostra de comparáveis usa todas as imobiliárias, não só a do anúncio avaliado.
+        $comparableIndex = $this->buildComparableIndex($properties);
+        $groups = [];
+
+        foreach ($currentRuns as $run) {
+            $runProperties = $propertiesByRun->get($run->id, collect());
+            $history = $histories->get((int) $run->id);
+            $historySummary = $history['summary'];
+            $historyFirstSeen = $history['first_seen_by_identity'];
+            $historyCount = $historySummary['snapshot_count'];
+
+            $classified = [];
+
+            foreach ($runProperties as $property) {
+                $identityId = (int) $property->getAttribute('new_properties_listing_identity_id');
+                $firstSeen = $historyFirstSeen[$identityId] ?? null;
+                // Sem snapshot anterior não há com o que comparar, então nada vira Novo.
+                // Isso evita marcar todo o inventário no primeiro crawl de uma imobiliária.
+                $isNew = $historyCount > 0 && $firstSeen === null;
+                $newReason = match (true) {
+                    $historyCount === 0 => 'insufficient_history',
+                    $isNew => 'absent_in_30_day_window',
+                    default => 'observed_in_window',
+                };
+                $opportunity = $this->classifyOpportunity(
+                    $property,
+                    $identityId,
+                    $comparableIndex,
+                    $comparableCutoff,
+                );
+
+                $classified[] = [
+                    'property' => $property,
+                    'title' => $this->title($property),
+                    'purpose' => $this->purpose($property),
+                    'is_new' => $isNew,
+                    'new_reason' => $newReason,
+                    'history_window_start' => $historySummary['window_start'],
+                    'history_snapshot_count' => $historyCount,
+                    'identified_at' => $run->published_at->toISOString(),
+                    'first_seen_in_current_window_at' => ($firstSeen ?? $run->published_at)->toISOString(),
+                    ...$opportunity,
+                ];
+            }
+
+            $newCount = collect($classified)->where('is_new', true)->count();
+            $opportunityCount = collect($classified)->where('is_opportunity', true)->count();
+            $groups[] = [
+                'crawl_agency' => [
+                    'id' => (int) $run->crawl_agency_id,
+                    'name' => (string) $run->getAttribute('crawl_agency_name'),
+                ],
+                'snapshot' => [
+                    'id' => (int) $run->id,
+                    'published_at' => $run->published_at->toISOString(),
+                ],
+                'counts' => [
+                    'total' => count($classified),
+                    'new' => $newCount,
+                    'opportunities' => $opportunityCount,
+                ],
+                'history' => $historySummary,
+                // A tela lista só anúncios com alguma flag; counts vale para o snapshot inteiro.
+                'properties' => array_values(array_filter(
+                    $classified,
+                    fn (array $property): bool => $property['is_new'] || $property['is_opportunity'],
+                )),
+            ];
+        }
+
+        return [
+            'groups' => $groups,
+            'meta' => [
+                'updated_at' => $comparableCutoff,
+                'total' => collect($groups)->sum('counts.total'),
+                'total_groups' => count($groups),
+                'total_new' => collect($groups)->sum('counts.new'),
+                'total_opportunities' => collect($groups)->sum('counts.opportunities'),
+            ],
+        ];
+    }
+
+    /**
+     * Filtra e pagina os anúncios classificados e remonta os grupos de imobiliárias da página.
+     * A paginação é por anúncio, então uma imobiliária pode aparecer em mais de uma página.
+     * A classificação e a amostra comparável continuam baseadas em todo o inventário publicado.
+     *
+     * @param  array{groups: list<array<string, mixed>>, meta: array<string, mixed>}  $result
+     * @return array{groups: list<array<string, mixed>>, meta: array<string, mixed>}
+     */
+    private function applyQueryOptions(array $result, array $options): array
+    {
+        $entries = [];
+        $facets = [
+            'agencies' => [],
+            'cities' => [],
+            'neighborhoods' => [],
+            'types' => [],
+            'purposes' => [],
+        ];
+
+        // As opções dos filtros vêm de todo o inventário classificado, e não só da página
+        // atual, para o usuário não perder opções ao trocar de página ou aplicar um filtro.
+        foreach ($result['groups'] as $groupIndex => $group) {
+            foreach ($group['properties'] as $property) {
+                $model = $property['property'];
+                $facets['agencies'][(int) $group['crawl_agency']['id']] = $group['crawl_agency'];
+                $this->addFacetOption($facets['cities'], (string) $model->cidade);
+                $this->addFacetOption($facets['neighborhoods'], (string) $model->bairro);
+                $this->addFacetOption(
+                    $facets['types'],
+                    PropertyTypeCatalog::canonicalNameFor($model->tipo) ?? (string) $model->tipo,
+                );
+                if ($property['purpose'] !== null) {
+                    $facets['purposes'][$property['purpose']] = $property['purpose'];
+                }
+
+                if ($this->matchesOptions($property, $group, $options)) {
+                    $entries[] = ['group_index' => $groupIndex, 'property' => $property];
+                }
+            }
+        }
+
+        // O desempate pela data e pelo ID mantém a ordem estável: sem isso, um anúncio
+        // poderia se repetir ou desaparecer ao passar de uma página para outra.
+        usort($entries, static function (array $left, array $right) use ($options): int {
+            $a = $left['property'];
+            $b = $right['property'];
+            $dateOrder = strcmp($b['identified_at'], $a['identified_at']);
+            $order = match ($options['sort'] ?? 'identified_desc') {
+                'identified_asc' => -$dateOrder,
+                'opportunity_desc' => ($b['price_advantage_percentage'] ?? -INF) <=> ($a['price_advantage_percentage'] ?? -INF),
+                default => $dateOrder,
+            };
+
+            return $order ?: ($dateOrder ?: ($a['property']->id <=> $b['property']->id));
+        });
+
+        $page = (int) ($options['page'] ?? 1);
+        $perPage = (int) ($options['per_page'] ?? 24);
+        $total = count($entries);
+        $pageEntries = array_slice($entries, ($page - 1) * $perPage, $perPage);
+        $groups = [];
+
+        // Reagrupa por imobiliária somente os anúncios que caíram nesta página.
+
+        foreach ($pageEntries as $entry) {
+            $index = $entry['group_index'];
+            if (! isset($groups[$index])) {
+                $groups[$index] = [...$result['groups'][$index], 'properties' => []];
+            }
+            $groups[$index]['properties'][] = $entry['property'];
+        }
+
+        foreach (['cities', 'neighborhoods', 'types', 'purposes'] as $facet) {
+            $facets[$facet] = array_values($facets[$facet]);
+            natcasesort($facets[$facet]);
+            $facets[$facet] = array_values($facets[$facet]);
+        }
+        $facets['agencies'] = array_values($facets['agencies']);
+
+        return [
+            'groups' => array_values($groups),
+            'meta' => [
+                ...$result['meta'],
+                'filtered_total' => $total,
+                'filters' => $facets,
+                'pagination' => [
+                    'page' => $page,
+                    'per_page' => $perPage,
+                    'total' => $total,
+                    'last_page' => max(1, (int) ceil($total / $perPage)),
+                    'has_more' => $page * $perPage < $total,
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * As fontes escrevem o mesmo valor de formas diferentes ("Centro", "CENTRO", "São Luis").
+     * Os filtros já comparam o texto normalizado, então cada valor vira uma opção só,
+     * mostrando a forma mais bem escrita entre as encontradas.
+     *
+     * @param  array<string, string>  $options
+     */
+    private function addFacetOption(array &$options, string $value): void
+    {
+        $label = (string) preg_replace('/\s+/u', ' ', trim($value));
+        $key = $this->normalize($label);
+        if ($key === null) {
+            return;
+        }
+
+        // Prefere, nesta ordem: não estar todo em maiúsculas, começar com maiúscula,
+        // ter mais caracteres acentuados e, no empate, a ordem alfabética.
+        $rank = static fn (string $option): array => [
+            mb_strtoupper($option) !== $option,
+            mb_strtoupper(mb_substr($option, 0, 1)) === mb_substr($option, 0, 1),
+            strlen($option),
+            $option,
+        ];
+
+        if (! isset($options[$key]) || $rank($label) > $rank($options[$key])) {
+            $options[$key] = $label;
+        }
+    }
+
+    /**
+     * Confere se o anúncio atende a todos os filtros pedidos.
+     * Textos são comparados sem diferenciar maiúsculas, acentos ou espaços extras.
+     */
+    private function matchesOptions(array $property, array $group, array $options): bool
+    {
+        $model = $property['property'];
+        $matchesText = fn ($actual, string $filter): bool => ! isset($options[$filter])
+            || $this->normalize((string) $actual) === $this->normalize((string) $options[$filter]);
+        $matchesCount = static function ($actual, string $filter) use ($options): bool {
+            if (! isset($options[$filter])) {
+                return true;
+            }
+
+            // A opção "5+" da tela significa cinco ou mais.
+            return $options[$filter] === '5+'
+                ? (int) $actual >= 5
+                : (int) $actual === (int) $options[$filter];
+        };
+
+        if (isset($options['agency_id']) && (int) $options['agency_id'] !== (int) $group['crawl_agency']['id']) {
+            return false;
+        }
+        if (! $matchesText($model->cidade, 'city')
+            || ! $matchesText($model->bairro, 'neighborhood')
+            || ! $matchesText(PropertyTypeCatalog::canonicalNameFor($model->tipo) ?? $model->tipo, 'type')
+            || ! $matchesText($property['purpose'], 'purpose')
+            || ! $matchesCount($model->quartos, 'bedrooms')
+            || ! $matchesCount($model->banheiros, 'bathrooms')
+            || ! $matchesCount($model->vagas, 'parking')) {
+            return false;
+        }
+
+        $flag = $options['flag'] ?? 'all';
+        if (($flag === 'new' && ! $property['is_new'])
+            || ($flag === 'opportunity' && ! $property['is_opportunity'])
+            || ($flag === 'both' && (! $property['is_new'] || ! $property['is_opportunity']))) {
+            return false;
+        }
+
+        if (isset($options['search'])) {
+            $haystack = $this->normalize(implode(' ', [
+                $property['title'], $model->tipo, $property['purpose'], $model->cidade,
+                $model->bairro, $model->descricao, $group['crawl_agency']['name'],
+            ]));
+            $needle = $this->normalize((string) $options['search']);
+            if ($needle !== null && ($haystack === null || ! str_contains($haystack, $needle))) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Busca o snapshot publicado vigente de cada imobiliária.
+     *
+     * Parte de current_published_crawl_run_id e não do último crawl, que pode ter
+     * falhado, estar incompleto ou em quarentena sem nunca ter sido publicado.
+     *
+     * @return EloquentCollection<int, CrawlerRun>
+     */
+    private function currentPublishedRuns(): EloquentCollection
+    {
+        return CrawlerRun::query()
+            ->join('crawler.crawl_agencies as current_agency', function ($join): void {
+                $join->on('current_agency.current_published_crawl_run_id', '=', 'crawler.crawl_runs.id')
+                    ->on('current_agency.id', '=', 'crawler.crawl_runs.crawl_agency_id');
+            })
+            ->where('crawler.crawl_runs.publication_state', 'published')
+            ->whereNotNull('crawler.crawl_runs.published_at')
+            ->orderBy('current_agency.name')
+            ->orderBy('crawler.crawl_runs.id')
+            ->get([
+                'crawler.crawl_runs.*',
+                'current_agency.name as crawl_agency_name',
+            ]);
+    }
+
+    /**
+     * Busca os anúncios realmente observados nos snapshots informados.
+     *
+     * O join com listing_versions traz a Identidade do Anúncio, a chave usada para
+     * reconhecer o mesmo anúncio entre crawls. Anúncios ausentes não têm
+     * market_property_id e os marcados como removidos são descartados aqui, então
+     * nenhum dos dois aparece na tela ou entra na amostra de comparáveis.
+     *
+     * @param  list<int>  $runIds
+     * @return EloquentCollection<int, MarketProperty>
+     */
+    private function currentObservedProperties(array $runIds): EloquentCollection
+    {
+        return MarketProperty::query()
+            ->join('crawler.listing_versions as current_listing_version', function ($join): void {
+                $join->on('current_listing_version.market_property_id', '=', 'crawler.market_properties.id')
+                    ->on('current_listing_version.crawl_run_id', '=', 'crawler.market_properties.crawler_run_id');
+            })
+            ->whereIn('crawler.market_properties.crawler_run_id', $runIds)
+            ->whereNotNull('current_listing_version.market_property_id')
+            ->where('current_listing_version.classification', '!=', 'removed')
+            ->with(['crawlerRun.crawlAgency'])
+            ->orderBy('crawler.market_properties.crawler_run_id')
+            ->orderBy('crawler.market_properties.id')
+            ->get([
+                'crawler.market_properties.*',
+                'current_listing_version.listing_identity_id as new_properties_listing_identity_id',
+            ]);
+    }
+
+    /**
+     * Agrupa os anúncios válidos por segmento (finalidade, cidade, bairro e tipo).
+     *
+     * Com esse índice, cada anúncio é comparado só com os do próprio segmento,
+     * em vez de percorrer o inventário inteiro a cada classificação.
+     *
+     * @param  EloquentCollection<int, MarketProperty>  $properties
+     * @return array<string, list<array{property: MarketProperty, identity_id: int, price_per_square_meter: float}>>
+     */
+    private function buildComparableIndex(EloquentCollection $properties): array
+    {
+        $index = [];
+
+        foreach ($properties as $property) {
+            $segment = $this->segment($property);
+            $price = (float) $property->valor;
+            $area = (float) $property->area;
+
+            if ($segment === null || $price <= 0 || $area <= 0) {
+                continue;
+            }
+
+            $index[$segment][] = [
+                'property' => $property,
+                'identity_id' => (int) $property->getAttribute('new_properties_listing_identity_id'),
+                'price_per_square_meter' => $price / $area,
+            ];
+        }
+
+        return $index;
+    }
+
+    /**
+     * Decide se o anúncio é uma Oportunidade e registra o motivo da decisão.
+     *
+     * Fórmula: vantagem = (mediana por m² - preço por m² do anúncio) / mediana por m² × 100.
+     * O anúncio vira Oportunidade com pelo menos 5 comparáveis e vantagem de 15% ou mais.
+     * A pontuação é a vantagem multiplicada por 4, limitada entre 0 e 100.
+     *
+     * Exemplo: R$ 4.000/m² contra mediana de R$ 5.000/m² dá 20% de vantagem e pontuação 80.
+     *
+     * @param  array<string, list<array{property: MarketProperty, identity_id: int, price_per_square_meter: float}>>  $index
+     * @return array<string, mixed>
+     */
+    private function classifyOpportunity(
+        MarketProperty $candidate,
+        int $identityId,
+        array $index,
+        string $comparableCutoff,
+    ): array {
+        $price = (float) $candidate->valor;
+        $area = (float) $candidate->area;
+        $pricePerSquareMeter = $price > 0 && $area > 0 ? $price / $area : null;
+        // Resultado padrão, ajustado abaixo conforme o anúncio avança nas verificações.
+        $base = [
+            'is_opportunity' => false,
+            'opportunity_score' => null,
+            'opportunity_reason' => 'missing_price_or_area',
+            'opportunity_explanation' => 'Preço ou área indisponível para calcular o custo-benefício.',
+            'price_per_square_meter' => $pricePerSquareMeter === null ? null : round($pricePerSquareMeter, 2),
+            'benchmark_price_per_square_meter' => null,
+            'price_advantage_percentage' => null,
+            'comparable_count' => 0,
+            'sample_size_indicator' => null,
+            'candidate_snapshot_id' => (int) $candidate->crawler_run_id,
+            'comparable_snapshot_ids' => [],
+            'comparable_cutoff_at' => $comparableCutoff,
+        ];
+
+        if ($pricePerSquareMeter === null) {
+            return $base;
+        }
+
+        $segment = $this->segment($candidate);
+        if ($segment === null) {
+            return [
+                ...$base,
+                'opportunity_reason' => 'invalid_comparable_segment',
+                'opportunity_explanation' => 'Finalidade, cidade, bairro ou tipo insuficiente para formar a comparação.',
+            ];
+        }
+
+        // Comparável é outro anúncio do mesmo segmento, com área entre 75% e 125% da área
+        // do candidato e a mesma quantidade de quartos quando os dois informam esse dado.
+        $comparables = collect($index[$segment] ?? [])
+            ->filter(function (array $comparable) use ($candidate, $identityId, $area): bool {
+                $property = $comparable['property'];
+
+                if ($comparable['identity_id'] === $identityId) {
+                    return false;
+                }
+
+                $comparableArea = (float) $property->area;
+                if ($comparableArea < $area * 0.75 || $comparableArea > $area * 1.25) {
+                    return false;
+                }
+
+                return $candidate->quartos === null
+                    || $property->quartos === null
+                    || (int) $candidate->quartos === (int) $property->quartos;
+            })
+            ->values();
+        $comparableCount = $comparables->count();
+        $snapshotIds = $comparables
+            ->pluck('property.crawler_run_id')
+            ->map(fn ($id): int => (int) $id)
+            ->unique()
+            ->sort()
+            ->values()
+            ->all();
+
+        if ($comparableCount < self::MINIMUM_COMPARABLES) {
+            return [
+                ...$base,
+                'opportunity_reason' => 'insufficient_comparables',
+                'opportunity_explanation' => "Somente {$comparableCount} imóveis comparáveis; são necessários pelo menos 5.",
+                'comparable_count' => $comparableCount,
+                'comparable_snapshot_ids' => $snapshotIds,
+            ];
+        }
+
+        $benchmark = $this->median($comparables->pluck('price_per_square_meter'));
+        $advantage = (($benchmark - $pricePerSquareMeter) / $benchmark) * 100;
+        $isOpportunity = $advantage >= self::OPPORTUNITY_THRESHOLD_PERCENT;
+        $score = $isOpportunity
+            ? max(0, min(100, (int) round($advantage * 4)))
+            : null;
+        $reason = match (true) {
+            $isOpportunity => 'price_below_comparable_median',
+            $advantage <= 0 => 'at_or_above_comparable_median',
+            default => 'below_opportunity_threshold',
+        };
+        $explanation = $isOpportunity
+            ? sprintf(
+                '%.1f%% abaixo da mediana de %d imóveis comparáveis.',
+                $advantage,
+                $comparableCount,
+            )
+            : sprintf(
+                'Diferença de %.1f%% em relação à mediana de %d imóveis comparáveis.',
+                $advantage,
+                $comparableCount,
+            );
+
+        return [
+            ...$base,
+            'is_opportunity' => $isOpportunity,
+            'opportunity_score' => $score,
+            'opportunity_reason' => $reason,
+            'opportunity_explanation' => $explanation,
+            'benchmark_price_per_square_meter' => round($benchmark, 2),
+            'price_advantage_percentage' => round($advantage, 2),
+            'comparable_count' => $comparableCount,
+            'sample_size_indicator' => match (true) {
+                $comparableCount >= 15 => 'high',
+                $comparableCount >= 8 => 'medium',
+                default => 'low',
+            },
+            'comparable_snapshot_ids' => $snapshotIds,
+        ];
+    }
+
+    /**
+     * Monta a chave do segmento de comparação.
+     * Retorna null quando falta finalidade, cidade, bairro ou tipo, pois sem esses
+     * dados o anúncio seria comparado com imóveis que não têm relação com ele.
+     */
+    private function segment(MarketProperty $property): ?string
+    {
+        $parts = [
+            $this->purpose($property),
+            $this->normalize((string) $property->cidade),
+            $this->normalize((string) $property->bairro),
+            $this->normalize(PropertyTypeCatalog::canonicalNameFor($property->tipo) ?? (string) $property->tipo),
+        ];
+
+        if (in_array(null, $parts, true)) {
+            return null;
+        }
+
+        return implode('|', $parts);
+    }
+
+    /**
+     * Descobre se o anúncio é de venda ou locação.
+     * Usa primeiro os campos enviados pela fonte e, se não houver, tenta deduzir pela URL.
+     */
+    private function purpose(MarketProperty $property): ?string
+    {
+        $payload = $property->payload;
+        $explicit = collect([
+            $payload['purpose'] ?? null,
+            $payload['finalidade'] ?? null,
+            $payload['transaction_type'] ?? null,
+            $payload['tipo_negocio'] ?? null,
+            $payload['negocio'] ?? null,
+        ])->first(fn ($value): bool => is_string($value) && trim($value) !== '');
+
+        if (is_string($explicit)) {
+            $resolved = $this->purposeFromText($explicit);
+            if ($resolved !== null) {
+                return $resolved;
+            }
+        }
+
+        return $this->purposeFromText(implode(' ', array_filter([
+            $property->link_imovel,
+            is_string($payload['url'] ?? null) ? $payload['url'] : null,
+        ])));
+    }
+
+    private function purposeFromText(string $value): ?string
+    {
+        $normalized = $this->normalize($value);
+        if ($normalized === null) {
+            return null;
+        }
+
+        $isSale = preg_match('/\b(venda|vender|comprar|compra)\b/', $normalized) === 1;
+        $isRent = preg_match('/\b(locacao|aluguel|alugar)\b/', $normalized) === 1;
+
+        // Texto que cita venda e locação ao mesmo tempo fica sem finalidade, para não arriscar.
+        return match (true) {
+            $isSale && ! $isRent => 'venda',
+            $isRent && ! $isSale => 'locacao',
+            default => null,
+        };
+    }
+
+    /** Padroniza o texto para comparação e devolve null quando ele fica vazio. */
+    private function normalize(string $value): ?string
+    {
+        $normalized = TextNormalizer::normalize($value);
+
+        return $normalized === '' ? null : $normalized;
+    }
+
+    /** Usa o título da fonte ou monta um a partir do tipo e da localização. */
+    private function title(MarketProperty $property): string
+    {
+        $payloadTitle = $property->payload['titulo'] ?? $property->payload['title'] ?? null;
+        if (is_string($payloadTitle) && trim($payloadTitle) !== '') {
+            return trim($payloadTitle);
+        }
+
+        $type = PropertyTypeCatalog::canonicalNameFor($property->tipo)
+            ?? (trim((string) $property->tipo) ?: 'Imóvel');
+        $location = trim((string) ($property->bairro ?: $property->cidade));
+
+        return $location === '' ? $type : "{$type} em {$location}";
+    }
+
+    /**
+     * Calcula a mediana, que sofre menos influência de preços muito fora da curva do que a média.
+     *
+     * @param  Collection<int, float|int>  $values
+     */
+    private function median(Collection $values): float
+    {
+        $sorted = $values->map(fn ($value): float => (float) $value)->sort()->values();
+        $count = $sorted->count();
+        $middle = intdiv($count, 2);
+
+        if ($count % 2 === 1) {
+            return $sorted[$middle];
+        }
+
+        return ($sorted[$middle - 1] + $sorted[$middle]) / 2;
+    }
+}

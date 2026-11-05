@@ -9,6 +9,7 @@ use App\Models\Crawler\DiscoverySnapshot;
 use App\Models\Crawler\ExtractionProfile;
 use App\Models\Crawler\OnboardingExecution;
 use App\Models\Crawler\QualityPolicyVersion;
+use App\Models\CrawlerRun;
 use App\Models\User;
 use App\Support\Crawler\DiscoveryPolicyPlan;
 use Illuminate\Support\Facades\DB;
@@ -59,7 +60,9 @@ class ProductionCrawlService
             ]);
         }
         $policy = QualityPolicyVersion::query()->where('status', 'active')->latest('version')->firstOrFail();
-        $discoveryPolicy = $this->resolveDiscoveryPolicy($agency, $input);
+        $discoveryPolicy = $snapshot === null
+            ? $this->resolveDiscoveryPolicy($agency, $input)
+            : null;
         $discovery = $snapshot === null
             ? ['mode' => 'fresh', 'base_url' => $agency->base_url]
             : $this->existingSnapshotDiscovery(
@@ -74,7 +77,6 @@ class ProductionCrawlService
             'trigger' => $input['trigger'] ?? 'manual',
             'crawl_agency_id' => $agency->id,
             'discovery' => $discovery,
-            'discovery_policy' => $discoveryPolicy,
             'extraction_profile' => [
                 'id' => $profile->id,
                 'version' => $profile->version,
@@ -94,6 +96,9 @@ class ProductionCrawlService
                 'rules' => $policy->rules,
             ],
         ];
+        if ($discoveryPolicy !== null) {
+            $plan['discovery_policy'] = $discoveryPolicy;
+        }
         $extractionPolicy = data_get($profile->parameters, 'extraction_policy');
         if (is_array($extractionPolicy)) {
             $plan['extraction_policy'] = $extractionPolicy;
@@ -102,14 +107,28 @@ class ProductionCrawlService
 
         return DB::transaction(function () use ($agency, $contract, $equivalenceKey, $plan, $requester): CrawlerOperation {
             DB::statement('SELECT pg_advisory_xact_lock(?)', [$agency->id]);
-            $pending = CrawlerOperation::query()
+            $active = CrawlerOperation::query()
                 ->where('type', 'production_crawl')
-                ->where('state', 'queued')
                 ->where('crawl_agency_id', $agency->id)
-                ->where('equivalence_key', $equivalenceKey)
+                ->whereIn('state', ['queued', 'running', 'cancellation_requested'])
                 ->first();
-            if ($pending !== null) {
-                return $pending;
+            if ($active !== null) {
+                if ($active->state === 'queued' && $active->equivalence_key === $equivalenceKey) {
+                    return $active;
+                }
+
+                throw ValidationException::withMessages([
+                    'production_crawl' => 'A production crawl is already queued or running for this Crawl Agency.',
+                ]);
+            }
+
+            if (CrawlerRun::query()
+                ->where('crawl_agency_id', $agency->id)
+                ->where('publication_state', 'candidate')
+                ->exists()) {
+                throw ValidationException::withMessages([
+                    'crawl_agency_id' => 'Resolve the pending Candidate Snapshot in Quality before starting another production crawl.',
+                ]);
             }
 
             return CrawlerOperation::query()->create([

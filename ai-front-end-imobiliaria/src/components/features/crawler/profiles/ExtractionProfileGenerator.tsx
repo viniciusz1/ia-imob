@@ -155,8 +155,8 @@ export function ExtractionProfileGenerator({
       <div className="flex items-center gap-2"><Checkbox aria-label="Confirmo a URL" id={`confirm-sample-url-${agencyId}`} checked={confirmed} onCheckedChange={(checked) => setConfirmed(checked === true)} /><Label htmlFor={`confirm-sample-url-${agencyId}`}>Confirmo a URL de amostra</Label></div>
       <Button data-primary-action={primaryAction ? "true" : undefined} disabled={disabledReason !== null} onClick={() => void generate()} type="button" variant={primaryAction ? "default" : "outline"}>Gerar Perfil Candidato</Button>
       {disabledReason && !(sampleUrl !== "" && !isValidUrl) && <p className="text-sm text-muted-foreground">{disabledReason}</p>}
-      {suggestionOperation && <CrawlerOperationStatus agencyId={agencyId} operation={suggestionOperation} />}
-      {generationOperation && <CrawlerOperationStatus agencyId={agencyId} operation={generationOperation} />}
+      {suggestionOperation && <CrawlerOperationStatus operation={suggestionOperation} />}
+      {generationOperation && <CrawlerOperationStatus operation={generationOperation} />}
     </div>
   );
 }

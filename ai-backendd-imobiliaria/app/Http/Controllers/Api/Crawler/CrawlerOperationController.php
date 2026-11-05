@@ -15,29 +15,38 @@ use Illuminate\Validation\Rule;
 
 class CrawlerOperationController extends Controller
 {
+    private const STATES = ['queued', 'running', 'cancellation_requested', 'succeeded', 'failed', 'cancelled'];
+
     public function index(Request $request): AnonymousResourceCollection
     {
         $filters = $request->validate([
             'type' => ['nullable', 'string', 'max:64'],
-            'state' => ['nullable', Rule::in(['queued', 'running', 'cancellation_requested', 'succeeded', 'failed', 'cancelled'])],
+            'state' => ['nullable', Rule::in(self::STATES)],
+            'states' => ['nullable', 'array'],
+            'states.*' => [Rule::in(self::STATES)],
+            'sort' => ['nullable', Rule::in(['created_at', 'claimed_at', 'completed_at'])],
+            'direction' => ['nullable', Rule::in(['asc', 'desc'])],
             'crawl_agency_id' => ['nullable', 'integer'],
             'group_id' => ['nullable', 'integer'],
             'requested_by' => ['nullable', 'integer'],
             'from' => ['nullable', 'date'],
             'to' => ['nullable', 'date', 'after_or_equal:from'],
+            'per_page' => ['nullable', 'integer', 'min:1', 'max:100'],
         ]);
         $query = CrawlerOperation::query()
             ->with(['discoverySnapshot', 'crawlAgency', 'groups', 'requester', 'worker'])
             ->when($filters['type'] ?? null, fn ($query, $type) => $query->where('type', $type))
             ->when($filters['state'] ?? null, fn ($query, $state) => $query->where('state', $state))
+            ->when($filters['states'] ?? null, fn ($query, $states) => $query->whereIn('state', $states))
             ->when($filters['crawl_agency_id'] ?? null, fn ($query, $agencyId) => $query->where('crawl_agency_id', $agencyId))
             ->when($filters['group_id'] ?? null, fn ($query, $groupId) => $query->whereHas('groups', fn ($groupQuery) => $groupQuery->where('crawler.operation_groups.id', $groupId)))
             ->when($filters['requested_by'] ?? null, fn ($query, $requesterId) => $query->where('requested_by', $requesterId))
             ->when($filters['from'] ?? null, fn ($query, $from) => $query->where('created_at', '>=', $from))
             ->when($filters['to'] ?? null, fn ($query, $to) => $query->where('created_at', '<=', $to));
         $operations = $query
-            ->orderByDesc('created_at')
-            ->paginate()
+            ->orderBy($filters['sort'] ?? 'created_at', $filters['direction'] ?? 'desc')
+            ->orderBy('id', $filters['direction'] ?? 'desc')
+            ->paginate((int) ($filters['per_page'] ?? 15))
             ->withQueryString();
         $equivalentFailureCounts = CrawlerOperation::query()
             ->where('state', 'failed')

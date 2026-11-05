@@ -17,7 +17,7 @@ class OnboardingPlanService
 {
     public function configure(OnboardingPlan $plan, array $data): OnboardingPlan
     {
-        if ($plan->status !== 'draft') {
+        if ($plan->status === 'in_progress' && ! ($data['replace_current'] ?? false)) {
             throw ValidationException::withMessages([
                 'status' => 'Only a draft Onboarding Plan can be configured.',
             ]);
@@ -34,6 +34,9 @@ class OnboardingPlanService
                 : null,
             'first_production_discovery_mode' => $data['first_production_discovery_mode']
                 ?? 'fresh',
+            'status' => 'draft',
+            'confirmed_by' => null,
+            'confirmed_at' => null,
         ]);
 
         return $plan->refresh()->load('executionModel');
@@ -49,8 +52,36 @@ class OnboardingPlanService
                 ->whereNotIn('state', ['completed', 'cancelled'])
                 ->first();
 
-            if ($existing !== null) {
+            if ($lockedPlan->status === 'in_progress' && $existing !== null) {
                 return $existing->load($this->executionRelations());
+            }
+
+            if ($existing !== null) {
+                $operations = $existing->operations()
+                    ->whereIn('state', ['queued', 'running', 'cancellation_requested'])
+                    ->get();
+
+                foreach ($operations as $operation) {
+                    if ($operation->state === 'queued') {
+                        $operation->forceFill([
+                            'state' => 'cancelled',
+                            'completed_at' => now(),
+                        ])->save();
+                    } elseif ($operation->state === 'running') {
+                        $operation->forceFill([
+                            'state' => 'cancellation_requested',
+                            'cancellation_requested_at' => now(),
+                        ])->save();
+                    }
+                }
+
+                $existing->update([
+                    'state' => 'cancelled',
+                    'paused_at' => now(),
+                    'completed_at' => now(),
+                    'attention_code' => null,
+                    'attention_message' => null,
+                ]);
             }
 
             if (

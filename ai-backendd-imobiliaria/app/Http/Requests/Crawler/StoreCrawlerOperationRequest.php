@@ -28,7 +28,7 @@ class StoreCrawlerOperationRequest extends FormRequest
             'discovery_policy.sources' => ['sometimes', 'array', 'min:1'],
             'discovery_policy.sources.*' => [
                 'string',
-                Rule::in(['sitemap', 'cc', 'wayback', 'crt', 'probe', 'robots', 'feed', 'homepage']),
+                Rule::in(['sitemap', 'cc', 'wayback', 'crt', 'probe', 'robots', 'feed', 'homepage', 'playwright']),
             ],
             'discovery_policy.max_urls' => ['sometimes', 'integer', 'min:1', 'max:10000'],
             'discovery_policy.include_subdomains' => ['sometimes', 'boolean'],

@@ -1,9 +1,11 @@
 import api, { API_PREFIX } from "./api";
 import type {
   CrawlAgency,
+  BulkProductionCrawlResult,
   CrawlAgencyInput,
   CrawlAgencyLifecycle,
   PaginatedCrawlAgencies,
+  PaginatedCrawlerOperations,
   MarketDataContract,
   MarketDataField,
   CrawlerOperation,
@@ -25,6 +27,7 @@ import type {
   ScheduleDefault,
   SchedulePreset,
   CrawlerOperationFilters,
+  CrawlerOperationQueue,
   CrawlerOverview,
   CrawlerIntegration,
   CrawlerIntegrationTest,
@@ -72,6 +75,16 @@ export async function listCrawlerOperations(filters: CrawlerOperationFilters = {
   return response.data.data;
 }
 
+export async function listCrawlerOperationsPage(filters: CrawlerOperationFilters = {}): Promise<PaginatedCrawlerOperations> {
+  const response = await api.get<PaginatedCrawlerOperations>(`${BASE}/operations`, { params: filters });
+  return response.data;
+}
+
+export async function getCrawlerOperationQueue(page = 1): Promise<CrawlerOperationQueue> {
+  const response = await api.get<CrawlerOperationQueue>(`${BASE}/operation-queue`, { params: { page } });
+  return response.data;
+}
+
 export async function listProfileWorkflowOperations(agencyId: number): Promise<CrawlerOperation[]> {
   const response = await api.get<Resource<CrawlerOperation[]>>(`${BASE}/crawl-agencies/${agencyId}/profile-workflow-operations`);
   return response.data.data;
@@ -97,7 +110,7 @@ export async function getCrawlerOperation(id: number): Promise<CrawlerOperation>
   return response.data.data;
 }
 
-export type DiscoverySource = "sitemap" | "cc" | "wayback" | "crt" | "probe" | "robots" | "feed" | "homepage";
+export type DiscoverySource = "sitemap" | "cc" | "wayback" | "crt" | "probe" | "robots" | "feed" | "homepage" | "playwright";
 
 export interface DiscoveryPolicy {
   sources: DiscoverySource[];
@@ -190,8 +203,17 @@ export async function queueExtractionProfileGeneration(payload: {
   return response.data.data;
 }
 
-export async function queueProfileValidation(profileId: number): Promise<CrawlerOperation> {
-  const response = await api.post<Resource<CrawlerOperation>>(`${BASE}/extraction-profiles/${profileId}/validation`);
+export async function queueProfileValidation(
+  profileId: number,
+  options?: { linkToOnboarding?: boolean; standalone?: boolean },
+): Promise<CrawlerOperation> {
+  const payload: { link_to_onboarding?: boolean; standalone?: boolean } = {};
+  if (options?.linkToOnboarding !== undefined) payload.link_to_onboarding = options.linkToOnboarding;
+  if (options?.standalone !== undefined) payload.standalone = options.standalone;
+  const response = await api.post<Resource<CrawlerOperation>>(
+    `${BASE}/extraction-profiles/${profileId}/validation`,
+    payload,
+  );
   return response.data.data;
 }
 
@@ -246,6 +268,14 @@ export interface QueueProductionCrawlPayload {
 
 export async function queueProductionCrawl(payload: QueueProductionCrawlPayload): Promise<CrawlerOperation> {
   const response = await api.post<Resource<CrawlerOperation>>(`${BASE}/production-crawls`, payload);
+  return response.data.data;
+}
+
+export async function queueBulkProductionCrawls(requestKey?: string): Promise<BulkProductionCrawlResult> {
+  const response = await api.post<Resource<BulkProductionCrawlResult>>(`${BASE}/production-crawls/bulk`, {
+    confirmed: true,
+    ...(requestKey ? { request_key: requestKey } : {}),
+  });
   return response.data.data;
 }
 
@@ -522,10 +552,15 @@ export async function actOnboardingExecution(
   id: number,
   action: OnboardingExecutionAction,
   sampleUrl?: string,
+  extractionProfileId?: number,
 ): Promise<OnboardingExecution> {
   const response = await api.post<Resource<OnboardingExecution>>(
     `${BASE}/onboarding-executions/${id}/actions`,
-    { action, ...(sampleUrl ? { sample_url: sampleUrl } : {}) },
+    {
+      action,
+      ...(sampleUrl ? { sample_url: sampleUrl } : {}),
+      ...(extractionProfileId ? { extraction_profile_id: extractionProfileId } : {}),
+    },
   );
   return response.data.data;
 }
@@ -560,6 +595,11 @@ export async function createQualityException(reportId: number, reason: string): 
 
 export async function publishCrawlRunExceptionally(runId: number, reason: string): Promise<CrawlRun> {
   const response = await api.post<Resource<CrawlRun>>(`${BASE}/crawl-runs/${runId}/exceptional-publication`, { reason });
+  return response.data.data;
+}
+
+export async function rejectCrawlRunQuality(runId: number, reason: string): Promise<CrawlRun> {
+  const response = await api.post<Resource<CrawlRun>>(`${BASE}/crawl-runs/${runId}/quality-rejection`, { reason });
   return response.data.data;
 }
 
@@ -642,15 +682,33 @@ export async function listCrawlAgencies(): Promise<CrawlAgency[]> {
 }
 
 export async function listCrawlAgenciesPage(
-  params: { page?: number; search?: string } = {},
+  params: {
+    lifecycle_state?: string;
+    page?: number;
+    per_page?: number;
+    search?: string;
+    sort?: "name" | "-updated_at" | "-last_crawled_at";
+  } = {},
 ): Promise<PaginatedCrawlAgencies> {
   const response = await api.get<PaginatedCrawlAgencies>(`${BASE}/crawl-agencies`, { params });
   return response.data;
 }
 
+const inFlightCrawlAgencyRequests = new Map<number, Promise<CrawlAgency>>();
+
 export async function getCrawlAgency(id: number): Promise<CrawlAgency> {
-  const response = await api.get<Resource<CrawlAgency>>(`${BASE}/crawl-agencies/${id}`);
-  return response.data.data;
+  const existing = inFlightCrawlAgencyRequests.get(id);
+  if (existing) return existing;
+
+  const request = api
+    .get<Resource<CrawlAgency>>(`${BASE}/crawl-agencies/${id}`)
+    .then((response) => response.data.data)
+    .finally(() => {
+      inFlightCrawlAgencyRequests.delete(id);
+    });
+
+  inFlightCrawlAgencyRequests.set(id, request);
+  return request;
 }
 
 export async function createCrawlAgency(payload: CrawlAgencyInput): Promise<CrawlAgency> {

@@ -241,7 +241,7 @@ export function ValuationsClient() {
     let active = true;
     async function loadNeighborhoods() {
       try {
-        const filters = await getMarketPropertyFilters(form.city);
+        const filters = await getMarketPropertyFilters({ cidade: [form.city] });
         if (active) setAvailableNeighborhoods(filters.bairros);
       } catch (error) {
         if (active) {

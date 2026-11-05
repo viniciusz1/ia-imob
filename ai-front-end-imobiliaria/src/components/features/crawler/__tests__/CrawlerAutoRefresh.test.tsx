@@ -11,12 +11,21 @@ vi.mock("next/navigation", () => ({
 
 const mockedUseRouter = vi.mocked(useRouter);
 
+function routerWithRefresh(refresh: () => void): ReturnType<typeof useRouter> {
+  return {
+    back: vi.fn(),
+    forward: vi.fn(),
+    push: vi.fn(),
+    replace: vi.fn(),
+    prefetch: vi.fn(),
+    refresh,
+  };
+}
+
 function RouterHarness() {
   const [, setVersion] = useState(0);
 
-  mockedUseRouter.mockReturnValue({
-    refresh: () => setVersion((version) => version + 1),
-  } as ReturnType<typeof useRouter>);
+  mockedUseRouter.mockReturnValue(routerWithRefresh(() => setVersion((version) => version + 1)));
 
   return <CrawlerAutoRefresh />;
 }
@@ -27,7 +36,7 @@ describe("CrawlerAutoRefresh", () => {
   beforeEach(() => {
     vi.useFakeTimers();
     refresh.mockReset();
-    mockedUseRouter.mockReturnValue({ refresh } as ReturnType<typeof useRouter>);
+    mockedUseRouter.mockReturnValue(routerWithRefresh(refresh));
   });
 
   afterEach(() => {

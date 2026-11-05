@@ -2,8 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Models\Property;
 use App\Models\Agency;
+use App\Models\Property;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;

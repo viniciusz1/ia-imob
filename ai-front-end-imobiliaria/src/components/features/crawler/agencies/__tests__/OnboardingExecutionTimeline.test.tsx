@@ -2,12 +2,12 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
+  actOnboardingExecution,
   adoptOnboardingDiscoverySnapshot,
-  approveOnboardingExecution,
   getOnboardingExecution,
+  listExtractionProfiles,
   listOnboardingDiscoverySnapshotCandidates,
   retryCrawlerOperation,
-  saveOnboardingPointConfiguration,
   startOnboardingFirstProduction,
 } from "@/services/crawlerService";
 import { useAuthStore } from "@/store/useAuthStore";
@@ -20,6 +20,7 @@ vi.mock("@/services/crawlerService", () => ({
   adoptOnboardingDiscoverySnapshot: vi.fn(),
   approveOnboardingExecution: vi.fn(),
   getOnboardingExecution: vi.fn(),
+  listExtractionProfiles: vi.fn().mockResolvedValue([]),
   listOnboardingDiscoverySnapshotCandidates: vi.fn(),
   retryCrawlerOperation: vi.fn(),
   saveOnboardingPointConfiguration: vi.fn(),
@@ -109,29 +110,19 @@ describe("OnboardingExecutionTimeline", () => {
     });
   });
 
-  it("shows attempts and stops clearly for explicit approval", async () => {
+  it("hides next action section and shows link to crawls tab in human approval step", () => {
     const current = execution();
-    const approved = execution({
-      state: "running",
-      current_step: "first_production",
-      approval: { approved_by: 1, approved_at: "2026-07-27T12:11:00Z", reason: "Amostra revisada" },
-      next_action: "wait_for_current_operation",
-    });
-    vi.mocked(approveOnboardingExecution).mockResolvedValue(approved);
-    const onExecution = vi.fn();
 
-    render(<OnboardingExecutionTimeline execution={current} history={[current]} onExecution={onExecution} />);
+    render(<OnboardingExecutionTimeline execution={current} history={[current]} onExecution={vi.fn()} />);
 
     expect(screen.getByText(/nenhuma produção foi iniciada/i)).toBeInTheDocument();
     expect(screen.getByText("Tentativa 1 · Operação #101")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Abrir fila global" })).toHaveAttribute("href", "/admin/crawler/operations");
-    expect(screen.getByRole("link", { name: "Ver detalhes da operação" })).toHaveAttribute("href", expect.stringContaining("#operation-101"));
-
-    fireEvent.change(screen.getByLabelText("Justificativa da aprovação"), { target: { value: "Amostra revisada" } });
-    fireEvent.click(screen.getByRole("button", { name: "Aprovar e continuar" }));
-
-    await waitFor(() => expect(approveOnboardingExecution).toHaveBeenCalledWith(91, "Amostra revisada"));
-    expect(onExecution).toHaveBeenCalledWith(approved);
+    expect(screen.queryByRole("region", { name: "Próxima ação da Execução de Onboarding" })).not.toBeInTheDocument();
+    expect(screen.queryByText("Próxima ação")).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Ir para Crawls" })).toHaveAttribute(
+      "href",
+      "/admin/crawler/agencies/42/crawls",
+    );
   });
 
   it("offers exactly the linked retry when a child operation fails", async () => {
@@ -514,50 +505,88 @@ describe("OnboardingExecutionTimeline", () => {
     await waitFor(() => expect(startOnboardingFirstProduction).toHaveBeenCalledWith(91, "validation_snapshot"));
   });
 
-  it("requires explicit policy creation before approving a point Discovery configuration", async () => {
-    const point = execution({
-      discovery_policy_version_id: null,
-      resolved_configuration: {
-        ...execution().resolved_configuration,
-        discovery_policy: {
-          id: null,
-          name: "Point Configuration",
-          version: null,
-          source: "point_configuration",
-          strategies: ["sitemap"],
-          configuration: {},
-        },
+  it("allows selecting a candidate extraction profile for validation", async () => {
+    const candidateProfiles = [
+      {
+        id: 10,
+        crawl_agency_id: 42,
+        discovery_snapshot_id: 21,
+        market_data_contract_version_id: 1,
+        version: 1,
+        status: "candidate" as const,
+        sample_url: "https://litoral.example.com/imovel/1",
+        schemas: {},
+        strategies: [],
+        fields: [],
+        parameters: {},
+        decided_by: null,
+        decided_at: null,
+        decision_reason: null,
+        activated_by: null,
+        activated_at: null,
+        latest_validation_report: null,
+        created_at: "2026-07-27T12:00:00Z",
       },
+      {
+        id: 20,
+        crawl_agency_id: 42,
+        discovery_snapshot_id: 21,
+        market_data_contract_version_id: 1,
+        version: 2,
+        status: "candidate" as const,
+        sample_url: "https://litoral.example.com/imovel/2",
+        schemas: {},
+        strategies: [],
+        fields: [],
+        parameters: {},
+        decided_by: null,
+        decided_at: null,
+        decision_reason: null,
+        activated_by: null,
+        activated_at: null,
+        latest_validation_report: null,
+        created_at: "2026-07-28T12:00:00Z",
+      },
+    ];
+    vi.mocked(listExtractionProfiles).mockResolvedValue(candidateProfiles);
+    const manualValidation = execution({
+      conduction: "manual",
+      current_step: "profile_validation",
+      state: "awaiting_manual_step",
+      next_action: "run_profile_validation",
     });
-    const versioned = execution({ discovery_policy_version_id: 88 });
-    vi.mocked(saveOnboardingPointConfiguration).mockResolvedValue({
-      id: 88,
-      policy_key: "explicit-point",
-      name: "Litoral automatizado — Discovery",
-      version: 1,
-      status: "available",
-      strategies: ["sitemap"],
-      configuration: {},
-      mutable: false,
-      model_reference_count: 0,
-      active_model_reference_count: 0,
-      created_by: 1,
-      created_at: "2026-07-27T12:00:00Z",
-    });
-    vi.mocked(getOnboardingExecution).mockResolvedValue(versioned);
+    const updated = execution({ state: "running" });
+    vi.mocked(actOnboardingExecution).mockResolvedValue(updated);
     const onExecution = vi.fn();
 
-    render(<OnboardingExecutionTimeline execution={point} history={[point]} onExecution={onExecution} />);
+    render(
+      <OnboardingExecutionTimeline
+        execution={manualValidation}
+        history={[manualValidation]}
+        onExecution={onExecution}
+      />,
+    );
 
-    expect(screen.queryByRole("button", { name: "Aprovar e continuar" })).not.toBeInTheDocument();
-    fireEvent.click(screen.getByLabelText(/Confirmo a criação desta nova política ativa/));
-    fireEvent.click(screen.getByRole("button", { name: "Salvar como nova política ativa" }));
+    await waitFor(() => {
+      expect(screen.getByLabelText("Perfil de Extração")).toBeInTheDocument();
+    });
 
-    await waitFor(() => expect(saveOnboardingPointConfiguration).toHaveBeenCalledWith(
-      42,
-      "discovery",
-      "Litoral automatizado — Discovery",
-    ));
-    expect(onExecution).toHaveBeenCalledWith(versioned);
+    const select = screen.getByLabelText("Perfil de Extração");
+    expect(select).toHaveValue("20");
+
+    fireEvent.change(select, { target: { value: "10" } });
+    expect(select).toHaveValue("10");
+
+    fireEvent.click(screen.getByRole("button", { name: "Executar Crawl de Validação" }));
+
+    await waitFor(() => {
+      expect(actOnboardingExecution).toHaveBeenCalledWith(
+        91,
+        "run_profile_validation",
+        undefined,
+        10,
+      );
+    });
+    expect(onExecution).toHaveBeenCalledWith(updated);
   });
 });

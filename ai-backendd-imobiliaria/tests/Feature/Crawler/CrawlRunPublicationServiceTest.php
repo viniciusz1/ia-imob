@@ -39,6 +39,38 @@ class CrawlRunPublicationServiceTest extends TestCase
         $this->assertSame('published', $candidate->refresh()->publication_state);
     }
 
+    public function test_evaluate_candidates_command_preserves_a_failed_candidate_without_starving_other_agencies(): void
+    {
+        $failingAgency = $this->agency('command-failure');
+        $failingCandidate = $this->candidate($failingAgency, 2, 1);
+        $healthyCandidate = $this->candidate($this->agency('command-healthy'), 2, 1);
+        DB::unprepared(<<<SQL
+            CREATE FUNCTION crawler.reject_one_test_publication() RETURNS trigger AS \$\$
+            BEGIN
+                IF NEW.id = {$failingAgency->id} THEN
+                    RAISE EXCEPTION 'forced publication failure';
+                END IF;
+                RETURN NEW;
+            END;
+            \$\$ LANGUAGE plpgsql;
+            CREATE TRIGGER reject_one_test_publication
+            BEFORE UPDATE OF current_published_crawl_run_id ON crawler.crawl_agencies
+            FOR EACH ROW EXECUTE FUNCTION crawler.reject_one_test_publication();
+        SQL);
+
+        try {
+            $this->artisan('crawler:evaluate-candidates')->assertFailed();
+
+            $this->assertSame('candidate', $failingCandidate->refresh()->publication_state);
+            $this->assertSame('published', $healthyCandidate->refresh()->publication_state);
+        } finally {
+            DB::unprepared(<<<'SQL'
+                DROP TRIGGER IF EXISTS reject_one_test_publication ON crawler.crawl_agencies;
+                DROP FUNCTION IF EXISTS crawler.reject_one_test_publication();
+            SQL);
+        }
+    }
+
     public function test_approved_candidate_atomically_replaces_only_the_current_pointer(): void
     {
         $agency = $this->agency('publish');

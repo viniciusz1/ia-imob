@@ -19,15 +19,15 @@ const emptyOverview = {
 
 describe("CrawlerOverviewDashboard", () => {
   it("renders the empty operational state", () => {
-    render(<CrawlerOverviewDashboard initialOverview={emptyOverview} integrations={[]} />);
+    render(<CrawlerOverviewDashboard initialOverview={emptyOverview} integrations={[]} workers={[]} />);
 
     expect(screen.getByRole("heading", { name: /visão geral/i })).toBeInTheDocument();
-    expect(screen.getByText(/nenhum alerta operacional/i)).toBeInTheDocument();
+    expect(screen.getByText(/nenhum worker ativo/i)).toBeInTheDocument();
     expect(screen.getByText(/nenhuma operação ativa/i)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /snapshots em quarentena/i })).toHaveAttribute("href", "/admin/crawler/quality");
   });
 
-  it("links degraded alerts and shows only sanitized integration identifiers", () => {
+  it("lists active workers and shows only sanitized integration identifiers", () => {
     render(<CrawlerOverviewDashboard
       initialOverview={{
         ...emptyOverview,
@@ -35,13 +35,11 @@ describe("CrawlerOverviewDashboard", () => {
         operations: { active: 1, failed: 2 },
         open_circuits: 1,
         quarantined_snapshots: 1,
-        alerts: [{
-          kind: "circuit_open",
-          title: "Crawl Agency com circuito aberto",
-          detail: "three_consecutive_production_failures",
-          href: "/admin/crawler/agencies/42",
-        }],
       }}
+      workers={[
+        { id: 1, worker_key: "worker-a", version: "1", capacity: {}, health_state: "healthy", last_heartbeat_at: "2026-01-01T00:00:00Z" },
+        { id: 2, worker_key: "worker-b", version: "1", capacity: {}, health_state: "unavailable", last_heartbeat_at: "2026-01-01T00:00:00Z" },
+      ]}
       integrations={[{
         key: "google_places",
         label: "Google Places",
@@ -50,7 +48,8 @@ describe("CrawlerOverviewDashboard", () => {
       }]}
     />);
 
-    expect(screen.getByRole("link", { name: /crawl agency com circuito aberto/i })).toHaveAttribute("href", "/admin/crawler/agencies/42");
+    expect(screen.getByText("worker-a")).toBeInTheDocument();
+    expect(screen.queryByText("worker-b")).not.toBeInTheDocument();
     expect(screen.getByText("…3456")).toBeInTheDocument();
     expect(screen.queryByText(/places-secret/i)).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: /testar google places/i })).toBeInTheDocument();

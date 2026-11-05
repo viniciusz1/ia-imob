@@ -51,4 +51,12 @@ describe("CrawlAgencyContextHeader", () => {
       "/admin/crawler/agencies/42/onboarding",
     );
   });
+
+  it("separates Crawls from agency Quality", () => {
+    render(<CrawlAgencyContextHeader agency={agency} area="Crawls" />);
+
+    expect(screen.getByRole("link", { name: "Crawls" })).toHaveAttribute("href", "/admin/crawler/agencies/42/crawls");
+    expect(screen.getByRole("link", { name: "Qualidade" })).toHaveAttribute("href", "/admin/crawler/agencies/42/quality");
+    expect(screen.queryByRole("link", { name: "Crawls e qualidade" })).not.toBeInTheDocument();
+  });
 });
