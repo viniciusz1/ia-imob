@@ -2,13 +2,14 @@
 
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
+import { MissingFieldsHint, isFilled, isValidUrl, missingFields } from "@/components/features/crawler/requiredFields";
 import { updateCrawlAgency } from "@/services/crawlerService";
 import type { CrawlAgency, CrawlAgencyInput } from "@/types/crawler";
 import { crawlerOperationErrorMessage } from "../crawlerOperationFeedback";
@@ -28,6 +29,13 @@ export function CrawlAgencySettingsForm({ agency }: CrawlAgencySettingsFormProps
     },
   });
   const { isSubmitting } = form.formState;
+  const values = useWatch({ control: form.control });
+  const missing = missingFields([
+    ["Nome", isFilled(values.name)],
+    ["Slug", isFilled(values.slug)],
+    ["URL base válida", isValidUrl(values.base_url)],
+    ["Domínio raiz", isFilled(values.root_domain)],
+  ]);
 
   const submit = form.handleSubmit(async (values) => {
     try {
@@ -74,8 +82,9 @@ export function CrawlAgencySettingsForm({ agency }: CrawlAgencySettingsFormProps
         </CardContent>
       </Card>
 
-      <div className="flex flex-wrap justify-end gap-3">
-        <Button disabled={isSubmitting} type="submit">
+      <div className="flex flex-wrap items-center justify-end gap-3">
+        <MissingFieldsHint className="mr-auto" missing={missing} />
+        <Button disabled={isSubmitting || missing.length > 0} type="submit">
           {isSubmitting && <Loader2 className="animate-spin" />}
           {isSubmitting ? "Salvando…" : "Salvar identidade"}
         </Button>

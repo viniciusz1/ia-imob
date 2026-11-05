@@ -2,6 +2,8 @@
 
 import { TriangleAlert } from "lucide-react";
 import { useState } from "react";
+
+import { MissingFieldsHint, isFilled, missingFields } from "@/components/features/crawler/requiredFields";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
@@ -51,6 +53,13 @@ export function MarketDataContractsClient({ initialContracts }: MarketDataContra
     toast.success("Contrato ativado.");
   };
 
+  const duplicateName = pendingFields.some((field) => field.name === fieldName.trim());
+  const fieldMissing = missingFields([
+    ["Nome do campo", isFilled(fieldName)],
+    ["um nome que ainda não está na lista", !duplicateName],
+  ]).slice(0, 1);
+  const [isCreatingDraft, setIsCreatingDraft] = useState(false);
+
   const addField = () => {
     const name = fieldName.trim();
     if (!name || pendingFields.some((field) => field.name === name)) return;
@@ -66,10 +75,15 @@ export function MarketDataContractsClient({ initialContracts }: MarketDataContra
   };
 
   const createDraft = async () => {
-    const created = await createMarketDataContract(pendingFields);
-    setContracts((current) => [created, ...current]);
-    setPendingFields([]);
-    toast.success("Rascunho criado.");
+    setIsCreatingDraft(true);
+    try {
+      const created = await createMarketDataContract(pendingFields);
+      setContracts((current) => [created, ...current]);
+      setPendingFields([]);
+      toast.success("Rascunho criado.");
+    } finally {
+      setIsCreatingDraft(false);
+    }
   };
 
   return (
@@ -118,9 +132,21 @@ export function MarketDataContractsClient({ initialContracts }: MarketDataContra
               ))}
             </div>
           )}
-          <div className="flex flex-wrap justify-end gap-3">
-            <Button onClick={addField} type="button" variant="outline">Adicionar campo</Button>
-            <Button disabled={pendingFields.length === 0} onClick={createDraft} type="button">Criar rascunho</Button>
+          <div className="flex flex-wrap items-center justify-end gap-3">
+            <MissingFieldsHint
+              className="mr-auto"
+              missing={
+                duplicateName && isFilled(fieldName)
+                  ? ["um nome que ainda não está na lista"]
+                  : pendingFields.length === 0
+                    ? ["Nome do campo e clique em Adicionar campo"]
+                    : []
+              }
+            />
+            <Button disabled={fieldMissing.length > 0} onClick={addField} type="button" variant="outline">Adicionar campo</Button>
+            <Button disabled={pendingFields.length === 0 || isCreatingDraft} onClick={() => void createDraft()} type="button">
+              Criar rascunho
+            </Button>
           </div>
         </CardContent>
       </Card>

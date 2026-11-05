@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+
+import { MissingFieldsHint, isFilled, missingFields } from "@/components/features/crawler/requiredFields";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -13,11 +15,19 @@ export function ScheduleDefaultPanel({ initialDefault }: { initialDefault: Sched
   const [preset, setPreset] = useState<SchedulePreset>(initialDefault.preset);
   const [timezone, setTimezone] = useState(initialDefault.timezone);
 
+  const [isSaving, setIsSaving] = useState(false);
+  const missing = missingFields([["Fuso horário padrão", isFilled(timezone)]]);
+
   const save = async () => {
-    const updated = await updateScheduleDefault({ preset, timezone });
-    setPreset(updated.preset);
-    setTimezone(updated.timezone);
-    toast.success("Agendamento padrão atualizado.");
+    setIsSaving(true);
+    try {
+      const updated = await updateScheduleDefault({ preset, timezone });
+      setPreset(updated.preset);
+      setTimezone(updated.timezone);
+      toast.success("Agendamento padrão atualizado.");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -36,8 +46,11 @@ export function ScheduleDefaultPanel({ initialDefault }: { initialDefault: Sched
             timezone={timezone}
             timezoneLabel="Fuso horário padrão"
           />
-          <div className="flex flex-wrap justify-end gap-3">
-            <Button onClick={() => void save()} type="button">Salvar agendamento padrão</Button>
+          <div className="flex flex-wrap items-center justify-end gap-3">
+            <MissingFieldsHint className="mr-auto" missing={missing} />
+            <Button disabled={isSaving || missing.length > 0} onClick={() => void save()} type="button">
+              Salvar agendamento padrão
+            </Button>
           </div>
         </CardContent>
       </Card>

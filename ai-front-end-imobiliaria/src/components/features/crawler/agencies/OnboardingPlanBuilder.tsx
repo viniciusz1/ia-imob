@@ -12,6 +12,7 @@ import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
+import { MissingFieldsHint, missingFields } from "@/components/features/crawler/requiredFields";
 import { usePermission } from "@/hooks/usePermission";
 import { cn } from "@/lib/utils";
 import {
@@ -701,6 +702,13 @@ export function OnboardingPlanBuilder({
               <Button disabled={pending !== null} onClick={() => setPolicySave(null)} size="sm" type="button" variant="ghost">
                 Cancelar
               </Button>
+              <MissingFieldsHint
+                className="basis-full"
+                missing={missingFields([
+                  ["Nome da nova política", policySave.name.trim().length > 0],
+                  ["confirmação da criação", policySaveConfirmed],
+                ])}
+              />
             </div>
           </section>
         )}
@@ -759,7 +767,11 @@ export function OnboardingPlanBuilder({
           )}
         </section>
 
-        {validationMessage && <p className="text-xs text-destructive" role="alert">{validationMessage}</p>}
+        {/* Neutral hint, not an error: it explains why the actions below are still disabled. */}
+        {validationMessage && <p className="text-[0.8125rem] text-subtle" role="status">{validationMessage}</p>}
+        {!validationMessage && canExecute && !reviewConfirmed && (
+          <p className="text-[0.8125rem] text-subtle" role="status">Confirme a revisão do plano para iniciar a execução.</p>
+        )}
         {canExecute && (
           <div className="flex flex-wrap justify-end gap-3">
             <Button

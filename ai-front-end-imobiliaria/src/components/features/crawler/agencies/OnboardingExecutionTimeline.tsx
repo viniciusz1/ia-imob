@@ -21,6 +21,7 @@ import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle }
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { NativeSelect } from "@/components/ui/native-select";
+import { MissingFieldsHint, isValidUrl, missingFields } from "@/components/features/crawler/requiredFields";
 import { Progress } from "@/components/ui/progress";
 import { usePermission } from "@/hooks/usePermission";
 import { cn } from "@/lib/utils";
@@ -546,9 +547,21 @@ export function OnboardingExecutionTimeline({
                     </NativeSelect>
                   </FormField>
                 )}
-                <Button disabled={pending} onClick={() => runManualAction(manualAction)} type="button">
-                  {MANUAL_ACTIONS[manualAction]}
-                </Button>
+                <div className="flex flex-wrap items-center gap-3">
+                  <Button
+                    disabled={
+                      pending
+                      || (["confirm_sample_url", "correct_sample_url"].includes(manualAction) && !isValidUrl(sampleUrl))
+                    }
+                    onClick={() => runManualAction(manualAction)}
+                    type="button"
+                  >
+                    {MANUAL_ACTIONS[manualAction]}
+                  </Button>
+                  {["confirm_sample_url", "correct_sample_url"].includes(manualAction) && (
+                    <MissingFieldsHint missing={missingFields([["URL de Amostra válida", isValidUrl(sampleUrl)]])} />
+                  )}
+                </div>
               </>
             )}
 

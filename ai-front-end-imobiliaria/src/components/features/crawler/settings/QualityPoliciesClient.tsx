@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+
+import { MissingFieldsHint, missingFields } from "@/components/features/crawler/requiredFields";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
@@ -17,15 +19,27 @@ export function QualityPoliciesClient({ initialPolicies }: { initialPolicies: Qu
   const [errorRatio, setErrorRatio] = useState(30);
   const [rejectionRatio, setRejectionRatio] = useState(30);
 
+  const [isCreating, setIsCreating] = useState(false);
+  const withinPercent = (value: number) => Number.isFinite(value) && value >= 0 && value <= 100;
+  const missing = missingFields([
+    ["Queda máxima de estoque (0 a 100)", withinPercent(stockDrop)],
+    ["Erros máximos (0 a 100)", withinPercent(errorRatio)],
+    ["Rejeições máximas (0 a 100)", withinPercent(rejectionRatio)],
+  ]);
   const replace = (policy: QualityPolicy) => setPolicies((current) => current.map((item) => item.id === policy.id ? policy : item));
   const create = async () => {
-    const policy = await createQualityPolicy({
-      maximum_stock_drop_ratio: stockDrop / 100,
-      maximum_error_ratio: errorRatio / 100,
-      maximum_rejection_ratio: rejectionRatio / 100,
-    });
-    setPolicies((current) => [policy, ...current]);
-    toast.success("Política criada em rascunho.");
+    setIsCreating(true);
+    try {
+      const policy = await createQualityPolicy({
+        maximum_stock_drop_ratio: stockDrop / 100,
+        maximum_error_ratio: errorRatio / 100,
+        maximum_rejection_ratio: rejectionRatio / 100,
+      });
+      setPolicies((current) => [policy, ...current]);
+      toast.success("Política criada em rascunho.");
+    } finally {
+      setIsCreating(false);
+    }
   };
 
   return (
@@ -73,8 +87,11 @@ export function QualityPoliciesClient({ initialPolicies }: { initialPolicies: Qu
               />
             </FormField>
           </div>
-          <div className="flex flex-wrap justify-end gap-3">
-            <Button onClick={() => void create()} type="button">Criar política em rascunho</Button>
+          <div className="flex flex-wrap items-center justify-end gap-3">
+            <MissingFieldsHint className="mr-auto" missing={missing} />
+            <Button disabled={isCreating || missing.length > 0} onClick={() => void create()} type="button">
+              Criar política em rascunho
+            </Button>
           </div>
         </CardContent>
       </Card>

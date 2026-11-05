@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PaginationFooter } from "@/components/layout/PaginationFooter";
 import { Badge } from "@/components/ui/badge";
+import { MissingFieldsHint, isFilled, missingFields } from "@/components/features/crawler/requiredFields";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -81,10 +82,6 @@ export function ProspectsClient({ initialProspects, initialSuggestions = [] }: {
     setRequeryConfirmed(false);
   }
 
-  const canQueue = prospectingMode === "batch"
-    ? Boolean(batchCities.trim())
-    : Boolean(city.trim() && state.trim().length === 2);
-
   const cities = () => {
     if (prospectingMode === "single") {
       return [{ city: city.trim(), state: state.trim().toUpperCase() }];
@@ -96,6 +93,17 @@ export function ProspectsClient({ initialProspects, initialSuggestions = [] }: {
       .filter((parts) => parts.length === 2 && parts[0] && parts[1])
       .map(([batchCity, batchState]) => ({ city: batchCity, state: batchState.toUpperCase() }));
   };
+
+  // A line only counts when it parses as "Cidade, UF" (the same rule `cities()` sends).
+  const validBatchCount = prospectingMode === "batch" ? cities().length : 0;
+  const prospectingMissing = prospectingMode === "batch"
+    ? missingFields([["ao menos uma linha \"Cidade, UF\"", validBatchCount > 0]])
+    : missingFields([
+      ["Cidade", isFilled(city)],
+      ["UF com 2 letras", state.trim().length === 2],
+    ]);
+  const canQueue = prospectingMissing.length === 0;
+  const requeryPending = requeryKnown && (!requeryPreview || !requeryConfirmed);
 
   const queue = async () => {
     const targets = cities();
@@ -248,14 +256,22 @@ export function ProspectsClient({ initialProspects, initialSuggestions = [] }: {
                 </div>
               )}
             </div>
-            <Button
-              className="w-full lg:w-auto"
-              disabled={!canQueue || (requeryKnown && (!requeryPreview || !requeryConfirmed))}
-              onClick={() => void queue()}
-            >
-              <Search />
-              {prospectingMode === "single" ? "Prospectar cidade" : "Prospectar cidades"}
-            </Button>
+            <div className="flex flex-col items-stretch gap-2 lg:items-end">
+              <Button
+                className="w-full lg:w-auto"
+                disabled={!canQueue || requeryPending}
+                onClick={() => void queue()}
+              >
+                <Search />
+                {prospectingMode === "single" ? "Prospectar cidade" : "Prospectar cidades"}
+              </Button>
+              <MissingFieldsHint missing={prospectingMissing} />
+              {canQueue && requeryPending && (
+                <p className="text-[0.8125rem] text-subtle" role="status">
+                  Calcule o impacto e confirme a reconsulta.
+                </p>
+              )}
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -344,7 +360,12 @@ export function ProspectsClient({ initialProspects, initialSuggestions = [] }: {
               </p>
             </div>
             <div className="flex flex-col gap-3 xl:flex-row xl:items-end">
-              <FormField className="min-w-64 flex-1" htmlFor="batch-prospect-reason" label="Motivo da decisão">
+              <FormField
+                className="min-w-64 flex-1"
+                hint={selectedPendingCount > 0 && !batchReason.trim() ? "Preencha: Motivo da decisão" : undefined}
+                htmlFor="batch-prospect-reason"
+                label="Motivo da decisão"
+              >
                 <Input
                   disabled={!selectedPendingCount}
                   id="batch-prospect-reason"

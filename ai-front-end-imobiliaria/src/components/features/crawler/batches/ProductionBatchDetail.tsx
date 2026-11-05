@@ -138,7 +138,7 @@ export function ProductionBatchDetail({
             {canExecute && problems > 0 && (
               <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
                 <AlertDialogTrigger asChild>
-                  <Button>
+                  <Button disabled={rerun.isPending}>
                     <RotateCcw />
                     Reexecutar{" "}
                     {selected.length > 0

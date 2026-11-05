@@ -10,6 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { FormField } from "@/components/ui/form-field";
 import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
+import { MissingFieldsHint, missingFields } from "@/components/features/crawler/requiredFields";
 import { usePermission } from "@/hooks/usePermission";
 import { activateCrawlAgencyDiscoveryPolicy, queueProductionCrawl } from "@/services/crawlerService";
 import type { CrawlAgency, DiscoveryPolicyVersion } from "@/types/crawler";
@@ -272,6 +273,15 @@ export function ProductionCrawlPanel({ agency: initialAgency, discoveryPolicies:
         <Link className="text-sm text-primary hover:underline" href={`/admin/crawler/agencies/${agency.id}/discoveries`}>
           Gerar novo Discovery ou Perfil
         </Link>
+        {canExecute && operationId === null && (
+          <MissingFieldsHint
+            className="basis-full"
+            missing={missingFields([
+              ["Perfil de extração", Boolean(profileId)],
+              ["Política de Discovery", !requiresDiscoveryPolicy || Boolean(policyId)],
+            ])}
+          />
+        )}
       </div>
     </div>
   );

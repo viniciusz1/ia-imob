@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { FormField } from "@/components/ui/form-field";
 import { Textarea } from "@/components/ui/textarea";
+import { MissingFieldsHint, missingFields } from "@/components/features/crawler/requiredFields";
 import { usePermission } from "@/hooks/usePermission";
 import {
   createQualityException,
@@ -117,7 +118,11 @@ export function ExceptionalPublicationPanel({ initialRun }: { initialRun: CrawlR
                 value={reason}
               />
             </FormField>
-            <div className="flex flex-wrap justify-end gap-3">
+            <div className="flex flex-wrap items-center justify-end gap-3">
+              <MissingFieldsHint
+                className="mr-auto"
+                missing={missingFields([["Justificativa (mínimo 10 caracteres)", reason.trim().length >= 10]])}
+              />
               {canManagePolicies && (
                 <Button disabled={actionDisabled} onClick={() => void registerException()} type="button" variant="outline">
                   {pendingAction === "exception" ? "Registrando…" : "Registrar exceção"}

@@ -118,4 +118,34 @@ describe("ProspectsClient", () => {
     await waitFor(() => expect(promoteProspect).toHaveBeenCalledWith(1));
     expect(mocks.push).toHaveBeenCalledWith("/admin/crawler/agencies/42/onboarding?novo=true");
   });
+
+  it("keeps prospecting disabled until the city and a 2-letter UF are filled", () => {
+    render(<ProspectsClient initialProspects={[]} initialSuggestions={[]} />);
+
+    const button = screen.getByRole("button", { name: "Prospectar cidade" });
+    expect(button).toBeDisabled();
+    expect(screen.getByText("Preencha: Cidade, UF com 2 letras")).toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText("Cidade"), { target: { value: "Joinville" } });
+    expect(button).toBeDisabled();
+    expect(screen.getByText("Preencha: UF com 2 letras")).toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText("UF"), { target: { value: "SC" } });
+    expect(button).toBeEnabled();
+    expect(screen.queryByText(/Preencha:/)).not.toBeInTheDocument();
+  });
+
+  it("only enables the city list when at least one line parses as \"Cidade, UF\"", () => {
+    render(<ProspectsClient initialProspects={[]} initialSuggestions={[]} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Várias cidades" }));
+    const button = screen.getByRole("button", { name: "Prospectar cidades" });
+    const list = screen.getByLabelText("Lista de cidades");
+
+    fireEvent.change(list, { target: { value: "Joinville sem UF" } });
+    expect(button).toBeDisabled();
+
+    fireEvent.change(list, { target: { value: "Joinville, SC" } });
+    expect(button).toBeEnabled();
+  });
 });

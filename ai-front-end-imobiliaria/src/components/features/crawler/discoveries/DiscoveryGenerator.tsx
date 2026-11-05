@@ -2,6 +2,8 @@
 
 import { ChevronDown, LoaderCircle } from "lucide-react";
 import { useState } from "react";
+
+import { MissingFieldsHint, isIntegerInRange, missingFields } from "@/components/features/crawler/requiredFields";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -44,6 +46,11 @@ export function DiscoveryGenerator({ agencyId, contracts }: DiscoveryGeneratorPr
   const [includeSubdomains, setIncludeSubdomains] = useState(true);
   const [useBrowserForHomepage, setUseBrowserForHomepage] = useState(false);
   const [query, setQuery] = useState("");
+  const discoveryMissing = missingFields([
+    ["ao menos uma fonte", sources.length > 0],
+    ["Limite de URLs (1 a 10.000)", isIntegerInRange(maxUrls, 1, 10000)],
+    ["Contrato de dados", contractId !== ""],
+  ]);
 
   const queueDiscovery = async () => {
     if (!contractId) return;
@@ -176,14 +183,17 @@ export function DiscoveryGenerator({ agencyId, contracts }: DiscoveryGeneratorPr
             ))}
           </NativeSelect>
         </FormField>
-        <Button
-          disabled={!contractId || sources.length === 0 || Number(maxUrls) < 1 || isQueueing}
-          onClick={() => void queueDiscovery()}
-          type="button"
-        >
-          {isQueueing && <LoaderCircle className="animate-spin" />}
-          {isQueueing ? "Enfileirando Discovery…" : "Enfileirar Discovery"}
-        </Button>
+        <div className="flex flex-col items-stretch gap-2 sm:items-end">
+          <Button
+            disabled={discoveryMissing.length > 0 || isQueueing}
+            onClick={() => void queueDiscovery()}
+            type="button"
+          >
+            {isQueueing && <LoaderCircle className="animate-spin" />}
+            {isQueueing ? "Enfileirando Discovery…" : "Enfileirar Discovery"}
+          </Button>
+          <MissingFieldsHint missing={discoveryMissing} />
+        </div>
       </div>
     </div>
   );

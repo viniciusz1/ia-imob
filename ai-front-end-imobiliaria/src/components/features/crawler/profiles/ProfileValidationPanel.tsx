@@ -6,6 +6,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
+import { MissingFieldsHint, missingFields } from "@/components/features/crawler/requiredFields";
 import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
@@ -396,6 +397,10 @@ export function ProfileValidationPanel({
                     >
                       {pendingAction === "reject" ? "Rejeitando…" : "Rejeitar Perfil"}
                     </Button>
+                    <MissingFieldsHint
+                      className="basis-full"
+                      missing={missingFields([["Motivo da decisão", reason.trim() !== ""]])}
+                    />
                   </div>
                 </div>
               )}

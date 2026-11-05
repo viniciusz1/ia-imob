@@ -3,13 +3,14 @@
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
+import { MissingFieldsHint, isFilled, isValidUrl, missingFields } from "@/components/features/crawler/requiredFields";
 import { createCrawlAgency } from "@/services/crawlerService";
 import type { CrawlAgencyInput } from "@/types/crawler";
 
@@ -19,6 +20,13 @@ export function CrawlAgencyForm() {
     defaultValues: { name: "", slug: "", base_url: "", root_domain: "" },
   });
   const { isSubmitting } = form.formState;
+  const values = useWatch({ control: form.control });
+  const missing = missingFields([
+    ["Nome", isFilled(values.name)],
+    ["Slug", isFilled(values.slug)],
+    ["URL base válida", isValidUrl(values.base_url)],
+    ["Domínio raiz", isFilled(values.root_domain)],
+  ]);
 
   const submit = form.handleSubmit(async (values) => {
     await createCrawlAgency(values);
@@ -50,11 +58,12 @@ export function CrawlAgencyForm() {
         </CardContent>
       </Card>
 
-      <div className="flex flex-wrap justify-end gap-3">
+      <div className="flex flex-wrap items-center justify-end gap-3">
+        <MissingFieldsHint className="mr-auto" missing={missing} />
         <Button asChild variant="outline">
           <Link href="/admin/crawler/agencies">Cancelar</Link>
         </Button>
-        <Button disabled={isSubmitting} type="submit">
+        <Button disabled={isSubmitting || missing.length > 0} type="submit">
           {isSubmitting && <Loader2 className="animate-spin" />}
           {isSubmitting ? "Salvando…" : "Cadastrar Crawl Agency"}
         </Button>

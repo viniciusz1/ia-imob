@@ -12,6 +12,7 @@ import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle }
 import { Checkbox } from "@/components/ui/checkbox";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
+import { MissingFieldsHint, isIntegerInRange, missingFields } from "@/components/features/crawler/requiredFields";
 import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -212,11 +213,19 @@ function DiscoveryVersionCard({
           Referenciada por {policy.model_reference_count} modelo(s);
           {" "}{policy.active_model_reference_count} ainda selecionável(is).
         </p>
+        {policy.mutable && dirty && (
+          <MissingFieldsHint
+            missing={missingFields([
+              ["ao menos uma estratégia", selected.length > 0],
+              ["Limite de URLs (1 a 10.000)", isIntegerInRange(maxUrls, 1, 10000)],
+            ])}
+          />
+        )}
         <div className="flex flex-wrap gap-2">
           {policy.status === "draft" && (
             <>
               <Button
-                disabled={pending || !dirty || selected.length === 0}
+                disabled={pending || !dirty || selected.length === 0 || !isIntegerInRange(maxUrls, 1, 10000)}
                 onClick={() => void execute(
                   () => updateDiscoveryPolicyVersion(policy.id, {
                     strategies: selected,
@@ -329,6 +338,9 @@ function ExtractionVersionCard({
         <div className="flex flex-wrap gap-2">
           {policy.status === "draft" && (
             <>
+              {dirty && selected.length === 0 && (
+                <MissingFieldsHint className="basis-full" missing={["ao menos uma estratégia"]} />
+              )}
               <Button
                 disabled={pending || !dirty || selected.length === 0}
                 onClick={() => void execute(
@@ -768,9 +780,17 @@ function DiscoveryCreationCard({
           </FormField>
         </div>
         <StrategyChoices onChange={setSelected} options={options} prefix="new-discovery" selected={selected} />
-        <div className="flex flex-wrap justify-end gap-3">
+        <div className="flex flex-wrap items-center justify-end gap-3">
+          <MissingFieldsHint
+            className="mr-auto"
+            missing={missingFields([
+              ["Nome", name.trim() !== ""],
+              ["Limite de URLs (1 a 10.000)", isIntegerInRange(maxUrls, 1, 10000)],
+              ["ao menos uma estratégia", selected.length > 0],
+            ])}
+          />
           <Button
-            disabled={pending || name.trim() === "" || selected.length === 0}
+            disabled={pending || name.trim() === "" || selected.length === 0 || !isIntegerInRange(maxUrls, 1, 10000)}
             onClick={() => void execute(
               () => createDiscoveryPolicyVersion({
                 name: name.trim(),
@@ -822,6 +842,10 @@ function CustomStrategyCard({ onCreated }: { onCreated: (strategy: DiscoveryStra
             <option value="blocked">Bloqueada</option>
           </NativeSelect>
         </FormField>
+        <MissingFieldsHint
+          className="md:order-last md:col-span-4"
+          missing={missingFields([["Identificador", key.trim() !== ""], ["Nome", label.trim() !== ""]])}
+        />
         <Button
           className="self-end"
           disabled={pending || key.trim() === "" || label.trim() === ""}
@@ -876,7 +900,11 @@ function ExtractionCreationCard({
           prefix="new-extraction"
           selected={selected}
         />
-        <div className="flex flex-wrap justify-end gap-3">
+        <div className="flex flex-wrap items-center justify-end gap-3">
+          <MissingFieldsHint
+            className="mr-auto"
+            missing={missingFields([["Nome", name.trim() !== ""], ["ao menos uma estratégia", selected.length > 0]])}
+          />
           <Button
             disabled={pending || name.trim() === "" || selected.length === 0}
             onClick={() => void execute(
@@ -957,7 +985,15 @@ function ModelCreationCard({
             />
           </div>
         )}
-        <div className="flex flex-wrap justify-end gap-3">
+        <div className="flex flex-wrap items-center justify-end gap-3">
+          <MissingFieldsHint
+            className="mr-auto"
+            missing={missingFields([
+              ["Nome da execução", name.trim() !== ""],
+              ["Política de discovery", effectiveDiscoveryId > 0],
+              ["Política de extração", effectiveExtractionId > 0],
+            ])}
+          />
           <Button
             disabled={pending || !canCreate}
             onClick={() => void execute(

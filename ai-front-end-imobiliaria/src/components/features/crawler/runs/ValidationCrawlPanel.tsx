@@ -11,6 +11,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { FormField } from "@/components/ui/form-field";
 import { Label } from "@/components/ui/label";
 import { NativeSelect } from "@/components/ui/native-select";
+import { MissingFieldsHint, missingFields } from "@/components/features/crawler/requiredFields";
 import { usePermission } from "@/hooks/usePermission";
 import { activateExtractionProfile, queueProfileValidation } from "@/services/crawlerService";
 import type { CrawlerOperation, ExtractionProfile, OnboardingExecution } from "@/types/crawler";
@@ -174,9 +175,13 @@ export function ValidationCrawlPanel({ agencyId, activeOnboarding, initialOperat
       {(activeOperation || latestOperation?.state === "succeeded") && (
         <CrawlerOperationStatus operation={activeOperation ?? latestOperation!} />
       )}
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         {canExecute && (
-          <Button disabled={pending || activeOperation !== null || activating} onClick={() => void queue()} type="button">
+          <Button
+            disabled={!profileId || pending || activeOperation !== null || activating}
+            onClick={() => void queue()}
+            type="button"
+          >
             {pending ? "Enfileirando…" : activeOperation ? "Validação em andamento" : "Rodar Crawl de Validação"}
           </Button>
         )}
@@ -190,6 +195,7 @@ export function ValidationCrawlPanel({ agencyId, activeOnboarding, initialOperat
             {activating ? "Ativando…" : "Ativar Perfil"}
           </Button>
         )}
+        {canExecute && <MissingFieldsHint missing={missingFields([["Perfil de extração", Boolean(profileId)]])} />}
       </div>
     </div>
   );

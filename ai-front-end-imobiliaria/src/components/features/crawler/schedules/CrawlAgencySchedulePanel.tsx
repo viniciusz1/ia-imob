@@ -2,6 +2,8 @@
 
 import { CircleAlert } from "lucide-react";
 import { useState } from "react";
+
+import { MissingFieldsHint, isFilled, missingFields } from "@/components/features/crawler/requiredFields";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
@@ -103,8 +105,18 @@ export function CrawlAgencySchedulePanel({ initialSchedule }: { initialSchedule:
         />
 
         {canManage && (
-          <div className="flex justify-end">
-            <Button onClick={() => void save()} type="button">Salvar agendamento</Button>
+          <div className="flex flex-wrap items-center justify-end gap-3">
+            <MissingFieldsHint
+              className="mr-auto"
+              missing={inheritDefault ? [] : missingFields([["Fuso horário", isFilled(timezone)]])}
+            />
+            <Button
+              disabled={!inheritDefault && !isFilled(timezone)}
+              onClick={() => void save()}
+              type="button"
+            >
+              Salvar agendamento
+            </Button>
           </div>
         )}
       </CardContent>
