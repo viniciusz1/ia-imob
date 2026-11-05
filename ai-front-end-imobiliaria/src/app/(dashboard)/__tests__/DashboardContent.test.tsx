@@ -1,8 +1,35 @@
-import { render, screen } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { render as renderWithoutProviders, screen } from "@testing-library/react";
+import type { ReactElement } from "react";
 import { describe, expect, it, vi } from "vitest";
 
 import { DashboardContent } from "../DashboardContent";
 import { useAuthStore } from "@/store/useAuthStore";
+
+vi.mock("@/services/propertyService", () => ({
+  getProperties: vi.fn().mockResolvedValue({ data: [], meta: { current_page: 1, last_page: 1, per_page: 1, total: 12 } }),
+}));
+
+vi.mock("@/services/newPropertiesService", () => ({
+  getNewProperties: vi.fn().mockResolvedValue({
+    data: [],
+    meta: { total: 40, total_new: 30, total_opportunities: 5, filtered_total: 40 },
+  }),
+}));
+
+vi.mock("@/services/auctionService", () => ({
+  getAuctions: vi.fn().mockResolvedValue({ data: [], meta: { current_page: 1, last_page: 1, per_page: 1, total: 3 } }),
+}));
+
+vi.mock("@/services/valuationService", () => ({
+  getValuations: vi.fn().mockResolvedValue({ data: [], meta: { current_page: 1, last_page: 1, per_page: 1, total: 7 } }),
+}));
+
+/** The home reads its totals through React Query. */
+function render(ui: ReactElement) {
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  return renderWithoutProviders(<QueryClientProvider client={client}>{ui}</QueryClientProvider>);
+}
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({
@@ -94,5 +121,21 @@ describe("DashboardContent", () => {
     render(<DashboardContent />);
 
     expect(screen.queryByRole("link", { name: /^novos imóveis$/i })).not.toBeInTheDocument();
+  });
+
+  it("shows the totals of the modules the user can open", async () => {
+    useAuthStore.getState().setUser({
+      id: 1,
+      name: "Corretor",
+      email: "corretor@example.com",
+      is_platform_admin: false,
+      permissions: ["properties.view", "valuations.view"],
+    });
+
+    render(<DashboardContent />);
+
+    expect(await screen.findByRole("link", { name: /^imóveis 12/i })).toHaveAttribute("href", "/properties");
+    expect(await screen.findByRole("link", { name: /^avaliações 7/i })).toHaveAttribute("href", "/avaliacoes");
+    expect(await screen.findByRole("link", { name: /^novidades 30/i })).toHaveAttribute("href", "/novos-imoveis");
   });
 });
