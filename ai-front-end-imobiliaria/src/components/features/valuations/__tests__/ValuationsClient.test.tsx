@@ -303,8 +303,9 @@ describe("ValuationsClient", () => {
 
     render(<ValuationsClient />);
 
-    const history = (await screen.findByText("Histórico")).closest<HTMLElement>('[data-slot="card"]');
-    if (!history) throw new Error("Histórico card not found");
+    // The history lives in its own view, behind the "Histórico" tab.
+    fireEvent.mouseDown(await screen.findByRole("tab", { name: /histórico/i }));
+    const history = await screen.findByRole("tabpanel");
 
     expect(valuationService.getValuations).toHaveBeenCalledWith(1, 10);
     expect(await within(history).findByText("1–10")).toBeInTheDocument();
@@ -314,6 +315,23 @@ describe("ValuationsClient", () => {
     await waitFor(() => {
       expect(valuationService.getValuations).toHaveBeenCalledWith(2, 10);
     });
+  });
+
+  it("opens a valuation from the history in the result view", async () => {
+    vi.mocked(valuationService.getValuations).mockResolvedValue(paginated([calculatedValuation]));
+    vi.mocked(valuationService.getValuation).mockResolvedValue(calculatedValuation);
+
+    render(<ValuationsClient />);
+
+    fireEvent.mouseDown(await screen.findByRole("tab", { name: /histórico/i }));
+    const history = await screen.findByRole("tabpanel");
+    fireEvent.click(await within(history).findByRole("button", { name: "Abrir" }));
+
+    await waitFor(() => {
+      expect(valuationService.getValuation).toHaveBeenCalledWith(calculatedValuation.id);
+    });
+    expect(await screen.findByRole("tab", { name: /avaliação/i, selected: true })).toBeInTheDocument();
+    expect(screen.getByText("AVL-2026-000002 - Calculada")).toBeInTheDocument();
   });
 
   it("renders calculated valuation details and downloads the report", async () => {

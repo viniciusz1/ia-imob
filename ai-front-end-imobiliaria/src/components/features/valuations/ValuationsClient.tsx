@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import {
   Calculator,
   Check,
@@ -38,7 +38,6 @@ import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { MultiSelect } from "@/components/ui/multi-select";
-import { cn } from "@/lib/utils";
 import {
   Select,
   SelectContent,
@@ -47,6 +46,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Table,
   TableBody,
@@ -131,6 +131,14 @@ const reviewStatusLabels: Record<ComparableReviewStatus, string> = {
   rejected: "Inválido",
 };
 
+type ValuationView = "valuation" | "history";
+
+function formatDate(value: string): string {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "-";
+  return new Intl.DateTimeFormat("pt-BR", { dateStyle: "short" }).format(date);
+}
+
 function formatNumber(value: number): string {
   return new Intl.NumberFormat("pt-BR", {
     maximumFractionDigits: 0,
@@ -198,6 +206,9 @@ export function ValuationsClient() {
   const [form, setForm] = useState<ValuationInput>(initialInput);
   const [valuations, setValuations] = useState<Valuation[]>([]);
   const [historyPage, setHistoryPage] = useState({ page: 1, pageCount: 1, total: 0 });
+  const [view, setView] = useState<ValuationView>("valuation");
+  const resultRef = useRef<HTMLDivElement>(null);
+  const [scrollToResult, setScrollToResult] = useState(false);
   const [selected, setSelected] = useState<Valuation | null>(null);
   const [candidates, setCandidates] = useState<ComparableCandidate[]>([]);
   const [selectedCandidateIds, setSelectedCandidateIds] = useState<Set<number>>(() => new Set());
@@ -286,6 +297,13 @@ export function ValuationsClient() {
 
     void loadFilters();
   }, []);
+
+  // After opening a valuation from the history, bring the result into view.
+  useEffect(() => {
+    if (!scrollToResult || view !== "valuation") return;
+    resultRef.current?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+    setScrollToResult(false);
+  }, [scrollToResult, view]);
 
   async function loadHistory(page = 1) {
     setIsLoadingHistory(true);
@@ -495,6 +513,12 @@ export function ValuationsClient() {
     }
   }
 
+  async function openFromHistory(valuationId: number) {
+    await handleSelect(valuationId);
+    setView("valuation");
+    setScrollToResult(true);
+  }
+
   function handleNewValuation() {
     setForm(initialInput);
     setTouchedFields(new Set());
@@ -531,7 +555,13 @@ export function ValuationsClient() {
       <PageHeader
         actions={
           canCreate && (
-            <Button type="button" variant="outline" onClick={handleNewValuation}>
+            <Button
+              type="button"
+              onClick={() => {
+                handleNewValuation();
+                setView("valuation");
+              }}
+            >
               <Plus />
               Nova avaliação
             </Button>
@@ -541,354 +571,402 @@ export function ValuationsClient() {
         title="Avaliar imóvel"
       />
 
-      {canCreate && (
-        <Card className="gap-0 py-0">
-          <SectionHeader
-            description="Informe as características usadas para buscar imóveis comparáveis na base."
-            icon={Calculator}
-            title="Imóvel avaliado"
-          />
-          <form className="space-y-6 px-6 pb-6 sm:px-8 sm:pb-8" onSubmit={handleSubmit}>
-            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-              <FormField error={cityError} htmlFor="city" label="Cidade">
-                <MultiSelect
-                  className={cityError ? "border-destructive" : undefined}
-                  disabled={isLoadingFilters}
-                  emptyMessage="Nenhuma cidade encontrada."
-                  id="city"
-                  onChange={(values) => updateMultiSelect("city", values)}
-                  options={availableCities}
-                  placeholder="Selecione as cidades"
-                  searchPlaceholder="Buscar cidade"
-                  value={form.city}
-                />
-              </FormField>
+      <Tabs className="gap-6" onValueChange={(value) => setView(value as ValuationView)} value={view}>
+        {canView && (
+          <TabsList aria-label="Visualização da avaliação">
+            <TabsTrigger value="valuation">
+              <Calculator />
+              Avaliação
+            </TabsTrigger>
+            <TabsTrigger value="history">
+              <History />
+              Histórico
+              <span className="rounded-md bg-background/60 px-1.5 py-0.5 text-xs font-semibold tabular-nums">
+                {historyPage.total}
+              </span>
+            </TabsTrigger>
+          </TabsList>
+        )}
 
-              <FormField error={neighborhoodError} htmlFor="neighborhood" label="Bairro">
-                <MultiSelect
-                  className={neighborhoodError ? "border-destructive" : undefined}
-                  disabled={isLoadingFilters}
-                  emptyMessage="Nenhum bairro encontrado."
-                  id="neighborhood"
-                  onChange={(values) => updateMultiSelect("neighborhood", values)}
-                  options={visibleNeighborhoods}
-                  placeholder="Selecione os bairros"
-                  searchPlaceholder="Buscar bairro"
-                  value={form.neighborhood}
-                />
-              </FormField>
-
-              <FormField className="md:col-span-2 xl:col-span-1" htmlFor="residential_type" label="Tipo residencial">
-                <Select
-                  value={form.residential_type}
-                  onValueChange={(value) =>
-                    setForm((current) => ({ ...current, residential_type: value as ResidentialType }))
-                  }
-                >
-                  <SelectTrigger className="w-full" id="residential_type">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {residentialTypes.map((type) => (
-                      <SelectItem key={type.value} value={type.value}>
-                        {type.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FormField>
-            </div>
-
-            <div className="grid grid-cols-2 gap-5 md:grid-cols-4">
-              <FormField error={visibleNumberError("area")} htmlFor="area" label="Metragem">
-                <div className="relative">
-                  <Input
-                    aria-invalid={Boolean(visibleNumberError("area"))}
-                    className="pr-12"
-                    id="area"
-                    inputMode="numeric"
-                    type="text"
-                    value={form.area}
-                    onChange={(event) => updateNumber("area", event.target.value)}
-                    required
-                  />
-                  <span className="pointer-events-none absolute top-1/2 right-3.5 -translate-y-1/2 text-sm text-muted-foreground">
-                    m²
-                  </span>
-                </div>
-              </FormField>
-              <FormField error={visibleNumberError("bedrooms")} htmlFor="bedrooms" label="Quartos">
-                <Input
-                  aria-invalid={Boolean(visibleNumberError("bedrooms"))}
-                  id="bedrooms"
-                  inputMode="numeric"
-                  type="text"
-                  value={form.bedrooms}
-                  onChange={(event) => updateNumber("bedrooms", event.target.value)}
-                  required
-                />
-              </FormField>
-              <FormField error={visibleNumberError("bathrooms")} htmlFor="bathrooms" label="Banheiros">
-                <Input
-                  aria-invalid={Boolean(visibleNumberError("bathrooms"))}
-                  id="bathrooms"
-                  inputMode="numeric"
-                  type="text"
-                  value={form.bathrooms}
-                  onChange={(event) => updateNumber("bathrooms", event.target.value)}
-                  required
-                />
-              </FormField>
-              <FormField error={visibleNumberError("garage_spaces")} htmlFor="garage_spaces" label="Vagas">
-                <Input
-                  aria-invalid={Boolean(visibleNumberError("garage_spaces"))}
-                  id="garage_spaces"
-                  inputMode="numeric"
-                  type="text"
-                  value={form.garage_spaces}
-                  onChange={(event) => updateNumber("garage_spaces", event.target.value)}
-                  required
-                />
-              </FormField>
-            </div>
-
-            <div className="flex flex-col gap-4 border-t pt-6 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex items-center gap-3">
-                <Switch
-                  id="flood_risk"
-                  checked={form.flood_risk}
-                  onCheckedChange={(checked) => setForm((current) => ({ ...current, flood_risk: checked }))}
-                />
-                <div className="space-y-1">
-                  <Label htmlFor="flood_risk">Risco de enchente</Label>
-                  <p className="text-[0.8125rem] leading-4 text-subtle">Aplica um ajuste negativo ao valor final.</p>
-                </div>
-              </div>
-
-              <Button
-                className="w-full sm:w-auto sm:min-w-56"
-                disabled={isLoadingCandidates || isLoadingFilters}
-                size="lg"
-                type="submit"
-              >
-                {isLoadingCandidates ? <Loader2 className="animate-spin" /> : <Search />}
-                Buscar comparáveis
-              </Button>
-            </div>
-          </form>
-        </Card>
-      )}
-
-      {canCreate && candidates.length > 0 && (
-        <ComparableReviewPanel
-          key={candidateSearch}
-          candidates={candidates}
-          selectedCandidateIds={selectedCandidateIds}
-          pendingCount={pendingCandidates}
-          approvedCount={approvedCandidates}
-          rejectedCount={rejectedCandidates}
-          isSubmitting={isSubmitting}
-          canCalculate={canCalculateReviewedValuation}
-          onToggleSelected={toggleCandidateSelection}
-          onMarkSelected={markSelectedCandidates}
-          onSelectAll={selectAllCandidates}
-          onClearSelection={clearCandidateSelection}
-          onCycleStatus={cycleCandidateStatus}
-          onCalculate={() => void handleCreateReviewedValuation()}
-        />
-      )}
-
-      <div className="grid gap-6 xl:grid-cols-12">
-          <Card className="gap-0 overflow-hidden py-0 xl:col-span-8">
-            <SectionHeader
-              actions={
-                selected && (
-                  <Badge variant={valuationStatusBadgeVariant(selected.status)}>
-                    {selected.status_label}
-                  </Badge>
-                )
-              }
-              description={selected ? `${selected.code} - ${selected.status_label}` : "Nenhuma avaliação selecionada"}
-              icon={Target}
-              title="Resultado"
-            />
-            {!selected ? (
-              <div className="flex flex-1 items-center justify-center px-6 pb-8 sm:px-8">
-                <EmptyState
-                  className="w-full rounded-xl bg-muted py-16"
-                  description="Preencha o imóvel acima e busque comparáveis, ou abra uma avaliação do histórico."
-                  icon={Calculator}
-                  title="Nenhuma avaliação selecionada"
-                  variant="inline"
-                />
-              </div>
-            ) : (
-              <div className="flex flex-1 flex-col gap-5 px-6 pb-6 sm:px-8 sm:pb-8">
-                {selectedRange ? (
-                  <>
-                    <div className="rounded-xl border border-primary/40 bg-primary/10 p-5 sm:p-6">
-                      <p className="text-sm leading-4 font-semibold text-primary">Valor estimado</p>
-                      <p className="mt-3 text-[2rem] leading-9 font-semibold tracking-[-0.01em] text-foreground tabular-nums">
-                        {selectedRange.display.central}
-                      </p>
-                      <p className="mt-2 text-sm text-subtle tabular-nums">
-                        Faixa de mercado entre {selectedRange.display.min} e {selectedRange.display.max}
-                      </p>
-                      <RangeBar range={selectedRange} />
-                    </div>
-
-                    <div className="grid gap-4 sm:grid-cols-3">
-                      <RangeTile icon={TrendingDown} label="Mínimo" tone="info" value={selectedRange.display.min} />
-                      <RangeTile icon={Target} label="Central" tone="primary" value={selectedRange.display.central} />
-                      <RangeTile icon={TrendingUp} label="Máximo" tone="success" value={selectedRange.display.max} />
-                    </div>
-                  </>
-                ) : (
-                  <div className="flex items-start gap-3 rounded-xl border border-warning/40 bg-warning/10 p-4 text-sm">
-                    <CircleAlert className="mt-0.5 size-5 shrink-0 text-warning" />
-                    <div className="space-y-1.5">
-                      <p className="font-semibold text-foreground">Amostra insuficiente</p>
-                      <p className="leading-5 text-muted-foreground">{selected.calculation_summary}</p>
-                    </div>
-                  </div>
-                )}
-
-                {selected.flood_adjustment_percent !== null && (
-                  <div className="flex items-start gap-3 rounded-xl border border-warning/40 bg-warning/10 p-4 text-sm">
-                    <ShieldAlert className="mt-0.5 size-5 shrink-0 text-warning" />
-                    <p className="text-foreground">
-                      Ajuste aplicado: -{selected.flood_adjustment_percent}% por risco de enchente informado.
-                    </p>
-                  </div>
-                )}
-
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="rounded-xl border border-transparent bg-muted p-5 text-sm">
-                    <p className="flex items-center gap-2 text-[0.8125rem] leading-4 font-semibold text-subtle">
-                      <Home className="size-4" />
-                      Imóvel avaliado
-                    </p>
-                    <p className="mt-3 text-[0.9375rem] leading-5 font-medium text-foreground">
-                      {selected.subject_property.residential_type_label} em {selected.subject_property.neighborhood},{" "}
-                      {selected.subject_property.city}
-                    </p>
-                    <p className="mt-1.5 text-muted-foreground tabular-nums">
-                      {formatNumber(selected.subject_property.area)} m², {selected.subject_property.bedrooms} quartos,{" "}
-                      {selected.subject_property.bathrooms} banheiros, {selected.subject_property.garage_spaces} vagas
-                    </p>
-                  </div>
-                  <div className="rounded-xl border border-transparent bg-muted p-5 text-sm">
-                    <p className="flex items-center gap-2 text-[0.8125rem] leading-4 font-semibold text-subtle">
-                      <Users className="size-4" />
-                      Amostra
-                    </p>
-                    <p className="mt-3 text-[0.9375rem] leading-5 font-medium text-foreground tabular-nums">{sampleLabel}</p>
-                    {selectedRange && <p className="mt-1.5 text-muted-foreground">{selected.calculation_summary}</p>}
-                  </div>
-                </div>
-
-                {selected.can_download_report && canView && (
-                  <div className="mt-auto flex flex-wrap justify-end gap-2 border-t pt-5">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => void handleDownload("excel")}
-                      disabled={downloadingFormat === "excel"}
-                    >
-                      {downloadingFormat === "excel" ? <Loader2 className="animate-spin" /> : <FileSpreadsheet />}
-                      Exportar Excel
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => void handleDownload("word")}
-                      disabled={downloadingFormat === "word"}
-                    >
-                      {downloadingFormat === "word" ? <Loader2 className="animate-spin" /> : <FileText />}
-                      Baixar Word
-                    </Button>
-                    <Button
-                      type="button"
-                      onClick={() => void handleDownload("pdf")}
-                      disabled={downloadingFormat === "pdf"}
-                    >
-                      {downloadingFormat === "pdf" ? <Loader2 className="animate-spin" /> : <Download />}
-                      Baixar PDF
-                    </Button>
-                  </div>
-                )}
-              </div>
-            )}
-          </Card>
-
-
-          <Card className="gap-0 overflow-hidden py-0 xl:col-span-4">
-            <SectionHeader
-              description="Avaliações salvas da imobiliária."
-              icon={History}
-              title="Histórico"
-            />
-            {!canView ? (
-              <EmptyState
-                description="Você pode criar avaliações, mas não tem permissão para consultar o histórico."
-                icon={Lock}
-                title="Histórico indisponível"
-                variant="inline"
+        <TabsContent className="space-y-6" value="valuation">
+          {canCreate && (
+            <Card className="gap-0 py-0">
+              <SectionHeader
+                description="Informe as características usadas para buscar imóveis comparáveis na base."
+                icon={Calculator}
+                title="Imóvel avaliado"
               />
-            ) : isLoadingHistory ? (
-              <div className="flex items-center gap-2 px-6 py-6 text-sm text-muted-foreground sm:px-8">
-                <Loader2 className="size-4 animate-spin" />
-                Carregando avaliações...
-              </div>
-            ) : valuations.length === 0 ? (
-              <EmptyState
-                description="As avaliações calculadas aparecem aqui."
-                icon={FileText}
-                title="Nenhuma avaliação salva."
-                variant="inline"
-              />
-            ) : (
-              <ul className="divide-y border-t">
-                {valuations.map((valuation) => {
-                  const isSelected = selected?.id === valuation.id;
+              <form className="space-y-6 px-6 pb-6 sm:px-8 sm:pb-8" onSubmit={handleSubmit}>
+                <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+                  <FormField error={cityError} htmlFor="city" label="Cidade">
+                    <MultiSelect
+                      className={cityError ? "border-destructive" : undefined}
+                      disabled={isLoadingFilters}
+                      emptyMessage="Nenhuma cidade encontrada."
+                      id="city"
+                      onChange={(values) => updateMultiSelect("city", values)}
+                      options={availableCities}
+                      placeholder="Selecione as cidades"
+                      searchPlaceholder="Buscar cidade"
+                      value={form.city}
+                    />
+                  </FormField>
 
-                  return (
-                    <li
-                      className={cn(
-                        "flex items-center gap-4 px-6 py-3 transition-colors sm:px-8",
-                        isSelected && "bg-primary/5 shadow-[inset_3px_0_0_var(--primary)]",
-                      )}
-                      key={valuation.id}
+                  <FormField error={neighborhoodError} htmlFor="neighborhood" label="Bairro">
+                    <MultiSelect
+                      className={neighborhoodError ? "border-destructive" : undefined}
+                      disabled={isLoadingFilters}
+                      emptyMessage="Nenhum bairro encontrado."
+                      id="neighborhood"
+                      onChange={(values) => updateMultiSelect("neighborhood", values)}
+                      options={visibleNeighborhoods}
+                      placeholder="Selecione os bairros"
+                      searchPlaceholder="Buscar bairro"
+                      value={form.neighborhood}
+                    />
+                  </FormField>
+
+                  <FormField className="md:col-span-2 xl:col-span-1" htmlFor="residential_type" label="Tipo residencial">
+                    <Select
+                      value={form.residential_type}
+                      onValueChange={(value) =>
+                        setForm((current) => ({ ...current, residential_type: value as ResidentialType }))
+                      }
                     >
-                      <div className="min-w-0 flex-1 space-y-1">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <p className="text-sm font-semibold text-foreground tabular-nums">{valuation.code}</p>
-                          <Badge variant={valuationStatusBadgeVariant(valuation.status)}>
-                            {valuation.status_label}
-                          </Badge>
-                        </div>
-                        <p className="truncate text-[0.8125rem] text-subtle">
-                          {valuation.subject_property.neighborhood}, {valuation.subject_property.city}
+                      <SelectTrigger className="w-full" id="residential_type">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {residentialTypes.map((type) => (
+                          <SelectItem key={type.value} value={type.value}>
+                            {type.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FormField>
+                </div>
+
+                <div className="grid grid-cols-2 gap-5 md:grid-cols-4">
+                  <FormField error={visibleNumberError("area")} htmlFor="area" label="Metragem">
+                    <div className="relative">
+                      <Input
+                        aria-invalid={Boolean(visibleNumberError("area"))}
+                        className="pr-12"
+                        id="area"
+                        inputMode="numeric"
+                        type="text"
+                        value={form.area}
+                        onChange={(event) => updateNumber("area", event.target.value)}
+                        required
+                      />
+                      <span className="pointer-events-none absolute top-1/2 right-3.5 -translate-y-1/2 text-sm text-muted-foreground">
+                        m²
+                      </span>
+                    </div>
+                  </FormField>
+                  <FormField error={visibleNumberError("bedrooms")} htmlFor="bedrooms" label="Quartos">
+                    <Input
+                      aria-invalid={Boolean(visibleNumberError("bedrooms"))}
+                      id="bedrooms"
+                      inputMode="numeric"
+                      type="text"
+                      value={form.bedrooms}
+                      onChange={(event) => updateNumber("bedrooms", event.target.value)}
+                      required
+                    />
+                  </FormField>
+                  <FormField error={visibleNumberError("bathrooms")} htmlFor="bathrooms" label="Banheiros">
+                    <Input
+                      aria-invalid={Boolean(visibleNumberError("bathrooms"))}
+                      id="bathrooms"
+                      inputMode="numeric"
+                      type="text"
+                      value={form.bathrooms}
+                      onChange={(event) => updateNumber("bathrooms", event.target.value)}
+                      required
+                    />
+                  </FormField>
+                  <FormField error={visibleNumberError("garage_spaces")} htmlFor="garage_spaces" label="Vagas">
+                    <Input
+                      aria-invalid={Boolean(visibleNumberError("garage_spaces"))}
+                      id="garage_spaces"
+                      inputMode="numeric"
+                      type="text"
+                      value={form.garage_spaces}
+                      onChange={(event) => updateNumber("garage_spaces", event.target.value)}
+                      required
+                    />
+                  </FormField>
+                </div>
+
+                <div className="flex flex-col gap-4 border-t pt-6 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex items-center gap-3">
+                    <Switch
+                      id="flood_risk"
+                      checked={form.flood_risk}
+                      onCheckedChange={(checked) => setForm((current) => ({ ...current, flood_risk: checked }))}
+                    />
+                    <div className="space-y-1">
+                      <Label htmlFor="flood_risk">Risco de enchente</Label>
+                      <p className="text-[0.8125rem] leading-4 text-subtle">Aplica um ajuste negativo ao valor final.</p>
+                    </div>
+                  </div>
+
+                  <Button
+                    className="w-full sm:w-auto sm:min-w-56"
+                    disabled={isLoadingCandidates || isLoadingFilters}
+                    size="lg"
+                    type="submit"
+                  >
+                    {isLoadingCandidates ? <Loader2 className="animate-spin" /> : <Search />}
+                    Buscar comparáveis
+                  </Button>
+                </div>
+              </form>
+            </Card>
+          )}
+
+          {canCreate && candidates.length > 0 && (
+            <ComparableReviewPanel
+              key={candidateSearch}
+              candidates={candidates}
+              selectedCandidateIds={selectedCandidateIds}
+              pendingCount={pendingCandidates}
+              approvedCount={approvedCandidates}
+              rejectedCount={rejectedCandidates}
+              isSubmitting={isSubmitting}
+              canCalculate={canCalculateReviewedValuation}
+              onToggleSelected={toggleCandidateSelection}
+              onMarkSelected={markSelectedCandidates}
+              onSelectAll={selectAllCandidates}
+              onClearSelection={clearCandidateSelection}
+              onCycleStatus={cycleCandidateStatus}
+              onCalculate={() => void handleCreateReviewedValuation()}
+            />
+          )}
+
+          <div className="scroll-mt-28" ref={resultRef}>
+            <Card className="gap-0 overflow-hidden py-0">
+              <SectionHeader
+                actions={
+                  selected && (
+                    <Badge variant={valuationStatusBadgeVariant(selected.status)}>
+                      {selected.status_label}
+                    </Badge>
+                  )
+                }
+                description={selected ? `${selected.code} - ${selected.status_label}` : "Nenhuma avaliação selecionada"}
+                icon={Target}
+                title="Resultado"
+              />
+              {!selected ? (
+                <div className="px-6 pb-6 sm:px-8 sm:pb-8">
+                  <div className="flex flex-col items-start gap-4 rounded-xl bg-muted px-5 py-5 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex items-center gap-3">
+                      <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary">
+                        <Calculator className="size-5" />
+                      </span>
+                      <p className="text-sm text-muted-foreground">
+                        Preencha o formulário e busque comparáveis, ou abra uma avaliação do histórico.
+                      </p>
+                    </div>
+                    {canView && (
+                      <Button onClick={() => setView("history")} type="button" variant="outline">
+                        <History />
+                        Ver histórico
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-5 px-6 pb-6 sm:px-8 sm:pb-8">
+                  {selectedRange ? (
+                    <div className="grid gap-4 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+                      <div className="flex flex-col justify-center rounded-xl border border-primary/40 bg-primary/10 p-5 sm:p-6">
+                        <p className="text-sm leading-4 font-semibold text-primary">Valor estimado</p>
+                        <p className="mt-3 text-[2.25rem] leading-10 font-semibold tracking-[-0.01em] text-foreground tabular-nums">
+                          {selectedRange.display.central}
+                        </p>
+                        <p className="mt-2 text-sm text-subtle tabular-nums">
+                          Faixa de mercado entre {selectedRange.display.min} e {selectedRange.display.max}
+                        </p>
+                        <RangeBar range={selectedRange} />
+                      </div>
+
+                      <div className="grid gap-3">
+                        <RangeTile icon={TrendingDown} label="Mínimo" tone="info" value={selectedRange.display.min} />
+                        <RangeTile icon={Target} label="Central" tone="primary" value={selectedRange.display.central} />
+                        <RangeTile icon={TrendingUp} label="Máximo" tone="success" value={selectedRange.display.max} />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-start gap-3 rounded-xl border border-warning/40 bg-warning/10 p-4 text-sm">
+                      <CircleAlert className="mt-0.5 size-5 shrink-0 text-warning" />
+                      <div className="space-y-1.5">
+                        <p className="font-semibold text-foreground">Amostra insuficiente</p>
+                        <p className="leading-5 text-muted-foreground">{selected.calculation_summary}</p>
+                      </div>
+                    </div>
+                  )}
+
+                    {selected.flood_adjustment_percent !== null && (
+                      <div className="flex items-start gap-3 rounded-xl border border-warning/40 bg-warning/10 p-4 text-sm">
+                        <ShieldAlert className="mt-0.5 size-5 shrink-0 text-warning" />
+                        <p className="text-foreground">
+                          Ajuste aplicado: -{selected.flood_adjustment_percent}% por risco de enchente informado.
                         </p>
                       </div>
-                      <p className="shrink-0 text-sm font-semibold text-foreground tabular-nums">
-                        {valuation.final_range?.display.central ?? "-"}
-                      </p>
-                      <Button
-                        onClick={() => void handleSelect(valuation.id)}
-                        size="sm"
-                        type="button"
-                        variant={isSelected ? "secondary" : "outline"}
-                      >
-                        Abrir
-                      </Button>
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-            {canView && (
-              <div className="mt-auto">
+                    )}
+
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div className="rounded-xl border border-transparent bg-muted p-5 text-sm">
+                        <p className="flex items-center gap-2 text-[0.8125rem] leading-4 font-semibold text-subtle">
+                          <Home className="size-4" />
+                          Imóvel avaliado
+                        </p>
+                        <p className="mt-3 text-[0.9375rem] leading-5 font-medium text-foreground">
+                          {selected.subject_property.residential_type_label} em {selected.subject_property.neighborhood},{" "}
+                          {selected.subject_property.city}
+                        </p>
+                        <p className="mt-1.5 text-muted-foreground tabular-nums">
+                          {formatNumber(selected.subject_property.area)} m², {selected.subject_property.bedrooms} quartos,{" "}
+                          {selected.subject_property.bathrooms} banheiros, {selected.subject_property.garage_spaces} vagas
+                        </p>
+                      </div>
+                      <div className="rounded-xl border border-transparent bg-muted p-5 text-sm">
+                        <p className="flex items-center gap-2 text-[0.8125rem] leading-4 font-semibold text-subtle">
+                          <Users className="size-4" />
+                          Amostra
+                        </p>
+                        <p className="mt-3 text-[0.9375rem] leading-5 font-medium text-foreground tabular-nums">{sampleLabel}</p>
+                        {selectedRange && <p className="mt-1.5 text-muted-foreground">{selected.calculation_summary}</p>}
+                      </div>
+                    </div>
+
+                    {selected.can_download_report && canView && (
+                      <div className="flex flex-wrap justify-end gap-2 border-t pt-5">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => void handleDownload("excel")}
+                          disabled={downloadingFormat === "excel"}
+                        >
+                          {downloadingFormat === "excel" ? <Loader2 className="animate-spin" /> : <FileSpreadsheet />}
+                          Exportar Excel
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => void handleDownload("word")}
+                          disabled={downloadingFormat === "word"}
+                        >
+                          {downloadingFormat === "word" ? <Loader2 className="animate-spin" /> : <FileText />}
+                          Baixar Word
+                        </Button>
+                        <Button
+                          type="button"
+                          onClick={() => void handleDownload("pdf")}
+                          disabled={downloadingFormat === "pdf"}
+                        >
+                          {downloadingFormat === "pdf" ? <Loader2 className="animate-spin" /> : <Download />}
+                          Baixar PDF
+                        </Button>
+                      </div>
+                    )}
+                </div>
+              )}
+            </Card>
+          </div>
+
+          {selected && <ComparableTable comparables={selectedComparables} key={selected.id} />}
+        </TabsContent>
+
+        {canView && (
+          <TabsContent value="history">
+            <Card className="gap-0 overflow-hidden py-0">
+              <SectionHeader
+                description="Avaliações salvas da imobiliária. Abra uma para ver o resultado completo."
+                icon={History}
+                title="Avaliações salvas"
+              />
+              {isLoadingHistory ? (
+                <div className="flex items-center gap-2 px-6 pb-6 text-sm text-muted-foreground sm:px-8">
+                  <Loader2 className="size-4 animate-spin" />
+                  Carregando avaliações...
+                </div>
+              ) : valuations.length === 0 ? (
+                <EmptyState
+                  description="As avaliações calculadas aparecem aqui."
+                  icon={FileText}
+                  title="Nenhuma avaliação salva."
+                  variant="inline"
+                />
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow className="hover:bg-transparent">
+                      <TableHead>Avaliação</TableHead>
+                      <TableHead>Imóvel</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="text-right">Valor central</TableHead>
+                      <TableHead>Data</TableHead>
+                      <TableHead className="w-px">
+                        <span className="sr-only">Ações</span>
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {valuations.map((valuation) => {
+                      const isSelected = selected?.id === valuation.id;
+
+                      return (
+                        <TableRow
+                          className="cursor-pointer"
+                          data-state={isSelected ? "selected" : undefined}
+                          key={valuation.id}
+                          onClick={() => void openFromHistory(valuation.id)}
+                        >
+                          <TableCell>
+                            <p className="font-semibold text-foreground tabular-nums">{valuation.code}</p>
+                            <p className="mt-0.5 text-[0.8125rem] text-subtle">
+                              {valuation.subject_property.neighborhood}, {valuation.subject_property.city}
+                            </p>
+                          </TableCell>
+                          <TableCell className="text-muted-foreground tabular-nums">
+                            {valuation.subject_property.residential_type_label} ·{" "}
+                            {formatNumber(valuation.subject_property.area)} m²
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant={valuationStatusBadgeVariant(valuation.status)}>
+                              {valuation.status_label}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-right font-semibold text-foreground tabular-nums">
+                            {valuation.final_range?.display.central ?? "-"}
+                          </TableCell>
+                          <TableCell className="text-muted-foreground tabular-nums">
+                            {formatDate(valuation.created_at)}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Button
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                void openFromHistory(valuation.id);
+                              }}
+                              size="sm"
+                              type="button"
+                              variant={isSelected ? "default" : "outline"}
+                            >
+                              Abrir
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              )}
               <PaginationFooter
                 onPageChange={(page) => void loadHistory(page)}
                 page={historyPage.page}
@@ -896,12 +974,10 @@ export function ValuationsClient() {
                 pageSize={DEFAULT_PAGE_SIZE}
                 total={historyPage.total}
               />
-              </div>
-            )}
-          </Card>
-      </div>
-
-      {selected && <ComparableTable comparables={selectedComparables} key={selected.id} />}
+            </Card>
+          </TabsContent>
+        )}
+      </Tabs>
     </div>
   );
 }
@@ -958,14 +1034,14 @@ function RangeTile({
   value: string;
 }) {
   return (
-    <div className="rounded-xl border border-transparent bg-muted p-5">
-      <p className="text-[0.8125rem] leading-4 font-semibold text-subtle">{label}</p>
-      <div className="mt-3 flex flex-wrap items-center gap-3">
-        <span className={`flex shrink-0 items-center justify-center rounded-xl p-[9px] ${rangeTileTones[tone]}`}>
+    <div className="flex items-center justify-between gap-4 rounded-xl bg-muted px-4 py-3.5">
+      <div className="flex items-center gap-3">
+        <span className={`flex shrink-0 items-center justify-center rounded-xl p-2 ${rangeTileTones[tone]}`}>
           <Icon className="size-5" />
         </span>
-        <p className={`text-2xl leading-8 font-semibold tracking-[-0.01em] tabular-nums ${rangeValueTones[tone]}`}>{value}</p>
+        <p className="text-sm leading-4 font-semibold text-subtle">{label}</p>
       </div>
+      <p className={`text-xl leading-7 font-semibold tracking-[-0.01em] tabular-nums ${rangeValueTones[tone]}`}>{value}</p>
     </div>
   );
 }
