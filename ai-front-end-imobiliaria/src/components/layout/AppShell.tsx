@@ -172,7 +172,7 @@ export function AppShell({
                     </header>
 
                     <main
-                        className="min-h-0 flex-1 overflow-auto overscroll-contain bg-background p-4 sm:p-6 lg:p-8"
+                        className="min-h-0 flex-1 overflow-auto overscroll-contain bg-background p-4 [scrollbar-gutter:stable] sm:p-6 lg:p-8"
                         id={MAIN_ID}
                         ref={mainRef}
                     >

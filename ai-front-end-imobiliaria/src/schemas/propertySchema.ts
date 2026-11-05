@@ -10,6 +10,9 @@ function getTodayAtLocalMidnight(): Date {
     return new Date(today.getFullYear(), today.getMonth(), today.getDate());
 }
 
+/** Newest construction year accepted (buildings launched up to five years ahead). */
+export const BUILD_YEAR_MAX = new Date().getFullYear() + 5;
+
 export const propertySchema = z.object({
     reference_code: z.string().min(1, "Codigo de referencia e obrigatorio"),
     title: z.string().min(5, "Titulo muito curto"),
@@ -18,15 +21,20 @@ export const propertySchema = z.object({
     purpose: z.string().min(1, "Selecione a finalidade"),
     status: z.string().min(1, "Selecione o status do imovel"),
 
-    usable_area: z.number().min(0).nullable(),
-    total_area: z.number().min(0).nullable(),
-    bedrooms: z.number().int().min(0),
-    suites: z.number().int().min(0),
-    bathrooms: z.number().int().min(0),
-    garage_spaces: z.number().int().min(0),
-    floor_number: z.number().int().nullable(),
-    total_floors: z.number().int().nullable(),
-    build_year: z.number().int().min(1800).max(new Date().getFullYear() + 10).nullable(),
+    usable_area: z.number().min(0, "Área não pode ser negativa").max(1_000_000, "Área acima do limite").nullable(),
+    total_area: z.number().min(0, "Área não pode ser negativa").max(10_000_000, "Área acima do limite").nullable(),
+    bedrooms: z.number().int().min(0).max(99, "No máximo 99"),
+    suites: z.number().int().min(0).max(99, "No máximo 99"),
+    bathrooms: z.number().int().min(0).max(99, "No máximo 99"),
+    garage_spaces: z.number().int().min(0).max(999, "No máximo 999"),
+    floor_number: z.number().int().min(-10, "Andar mínimo é -10").max(300, "Andar máximo é 300").nullable(),
+    total_floors: z.number().int().min(0, "Não pode ser negativo").max(300, "No máximo 300 andares").nullable(),
+    build_year: z
+        .number()
+        .int()
+        .min(1800, "Informe um ano a partir de 1800")
+        .max(BUILD_YEAR_MAX, `Informe um ano até ${BUILD_YEAR_MAX}`)
+        .nullable(),
 
     features: z.array(z.number().int()).default([]),
 
@@ -45,8 +53,8 @@ export const propertySchema = z.object({
     neighborhood: z.string().min(1, "Bairro e obrigatorio"),
     city: z.string().min(1, "Cidade e obrigatoria"),
     state: z.string().min(2, "UF e obrigatoria"),
-    latitude: z.number().nullable(),
-    longitude: z.number().nullable(),
+    latitude: z.number().min(-90, "Latitude entre -90 e 90").max(90, "Latitude entre -90 e 90").nullable(),
+    longitude: z.number().min(-180, "Longitude entre -180 e 180").max(180, "Longitude entre -180 e 180").nullable(),
     show_exact_address: z.boolean().default(false),
 
     video_url: z.union([z.string().url("URL invalida"), z.literal(""), z.null()]),

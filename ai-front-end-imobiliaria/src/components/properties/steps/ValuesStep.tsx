@@ -8,20 +8,12 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
-import { FormField } from "@/components/ui/form-field";
-import { Input } from "@/components/ui/input";
 import { SwitchTile } from "@/components/properties/steps/SwitchTile";
-import { InputAdornment } from "@/components/properties/steps/FieldLayout";
+import { NumericField } from "@/components/properties/steps/NumericField";
 import type { PropertyFormValues } from "@/schemas/propertySchema";
 
-function nullableNumber(value: unknown): number | null {
-    if (value === "" || value == null) return null;
-    const parsed = Number(value);
-    return Number.isNaN(parsed) ? null : parsed;
-}
-
 export function ValuesStep() {
-    const { register, watch, setValue } = useFormContext<PropertyFormValues>();
+    const { watch, setValue } = useFormContext<PropertyFormValues>();
 
     return (
         <div className="space-y-6">
@@ -31,50 +23,10 @@ export function ValuesStep() {
                     <CardDescription>Preços de venda e locação e custos mensais, em reais.</CardDescription>
                 </CardHeader>
                 <CardContent className="grid grid-cols-1 gap-x-5 gap-y-6 sm:grid-cols-2 lg:grid-cols-4">
-                    <FormField htmlFor="sale_price" label="Valor de Venda">
-                        <InputAdornment prefix="R$">
-                            <Input
-                                className="pl-11"
-                                id="sale_price"
-                                type="number"
-                                step="0.01"
-                                {...register("sale_price", { setValueAs: nullableNumber })}
-                            />
-                        </InputAdornment>
-                    </FormField>
-                    <FormField htmlFor="rent_price" label="Valor de Locação">
-                        <InputAdornment prefix="R$">
-                            <Input
-                                className="pl-11"
-                                id="rent_price"
-                                type="number"
-                                step="0.01"
-                                {...register("rent_price", { setValueAs: nullableNumber })}
-                            />
-                        </InputAdornment>
-                    </FormField>
-                    <FormField htmlFor="property_tax" label="IPTU">
-                        <InputAdornment prefix="R$">
-                            <Input
-                                className="pl-11"
-                                id="property_tax"
-                                type="number"
-                                step="0.01"
-                                {...register("property_tax", { setValueAs: nullableNumber })}
-                            />
-                        </InputAdornment>
-                    </FormField>
-                    <FormField htmlFor="condo_fee" label="Condomínio">
-                        <InputAdornment prefix="R$">
-                            <Input
-                                className="pl-11"
-                                id="condo_fee"
-                                type="number"
-                                step="0.01"
-                                {...register("condo_fee", { setValueAs: nullableNumber })}
-                            />
-                        </InputAdornment>
-                    </FormField>
+                    <NumericField kind="money" label="Valor de Venda" name="sale_price" placeholder="0,00" prefix="R$" />
+                    <NumericField kind="money" label="Valor de Locação" name="rent_price" placeholder="0,00" prefix="R$" />
+                    <NumericField kind="money" label="IPTU" name="property_tax" placeholder="0,00" prefix="R$" />
+                    <NumericField kind="money" label="Condomínio" name="condo_fee" placeholder="0,00" prefix="R$" />
                 </CardContent>
             </Card>
 

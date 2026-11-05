@@ -52,6 +52,17 @@ function toNullableText(value: string | null | undefined): string {
     return value ?? "";
 }
 
+/** The API serialises decimals as text ("550000.00"); the form works with numbers. */
+function toNullableNumber(value: number | string | null | undefined): number | null {
+    if (value === null || value === undefined || value === "") return null;
+    const parsed = typeof value === "number" ? value : Number(value);
+    return Number.isNaN(parsed) ? null : parsed;
+}
+
+function toCount(value: number | string | null | undefined): number {
+    return toNullableNumber(value) ?? 0;
+}
+
 function getDefaultValues(property?: Property | null): PropertyFormValues {
     return {
         reference_code: property?.reference_code ?? "",
@@ -67,25 +78,25 @@ function getDefaultValues(property?: Property | null): PropertyFormValues {
         street: property?.street ?? "",
         number: property?.number ?? "",
         complement: toNullableText(property?.complement),
-        latitude: property?.latitude ?? null,
-        longitude: property?.longitude ?? null,
+        latitude: toNullableNumber(property?.latitude),
+        longitude: toNullableNumber(property?.longitude),
         show_exact_address: property?.show_exact_address ?? false,
-        sale_price: property?.sale_price ?? null,
-        rent_price: property?.rent_price ?? null,
-        property_tax: property?.property_tax ?? null,
-        condo_fee: property?.condo_fee ?? null,
+        sale_price: toNullableNumber(property?.sale_price),
+        rent_price: toNullableNumber(property?.rent_price),
+        property_tax: toNullableNumber(property?.property_tax),
+        condo_fee: toNullableNumber(property?.condo_fee),
         accepts_financing: property?.accepts_financing ?? false,
         accepts_exchange: property?.accepts_exchange ?? false,
         show_price: property?.show_price ?? true,
-        usable_area: property?.usable_area ?? null,
-        total_area: property?.total_area ?? null,
-        bedrooms: property?.bedrooms ?? 0,
-        suites: property?.suites ?? 0,
-        bathrooms: property?.bathrooms ?? 0,
-        garage_spaces: property?.garage_spaces ?? 0,
-        floor_number: property?.floor_number ?? null,
-        total_floors: property?.total_floors ?? null,
-        build_year: property?.build_year ?? null,
+        usable_area: toNullableNumber(property?.usable_area),
+        total_area: toNullableNumber(property?.total_area),
+        bedrooms: toCount(property?.bedrooms),
+        suites: toCount(property?.suites),
+        bathrooms: toCount(property?.bathrooms),
+        garage_spaces: toCount(property?.garage_spaces),
+        floor_number: toNullableNumber(property?.floor_number),
+        total_floors: toNullableNumber(property?.total_floors),
+        build_year: toNullableNumber(property?.build_year),
         video_url: toNullableText(property?.video_url),
         virtual_tour_url: toNullableText(property?.virtual_tour_url),
         owner_id: property?.owner_id ?? null,
@@ -308,8 +319,10 @@ export function PropertyForm({ mode, initialData }: PropertyFormProps) {
                     value={activeStep}
                     onValueChange={(value) => setActiveStep(value as (typeof STEP_VALUES)[number])}
                 >
-                    {/* Stepper: same Radix tabs (roles, keyboard, handlers), drawn as numbered steps. */}
-                    <Card className="gap-0 py-0">
+                    {/* Stepper: same Radix tabs (roles, keyboard, handlers), drawn as numbered steps.
+                        It stays pinned to the top of the content area while the step scrolls. */}
+                    <div className="sticky -top-4 z-20 -mt-6 bg-background pt-6 sm:-top-6 lg:-top-8">
+                    <Card className="gap-0 py-0 shadow-[0_10px_24px_-8px_rgba(0,0,0,0.45)]">
                         <TabsPrimitive.List
                             aria-label="Etapas do cadastro"
                             className="flex items-center overflow-x-auto px-6 py-5 sm:px-8"
@@ -364,6 +377,7 @@ export function PropertyForm({ mode, initialData }: PropertyFormProps) {
                             })}
                         </TabsPrimitive.List>
                     </Card>
+                    </div>
 
                     <TabsContent value="basic">
                         <BasicDataStep

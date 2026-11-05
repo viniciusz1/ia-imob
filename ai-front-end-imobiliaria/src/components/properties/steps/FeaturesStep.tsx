@@ -13,10 +13,9 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { FormField } from "@/components/ui/form-field";
-import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { FieldGroupTitle, InputAdornment } from "@/components/properties/steps/FieldLayout";
+import { FieldGroupTitle } from "@/components/properties/steps/FieldLayout";
+import { NumericField } from "@/components/properties/steps/NumericField";
 import type { PropertyFormValues } from "@/schemas/propertySchema";
 import type { PropertyFeature } from "@/types/property";
 
@@ -24,25 +23,8 @@ interface FeaturesStepProps {
     featuresOptions: PropertyFeature[];
 }
 
-function nullableNumber(value: unknown): number | null {
-    if (value === "" || value == null) return null;
-    const parsed = Number(value);
-    return Number.isNaN(parsed) ? null : parsed;
-}
-
-function intOrZero(value: unknown): number {
-    if (value === "" || value == null) return 0;
-    const parsed = Number(value);
-    return Number.isNaN(parsed) ? 0 : parsed;
-}
-
 export function FeaturesStep({ featuresOptions }: FeaturesStepProps) {
-    const {
-        register,
-        watch,
-        setValue,
-        formState: { errors },
-    } = useFormContext<PropertyFormValues>();
+    const { watch, setValue } = useFormContext<PropertyFormValues>();
 
     const selectedFeatures = watch("features");
 
@@ -57,76 +39,27 @@ export function FeaturesStep({ featuresOptions }: FeaturesStepProps) {
                     <div className="space-y-4">
                         <FieldGroupTitle>Áreas e construção</FieldGroupTitle>
                         <div className="grid grid-cols-1 gap-x-5 gap-y-6 sm:grid-cols-3 lg:grid-cols-4">
-                            <FormField htmlFor="usable_area" label="Área Útil (m²)">
-                                <InputAdornment suffix="m²">
-                                    <Input
-                                        className="pr-12"
-                                        id="usable_area"
-                                        type="number"
-                                        step="0.01"
-                                        {...register("usable_area", { setValueAs: nullableNumber })}
-                                    />
-                                </InputAdornment>
-                            </FormField>
-                            <FormField htmlFor="total_area" label="Área Total (m²)">
-                                <InputAdornment suffix="m²">
-                                    <Input
-                                        className="pr-12"
-                                        id="total_area"
-                                        type="number"
-                                        step="0.01"
-                                        {...register("total_area", { setValueAs: nullableNumber })}
-                                    />
-                                </InputAdornment>
-                            </FormField>
-                            <FormField error={errors.build_year?.message} htmlFor="build_year" label="Ano de Construção">
-                                <Input
-                                    aria-invalid={!!errors.build_year}
-                                    id="build_year"
-                                    type="number"
-                                    {...register("build_year", { setValueAs: nullableNumber })}
-                                />
-                            </FormField>
+                            <NumericField kind="decimal" label="Área Útil (m²)" name="usable_area" suffix="m²" />
+                            <NumericField kind="decimal" label="Área Total (m²)" name="total_area" suffix="m²" />
+                            <NumericField
+                                kind="integer"
+                                label="Ano de Construção"
+                                maxDigits={4}
+                                name="build_year"
+                                placeholder={`Ex.: ${new Date().getFullYear() - 10}`}
+                            />
                         </div>
                     </div>
 
                     <div className="space-y-4 border-t pt-6">
                         <FieldGroupTitle>Cômodos, vagas e andares</FieldGroupTitle>
                         <div className="grid grid-cols-2 gap-x-5 gap-y-6 sm:grid-cols-3 lg:grid-cols-6">
-                            <FormField htmlFor="bedrooms" label="Quartos">
-                                <Input id="bedrooms" type="number" {...register("bedrooms", { setValueAs: intOrZero })} />
-                            </FormField>
-                            <FormField htmlFor="suites" label="Suítes">
-                                <Input id="suites" type="number" {...register("suites", { setValueAs: intOrZero })} />
-                            </FormField>
-                            <FormField htmlFor="bathrooms" label="Banheiros">
-                                <Input
-                                    id="bathrooms"
-                                    type="number"
-                                    {...register("bathrooms", { setValueAs: intOrZero })}
-                                />
-                            </FormField>
-                            <FormField htmlFor="garage_spaces" label="Vagas">
-                                <Input
-                                    id="garage_spaces"
-                                    type="number"
-                                    {...register("garage_spaces", { setValueAs: intOrZero })}
-                                />
-                            </FormField>
-                            <FormField htmlFor="floor_number" label="Andar">
-                                <Input
-                                    id="floor_number"
-                                    type="number"
-                                    {...register("floor_number", { setValueAs: nullableNumber })}
-                                />
-                            </FormField>
-                            <FormField htmlFor="total_floors" label="Total de Andares">
-                                <Input
-                                    id="total_floors"
-                                    type="number"
-                                    {...register("total_floors", { setValueAs: nullableNumber })}
-                                />
-                            </FormField>
+                            <NumericField emptyAsZero kind="integer" label="Quartos" maxDigits={2} name="bedrooms" />
+                            <NumericField emptyAsZero kind="integer" label="Suítes" maxDigits={2} name="suites" />
+                            <NumericField emptyAsZero kind="integer" label="Banheiros" maxDigits={2} name="bathrooms" />
+                            <NumericField emptyAsZero kind="integer" label="Vagas" maxDigits={3} name="garage_spaces" />
+                            <NumericField allowNegative kind="integer" label="Andar" maxDigits={3} name="floor_number" />
+                            <NumericField kind="integer" label="Total de Andares" maxDigits={3} name="total_floors" />
                         </div>
                     </div>
                 </CardContent>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useFormContext } from "react-hook-form";
+import { Controller, useFormContext } from "react-hook-form";
 import { Loader2, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,6 +13,8 @@ import {
 } from "@/components/ui/card";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
+import { CityCombobox, StateSelect } from "@/components/properties/steps/BrazilLocationFields";
+import { NumericField } from "@/components/properties/steps/NumericField";
 import { SwitchTile } from "@/components/properties/steps/SwitchTile";
 import type { PropertyFormValues } from "@/schemas/propertySchema";
 import { toast } from "sonner";
@@ -21,19 +23,15 @@ function sanitizeCep(cep: string): string {
     return cep.replace(/\D/g, "");
 }
 
-function nullableNumber(value: unknown): number | null {
-    if (value === "" || value == null) return null;
-    const parsed = Number(value);
-    return Number.isNaN(parsed) ? null : parsed;
-}
-
 export function LocationStep() {
     const {
+        control,
         register,
         watch,
         setValue,
         formState: { errors },
     } = useFormContext<PropertyFormValues>();
+    const selectedState = watch("state") ?? "";
     const [isSearchingCep, setIsSearchingCep] = useState(false);
 
     async function handleSearchCep() {
@@ -54,10 +52,11 @@ export function LocationStep() {
                 return;
             }
 
-            setValue("street", data.logradouro ?? "");
-            setValue("neighborhood", data.bairro ?? "");
-            setValue("city", data.localidade ?? "");
-            setValue("state", data.uf ?? "");
+            const fill = { shouldDirty: true, shouldValidate: true } as const;
+            setValue("street", data.logradouro ?? "", fill);
+            setValue("neighborhood", data.bairro ?? "", fill);
+            setValue("state", (data.uf ?? "").toUpperCase(), fill);
+            setValue("city", data.localidade ?? "", fill);
             toast.success("Endereço preenchido a partir do CEP.");
         } catch {
             toast.error("Falha ao consultar o CEP.");
@@ -82,10 +81,23 @@ export function LocationStep() {
                         required
                     >
                         <div className="flex gap-2">
-                            <Input aria-invalid={!!errors.zip_code} id="zip_code" {...register("zip_code")} />
-                            <Button type="button" variant="outline" onClick={handleSearchCep} disabled={isSearchingCep}>
+                            <Input
+                                aria-invalid={!!errors.zip_code}
+                                id="zip_code"
+                                inputMode="numeric"
+                                maxLength={9}
+                                placeholder="00000-000"
+                                {...register("zip_code")}
+                            />
+                            <Button
+                                aria-label="Buscar CEP"
+                                disabled={isSearchingCep}
+                                onClick={handleSearchCep}
+                                size="icon-lg"
+                                title="Buscar endereço pelo CEP"
+                                type="button"
+                            >
                                 {isSearchingCep ? <Loader2 className="animate-spin" /> : <Search />}
-                                {isSearchingCep ? "Buscando..." : "Buscar"}
                             </Button>
                         </div>
                     </FormField>
@@ -101,17 +113,45 @@ export function LocationStep() {
                     <FormField error={errors.number?.message} htmlFor="number" label="Número" required>
                         <Input aria-invalid={!!errors.number} id="number" {...register("number")} />
                     </FormField>
-                    <FormField className="lg:col-span-2" htmlFor="complement" label="Complemento">
-                        <Input id="complement" {...register("complement")} />
+                    <FormField error={errors.state?.message} htmlFor="state" label="UF" required>
+                        <Controller
+                            control={control}
+                            name="state"
+                            render={({ field, fieldState }) => (
+                                <StateSelect
+                                    id="state"
+                                    invalid={fieldState.invalid}
+                                    onValueChange={(uf) => {
+                                        if (uf === field.value) return;
+                                        field.onChange(uf);
+                                        // A city belongs to one UF: picking another UF asks for the city again.
+                                        setValue("city", "", { shouldDirty: true });
+                                    }}
+                                    value={field.value ?? ""}
+                                />
+                            )}
+                        />
+                    </FormField>
+                    <FormField className="lg:col-span-2" error={errors.city?.message} htmlFor="city" label="Cidade" required>
+                        <Controller
+                            control={control}
+                            name="city"
+                            render={({ field, fieldState }) => (
+                                <CityCombobox
+                                    id="city"
+                                    invalid={fieldState.invalid}
+                                    onValueChange={(city) => field.onChange(city)}
+                                    uf={selectedState}
+                                    value={field.value ?? ""}
+                                />
+                            )}
+                        />
                     </FormField>
                     <FormField className="lg:col-span-2" error={errors.neighborhood?.message} htmlFor="neighborhood" label="Bairro" required>
                         <Input aria-invalid={!!errors.neighborhood} id="neighborhood" {...register("neighborhood")} />
                     </FormField>
-                    <FormField error={errors.city?.message} htmlFor="city" label="Cidade" required>
-                        <Input aria-invalid={!!errors.city} id="city" {...register("city")} />
-                    </FormField>
-                    <FormField error={errors.state?.message} htmlFor="state" label="UF" required>
-                        <Input aria-invalid={!!errors.state} id="state" maxLength={2} {...register("state")} />
+                    <FormField htmlFor="complement" label="Complemento">
+                        <Input id="complement" {...register("complement")} />
                     </FormField>
                 </CardContent>
             </Card>
@@ -122,22 +162,26 @@ export function LocationStep() {
                     <CardDescription>Coordenadas do imóvel e o que aparece na vitrine pública.</CardDescription>
                 </CardHeader>
                 <CardContent className="grid grid-cols-1 gap-x-5 gap-y-6 sm:grid-cols-2">
-                    <FormField htmlFor="latitude" label="Latitude">
-                        <Input
-                            id="latitude"
-                            type="number"
-                            step="0.00000001"
-                            {...register("latitude", { setValueAs: nullableNumber })}
-                        />
-                    </FormField>
-                    <FormField htmlFor="longitude" label="Longitude">
-                        <Input
-                            id="longitude"
-                            type="number"
-                            step="0.00000001"
-                            {...register("longitude", { setValueAs: nullableNumber })}
-                        />
-                    </FormField>
+                    <NumericField
+                        allowNegative
+                        decimals={7}
+                        grouping={false}
+                        kind="decimal"
+                        label="Latitude"
+                        maxIntegerDigits={2}
+                        name="latitude"
+                        placeholder="Ex.: -26,4851"
+                    />
+                    <NumericField
+                        allowNegative
+                        decimals={7}
+                        grouping={false}
+                        kind="decimal"
+                        label="Longitude"
+                        maxIntegerDigits={3}
+                        name="longitude"
+                        placeholder="Ex.: -49,0713"
+                    />
                     <SwitchTile
                         checked={watch("show_exact_address")}
                         className="sm:col-span-2"
