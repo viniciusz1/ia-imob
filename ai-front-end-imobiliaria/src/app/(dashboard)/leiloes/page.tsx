@@ -451,13 +451,13 @@ export default function AuctionsPage() {
                 />
             </div>
 
-            <div className="space-y-3">
-                <div className="flex flex-wrap items-center gap-3">
-                    <div className="relative w-full lg:w-80 lg:shrink-0">
-                        <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Card className="gap-0 p-0">
+                <div className="flex flex-wrap items-center gap-3 p-5 sm:p-6">
+                    <div className="relative min-w-64 flex-1">
+                        <Search className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-muted-foreground" />
                         <Input
                             aria-label="Buscar leilões"
-                            className="pr-9 pl-9"
+                            className="pr-10 pl-10"
                             onChange={(e) => setSearchTerm(e.target.value)}
                             placeholder="Busque por título, cidade, bairro, leiloeiro..."
                             size="sm"
@@ -466,7 +466,7 @@ export default function AuctionsPage() {
                         {searchTerm && (
                             <Button
                                 aria-label="Limpar busca"
-                                className="absolute top-1/2 right-1 -translate-y-1/2"
+                                className="absolute top-1/2 right-1.5 -translate-y-1/2"
                                 onClick={() => setSearchTerm("")}
                                 size="icon-xs"
                                 type="button"
@@ -477,108 +477,124 @@ export default function AuctionsPage() {
                         )}
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-3">
-                        <FilterSelect
-                            aria-label="Cidade"
-                            className="w-full sm:w-48"
-                            emptyValue="Todas"
-                            onValueChange={setSelectedCity}
-                            options={CITIES.map((city) => ({
-                                value: city,
-                                label: city === "Todas" ? "Todas as cidades" : city,
-                            }))}
-                            value={selectedCity}
-                        />
+                    <FilterSelect
+                        aria-label="Cidade"
+                        className="w-full sm:w-48"
+                        emptyValue="Todas"
+                        onValueChange={setSelectedCity}
+                        options={CITIES.map((city) => ({
+                            value: city,
+                            label: city === "Todas" ? "Todas as cidades" : city,
+                        }))}
+                        value={selectedCity}
+                    />
 
-                        <FilterSelect
-                            aria-label="Modalidade"
-                            className="w-full sm:w-52"
-                            emptyValue="all"
-                            onValueChange={setSelectedModality}
-                            options={MODALITIES}
-                            value={selectedModality}
-                        />
+                    <FilterSelect
+                        aria-label="Modalidade"
+                        className="w-full sm:w-52"
+                        emptyValue="all"
+                        onValueChange={setSelectedModality}
+                        options={MODALITIES}
+                        value={selectedModality}
+                    />
 
-                        <FilterSelect
-                            aria-label="Tipo de imóvel"
-                            className="w-full sm:w-44"
-                            emptyValue="all"
-                            onValueChange={setSelectedPropertyType}
-                            options={PROPERTY_TYPES}
-                            value={selectedPropertyType}
-                        />
+                    <FilterSelect
+                        aria-label="Tipo de imóvel"
+                        className="w-full sm:w-44"
+                        emptyValue="all"
+                        onValueChange={setSelectedPropertyType}
+                        options={PROPERTY_TYPES}
+                        value={selectedPropertyType}
+                    />
 
-                        <FilterSelect
-                            aria-label="Status"
-                            className="w-full sm:w-52"
-                            emptyValue="all"
-                            onValueChange={setSelectedStatus}
-                            options={STATUSES}
-                            value={selectedStatus}
-                        />
+                    <FilterSelect
+                        aria-label="Status"
+                        className="w-full sm:w-52"
+                        emptyValue="all"
+                        onValueChange={setSelectedStatus}
+                        options={STATUSES}
+                        value={selectedStatus}
+                    />
 
-                        <Select value={sortBy} onValueChange={(value: string) => setSortBy(value)}>
-                            <SelectTrigger aria-label="Ordenar por" className="w-full sm:w-48" size="sm">
-                                <SelectValue placeholder="Ordenar por" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="created_at">Mais Recentes</SelectItem>
-                                <SelectItem value="price_asc">Menor Lance</SelectItem>
-                                <SelectItem value="price_desc">Maior Lance</SelectItem>
-                                <SelectItem value="date_asc">Praça Mais Próxima</SelectItem>
-                                <SelectItem value="discount_desc">Maior Desconto</SelectItem>
-                            </SelectContent>
-                        </Select>
+                    <Select value={sortBy} onValueChange={(value: string) => setSortBy(value)}>
+                        <SelectTrigger aria-label="Ordenar por" className="w-full sm:w-52" size="sm">
+                            <SelectValue placeholder="Ordenar por" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="created_at">Mais Recentes</SelectItem>
+                            <SelectItem value="price_asc">Menor Lance</SelectItem>
+                            <SelectItem value="price_desc">Maior Lance</SelectItem>
+                            <SelectItem value="date_asc">Praça Mais Próxima</SelectItem>
+                            <SelectItem value="discount_desc">Maior Desconto</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
 
-                        <Button
-                            aria-expanded={isAdvancedOpen}
-                            className="shrink-0"
-                            onClick={() => setIsAdvancedOpen((prev) => !prev)}
-                            size="sm"
-                            type="button"
-                            variant={isAdvancedOpen || advancedFilterCount > 0 ? "secondary" : "outline"}
-                        >
-                            <SlidersHorizontal />
-                            Busca avançada
-                            {advancedFilterCount > 0 && (
-                                <Badge className="px-1.5 tabular-nums">{advancedFilterCount}</Badge>
-                            )}
-                        </Button>
+                <div className="flex flex-wrap items-center gap-3 border-t px-5 py-4 sm:px-6">
+                    <Button
+                        aria-expanded={isAdvancedOpen}
+                        className="shrink-0"
+                        onClick={() => setIsAdvancedOpen((prev) => !prev)}
+                        type="button"
+                        variant={isAdvancedOpen || advancedFilterCount > 0 ? "secondary" : "outline"}
+                    >
+                        <SlidersHorizontal />
+                        Busca avançada
+                        {advancedFilterCount > 0 && (
+                            <Badge className="px-1.5 tabular-nums">{advancedFilterCount}</Badge>
+                        )}
+                    </Button>
 
-                        <Button
-                            className="shrink-0"
-                            disabled={!hasActiveFilters}
-                            onClick={clearFilters}
-                            size="sm"
-                            type="button"
-                            variant="outline"
-                        >
-                            <FilterX />
-                            Limpar filtros
-                        </Button>
-                    </div>
+                    <Button
+                        className="shrink-0"
+                        disabled={!hasActiveFilters}
+                        onClick={clearFilters}
+                        type="button"
+                        variant="ghost"
+                    >
+                        <FilterX />
+                        Limpar filtros
+                    </Button>
 
-                    <p className="shrink-0 text-sm whitespace-nowrap text-muted-foreground tabular-nums lg:ml-auto">
-                        <span className="text-foreground">{stats.total}</span> imóveis encontrados
+                    {advancedChips.length > 0 && (
+                        <div className="flex flex-wrap items-center gap-2">
+                            <span className="text-sm text-subtle">Busca avançada:</span>
+                            {advancedChips.map((chip) => (
+                                <Badge className="h-7 gap-1.5 pr-1 tabular-nums" key={chip.key} variant="muted">
+                                    {chip.label}
+                                    <button
+                                        aria-label={`Remover ${chip.label}`}
+                                        className="rounded-sm p-0.5 hover:bg-foreground/10"
+                                        onClick={chip.clear}
+                                        type="button"
+                                    >
+                                        <X className="size-3" />
+                                    </button>
+                                </Badge>
+                            ))}
+                        </div>
+                    )}
+
+                    <p className="ml-auto shrink-0 text-sm whitespace-nowrap text-subtle tabular-nums">
+                        <span className="font-semibold text-foreground">{stats.total}</span> imóveis encontrados
                     </p>
                 </div>
 
                 {isAdvancedOpen && (
-                    <Card className="gap-0 py-0">
-                        <div className="grid gap-6 p-6 sm:p-8 md:grid-cols-2">
-                            <div className="space-y-3">
-                                <h3 className="flex items-center gap-2 text-sm text-foreground">
-                                    <DollarSign className="size-4 text-muted-foreground" />
+                    <div className="border-t">
+                        <div className="grid gap-8 p-5 sm:p-6 md:grid-cols-2">
+                            <div className="space-y-4">
+                                <h3 className="flex items-center gap-2 text-base font-semibold text-foreground">
+                                    <DollarSign className="size-5 text-sidebar-highlight" />
                                     Faixa de lance mínimo
                                 </h3>
-                                <div className="grid grid-cols-2 gap-3">
+                                <div className="grid grid-cols-2 gap-4">
                                     <FormField htmlFor="auction-min-bid" label="Lance mínimo">
                                         <Input
                                             id="auction-min-bid"
                                             inputMode="numeric"
                                             onChange={(e) => setMinBid(e.target.value)}
                                             placeholder="Ex: 100000"
-                                            size="sm"
                                             type="number"
                                             value={minBid}
                                         />
@@ -589,20 +605,19 @@ export default function AuctionsPage() {
                                             inputMode="numeric"
                                             onChange={(e) => setMaxBid(e.target.value)}
                                             placeholder="Ex: 500000"
-                                            size="sm"
                                             type="number"
                                             value={maxBid}
                                         />
                                     </FormField>
                                 </div>
-                                <div className="flex flex-wrap gap-1.5">
+                                <div className="flex flex-wrap gap-2">
                                     {BID_PRESETS.map((preset) => (
                                         <Button
                                             key={preset.label}
                                             onClick={() => setQuickBid(preset.min, preset.max)}
                                             size="xs"
                                             type="button"
-                                            variant="outline"
+                                            variant="secondary"
                                         >
                                             {preset.label}
                                         </Button>
@@ -610,17 +625,16 @@ export default function AuctionsPage() {
                                 </div>
                             </div>
 
-                            <div className="space-y-3">
-                                <h3 className="flex items-center gap-2 text-sm text-foreground">
-                                    <Calendar className="size-4 text-muted-foreground" />
+                            <div className="space-y-4">
+                                <h3 className="flex items-center gap-2 text-base font-semibold text-foreground">
+                                    <Calendar className="size-5 text-sidebar-highlight" />
                                     Data da praça / leilão
                                 </h3>
-                                <div className="grid grid-cols-2 gap-3">
+                                <div className="grid grid-cols-2 gap-4">
                                     <FormField htmlFor="auction-date-from" label="A partir de">
                                         <DatePicker
                                             id="auction-date-from"
                                             onChange={setDateFrom}
-                                            size="sm"
                                             value={dateFrom}
                                         />
                                     </FormField>
@@ -628,19 +642,18 @@ export default function AuctionsPage() {
                                         <DatePicker
                                             id="auction-date-to"
                                             onChange={setDateTo}
-                                            size="sm"
                                             value={dateTo}
                                         />
                                     </FormField>
                                 </div>
-                                <div className="flex flex-wrap gap-1.5">
+                                <div className="flex flex-wrap gap-2">
                                     {DATE_PRESETS.map((days) => (
                                         <Button
                                             key={days}
                                             onClick={() => setQuickDateDays(days)}
                                             size="xs"
                                             type="button"
-                                            variant="outline"
+                                            variant="secondary"
                                         >
                                             Próximos {days} dias
                                         </Button>
@@ -649,42 +662,23 @@ export default function AuctionsPage() {
                             </div>
                         </div>
 
-                        <div className="flex justify-end gap-2 border-t px-6 py-3 sm:px-8">
-                            <Button onClick={clearFilters} size="sm" type="button" variant="ghost">
+                        <div className="flex justify-end gap-3 border-t px-5 py-4 sm:px-6">
+                            <Button onClick={clearFilters} type="button" variant="ghost">
                                 Redefinir filtros
                             </Button>
-                            <Button onClick={openCreateAlert} size="sm" type="button" variant="outline">
+                            <Button onClick={openCreateAlert} type="button" variant="outline">
                                 <Bell />
                                 Salvar como alerta
                             </Button>
                         </div>
-                    </Card>
-                )}
-
-                {advancedChips.length > 0 && (
-                    <div className="flex flex-wrap items-center gap-1.5">
-                        <span className="text-xs text-muted-foreground">Busca avançada:</span>
-                        {advancedChips.map((chip) => (
-                            <Badge className="gap-1 pr-1 tabular-nums" key={chip.key} variant="muted">
-                                {chip.label}
-                                <button
-                                    aria-label={`Remover ${chip.label}`}
-                                    className="rounded-full p-0.5 hover:bg-foreground/10"
-                                    onClick={chip.clear}
-                                    type="button"
-                                >
-                                    <X className="size-3" />
-                                </button>
-                            </Badge>
-                        ))}
                     </div>
                 )}
-            </div>
+            </Card>
 
             {isLoading ? (
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
                     {Array.from({ length: 10 }).map((_, index) => (
-                        <Skeleton className="h-[22rem] rounded-xl" key={index} />
+                        <Skeleton className="h-[30rem] rounded-2xl" key={index} />
                     ))}
                 </div>
             ) : error ? (
@@ -712,7 +706,7 @@ export default function AuctionsPage() {
                     title="Nenhum imóvel encontrado"
                 />
             ) : (
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
                     {auctions.map((item) => {
                         const photoUrl = item.images?.[0] ?? FALLBACK_PHOTO;
                         const appraisal = toAmount(item.round?.appraisal_value ?? item.round?.minimum_bid);
@@ -723,10 +717,10 @@ export default function AuctionsPage() {
 
                         return (
                             <article
-                                className="flex flex-col overflow-hidden rounded-xl border bg-card shadow-xs transition-colors hover:border-primary/30"
+                                className="flex flex-col overflow-hidden rounded-2xl border border-card-edge bg-card shadow-[1px_2px_4px_rgba(0,0,0,0.05)] transition-colors hover:border-primary/40"
                                 key={item.id}
                             >
-                                <div className="relative h-40 w-full bg-muted">
+                                <div className="relative h-48 w-full bg-muted">
                                     {/* eslint-disable-next-line @next/next/no-img-element -- fotos vêm de portais externos */}
                                     <img
                                         alt={item.title || "Imóvel de Leilão"}
@@ -735,46 +729,46 @@ export default function AuctionsPage() {
                                         src={photoUrl}
                                     />
                                     {discountPercent > 0 && (
-                                        <Badge className="absolute top-2 right-2 bg-success text-success-foreground shadow-sm tabular-nums">
+                                        <Badge className="absolute top-3 right-3 h-7 bg-success px-2.5 text-sm text-success-foreground shadow-sm tabular-nums">
                                             -{discountPercent}%
                                         </Badge>
                                     )}
                                 </div>
 
-                                <div className="flex flex-1 flex-col gap-3 p-3">
-                                    <div className="space-y-1.5">
-                                        <div className="flex flex-wrap items-center gap-1.5">
+                                <div className="flex flex-1 flex-col gap-4 p-6">
+                                    <div className="space-y-3">
+                                        <div className="flex flex-wrap items-center gap-2">
                                             <ModalityBadge modality={item.event.sale_modality} />
                                             <RoundStatusBadge status={roundStatus} />
                                             <OccupancyBadge status={item.occupancy_status} />
                                         </div>
-                                        <h2 className="line-clamp-2 text-sm leading-snug text-foreground" title={item.title}>
+                                        <h2 className="line-clamp-2 text-base leading-6 font-semibold text-foreground" title={item.title}>
                                             {item.title}
                                         </h2>
                                         {location && (
-                                            <p className="flex items-center gap-1 text-xs text-muted-foreground">
-                                                <MapPin className="size-3.5 shrink-0" />
+                                            <p className="flex items-center gap-1.5 text-sm text-subtle">
+                                                <MapPin className="size-4 shrink-0" />
                                                 <span className="truncate">{location}</span>
                                             </p>
                                         )}
                                     </div>
 
-                                    <dl className="space-y-1 text-xs">
+                                    <dl className="space-y-2 text-sm">
                                         {item.built_area_m2 && (
                                             <div className="flex justify-between gap-3">
-                                                <dt className="text-muted-foreground">Área construída</dt>
-                                                <dd className="text-foreground tabular-nums">{item.built_area_m2} m²</dd>
+                                                <dt className="text-subtle">Área construída</dt>
+                                                <dd className="font-medium text-foreground tabular-nums">{item.built_area_m2} m²</dd>
                                             </div>
                                         )}
                                         {item.land_area_m2 && (
                                             <div className="flex justify-between gap-3">
-                                                <dt className="text-muted-foreground">Área total</dt>
-                                                <dd className="text-foreground tabular-nums">{item.land_area_m2} m²</dd>
+                                                <dt className="text-subtle">Área total</dt>
+                                                <dd className="font-medium text-foreground tabular-nums">{item.land_area_m2} m²</dd>
                                             </div>
                                         )}
                                         <div className="flex justify-between gap-3">
-                                            <dt className="text-muted-foreground">Praça</dt>
-                                            <dd className="text-foreground tabular-nums">
+                                            <dt className="text-subtle">Praça</dt>
+                                            <dd className="font-medium text-foreground tabular-nums">
                                                 {item.round?.starts_at
                                                     ? new Date(item.round.starts_at).toLocaleDateString("pt-BR")
                                                     : "A definir"}
@@ -782,39 +776,39 @@ export default function AuctionsPage() {
                                         </div>
                                     </dl>
 
-                                    <div className="mt-auto rounded-lg bg-muted/50 px-3 py-2">
-                                        <p className="text-xs tracking-wide text-muted-foreground uppercase">Lance mínimo</p>
-                                        <p className="mt-0.5 text-lg leading-tight tracking-tight text-foreground tabular-nums">
+                                    <div className="mt-auto rounded-xl bg-muted p-4">
+                                        <p className="text-xs font-semibold tracking-wide text-subtle uppercase">Lance mínimo</p>
+                                        <p className="mt-1 text-2xl leading-8 font-semibold tracking-[-0.01em] text-foreground tabular-nums">
                                             {formatCurrency(minimum)}
                                         </p>
                                         {appraisal > minimum && (
-                                            <p className="mt-0.5 flex flex-wrap items-center gap-x-2 text-xs tabular-nums">
-                                                <span className="text-muted-foreground line-through">
+                                            <p className="mt-1 flex flex-wrap items-center gap-x-2 text-sm tabular-nums">
+                                                <span className="text-subtle line-through">
                                                     {formatCurrency(appraisal)}
                                                 </span>
-                                                <span className="text-success">{discountPercent}% abaixo da avaliação</span>
+                                                <span className="font-medium text-success">{discountPercent}% abaixo da avaliação</span>
                                             </p>
                                         )}
                                     </div>
-                                </div>
 
-                                <div className="flex gap-2 border-t p-3">
-                                    <Button className="flex-1" onClick={() => setActiveModalItem(item)} size="xs" type="button">
-                                        Ver detalhes
-                                    </Button>
-                                    {item.canonical_url && (
-                                        <Button asChild size="icon-sm" variant="outline">
-                                            <a
-                                                aria-label="Ver no portal oficial"
-                                                href={item.canonical_url}
-                                                rel="noopener noreferrer"
-                                                target="_blank"
-                                                title="Ver no Portal Oficial"
-                                            >
-                                                <ExternalLink />
-                                            </a>
+                                    <div className="flex gap-3">
+                                        <Button className="flex-1" onClick={() => setActiveModalItem(item)} type="button">
+                                            Ver detalhes
                                         </Button>
-                                    )}
+                                        {item.canonical_url && (
+                                            <Button asChild size="icon" variant="outline">
+                                                <a
+                                                    aria-label="Ver no portal oficial"
+                                                    href={item.canonical_url}
+                                                    rel="noopener noreferrer"
+                                                    target="_blank"
+                                                    title="Ver no Portal Oficial"
+                                                >
+                                                    <ExternalLink />
+                                                </a>
+                                            </Button>
+                                        )}
+                                    </div>
                                 </div>
                             </article>
                         );
@@ -853,8 +847,8 @@ export default function AuctionsPage() {
                             />
                         </FormField>
 
-                        <div className="rounded-lg bg-muted/50 p-4 text-sm">
-                            <p className="text-xs tracking-wide text-muted-foreground uppercase">Critérios deste alerta</p>
+                        <div className="rounded-xl bg-muted p-4 text-sm">
+                            <p className="text-xs font-semibold tracking-wide text-subtle uppercase">Critérios deste alerta</p>
                             <dl className="mt-2 space-y-1">
                                 <AlertCriterion label="Cidade" value={selectedCity} />
                                 <AlertCriterion label="Modalidade" value={labelFor(MODALITIES, selectedModality)} />
@@ -897,12 +891,12 @@ export default function AuctionsPage() {
                                 title="Nenhum alerta salvo ainda"
                             />
                         ) : (
-                            <ul className="divide-y rounded-lg border">
+                            <ul className="space-y-2">
                                 {savedAlerts.map((alert) => (
-                                    <li className="flex items-center justify-between gap-3 px-4 py-3" key={alert.id}>
+                                    <li className="flex items-center justify-between gap-3 rounded-xl bg-muted px-4 py-3" key={alert.id}>
                                         <div className="min-w-0 space-y-0.5">
-                                            <p className="truncate text-sm text-foreground">{alert.name}</p>
-                                            <p className="truncate text-xs text-muted-foreground">
+                                            <p className="truncate text-sm font-semibold text-foreground">{alert.name}</p>
+                                            <p className="truncate text-xs text-subtle">
                                                 {[
                                                     alert.filters.city,
                                                     alert.filters.modality && labelFor(MODALITIES, alert.filters.modality),
@@ -912,8 +906,8 @@ export default function AuctionsPage() {
                                                     .join(" · ") || "Todos os leilões"}
                                             </p>
                                         </div>
-                                        <div className="flex shrink-0 items-center gap-1">
-                                            <Button onClick={() => handleApplyAlert(alert)} size="xs" type="button" variant="outline">
+                                        <div className="flex shrink-0 items-center gap-2">
+                                            <Button onClick={() => handleApplyAlert(alert)} size="sm" type="button" variant="outline">
                                                 Aplicar
                                             </Button>
                                             <Button

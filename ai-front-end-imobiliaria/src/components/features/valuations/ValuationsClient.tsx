@@ -152,7 +152,9 @@ function valuationStatusBadgeVariant(status: Valuation["status"]): "success" | "
 }
 
 const multiSelectClassName =
-  "w-full min-w-0 rounded-lg border border-input bg-background px-1.5 py-1.5 text-sm shadow-xs shadow-black/5 transition-colors outline-none hover:border-muted-foreground/30 focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/20 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-input/30 [&>option]:rounded-md [&>option]:px-2 [&>option]:py-1 [&>option:checked]:bg-primary/10 [&>option:checked]:text-primary";
+  // Native multi-select kept for its keyboard and Ctrl/Cmd behaviour, styled as
+  // a list box: roomy rows, selected rows tinted green.
+  "w-full min-w-0 rounded-lg border border-input bg-field p-1.5 text-sm shadow-xs shadow-black/5 transition-colors outline-none hover:border-muted-foreground/30 focus-visible:border-primary focus-visible:ring-[3px] focus-visible:ring-primary/25 disabled:cursor-not-allowed disabled:opacity-50 [&_option]:rounded-md [&_option]:px-3 [&_option]:py-2 [&_option]:text-foreground [&_option:checked]:bg-primary/20 [&_option:checked]:font-medium [&_option:checked]:text-primary";
 
 function comparableReviewsFrom(candidates: ComparableCandidate[]): ComparableReview[] | null {
   const reviews: ComparableReview[] = [];
@@ -499,20 +501,20 @@ export function ValuationsClient() {
         title="Avaliar imóvel"
       />
 
-      <div className={canCreate ? "grid items-start gap-6 xl:grid-cols-[380px_minmax(0,1fr)]" : "grid gap-6"}>
+      <div className={canCreate ? "grid items-start gap-6 xl:grid-cols-[420px_minmax(0,1fr)]" : "grid gap-6"}>
         {canCreate && (
-          <Card>
-            <CardHeader className="border-b">
-              <CardTitle className="flex items-center gap-2">
-                <Calculator className="size-4 text-muted-foreground" />
+          <Card className="gap-6">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-3">
+                <Calculator aria-hidden="true" className="size-6 shrink-0 text-sidebar-highlight" strokeWidth={2} />
                 Imóvel avaliado
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="pl-9">
                 Informe as características usadas para buscar comparáveis.
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form className="grid gap-5" onSubmit={handleSubmit}>
+              <form className="grid gap-6" onSubmit={handleSubmit}>
                 <FormField
                   hint="Segure Ctrl (ou Cmd) para selecionar várias cidades."
                   htmlFor="city"
@@ -579,7 +581,7 @@ export function ValuationsClient() {
                   </Select>
                 </FormField>
 
-                <div className="grid grid-cols-2 gap-5">
+                <div className="grid grid-cols-2 gap-x-4 gap-y-5">
                   <FormField htmlFor="area" label="Metragem">
                     <Input
                       id="area"
@@ -626,10 +628,10 @@ export function ValuationsClient() {
                   </FormField>
                 </div>
 
-                <div className="flex items-center justify-between gap-4 rounded-xl border border-transparent bg-muted p-4">
-                  <div className="space-y-0.5">
+                <div className="flex items-center justify-between gap-4 rounded-xl border border-transparent bg-muted px-4 py-3.5">
+                  <div className="space-y-1.5">
                     <Label htmlFor="flood_risk">Risco de enchente</Label>
-                    <p className="text-xs text-muted-foreground">Aplica um ajuste negativo ao valor final.</p>
+                    <p className="text-[0.8125rem] leading-4 text-subtle">Aplica um ajuste negativo ao valor final.</p>
                   </div>
                   <Switch
                     id="flood_risk"
@@ -638,7 +640,7 @@ export function ValuationsClient() {
                   />
                 </div>
 
-                <Button type="submit" className="w-full" disabled={isLoadingCandidates || isLoadingFilters}>
+                <Button type="submit" className="w-full" size="lg" disabled={isLoadingCandidates || isLoadingFilters}>
                   {isLoadingCandidates ? <Loader2 className="animate-spin" /> : <Search />}
                   Buscar comparáveis
                 </Button>
@@ -691,12 +693,12 @@ export function ValuationsClient() {
               <div className="space-y-5 px-6 pb-6 sm:px-8 sm:pb-8">
                 {selectedRange ? (
                   <>
-                    <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 sm:p-5">
-                      <p className="text-xs tracking-wide text-primary uppercase">Valor estimado</p>
-                      <p className="mt-2 text-4xl leading-none tracking-tight text-foreground tabular-nums">
+                    <div className="rounded-xl border border-primary/40 bg-primary/10 p-5 sm:p-6">
+                      <p className="text-sm leading-4 font-semibold text-primary">Valor estimado</p>
+                      <p className="mt-3 text-[2rem] leading-9 font-semibold tracking-[-0.01em] text-foreground tabular-nums">
                         {selectedRange.display.central}
                       </p>
-                      <p className="mt-2 text-sm text-muted-foreground tabular-nums">
+                      <p className="mt-2 text-sm text-subtle tabular-nums">
                         Faixa de mercado entre {selectedRange.display.min} e {selectedRange.display.max}
                       </p>
                     </div>
@@ -708,18 +710,18 @@ export function ValuationsClient() {
                     </div>
                   </>
                 ) : (
-                  <div className="flex items-start gap-3 rounded-lg border border-warning/30 bg-warning/10 px-4 py-3 text-sm">
-                    <CircleAlert className="mt-0.5 size-4 shrink-0 text-warning" />
-                    <div className="space-y-1">
-                      <p className="text-foreground">Amostra insuficiente</p>
-                      <p className="text-muted-foreground">{selected.calculation_summary}</p>
+                  <div className="flex items-start gap-3 rounded-xl border border-warning/40 bg-warning/10 p-4 text-sm">
+                    <CircleAlert className="mt-0.5 size-5 shrink-0 text-warning" />
+                    <div className="space-y-1.5">
+                      <p className="font-semibold text-foreground">Amostra insuficiente</p>
+                      <p className="leading-5 text-muted-foreground">{selected.calculation_summary}</p>
                     </div>
                   </div>
                 )}
 
                 {selected.flood_adjustment_percent !== null && (
-                  <div className="flex items-start gap-3 rounded-lg border border-warning/30 bg-warning/10 px-4 py-3 text-sm">
-                    <ShieldAlert className="mt-0.5 size-4 shrink-0 text-warning" />
+                  <div className="flex items-start gap-3 rounded-xl border border-warning/40 bg-warning/10 p-4 text-sm">
+                    <ShieldAlert className="mt-0.5 size-5 shrink-0 text-warning" />
                     <p className="text-foreground">
                       Ajuste aplicado: -{selected.flood_adjustment_percent}% por risco de enchente informado.
                     </p>
@@ -727,27 +729,27 @@ export function ValuationsClient() {
                 )}
 
                 <div className="grid gap-4 md:grid-cols-2">
-                  <div className="rounded-xl border border-transparent bg-muted p-4 text-sm">
-                    <p className="flex items-center gap-2 text-xs tracking-wide text-muted-foreground uppercase">
-                      <Home className="size-3.5" />
+                  <div className="rounded-xl border border-transparent bg-muted p-5 text-sm">
+                    <p className="flex items-center gap-2 text-[0.8125rem] leading-4 font-semibold text-subtle">
+                      <Home className="size-4" />
                       Imóvel avaliado
                     </p>
-                    <p className="mt-2 text-foreground">
+                    <p className="mt-3 text-[0.9375rem] leading-5 font-medium text-foreground">
                       {selected.subject_property.residential_type_label} em {selected.subject_property.neighborhood},{" "}
                       {selected.subject_property.city}
                     </p>
-                    <p className="mt-1 text-muted-foreground tabular-nums">
+                    <p className="mt-1.5 text-muted-foreground tabular-nums">
                       {formatNumber(selected.subject_property.area)} m², {selected.subject_property.bedrooms} quartos,{" "}
                       {selected.subject_property.bathrooms} banheiros, {selected.subject_property.garage_spaces} vagas
                     </p>
                   </div>
-                  <div className="rounded-xl border border-transparent bg-muted p-4 text-sm">
-                    <p className="flex items-center gap-2 text-xs tracking-wide text-muted-foreground uppercase">
-                      <Users className="size-3.5" />
+                  <div className="rounded-xl border border-transparent bg-muted p-5 text-sm">
+                    <p className="flex items-center gap-2 text-[0.8125rem] leading-4 font-semibold text-subtle">
+                      <Users className="size-4" />
                       Amostra
                     </p>
-                    <p className="mt-2 text-foreground tabular-nums">{sampleLabel}</p>
-                    {selectedRange && <p className="mt-1 text-muted-foreground">{selected.calculation_summary}</p>}
+                    <p className="mt-3 text-[0.9375rem] leading-5 font-medium text-foreground tabular-nums">{sampleLabel}</p>
+                    {selectedRange && <p className="mt-1.5 text-muted-foreground">{selected.calculation_summary}</p>}
                   </div>
                 </div>
 
@@ -831,8 +833,8 @@ export function ValuationsClient() {
                       data-state={selected?.id === valuation.id ? "selected" : undefined}
                     >
                       <TableCell>
-                        <p className="text-foreground tabular-nums">{valuation.code}</p>
-                        <p className="mt-0.5 text-xs text-muted-foreground">
+                        <p className="font-medium text-foreground tabular-nums">{valuation.code}</p>
+                        <p className="mt-0.5 text-[0.8125rem] text-subtle">
                           {valuation.subject_property.neighborhood}, {valuation.subject_property.city}
                         </p>
                       </TableCell>
@@ -845,7 +847,7 @@ export function ValuationsClient() {
                         {valuation.final_range?.display.central ?? "-"}
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button type="button" variant="outline" size="xs" onClick={() => void handleSelect(valuation.id)}>
+                        <Button type="button" variant="outline" size="sm" onClick={() => void handleSelect(valuation.id)}>
                           Abrir
                         </Button>
                       </TableCell>
@@ -871,10 +873,16 @@ export function ValuationsClient() {
 }
 
 const rangeTileTones = {
-  primary: "bg-primary/10 text-primary",
-  success: "bg-success/10 text-success",
-  info: "bg-info/10 text-info",
+  primary: "bg-primary/15 text-primary",
+  success: "bg-success/15 text-success",
+  info: "bg-info/15 text-info",
 } as const;
+
+const rangeValueTones: Record<keyof typeof rangeTileTones, string> = {
+  primary: "text-foreground",
+  success: "text-success",
+  info: "text-info",
+};
 
 function RangeTile({
   icon: Icon,
@@ -888,14 +896,14 @@ function RangeTile({
   value: string;
 }) {
   return (
-    <div className="rounded-xl border border-transparent bg-muted p-4">
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-sm text-muted-foreground">{label}</p>
-        <span className={`flex size-8 shrink-0 items-center justify-center rounded-lg ${rangeTileTones[tone]}`}>
-          <Icon className="size-4" />
+    <div className="rounded-xl border border-transparent bg-muted p-5">
+      <p className="text-[0.8125rem] leading-4 font-semibold text-subtle">{label}</p>
+      <div className="mt-3 flex flex-wrap items-center gap-3">
+        <span className={`flex shrink-0 items-center justify-center rounded-xl p-[9px] ${rangeTileTones[tone]}`}>
+          <Icon className="size-5" />
         </span>
+        <p className={`text-2xl leading-8 font-semibold tracking-[-0.01em] tabular-nums ${rangeValueTones[tone]}`}>{value}</p>
       </div>
-      <p className="mt-2 text-2xl tracking-tight text-foreground tabular-nums">{value}</p>
     </div>
   );
 }
@@ -955,7 +963,7 @@ function ComparableReviewPanel({
         title="Revisão de comparáveis"
       />
 
-      <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3 sm:px-8">
+      <div className="flex flex-wrap items-center gap-2 px-6 pb-5 sm:px-8 sm:pb-6">
         <Button
           type="button"
           variant="outline"
@@ -1075,7 +1083,7 @@ function ComparableReviewPanel({
       />
 
       <div className="flex flex-wrap items-center justify-between gap-3 border-t px-6 py-4 sm:px-8">
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-subtle">
           {canCalculate
             ? "Todos os comparáveis foram revisados."
             : "Marque cada comparável como válido ou inválido para liberar o cálculo."}

@@ -14,9 +14,12 @@ import {
 } from "lucide-react";
 
 import { NewPropertyCard } from "./NewPropertyCard";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { StatCard } from "@/components/layout/StatCard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -57,11 +60,9 @@ function countLabel(value: (typeof COUNT_FILTER_VALUES)[number], unit: string): 
 function NewPropertiesSkeleton() {
   return (
     <div className="space-y-6" aria-label="Carregando novos imóveis">
-      <Skeleton className="h-52 w-full rounded-2xl" />
-      <Skeleton className="h-20 w-full rounded-xl" />
-      <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
         {Array.from({ length: 3 }, (_, index) => (
-          <Skeleton key={index} className="h-[540px] w-full rounded-xl" />
+          <Skeleton key={index} className="h-[540px] w-full rounded-2xl" />
         ))}
       </div>
     </div>
@@ -71,50 +72,43 @@ function NewPropertiesSkeleton() {
 /** Bloco de uma imobiliária, com seus totais e os cards dos anúncios da página. */
 function AgencyGroup({ group }: { group: NewPropertyAgencyGroup }) {
   return (
-    <Card className="gap-0 overflow-hidden border-border/80 py-0 shadow-sm">
-      <CardHeader className="border-b bg-gradient-to-r from-primary/[0.07] via-card to-card px-5 py-5 md:px-6">
-        <div className="flex flex-col justify-between gap-4 md:flex-row md:items-start">
-          <div className="flex items-start gap-3">
-            <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-              <Building2 className="size-5" aria-hidden="true" />
-            </span>
-            <div className="space-y-1">
-              <p className="text-xs font-medium uppercase tracking-[0.14em] text-primary">
-                Imóveis de
-              </p>
-              <h2 className="text-xl font-semibold leading-tight">{group.crawl_agency.name}</h2>
-            </div>
-          </div>
-          <div className="flex flex-wrap gap-2 md:justify-end">
-            <Badge className="border border-info/30 bg-info/10 px-3 py-1 text-info hover:bg-info/10">
-              <Sparkles className="mr-1 size-3.5" aria-hidden="true" />
-              {group.counts.new} {group.counts.new === 1 ? "novidade" : "novidades"}
-            </Badge>
-            <Badge className="border border-success/30 bg-success/10 px-3 py-1 text-success hover:bg-success/10">
-              <TrendingDown className="mr-1 size-3.5" aria-hidden="true" />
-              {group.counts.opportunities} {group.counts.opportunities === 1 ? "oportunidade" : "oportunidades"}
-            </Badge>
+    <Card className="gap-0 overflow-hidden py-0">
+      <div className="flex flex-col justify-between gap-4 px-6 pt-6 pb-5 sm:px-8 sm:pt-8 sm:pb-6 md:flex-row md:items-start">
+        <div className="flex min-w-0 items-center gap-3">
+          <Building2 className="size-6 shrink-0 text-sidebar-highlight" aria-hidden="true" />
+          <div className="min-w-0 space-y-1">
+            <p className="text-sm leading-4 font-semibold text-subtle">Imóveis de</p>
+            <h2 className="truncate text-xl leading-6 font-semibold tracking-[-0.01em]">{group.crawl_agency.name}</h2>
           </div>
         </div>
-      </CardHeader>
+        <div className="flex flex-wrap gap-2 md:justify-end">
+          <Badge variant="info">
+            <Sparkles aria-hidden="true" />
+            {group.counts.new} {group.counts.new === 1 ? "novidade" : "novidades"}
+          </Badge>
+          <Badge variant="success">
+            <TrendingDown aria-hidden="true" />
+            {group.counts.opportunities} {group.counts.opportunities === 1 ? "oportunidade" : "oportunidades"}
+          </Badge>
+        </div>
+      </div>
 
-      <CardContent className="p-5 md:p-6">
+      <div className="px-6 pb-6 sm:px-8 sm:pb-8">
         {group.properties.length === 0 ? (
-          <div className="rounded-xl border border-dashed bg-muted/20 p-7 text-center">
+          <div className="rounded-xl bg-muted p-7 text-center">
             <p className="font-medium">Nenhum imóvel para mostrar agora</p>
             <p className="mt-1 text-sm text-muted-foreground">
               Volte em breve para conferir as novidades desta imobiliária.
             </p>
           </div>
         ) : (
-          <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
             {group.properties.map((property) => (
               <NewPropertyCard key={property.id} property={property} />
             ))}
           </div>
         )}
-
-      </CardContent>
+      </div>
     </Card>
   );
 }
@@ -204,65 +198,54 @@ export function NewPropertiesClient() {
   const isForbidden = isAxiosError(query.error) && query.error.response?.status === 403;
 
   return (
-    <div className="mx-auto w-full max-w-[1500px] space-y-6">
-      <header className="overflow-hidden rounded-2xl border bg-gradient-to-br from-primary/15 via-primary/[0.06] to-card p-6 shadow-sm md:p-8">
-        <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
-          <div className="max-w-2xl space-y-3">
-            <Badge variant="outline" className="border-primary/25 bg-background/70 text-primary">
-              <Sparkles className="mr-1 size-3.5" aria-hidden="true" />
-              Seu radar imobiliário
-            </Badge>
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight md:text-4xl">Novos imóveis</h1>
-              <p className="mt-2 text-base leading-6 text-muted-foreground">
-                Descubra imóveis recém-encontrados e oportunidades que combinam com a sua busca.
-              </p>
-            </div>
-          </div>
+    <div className="space-y-6">
+      <PageHeader
+        badge={
+          <Badge variant="outline">
+            <Sparkles aria-hidden="true" />
+            Seu radar imobiliário
+          </Badge>
+        }
+        description="Descubra imóveis recém-encontrados e oportunidades que combinam com a sua busca."
+        title="Novos imóveis"
+      />
 
-          {query.data && (
-            <div className="grid grid-cols-2 gap-3 sm:min-w-[330px]">
-              <div className="rounded-xl border bg-card/80 p-4 shadow-sm">
-                <div className="flex items-center gap-2 text-info">
-                  <Sparkles className="size-4" aria-hidden="true" />
-                  <span className="text-sm font-medium">Novidades</span>
-                </div>
-                <p className="mt-2 text-2xl font-bold">{query.data.meta.total_new}</p>
-              </div>
-              <div className="rounded-xl border bg-card/80 p-4 shadow-sm">
-                <div className="flex items-center gap-2 text-success">
-                  <TrendingDown className="size-4" aria-hidden="true" />
-                  <span className="text-sm font-medium">Oportunidades</span>
-                </div>
-                <p className="mt-2 text-2xl font-bold">{query.data.meta.total_opportunities}</p>
-              </div>
-            </div>
-          )}
+      {query.data && (
+        <div className="grid gap-4 sm:grid-cols-2">
+          <StatCard icon={Sparkles} title="Novidades" tone="info" value={query.data.meta.total_new} />
+          <StatCard icon={TrendingDown} title="Oportunidades" tone="success" value={query.data.meta.total_opportunities} />
         </div>
-      </header>
+      )}
 
       <nav
-        className="rounded-xl border bg-card p-3 shadow-sm"
+        className="space-y-4 rounded-2xl border border-card-edge bg-card p-6 sm:px-8"
         aria-label="Filtrar imóveis por classificação"
       >
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="relative w-full lg:max-w-md">
-            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
+            <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
             <Input
               value={search}
               onChange={(event) => { setSearch(event.target.value); setPage(1); }}
               aria-label="Buscar imóveis"
               placeholder="Buscar por imóvel, bairro ou cidade"
-              className="pl-9"
+              className="pl-10"
+              size="sm"
             />
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 rounded-md bg-segment px-3 py-2">
             {FILTERS.map((option) => (
               <Button
                 key={option.value}
                 type="button"
-                size="sm"
-                variant={filter === option.value ? "default" : "ghost"}
+                size="xs"
+                variant="ghost"
+                className={cn(
+                  "rounded-sm text-[0.8125rem] font-semibold",
+                  filter === option.value
+                    ? "bg-segment-active text-segment-active-foreground shadow-xs hover:bg-segment-active hover:text-segment-active-foreground"
+                    : "text-segment-foreground hover:bg-transparent hover:text-foreground",
+                )}
                 aria-pressed={filter === option.value}
                 onClick={() => { setFilter(option.value); setPage(1); }}
               >
@@ -274,7 +257,7 @@ export function NewPropertiesClient() {
           </div>
         </div>
 
-        <div className="mt-3 flex flex-wrap items-center gap-2 border-t pt-3">
+        <div className="flex flex-wrap items-center gap-3 border-t pt-4">
           <Select value={agency} onValueChange={(value) => { setAgency(value); setPage(1); }}>
             <SelectTrigger size="sm" aria-label="Filtrar por imobiliária"><SelectValue placeholder="Imobiliária" /></SelectTrigger>
             <SelectContent>
@@ -386,14 +369,14 @@ export function NewPropertiesClient() {
       {query.isPending ? (
         <NewPropertiesSkeleton />
       ) : isForbidden ? (
-        <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-8 text-center">
+        <div className="rounded-2xl border border-destructive/30 bg-destructive/10 p-8 text-center">
           <h2 className="text-lg font-semibold">Você não tem acesso a esta tela</h2>
           <p className="mt-2 text-sm text-muted-foreground">
             Peça a um administrador da sua imobiliária a permissão para ver imóveis.
           </p>
         </div>
       ) : query.isError ? (
-        <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-8 text-center">
+        <div className="rounded-2xl border border-destructive/30 bg-destructive/10 p-8 text-center">
           <h2 className="text-lg font-semibold">Não foi possível carregar os imóveis</h2>
           <p className="mt-2 text-sm text-muted-foreground">
             Verifique a conexão com o servidor e tente novamente.
@@ -414,8 +397,10 @@ export function NewPropertiesClient() {
           </Button>
         </div>
       ) : visibleGroups.length === 0 ? (
-        <div className="rounded-xl border border-dashed p-10 text-center">
-          <Sparkles className="mx-auto size-9 text-muted-foreground" aria-hidden="true" />
+        <div className="rounded-2xl border border-dashed border-border bg-card p-10 text-center">
+          <span className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-muted">
+            <Sparkles className="size-7 text-muted-foreground" aria-hidden="true" />
+          </span>
           <h2 className="mt-3 text-lg font-semibold">Nenhum imóvel encontrado</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             Não encontramos imóveis com este filtro no momento.
@@ -427,10 +412,12 @@ export function NewPropertiesClient() {
             <AgencyGroup key={group.crawl_agency.id} group={group} />
           ))}
           {query.data && query.data.meta.pagination.last_page > 1 && (
-            <div className="flex items-center justify-center gap-3" aria-label="Paginar imóveis">
-              <Button variant="outline" disabled={page === 1} onClick={() => setPage((current) => current - 1)}>Anterior</Button>
-              <span className="text-sm text-muted-foreground">Página {page} de {query.data.meta.pagination.last_page}</span>
-              <Button variant="outline" disabled={!query.data.meta.pagination.has_more} onClick={() => setPage((current) => current + 1)}>Próxima</Button>
+            <div className="flex items-center justify-between gap-3 rounded-2xl border border-card-edge bg-card px-6 py-4 sm:px-8" aria-label="Paginar imóveis">
+              <span className="text-sm text-muted-foreground tabular-nums">Página {page} de {query.data.meta.pagination.last_page}</span>
+              <div className="flex items-center gap-1">
+                <Button size="sm" variant="outline" disabled={page === 1} onClick={() => setPage((current) => current - 1)}>Anterior</Button>
+                <Button size="sm" variant="outline" disabled={!query.data.meta.pagination.has_more} onClick={() => setPage((current) => current + 1)}>Próxima</Button>
+              </div>
             </div>
           )}
         </div>
