@@ -11,10 +11,15 @@ class SavedFilterController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        $filters = $request->user()
+        $query = $request->user()
             ->savedFilters()
-            ->orderBy('created_at', 'desc')
-            ->get();
+            ->orderBy('created_at', 'desc');
+
+        if ($type = $request->query('type')) {
+            $query->where('filters->type', $type);
+        }
+
+        $filters = $query->get();
 
         return response()->json($filters);
     }

@@ -34,6 +34,7 @@ export const initialAuctions: AuctionRecord[] = [
       {
         round_number: 1,
         starts_at: "2026-09-15T14:00:00-03:00",
+        ends_at: null,
         appraisal_value: 450000.0,
         minimum_bid: 450000.0,
         current_bid: null,
@@ -44,6 +45,7 @@ export const initialAuctions: AuctionRecord[] = [
       {
         round_number: 2,
         starts_at: "2026-09-29T14:00:00-03:00",
+        ends_at: null,
         appraisal_value: 450000.0,
         minimum_bid: 270000.0,
         current_bid: null,
@@ -100,6 +102,7 @@ export const initialAuctions: AuctionRecord[] = [
       {
         round_number: 2,
         starts_at: "2026-09-22T10:00:00-03:00",
+        ends_at: null,
         appraisal_value: 290000.0,
         minimum_bid: 174000.0,
         current_bid: null,
@@ -157,6 +160,7 @@ export const initialAuctions: AuctionRecord[] = [
         round_number: 1,
         starts_at: "2026-09-18T14:00:00-03:00",
         appraisal_value: 180000.0,
+        ends_at: null,
         minimum_bid: 110000.0,
         current_bid: null,
         commission_rate: null,
@@ -212,6 +216,7 @@ export const initialAuctions: AuctionRecord[] = [
       {
         round_number: 1,
         starts_at: "2026-09-10T15:00:00-03:00",
+        ends_at: null,
         appraisal_value: 320000.0,
         minimum_bid: 320000.0,
         current_bid: null,
@@ -222,6 +227,7 @@ export const initialAuctions: AuctionRecord[] = [
       {
         round_number: 2,
         starts_at: "2026-09-24T15:00:00-03:00",
+        ends_at: null,
         appraisal_value: 320000.0,
         minimum_bid: 195000.0,
         current_bid: null,
@@ -278,6 +284,7 @@ export const initialAuctions: AuctionRecord[] = [
       {
         round_number: 1,
         starts_at: "2026-09-05T08:00:00-03:00",
+        ends_at: null,
         appraisal_value: 240000.0,
         minimum_bid: 135000.0,
         current_bid: null,
@@ -335,6 +342,7 @@ export const initialAuctions: AuctionRecord[] = [
         round_number: 1,
         starts_at: "2026-09-18T14:00:00-03:00",
         appraisal_value: 780000.0,
+        ends_at: null,
         minimum_bid: 780000.0,
         current_bid: null,
         commission_rate: 5.0,
@@ -344,6 +352,7 @@ export const initialAuctions: AuctionRecord[] = [
       {
         round_number: 2,
         starts_at: "2026-10-02T14:00:00-03:00",
+        ends_at: null,
         appraisal_value: 780000.0,
         minimum_bid: 468000.0,
         current_bid: null,

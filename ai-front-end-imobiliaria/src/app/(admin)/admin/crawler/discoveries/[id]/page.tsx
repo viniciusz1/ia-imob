@@ -18,7 +18,6 @@ export default async function DiscoverySnapshotPage({ params }: DiscoverySnapsho
   return (
     <div className="space-y-6">
       <PageHeader
-        backHref="/admin/crawler/operations"
         badge={<Badge className="tabular-nums" variant="muted">{urls.meta.total} URLs</Badge>}
         description="URLs encontradas por este Snapshot imutável de Discovery."
         title={`Snapshot de Discovery #${id}`}

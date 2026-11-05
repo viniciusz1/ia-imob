@@ -21,9 +21,13 @@ export function CrawlRunSnapshotsPanel({ runs }: { runs: CrawlRun[] }) {
             <Link className="text-sm text-primary hover:underline" href={`/admin/crawler/runs/${run.id}`}>
               Snapshot #{run.id}
             </Link>
-            <Badge variant={publicationStatus[run.publication_state].variant}>
-              {publicationStatus[run.publication_state].label}
-            </Badge>
+            {run.quality_rejection ? (
+              <Badge variant="destructive">Recusado</Badge>
+            ) : (
+              <Badge variant={publicationStatus[run.publication_state].variant}>
+                {publicationStatus[run.publication_state].label}
+              </Badge>
+            )}
           </div>
           <div className="space-y-1">
             <p className="text-sm tabular-nums">

@@ -12,6 +12,12 @@ vi.mock("next/navigation", () => ({
 
 vi.mock("@/services/crawlerService", () => ({
   getCrawlAgency: vi.fn(),
+  getOnboardingPlan: vi.fn().mockResolvedValue(null),
+  listDiscoveryPolicyVersions: vi.fn().mockResolvedValue([]),
+  listDiscoverySnapshots: vi.fn().mockResolvedValue([]),
+  listDiscoveryStrategies: vi.fn().mockResolvedValue([]),
+  listExtractionPolicyVersions: vi.fn().mockResolvedValue([]),
+  listOnboardingExecutionModelVersions: vi.fn().mockResolvedValue([]),
   listOnboardingExecutions: vi.fn(),
 }));
 

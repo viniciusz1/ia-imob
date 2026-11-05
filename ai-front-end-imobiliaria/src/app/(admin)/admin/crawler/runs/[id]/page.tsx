@@ -39,12 +39,14 @@ export default async function CrawlRunPage({ params }: CrawlRunPageProps) {
             <OperationStateBadge state={run.technical_state} />
             {run.result_kind === "partial" ? (
               <Badge variant="destructive">Resultado parcial · não publicável</Badge>
+            ) : run.quality_rejection ? (
+              <Badge variant="destructive">Publicação recusada</Badge>
             ) : (
               <Badge variant={publication.variant}>{publication.label}</Badge>
             )}
           </>
         }
-        description={`Crawl Agency #${run.crawl_agency_id}`}
+        description={`Agência #${run.crawl_agency_id}`}
         title={`Crawl Run #${run.id}`}
       />
 

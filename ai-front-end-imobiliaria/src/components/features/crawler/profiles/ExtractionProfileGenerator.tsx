@@ -268,8 +268,8 @@ export function ExtractionProfileGenerator({
         </Button>
         {disabledReason && !invalidUrl && <p className="text-sm text-muted-foreground">{disabledReason}</p>}
       </div>
-      {suggestionOperation && <CrawlerOperationStatus agencyId={agencyId} operation={suggestionOperation} />}
-      {generationOperation && <CrawlerOperationStatus agencyId={agencyId} operation={generationOperation} />}
+      {suggestionOperation && <CrawlerOperationStatus operation={suggestionOperation} />}
+      {generationOperation && <CrawlerOperationStatus operation={generationOperation} />}
     </div>
   );
 }

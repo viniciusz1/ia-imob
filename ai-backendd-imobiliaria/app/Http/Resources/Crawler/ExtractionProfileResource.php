@@ -34,12 +34,9 @@ class ExtractionProfileResource extends JsonResource
                 'name' => $this->activator->name,
             ]),
             'activated_at' => $this->activated_at,
-            'latest_validation_report' => $this->when(
-                $this->relationLoaded('latestValidationReport'),
-                fn () => $this->latestValidationReport === null
-                    ? null
-                    : new ProfileValidationReportResource($this->latestValidationReport),
-            ),
+            'latest_validation_report' => $this->latestValidationReport !== null
+                ? new ProfileValidationReportResource($this->latestValidationReport)
+                : null,
             'created_at' => $this->created_at,
         ];
     }

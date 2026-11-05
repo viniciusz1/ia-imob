@@ -17,6 +17,7 @@ import {
 import { cn } from "@/lib/utils";
 import {
   getMarketPropertyFilters,
+  type MarketPropertyFiltersQuery,
   type MarketPropertyFiltersResponse,
 } from "@/services/marketPropertyService";
 import type { MarketAnalyticsFilters } from "@/types/analytics";
@@ -49,16 +50,82 @@ function isActive(value: MarketAnalyticsFilters[keyof MarketAnalyticsFilters]): 
   return Array.isArray(value) ? value.length > 0 : value !== "";
 }
 
+function buildAnalyticsFiltersQuery(
+  filters: MarketAnalyticsFilters
+): MarketPropertyFiltersQuery | undefined {
+  const query: MarketPropertyFiltersQuery = {};
+
+  if (filters.cidade) query.cidade = [filters.cidade];
+  if (filters.bairro.length > 0) query.bairro = filters.bairro;
+  if (filters.tipo.length > 0) query.tipo = filters.tipo;
+  if (filters.imobiliaria.length > 0) query.imobiliaria = filters.imobiliaria;
+
+  const exactBedrooms = filters.quartos.filter((q) => q < 5);
+  if (exactBedrooms.length > 0) query.quartos = exactBedrooms;
+  if (filters.quartos.includes(5)) query.quartos_plus = true;
+
+  const exactParking = filters.vagas.filter((v) => v < 3);
+  if (exactParking.length > 0) query.vagas = exactParking;
+  if (filters.vagas.includes(3)) query.vagas_plus = true;
+
+  if (filters.min) query.min = filters.min;
+  if (filters.max) query.max = filters.max;
+  if (filters.area_min) query.area_min = filters.area_min;
+  if (filters.area_max) query.area_max = filters.area_max;
+  if (filters.data_inicio) query.data_inicio = filters.data_inicio;
+  if (filters.data_fim) query.data_fim = filters.data_fim;
+
+  return Object.keys(query).length > 0 ? query : undefined;
+}
+
+function pruneAnalyticsFilters(
+  current: MarketAnalyticsFilters,
+  response: MarketPropertyFiltersResponse
+): MarketAnalyticsFilters {
+  const cidade =
+    current.cidade && response.cidades.length > 0 && !response.cidades.includes(current.cidade)
+      ? ""
+      : current.cidade;
+
+  const validBairros =
+    !cidade || Object.keys(response.bairros_por_cidade).length === 0
+      ? response.bairros
+      : response.bairros_por_cidade[cidade] ?? [];
+
+  const bairro = current.bairro.filter((b) => validBairros.includes(b));
+  const tipo =
+    response.tipos.length > 0 || response.comodidades !== undefined
+      ? current.tipo.filter((t) => response.tipos.includes(t))
+      : current.tipo;
+  const imobiliaria = current.imobiliaria.filter((i) => response.imobiliarias.includes(i));
+
+  return {
+    ...current,
+    cidade,
+    bairro,
+    tipo,
+    imobiliaria,
+  };
+}
+
 export function MarketFiltersPanel({ filters, onChange }: MarketFiltersPanelProps) {
   const [options, setOptions] = useState<MarketPropertyFiltersResponse | null>(null);
   const [showSecondary, setShowSecondary] = useState(false);
 
+  const filtersKey = JSON.stringify(filters);
+
   useEffect(() => {
     let active = true;
+    const query = buildAnalyticsFiltersQuery(filters);
 
-    getMarketPropertyFilters()
+    getMarketPropertyFilters(query)
       .then((response) => {
-        if (active) setOptions(response);
+        if (!active) return;
+        setOptions(response);
+        const pruned = pruneAnalyticsFilters(filters, response);
+        if (JSON.stringify(pruned) !== filtersKey) {
+          onChange(pruned);
+        }
       })
       .catch(() => {
         if (active) setOptions(null);
@@ -67,14 +134,39 @@ export function MarketFiltersPanel({ filters, onChange }: MarketFiltersPanelProp
     return () => {
       active = false;
     };
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filtersKey]);
 
   const neighbourhoods = useMemo(() => {
     if (options === null) return [];
-    if (!filters.cidade) return options.bairros;
+    if (!filters.cidade || Object.keys(options.bairros_por_cidade).length === 0) {
+      return options.bairros;
+    }
 
     return options.bairros_por_cidade[filters.cidade] ?? [];
   }, [options, filters.cidade]);
+
+  const bedroomOptions = useMemo(() => {
+    if (!options || (options.quartos.length === 0 && options.comodidades === undefined)) {
+      return BEDROOM_OPTIONS;
+    }
+    const buckets = new Set<number>();
+    for (const count of options.quartos) {
+      buckets.add(count >= 5 ? 5 : count);
+    }
+    return BEDROOM_OPTIONS.filter((opt) => buckets.has(opt));
+  }, [options]);
+
+  const parkingOptions = useMemo(() => {
+    if (!options || (options.vagas.length === 0 && options.comodidades === undefined)) {
+      return PARKING_OPTIONS;
+    }
+    const buckets = new Set<number>();
+    for (const count of options.vagas) {
+      buckets.add(count >= 3 ? 3 : count);
+    }
+    return PARKING_OPTIONS.filter((opt) => buckets.has(opt));
+  }, [options]);
 
   // A filter hidden behind the toggle still narrows every number on the page,
   // so surface how many are on rather than letting them apply unseen.
@@ -194,7 +286,7 @@ export function MarketFiltersPanel({ filters, onChange }: MarketFiltersPanelProp
             <MultiSelectFilter
               label="Quartos"
               placeholder="Qualquer quantidade"
-              values={BEDROOM_OPTIONS}
+              values={bedroomOptions}
               selected={filters.quartos}
               renderLabel={(value) => (value === 5 ? "5 ou mais" : String(value))}
               onChange={(quartos) => update({ quartos })}
@@ -203,7 +295,7 @@ export function MarketFiltersPanel({ filters, onChange }: MarketFiltersPanelProp
             <MultiSelectFilter
               label="Vagas"
               placeholder="Qualquer quantidade"
-              values={PARKING_OPTIONS}
+              values={parkingOptions}
               selected={filters.vagas}
               renderLabel={(value) => (value === 3 ? "3 ou mais" : String(value))}
               onChange={(vagas) => update({ vagas })}

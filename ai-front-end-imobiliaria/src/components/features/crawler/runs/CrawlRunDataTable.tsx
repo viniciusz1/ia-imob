@@ -122,8 +122,8 @@ export function CrawlRunDataTable({ runId, initialPage }: CrawlRunDataTableProps
                 {record.listing_reason && <p className="text-xs text-muted-foreground">Motivo: {record.listing_reason}</p>}
                 <details className="space-y-2" open>
                   <summary className="cursor-pointer text-xs text-primary hover:underline">Ver payload e trace</summary>
-                  {record.normalization_warnings?.map((warning) => (
-                    <p className="flex items-start gap-1.5 text-xs text-warning" key={warning}>
+                  {record.normalization_warnings?.map((warning, index) => (
+                    <p className="flex items-start gap-1.5 text-xs text-warning" key={`${warning}-${index}`}>
                       <TriangleAlert className="mt-px size-3.5 shrink-0" />
                       {warning}
                     </p>

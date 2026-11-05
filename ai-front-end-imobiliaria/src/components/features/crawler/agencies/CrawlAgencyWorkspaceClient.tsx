@@ -17,32 +17,21 @@ import type {
   CrawlAgencySchedule,
   CrawlerOperation,
   CrawlRun,
-  DiscoveryPolicyVersion,
   DiscoverySnapshot,
-  DiscoveryStrategy,
-  ExtractionPolicyVersion,
   ExtractionProfile,
   OnboardingExecution,
-  OnboardingExecutionModelVersion,
-  OnboardingPlan,
 } from "@/types/crawler";
 
 import { isActiveCrawlerOperation, useCrawlerOperationPolling } from "../useCrawlerOperationPolling";
 import { CrawlAgencyContextHeader } from "./CrawlAgencyContextHeader";
 import { CrawlAgencyOnboardingProgress } from "./CrawlAgencyOnboardingProgress";
 import { OnboardingExecutionSummaryCard } from "./OnboardingExecutionSummaryCard";
-import { OnboardingPlanBuilder } from "./OnboardingPlanBuilder";
 import { useOnboardingExecutionPolling } from "./useOnboardingExecutionPolling";
 
 interface CrawlAgencyWorkspaceClientProps {
   agency: CrawlAgency;
-  discoveryPolicies: DiscoveryPolicyVersion[];
-  discoveryStrategies: DiscoveryStrategy[];
   executions: OnboardingExecution[];
-  extractionPolicies: ExtractionPolicyVersion[];
   initialOperations: CrawlerOperation[];
-  models: OnboardingExecutionModelVersion[];
-  onboardingPlan: OnboardingPlan | null;
   profiles: ExtractionProfile[];
   runs: CrawlRun[];
   schedule: CrawlAgencySchedule;
@@ -71,8 +60,8 @@ function readiness(agency: CrawlAgency, profiles: ExtractionProfile[], runs: Cra
     return {
       label: "Onboarding em andamento",
       detail: "Crie um Discovery e gere um Perfil de Extração Candidato.",
-      href: "discoveries",
-      action: "Continuar onboarding",
+      href: "onboarding",
+      action: "Ir para Onboarding",
     };
   }
   if (!runs.some((run) => run.publication_state === "published")) {
@@ -93,13 +82,8 @@ function readiness(agency: CrawlAgency, profiles: ExtractionProfile[], runs: Cra
 
 export function CrawlAgencyWorkspaceClient({
   agency,
-  discoveryPolicies,
-  discoveryStrategies,
   executions: initialExecutions,
-  extractionPolicies,
   initialOperations,
-  models,
-  onboardingPlan,
   profiles,
   runs,
   schedule,
@@ -116,7 +100,7 @@ export function CrawlAgencyWorkspaceClient({
     [agency, execution?.approval],
   );
   const publishedRun = runs.find((run) => run.publication_state === "published");
-  const quarantinedRun = runs.find((run) => run.publication_state === "quarantined");
+  const quarantinedRun = runs.find((run) => run.publication_state === "quarantined" && run.quality_rejection === null);
   const state = useMemo(() => readiness(displayedAgency, profiles, runs), [displayedAgency, profiles, runs]);
 
   useCrawlerOperationPolling({
@@ -150,24 +134,11 @@ export function CrawlAgencyWorkspaceClient({
         <Badge variant={displayedAgency.revalidation_required ? "destructive" : "outline"}>{state.label}</Badge>
       </div>
 
-      {onboardingPlan?.status === "draft" && execution?.state !== "completed" && (
-        <OnboardingPlanBuilder
-          agency={agency}
-          discoveryPolicies={discoveryPolicies}
-          discoveryStrategies={discoveryStrategies}
-          extractionPolicies={extractionPolicies}
-          models={models}
-          onConfirmed={(confirmed) => setExecutions((current) => [confirmed, ...current.filter((item) => item.id !== confirmed.id)])}
-          plan={onboardingPlan}
-          snapshots={snapshots}
-        />
-      )}
-
       {execution && <OnboardingExecutionSummaryCard agencyId={agency.id} execution={execution} />}
 
-      {!onboardingPlan && <CrawlAgencyOnboardingProgress agency={agency} profiles={profiles} snapshots={snapshots} />}
+      {!execution && <CrawlAgencyOnboardingProgress agency={agency} profiles={profiles} snapshots={snapshots} />}
 
-      {!onboardingPlan && (
+      {!execution && (
         <Card className="border-primary/20 bg-primary/5">
           <CardHeader>
             <CardTitle>Próxima ação recomendada</CardTitle>
@@ -199,12 +170,6 @@ export function CrawlAgencyWorkspaceClient({
               <p className="text-xs text-muted-foreground">
                 {activeOperation.progress.message ?? "Aguardando atualização"} · heartbeat {formatDate(activeOperation.progress.heartbeat_at)}
               </p>
-              <Link
-                className="inline-block text-sm text-primary hover:underline"
-                href={`/admin/crawler/operations?crawl_agency_id=${agency.id}`}
-              >
-                Abrir na fila global
-              </Link>
             </div>
           ) : (
             <EmptyState
@@ -288,12 +253,6 @@ export function CrawlAgencyWorkspaceClient({
                   <span className="truncate text-sm text-foreground">#{operation.id} · {operation.type}</span>
                   <OperationStateBadge state={operation.state} />
                 </span>
-                <Link
-                  className="text-sm text-primary hover:underline"
-                  href={`/admin/crawler/operations?crawl_agency_id=${agency.id}`}
-                >
-                  Ver operação
-                </Link>
               </li>
             ))}
           </ol>

@@ -4,13 +4,12 @@ import {
   Activity,
   Building2,
   CircleX,
+  Cpu,
   HeartPulse,
   Plug,
   ShieldAlert,
-  TriangleAlert,
   Zap,
 } from "lucide-react";
-import Link from "next/link";
 import { useState } from "react";
 
 import { CrawlerHeaderActions } from "@/components/features/crawler/CrawlerHeaderActions";
@@ -23,7 +22,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { testCrawlerIntegration } from "@/services/crawlerService";
-import type { CrawlerIntegration, CrawlerOverview } from "@/types/crawler";
+import type { CrawlerIntegration, CrawlerOverview, WorkerInstance } from "@/types/crawler";
 
 function StateCountList({ title, entries, renderBadge }: {
   title: string;
@@ -48,11 +47,15 @@ function StateCountList({ title, entries, renderBadge }: {
 export function CrawlerOverviewDashboard({
   initialOverview,
   integrations,
+  workers,
 }: {
   initialOverview: CrawlerOverview;
   integrations: CrawlerIntegration[];
+  workers: WorkerInstance[];
 }) {
   const [testResults, setTestResults] = useState<Record<string, string>>({});
+
+  const activeWorkers = workers.filter((worker) => worker.health_state !== "unavailable");
 
   const testIntegration = async (integration: CrawlerIntegration) => {
     const result = await testCrawlerIntegration(integration.key);
@@ -69,9 +72,9 @@ export function CrawlerOverviewDashboard({
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         <StatCard href="/admin/crawler/agencies" icon={Building2} title="Crawl Agencies" value={initialOverview.agencies.total} />
-        <StatCard href="/admin/crawler/operations?state=running" icon={Activity} title="Operações ativas" tone="info" value={initialOverview.operations.active} />
-        <StatCard href="/admin/crawler/operations?state=failed" icon={CircleX} title="Falhas" tone="destructive" value={initialOverview.operations.failed} />
-        <StatCard href="#alertas" icon={Zap} title="Circuitos abertos" tone="warning" value={initialOverview.open_circuits} />
+        <StatCard icon={Activity} title="Operações ativas" tone="info" value={initialOverview.operations.active} />
+        <StatCard icon={CircleX} title="Falhas" tone="destructive" value={initialOverview.operations.failed} />
+        <StatCard icon={Zap} title="Circuitos abertos" tone="warning" value={initialOverview.open_circuits} />
         <StatCard href="/admin/crawler/quality" icon={ShieldAlert} title="Snapshots em quarentena" tone="warning" value={initialOverview.quarantined_snapshots} />
       </div>
 
@@ -93,25 +96,20 @@ export function CrawlerOverviewDashboard({
         </Card>
 
         <Card className="gap-0 overflow-hidden py-0">
-          <SectionHeader href="/admin/crawler/operations" icon={Activity} linkLabel="Ver fila" title="Operações ativas" />
+          <SectionHeader href="/admin/crawler/queue" icon={Activity} linkLabel="Ver fila" title="Operações ativas" />
           {initialOverview.active_operations.length === 0 ? (
             <EmptyState icon={Activity} title="Nenhuma operação ativa." variant="inline" />
           ) : (
             <ul className="divide-y">
               {initialOverview.active_operations.map((operation) => (
-                <li key={operation.id}>
-                  <Link
-                    className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-muted/50 sm:px-5"
-                    href={`/admin/crawler/operations?operation=${operation.id}`}
-                  >
-                    <span className="min-w-0 flex-1">
-                      <span className="block truncate text-sm text-foreground">#{operation.id} · {operation.type}</span>
-                      {operation.crawl_agency && (
-                        <span className="block truncate text-xs text-muted-foreground">{operation.crawl_agency.name}</span>
-                      )}
-                    </span>
-                    <OperationStateBadge state={operation.state} />
-                  </Link>
+                <li className="flex items-center gap-3 px-4 py-3 sm:px-5" key={operation.id}>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-sm text-foreground">#{operation.id} · {operation.type}</span>
+                    {operation.crawl_agency && (
+                      <span className="block truncate text-xs text-muted-foreground">{operation.crawl_agency.name}</span>
+                    )}
+                  </span>
+                  <OperationStateBadge state={operation.state} />
                 </li>
               ))}
             </ul>
@@ -119,24 +117,16 @@ export function CrawlerOverviewDashboard({
         </Card>
       </div>
 
-      <Card className="scroll-mt-6 gap-0 overflow-hidden py-0" id="alertas">
-        <SectionHeader icon={TriangleAlert} title="Alertas internos" />
-        {initialOverview.alerts.length === 0 ? (
-          <EmptyState icon={TriangleAlert} title="Nenhum alerta operacional." variant="inline" />
+      <Card className="gap-0 overflow-hidden py-0">
+        <SectionHeader icon={Cpu} title="Workers ativos" />
+        {activeWorkers.length === 0 ? (
+          <EmptyState icon={Cpu} title="Nenhum worker ativo." variant="inline" />
         ) : (
-          <ul className="divide-y">
-            {initialOverview.alerts.map((alert, index) => (
-              <li className="flex items-start gap-3 px-4 py-3 sm:px-5" key={`${alert.kind}-${index}`}>
-                <TriangleAlert className="mt-0.5 size-4 shrink-0 text-warning" />
-                <div className="min-w-0">
-                  <Link className="text-sm text-foreground hover:text-primary hover:underline" href={alert.href}>
-                    {alert.title}
-                  </Link>
-                  {alert.detail && <p className="text-xs text-muted-foreground">{alert.detail}</p>}
-                </div>
-              </li>
+          <div className="flex flex-wrap gap-2 px-4 py-4 sm:px-5">
+            {activeWorkers.map((worker) => (
+              <Badge className="font-mono" key={worker.id} variant="muted">{worker.worker_key}</Badge>
             ))}
-          </ul>
+          </div>
         )}
       </Card>
 

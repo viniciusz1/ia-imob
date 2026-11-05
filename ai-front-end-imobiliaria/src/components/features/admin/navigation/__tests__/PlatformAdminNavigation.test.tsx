@@ -82,8 +82,11 @@ describe("PlatformAdminNavigation", () => {
         rerender(<PlatformAdminNavigation />);
 
         expect(screen.getByRole("link", { name: "Prospecção" })).toHaveAttribute("href", "/admin/crawler/prospects");
-        expect(screen.getByRole("link", { name: "Crawl Agencies" })).toHaveAttribute("href", "/admin/crawler/agencies");
-        expect(screen.getByRole("link", { name: "Operações" })).toHaveAttribute("href", "/admin/crawler/operations");
+        expect(screen.getByRole("link", { name: "Fila" })).toHaveAttribute("href", "/admin/crawler/queue");
+        expect(screen.getByRole("link", { name: "Execuções em lote" })).toHaveAttribute("href", "/admin/crawler/batches");
+        expect(
+            screen.getAllByRole("link", { name: "Agências" }).map((link) => link.getAttribute("href")),
+        ).toEqual(["/admin/agencies", "/admin/crawler/agencies"]);
         expect(screen.getByRole("link", { name: "Qualidade" })).toHaveAttribute("href", "/admin/crawler/quality");
         expect(screen.getByRole("link", { name: "Configurações" })).toHaveAttribute("href", "/admin/crawler/settings");
 
@@ -93,9 +96,11 @@ describe("PlatformAdminNavigation", () => {
     });
 
     it.each([
-        ["/admin/crawler/runs/42", "Crawl Agencies"],
-        ["/admin/crawler/agencies/7/crawls", "Crawl Agencies"],
-        ["/admin/crawler/discoveries/42", "Operações"],
+        ["/admin/crawler/runs/42", "Agências"],
+        ["/admin/crawler/agencies/7/crawls", "Agências"],
+        ["/admin/crawler/discoveries/42", "Agências"],
+        ["/admin/crawler/queue", "Fila"],
+        ["/admin/crawler/batches/3", "Execuções em lote"],
         ["/admin/crawler/quality", "Qualidade"],
     ])("marks the crawler page that owns %s as active", (pathname, label) => {
         mocks.pathname = pathname;

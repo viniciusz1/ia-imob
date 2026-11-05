@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use App\Services\Crawler\CityCatalog;
+use App\Services\Crawler\NeighborhoodCatalog;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -94,6 +97,8 @@ class MarketProperty extends Model
             $inventory->selectRaw('1')
                 ->from('crawler.listing_identities as current_listing')
                 ->whereColumn('current_listing.current_market_property_id', 'crawler.market_properties.id')
+                ->join('crawler.crawl_agencies as agency', 'agency.id', '=', 'current_listing.crawl_agency_id')
+                ->where('agency.lifecycle_state', 'active')
                 ->whereIn('current_listing.inventory_state', ['active', 'missing']);
         });
     }
@@ -105,11 +110,41 @@ class MarketProperty extends Model
         }
 
         if (! empty($filters['bairro'])) {
-            $query->whereIn('bairro', (array) $filters['bairro']);
+            $bairros = array_values(array_filter(array_map('trim', (array) $filters['bairro'])));
+            if (! empty($bairros)) {
+                $query->where(function ($q) use ($bairros): void {
+                    $q->whereIn('bairro', $bairros);
+                    foreach ($bairros as $bairro) {
+                        $q->orWhereRaw('f_unaccent(LOWER(bairro)) = f_unaccent(LOWER(?))', [$bairro]);
+                        $aliases = NeighborhoodCatalog::aliasesFor($bairro);
+                        if (! empty($aliases)) {
+                            $q->orWhereIn('bairro', $aliases);
+                            foreach ($aliases as $alias) {
+                                $q->orWhereRaw('f_unaccent(LOWER(bairro)) = f_unaccent(LOWER(?))', [$alias]);
+                            }
+                        }
+                    }
+                });
+            }
         }
 
         if (! empty($filters['cidade'])) {
-            $query->whereIn('cidade', (array) $filters['cidade']);
+            $cidades = array_values(array_filter(array_map('trim', (array) $filters['cidade'])));
+            if (! empty($cidades)) {
+                $query->where(function ($q) use ($cidades): void {
+                    $q->whereIn('cidade', $cidades);
+                    foreach ($cidades as $cidade) {
+                        $q->orWhereRaw('f_unaccent(LOWER(cidade)) = f_unaccent(LOWER(?))', [$cidade]);
+                        $aliases = CityCatalog::aliasesFor($cidade);
+                        if (! empty($aliases)) {
+                            $q->orWhereIn('cidade', $aliases);
+                            foreach ($aliases as $alias) {
+                                $q->orWhereRaw('f_unaccent(LOWER(cidade)) = f_unaccent(LOWER(?))', [$alias]);
+                            }
+                        }
+                    }
+                });
+            }
         }
 
         if (! empty($filters['imobiliaria'])) {
@@ -215,6 +250,28 @@ class MarketProperty extends Model
 
         if (! empty($filters['max'])) {
             $query->where('valor', '<=', $filters['max']);
+        }
+
+        if (! empty($filters['area_min'])) {
+            $query->where('area', '>=', (float) $filters['area_min']);
+        }
+
+        if (! empty($filters['area_max'])) {
+            $query->where('area', '<=', (float) $filters['area_max']);
+        }
+
+        if (! empty($filters['data_inicio'])) {
+            $from = CarbonImmutable::parse((string) $filters['data_inicio'])->startOfDay();
+            $query->whereHas('crawlerRun', function ($q) use ($from): void {
+                $q->where('completed_at', '>=', $from);
+            });
+        }
+
+        if (! empty($filters['data_fim'])) {
+            $to = CarbonImmutable::parse((string) $filters['data_fim'])->endOfDay();
+            $query->whereHas('crawlerRun', function ($q) use ($to): void {
+                $q->where('completed_at', '<=', $to);
+            });
         }
 
         if (! empty($filters['bairro_fuzzy']) || ! empty($filters['proximity_bairros'])) {

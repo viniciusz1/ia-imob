@@ -25,6 +25,12 @@ WORKER_KEY     ?= local-dev
 WORKER_VERSION ?= dev
 WORKER_ARGS    ?=
 
+# ---- AI Agents / Antigravity options ------------------------------
+TMUX_SESSION ?= ag-agents
+AG_BIN       ?= $(shell command -v ag 2>/dev/null || command -v agy 2>/dev/null || echo ag)
+AG_FLAGS     ?= --dangerously-skip-permissions
+AG_CMD       ?= $(AG_BIN) $(AG_FLAGS)
+
 .DEFAULT_GOAL := help
 .PHONY: help \
         up start \
@@ -33,7 +39,8 @@ WORKER_ARGS    ?=
         test test-backend test-frontend test-crawler \
         lint lint-backend lint-frontend format-backend \
         build build-frontend \
-        backend-stop clean
+        backend-stop clean \
+        ag-tmux tmux-ag ag-grid ag-tmux-kill
 
 # ==================================================
 #  Help
@@ -79,6 +86,10 @@ help: ## Show this help
 	print_target install-crawler; \
 	print_target worker; \
 	print_target test-crawler; \
+	echo ""; \
+	printf "\033[1mAgents / Tmux\033[0m\n"; \
+	print_target ag-tmux; \
+	print_target ag-tmux-kill; \
 	echo ""
 
 # ==================================================
@@ -177,3 +188,35 @@ clean: ## Remove local build artifacts and caches
 	rm -rf .pytest_cache $(CRAWLER_DIR)/.pytest_cache
 	find . -type d -name __pycache__ -prune -exec rm -rf {} + 2>/dev/null || true
 	@echo "Clean complete."
+
+# ==================================================
+#  Agents / Tmux (2x2 grid)
+# ==================================================
+ag-tmux tmux-ag ag-grid: ## Open 4 terminals (2x2 grid) running ag/agy --dangerously-skip-permissions in tmux
+	@if tmux has-session -t $(TMUX_SESSION) 2>/dev/null; then \
+		echo "Sessão tmux '$(TMUX_SESSION)' já existe. Conectando..."; \
+		tmux set-option -t $(TMUX_SESSION) mouse on 2>/dev/null || true; \
+	else \
+		echo "Criando sessão tmux '$(TMUX_SESSION)' com 4 terminais ($(AG_CMD))..."; \
+		tmux new-session -d -s $(TMUX_SESSION) -c "$(CURDIR)"; \
+		tmux set-option -t $(TMUX_SESSION) mouse on; \
+		tmux set-option -t $(TMUX_SESSION) history-limit 50000; \
+		tmux split-window -h -t $(TMUX_SESSION) -c "$(CURDIR)"; \
+		tmux split-window -v -t $(TMUX_SESSION).0 -c "$(CURDIR)"; \
+		tmux split-window -v -t $(TMUX_SESSION).2 -c "$(CURDIR)"; \
+		tmux select-layout -t $(TMUX_SESSION) tiled; \
+		for pane in 0 1 2 3; do \
+			tmux send-keys -t $(TMUX_SESSION).$$pane '$(AG_CMD)' C-m; \
+		done; \
+		tmux select-pane -t $(TMUX_SESSION).0; \
+	fi; \
+	if [ -t 0 ] && [ -n "$$TERM" ] && [ "$$TERM" != "dumb" ] && [ -z "$$TMUX" ]; then \
+		tmux attach-session -t $(TMUX_SESSION) || echo "Sessão iniciada: conecte com 'tmux attach -t $(TMUX_SESSION)'"; \
+	elif [ -n "$$TMUX" ]; then \
+		tmux switch-client -t $(TMUX_SESSION); \
+	else \
+		echo "Sessão tmux '$(TMUX_SESSION)' pronta em segundo plano. Conecte com: tmux attach -t $(TMUX_SESSION)"; \
+	fi
+
+ag-tmux-kill: ## Kill the ag-tmux session
+	@tmux kill-session -t $(TMUX_SESSION) 2>/dev/null && echo "Sessão '$(TMUX_SESSION)' encerrada." || echo "Sessão '$(TMUX_SESSION)' não encontrada."

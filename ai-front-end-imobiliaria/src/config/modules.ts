@@ -9,6 +9,7 @@ import {
   Globe,
   Landmark,
   Radar,
+  Sparkles,
   ShieldCheck,
   Users,
   type LucideIcon,
@@ -20,6 +21,7 @@ export interface DashboardModule {
   href: string;
   icon: LucideIcon;
   permissions: string[];
+  agencyOnly?: boolean;
   platformOnly?: boolean;
   dashboard?: {
     title: string;
@@ -37,6 +39,18 @@ export const dashboardModules: DashboardModule[] = [
     dashboard: {
       title: "Gerenciar imóveis",
       description: "Cadastre, edite e acompanhe seus imóveis.",
+    },
+  },
+  {
+    id: "new-properties",
+    title: "Novos imóveis",
+    href: "/novos-imoveis",
+    icon: Sparkles,
+    permissions: ["properties.view"],
+    agencyOnly: true,
+    dashboard: {
+      title: "Novos imóveis",
+      description: "Veja anúncios recentes e oportunidades agrupados por imobiliária.",
     },
   },
   {

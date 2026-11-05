@@ -7,14 +7,17 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import type { CrawlRun } from "@/types/crawler";
 
-function publicationPresentation(state: CrawlRun["publication_state"]) {
+function publicationPresentation(run: CrawlRun) {
+  if (run.quality_rejection) return { label: "Recusado", variant: "destructive" as const };
+  const state = run.publication_state;
   if (state === "candidate") return { label: "Avaliação pendente", variant: "warning" as const };
   if (state === "quarantined") return { label: "Em quarentena", variant: "destructive" as const };
   return { label: "Publicado", variant: "success" as const };
 }
 
 function SnapshotRow({ run }: { run: CrawlRun }) {
-  const { label, variant } = publicationPresentation(run.publication_state);
+  const { label, variant } = publicationPresentation(run);
+  const awaitingReview = run.publication_state === "quarantined" && run.quality_rejection === null;
 
   return (
     <li className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-5">
@@ -27,7 +30,7 @@ function SnapshotRow({ run }: { run: CrawlRun }) {
       <div className="flex items-center gap-3">
         <Badge variant={variant}>{label}</Badge>
         <Link className="text-sm text-primary hover:underline" href={`/admin/crawler/runs/${run.id}`}>
-          {run.publication_state === "quarantined" ? "Revisar evidências" : "Ver detalhe"}
+          {awaitingReview ? "Revisar evidências" : "Ver detalhe"}
         </Link>
       </div>
     </li>
@@ -35,7 +38,7 @@ function SnapshotRow({ run }: { run: CrawlRun }) {
 }
 
 export function CrawlAgencyQualityPanel({ currentPublishedRunId, runs }: { currentPublishedRunId: number | null; runs: CrawlRun[] }) {
-  const actionRequired = runs.filter((run) => run.publication_state === "candidate" || run.publication_state === "quarantined");
+  const actionRequired = runs.filter((run) => run.publication_state === "candidate" || (run.publication_state === "quarantined" && run.quality_rejection === null));
   const currentPublished = runs.find((run) => run.id === currentPublishedRunId) ?? null;
 
   return (

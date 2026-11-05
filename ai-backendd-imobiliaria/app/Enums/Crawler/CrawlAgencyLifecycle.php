@@ -13,10 +13,10 @@ enum CrawlAgencyLifecycle: string
     public function allowedTransitions(): array
     {
         return match ($this) {
-            self::Onboarding => [self::Active],
+            self::Onboarding => [self::Active, self::Archived],
             self::Active => [self::Paused, self::Archived],
             self::Paused => [self::Active, self::Archived],
-            self::Archived => [],
+            self::Archived => [self::Active, self::Onboarding, self::Paused],
         };
     }
 }

@@ -19,6 +19,7 @@ class PropertyTypeNormalizerTest extends TestCase
         $this->assertSame('Terreno', PropertyTypeNormalizer::canonicalName('Terreno / Lote'));
         $this->assertSame('Sítio', PropertyTypeNormalizer::canonicalName('Sitio/Chácara'));
         $this->assertSame('Terreno', PropertyTypeNormalizer::canonicalName('Residencial»Lote/Terreno'));
+        $this->assertSame('Duplex', PropertyTypeNormalizer::canonicalName('Residencial » Duplex'));
     }
 
     public function test_values_outside_the_catalog_are_reported_as_unclassified(): void

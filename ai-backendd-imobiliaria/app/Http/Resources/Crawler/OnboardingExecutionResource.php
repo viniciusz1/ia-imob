@@ -278,7 +278,7 @@ class OnboardingExecutionResource extends JsonResource
 
     private function discoveryRecoveryActions(): array
     {
-        if ($this->current_step !== 'discovery') {
+        if (in_array($this->state, ['completed', 'cancelled'], true)) {
             return [];
         }
 

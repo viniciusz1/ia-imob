@@ -339,4 +339,37 @@ describe("ValuationsClient", () => {
     expect(screen.queryByRole("button", { name: /baixar word/i })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /exportar excel/i })).not.toBeInTheDocument();
   });
+
+  it("narrows available neighborhoods to the selected cities", async () => {
+    vi.mocked(valuationService.getValuations).mockResolvedValue(paginated([]));
+    vi.mocked(marketPropertyService.getMarketPropertyFilters).mockResolvedValue({
+      tipos: ["Casa", "Apartamento"],
+      bairros: ["América", "Centro", "Vila Lalau"],
+      bairros_por_cidade: {
+        "Jaraguá do Sul": ["Centro", "Vila Lalau"],
+        Joinville: ["América"],
+      },
+      cidades: ["Jaraguá do Sul", "Joinville"],
+      imobiliarias: [],
+      quartos: [3],
+      suites: [],
+      banheiros: [2],
+      vagas: [1],
+    });
+
+    render(<ValuationsClient />);
+
+    const citySelect = (await screen.findByLabelText("Cidade")) as HTMLSelectElement;
+    const neighborhoodSelect = (await screen.findByLabelText("Bairro")) as HTMLSelectElement;
+
+    await waitFor(() => {
+      expect(citySelect.options.length).toBe(2);
+      expect(neighborhoodSelect.options.length).toBe(3);
+    });
+
+    fireEvent.change(citySelect, { target: { value: "Jaraguá do Sul" } });
+
+    const optionValues = Array.from(neighborhoodSelect.options).map((opt) => opt.value);
+    expect(optionValues).toEqual(["Centro", "Vila Lalau"]);
+  });
 });

@@ -1,13 +1,14 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { queueProfileValidation } from "@/services/crawlerService";
+import { activateExtractionProfile, queueProfileValidation } from "@/services/crawlerService";
 import { useAuthStore } from "@/store/useAuthStore";
 import type { CrawlerOperation, ExtractionProfile } from "@/types/crawler";
 
 import { ValidationCrawlPanel } from "../ValidationCrawlPanel";
 
 vi.mock("@/services/crawlerService", () => ({
+  activateExtractionProfile: vi.fn(),
   getCrawlerOperation: vi.fn(),
   queueProfileValidation: vi.fn(),
 }));
@@ -54,12 +55,64 @@ describe("ValidationCrawlPanel", () => {
     await waitFor(() => expect(queueProfileValidation).toHaveBeenCalledWith(2));
   });
 
-  it("explains why onboarding owns the validation command", () => {
-    render(<ValidationCrawlPanel activeOnboarding={{ id: 9, current_step: "profile_validation", operations: [] }} agencyId={42} initialOperations={[]} profiles={[profile(2, 2, "candidate")]} />);
+  it("allows selecting a candidate profile and queueing validation linked to active onboarding", async () => {
+    vi.mocked(queueProfileValidation).mockResolvedValue(queuedOperation);
+    render(
+      <ValidationCrawlPanel
+        activeOnboarding={{ id: 9, current_step: "profile_validation", operations: [] }}
+        agencyId={42}
+        initialOperations={[]}
+        profiles={[profile(1, 1, "candidate"), profile(2, 2, "candidate")]}
+      />,
+    );
 
-    expect(screen.getByText("Validação controlada pelo Onboarding")).toBeInTheDocument();
-    expect(screen.getByText(/preservar a sequência, as tentativas e o histórico/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Rodar Crawl de Validação" })).toBeDisabled();
+    expect(screen.getByText("Validação integrada ao Onboarding")).toBeInTheDocument();
+    expect(screen.getByText(/Existe uma Execução de Onboarding ativa \(#9 · etapa: profile_validation\)/i)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Abrir Onboarding" })).toHaveAttribute("href", "/admin/crawler/agencies/42/onboarding/9");
+
+    const select = screen.getByLabelText("Perfil de Extração");
+    expect(select).not.toBeDisabled();
+    expect(select).toHaveValue("2");
+
+    fireEvent.change(select, { target: { value: "1" } });
+    expect(select).toHaveValue("1");
+
+    const submitBtn = screen.getByRole("button", { name: "Rodar Crawl de Validação" });
+    expect(submitBtn).not.toBeDisabled();
+    fireEvent.click(submitBtn);
+
+    await waitFor(() => {
+      expect(queueProfileValidation).toHaveBeenCalledWith(1, {
+        linkToOnboarding: true,
+        standalone: false,
+      });
+    });
+  });
+
+  it("activates selected candidate profile directly from validation crawl panel", async () => {
+    const candidateProfile = profile(2, 2, "candidate");
+    vi.mocked(activateExtractionProfile).mockResolvedValue({
+      ...candidateProfile,
+      status: "active",
+      activated_by: 1,
+      activated_at: "2026-07-02T13:00:00Z",
+    });
+
+    render(
+      <ValidationCrawlPanel
+        activeOnboarding={null}
+        agencyId={42}
+        initialOperations={[]}
+        profiles={[profile(1, 1, "candidate"), candidateProfile]}
+      />,
+    );
+
+    const activateBtn = screen.getByRole("button", { name: "Ativar Perfil" });
+    expect(activateBtn).toBeInTheDocument();
+    fireEvent.click(activateBtn);
+
+    await waitFor(() => {
+      expect(activateExtractionProfile).toHaveBeenCalledWith(2);
+    });
   });
 });

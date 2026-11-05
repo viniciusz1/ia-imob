@@ -2,8 +2,7 @@ import { History } from "lucide-react";
 
 import { CrawlAgencyContextHeader } from "@/components/features/crawler/agencies/CrawlAgencyContextHeader";
 import { CrawlHistoryPanel } from "@/components/features/crawler/runs/CrawlHistoryPanel";
-import { ProductionCrawlPanel } from "@/components/features/crawler/runs/ProductionCrawlPanel";
-import { ValidationCrawlPanel } from "@/components/features/crawler/runs/ValidationCrawlPanel";
+import { ExecuteCrawlPanel } from "@/components/features/crawler/runs/ExecuteCrawlPanel";
 import { SectionHeader } from "@/components/layout/SectionHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -43,29 +42,16 @@ export default async function CrawlsPage({ params }: { params: Promise<{ id: str
 
       <Card>
         <CardHeader className="border-b">
-          <CardTitle>Validar Perfil de Extração</CardTitle>
-          <CardDescription>Amostra controlada para perfis candidatos ou com revalidação necessária.</CardDescription>
+          <CardTitle>Executar Crawl</CardTitle>
+          <CardDescription>Inicie um crawl de produção ou selecione a opção de validação para perfis candidatos.</CardDescription>
         </CardHeader>
         <CardContent>
-          <ValidationCrawlPanel
+          <ExecuteCrawlPanel
             activeOnboarding={activeOnboarding}
-            agencyId={agencyId}
-            initialOperations={operations}
-            profiles={profiles}
-          />
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="border-b">
-          <CardTitle>Executar Crawl de Produção</CardTitle>
-          <CardDescription>Coleta completa com um perfil ativo ou aprovado.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ProductionCrawlPanel
             agency={agency}
             discoveryPolicies={discoveryPolicies}
             hasActiveQualityPolicy={hasActiveQualityPolicy}
+            initialOperations={operations}
             pendingCandidateRunId={pendingCandidate?.id ?? null}
             profiles={profiles}
             snapshots={snapshots}

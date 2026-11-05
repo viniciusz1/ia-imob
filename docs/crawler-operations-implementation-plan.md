@@ -130,7 +130,8 @@ Regeneração assistida pelos erros e comparação automática entre versões fi
 4. Falha técnica da avaliação mantém o Snapshot Candidato pendente para retentativa; não o põe em quarentena e bloqueia nova produção da mesma Crawl Agency até sua resolução.
 5. Publicação excepcional exige revisão no detalhe, Crawl Agency ativa, permissão específica, responsável, data e justificativa.
 6. Falhas bloqueantes de onboarding não aceitam exceção.
-7. Ativar contrato incompatível marca fontes como `revalidation_required`, suspende schedules e impede publicação sob o contrato anterior.
+7. Recusar a publicação encerra a revisão humana, preserva responsável, data e justificativa e impede uma Publicação Excepcional posterior do mesmo snapshot.
+8. Ativar contrato incompatível marca fontes como `revalidation_required`, suspende schedules e impede publicação sob o contrato anterior.
 
 ## API administrativa inicial
 
@@ -142,6 +143,7 @@ Prefixo sugerido: `/api/admin/crawler`.
 - Recursos aninhados de discovery snapshots, extraction profiles, schedules, runs e snapshots por Crawl Agency.
 - `POST /operations`, `POST /operations/{id}/cancel` e `POST /operations/{id}/retry`; `GET /operations` e `GET /operation-groups/{id}`.
 - `GET /crawl-runs/{id}/normalized`, `/raw` e `/rejected`, todos com paginação, filtros e ordenação no servidor.
+- `POST /crawl-runs/{id}/quality-rejection` para registrar a Recusa de Publicação.
 - `POST /extraction-profiles/{id}/validate`, `/approve`, `/reject` e `/activate`.
 - `POST /market-snapshots/{id}/publish-exceptionally`.
 - CRUD versionado de `/market-data-contracts` e `/quality-policies`, com ações `/validate` e `/activate`.
@@ -159,6 +161,7 @@ Permissões granulares sugeridas:
 - `crawler.operations.cancel`;
 - `crawler.profiles.approve`;
 - `crawler.agencies.activate`;
+- `crawler.snapshots.review`;
 - `crawler.snapshots.publish_exceptionally`;
 - `crawler.policies.manage`;
 - `crawler.schedules.manage`.

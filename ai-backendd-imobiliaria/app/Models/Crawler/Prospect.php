@@ -2,6 +2,7 @@
 
 namespace App\Models\Crawler;
 
+use App\Support\Crawler\AgencyNameNormalizer;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -34,6 +35,15 @@ class Prospect extends Model
     protected function casts(): array
     {
         return ['reviewed_at' => 'datetime', 'metadata' => 'array'];
+    }
+
+    protected static function booted(): void
+    {
+        static::saving(function (self $prospect): void {
+            if ($prospect->isDirty('name') && ! empty($prospect->name)) {
+                $prospect->name = AgencyNameNormalizer::normalize($prospect->name, $prospect->city);
+            }
+        });
     }
 
     public function onboardingPlan(): HasOne

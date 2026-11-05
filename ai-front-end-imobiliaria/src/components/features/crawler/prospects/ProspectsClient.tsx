@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Check, Filter, MapPin, RotateCcw, Search, X } from "lucide-react";
+import { Check, Filter, MapPin, RotateCcw, Search, Trash2, X } from "lucide-react";
 import { useMemo, useState, type ReactNode } from "react";
 import { toast } from "sonner";
 
@@ -54,7 +54,6 @@ export function ProspectsClient({ initialProspects, initialSuggestions = [] }: {
   const [requeryConfirmed, setRequeryConfirmed] = useState(false);
   const [reviewFilter, setReviewFilter] = useState("");
   const [classificationFilter, setClassificationFilter] = useState("");
-  const [reasons, setReasons] = useState<Record<number, string>>({});
   const [cityFilter, setCityFilter] = useState("");
   const [operationFilter, setOperationFilter] = useState("");
   const [selected, setSelected] = useState<number[]>([]);
@@ -115,7 +114,7 @@ export function ProspectsClient({ initialProspects, initialSuggestions = [] }: {
   };
   const decide = async (prospect: Prospect, decision: "approved" | "rejected") => {
     try {
-      const updated = await decideProspect(prospect.id, decision, reasons[prospect.id] ?? "");
+      const updated = await decideProspect(prospect.id, decision, decision === "approved" ? "Aprovado manualmente" : "Rejeitado manualmente");
       setProspects((current) => current.map((item) => item.id === updated.id ? updated : item));
       toast.success(`Prospect ${decision === "approved" ? "aprovado" : "rejeitado"}.`);
     } catch (error) {
@@ -141,7 +140,7 @@ export function ProspectsClient({ initialProspects, initialSuggestions = [] }: {
     const result = await promoteProspect(prospect.id);
     setProspects((current) => current.map((item) => item.id === prospect.id ? { ...item, promoted_crawl_agency_id: result.crawl_agency.id } : item));
     toast.success("Crawl Agency e Plano de Onboarding em rascunho criados.");
-    router.push(`/admin/crawler/agencies/${result.crawl_agency.id}`);
+    router.push(`/admin/crawler/agencies/${result.crawl_agency.id}/onboarding?novo=true`);
   };
 
   return (
@@ -390,7 +389,7 @@ export function ProspectsClient({ initialProspects, initialSuggestions = [] }: {
                 <TableHead>Localização</TableHead>
                 <TableHead>Classificação</TableHead>
                 <TableHead>Revisão</TableHead>
-                <TableHead className="min-w-80">Próxima ação</TableHead>
+                <TableHead className="text-right">Próxima ação</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -431,32 +430,25 @@ export function ProspectsClient({ initialProspects, initialSuggestions = [] }: {
                   </TableCell>
                   <TableCell>
                     {prospect.review_state === "pending" && (
-                      <div className="flex min-w-80 flex-wrap gap-2">
-                        <Input
-                          aria-label={`Motivo para ${prospect.name}`}
-                          className="h-9 min-w-44 flex-1"
-                          onChange={(event) => setReasons((current) => ({ ...current, [prospect.id]: event.target.value }))}
-                          placeholder="Informe o motivo"
-                          value={reasons[prospect.id] ?? ""}
-                        />
+                      <div className="flex justify-end gap-2">
                         <Button
                           aria-label={`Aprovar ${prospect.name}`}
-                          disabled={!(reasons[prospect.id] ?? "").trim()}
                           onClick={() => void decide(prospect, "approved")}
-                          size="sm"
+                          size="icon-sm"
+                          title="Aprovar"
+                          type="button"
                         >
                           <Check />
-                          Aprovar
                         </Button>
                         <Button
                           aria-label={`Rejeitar ${prospect.name}`}
-                          disabled={!(reasons[prospect.id] ?? "").trim()}
                           onClick={() => void decide(prospect, "rejected")}
-                          size="sm"
+                          size="icon-sm"
+                          title="Rejeitar"
+                          type="button"
                           variant="outline"
                         >
-                          <X />
-                          Rejeitar
+                          <Trash2 />
                         </Button>
                       </div>
                     )}
@@ -472,7 +464,7 @@ export function ProspectsClient({ initialProspects, initialSuggestions = [] }: {
                         )}
                         {prospect.promoted_crawl_agency_id && (
                           <Button asChild size="sm" variant="outline">
-                            <Link href={`/admin/crawler/agencies/${prospect.promoted_crawl_agency_id}`}>Ver onboarding</Link>
+                            <Link href={`/admin/crawler/agencies/${prospect.promoted_crawl_agency_id}/onboarding`}>Ver onboarding</Link>
                           </Button>
                         )}
                       </div>

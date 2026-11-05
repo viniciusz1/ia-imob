@@ -21,7 +21,10 @@ class CrawlerOverviewController extends Controller
             ->latest('id')->limit(5)->get();
         $recentFailures = CrawlerOperation::query()->where('state', 'failed')->latest('id')->limit(5)->get();
         $circuits = CrawlAgencyCircuit::query()->where('state', 'open')->get();
-        $quarantined = CrawlerRun::query()->where('publication_state', 'quarantined')->latest('id')->limit(10)->get();
+        $quarantined = CrawlerRun::query()
+            ->where('publication_state', 'quarantined')
+            ->whereDoesntHave('qualityRejection')
+            ->latest('id')->limit(10)->get();
         $unavailableWorkers = WorkerInstance::query()->get()->filter(
             fn (WorkerInstance $worker): bool => $worker->health_state !== 'healthy'
                 || $worker->last_heartbeat_at?->lt(now()->subMinutes(2)),
@@ -37,7 +40,9 @@ class CrawlerOverviewController extends Controller
                 'kind' => 'operation_failure',
                 'title' => "Falha na operação #{$operation->id}",
                 'detail' => $operation->error_code,
-                'href' => '/admin/crawler/operations?state=failed',
+                'href' => $operation->crawl_agency_id === null
+                    ? '/admin/crawler/agencies'
+                    : "/admin/crawler/agencies/{$operation->crawl_agency_id}",
             ]))
             ->concat($quarantined->map(fn (CrawlerRun $run) => [
                 'kind' => 'quarantined_snapshot',
@@ -49,7 +54,7 @@ class CrawlerOverviewController extends Controller
                 'kind' => 'worker_unavailable',
                 'title' => "Worker {$worker->worker_key} indisponível",
                 'detail' => 'Heartbeat ou saúde degradados',
-                'href' => '/admin/crawler/operations#workers',
+                'href' => '/admin/crawler',
             ]))->values();
 
         return response()->json([
@@ -65,7 +70,10 @@ class CrawlerOverviewController extends Controller
                     'failed' => CrawlerOperation::query()->where('state', 'failed')->count(),
                 ],
                 'open_circuits' => $circuits->count(),
-                'quarantined_snapshots' => CrawlerRun::query()->where('publication_state', 'quarantined')->count(),
+                'quarantined_snapshots' => CrawlerRun::query()
+                    ->where('publication_state', 'quarantined')
+                    ->whereDoesntHave('qualityRejection')
+                    ->count(),
                 'active_operations' => CrawlerOperationResource::collection($activeOperations)->resolve(),
                 'recent_failures' => CrawlerOperationResource::collection($recentFailures)->resolve(),
                 'alerts' => $alerts,

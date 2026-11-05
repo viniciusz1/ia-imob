@@ -24,6 +24,7 @@ class UpdateOnboardingPlanRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:160'],
             'conduction' => ['required', Rule::in(['manual', 'automated'])],
+            'replace_current' => ['sometimes', 'boolean'],
             'first_production_discovery_mode' => [
                 'sometimes',
                 Rule::in(['fresh', 'validation_snapshot']),

@@ -1,7 +1,6 @@
 "use client";
 
 import { History } from "lucide-react";
-import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import { OperationStateBadge } from "@/components/features/crawler/CrawlerStatusBadges";
@@ -11,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useClientPagination } from "@/hooks/useClientPagination";
+import { CrawlExecutionModal } from "@/components/features/crawler/runs/CrawlExecutionModal";
 import type { CrawlerOperation, CrawlRun } from "@/types/crawler";
 
 interface CrawlHistoryPanelProps {
@@ -29,6 +29,10 @@ const typeOptions: Array<{ key: CrawlType; label: string }> = [
 
 export function CrawlHistoryPanel({ agencyId, operations, runs }: CrawlHistoryPanelProps) {
   const [type, setType] = useState<CrawlType>("all");
+  const [selectedExecution, setSelectedExecution] = useState<{
+    operation: CrawlerOperation | null;
+    run: CrawlRun | null;
+  } | null>(null);
   const rows = useMemo(() => {
     const relevantOperations = operations.filter((operation) => operation.type === "profile_validation" || operation.type === "production_crawl");
     const operationRows = relevantOperations.map((operation) => ({ operation, run: runs.find((run) => run.operation_id === operation.id) ?? null }));
@@ -103,12 +107,9 @@ export function CrawlHistoryPanel({ agencyId, operations, runs }: CrawlHistoryPa
           <TableBody>
             {pagination.pageItems.map(({ operation, run }) => {
               const validation = operation?.type === "profile_validation";
-              const href = validation
-                ? `/admin/crawler/agencies/${agencyId}/crawls/operations/${operation.id}`
-                : run ? `/admin/crawler/runs/${run.id}` : `/admin/crawler/agencies/${agencyId}/crawls/operations/${operation?.id}`;
               const result = validation
                 ? operation?.state === "succeeded" ? "Resultado da validação disponível" : "—"
-                : run ? `${run.counts.normalized} normalizados · ${run.publication_state === "candidate" ? "Qualidade pendente" : run.publication_state === "quarantined" ? "Em quarentena" : "Publicado"}` : "Aguardando resultado técnico";
+                : run ? `${run.counts.normalized} normalizados · ${run.quality_rejection ? "Publicação recusada" : run.publication_state === "candidate" ? "Qualidade pendente" : run.publication_state === "quarantined" ? "Em quarentena" : "Publicado"}` : "Aguardando resultado técnico";
               const createdAt = operation?.created_at ?? run?.created_at;
 
               return (
@@ -127,9 +128,14 @@ export function CrawlHistoryPanel({ agencyId, operations, runs }: CrawlHistoryPa
                       : "—"}
                   </TableCell>
                   <TableCell className="whitespace-nowrap">
-                    <Link className="text-primary hover:underline" href={href}>
+                    <Button
+                      className="h-auto p-0"
+                      onClick={() => setSelectedExecution({ operation, run })}
+                      type="button"
+                      variant="link"
+                    >
                       Ver execução
-                    </Link>
+                    </Button>
                   </TableCell>
                 </TableRow>
               );
@@ -138,6 +144,15 @@ export function CrawlHistoryPanel({ agencyId, operations, runs }: CrawlHistoryPa
         </Table>
       )}
       {footer}
+      <CrawlExecutionModal
+        agencyId={agencyId}
+        onOpenChange={(open) => {
+          if (!open) setSelectedExecution(null);
+        }}
+        open={selectedExecution !== null}
+        operation={selectedExecution?.operation ?? null}
+        run={selectedExecution?.run ?? null}
+      />
     </>
   );
 }

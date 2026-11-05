@@ -97,21 +97,30 @@ export function ProfileValidationPanel({
 }: ProfileValidationPanelProps) {
   const [profile, setProfile] = useState(initialProfile);
   const [lifecycle, setLifecycle] = useState(agencyLifecycle);
-  const [report, setReport] = useState<ProfileValidationReport | null>(initialProfile.latest_validation_report);
+  const [report, setReport] = useState<ProfileValidationReport | null>(initialProfile.latest_validation_report ?? null);
   const [operation, setOperation] = useState<CrawlerOperation | null>(() => profileValidationOperation(initialOperations, initialProfile.id));
   const [reason, setReason] = useState("");
   const [expanded, setExpanded] = useState(initiallyExpanded);
   const [pendingAction, setPendingAction] = useState<"approve" | "reject" | "activate-profile" | "activate-agency" | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const canDecide = profile.status === "candidate" || profile.status === "revalidation_required";
-  const validRatioRecommended = report !== null && report.valid_ratio >= 0.8;
-  const coverageRecommended = report !== null && Object.values(report.required_field_coverage).every((coverage) => coverage >= 0.9);
-  const recommended = validRatioRecommended && coverageRecommended && (report?.blocking_failures.length ?? 0) === 0;
+  const validRatioRecommended = Boolean(report && report.valid_ratio >= 0.8);
+  const coverageRecommended = Boolean(
+    report?.required_field_coverage &&
+    Object.values(report.required_field_coverage).every((coverage) => coverage >= 0.9),
+  );
+  const recommended = Boolean(
+    validRatioRecommended &&
+    coverageRecommended &&
+    (report?.blocking_failures?.length ?? 0) === 0,
+  );
   const operationActive = operation !== null && isActiveCrawlerOperation(operation);
 
   useEffect(() => {
     setProfile(initialProfile);
-    setReport(initialProfile.latest_validation_report);
+    if (initialProfile.latest_validation_report !== undefined) {
+      setReport(initialProfile.latest_validation_report);
+    }
   }, [initialProfile]);
 
   useEffect(() => {
@@ -217,8 +226,13 @@ export function ProfileValidationPanel({
               <Link href={`/admin/crawler/agencies/${profile.crawl_agency_id}/crawls`}>Validar em Crawls</Link>
             </Button>
           )}
-          {profile.status === "approved" && (
-            <Button disabled={pendingAction !== null} onClick={() => void activateProfile()} size="sm" type="button">
+          {profile.status !== "active" && profile.status !== "rejected" && (
+            <Button
+              disabled={pendingAction !== null || operationActive}
+              onClick={() => void activateProfile()}
+              size="sm"
+              type="button"
+            >
               {pendingAction === "activate-profile" ? "Ativando Perfil…" : "Ativar Perfil de Extração"}
             </Button>
           )}
@@ -230,7 +244,7 @@ export function ProfileValidationPanel({
         </div>
       </header>
 
-      {operation && <CrawlerOperationStatus agencyId={profile.crawl_agency_id} operation={operation} />}
+      {operation && <CrawlerOperationStatus operation={operation} />}
       {actionError && <p className="text-sm text-destructive" role="alert">{actionError}</p>}
 
       <Button
@@ -320,26 +334,26 @@ export function ProfileValidationPanel({
                 <MetricTile
                   hint="Exigem revisão e justificativa"
                   label="Falhas Críticas de Validação"
-                  value={report.blocking_failures.length}
+                  value={report.blocking_failures?.length ?? 0}
                 />
               </div>
               <div className="flex flex-wrap gap-2">
-                {Object.entries(report.required_field_coverage).map(([field, value]) => (
+                {report.required_field_coverage && Object.entries(report.required_field_coverage).map(([field, value]) => (
                   <Badge key={field} variant={value >= 0.9 ? "success" : "warning"}>
                     {fieldLabels[field] ?? field}: {Math.round(value * 100)}%
                   </Badge>
                 ))}
               </div>
-              {(report.blocking_failures.length > 0 || report.warnings.length > 0) && (
+              {((report.blocking_failures?.length ?? 0) > 0 || (report.warnings?.length ?? 0) > 0) && (
                 <div className="space-y-2 rounded-lg border p-4">
                   <h5 className="text-sm text-foreground">Alertas e falhas</h5>
-                  {report.blocking_failures.map((failure) => (
+                  {report.blocking_failures?.map((failure) => (
                     <p className="flex items-start gap-2 text-sm text-destructive" key={failure}>
                       <CircleX className="mt-0.5 size-4 shrink-0" />
                       Falha crítica de validação: {failure}
                     </p>
                   ))}
-                  {report.warnings.map((warning) => (
+                  {report.warnings?.map((warning) => (
                     <p className="flex items-start gap-2 text-sm text-warning" key={warning}>
                       <TriangleAlert className="mt-0.5 size-4 shrink-0" />
                       {warning}

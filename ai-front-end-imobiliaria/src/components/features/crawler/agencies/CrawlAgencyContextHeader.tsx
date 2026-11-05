@@ -1,28 +1,55 @@
+"use client";
+
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { useEffect } from "react";
 
 import { HealthBadge, LifecycleBadge } from "@/components/features/crawler/CrawlerStatusBadges";
 import { Button } from "@/components/ui/button";
 import type { CrawlAgency } from "@/types/crawler";
 
 import { CrawlAgencyNavigation } from "./CrawlAgencyNavigation";
+import { useCrawlAgencyLayout } from "./CrawlAgencyLayoutContext";
 
 interface CrawlAgencyContextHeaderProps {
   agency: CrawlAgency;
   area: string;
   description?: string;
+  forceRender?: boolean;
+  onNavigate?: (href: string) => void;
 }
 
 /**
  * Page header shared by every Crawl Agency sub-screen: agency name and status,
  * the current area and the agency tabs. The topbar already shows the trail.
+ *
+ * Inside the agency layout the shell renders the header once; pages only hand
+ * it their area through the layout context.
  */
-export function CrawlAgencyContextHeader({ agency, area, description }: CrawlAgencyContextHeaderProps) {
+export function CrawlAgencyContextHeader({
+  agency,
+  area,
+  description,
+  forceRender = false,
+  onNavigate,
+}: CrawlAgencyContextHeaderProps) {
+  const { inLayout, setHeaderData } = useCrawlAgencyLayout();
+
+  useEffect(() => {
+    if (inLayout && !forceRender) {
+      setHeaderData({ agency, area, description });
+    }
+  }, [inLayout, forceRender, setHeaderData, agency, area, description]);
+
+  if (inLayout && !forceRender) {
+    return null;
+  }
+
   return (
     <header className="space-y-4">
       <div className="flex min-w-0 items-start gap-3">
-        <Button asChild className="shrink-0" size="icon" title="Voltar para Crawl Agencies" variant="ghost">
-          <Link aria-label="Voltar para Crawl Agencies" href="/admin/crawler/agencies">
+        <Button asChild className="shrink-0" size="icon" title="Voltar para Agências" variant="ghost">
+          <Link aria-label="Voltar para Agências" href="/admin/crawler/agencies">
             <ArrowLeft />
           </Link>
         </Button>
@@ -41,7 +68,7 @@ export function CrawlAgencyContextHeader({ agency, area, description }: CrawlAge
         </div>
       </div>
 
-      <CrawlAgencyNavigation agencyId={agency.id} />
+      <CrawlAgencyNavigation agencyId={agency.id} onNavigate={onNavigate} />
     </header>
   );
 }

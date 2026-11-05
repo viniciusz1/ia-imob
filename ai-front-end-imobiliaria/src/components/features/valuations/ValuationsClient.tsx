@@ -189,6 +189,7 @@ export function ValuationsClient() {
   const [downloadingFormat, setDownloadingFormat] = useState<DownloadFormat | null>(null);
   const [availableCities, setAvailableCities] = useState<string[]>([]);
   const [availableNeighborhoods, setAvailableNeighborhoods] = useState<string[]>([]);
+  const [neighborhoodsByCity, setNeighborhoodsByCity] = useState<Record<string, string[]>>({});
   const [isLoadingFilters, setIsLoadingFilters] = useState(true);
   const permissions = Array.isArray(user?.permissions) ? user.permissions : null;
   const canCreate = permissions?.includes("valuations.create") ?? false;
@@ -251,6 +252,7 @@ export function ValuationsClient() {
         const filters = await getMarketPropertyFilters();
         setAvailableCities(filters.cidades);
         setAvailableNeighborhoods(filters.bairros);
+        setNeighborhoodsByCity(filters.bairros_por_cidade ?? {});
       } catch (error) {
         console.error("Erro ao carregar filtros de localidade", error);
         toast.error("Não foi possível carregar as cidades e bairros disponíveis.");
@@ -287,10 +289,35 @@ export function ValuationsClient() {
     }));
   }
 
+  const visibleNeighborhoods = useMemo(() => {
+    if (form.city.length === 0 || Object.keys(neighborhoodsByCity).length === 0) {
+      return availableNeighborhoods;
+    }
+
+    return [...new Set(form.city.flatMap((city) => neighborhoodsByCity[city] ?? []))].sort(
+      (left, right) => left.localeCompare(right, "pt-BR")
+    );
+  }, [availableNeighborhoods, form.city, neighborhoodsByCity]);
+
   function updateMultiSelect(field: "city" | "neighborhood", select: HTMLSelectElement) {
     const selected: string[] = Array.from(select.selectedOptions).map((option) => option.value);
 
-    setForm((current) => ({ ...current, [field]: selected }));
+    setForm((current) => {
+      if (field === "city") {
+        const validNeighborhoods =
+          selected.length === 0 || Object.keys(neighborhoodsByCity).length === 0
+            ? availableNeighborhoods
+            : selected.flatMap((city) => neighborhoodsByCity[city] ?? []);
+
+        return {
+          ...current,
+          city: selected,
+          neighborhood: current.neighborhood.filter((n) => validNeighborhoods.includes(n)),
+        };
+      }
+
+      return { ...current, [field]: selected };
+    });
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -524,7 +551,7 @@ export function ValuationsClient() {
                     size={5}
                     required
                   >
-                    {availableNeighborhoods.map((neighborhood) => (
+                    {visibleNeighborhoods.map((neighborhood) => (
                       <option key={neighborhood} value={neighborhood}>
                         {neighborhood}
                       </option>

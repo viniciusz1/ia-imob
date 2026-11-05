@@ -7,7 +7,7 @@ import { toast } from "sonner";
 
 import { EmptyState } from "@/components/layout/EmptyState";
 import { Button } from "@/components/ui/button";
-import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PrototypeSwitcher } from "@/components/ui/PrototypeSwitcher";
 import { listExtractionProfiles } from "@/services/crawlerService";
 import type {
@@ -46,9 +46,6 @@ export function ExtractionProfilesWorkspace({
   const [lifecycle, setLifecycle] = useState(agency.lifecycle_state);
   const [operations, setOperations] = useState(initialOperations);
   const [profiles, setProfiles] = useState(initialProfiles);
-  const [generationOpen, setGenerationOpen] = useState(() => (
-    snapshots.length > 0 && initialProfiles.every((profile) => profile.status === "rejected")
-  ));
   const orderedProfiles = useMemo(() => [...profiles].sort((left, right) => right.version - left.version), [profiles]);
   const hasCurrentProfile = orderedProfiles.some((profile) => profile.status !== "rejected");
   const activeOperation = operations.find((candidate) => (
@@ -68,7 +65,7 @@ export function ExtractionProfilesWorkspace({
     setProfiles(await listExtractionProfiles(agency.id));
   }, [agency.id]);
 
-  const generatorOwnsPolling = generationOpen
+  const generatorOwnsPolling = snapshots.length > 0
     && activeOperation !== null
     && (activeOperation.type === "sample_url_suggestion" || activeOperation.type === "profile_generation");
   useCrawlerOperationPolling({
@@ -102,16 +99,9 @@ export function ExtractionProfilesWorkspace({
   return (
     <div className="space-y-6">
       <Card>
-        <CardHeader className={generationOpen || snapshots.length === 0 ? "border-b" : undefined}>
+        <CardHeader className="border-b">
           <CardTitle>Gerar Perfil Candidato</CardTitle>
           <CardDescription>{generationDescription}</CardDescription>
-          {snapshots.length > 0 && hasCurrentProfile && (
-            <CardAction>
-              <Button onClick={() => setGenerationOpen((current) => !current)} size="sm" type="button" variant="outline">
-                {generationOpen ? "Ocultar formulário" : "Mostrar formulário"}
-              </Button>
-            </CardAction>
-          )}
         </CardHeader>
         {snapshots.length === 0 && (
           <CardContent>
@@ -120,7 +110,7 @@ export function ExtractionProfilesWorkspace({
             </Button>
           </CardContent>
         )}
-        {generationOpen && (
+        {snapshots.length > 0 && (
           <CardContent>
             <ExtractionProfileGenerator
               agencyId={agency.id}

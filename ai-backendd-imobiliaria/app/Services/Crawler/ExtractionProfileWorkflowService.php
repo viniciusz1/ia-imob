@@ -24,12 +24,43 @@ class ExtractionProfileWorkflowService
         ?OnboardingExecution $onboardingExecution = null,
         ?string $onboardingStep = null,
         int $attempt = 1,
+        bool $linkToOnboarding = false,
+        bool $forceStandalone = false,
     ): CrawlerOperation {
         if (! in_array($profile->status, ['candidate', 'revalidation_required'], true)) {
             throw ValidationException::withMessages(['status' => 'Only candidate profiles can be validated.']);
         }
 
-        if ($onboardingExecution === null && OnboardingExecution::query()
+        if ($onboardingExecution === null && $linkToOnboarding) {
+            $activeExecution = OnboardingExecution::query()
+                ->where('crawl_agency_id', $profile->crawl_agency_id)
+                ->whereNotIn('state', ['completed', 'cancelled'])
+                ->latest('id')
+                ->first();
+
+            if ($activeExecution !== null) {
+                $onboardingExecution = $activeExecution;
+                $onboardingStep = 'profile_validation';
+                $attempt = ($activeExecution->operations()
+                    ->where('onboarding_step', 'profile_validation')
+                    ->max('attempt') ?? 0) + 1;
+
+                if ($extractionPolicy === null && isset($activeExecution->resolved_configuration['extraction_policy'])) {
+                    $extractionPolicy = $activeExecution->resolved_configuration['extraction_policy'];
+                }
+
+                $activeExecution->update([
+                    'extraction_profile_id' => $profile->id,
+                    'current_step' => 'profile_validation',
+                    'state' => 'running',
+                    'paused_at' => null,
+                    'attention_code' => null,
+                    'attention_message' => null,
+                ]);
+            }
+        }
+
+        if ($onboardingExecution === null && ! $forceStandalone && OnboardingExecution::query()
             ->where('crawl_agency_id', $profile->crawl_agency_id)
             ->whereNotIn('state', ['completed', 'cancelled'])
             ->exists()) {
@@ -99,13 +130,13 @@ class ExtractionProfileWorkflowService
             'decision_reason' => $reason,
         ]);
 
-        return $profile->refresh();
+        return $profile->refresh()->load(['latestValidationReport', 'decider', 'activator']);
     }
 
     public function activate(ExtractionProfile $profile, User $actor): ExtractionProfile
     {
-        if ($profile->status !== 'approved') {
-            throw ValidationException::withMessages(['status' => 'Only an approved profile can be activated.']);
+        if (! in_array($profile->status, ['approved', 'candidate', 'revalidation_required'], true)) {
+            throw ValidationException::withMessages(['status' => 'Only an approved, candidate, or revalidation required profile can be activated.']);
         }
 
         if ($profile->market_data_contract_version_id !== $profile->contract()->where('status', 'active')->value('id')) {
@@ -120,12 +151,15 @@ class ExtractionProfileWorkflowService
                 ->update(['status' => 'approved']);
             $profile->update([
                 'status' => 'active',
+                'decided_by' => $profile->decided_by ?? $actor->id,
+                'decided_at' => $profile->decided_at ?? now(),
+                'decision_reason' => $profile->decision_reason ?? 'Ativado diretamente.',
                 'activated_by' => $actor->id,
                 'activated_at' => now(),
             ]);
             $profile->crawlAgency()->update(['revalidation_required' => false]);
 
-            return $profile->refresh();
+            return $profile->refresh()->load(['latestValidationReport', 'decider', 'activator']);
         });
     }
 }

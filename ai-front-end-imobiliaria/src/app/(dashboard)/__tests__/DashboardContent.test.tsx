@@ -22,8 +22,9 @@ describe("DashboardContent", () => {
 
     render(<DashboardContent />);
 
-    expect(screen.getByRole("link", { name: /imóveis/i })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /^gerenciar imóveis$/i })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /usuários/i })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /^novos imóveis$/i })).toBeInTheDocument();
   });
 
   it("hides cards for modules the user cannot access", () => {
@@ -37,7 +38,7 @@ describe("DashboardContent", () => {
 
     render(<DashboardContent />);
 
-    expect(screen.getByRole("link", { name: /imóveis/i })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /^gerenciar imóveis$/i })).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /usuários/i })).not.toBeInTheDocument();
   });
 
@@ -46,7 +47,7 @@ describe("DashboardContent", () => {
 
     render(<DashboardContent />);
 
-    expect(screen.queryByRole("link", { name: /imóveis/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /^gerenciar imóveis$/i })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /usuários/i })).not.toBeInTheDocument();
   });
 
@@ -79,5 +80,19 @@ describe("DashboardContent", () => {
     render(<DashboardContent />);
 
     expect(screen.queryByRole("link", { name: /operações do crawler/i })).not.toBeInTheDocument();
+  });
+
+  it("hides Novos imóveis from a Platform Admin with stale property access", () => {
+    useAuthStore.getState().setUser({
+      id: 4,
+      name: "Platform Admin",
+      email: "platform@imobiliaria.com",
+      is_platform_admin: true,
+      permissions: ["properties.view"],
+    });
+
+    render(<DashboardContent />);
+
+    expect(screen.queryByRole("link", { name: /^novos imóveis$/i })).not.toBeInTheDocument();
   });
 });

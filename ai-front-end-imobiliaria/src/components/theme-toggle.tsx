@@ -2,6 +2,7 @@
 
 import { MoonIcon, SunIcon } from "lucide-react";
 import { useTheme } from "next-themes";
+import { useSyncExternalStore } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -11,8 +12,21 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+// O tema depende do navegador, então o menu só é montado depois de carregar no cliente.
+// Até lá, o servidor e o navegador mostram o mesmo botão, evitando erro de hidratação.
+const subscribeToNothing = () => () => {};
+
 export function ThemeToggle() {
     const { setTheme } = useTheme();
+    const mounted = useSyncExternalStore(subscribeToNothing, () => true, () => false);
+
+    if (!mounted) {
+        return (
+            <Button variant="ghost" size="icon" className="relative" aria-label="Alternar tema">
+                <SunIcon className="h-[1.2rem] w-[1.2rem]" />
+            </Button>
+        );
+    }
 
     return (
         <DropdownMenu>

@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { getOnboardingExecution } from "@/services/crawlerService";
@@ -115,5 +115,18 @@ describe("CrawlAgencyOnboardingClient", () => {
       "Não foi possível atualizar a Execução de Onboarding. Os últimos dados recebidos continuam visíveis.",
     );
     expect(screen.getByText("Onboarding Litoral")).toBeInTheDocument();
+  });
+
+  it("opens the Plano de Onboarding modal when clicking Novo Onboarding or when initialOpenModal is true", () => {
+    const current = execution({ state: "awaiting_manual_step" });
+
+    render(<CrawlAgencyOnboardingClient agency={agency} initialExecutions={[current]} />);
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Novo Onboarding" }));
+
+    const dialog = screen.getByRole("dialog");
+    expect(within(dialog).getByRole("heading", { name: "Plano de Onboarding" })).toBeInTheDocument();
+    expect(within(dialog).getByText(/será cancelada e substituída por esta nova execução ao confirmar/i)).toBeInTheDocument();
   });
 });

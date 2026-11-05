@@ -8,13 +8,16 @@ class ListingKeyResolver
 
     public function resolve(array $payload, ?string $url): string
     {
-        foreach (self::EXTERNAL_ID_FIELDS as $field) {
-            $value = $payload[$field] ?? null;
-            if ((is_string($value) || is_int($value)) && trim((string) $value) !== '') {
-                return 'external:'.trim((string) $value);
-            }
+        $externalId = $this->externalId($payload);
+        if ($externalId !== null) {
+            return 'external:'.$externalId;
         }
 
+        return $this->resolveUrlKey($url);
+    }
+
+    public function resolveUrlKey(?string $url): string
+    {
         return 'url:'.hash('sha256', $this->canonicalizeUrl((string) $url));
     }
 

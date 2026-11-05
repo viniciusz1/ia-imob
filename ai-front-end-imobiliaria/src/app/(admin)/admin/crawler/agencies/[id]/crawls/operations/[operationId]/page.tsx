@@ -40,7 +40,7 @@ export default async function CrawlOperationDetailPage({ params }: { params: Pro
           <CardDescription>Operação #{operation.id}</CardDescription>
         </CardHeader>
         <CardContent>
-          <CrawlerOperationStatus agencyId={agencyId} operation={operation} />
+          <CrawlerOperationStatus operation={operation} />
         </CardContent>
       </Card>
 

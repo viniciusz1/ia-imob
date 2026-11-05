@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 // One continuous grid, in the same order as the sidebar menu (AppNavigation).
 const moduleOrder = [
     "properties",
+    "new-properties",
     "auctions",
     "ai-searcher",
     "valuations",
@@ -31,6 +32,7 @@ const moduleOrder = [
 // warning for time-sensitive or access-sensitive areas, info for search and data.
 const moduleTones: Record<string, StatTone> = {
     properties: "primary",
+    "new-properties": "info",
     auctions: "warning",
     "ai-searcher": "info",
     valuations: "success",
@@ -88,6 +90,10 @@ export function DashboardContent() {
     const firstName = user?.name?.trim().split(/\s+/)[0] ?? "";
 
     const canSee = (module: DashboardModule) => {
+        if (module.agencyOnly && user?.is_platform_admin === true) {
+            return false;
+        }
+
         if (module.platformOnly && user?.is_platform_admin !== true) {
             return false;
         }

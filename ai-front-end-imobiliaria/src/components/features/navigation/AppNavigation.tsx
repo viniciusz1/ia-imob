@@ -19,7 +19,7 @@ const dashboardItem: DashboardModule = {
 // Menu sections by what the user is doing, not by module order in the config.
 const sections: Array<{ label?: string; moduleIds: string[] }> = [
     { moduleIds: ["dashboard"] },
-    { label: "Imóveis", moduleIds: ["properties", "auctions", "ai-searcher", "valuations"] },
+    { label: "Imóveis", moduleIds: ["properties", "new-properties", "auctions", "ai-searcher", "valuations"] },
     { label: "Análises", moduleIds: ["market-analytics", "valuation-analytics"] },
     { label: "Gestão", moduleIds: ["users", "roles", "billing", "site-settings"] },
     { label: "Plataforma", moduleIds: ["platform-agencies", "crawler-operations"] },
@@ -41,6 +41,7 @@ export function AppNavigation() {
     const permissions = Array.isArray(user?.permissions) ? user.permissions : null;
 
     const canSee = (module: DashboardModule) => {
+        if (module.agencyOnly && user?.is_platform_admin === true) return false;
         if (module.platformOnly && user?.is_platform_admin !== true) return false;
         if (module.permissions.length === 0) return true;
         if (permissions === null) return false;

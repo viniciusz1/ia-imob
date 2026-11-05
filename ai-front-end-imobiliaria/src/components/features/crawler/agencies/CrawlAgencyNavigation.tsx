@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -16,9 +17,24 @@ const items = [
   { label: "Configuração", suffix: "/settings" },
 ];
 
-export function CrawlAgencyNavigation({ agencyId }: { agencyId: number }) {
+export function CrawlAgencyNavigation({
+  agencyId,
+  onNavigate,
+}: {
+  agencyId: number;
+  onNavigate?: (href: string) => void;
+}) {
   const pathname = usePathname();
   const root = `/admin/crawler/agencies/${agencyId}`;
+  const [lastPathname, setLastPathname] = useState(pathname);
+  const [pendingHref, setPendingHref] = useState<string | null>(null);
+
+  if (lastPathname !== pathname) {
+    setLastPathname(pathname);
+    setPendingHref(null);
+  }
+
+  const currentPath = pendingHref ?? pathname;
 
   return (
     <nav
@@ -28,8 +44,8 @@ export function CrawlAgencyNavigation({ agencyId }: { agencyId: number }) {
       {items.map((item) => {
         const href = `${root}${item.suffix}`;
         const active = item.suffix === ""
-          ? pathname === href
-          : pathname === href || pathname.startsWith(`${href}/`);
+          ? currentPath === href
+          : currentPath === href || currentPath.startsWith(`${href}/`);
 
         return (
           <Link
@@ -42,6 +58,10 @@ export function CrawlAgencyNavigation({ agencyId }: { agencyId: number }) {
             )}
             href={href}
             key={href}
+            onClick={() => {
+              setPendingHref(href);
+              onNavigate?.(href);
+            }}
           >
             {item.label}
           </Link>

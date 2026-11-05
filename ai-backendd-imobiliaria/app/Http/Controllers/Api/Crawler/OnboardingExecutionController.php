@@ -58,6 +58,7 @@ class OnboardingExecutionController extends Controller
                 $request->validated('action'),
                 $request->validated('sample_url'),
                 $request->user(),
+                $request->validated('extraction_profile_id'),
             ),
         );
     }

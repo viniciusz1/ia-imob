@@ -33,6 +33,8 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import {
+  ArrowLeft,
+  ChevronRight,
   Search,
   Save,
   Pencil,
@@ -46,7 +48,11 @@ import type {
   SavedFilter,
 } from "./types";
 import api, { API_PREFIX } from "@/services/api";
-import { getMarketPropertyFilters } from "@/services/marketPropertyService";
+import {
+  getMarketPropertyFilters,
+  type MarketPropertyFiltersQuery,
+} from "@/services/marketPropertyService";
+
 
 interface PropertyFiltersProps {
   properties: AiSearcherProperty[];
@@ -56,6 +62,24 @@ interface PropertyFiltersProps {
 }
 
 const FIXED_ROOM_OPTIONS = [1, 2, 3, 4];
+
+type FilterView =
+  | "overview"
+  | "cidade"
+  | "bairro"
+  | "tipo"
+  | "imobiliaria"
+  | "rooms"
+  | "more";
+
+const FILTER_VIEW_TITLES: Record<Exclude<FilterView, "overview">, string> = {
+  cidade: "Cidade",
+  bairro: "Bairro",
+  tipo: "Tipo do imóvel",
+  imobiliaria: "Imobiliária",
+  rooms: "Quartos e vagas",
+  more: "Mais filtros",
+};
 
 const COMODIDADE_LABELS: Record<string, string> = {
   piscina: "Piscina",
@@ -113,6 +137,138 @@ const EMPTY_FILTER_STATE: AiSearcherFiltersState = {
   maxPrice: "",
 };
 
+function summarizeItems(items: string[], emptyLabel: string) {
+  if (items.length === 0) return emptyLabel;
+  if (items.length <= 2) return items.join(", ");
+  return `${items.slice(0, 2).join(", ")} +${items.length - 2}`;
+}
+
+function summarizeRoomSelection(
+  items: number[],
+  plusSelected: boolean,
+  singularLabel: string
+) {
+  const selectedValues = items.map(String);
+  if (plusSelected) selectedValues.push("4+");
+  if (selectedValues.length === 0) return null;
+
+  const label = selectedValues.length === 1 ? singularLabel : `${singularLabel}s`;
+  return `${selectedValues.join(", ")} ${label}`;
+}
+
+function buildFiltersQuery(
+  state: AiSearcherFiltersState
+): MarketPropertyFiltersQuery | undefined {
+  const query: MarketPropertyFiltersQuery = {};
+
+  if (state.selectedTipos.length > 0) query.tipo = state.selectedTipos;
+  if (state.selectedBairros.length > 0) query.bairro = state.selectedBairros;
+  if (state.selectedCidades.length > 0) query.cidade = state.selectedCidades;
+  if (state.selectedImobiliarias.length > 0) query.imobiliaria = state.selectedImobiliarias;
+  if (state.selectedQuartos.length > 0) query.quartos = state.selectedQuartos;
+  if (state.selectedQuartosPlus) query.quartos_plus = true;
+  if (state.selectedSuites.length > 0) query.suites = state.selectedSuites;
+  if (state.selectedSuitesPlus) query.suites_plus = true;
+  if (state.selectedBanheiros.length > 0) query.banheiros = state.selectedBanheiros;
+  if (state.selectedBanheirosPlus) query.banheiros_plus = true;
+  if (state.selectedVagas.length > 0) query.vagas = state.selectedVagas;
+  if (state.selectedVagasPlus) query.vagas_plus = true;
+  if (state.selectedComodidades.length > 0) query.comodidade = state.selectedComodidades;
+  if (state.minPrice) query.min = state.minPrice;
+  if (state.maxPrice) query.max = state.maxPrice;
+  if (state.descricao.trim()) query.descricao = state.descricao.trim();
+
+  return Object.keys(query).length > 0 ? query : undefined;
+}
+
+function pruneStateWithOptions(
+  current: AiSearcherFiltersState,
+  options: AiSearcherFiltersOptions
+): AiSearcherFiltersState {
+  const selectedCidades =
+    options.cidades.length > 0
+      ? current.selectedCidades.filter((c) => options.cidades.includes(c))
+      : current.selectedCidades;
+
+  const validBairros =
+    selectedCidades.length === 0 || Object.keys(options.bairros_por_cidade).length === 0
+      ? options.bairros
+      : selectedCidades.flatMap((cidade) => options.bairros_por_cidade[cidade] ?? []);
+
+  const selectedBairros = current.selectedBairros.filter((b) =>
+    validBairros.includes(b)
+  );
+  const selectedTipos =
+    options.tipos.length > 0 || options.comodidades !== undefined
+      ? current.selectedTipos.filter((t) => options.tipos.includes(t))
+      : current.selectedTipos;
+  const selectedImobiliarias = current.selectedImobiliarias.filter((i) =>
+    options.imobiliarias.includes(i)
+  );
+
+  const hasDynamicCounts = options.comodidades !== undefined;
+
+  const selectedQuartos =
+    hasDynamicCounts || options.quartos.length > 0
+      ? current.selectedQuartos.filter((q) => options.quartos.includes(q))
+      : current.selectedQuartos;
+  const selectedQuartosPlus =
+    hasDynamicCounts || options.quartos.length > 0
+      ? current.selectedQuartosPlus && options.quartos.some((q) => q >= 4)
+      : current.selectedQuartosPlus;
+
+  const selectedSuites =
+    hasDynamicCounts || options.suites.length > 0
+      ? current.selectedSuites.filter((s) => options.suites.includes(s))
+      : current.selectedSuites;
+  const selectedSuitesPlus =
+    hasDynamicCounts || options.suites.length > 0
+      ? current.selectedSuitesPlus && options.suites.some((s) => s >= 4)
+      : current.selectedSuitesPlus;
+
+  const selectedBanheiros =
+    hasDynamicCounts || options.banheiros.length > 0
+      ? current.selectedBanheiros.filter((b) => options.banheiros.includes(b))
+      : current.selectedBanheiros;
+  const selectedBanheirosPlus =
+    hasDynamicCounts || options.banheiros.length > 0
+      ? current.selectedBanheirosPlus && options.banheiros.some((b) => b >= 4)
+      : current.selectedBanheirosPlus;
+
+  const selectedVagas =
+    hasDynamicCounts || options.vagas.length > 0
+      ? current.selectedVagas.filter((v) => options.vagas.includes(v))
+      : current.selectedVagas;
+  const selectedVagasPlus =
+    hasDynamicCounts || options.vagas.length > 0
+      ? current.selectedVagasPlus && options.vagas.some((v) => v >= 4)
+      : current.selectedVagasPlus;
+
+  const selectedComodidades =
+    options.comodidades !== undefined
+      ? current.selectedComodidades.filter((c) => options.comodidades?.includes(c))
+      : current.selectedComodidades;
+
+  const next: AiSearcherFiltersState = {
+    ...current,
+    selectedCidades,
+    selectedBairros,
+    selectedTipos,
+    selectedImobiliarias,
+    selectedQuartos,
+    selectedQuartosPlus,
+    selectedSuites,
+    selectedSuitesPlus,
+    selectedBanheiros,
+    selectedBanheirosPlus,
+    selectedVagas,
+    selectedVagasPlus,
+    selectedComodidades,
+  };
+
+  return JSON.stringify(next) === JSON.stringify(current) ? current : next;
+}
+
 export function PropertyFilters(
   props: PropertyFiltersProps
 ) {
@@ -143,14 +299,30 @@ export function PropertyFilters(
   const [searchBairro, setSearchBairro] = useState<string>("");
   const [searchCidade, setSearchCidade] = useState<string>("");
   const [searchImobiliaria, setSearchImobiliaria] = useState<string>("");
+  const [activeView, setActiveView] = useState<FilterView>("overview");
 
   const isCommittingRef = useRef(false);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+
+  const filterStateKey = JSON.stringify(filterState);
 
   useEffect(() => {
-    getMarketPropertyFilters()
-      .then((filters) => setFilterOptions(filters))
+    let active = true;
+    const query = buildFiltersQuery(filterState);
+
+    getMarketPropertyFilters(query)
+      .then((filters) => {
+        if (!active) return;
+        setFilterOptions(filters);
+        setFilterState((prev) => pruneStateWithOptions(prev, filters));
+      })
       .catch(console.error);
-  }, []);
+
+    return () => {
+      active = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filterStateKey]);
 
   useEffect(() => {
     setSavedFiltersLoading(true);
@@ -161,18 +333,23 @@ export function PropertyFilters(
       .finally(() => setSavedFiltersLoading(false));
   }, []);
 
+  useEffect(() => {
+    if (scrollAreaRef.current) {
+      scrollAreaRef.current.scrollTop = 0;
+    }
+  }, [activeView]);
+
   const initialStateKey = useMemo(
     () => JSON.stringify(initialState),
     [initialState]
   );
-
-  const filterStateKey = JSON.stringify(filterState);
 
   useEffect(() => {
     if (isCommittingRef.current) return;
     if (initialStateKey !== filterStateKey) {
       setFilterState(initialState);
       setActiveFilterId(null);
+      setActiveView("overview");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialStateKey]);
@@ -183,7 +360,13 @@ export function PropertyFilters(
     bairros_por_cidade: bairrosPorCidade,
     cidades,
     imobiliarias,
+    quartos: availableQuartos,
+    suites: availableSuites,
+    banheiros: availableBanheiros,
+    vagas: availableVagas,
+    comodidades: availableComodidades,
   } = filterOptions;
+  const hasDynamicFacets = availableComodidades !== undefined;
 
   const bairrosDisponiveis = useMemo(() => {
     if (filterState.selectedCidades.length === 0 || Object.keys(bairrosPorCidade).length === 0) {
@@ -262,6 +445,7 @@ export function PropertyFilters(
 
   const applyFilters = useCallback(() => {
     commitFilterState(filterState);
+    setActiveView("overview");
   }, [filterState, commitFilterState]);
 
   const clearFilters = useCallback(() => {
@@ -271,6 +455,7 @@ export function PropertyFilters(
     setSearchCidade("");
     setSearchImobiliaria("");
     setActiveFilterId(null);
+    setActiveView("overview");
     commitFilterState(EMPTY_FILTER_STATE);
   }, [commitFilterState]);
 
@@ -304,6 +489,7 @@ export function PropertyFilters(
         setSearchBairro("");
         setSearchCidade("");
         setSearchImobiliaria("");
+        setActiveView("overview");
       }
     },
     [savedFilters, commitFilterState]
@@ -398,349 +584,473 @@ export function PropertyFilters(
     maxPrice ? 1 : 0,
   ].reduce((a, b) => a + b, 0);
 
+  const roomSummaryParts = [
+    summarizeRoomSelection(selectedQuartos, selectedQuartosPlus, "quarto"),
+    summarizeRoomSelection(selectedVagas, selectedVagasPlus, "vaga"),
+  ].filter((summary): summary is string => summary !== null);
+
+  const roomFilterCount =
+    selectedQuartos.length +
+    (selectedQuartosPlus ? 1 : 0) +
+    selectedVagas.length +
+    (selectedVagasPlus ? 1 : 0);
+
+  const moreFilterCount =
+    selectedSuites.length +
+    (selectedSuitesPlus ? 1 : 0) +
+    selectedBanheiros.length +
+    (selectedBanheirosPlus ? 1 : 0) +
+    selectedComodidades.length +
+    (descricao ? 1 : 0);
+
+  const activeViewTitle =
+    activeView === "overview" ? null : FILTER_VIEW_TITLES[activeView];
+
+
   return (
     <>
-      <Card className="gap-0 overflow-hidden py-0">
-        <SectionHeader
-          title={
-            <span className="flex items-center gap-2">
-              Filtros
-              {activeFilterCount > 0 && (
-                <Badge className="px-2 tabular-nums">{activeFilterCount}</Badge>
+      <Card
+        data-testid="property-filter-panel"
+        className="h-[calc(100vh-6rem)] w-full min-w-0 gap-0 overflow-hidden py-0"
+      >
+        {activeView === "overview" ? (
+          <>
+            <SectionHeader
+              title={
+                <span className="flex items-center gap-2">
+                  Filtros
+                  {activeFilterCount > 0 && (
+                    <Badge className="px-2 tabular-nums">{activeFilterCount}</Badge>
+                  )}
+                </span>
+              }
+              icon={SlidersHorizontal}
+              actions={
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="xs"
+                  onClick={clearFilters}
+                  className="text-primary hover:text-primary"
+                >
+                  Limpar
+                </Button>
+              }
+            />
+
+            {/* Filtros salvos */}
+            <div className="flex items-center gap-2 border-b px-4 py-3 sm:px-5">
+              <Select
+                value={activeFilterId ?? ""}
+                onValueChange={handleSelectFilter}
+              >
+                <SelectTrigger
+                  size="sm"
+                  aria-label="Filtros salvos"
+                  className="min-w-0 flex-1 cursor-pointer"
+                >
+                  <SelectValue placeholder="Filtros salvos..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {savedFiltersLoading ? (
+                    <div className="px-2 py-6 text-center text-xs text-muted-foreground">
+                      Carregando...
+                    </div>
+                  ) : savedFilters.length === 0 ? (
+                    <div className="px-2 py-6 text-center text-xs text-muted-foreground">
+                      Nenhum filtro salvo
+                    </div>
+                  ) : (
+                    savedFilters.map((f) => (
+                      <SelectItem key={f.id} value={f.id} className="cursor-pointer">
+                        {f.name}
+                      </SelectItem>
+                    ))
+                  )}
+                </SelectContent>
+              </Select>
+
+              <Button
+                type="button"
+                variant="outline"
+                size="icon-sm"
+                onClick={() => setSaveDialogOpen(true)}
+                title="Salvar filtro atual"
+                aria-label="Salvar filtro atual"
+              >
+                <Save />
+              </Button>
+
+              {hasActiveFilter && (
+                <>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon-sm"
+                    onClick={handleUpdateFilter}
+                    title="Atualizar filtro salvo"
+                    aria-label="Atualizar filtro salvo"
+                  >
+                    <Pencil />
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon-sm"
+                    onClick={handleDeleteFilter}
+                    title="Excluir filtro salvo"
+                    aria-label="Excluir filtro salvo"
+                    className="text-destructive hover:text-destructive"
+                  >
+                    <Trash2 />
+                  </Button>
+                </>
               )}
-            </span>
-          }
-          icon={SlidersHorizontal}
-          actions={
+            </div>
+          </>
+        ) : (
+          <div className="flex items-center gap-3 border-b px-4 py-3 sm:px-5">
             <Button
               type="button"
               variant="ghost"
-              size="xs"
-              onClick={clearFilters}
-              className="text-primary hover:text-primary"
+              size="icon-sm"
+              onClick={() => setActiveView("overview")}
+              aria-label="Voltar para filtros"
             >
-              Limpar
+              <ArrowLeft />
             </Button>
-          }
-        />
+            <div className="min-w-0">
+              <p className="text-xs text-muted-foreground">Filtros</p>
+              <h3 className="truncate text-base text-foreground">{activeViewTitle}</h3>
+            </div>
+          </div>
+        )}
 
-        {/* Filtros salvos */}
-        <div className="flex items-center gap-2 border-b px-4 py-3 sm:px-5">
-          <Select
-            value={activeFilterId ?? ""}
-            onValueChange={handleSelectFilter}
-          >
-            <SelectTrigger
-              size="sm"
-              aria-label="Filtros salvos"
-              className="min-w-0 flex-1 cursor-pointer"
-            >
-              <SelectValue placeholder="Filtros salvos..." />
-            </SelectTrigger>
-            <SelectContent>
-              {savedFiltersLoading ? (
-                <div className="px-2 py-6 text-center text-xs text-muted-foreground">
-                  Carregando...
+        <div
+          ref={scrollAreaRef}
+          data-testid="filter-scroll-area"
+          className="min-h-0 flex-1 overflow-y-auto"
+        >
+          {activeView === "overview" && (
+            <div className="divide-y">
+              <FilterNavigationRow
+                title="Cidade"
+                summary={summarizeItems(selectedCidades, "Todas as cidades")}
+                selectedCount={selectedCidades.length}
+                onClick={() => setActiveView("cidade")}
+              />
+              <FilterNavigationRow
+                title="Bairro"
+                summary={summarizeItems(selectedBairros, "Todos os bairros")}
+                selectedCount={selectedBairros.length}
+                onClick={() => setActiveView("bairro")}
+              />
+              <FilterNavigationRow
+                title="Tipo do imóvel"
+                summary={summarizeItems(selectedTipos, "Todos os tipos")}
+                selectedCount={selectedTipos.length}
+                onClick={() => setActiveView("tipo")}
+              />
+
+              <FilterGroup title="Preço">
+                <div className="grid grid-cols-2 gap-3">
+                  <FormField htmlFor="minPrice" label="Valor Mínimo">
+                    <Input
+                      id="minPrice"
+                      type="text"
+                      inputMode="numeric"
+                      size="sm"
+                      placeholder="R$ 0"
+                      value={formatToBRL(minPrice)}
+                      onChange={(e) => handlePriceChange(e.target.value, "minPrice")}
+                      className="tabular-nums"
+                    />
+                  </FormField>
+                  <FormField htmlFor="maxPrice" label="Valor Máximo">
+                    <Input
+                      id="maxPrice"
+                      type="text"
+                      inputMode="numeric"
+                      size="sm"
+                      placeholder="R$ 999.999"
+                      value={formatToBRL(maxPrice)}
+                      onChange={(e) => handlePriceChange(e.target.value, "maxPrice")}
+                      className="tabular-nums"
+                    />
+                  </FormField>
                 </div>
-              ) : savedFilters.length === 0 ? (
-                <div className="px-2 py-6 text-center text-xs text-muted-foreground">
-                  Nenhum filtro salvo
-                </div>
-              ) : (
-                savedFilters.map((f) => (
-                  <SelectItem key={f.id} value={f.id} className="cursor-pointer">
-                    {f.name}
-                  </SelectItem>
-                ))
-              )}
-            </SelectContent>
-          </Select>
+              </FilterGroup>
 
-          <Button
-            type="button"
-            variant="outline"
-            size="icon-sm"
-            onClick={() => setSaveDialogOpen(true)}
-            title="Salvar filtro atual"
-            aria-label="Salvar filtro atual"
-          >
-            <Save />
-          </Button>
-
-          {hasActiveFilter && (
-            <>
-              <Button
-                type="button"
-                variant="outline"
-                size="icon-sm"
-                onClick={handleUpdateFilter}
-                title="Atualizar filtro salvo"
-                aria-label="Atualizar filtro salvo"
-              >
-                <Pencil />
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="icon-sm"
-                onClick={handleDeleteFilter}
-                title="Excluir filtro salvo"
-                aria-label="Excluir filtro salvo"
-                className="text-destructive hover:text-destructive"
-              >
-                <Trash2 />
-              </Button>
-            </>
+              <FilterNavigationRow
+                title="Imobiliária"
+                summary={summarizeItems(selectedImobiliarias, "Todas as imobiliárias")}
+                selectedCount={selectedImobiliarias.length}
+                onClick={() => setActiveView("imobiliaria")}
+              />
+              <FilterNavigationRow
+                title="Quartos e vagas"
+                summary={
+                  roomSummaryParts.length > 0
+                    ? roomSummaryParts.join(" · ")
+                    : "Qualquer quantidade"
+                }
+                selectedCount={roomFilterCount}
+                onClick={() => setActiveView("rooms")}
+              />
+              <FilterNavigationRow
+                title="Mais filtros"
+                summary={
+                  moreFilterCount > 0
+                    ? `${moreFilterCount} ${
+                        moreFilterCount === 1
+                          ? "refinamento selecionado"
+                          : "refinamentos selecionados"
+                      }`
+                    : "Suítes, banheiros, características e descrição"
+                }
+                selectedCount={moreFilterCount}
+                onClick={() => setActiveView("more")}
+              />
+            </div>
           )}
-        </div>
 
-        <div className="divide-y lg:max-h-[calc(100vh-26rem)] lg:overflow-y-auto">
-          {/* Preço */}
-          <FilterGroup title="Preço">
-            <div className="grid grid-cols-2 gap-3">
-              <FormField htmlFor="minPrice" label="Valor Mínimo">
-                <Input
-                  id="minPrice"
-                  type="text"
-                  inputMode="numeric"
-                  size="sm"
-                  placeholder="R$ 0"
-                  value={formatToBRL(minPrice)}
-                  onChange={(e) => handlePriceChange(e.target.value, "minPrice")}
-                  className="tabular-nums"
-                />
-              </FormField>
-              <FormField htmlFor="maxPrice" label="Valor Máximo">
-                <Input
-                  id="maxPrice"
-                  type="text"
-                  inputMode="numeric"
-                  size="sm"
-                  placeholder="R$ 999.999"
-                  value={formatToBRL(maxPrice)}
-                  onChange={(e) => handlePriceChange(e.target.value, "maxPrice")}
-                  className="tabular-nums"
-                />
-              </FormField>
-            </div>
-          </FilterGroup>
-
-          {/* Descrição */}
-          <FilterGroup title="Descrição" htmlFor="descricao">
-            <Input
-              id="descricao"
-              size="sm"
-              placeholder="Buscar na descrição do imóvel..."
-              value={descricao}
-              onChange={(e) => setFilterState((prev) => ({ ...prev, descricao: e.target.value }))}
+          {activeView === "cidade" && (
+            <FilterSection
+              searchPlaceholder="Pesquisar cidade..."
+              searchValue={searchCidade}
+              onSearchChange={setSearchCidade}
+              items={filteredCidades}
+              selectedItems={selectedCidades}
+              idPrefix="cidade"
+              onToggle={(value, checked) => {
+                updateSelectedCidades((current) =>
+                  checked
+                    ? [...new Set([...current, value])]
+                    : current.filter((cidade) => cidade !== value)
+                );
+              }}
+              onSelectAll={(items, select) => {
+                updateSelectedCidades((current) =>
+                  select
+                    ? [...new Set([...current, ...items])]
+                    : current.filter((cidade) => !items.includes(cidade))
+                );
+              }}
+              emptyMessage="Nenhuma cidade encontrada"
             />
-          </FilterGroup>
+          )}
 
-          {/* Tipo de Imóvel */}
-          <FilterSection
-            title="Tipo de Imóvel"
-            searchPlaceholder="Pesquisar tipo..."
-            searchValue={searchTipo}
-            onSearchChange={setSearchTipo}
-            items={filteredTipos}
-            selectedItems={selectedTipos}
-            idPrefix="tipo"
-            onToggle={(val, checked) =>
-              handleToggle("selectedTipos", val, checked)
-            }
-            onSelectAll={(items, select) => {
-              setFilterState((prev) => ({
-                ...prev,
-                selectedTipos: select
-                  ? [...new Set([...prev.selectedTipos, ...items])]
-                  : prev.selectedTipos.filter((t) => !items.includes(t)),
-              }));
-            }}
-            emptyMessage="Nenhum tipo encontrado"
-          />
+          {activeView === "bairro" && (
+            <FilterSection
+              searchPlaceholder="Pesquisar bairro..."
+              searchValue={searchBairro}
+              onSearchChange={setSearchBairro}
+              items={filteredBairros}
+              selectedItems={selectedBairros}
+              idPrefix="bairro"
+              onToggle={(value, checked) =>
+                handleToggle("selectedBairros", value, checked)
+              }
+              onSelectAll={(items, select) => {
+                setFilterState((previous) => ({
+                  ...previous,
+                  selectedBairros: select
+                    ? [...new Set([...previous.selectedBairros, ...items])]
+                    : previous.selectedBairros.filter((bairro) => !items.includes(bairro)),
+                }));
+              }}
+              emptyMessage="Nenhum bairro encontrado"
+            />
+          )}
 
-          {/* Cidade */}
-          <FilterSection
-            title="Cidade"
-            searchPlaceholder="Pesquisar cidade..."
-            searchValue={searchCidade}
-            onSearchChange={setSearchCidade}
-            items={filteredCidades}
-            selectedItems={selectedCidades}
-            idPrefix="cidade"
-            onToggle={(val, checked) => {
-              updateSelectedCidades((current) => checked
-                ? [...new Set([...current, val])]
-                : current.filter((cidade) => cidade !== val));
-            }}
-            onSelectAll={(items, select) => {
-              updateSelectedCidades((current) => select
-                ? [...new Set([...current, ...items])]
-                : current.filter((cidade) => !items.includes(cidade)));
-            }}
-            emptyMessage="Nenhuma cidade encontrada"
-          />
+          {activeView === "tipo" && (
+            <FilterSection
+              searchPlaceholder="Pesquisar tipo..."
+              searchValue={searchTipo}
+              onSearchChange={setSearchTipo}
+              items={filteredTipos}
+              selectedItems={selectedTipos}
+              idPrefix="tipo"
+              onToggle={(value, checked) =>
+                handleToggle("selectedTipos", value, checked)
+              }
+              onSelectAll={(items, select) => {
+                setFilterState((previous) => ({
+                  ...previous,
+                  selectedTipos: select
+                    ? [...new Set([...previous.selectedTipos, ...items])]
+                    : previous.selectedTipos.filter((tipo) => !items.includes(tipo)),
+                }));
+              }}
+              emptyMessage="Nenhum tipo encontrado"
+            />
+          )}
 
-          {/* Bairro */}
-          <FilterSection
-            title="Bairro"
-            searchPlaceholder="Pesquisar bairro..."
-            searchValue={searchBairro}
-            onSearchChange={setSearchBairro}
-            items={filteredBairros}
-            selectedItems={selectedBairros}
-            idPrefix="bairro"
-            onToggle={(val, checked) =>
-              handleToggle("selectedBairros", val, checked)
-            }
-            onSelectAll={(items, select) => {
-              setFilterState((prev) => ({
-                ...prev,
-                selectedBairros: select
-                  ? [...new Set([...prev.selectedBairros, ...items])]
-                  : prev.selectedBairros.filter((b) => !items.includes(b)),
-              }));
-            }}
-            emptyMessage="Nenhum bairro encontrado"
-          />
+          {activeView === "imobiliaria" && (
+            <FilterSection
+              searchPlaceholder="Pesquisar imobiliária..."
+              searchValue={searchImobiliaria}
+              onSearchChange={setSearchImobiliaria}
+              items={filteredImobiliarias}
+              selectedItems={selectedImobiliarias}
+              idPrefix="imobiliaria"
+              onToggle={(value, checked) =>
+                handleToggle("selectedImobiliarias", value, checked)
+              }
+              onSelectAll={(items, select) => {
+                setFilterState((previous) => ({
+                  ...previous,
+                  selectedImobiliarias: select
+                    ? [...new Set([...previous.selectedImobiliarias, ...items])]
+                    : previous.selectedImobiliarias.filter(
+                        (imobiliaria) => !items.includes(imobiliaria)
+                      ),
+                }));
+              }}
+              emptyMessage="Nenhuma imobiliária encontrada"
+            />
+          )}
 
-          {/* Imobiliária */}
-          <FilterSection
-            title="Imobiliária"
-            searchPlaceholder="Pesquisar imobiliária..."
-            searchValue={searchImobiliaria}
-            onSearchChange={setSearchImobiliaria}
-            items={filteredImobiliarias}
-            selectedItems={selectedImobiliarias}
-            idPrefix="imobiliaria"
-            onToggle={(val, checked) =>
-              handleToggle("selectedImobiliarias", val, checked)
-            }
-            onSelectAll={(items, select) => {
-              setFilterState((prev) => ({
-                ...prev,
-                selectedImobiliarias: select
-                  ? [...new Set([...prev.selectedImobiliarias, ...items])]
-                  : prev.selectedImobiliarias.filter((i) => !items.includes(i)),
-              }));
-            }}
-            emptyMessage="Nenhuma imobiliária encontrada"
-          />
+          {activeView === "rooms" && (
+            <FilterGroup title="Cômodos">
+              <div className="space-y-4">
+                <FixedRoomFilterSection
+                  title="Quartos"
+                  selectedItems={selectedQuartos}
+                  selectedPlus={selectedQuartosPlus}
+                  availableCounts={hasDynamicFacets || availableQuartos.length > 0 ? availableQuartos : undefined}
+                  idPrefix="quartos"
+                  labelSuffix="quarto"
+                  onToggle={(value) =>
+                    handleToggle("selectedQuartos", value, !selectedQuartos.includes(value))
+                  }
+                  onPlusToggle={() => handleBoolToggle("selectedQuartosPlus")}
+                />
+                <FixedRoomFilterSection
+                  title="Vagas"
+                  selectedItems={selectedVagas}
+                  selectedPlus={selectedVagasPlus}
+                  availableCounts={hasDynamicFacets || availableVagas.length > 0 ? availableVagas : undefined}
+                  idPrefix="vagas"
+                  labelSuffix="vaga"
+                  onToggle={(value) =>
+                    handleToggle("selectedVagas", value, !selectedVagas.includes(value))
+                  }
+                  onPlusToggle={() => handleBoolToggle("selectedVagasPlus")}
+                />
+              </div>
+            </FilterGroup>
+          )}
 
-          {/* Cômodos */}
-          <FilterGroup title="Cômodos">
-            <div className="space-y-4">
-              <FixedRoomFilterSection
-                title="Quartos"
-                selectedItems={selectedQuartos}
-                selectedPlus={selectedQuartosPlus}
-                idPrefix="quartos"
-                labelSuffix="quarto"
-                onToggle={(val) =>
-                  handleToggle("selectedQuartos", val, !selectedQuartos.includes(val))
-                }
-                onPlusToggle={() => handleBoolToggle("selectedQuartosPlus")}
-              />
+          {activeView === "more" && (
+            <div className="divide-y">
+              <FilterGroup title="Cômodos">
+                <div className="space-y-4">
+                  <FixedRoomFilterSection
+                    title="Suítes"
+                    selectedItems={selectedSuites}
+                    selectedPlus={selectedSuitesPlus}
+                    availableCounts={hasDynamicFacets || availableSuites.length > 0 ? availableSuites : undefined}
+                    idPrefix="suites"
+                    labelSuffix="suíte"
+                    onToggle={(value) =>
+                      handleToggle("selectedSuites", value, !selectedSuites.includes(value))
+                    }
+                    onPlusToggle={() => handleBoolToggle("selectedSuitesPlus")}
+                  />
+                  <FixedRoomFilterSection
+                    title="Banheiros"
+                    selectedItems={selectedBanheiros}
+                    selectedPlus={selectedBanheirosPlus}
+                    availableCounts={hasDynamicFacets || availableBanheiros.length > 0 ? availableBanheiros : undefined}
+                    idPrefix="banheiros"
+                    labelSuffix="banheiro"
+                    onToggle={(value) =>
+                      handleToggle("selectedBanheiros", value, !selectedBanheiros.includes(value))
+                    }
+                    onPlusToggle={() => handleBoolToggle("selectedBanheirosPlus")}
+                  />
+                </div>
+              </FilterGroup>
 
-              <FixedRoomFilterSection
-                title="Suítes"
-                selectedItems={selectedSuites}
-                selectedPlus={selectedSuitesPlus}
-                idPrefix="suites"
-                labelSuffix="suíte"
-                onToggle={(val) =>
-                  handleToggle("selectedSuites", val, !selectedSuites.includes(val))
-                }
-                onPlusToggle={() => handleBoolToggle("selectedSuitesPlus")}
-              />
+              <FilterGroup title="Características">
+                <Accordion type="multiple" className="rounded-lg border px-3">
+                  {COMODIDADE_GROUPS.map((group) => {
+                    const visibleKeys =
+                      availableComodidades !== undefined
+                        ? group.keys.filter((key) => availableComodidades.includes(key))
+                        : group.keys;
 
-              <FixedRoomFilterSection
-                title="Banheiros"
-                selectedItems={selectedBanheiros}
-                selectedPlus={selectedBanheirosPlus}
-                idPrefix="banheiros"
-                labelSuffix="banheiro"
-                onToggle={(val) =>
-                  handleToggle("selectedBanheiros", val, !selectedBanheiros.includes(val))
-                }
-                onPlusToggle={() => handleBoolToggle("selectedBanheirosPlus")}
-              />
+                    if (visibleKeys.length === 0) {
+                      return null;
+                    }
 
-              <FixedRoomFilterSection
-                title="Vagas"
-                selectedItems={selectedVagas}
-                selectedPlus={selectedVagasPlus}
-                idPrefix="vagas"
-                labelSuffix="vaga"
-                onToggle={(val) =>
-                  handleToggle("selectedVagas", val, !selectedVagas.includes(val))
-                }
-                onPlusToggle={() => handleBoolToggle("selectedVagasPlus")}
-              />
-            </div>
-          </FilterGroup>
+                    const groupAllSelected = visibleKeys.every((key) =>
+                      selectedComodidades.includes(key)
+                    );
+                    const groupSelectedCount = visibleKeys.filter((key) =>
+                      selectedComodidades.includes(key)
+                    ).length;
 
-          {COMODIDADE_GROUPS.some((g) => g.keys.length > 0) && (
-            <FilterGroup title="Características">
-              <Accordion type="multiple" className="rounded-lg border px-3">
-                {COMODIDADE_GROUPS.map((group) => {
-                  const groupAllSelected = group.keys.every((key) =>
-                    selectedComodidades.includes(key)
-                  );
-                  const groupSelectedCount = group.keys.filter((key) =>
-                    selectedComodidades.includes(key)
-                  ).length;
-                  return (
-                    <AccordionItem key={group.title} value={group.title}>
-                      <AccordionTrigger className="cursor-pointer py-2.5 text-sm hover:no-underline">
-                        <span className="flex items-center gap-2">
-                          {group.title}
-                          {groupSelectedCount > 0 && (
-                            <SelectedCount count={groupSelectedCount} />
-                          )}
-                        </span>
-                      </AccordionTrigger>
-                      <AccordionContent className="pb-3">
-                        <button
-                          type="button"
-                          className="mb-1 cursor-pointer text-xs text-primary hover:underline"
-                          onClick={() => {
-                            if (groupAllSelected) {
-                              group.keys.forEach((key) => {
-                                if (selectedComodidades.includes(key)) {
+                    return (
+                      <AccordionItem key={group.title} value={group.title}>
+                        <AccordionTrigger className="cursor-pointer py-2.5 text-sm hover:no-underline">
+                          <span className="flex items-center gap-2">
+                            {group.title}
+                            {groupSelectedCount > 0 && (
+                              <SelectedCount count={groupSelectedCount} />
+                            )}
+                          </span>
+                        </AccordionTrigger>
+                        <AccordionContent className="pb-3">
+                          <button
+                            type="button"
+                            className="mb-1 cursor-pointer text-xs text-primary hover:underline"
+                            onClick={() => {
+                              visibleKeys.forEach((key) => {
+                                const isSelected = selectedComodidades.includes(key);
+                                if (groupAllSelected && isSelected) {
                                   handleToggle("selectedComodidades", key, false);
-                                }
-                              });
-                            } else {
-                              group.keys.forEach((key) => {
-                                if (!selectedComodidades.includes(key)) {
+                                } else if (!groupAllSelected && !isSelected) {
                                   handleToggle("selectedComodidades", key, true);
                                 }
                               });
-                            }
-                          }}
-                        >
-                          {groupAllSelected ? "Desmarcar tudo" : "Selecionar tudo"}
-                        </button>
-                        <div className="-mx-2">
-                          {group.keys.map((key) => (
-                            <CheckboxRow
-                              key={key}
-                              id={`comodidade-${key}`}
-                              label={COMODIDADE_LABELS[key]}
-                              checked={selectedComodidades.includes(key)}
-                              onCheckedChange={(checked) =>
-                                handleToggle("selectedComodidades", key, checked)
-                              }
-                            />
-                          ))}
-                        </div>
-                      </AccordionContent>
-                    </AccordionItem>
-                  );
-                })}
-              </Accordion>
-            </FilterGroup>
+                            }}
+                          >
+                            {groupAllSelected ? "Desmarcar tudo" : "Selecionar tudo"}
+                          </button>
+                          <div className="-mx-2">
+                            {visibleKeys.map((key) => (
+                              <CheckboxRow
+                                key={key}
+                                id={`comodidade-${key}`}
+                                label={COMODIDADE_LABELS[key]}
+                                checked={selectedComodidades.includes(key)}
+                                onCheckedChange={(checked) =>
+                                  handleToggle("selectedComodidades", key, checked)
+                                }
+                              />
+                            ))}
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    );
+                  })}
+                </Accordion>
+              </FilterGroup>
+
+              <FilterGroup title="Descrição" htmlFor="filter-description">
+                <Input
+                  id="filter-description"
+                  size="sm"
+                  placeholder="Buscar na descrição do imóvel..."
+                  value={descricao}
+                  onChange={(e) =>
+                    setFilterState((previous) => ({ ...previous, descricao: e.target.value }))
+                  }
+                />
+              </FilterGroup>
+            </div>
           )}
         </div>
 
@@ -888,12 +1198,46 @@ function CheckboxRow({
   );
 }
 
+function FilterNavigationRow({
+  title,
+  summary,
+  selectedCount,
+  onClick,
+}: {
+  title: string;
+  summary: string;
+  selectedCount: number;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={`${title}: ${summary}`}
+      className="flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring/40 sm:px-5"
+    >
+      <span className="min-w-0 flex-1">
+        <span className="flex items-center gap-2 text-sm text-foreground">
+          {title}
+          {selectedCount > 0 && <SelectedCount count={selectedCount} />}
+        </span>
+        <span className="mt-0.5 block truncate text-xs text-muted-foreground">
+          {summary}
+        </span>
+      </span>
+      <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
+    </button>
+  );
+}
+
 // --- Fixed room filter section (1-4 + 4+) ---
 
 interface FixedRoomFilterSectionProps {
   title: string;
   selectedItems: number[];
   selectedPlus: boolean;
+  /** Counts that still have properties; undefined shows every option. */
+  availableCounts?: number[];
   idPrefix: string;
   labelSuffix: string;
   onToggle: (value: number) => void;
@@ -904,28 +1248,39 @@ function FixedRoomFilterSection({
   title,
   selectedItems,
   selectedPlus,
+  availableCounts,
   idPrefix,
   labelSuffix,
   onToggle,
   onPlusToggle,
 }: FixedRoomFilterSectionProps) {
-  const allSelected = FIXED_ROOM_OPTIONS.every((num) => selectedItems.includes(num));
+  const visibleRoomOptions =
+    availableCounts !== undefined
+      ? FIXED_ROOM_OPTIONS.filter((num) => availableCounts.includes(num))
+      : FIXED_ROOM_OPTIONS;
+  const showPlusOption =
+    availableCounts !== undefined ? availableCounts.some((num) => num >= 4) : true;
+  const allSelected =
+    visibleRoomOptions.length > 0 &&
+    visibleRoomOptions.every((num) => selectedItems.includes(num));
 
   const options = [
-    ...FIXED_ROOM_OPTIONS.map((num) => ({
+    ...visibleRoomOptions.map((num) => ({
       id: `${idPrefix}-${num}`,
       short: String(num),
       label: num === 1 ? `1 ${labelSuffix}` : `${num} ${labelSuffix}s`,
       checked: selectedItems.includes(num),
       onToggle: () => onToggle(num),
     })),
-    {
-      id: `${idPrefix}-plus`,
-      short: "4+",
-      label: `4+ ${labelSuffix}s`,
-      checked: selectedPlus,
-      onToggle: onPlusToggle,
-    },
+    ...(showPlusOption
+      ? [{
+          id: `${idPrefix}-plus`,
+          short: "4+",
+          label: `4+ ${labelSuffix}s`,
+          checked: selectedPlus,
+          onToggle: onPlusToggle,
+        }]
+      : []),
   ];
 
   return (
@@ -934,20 +1289,17 @@ function FixedRoomFilterSection({
         <span id={`${idPrefix}-title`} className="text-sm text-foreground">
           {title}
         </span>
-        <SelectAllButton
-          allSelected={allSelected}
-          onClick={() => {
-            if (allSelected) {
-              FIXED_ROOM_OPTIONS.forEach((num) => {
-                if (selectedItems.includes(num)) onToggle(num);
+        {visibleRoomOptions.length > 0 && (
+          <SelectAllButton
+            allSelected={allSelected}
+            onClick={() => {
+              visibleRoomOptions.forEach((num) => {
+                const isSelected = selectedItems.includes(num);
+                if (allSelected === isSelected) onToggle(num);
               });
-            } else {
-              FIXED_ROOM_OPTIONS.forEach((num) => {
-                if (!selectedItems.includes(num)) onToggle(num);
-              });
-            }
-          }}
-        />
+            }}
+          />
+        )}
       </div>
       <div className="grid grid-cols-5 gap-1.5">
         {options.map((option) => (
@@ -972,6 +1324,11 @@ function FixedRoomFilterSection({
           </label>
         ))}
       </div>
+      {options.length === 0 && (
+        <p className="py-2 text-center text-xs text-muted-foreground">
+          Nenhuma opção disponível
+        </p>
+      )}
     </div>
   );
 }
@@ -979,7 +1336,6 @@ function FixedRoomFilterSection({
 // --- Reusable filter section for string-based filters ---
 
 interface FilterSectionProps {
-  title: string;
   searchPlaceholder: string;
   searchValue: string;
   onSearchChange: (value: string) => void;
@@ -992,7 +1348,6 @@ interface FilterSectionProps {
 }
 
 function FilterSection({
-  title,
   searchPlaceholder,
   searchValue,
   onSearchChange,
@@ -1006,24 +1361,20 @@ function FilterSection({
   const allSelected = items.length > 0 && items.every((item) => selectedItems.includes(item));
 
   return (
-    <FilterGroup
-      title={
-        <>
-          {title}
-          {selectedItems.length > 0 && (
-            <SelectedCount count={selectedItems.length} />
-          )}
-        </>
-      }
-      actions={
-        onSelectAll && items.length > 0 && (
+    <div className="space-y-3 px-4 py-4 sm:px-5">
+      <div className="flex min-h-5 items-center justify-between gap-2">
+        <span className="text-xs tracking-wide text-muted-foreground uppercase">
+          {selectedItems.length > 0
+            ? `${selectedItems.length} ${selectedItems.length === 1 ? "selecionado" : "selecionados"}`
+            : "Nenhum selecionado"}
+        </span>
+        {onSelectAll && items.length > 0 && (
           <SelectAllButton
             allSelected={allSelected}
             onClick={() => onSelectAll(items, !allSelected)}
           />
-        )
-      }
-    >
+        )}
+      </div>
       <div className="relative">
         <Search className="pointer-events-none absolute top-1/2 left-3 size-3.5 -translate-y-1/2 text-muted-foreground" />
         <Input
@@ -1036,7 +1387,7 @@ function FilterSection({
           className="pl-8"
         />
       </div>
-      <div className="-mx-2 max-h-48 overflow-y-auto">
+      <div className="-mx-2">
         {items.map((item) => (
           <CheckboxRow
             key={item}
@@ -1052,6 +1403,6 @@ function FilterSection({
           </p>
         )}
       </div>
-    </FilterGroup>
+    </div>
   );
 }

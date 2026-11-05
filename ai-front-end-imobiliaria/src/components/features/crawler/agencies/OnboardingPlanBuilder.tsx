@@ -52,6 +52,7 @@ interface OnboardingPlanBuilderProps {
   discoveryPolicies: DiscoveryPolicyVersion[];
   discoveryStrategies: DiscoveryStrategy[];
   extractionPolicies: ExtractionPolicyVersion[];
+  inModal?: boolean;
   models: OnboardingExecutionModelVersion[];
   onConfirmed: (execution: OnboardingExecution) => void;
   plan: OnboardingPlan;
@@ -202,6 +203,7 @@ export function OnboardingPlanBuilder({
   discoveryPolicies: initialDiscoveryPolicies,
   discoveryStrategies,
   extractionPolicies: initialExtractionPolicies,
+  inModal = false,
   models,
   onConfirmed,
   plan,
@@ -222,7 +224,9 @@ export function OnboardingPlanBuilder({
   const [conduction, setConduction] = useState<OnboardingConduction>(initialConduction);
   const [modelId, setModelId] = useState(initialModel?.id ?? 0);
   const [name, setName] = useState(
-    plan.name ?? suggestedName(agency, initialConduction, initialModel, plan.created_at),
+    plan.status === "draft" && plan.name
+      ? plan.name
+      : suggestedName(agency, initialConduction, initialModel, plan.created_at),
   );
   const [firstProductionMode, setFirstProductionMode] = useState<FirstProductionDiscoveryMode>(
     plan.first_production_discovery_mode ?? "fresh",
@@ -303,6 +307,7 @@ export function OnboardingPlanBuilder({
         conduction,
         execution_model_version_id: modelId,
         first_production_discovery_mode: firstProductionMode,
+        ...(inModal ? { replace_current: true } : {}),
       };
     }
 
@@ -338,6 +343,7 @@ export function OnboardingPlanBuilder({
       conduction,
       manual_configuration: manual,
       first_production_discovery_mode: firstProductionMode,
+      ...(inModal ? { replace_current: true } : {}),
     };
   };
 
@@ -417,15 +423,8 @@ export function OnboardingPlanBuilder({
       ? selectedExtractionPolicy?.name ?? "Não selecionada"
       : "Sem modelo · configuração pontual";
 
-  return (
-    <Card>
-      <CardHeader className="border-b">
-        <CardTitle>Plano de Onboarding</CardTitle>
-        <CardDescription>
-          Monte, nomeie e revise a combinação. Nenhuma Operação do Crawler começa antes da confirmação.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-6">
+  const content = (
+    <div className="space-y-6">
         {!canExecute && (
           <div className="flex items-start gap-3 rounded-lg border border-info/30 bg-info/10 px-4 py-3 text-sm">
             <Eye className="mt-0.5 size-4 shrink-0 text-info" />
@@ -780,6 +779,23 @@ export function OnboardingPlanBuilder({
             </Button>
           </div>
         )}
+    </div>
+  );
+
+  if (inModal) {
+    return content;
+  }
+
+  return (
+    <Card>
+      <CardHeader className="border-b">
+        <CardTitle>Plano de Onboarding</CardTitle>
+        <CardDescription>
+          Monte, nomeie e revise a combinação. Nenhuma Operação do Crawler começa antes da confirmação.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {content}
       </CardContent>
     </Card>
   );

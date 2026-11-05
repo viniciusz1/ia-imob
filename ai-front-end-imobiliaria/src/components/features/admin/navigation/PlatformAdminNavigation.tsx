@@ -1,11 +1,12 @@
 "use client";
 
 import {
-    Activity,
     Building2,
     ChevronLeft,
     Landmark,
+    Layers,
     LayoutDashboard,
+    ListOrdered,
     Radar,
     Search,
     Settings,
@@ -100,22 +101,25 @@ const navigationGroups: PlatformNavGroup[] = [
                         isActive: (pathname) => pathname.startsWith(`${crawlerRoot}/prospects`),
                     },
                     {
-                        label: "Crawl Agencies",
+                        label: "Fila",
+                        href: `${crawlerRoot}/queue`,
+                        icon: ListOrdered,
+                        isActive: (pathname) => pathname.startsWith(`${crawlerRoot}/queue`),
+                    },
+                    {
+                        label: "Execuções em lote",
+                        href: `${crawlerRoot}/batches`,
+                        icon: Layers,
+                        isActive: (pathname) => pathname.startsWith(`${crawlerRoot}/batches`),
+                    },
+                    {
+                        label: "Agências",
                         href: `${crawlerRoot}/agencies`,
                         icon: Building2,
-                        // Runs belong to an agency's workflow.
+                        // Runs and discovery snapshots belong to an agency's workflow.
                         isActive: (pathname) => startsWithAny(pathname, [
                             `${crawlerRoot}/agencies`,
                             `${crawlerRoot}/runs`,
-                        ]),
-                    },
-                    {
-                        label: "Operações",
-                        href: `${crawlerRoot}/operations`,
-                        icon: Activity,
-                        // A discovery snapshot is inspected from the operations queue.
-                        isActive: (pathname) => startsWithAny(pathname, [
-                            `${crawlerRoot}/operations`,
                             `${crawlerRoot}/discoveries`,
                         ]),
                     },

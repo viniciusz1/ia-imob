@@ -1,4 +1,5 @@
 import { render, waitFor } from "@testing-library/react";
+import { AxiosHeaders } from "axios";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { RestoreAuthSession } from "../RestoreAuthSession";
@@ -29,7 +30,13 @@ describe("RestoreAuthSession", () => {
     });
 
     it("reloads the user and its permissions when the store is empty", async () => {
-        vi.mocked(authService.getUser).mockResolvedValue({ data: { data: user } });
+        vi.mocked(authService.getUser).mockResolvedValue({
+            data: { data: user },
+            status: 200,
+            statusText: "OK",
+            headers: new AxiosHeaders(),
+            config: { headers: new AxiosHeaders() },
+        });
 
         render(<RestoreAuthSession />);
 

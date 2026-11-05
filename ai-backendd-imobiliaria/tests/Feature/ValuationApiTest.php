@@ -2,9 +2,9 @@
 
 namespace Tests\Feature;
 
+use App\Models\Agency;
 use App\Models\MarketProperty;
 use App\Models\PropertyValuation;
-use App\Models\Agency;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
