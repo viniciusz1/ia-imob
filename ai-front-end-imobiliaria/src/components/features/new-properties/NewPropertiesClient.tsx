@@ -86,11 +86,11 @@ function AgencyGroup({ group }: { group: NewPropertyAgencyGroup }) {
             </div>
           </div>
           <div className="flex flex-wrap gap-2 md:justify-end">
-            <Badge className="border border-sky-200 bg-sky-50 px-3 py-1 text-sky-800 hover:bg-sky-50 dark:border-sky-900 dark:bg-sky-950/40 dark:text-sky-100">
+            <Badge className="border border-info/30 bg-info/10 px-3 py-1 text-info hover:bg-info/10">
               <Sparkles className="mr-1 size-3.5" aria-hidden="true" />
               {group.counts.new} {group.counts.new === 1 ? "novidade" : "novidades"}
             </Badge>
-            <Badge className="border border-emerald-200 bg-emerald-50 px-3 py-1 text-emerald-800 hover:bg-emerald-50 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-100">
+            <Badge className="border border-success/30 bg-success/10 px-3 py-1 text-success hover:bg-success/10">
               <TrendingDown className="mr-1 size-3.5" aria-hidden="true" />
               {group.counts.opportunities} {group.counts.opportunities === 1 ? "oportunidade" : "oportunidades"}
             </Badge>
@@ -223,14 +223,14 @@ export function NewPropertiesClient() {
           {query.data && (
             <div className="grid grid-cols-2 gap-3 sm:min-w-[330px]">
               <div className="rounded-xl border bg-card/80 p-4 shadow-sm">
-                <div className="flex items-center gap-2 text-sky-700 dark:text-sky-300">
+                <div className="flex items-center gap-2 text-info">
                   <Sparkles className="size-4" aria-hidden="true" />
                   <span className="text-sm font-medium">Novidades</span>
                 </div>
                 <p className="mt-2 text-2xl font-bold">{query.data.meta.total_new}</p>
               </div>
               <div className="rounded-xl border bg-card/80 p-4 shadow-sm">
-                <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-300">
+                <div className="flex items-center gap-2 text-success">
                   <TrendingDown className="size-4" aria-hidden="true" />
                   <span className="text-sm font-medium">Oportunidades</span>
                 </div>

@@ -290,7 +290,7 @@ export function CrawlExecutionModal({
                       </p>
                     ))}
                     {report.warnings.map((warning) => (
-                      <p className="text-sm text-amber-700" key={warning}>
+                      <p className="text-sm text-warning" key={warning}>
                         {warning}
                       </p>
                     ))}

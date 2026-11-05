@@ -83,13 +83,13 @@ export function NewPropertyCard({ property }: NewPropertyCardProps) {
 
         <div className="absolute left-3 top-3 flex flex-wrap gap-2">
           {property.is_new && (
-            <Badge className="gap-1 bg-sky-600 text-white hover:bg-sky-600">
+            <Badge className="gap-1 bg-info text-info-foreground hover:bg-info">
               <Sparkles className="size-3" aria-hidden="true" />
               Novo
             </Badge>
           )}
           {property.is_opportunity && (
-            <Badge className="gap-1 bg-emerald-600 text-white hover:bg-emerald-600">
+            <Badge className="gap-1 bg-success text-success-foreground hover:bg-success">
               <TrendingDown className="size-3" aria-hidden="true" />
               Oportunidade
             </Badge>
@@ -159,21 +159,21 @@ export function NewPropertyCard({ property }: NewPropertyCardProps) {
         </div>
 
         {property.is_opportunity && (
-          <div className="rounded-xl border border-emerald-200 bg-emerald-50/80 p-3.5 text-emerald-950 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-50">
+          <div className="rounded-xl border border-success/30 bg-success/10 p-3.5 text-foreground">
             <div className="flex gap-3">
-              <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/60 dark:text-emerald-200">
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-success/15 text-success">
                 <TrendingDown className="size-4" aria-hidden="true" />
               </span>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-sm font-semibold">Boa oportunidade</span>
                   {property.opportunity_score !== null && (
-                    <Badge variant="outline" className="shrink-0 border-emerald-400 bg-transparent text-current">
+                    <Badge variant="outline" className="shrink-0 border-success/50 bg-transparent text-success">
                       Score {property.opportunity_score}/100
                     </Badge>
                   )}
                 </div>
-                {summary && <p className="mt-1 text-xs leading-5 text-emerald-900/80 dark:text-emerald-100/80">{summary}</p>}
+                {summary && <p className="mt-1 text-xs leading-5 text-muted-foreground">{summary}</p>}
               </div>
             </div>
           </div>
