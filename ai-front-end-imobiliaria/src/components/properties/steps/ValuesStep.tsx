@@ -25,7 +25,7 @@ export function ValuesStep() {
     return (
         <div className="space-y-6">
             <Card>
-                <CardHeader className="border-b">
+                <CardHeader>
                     <CardTitle>Valores</CardTitle>
                     <CardDescription>Preços de venda e locação e custos mensais, em reais.</CardDescription>
                 </CardHeader>
@@ -66,7 +66,7 @@ export function ValuesStep() {
             </Card>
 
             <Card>
-                <CardHeader className="border-b">
+                <CardHeader>
                     <CardTitle>Condições</CardTitle>
                     <CardDescription>Negociação e exibição do preço no site.</CardDescription>
                 </CardHeader>

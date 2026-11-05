@@ -79,7 +79,7 @@ export function MarketDataContractsClient({ initialContracts }: MarketDataContra
         <p className="text-sm text-muted-foreground">Versões ativas são imutáveis e permanecem consultáveis.</p>
       </div>
       <Card>
-        <CardHeader className="border-b">
+        <CardHeader>
           <CardTitle>Novo rascunho</CardTitle>
         </CardHeader>
         <CardContent className="space-y-5">
@@ -126,7 +126,7 @@ export function MarketDataContractsClient({ initialContracts }: MarketDataContra
       </Card>
       {contracts.map((contract) => (
         <Card key={contract.id}>
-          <CardHeader className="border-b">
+          <CardHeader>
             <CardTitle>Versão {contract.version}</CardTitle>
             <CardAction>
               <Badge variant={contractStatus[contract.status].variant}>{contractStatus[contract.status].label}</Badge>

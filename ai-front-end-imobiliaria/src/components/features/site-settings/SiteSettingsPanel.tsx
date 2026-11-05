@@ -123,7 +123,7 @@ export function SiteSettingsPanel() {
             <div className="grid gap-6 xl:grid-cols-2">
                 {/* Branding */}
                 <Card>
-                    <CardHeader className="border-b">
+                    <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                             <Globe className="size-4 text-muted-foreground" />
                             Identidade visual
@@ -152,7 +152,7 @@ export function SiteSettingsPanel() {
 
                 {/* Content */}
                 <Card>
-                    <CardHeader className="border-b">
+                    <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                             <LayoutTemplate className="size-4 text-muted-foreground" />
                             Conteúdo da página inicial
@@ -191,7 +191,7 @@ export function SiteSettingsPanel() {
 
             {/* Colors */}
             <Card>
-                <CardHeader className="border-b">
+                <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                         <Palette className="size-4 text-muted-foreground" />
                         Cores da marca
@@ -223,7 +223,7 @@ export function SiteSettingsPanel() {
 
             {/* Social & Analytics */}
             <Card>
-                <CardHeader className="border-b">
+                <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                         <Share2 className="size-4 text-muted-foreground" />
                         Redes sociais e analytics

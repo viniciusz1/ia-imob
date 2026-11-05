@@ -69,7 +69,7 @@ export function LocationStep() {
     return (
         <div className="space-y-6">
             <Card>
-                <CardHeader className="border-b">
+                <CardHeader>
                     <CardTitle>Endereço</CardTitle>
                     <CardDescription>Busque pelo CEP para preencher logradouro, bairro, cidade e UF.</CardDescription>
                 </CardHeader>
@@ -119,7 +119,7 @@ export function LocationStep() {
             </Card>
 
             <Card>
-                <CardHeader className="border-b">
+                <CardHeader>
                     <CardTitle>Mapa e privacidade</CardTitle>
                     <CardDescription>Coordenadas do imóvel e o que aparece na vitrine pública.</CardDescription>
                 </CardHeader>

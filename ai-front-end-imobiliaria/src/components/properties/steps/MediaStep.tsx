@@ -155,7 +155,7 @@ export function MediaStep({
     return (
         <div className="space-y-6">
             <Card>
-                <CardHeader className="border-b">
+                <CardHeader>
                     <CardTitle>Fotos</CardTitle>
                     <CardDescription>Envie as imagens do anúncio e escolha a capa.</CardDescription>
                     <CardAction>
@@ -261,7 +261,7 @@ export function MediaStep({
             </Card>
 
             <Card>
-                <CardHeader className="border-b">
+                <CardHeader>
                     <CardTitle>Vídeo e tour virtual</CardTitle>
                     <CardDescription>Links exibidos na página do imóvel.</CardDescription>
                 </CardHeader>

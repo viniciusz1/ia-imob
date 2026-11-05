@@ -41,7 +41,7 @@ export function OnboardingExecutionSummaryCard({
 
   return (
     <Card className={needsAttention ? "border-destructive/30" : undefined}>
-      <CardHeader className="border-b">
+      <CardHeader>
         <CardTitle>
           <h3>{STATE_TITLES[execution.state]}</h3>
         </CardTitle>

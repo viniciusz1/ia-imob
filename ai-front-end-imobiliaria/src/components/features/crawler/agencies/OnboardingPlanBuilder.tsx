@@ -788,7 +788,7 @@ export function OnboardingPlanBuilder({
 
   return (
     <Card>
-      <CardHeader className="border-b">
+      <CardHeader>
         <CardTitle>Plano de Onboarding</CardTitle>
         <CardDescription>
           Monte, nomeie e revise a combinação. Nenhuma Operação do Crawler começa antes da confirmação.

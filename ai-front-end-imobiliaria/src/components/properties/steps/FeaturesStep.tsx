@@ -48,7 +48,7 @@ export function FeaturesStep({ featuresOptions }: FeaturesStepProps) {
     return (
         <div className="space-y-6">
             <Card>
-                <CardHeader className="border-b">
+                <CardHeader>
                     <CardTitle>Medidas e cômodos</CardTitle>
                     <CardDescription>Áreas, cômodos, vagas e dados do prédio.</CardDescription>
                 </CardHeader>
@@ -117,7 +117,7 @@ export function FeaturesStep({ featuresOptions }: FeaturesStepProps) {
             </Card>
 
             <Card>
-                <CardHeader className="border-b">
+                <CardHeader>
                     <CardTitle>Comodidades</CardTitle>
                     <CardDescription>Marque o que o imóvel ou o condomínio oferece.</CardDescription>
                     {featuresOptions.length > 0 && (

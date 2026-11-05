@@ -99,7 +99,7 @@ export function ExtractionProfilesWorkspace({
   return (
     <div className="space-y-6">
       <Card>
-        <CardHeader className="border-b">
+        <CardHeader>
           <CardTitle>Gerar Perfil Candidato</CardTitle>
           <CardDescription>{generationDescription}</CardDescription>
         </CardHeader>
@@ -127,7 +127,7 @@ export function ExtractionProfilesWorkspace({
       </Card>
 
       <Card>
-        <CardHeader className="border-b">
+        <CardHeader>
           <CardTitle>Perfis de Extração</CardTitle>
           <CardDescription>
             Escolha entre as versões, revise validações e ative o perfil que deve orientar os próximos crawls.

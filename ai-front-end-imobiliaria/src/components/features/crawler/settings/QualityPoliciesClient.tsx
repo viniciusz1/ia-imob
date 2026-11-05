@@ -37,7 +37,7 @@ export function QualityPoliciesClient({ initialPolicies }: { initialPolicies: Qu
         </p>
       </div>
       <Card>
-        <CardHeader className="border-b">
+        <CardHeader>
           <CardTitle>Nova versão da Política de Qualidade</CardTitle>
         </CardHeader>
         <CardContent className="space-y-5">
@@ -80,7 +80,7 @@ export function QualityPoliciesClient({ initialPolicies }: { initialPolicies: Qu
       </Card>
       {policies.map((policy) => (
         <Card key={policy.id}>
-          <CardHeader className="border-b">
+          <CardHeader>
             <CardTitle>Política de Qualidade v{policy.version}</CardTitle>
             <CardAction>
               <Badge variant={policyStatus[policy.status].variant}>{policyStatus[policy.status].label}</Badge>

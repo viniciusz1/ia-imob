@@ -85,7 +85,7 @@ export function ExceptionalPublicationPanel({ initialRun }: { initialRun: CrawlR
 
   return (
     <Card>
-      <CardHeader className="border-b">
+      <CardHeader>
         <CardTitle>
           <h2>Decisão de qualidade</h2>
         </CardTitle>

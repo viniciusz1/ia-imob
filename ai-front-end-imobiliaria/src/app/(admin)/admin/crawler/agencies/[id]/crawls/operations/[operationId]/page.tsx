@@ -35,7 +35,7 @@ export default async function CrawlOperationDetailPage({ params }: { params: Pro
       />
 
       <Card>
-        <CardHeader className="border-b">
+        <CardHeader>
           <CardTitle>{operation.type === "profile_validation" ? "Crawl de Validação" : "Crawl de Produção"}</CardTitle>
           <CardDescription>Operação #{operation.id}</CardDescription>
         </CardHeader>
@@ -46,7 +46,7 @@ export default async function CrawlOperationDetailPage({ params }: { params: Pro
 
       {report && profileId !== null && (
         <Card>
-          <CardHeader className="border-b">
+          <CardHeader>
             <CardTitle>Resultado da validação</CardTitle>
             <CardDescription>Recomendações técnicas; a decisão humana permanece em Perfis de Extração.</CardDescription>
             <CardAction>

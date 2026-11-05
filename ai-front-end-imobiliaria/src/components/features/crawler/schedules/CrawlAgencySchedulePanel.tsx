@@ -40,7 +40,7 @@ export function CrawlAgencySchedulePanel({ initialSchedule }: { initialSchedule:
 
   return (
     <Card id="agendamento">
-      <CardHeader className="border-b">
+      <CardHeader>
         <CardTitle>Agendamento</CardTitle>
         <CardDescription>Frequência e fuso horário dos crawls automáticos desta fonte.</CardDescription>
         <CardAction>

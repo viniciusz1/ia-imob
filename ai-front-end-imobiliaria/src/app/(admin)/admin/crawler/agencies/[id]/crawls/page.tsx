@@ -41,7 +41,7 @@ export default async function CrawlsPage({ params }: { params: Promise<{ id: str
       />
 
       <Card>
-        <CardHeader className="border-b">
+        <CardHeader>
           <CardTitle>Executar Crawl</CardTitle>
           <CardDescription>Inicie um crawl de produção ou selecione a opção de validação para perfis candidatos.</CardDescription>
         </CardHeader>

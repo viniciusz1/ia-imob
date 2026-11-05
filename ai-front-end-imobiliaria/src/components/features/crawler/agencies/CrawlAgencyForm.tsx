@@ -30,7 +30,7 @@ export function CrawlAgencyForm() {
   return (
     <form className="space-y-6" onSubmit={submit}>
       <Card>
-        <CardHeader className="border-b">
+        <CardHeader>
           <CardTitle>Identidade da fonte</CardTitle>
           <CardDescription>Nome, endereço e domínio usados pelo Crawler para identificar a fonte.</CardDescription>
         </CardHeader>

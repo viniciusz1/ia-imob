@@ -48,7 +48,7 @@ export default async function DiscoveriesPage({ params, searchParams }: Discover
       />
 
       <Card>
-        <CardHeader className="border-b">
+        <CardHeader>
           <CardTitle>Novo Discovery</CardTitle>
           <CardDescription>Escolha as fontes e o contrato de dados para gerar um novo Snapshot de URLs.</CardDescription>
         </CardHeader>

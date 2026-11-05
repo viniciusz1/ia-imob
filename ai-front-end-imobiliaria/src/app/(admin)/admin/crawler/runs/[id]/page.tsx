@@ -51,7 +51,7 @@ export default async function CrawlRunPage({ params }: CrawlRunPageProps) {
       />
 
       <Card>
-        <CardHeader className="border-b">
+        <CardHeader>
           <CardTitle>Evidências de qualidade</CardTitle>
         </CardHeader>
         <CardContent>

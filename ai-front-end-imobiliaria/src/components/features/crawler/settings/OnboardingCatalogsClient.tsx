@@ -149,7 +149,7 @@ function VersionHeading({
   isDefault?: boolean;
 }) {
   return (
-    <CardHeader className="border-b">
+    <CardHeader>
       <CardTitle>{name} · v{version}</CardTitle>
       <CardDescription className="text-xs">
         {status === "draft" ? "Editável até a publicação" : "Conteúdo imutável"}
@@ -748,7 +748,7 @@ function DiscoveryCreationCard({
 
   return (
     <Card>
-      <CardHeader className="border-b">
+      <CardHeader>
         <CardTitle>Nova política de discovery</CardTitle>
       </CardHeader>
       <CardContent className="space-y-5">
@@ -802,7 +802,7 @@ function CustomStrategyCard({ onCreated }: { onCreated: (strategy: DiscoveryStra
 
   return (
     <Card>
-      <CardHeader className="border-b">
+      <CardHeader>
         <CardTitle>Registrar estratégia customizada</CardTitle>
       </CardHeader>
       <CardContent className="grid gap-5 md:grid-cols-[1fr_1fr_12rem_auto]">
@@ -862,7 +862,7 @@ function ExtractionCreationCard({
 
   return (
     <Card>
-      <CardHeader className="border-b">
+      <CardHeader>
         <CardTitle>Nova política de extração</CardTitle>
         <CardDescription>O fallback sempre segue a ordem exibida. Selecione uma ou mais estratégias.</CardDescription>
       </CardHeader>
@@ -925,7 +925,7 @@ function ModelCreationCard({
 
   return (
     <Card>
-      <CardHeader className="border-b">
+      <CardHeader>
         <CardTitle>Nova combinação de onboarding</CardTitle>
       </CardHeader>
       <CardContent className="space-y-5">

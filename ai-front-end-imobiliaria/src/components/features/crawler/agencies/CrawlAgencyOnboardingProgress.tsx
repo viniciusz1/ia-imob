@@ -60,7 +60,7 @@ export function CrawlAgencyOnboardingProgress({ agency, profiles, snapshots }: C
 
   return (
     <Card>
-      <CardHeader className="border-b">
+      <CardHeader>
         <CardTitle>Jornada de ativação</CardTitle>
         <CardDescription>Acompanhe o onboarding da fonte até ela estar pronta para produção.</CardDescription>
         <CardAction>

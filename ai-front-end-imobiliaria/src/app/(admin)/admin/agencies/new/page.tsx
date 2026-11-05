@@ -98,7 +98,7 @@ export default function AdminNewAgencyPage() {
 
             <form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
                 <Card>
-                    <CardHeader className="border-b">
+                    <CardHeader>
                         <CardTitle>Dados da agência</CardTitle>
                         <CardDescription>Identificação e contato da imobiliária.</CardDescription>
                     </CardHeader>
@@ -125,7 +125,7 @@ export default function AdminNewAgencyPage() {
                 </Card>
 
                 <Card>
-                    <CardHeader className="border-b">
+                    <CardHeader>
                         <CardTitle>Administrador inicial</CardTitle>
                         <CardDescription>Primeiro usuário com acesso total ao CRM da agência.</CardDescription>
                     </CardHeader>

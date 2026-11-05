@@ -17,7 +17,7 @@ export default async function SettingsPage({ params }: { params: Promise<{ id: s
       />
       <CrawlAgencySettingsForm agency={agency} />
       <Card>
-        <CardHeader className="border-b">
+        <CardHeader>
           <CardTitle>Estado administrativo e ciclo de vida</CardTitle>
           <CardDescription>Ative, pause ou arquive a fonte de acordo com a operação.</CardDescription>
         </CardHeader>

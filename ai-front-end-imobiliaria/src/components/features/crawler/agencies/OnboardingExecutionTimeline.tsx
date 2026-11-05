@@ -337,7 +337,7 @@ export function OnboardingExecutionTimeline({
 
   return (
     <Card>
-      <CardHeader className="border-b">
+      <CardHeader>
         <CardTitle>{execution.name}</CardTitle>
         <CardDescription>
           Execução de Onboarding #{execution.id} · {execution.conduction === "automated" ? "automatizada" : "manual"}

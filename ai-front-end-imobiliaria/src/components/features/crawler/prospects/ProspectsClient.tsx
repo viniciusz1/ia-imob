@@ -151,7 +151,7 @@ export function ProspectsClient({ initialProspects, initialSuggestions = [] }: {
       />
 
       <Card className="scroll-mt-6" id="nova-prospeccao">
-        <CardHeader className="border-b">
+        <CardHeader>
           <CardTitle>Nova prospecção</CardTitle>
           <CardDescription>Escolha uma cidade ou envie uma lista para iniciar a busca.</CardDescription>
         </CardHeader>
@@ -261,7 +261,7 @@ export function ProspectsClient({ initialProspects, initialSuggestions = [] }: {
       </Card>
 
       <Card className="overflow-hidden pb-0">
-        <CardHeader className="border-b">
+        <CardHeader>
           <CardTitle>Revisão de prospecções</CardTitle>
           <CardDescription>
             Analise as evidências e aprove apenas os prospects que devem seguir para onboarding.
@@ -493,7 +493,7 @@ export function ProspectsClient({ initialProspects, initialSuggestions = [] }: {
 
       {initialSuggestions.length > 0 && (
         <Card>
-          <CardHeader className="border-b">
+          <CardHeader>
             <CardTitle>Sugestões para Crawl Agencies existentes</CardTitle>
             <CardDescription>
               Somente sugestões; cadastro, lifecycle, perfil e agendamento não são alterados automaticamente.

@@ -41,7 +41,7 @@ export function BasicDataStep({
 
     return (
         <Card>
-            <CardHeader className="border-b">
+            <CardHeader>
                 <CardTitle>Dados básicos</CardTitle>
                 <CardDescription>Identificação, tipo e situação do imóvel.</CardDescription>
             </CardHeader>

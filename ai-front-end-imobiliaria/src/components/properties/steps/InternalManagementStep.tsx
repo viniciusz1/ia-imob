@@ -33,7 +33,7 @@ export function InternalManagementStep() {
     return (
         <div className="space-y-6">
             <Card>
-                <CardHeader className="border-b">
+                <CardHeader>
                     <CardTitle>Publicação</CardTitle>
                     <CardDescription>Como o imóvel aparece no site da imobiliária.</CardDescription>
                 </CardHeader>
@@ -56,7 +56,7 @@ export function InternalManagementStep() {
             </Card>
 
             <Card>
-                <CardHeader className="border-b">
+                <CardHeader>
                     <CardTitle>Captação e exclusividade</CardTitle>
                     <CardDescription>Responsáveis, contrato de exclusividade e chaves.</CardDescription>
                 </CardHeader>
