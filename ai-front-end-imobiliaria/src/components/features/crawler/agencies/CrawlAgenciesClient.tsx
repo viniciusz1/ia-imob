@@ -323,7 +323,7 @@ export function CrawlAgenciesClient({
         </div>
         <FilterSelect
           aria-label="Filtrar por ciclo de vida"
-          className="w-full sm:w-52"
+          className="w-full sm:w-60"
           emptyValue="all"
           onValueChange={handleLifecycleChange}
           options={LIFECYCLE_OPTIONS}
