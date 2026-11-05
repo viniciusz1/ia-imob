@@ -110,6 +110,13 @@ const numberFieldLimits: Record<NumberField, { min: number; max: number; maxLeng
 
 const numberFields = Object.keys(numberFieldLimits) as NumberField[];
 
+const numberFieldLabels: Record<NumberField, string> = {
+  area: "Metragem",
+  bedrooms: "Quartos",
+  bathrooms: "Banheiros",
+  garage_spaces: "Vagas",
+};
+
 function numberFieldErrors(form: ValuationInput): Partial<Record<NumberField, string>> {
   const errors: Partial<Record<NumberField, string>> = {};
 
@@ -224,7 +231,6 @@ export function ValuationsClient() {
   const [neighborhoodsByCity, setNeighborhoodsByCity] = useState<Record<string, string[]>>({});
   const [isLoadingFilters, setIsLoadingFilters] = useState(true);
   const [touchedFields, setTouchedFields] = useState<Set<NumberField>>(() => new Set());
-  const [submitAttempted, setSubmitAttempted] = useState(false);
   const permissions = Array.isArray(user?.permissions) ? user.permissions : null;
   const canCreate = permissions?.includes("valuations.create") ?? false;
   const canView = permissions?.includes("valuations.view") ?? false;
@@ -337,12 +343,16 @@ export function ValuationsClient() {
   const fieldErrors = numberFieldErrors(form);
 
   function visibleNumberError(field: NumberField): string | undefined {
-    return submitAttempted || touchedFields.has(field) ? fieldErrors[field] : undefined;
+    return touchedFields.has(field) ? fieldErrors[field] : undefined;
   }
 
-  const cityError = submitAttempted && form.city.length === 0 ? "Selecione pelo menos uma cidade." : undefined;
-  const neighborhoodError =
-    submitAttempted && form.neighborhood.length === 0 ? "Selecione pelo menos um bairro." : undefined;
+  // "Buscar comparáveis" stays disabled until these are filled; the hint lists what is missing.
+  const missingForSearch = [
+    form.city.length === 0 && "Cidade",
+    form.neighborhood.length === 0 && "Bairro",
+    ...numberFields.filter((field) => fieldErrors[field]).map((field) => numberFieldLabels[field]),
+  ].filter((label): label is string => Boolean(label));
+  const canSearch = missingForSearch.length === 0;
 
   const visibleNeighborhoods = useMemo(() => {
     if (form.city.length === 0 || Object.keys(neighborhoodsByCity).length === 0) {
@@ -378,13 +388,8 @@ export function ValuationsClient() {
     event.preventDefault();
     if (!canCreate) return;
 
-    setSubmitAttempted(true);
-
-    if (form.city.length === 0 || form.neighborhood.length === 0) {
-      toast.error("Selecione pelo menos uma cidade e um bairro.");
-      return;
-    }
-
+    // The button is disabled in these states; this only guards other submit paths.
+    if (form.city.length === 0 || form.neighborhood.length === 0) return;
     if (Object.keys(numberFieldErrors(form)).length > 0) return;
 
     setIsLoadingCandidates(true);
@@ -522,7 +527,6 @@ export function ValuationsClient() {
   function handleNewValuation() {
     setForm(initialInput);
     setTouchedFields(new Set());
-    setSubmitAttempted(false);
     setCandidates([]);
     setSelectedCandidateIds(new Set());
     setSelected(null);
@@ -598,9 +602,8 @@ export function ValuationsClient() {
               />
               <form className="space-y-6 px-6 pb-6 sm:px-8 sm:pb-8" onSubmit={handleSubmit}>
                 <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-                  <FormField error={cityError} htmlFor="city" label="Cidade">
+                  <FormField htmlFor="city" label="Cidade">
                     <MultiSelect
-                      className={cityError ? "border-destructive" : undefined}
                       disabled={isLoadingFilters}
                       emptyMessage="Nenhuma cidade encontrada."
                       id="city"
@@ -612,9 +615,8 @@ export function ValuationsClient() {
                     />
                   </FormField>
 
-                  <FormField error={neighborhoodError} htmlFor="neighborhood" label="Bairro">
+                  <FormField htmlFor="neighborhood" label="Bairro">
                     <MultiSelect
-                      className={neighborhoodError ? "border-destructive" : undefined}
                       disabled={isLoadingFilters}
                       emptyMessage="Nenhum bairro encontrado."
                       id="neighborhood"
@@ -713,15 +715,20 @@ export function ValuationsClient() {
                     </div>
                   </div>
 
-                  <Button
-                    className="w-full sm:w-auto sm:min-w-56"
-                    disabled={isLoadingCandidates || isLoadingFilters}
-                    size="lg"
-                    type="submit"
-                  >
-                    {isLoadingCandidates ? <Loader2 className="animate-spin" /> : <Search />}
-                    Buscar comparáveis
-                  </Button>
+                  <div className="flex flex-col items-stretch gap-2 sm:items-end">
+                    <Button
+                      className="w-full sm:w-auto sm:min-w-56"
+                      disabled={isLoadingCandidates || isLoadingFilters || !canSearch}
+                      size="lg"
+                      type="submit"
+                    >
+                      {isLoadingCandidates ? <Loader2 className="animate-spin" /> : <Search />}
+                      Buscar comparáveis
+                    </Button>
+                    {!canSearch && !isLoadingFilters && (
+                      <p className="text-[0.8125rem] text-subtle sm:text-right">Preencha: {missingForSearch.join(", ")}</p>
+                    )}
+                  </div>
                 </div>
               </form>
             </Card>

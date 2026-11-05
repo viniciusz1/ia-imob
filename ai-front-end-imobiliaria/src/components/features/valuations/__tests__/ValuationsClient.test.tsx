@@ -395,24 +395,37 @@ describe("ValuationsClient", () => {
 
     pickOption(cityTrigger, "Jaraguá do Sul");
     pickOption(neighborhoodTrigger, "Centro");
-    fireEvent.click(screen.getByRole("button", { name: /buscar comparáveis/i }));
 
+    const search = screen.getByRole("button", { name: /buscar comparáveis/i });
+    expect(search).toBeDisabled();
+    expect(screen.getByText("Preencha: Metragem, Quartos")).toBeInTheDocument();
+    fireEvent.click(search);
     expect(valuationService.getValuationCandidates).not.toHaveBeenCalled();
+
+    fireEvent.change(area, { target: { value: "120" } });
+    fireEvent.change(bedrooms, { target: { value: "3" } });
+    expect(search).toBeEnabled();
   });
 
-  it("points at the missing city and neighbourhood when searching without them", async () => {
+  it("keeps the search disabled and lists the missing city and neighbourhood", async () => {
     vi.mocked(valuationService.getValuations).mockResolvedValue(paginated([]));
 
     render(<ValuationsClient />);
 
     const cityTrigger = await screen.findByLabelText("Cidade");
+    const neighborhoodTrigger = await screen.findByLabelText("Bairro");
     await waitFor(() => expect(cityTrigger).toBeEnabled());
 
-    fireEvent.click(screen.getByRole("button", { name: /buscar comparáveis/i }));
+    const search = screen.getByRole("button", { name: /buscar comparáveis/i });
+    expect(search).toBeDisabled();
+    expect(screen.getByText("Preencha: Cidade, Bairro")).toBeInTheDocument();
 
-    expect(await screen.findByText("Selecione pelo menos uma cidade.")).toBeInTheDocument();
-    expect(screen.getByText("Selecione pelo menos um bairro.")).toBeInTheDocument();
-    expect(valuationService.getValuationCandidates).not.toHaveBeenCalled();
+    pickOption(cityTrigger, "Jaraguá do Sul");
+    expect(screen.getByText("Preencha: Bairro")).toBeInTheDocument();
+
+    pickOption(neighborhoodTrigger, "Centro");
+    expect(search).toBeEnabled();
+    expect(screen.queryByText(/^Preencha:/)).not.toBeInTheDocument();
   });
 
   it("narrows available neighborhoods to the selected cities", async () => {

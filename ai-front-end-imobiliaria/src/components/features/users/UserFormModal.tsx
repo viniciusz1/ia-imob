@@ -2,6 +2,7 @@
 
 import { type FieldPath, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { missingFieldsHint, useSchemaValidity } from "@/hooks/useSchemaValidity";
 import { toast } from "sonner";
 import { useState, useEffect, type ReactNode } from "react";
 import { isAxiosError } from "axios";
@@ -55,6 +56,23 @@ interface UserFormModalProps {
 // =============================================================================
 // Valores padrão do formulário
 // =============================================================================
+
+// Labels used by the "Preencha: ..." hint under the disabled submit button.
+const FIELD_LABELS: Partial<Record<string, string>> = {
+    name: "Nome completo",
+    email: "E-mail",
+    phone: "Telefone",
+    person_type: "Tipo de pessoa",
+    order: "Ordem",
+    role_id: "Grupo do usuário",
+    username: "Login / usuário",
+    password: "Senha",
+    password_confirmation: "Repita a senha",
+    work_period_1_end: "Horário de saída",
+    work_period_2_end: "Horário de saída",
+    facebook_link: "Link do Facebook",
+    instagram_link: "Link do Instagram",
+};
 
 function getDefaultValues(user?: User | null): UserFormValues {
     return {
@@ -153,6 +171,7 @@ export function UserFormModal({
 
     const isLoading = createMutation.isPending || updateMutation.isPending;
     const errors = form.formState.errors;
+    const validity = useSchemaValidity(form.control, isEditing ? userFormSchema : createUserSchema, FIELD_LABELS);
 
     const personType = form.watch("person_type");
     const roleId = form.watch("role_id");
@@ -585,7 +604,10 @@ export function UserFormModal({
                         </section>
                     </div>
 
-                    <DialogFooter className="gap-2 border-t px-6 py-4">
+                    <DialogFooter className="items-center gap-2 border-t px-6 py-4">
+                        {!validity.isValid && (
+                            <p className="mr-auto text-[0.8125rem] text-subtle">{missingFieldsHint(validity.missing)}</p>
+                        )}
                         <Button
                             type="button"
                             variant="outline"
@@ -594,7 +616,7 @@ export function UserFormModal({
                         >
                             Cancelar
                         </Button>
-                        <Button type="submit" disabled={isLoading}>
+                        <Button type="submit" disabled={isLoading || !validity.isValid}>
                             {isLoading && <Loader2 className="animate-spin" />}
                             {isLoading
                                 ? "Salvando..."

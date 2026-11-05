@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { missingFieldsHint, useSchemaValidity } from "@/hooks/useSchemaValidity";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -33,6 +34,8 @@ function getDefaultValues(agency: AgencySummary | null): AgencyFormValues {
         slug: agency?.slug || "",
     };
 }
+
+const AGENCY_FIELD_LABELS: Partial<Record<string, string>> = { name: "Nome", slug: "Slug" };
 
 export function AgencyFormModal({ open, onOpenChange, agency }: AgencyFormModalProps) {
     const updateMutation = useUpdateAgency(agency?.id || 0);
@@ -77,6 +80,7 @@ export function AgencyFormModal({ open, onOpenChange, agency }: AgencyFormModalP
     };
 
     const isLoading = updateMutation.isPending;
+    const validity = useSchemaValidity(form.control, agencyFormSchema, AGENCY_FIELD_LABELS);
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -109,7 +113,10 @@ export function AgencyFormModal({ open, onOpenChange, agency }: AgencyFormModalP
                         </FormField>
                     </div>
 
-                    <DialogFooter className="gap-2 border-t px-6 py-4">
+                    <DialogFooter className="items-center gap-2 border-t px-6 py-4">
+                        {!validity.isValid && (
+                            <p className="mr-auto text-[0.8125rem] text-subtle">{missingFieldsHint(validity.missing)}</p>
+                        )}
                         <Button
                             type="button"
                             variant="outline"
@@ -118,7 +125,7 @@ export function AgencyFormModal({ open, onOpenChange, agency }: AgencyFormModalP
                         >
                             Cancelar
                         </Button>
-                        <Button type="submit" disabled={isLoading}>
+                        <Button type="submit" disabled={isLoading || !validity.isValid}>
                             {isLoading && <Loader2 className="animate-spin" />}
                             {isLoading ? "Salvando..." : "Salvar Alterações"}
                         </Button>

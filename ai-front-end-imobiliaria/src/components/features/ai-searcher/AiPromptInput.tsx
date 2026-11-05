@@ -188,7 +188,7 @@ export function AiPromptInput({
         className="h-14 rounded-xl pr-36 pl-12 text-base data-[size=default]:h-14"
         disabled={isLoading || disabled}
       />
-      {prompt && !isLoading && !disabled && (
+      {prompt.trim() && !isLoading && !disabled && (
         <Button
           type="submit"
           aria-label="Buscar com IA"

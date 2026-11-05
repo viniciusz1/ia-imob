@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { missingFieldsHint, useSchemaValidity } from "@/hooks/useSchemaValidity";
 import { toast } from "sonner";
 
 import { Loader2 } from "lucide-react";
@@ -24,6 +25,20 @@ import {
     type RegisterAgencyFormValues,
 } from "@/schemas/adminAgencySchema";
 
+// Labels used by the "Preencha: ..." hint next to the disabled submit button.
+const FIELD_LABELS: Partial<Record<string, string>> = {
+    agencyName: "Nome da agência",
+    agencySlug: "Slug",
+    agencyPhone: "Telefone da agência",
+    agencyEmail: "E-mail da agência",
+    adminName: "Nome do administrador",
+    adminEmail: "E-mail do administrador",
+    adminUsername: "Usuário",
+    adminPhone: "Telefone do administrador",
+    adminPassword: "Senha",
+    adminPasswordConfirmation: "Confirmar senha",
+};
+
 export default function AdminNewAgencyPage() {
     const router = useRouter();
     const form = useForm<RegisterAgencyFormValues>({
@@ -41,6 +56,7 @@ export default function AdminNewAgencyPage() {
             adminPasswordConfirmation: "",
         },
     });
+    const validity = useSchemaValidity(form.control, registerAgencySchema, FIELD_LABELS);
 
     const onSubmit = async (values: RegisterAgencyFormValues) => {
         try {
@@ -167,11 +183,14 @@ export default function AdminNewAgencyPage() {
                     </CardContent>
                 </Card>
 
-                <div className="flex flex-wrap justify-end gap-3">
+                <div className="flex flex-wrap items-center justify-end gap-3">
+                    {!validity.isValid && (
+                        <p className="mr-auto text-[0.8125rem] text-subtle">{missingFieldsHint(validity.missing)}</p>
+                    )}
                     <Button onClick={() => router.push("/admin/agencies")} type="button" variant="outline">
                         Cancelar
                     </Button>
-                    <Button disabled={isSubmitting} type="submit">
+                    <Button disabled={isSubmitting || !validity.isValid} type="submit">
                         {isSubmitting && <Loader2 className="animate-spin" />}
                         {isSubmitting ? "Registrando…" : "Registrar Agência"}
                     </Button>

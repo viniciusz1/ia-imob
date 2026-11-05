@@ -2,6 +2,7 @@
 
 import { useForm, Controller, type FieldPath } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { missingFieldsHint, useSchemaValidity } from "@/hooks/useSchemaValidity";
 import { toast } from "sonner";
 import { useEffect } from "react";
 import { isAxiosError } from "axios";
@@ -66,6 +67,12 @@ function getPermissionGroupName(permissionName: string): string {
 // =============================================================================
 // Componente
 // =============================================================================
+
+// Labels used by the "Preencha: ..." hint under the disabled submit button.
+const ROLE_FIELD_LABELS: Partial<Record<string, string>> = {
+    name: "Nome do grupo",
+    permissions: "Pelo menos uma permissão",
+};
 
 export function RoleFormModal({
     open,
@@ -140,6 +147,7 @@ export function RoleFormModal({
     }));
 
     const isLoading = createMutation.isPending || updateMutation.isPending;
+    const validity = useSchemaValidity(form.control, roleFormSchema, ROLE_FIELD_LABELS);
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -307,7 +315,10 @@ export function RoleFormModal({
                         </div>
                     </div>
 
-                    <DialogFooter className="gap-2 border-t px-6 py-4">
+                    <DialogFooter className="items-center gap-2 border-t px-6 py-4">
+                        {!validity.isValid && (
+                            <p className="mr-auto text-[0.8125rem] text-subtle">{missingFieldsHint(validity.missing)}</p>
+                        )}
                         <Button
                             type="button"
                             variant="outline"
@@ -316,7 +327,7 @@ export function RoleFormModal({
                         >
                             Cancelar
                         </Button>
-                        <Button type="submit" disabled={isLoading}>
+                        <Button type="submit" disabled={isLoading || !validity.isValid}>
                             {isLoading && <Loader2 className="animate-spin" />}
                             {isLoading
                                 ? "Salvando..."

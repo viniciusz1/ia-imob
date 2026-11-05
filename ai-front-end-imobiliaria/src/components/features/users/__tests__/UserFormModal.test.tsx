@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { UserFormModal } from '../UserFormModal';
 import { useRoles } from '@/hooks/useRoles';
@@ -72,5 +72,25 @@ describe('UserFormModal', () => {
         render(<UserFormModal open={false} onOpenChange={vi.fn()} initialData={null} />);
 
         expect(useRoles).toHaveBeenCalledWith(false);
+    });
+
+    it('mantém Criar usuário desabilitado até preencher os campos obrigatórios', () => {
+        vi.mocked(useRoles).mockReturnValue({ data: undefined, isLoading: false } as ReturnType<typeof useRoles>);
+
+        render(<UserFormModal open={true} onOpenChange={vi.fn()} initialData={null} />);
+
+        const submit = screen.getByRole('button', { name: 'Criar usuário' });
+        expect(submit).toBeDisabled();
+        expect(screen.getByText(/^Preencha: .*Nome completo/)).toBeInTheDocument();
+
+        fireEvent.change(screen.getByLabelText(/Nome completo/), { target: { value: 'Maria Souza' } });
+        fireEvent.change(screen.getByLabelText(/E-mail/), { target: { value: 'maria@example.com' } });
+        fireEvent.change(screen.getByLabelText(/Telefone/), { target: { value: '47999990000' } });
+        fireEvent.change(screen.getByLabelText(/Login \/ usuário/), { target: { value: 'maria' } });
+        fireEvent.change(screen.getByLabelText(/^Senha/), { target: { value: 'segredo123' } });
+        fireEvent.change(screen.getByLabelText(/Repita a senha/), { target: { value: 'segredo123' } });
+
+        expect(submit).toBeEnabled();
+        expect(screen.queryByText(/^Preencha:/)).not.toBeInTheDocument();
     });
 });

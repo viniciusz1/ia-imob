@@ -61,4 +61,19 @@ describe('RoleFormModal', () => {
             permissions: [1],
         });
     });
+
+    it('mantém Criar Grupo desabilitado até informar o nome e uma permissão', () => {
+        render(<RoleFormModal open={true} onOpenChange={vi.fn()} initialData={null} />);
+
+        const submitButton = screen.getByRole('button', { name: /Criar Grupo/i });
+        expect(submitButton).toBeDisabled();
+        expect(screen.getByText('Preencha: Nome do grupo, Pelo menos uma permissão')).toBeInTheDocument();
+
+        fireEvent.change(screen.getByLabelText(/Nome do Grupo/i), { target: { value: 'Gerentes' } });
+        expect(submitButton).toBeDisabled();
+        expect(screen.getByText('Preencha: Pelo menos uma permissão')).toBeInTheDocument();
+
+        fireEvent.click(screen.getByLabelText('Criar Usuários'));
+        expect(submitButton).toBeEnabled();
+    });
 });

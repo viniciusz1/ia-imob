@@ -89,7 +89,7 @@ describe("AdminNewAgencyPage", () => {
         expect(mockPush).toHaveBeenCalledWith("/admin/agencies");
     });
 
-    it("shows validation error when passwords do not match", async () => {
+    it("keeps Registrar Agência disabled while the passwords do not match", async () => {
         render(<AdminNewAgencyPage />);
 
         fireEvent.change(screen.getByLabelText(/Nome da Agência/i), {
@@ -105,9 +105,10 @@ describe("AdminNewAgencyPage", () => {
             target: { value: "outraSenha" },
         });
 
-        fireEvent.click(screen.getByRole("button", { name: /Registrar Agência/i }));
-
-        expect(await screen.findByText(/As senhas não conferem/i)).toBeInTheDocument();
+        const submit = screen.getByRole("button", { name: /Registrar Agência/i });
+        expect(submit).toBeDisabled();
+        expect(screen.getByText(/^Preencha: .*Confirmar senha/)).toBeInTheDocument();
+        fireEvent.click(submit);
         expect(createAgency).not.toHaveBeenCalled();
     });
 });
