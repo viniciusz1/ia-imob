@@ -7,6 +7,20 @@ import * as marketPropertyService from "@/services/marketPropertyService";
 import { useAuthStore } from "@/store/useAuthStore";
 import type { ComparableCandidate, PaginatedValuationsResponse, Valuation } from "@/types/valuation";
 
+/** Opens a MultiSelect and returns the labels of its options. */
+function openOptions(trigger: HTMLElement): string[] {
+  fireEvent.click(trigger);
+  const listbox = screen.getByRole("listbox");
+  return within(listbox).getAllByRole("option").map((option) => option.textContent ?? "");
+}
+
+/** Opens a MultiSelect, ticks one option and closes it again. */
+function pickOption(trigger: HTMLElement, label: string) {
+  fireEvent.click(trigger);
+  fireEvent.click(within(screen.getByRole("listbox")).getByRole("checkbox", { name: label }));
+  fireEvent.click(trigger);
+}
+
 vi.mock("sonner", () => ({
   toast: {
     success: vi.fn(),
@@ -219,16 +233,16 @@ describe("ValuationsClient", () => {
 
     render(<ValuationsClient />);
 
-    const citySelect = await screen.findByLabelText("Cidade") as HTMLSelectElement;
-    const neighborhoodSelect = await screen.findByLabelText("Bairro") as HTMLSelectElement;
+    const cityTrigger = await screen.findByLabelText("Cidade");
+    const neighborhoodTrigger = await screen.findByLabelText("Bairro");
 
     await waitFor(() => {
-      expect(citySelect.options.length).toBeGreaterThan(0);
-      expect(neighborhoodSelect.options.length).toBeGreaterThan(0);
+      expect(cityTrigger).toBeEnabled();
+      expect(neighborhoodTrigger).toBeEnabled();
     });
 
-    fireEvent.change(citySelect, { target: { value: "Jaraguá do Sul" } });
-    fireEvent.change(neighborhoodSelect, { target: { value: "Centro" } });
+    pickOption(cityTrigger, "Jaraguá do Sul");
+    pickOption(neighborhoodTrigger, "Centro");
 
     fireEvent.click(screen.getByRole("button", { name: /buscar comparáveis/i }));
 
@@ -359,17 +373,18 @@ describe("ValuationsClient", () => {
 
     render(<ValuationsClient />);
 
-    const citySelect = (await screen.findByLabelText("Cidade")) as HTMLSelectElement;
-    const neighborhoodSelect = (await screen.findByLabelText("Bairro")) as HTMLSelectElement;
+    const cityTrigger = await screen.findByLabelText("Cidade");
+    const neighborhoodTrigger = await screen.findByLabelText("Bairro");
 
-    await waitFor(() => {
-      expect(citySelect.options.length).toBe(2);
-      expect(neighborhoodSelect.options.length).toBe(3);
-    });
+    await waitFor(() => expect(cityTrigger).toBeEnabled());
 
-    fireEvent.change(citySelect, { target: { value: "Jaraguá do Sul" } });
+    expect(openOptions(cityTrigger)).toEqual(["Jaraguá do Sul", "Joinville"]);
+    fireEvent.click(cityTrigger);
+    expect(openOptions(neighborhoodTrigger)).toEqual(["América", "Centro", "Vila Lalau"]);
+    fireEvent.click(neighborhoodTrigger);
 
-    const optionValues = Array.from(neighborhoodSelect.options).map((opt) => opt.value);
-    expect(optionValues).toEqual(["Centro", "Vila Lalau"]);
+    pickOption(cityTrigger, "Jaraguá do Sul");
+
+    expect(openOptions(neighborhoodTrigger)).toEqual(["Centro", "Vila Lalau"]);
   });
 });

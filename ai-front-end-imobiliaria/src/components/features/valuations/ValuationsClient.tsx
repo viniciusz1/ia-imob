@@ -32,17 +32,12 @@ import { DEFAULT_PAGE_SIZE, PaginationFooter } from "@/components/layout/Paginat
 import { SectionHeader } from "@/components/layout/SectionHeader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { MultiSelect } from "@/components/ui/multi-select";
 import {
   Select,
   SelectContent,
@@ -150,11 +145,6 @@ function valuationStatusBadgeVariant(status: Valuation["status"]): "success" | "
   if (status === "insufficient_sample") return "warning";
   return "muted";
 }
-
-const multiSelectClassName =
-  // Native multi-select kept for its keyboard and Ctrl/Cmd behaviour, styled as
-  // a list box: roomy rows, selected rows tinted green.
-  "w-full min-w-0 rounded-lg border border-input bg-field p-1.5 text-sm shadow-xs shadow-black/5 transition-colors outline-none hover:border-muted-foreground/30 focus-visible:border-primary focus-visible:ring-[3px] focus-visible:ring-primary/25 disabled:cursor-not-allowed disabled:opacity-50 [&_option]:rounded-md [&_option]:px-3 [&_option]:py-2 [&_option]:text-foreground [&_option:checked]:bg-primary/20 [&_option:checked]:font-medium [&_option:checked]:text-primary";
 
 function comparableReviewsFrom(candidates: ComparableCandidate[]): ComparableReview[] | null {
   const reviews: ComparableReview[] = [];
@@ -301,8 +291,7 @@ export function ValuationsClient() {
     );
   }, [availableNeighborhoods, form.city, neighborhoodsByCity]);
 
-  function updateMultiSelect(field: "city" | "neighborhood", select: HTMLSelectElement) {
-    const selected: string[] = Array.from(select.selectedOptions).map((option) => option.value);
+  function updateMultiSelect(field: "city" | "neighborhood", selected: string[]) {
 
     setForm((current) => {
       if (field === "city") {
@@ -501,174 +490,162 @@ export function ValuationsClient() {
         title="Avaliar imóvel"
       />
 
-      <div className={canCreate ? "grid items-start gap-6 xl:grid-cols-[420px_minmax(0,1fr)]" : "grid gap-6"}>
-        {canCreate && (
-          <Card className="gap-6">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-3">
-                <Calculator aria-hidden="true" className="size-6 shrink-0 text-sidebar-highlight" strokeWidth={2} />
-                Imóvel avaliado
-              </CardTitle>
-              <CardDescription className="pl-9">
-                Informe as características usadas para buscar comparáveis.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form className="grid gap-6" onSubmit={handleSubmit}>
-                <FormField
-                  hint="Segure Ctrl (ou Cmd) para selecionar várias cidades."
-                  htmlFor="city"
-                  label="Cidade"
+      {canCreate && (
+        <Card className="gap-0 py-0">
+          <SectionHeader
+            description="Informe as características usadas para buscar imóveis comparáveis na base."
+            icon={Calculator}
+            title="Imóvel avaliado"
+          />
+          <form className="space-y-6 px-6 pb-6 sm:px-8 sm:pb-8" onSubmit={handleSubmit}>
+            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+              <FormField htmlFor="city" label="Cidade">
+                <MultiSelect
+                  disabled={isLoadingFilters}
+                  emptyMessage="Nenhuma cidade encontrada."
+                  id="city"
+                  onChange={(values) => updateMultiSelect("city", values)}
+                  options={availableCities}
+                  placeholder="Selecione as cidades"
+                  searchPlaceholder="Buscar cidade"
+                  value={form.city}
+                />
+              </FormField>
+
+              <FormField htmlFor="neighborhood" label="Bairro">
+                <MultiSelect
+                  disabled={isLoadingFilters}
+                  emptyMessage="Nenhum bairro encontrado."
+                  id="neighborhood"
+                  onChange={(values) => updateMultiSelect("neighborhood", values)}
+                  options={visibleNeighborhoods}
+                  placeholder="Selecione os bairros"
+                  searchPlaceholder="Buscar bairro"
+                  value={form.neighborhood}
+                />
+              </FormField>
+
+              <FormField className="md:col-span-2 xl:col-span-1" htmlFor="residential_type" label="Tipo residencial">
+                <Select
+                  value={form.residential_type}
+                  onValueChange={(value) =>
+                    setForm((current) => ({ ...current, residential_type: value as ResidentialType }))
+                  }
                 >
-                  <select
-                    id="city"
-                    multiple
-                    value={form.city}
-                    onChange={(event) => updateMultiSelect("city", event.target as HTMLSelectElement)}
-                    disabled={isLoadingFilters}
-                    className={multiSelectClassName}
-                    size={5}
-                    required
-                  >
-                    {availableCities.map((city) => (
-                      <option key={city} value={city}>
-                        {city}
-                      </option>
+                  <SelectTrigger className="w-full" id="residential_type">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {residentialTypes.map((type) => (
+                      <SelectItem key={type.value} value={type.value}>
+                        {type.label}
+                      </SelectItem>
                     ))}
-                  </select>
-                </FormField>
+                  </SelectContent>
+                </Select>
+              </FormField>
+            </div>
 
-                <FormField
-                  hint="Segure Ctrl (ou Cmd) para selecionar vários bairros."
-                  htmlFor="neighborhood"
-                  label="Bairro"
-                >
-                  <select
-                    id="neighborhood"
-                    multiple
-                    value={form.neighborhood}
-                    onChange={(event) => updateMultiSelect("neighborhood", event.target as HTMLSelectElement)}
-                    disabled={isLoadingFilters}
-                    className={multiSelectClassName}
-                    size={5}
+            <div className="grid grid-cols-2 gap-5 md:grid-cols-4">
+              <FormField htmlFor="area" label="Metragem">
+                <div className="relative">
+                  <Input
+                    className="pr-12"
+                    id="area"
+                    type="number"
+                    min={20}
+                    max={2000}
+                    value={form.area}
+                    onChange={(event) => updateNumber("area", event.target.value)}
                     required
-                  >
-                    {visibleNeighborhoods.map((neighborhood) => (
-                      <option key={neighborhood} value={neighborhood}>
-                        {neighborhood}
-                      </option>
-                    ))}
-                  </select>
-                </FormField>
-
-                <FormField htmlFor="residential_type" label="Tipo residencial">
-                  <Select
-                    value={form.residential_type}
-                    onValueChange={(value) =>
-                      setForm((current) => ({ ...current, residential_type: value as ResidentialType }))
-                    }
-                  >
-                    <SelectTrigger className="w-full" id="residential_type">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {residentialTypes.map((type) => (
-                        <SelectItem key={type.value} value={type.value}>
-                          {type.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </FormField>
-
-                <div className="grid grid-cols-2 gap-x-4 gap-y-5">
-                  <FormField htmlFor="area" label="Metragem">
-                    <Input
-                      id="area"
-                      type="number"
-                      min={20}
-                      max={2000}
-                      value={form.area}
-                      onChange={(event) => updateNumber("area", event.target.value)}
-                      required
-                    />
-                  </FormField>
-                  <FormField htmlFor="bedrooms" label="Quartos">
-                    <Input
-                      id="bedrooms"
-                      type="number"
-                      min={0}
-                      max={10}
-                      value={form.bedrooms}
-                      onChange={(event) => updateNumber("bedrooms", event.target.value)}
-                      required
-                    />
-                  </FormField>
-                  <FormField htmlFor="bathrooms" label="Banheiros">
-                    <Input
-                      id="bathrooms"
-                      type="number"
-                      min={0}
-                      max={10}
-                      value={form.bathrooms}
-                      onChange={(event) => updateNumber("bathrooms", event.target.value)}
-                      required
-                    />
-                  </FormField>
-                  <FormField htmlFor="garage_spaces" label="Vagas">
-                    <Input
-                      id="garage_spaces"
-                      type="number"
-                      min={0}
-                      max={10}
-                      value={form.garage_spaces}
-                      onChange={(event) => updateNumber("garage_spaces", event.target.value)}
-                      required
-                    />
-                  </FormField>
-                </div>
-
-                <div className="flex items-center justify-between gap-4 rounded-xl border border-transparent bg-muted px-4 py-3.5">
-                  <div className="space-y-1.5">
-                    <Label htmlFor="flood_risk">Risco de enchente</Label>
-                    <p className="text-[0.8125rem] leading-4 text-subtle">Aplica um ajuste negativo ao valor final.</p>
-                  </div>
-                  <Switch
-                    id="flood_risk"
-                    checked={form.flood_risk}
-                    onCheckedChange={(checked) => setForm((current) => ({ ...current, flood_risk: checked }))}
                   />
+                  <span className="pointer-events-none absolute top-1/2 right-3.5 -translate-y-1/2 text-sm text-muted-foreground">
+                    m²
+                  </span>
                 </div>
+              </FormField>
+              <FormField htmlFor="bedrooms" label="Quartos">
+                <Input
+                  id="bedrooms"
+                  type="number"
+                  min={0}
+                  max={10}
+                  value={form.bedrooms}
+                  onChange={(event) => updateNumber("bedrooms", event.target.value)}
+                  required
+                />
+              </FormField>
+              <FormField htmlFor="bathrooms" label="Banheiros">
+                <Input
+                  id="bathrooms"
+                  type="number"
+                  min={0}
+                  max={10}
+                  value={form.bathrooms}
+                  onChange={(event) => updateNumber("bathrooms", event.target.value)}
+                  required
+                />
+              </FormField>
+              <FormField htmlFor="garage_spaces" label="Vagas">
+                <Input
+                  id="garage_spaces"
+                  type="number"
+                  min={0}
+                  max={10}
+                  value={form.garage_spaces}
+                  onChange={(event) => updateNumber("garage_spaces", event.target.value)}
+                  required
+                />
+              </FormField>
+            </div>
 
-                <Button type="submit" className="w-full" size="lg" disabled={isLoadingCandidates || isLoadingFilters}>
-                  {isLoadingCandidates ? <Loader2 className="animate-spin" /> : <Search />}
-                  Buscar comparáveis
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
-        )}
+            <div className="flex flex-col gap-4 border-t pt-6 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-3">
+                <Switch
+                  id="flood_risk"
+                  checked={form.flood_risk}
+                  onCheckedChange={(checked) => setForm((current) => ({ ...current, flood_risk: checked }))}
+                />
+                <div className="space-y-1">
+                  <Label htmlFor="flood_risk">Risco de enchente</Label>
+                  <p className="text-[0.8125rem] leading-4 text-subtle">Aplica um ajuste negativo ao valor final.</p>
+                </div>
+              </div>
 
-        <div className="min-w-0 space-y-6">
-          {canCreate && candidates.length > 0 && (
-            <ComparableReviewPanel
-              key={candidateSearch}
-              candidates={candidates}
-              selectedCandidateIds={selectedCandidateIds}
-              pendingCount={pendingCandidates}
-              approvedCount={approvedCandidates}
-              rejectedCount={rejectedCandidates}
-              isSubmitting={isSubmitting}
-              canCalculate={canCalculateReviewedValuation}
-              onToggleSelected={toggleCandidateSelection}
-              onMarkSelected={markSelectedCandidates}
-              onSelectAll={selectAllCandidates}
-              onClearSelection={clearCandidateSelection}
-              onCycleStatus={cycleCandidateStatus}
-              onCalculate={() => void handleCreateReviewedValuation()}
-            />
-          )}
+              <Button
+                className="w-full sm:w-auto sm:min-w-56"
+                disabled={isLoadingCandidates || isLoadingFilters}
+                size="lg"
+                type="submit"
+              >
+                {isLoadingCandidates ? <Loader2 className="animate-spin" /> : <Search />}
+                Buscar comparáveis
+              </Button>
+            </div>
+          </form>
+        </Card>
+      )}
 
+      {canCreate && candidates.length > 0 && (
+        <ComparableReviewPanel
+          key={candidateSearch}
+          candidates={candidates}
+          selectedCandidateIds={selectedCandidateIds}
+          pendingCount={pendingCandidates}
+          approvedCount={approvedCandidates}
+          rejectedCount={rejectedCandidates}
+          isSubmitting={isSubmitting}
+          canCalculate={canCalculateReviewedValuation}
+          onToggleSelected={toggleCandidateSelection}
+          onMarkSelected={markSelectedCandidates}
+          onSelectAll={selectAllCandidates}
+          onClearSelection={clearCandidateSelection}
+          onCycleStatus={cycleCandidateStatus}
+          onCalculate={() => void handleCreateReviewedValuation()}
+        />
+      )}
+
+      <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
           <Card className="gap-0 overflow-hidden py-0">
             <SectionHeader
               actions={
@@ -787,7 +764,6 @@ export function ValuationsClient() {
             )}
           </Card>
 
-          {selected && <ComparableTable comparables={selectedComparables} key={selected.id} />}
 
           <Card className="gap-0 overflow-hidden py-0">
             <SectionHeader
@@ -866,8 +842,9 @@ export function ValuationsClient() {
               />
             )}
           </Card>
-        </div>
       </div>
+
+      {selected && <ComparableTable comparables={selectedComparables} key={selected.id} />}
     </div>
   );
 }
