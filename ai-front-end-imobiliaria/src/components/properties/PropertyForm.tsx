@@ -3,8 +3,7 @@
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { isAxiosError } from "axios";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FormProvider, useForm } from "react-hook-form";
-import type { z } from "zod";
+import { FormProvider, useForm, useWatch } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { ArrowLeft, ArrowRight, Check, Loader2, Save } from "lucide-react";
@@ -14,6 +13,14 @@ import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { propertySchema, type PropertyFormValues } from "@/schemas/propertySchema";
+import {
+    STEP_LABELS,
+    STEP_VALUES,
+    canReachStep,
+    issuesByStep,
+    type PropertyFormInput,
+    type PropertyStep,
+} from "@/components/properties/propertyStepValidation";
 import type { Property, SelectOption } from "@/types/property";
 import { useCreateProperty, useGetFeatures, useUpdateProperty } from "@/hooks/useProperties";
 import { useSystemEnums } from "@/hooks/useSystemEnums";
@@ -34,19 +41,6 @@ interface PropertyFormProps {
     mode: "create" | "edit";
     initialData?: Property | null;
 }
-
-type PropertyFormInput = z.input<typeof propertySchema>;
-
-const STEP_VALUES = ["basic", "features", "values", "location", "media", "management"] as const;
-
-const STEP_LABELS: Record<(typeof STEP_VALUES)[number], string> = {
-    basic: "Dados Básicos",
-    features: "Características",
-    values: "Valores",
-    location: "Localização",
-    media: "Mídias",
-    management: "Gestão Interna",
-};
 
 function toNullableText(value: string | null | undefined): string {
     return value ?? "";
@@ -119,7 +113,7 @@ function extractEnumData(enums: { tag: string; data: SelectOption[] }[], tag: st
 export function PropertyForm({ mode, initialData }: PropertyFormProps) {
     const isEdit = mode === "edit";
     const router = useRouter();
-    const [activeStep, setActiveStep] = useState<(typeof STEP_VALUES)[number]>("basic");
+    const [activeStep, setActiveStep] = useState<PropertyStep>("basic");
     const [pendingImages, setPendingImages] = useState<PendingImage[]>([]);
     const [existingImages, setExistingImages] = useState(initialData?.images ?? []);
     const [syncedInitialData, setSyncedInitialData] = useState(initialData);
@@ -155,11 +149,36 @@ export function PropertyForm({ mode, initialData }: PropertyFormProps) {
     const currentStepIndex = STEP_VALUES.indexOf(activeStep);
     const isLoading = createMutation.isPending || updateMutation.isPending || isUploadingImages;
 
+    // Same schema as the submit, checked live and grouped by step: it gates
+    // "Próxima", the final save and jumping ahead through the stepper, without
+    // painting errors on fields the user has not touched yet.
+    const watchedValues = useWatch({ control: form.control });
+    const stepIssues = useMemo(() => issuesByStep(watchedValues as PropertyFormInput), [watchedValues]);
+    const isLastStep = currentStepIndex === STEP_VALUES.length - 1;
+    const currentStepMissing = stepIssues[activeStep];
+    const stepsToReview = STEP_VALUES.filter((step) => stepIssues[step].length > 0);
+    const canGoNext = currentStepMissing.length === 0;
+    const canSave = stepsToReview.length === 0;
+    const gateHint = isLastStep
+        ? canSave
+            ? null
+            : `Revise as etapas: ${stepsToReview.map((step) => STEP_LABELS[step]).join(", ")}`
+        : canGoNext
+            ? null
+            : `Campos pendentes: ${currentStepMissing.join(", ")}`;
+
     function moveStep(direction: "next" | "previous") {
         const index = STEP_VALUES.indexOf(activeStep);
         const nextIndex = direction === "next" ? index + 1 : index - 1;
         if (nextIndex < 0 || nextIndex >= STEP_VALUES.length) return;
+        if (direction === "next" && !canGoNext) return;
         setActiveStep(STEP_VALUES[nextIndex]);
+    }
+
+    function goToStep(step: PropertyStep) {
+        // Going back is always allowed; going ahead only past completed steps.
+        if (STEP_VALUES.indexOf(step) > currentStepIndex && !canReachStep(stepIssues, step)) return;
+        setActiveStep(step);
     }
 
     function addPendingFiles(files: File[]) {
@@ -317,7 +336,7 @@ export function PropertyForm({ mode, initialData }: PropertyFormProps) {
                 <Tabs
                     className="gap-6"
                     value={activeStep}
-                    onValueChange={(value) => setActiveStep(value as (typeof STEP_VALUES)[number])}
+                    onValueChange={(value) => goToStep(value as PropertyStep)}
                 >
                     {/* Stepper: same Radix tabs (roles, keyboard, handlers), drawn as numbered steps.
                         It stays pinned to the top of the content area while the step scrolls. */}
@@ -330,6 +349,7 @@ export function PropertyForm({ mode, initialData }: PropertyFormProps) {
                             {STEP_VALUES.map((step, index) => {
                                 const stepState =
                                     index === currentStepIndex ? "current" : index < currentStepIndex ? "done" : "upcoming";
+                                const locked = index > currentStepIndex && !canReachStep(stepIssues, step);
 
                                 return (
                                     <Fragment key={step}>
@@ -343,7 +363,10 @@ export function PropertyForm({ mode, initialData }: PropertyFormProps) {
                                             />
                                         )}
                                         <TabsPrimitive.Trigger
-                                            className="flex shrink-0 cursor-pointer items-center gap-2.5 rounded-lg py-1 pr-1 outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+                                            aria-disabled={locked || undefined}
+                                            className="flex shrink-0 cursor-pointer items-center gap-2.5 rounded-lg py-1 pr-1 outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-not-allowed"
+                                            disabled={locked}
+                                            title={locked ? "Conclua as etapas anteriores para avançar" : undefined}
                                             value={step}
                                         >
                                             <span
@@ -430,17 +453,31 @@ export function PropertyForm({ mode, initialData }: PropertyFormProps) {
                         </span>
                     </div>
 
-                    <div className="flex flex-wrap gap-3">
+                    <div className="flex flex-wrap items-center justify-end gap-3">
+                        {gateHint && (
+                            <p className="max-w-md text-[0.8125rem] leading-4 text-subtle" id="property-step-gate">
+                                {gateHint}
+                            </p>
+                        )}
                         <Button type="button" variant="outline" onClick={() => router.push("/properties")}>
                             Cancelar
                         </Button>
-                        {currentStepIndex < STEP_VALUES.length - 1 ? (
-                            <Button type="button" onClick={() => moveStep("next")} disabled={isLoading}>
+                        {!isLastStep ? (
+                            <Button
+                                aria-describedby={gateHint ? "property-step-gate" : undefined}
+                                type="button"
+                                onClick={() => moveStep("next")}
+                                disabled={isLoading || !canGoNext}
+                            >
                                 Próxima
                                 <ArrowRight />
                             </Button>
                         ) : (
-                            <Button type="submit" disabled={isLoading}>
+                            <Button
+                                aria-describedby={gateHint ? "property-step-gate" : undefined}
+                                type="submit"
+                                disabled={isLoading || !canSave}
+                            >
                                 {isLoading ? (
                                     <>
                                         <Loader2 className="animate-spin" />
