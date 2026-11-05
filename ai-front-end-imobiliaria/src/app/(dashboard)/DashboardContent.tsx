@@ -27,7 +27,7 @@ import {
     ValuationsBlock,
     type PlatformLink,
 } from "@/components/features/dashboard/DashboardBlocks";
-import { DashboardList, DashboardPanel, DashboardShortcut } from "@/components/features/dashboard/DashboardPanel";
+import { DashboardPanel, DashboardPanelBody, DashboardShortcutTile } from "@/components/features/dashboard/DashboardPanel";
 import {
     usePropertiesTotal,
     useRecentNewProperties,
@@ -191,34 +191,19 @@ export function DashboardContent() {
     // A lone KPI only repeats its own block below, so the row needs at least two.
     const statCount = [properties, newProperties, auctions].filter(Boolean).length + (canViewValuations ? 1 : 0);
     const hasStats = statCount >= 2;
-    // Without the agency blocks (e.g. a Platform Admin), the auctions list joins
-    // the main column so both columns carry content.
-    const hasAgencyMain = newProperties !== null || canViewValuations;
 
-    const mainBlocks = [
-        newProperties && <NewPropertiesBlock href={newProperties.href} key="new-properties" />,
+    // Rows of equal-height cards, as on the reference home: every card of a
+    // row shares its top and bottom edges. The wide slot holds the agency's
+    // new listings, or the platform areas for a Platform Admin.
+    const wideBlock = newProperties ? (
+        <NewPropertiesBlock className="h-full" href={newProperties.href} />
+    ) : platformLinks.length > 0 ? (
+        <PlatformBlock className="h-full" links={platformLinks} />
+    ) : null;
+    const narrowBlock = auctions ? <AuctionsBlock className="h-full" href={auctions.href} /> : null;
+    const fullWidthBlocks = [
         canViewValuations && <ValuationsBlock href="/avaliacoes" key="valuations" />,
-        platformLinks.length > 0 && <PlatformBlock key="platform" links={platformLinks} />,
-        !hasAgencyMain && auctions && <AuctionsBlock href={auctions.href} key="auctions" />,
-    ].filter(Boolean);
-
-    const sideBlocks = [
-        shortcuts.length > 0 && (
-            <DashboardPanel description="Vá direto para o que você usa." icon={Zap} key="shortcuts" title="Atalhos">
-                <DashboardList label="Atalhos">
-                    {shortcuts.map((shortcut) => (
-                        <DashboardShortcut
-                            description={shortcut.description}
-                            href={shortcut.href}
-                            icon={shortcut.icon}
-                            key={shortcut.key}
-                            title={shortcut.title}
-                        />
-                    ))}
-                </DashboardList>
-            </DashboardPanel>
-        ),
-        hasAgencyMain && auctions && <AuctionsBlock href={auctions.href} key="auctions" />,
+        newProperties && platformLinks.length > 0 && <PlatformBlock key="platform" links={platformLinks} />,
     ].filter(Boolean);
 
     return (
@@ -302,19 +287,35 @@ export function DashboardContent() {
                 </div>
             )}
 
-            {mainBlocks.length > 0 && sideBlocks.length > 0 ? (
-                <div className="grid items-start gap-6 xl:grid-cols-3">
-                    <div className="min-w-0 space-y-6 xl:col-span-2">{mainBlocks}</div>
-                    <div className="min-w-0 space-y-6">{sideBlocks}</div>
+            {shortcuts.length > 0 && (
+                <DashboardPanel description="Vá direto para o que você usa." icon={Zap} title="Atalhos">
+                    <DashboardPanelBody>
+                        <ul aria-label="Atalhos" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+                            {shortcuts.map((shortcut) => (
+                                <li className="min-w-0" key={shortcut.key}>
+                                    <DashboardShortcutTile
+                                        description={shortcut.description}
+                                        href={shortcut.href}
+                                        icon={shortcut.icon}
+                                        title={shortcut.title}
+                                    />
+                                </li>
+                            ))}
+                        </ul>
+                    </DashboardPanelBody>
+                </DashboardPanel>
+            )}
+
+            {wideBlock && narrowBlock ? (
+                <div className="grid items-stretch gap-6 xl:grid-cols-3">
+                    <div className="min-w-0 xl:col-span-2">{wideBlock}</div>
+                    <div className="min-w-0">{narrowBlock}</div>
                 </div>
             ) : (
-                (mainBlocks.length > 0 || sideBlocks.length > 0) && (
-                    <div className="grid items-start gap-6 lg:grid-cols-2">
-                        {mainBlocks}
-                        {sideBlocks}
-                    </div>
-                )
+                wideBlock ?? narrowBlock
             )}
+
+            {fullWidthBlocks}
         </div>
     );
 }

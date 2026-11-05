@@ -17,7 +17,7 @@ const STALE_TIME = 60 * 1000;
 /** How many recent items each list shows. */
 export const RECENT_NEW_PROPERTIES = 5;
 export const RECENT_VALUATIONS = 5;
-export const UPCOMING_AUCTIONS = 4;
+export const UPCOMING_AUCTIONS = 5;
 
 export function usePropertiesTotal(enabled: boolean) {
     return useQuery({

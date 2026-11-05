@@ -143,7 +143,7 @@ export function NewPropertiesBlock({ href, className }: { href: string; classNam
             icon={Sparkles}
             title="Novos imóveis"
         >
-            <div className="grid border-t lg:grid-cols-[minmax(0,17rem)_minmax(0,1fr)]">
+            <div className="grid flex-1 border-t lg:grid-cols-[minmax(0,17rem)_minmax(0,1fr)]">
                 <div className="flex items-center gap-5 px-6 py-5 sm:px-8 lg:flex-col lg:items-stretch lg:justify-center lg:border-r">
                     {query.isPending ? (
                         <span aria-hidden="true" className="mx-auto size-[7.5rem] shrink-0 animate-pulse rounded-full bg-muted" />
@@ -163,7 +163,10 @@ export function NewPropertiesBlock({ href, className }: { href: string; classNam
                     ) : query.data.items.length === 0 ? (
                         <DashboardListMessage icon={Sparkles}>Nenhum anúncio novo por enquanto.</DashboardListMessage>
                     ) : (
-                        <ul aria-label="Anúncios mais recentes" className="divide-y [&>li:first-child]:border-t-0">
+                        <ul
+                            aria-label="Anúncios mais recentes"
+                            className="flex h-full flex-col divide-y [&>li:first-child]:border-t-0 [&>li]:flex [&>li]:flex-1 [&>li>*]:flex-1"
+                        >
                             {query.data.items.map(({ property, agency }) => (
                                 <NewPropertyRow agency={agency} key={property.id} property={property} />
                             ))}
@@ -269,7 +272,7 @@ export function AuctionsBlock({ href, className }: { href: string; className?: s
             ) : query.data.items.length === 0 ? (
                 <DashboardListMessage icon={Gavel}>Nenhum leilão monitorado no momento.</DashboardListMessage>
             ) : (
-                <DashboardList label="Próximos leilões">
+                <DashboardList fill label="Próximos leilões">
                     {query.data.items.slice(0, UPCOMING_AUCTIONS).map((auction) => {
                         const location = [auction.city, auction.state].filter(Boolean).join("/") || "Local não informado";
                         // The API serialises decimals as text ("50000.00"), like on the Leilões page.

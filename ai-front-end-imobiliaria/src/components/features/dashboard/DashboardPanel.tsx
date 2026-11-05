@@ -61,7 +61,8 @@ export function DashboardPanel({ icon: Icon, title, href, description, action, c
                     </Link>
                 )}
             </div>
-            {children}
+            {/* Fills the card, so cards stretched to a row's height keep their content spread. */}
+            <div className="flex min-h-0 flex-1 flex-col">{children}</div>
         </Card>
     );
 }
@@ -71,10 +72,17 @@ export function DashboardPanelBody({ className, children }: { className?: string
     return <div className={cn("px-6 pb-6 sm:px-8 sm:pb-7", className)}>{children}</div>;
 }
 
-/** Edge-to-edge list with dividers between rows, closing the card at the bottom. */
-export function DashboardList({ children, label }: { children: ReactNode; label?: string }) {
+/**
+ * Edge-to-edge list with dividers between rows, closing the card at the bottom.
+ * With `fill`, the rows share the card's remaining height evenly, so a shorter
+ * list in a stretched card still ends on the card's bottom edge.
+ */
+export function DashboardList({ children, label, fill = false }: { children: ReactNode; label?: string; fill?: boolean }) {
     return (
-        <ul aria-label={label} className="divide-y border-t">
+        <ul
+            aria-label={label}
+            className={cn("divide-y border-t", fill && "flex flex-1 flex-col [&>li]:flex [&>li]:flex-1 [&>li>*]:flex-1")}
+        >
             {children}
         </ul>
     );
@@ -85,6 +93,35 @@ interface DashboardShortcutProps {
     icon: LucideIcon;
     title: string;
     description?: string;
+}
+
+/** Shortcut tile of the "Atalhos" grid: 36px tinted icon, 12px gap, one-line title, chevron. */
+export function DashboardShortcutTile({ href, icon: Icon, title, description }: DashboardShortcutProps) {
+    const descriptionId = useId();
+
+    return (
+        <Link
+            aria-describedby={description ? descriptionId : undefined}
+            aria-label={title}
+            className="group/tile flex h-full min-w-0 items-center gap-3 rounded-xl bg-muted px-4 py-3.5 transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+            href={href}
+            title={description}
+        >
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/12 text-primary">
+                <Icon aria-hidden="true" className="size-[1.125rem]" />
+            </span>
+            <span className="line-clamp-2 min-w-0 flex-1 text-sm leading-5 font-semibold text-foreground">{title}</span>
+            {description && (
+                <span className="sr-only" id={descriptionId}>
+                    {description}
+                </span>
+            )}
+            <ChevronRight
+                aria-hidden="true"
+                className="size-4 shrink-0 text-muted-foreground transition-transform group-hover/tile:translate-x-0.5 group-hover/tile:text-primary"
+            />
+        </Link>
+    );
 }
 
 /** Compact shortcut row: 36px icon tile, 12px gap, title + one line, chevron. */
