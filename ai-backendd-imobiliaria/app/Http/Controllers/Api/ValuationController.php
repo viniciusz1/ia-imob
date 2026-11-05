@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Application\Valuation\CreateMarketValuation;
 use App\Domain\Valuation\MarketValuationCalculator;
 use App\Domain\Valuation\ValuationInput;
+use App\Domain\Valuation\ValuationPurpose;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Valuation\StoreValuationRequest;
 use App\Http\Resources\ValuationResource;
@@ -41,6 +42,7 @@ class ValuationController extends Controller
             bathrooms: (int) $data['bathrooms'],
             garageSpaces: (int) $data['garage_spaces'],
             floodRisk: (bool) $data['flood_risk'],
+            purpose: $data['purpose'] ?? ValuationPurpose::SALE,
         ), $data['comparable_reviews'] ?? null);
 
         return (new ValuationResource($valuation))->response()->setStatusCode(201);
@@ -59,6 +61,7 @@ class ValuationController extends Controller
             bathrooms: (int) $data['bathrooms'],
             garageSpaces: (int) $data['garage_spaces'],
             floodRisk: (bool) $data['flood_risk'],
+            purpose: $data['purpose'] ?? ValuationPurpose::SALE,
         ));
 
         return response()->json(['data' => $candidates]);

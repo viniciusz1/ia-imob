@@ -22,6 +22,7 @@ class MarketProperty extends Model
         'raw_property_id',
         'tipo',
         'valor',
+        'valor_aluguel',
         'bairro',
         'cidade',
         'imagem',
@@ -59,6 +60,7 @@ class MarketProperty extends Model
     {
         return [
             'valor' => 'float',
+            'valor_aluguel' => 'float',
             'area' => 'float',
             'quartos' => 'integer',
             'suites' => 'integer',

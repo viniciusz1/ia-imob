@@ -1,5 +1,6 @@
 "use client";
 
+import { PriceSuggestionPanel } from "@/components/features/properties/PriceSuggestionPanel";
 import { useFormContext } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,6 +18,7 @@ export function ValuesStep() {
 
     return (
         <section className="space-y-6">
+            <PriceSuggestionPanel />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                     <Label htmlFor="sale_price">Valor de Venda</Label>

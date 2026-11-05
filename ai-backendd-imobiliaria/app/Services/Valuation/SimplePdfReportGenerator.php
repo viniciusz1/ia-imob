@@ -3,6 +3,7 @@
 namespace App\Services\Valuation;
 
 use App\Domain\Valuation\ResidentialType;
+use App\Domain\Valuation\ValuationPurpose;
 use App\Models\PropertyValuation;
 
 class SimplePdfReportGenerator
@@ -48,6 +49,7 @@ class SimplePdfReportGenerator
         $this->table([
             [
                 ['Número da avaliação', $valuation->code],
+                ['Finalidade', ValuationPurpose::label($valuation->purpose)],
                 ['Data do parecer', $valuation->created_at?->format('d/m/Y') ?? '-'],
                 ['Responsável', $valuation->user?->name ?? '-'],
             ],
@@ -71,10 +73,10 @@ class SimplePdfReportGenerator
             ],
             [
                 ['Área privativa / útil', $this->number((float) $valuation->area).' m²'],
-                ['Valor estimado de mercado', $this->money((float) $valuation->final_central_value)],
+                [$valuation->purpose === ValuationPurpose::RENT ? 'Aluguel mensal estimado' : 'Valor estimado de mercado', ValuationPurpose::money((float) $valuation->final_central_value, $valuation->purpose)],
             ],
             [
-                ['Faixa de negociação', 'De '.$this->money((float) $valuation->final_min_value).' a '.$this->money((float) $valuation->final_max_value)],
+                ['Faixa de negociação', 'De '.ValuationPurpose::money((float) $valuation->final_min_value, $valuation->purpose).' a '.ValuationPurpose::money((float) $valuation->final_max_value, $valuation->purpose)],
                 ['Liquidez esperada', $this->liquidityLabel((int) ($summary['used_count'] ?? 0))],
             ],
         ]);
@@ -116,7 +118,11 @@ class SimplePdfReportGenerator
     private function comparables(PropertyValuation $valuation): void
     {
         $this->section('5. AMOSTRAS COMPARATIVAS');
-        $headers = ['Item', 'Status', 'Fonte', 'Bairro', 'Tipo', 'Área m²', 'R$/m²', 'Valor'];
+        $headers = [
+            'Item', 'Status', 'Fonte', 'Bairro', 'Tipo', 'Área m²',
+            $valuation->purpose === ValuationPurpose::RENT ? 'R$/m²/mês' : 'R$/m²',
+            $valuation->purpose === ValuationPurpose::RENT ? 'Aluguel mensal' : 'Valor',
+        ];
         $rows = [$headers];
 
         foreach (array_slice($valuation->comparable_evidence ?? [], 0, 12) as $index => $comparable) {
@@ -127,8 +133,8 @@ class SimplePdfReportGenerator
                 (string) ($comparable['neighborhood'] ?? '-'),
                 (string) ($comparable['raw_type'] ?? '-'),
                 $this->number((float) ($comparable['area'] ?? 0)),
-                $this->money((float) ($comparable['price_per_square_meter'] ?? 0)),
-                $this->money((float) ($comparable['price'] ?? 0)),
+                ValuationPurpose::money((float) ($comparable['price_per_square_meter'] ?? 0), $valuation->purpose),
+                ValuationPurpose::money((float) ($comparable['price'] ?? 0), $valuation->purpose),
             ];
         }
 
@@ -141,17 +147,17 @@ class SimplePdfReportGenerator
         $this->table([
             [
                 ['Indicador', 'Faixa mínima sugerida'],
-                ['Valor / fórmula', $this->money((float) $valuation->final_min_value)],
+                ['Valor / fórmula', ValuationPurpose::money((float) $valuation->final_min_value, $valuation->purpose)],
                 ['Observação', 'Base inferior do valor por m² aplicado à área do imóvel.'],
             ],
             [
-                ['Indicador', 'Valor estimado de mercado'],
-                ['Valor / fórmula', $this->money((float) $valuation->final_central_value)],
+                ['Indicador', $valuation->purpose === ValuationPurpose::RENT ? 'Aluguel mensal estimado' : 'Valor estimado de mercado'],
+                ['Valor / fórmula', ValuationPurpose::money((float) $valuation->final_central_value, $valuation->purpose)],
                 ['Observação', 'Mediana ajustada do valor por m² aplicada à área do imóvel.'],
             ],
             [
                 ['Indicador', 'Faixa máxima sugerida'],
-                ['Valor / fórmula', $this->money((float) $valuation->final_max_value)],
+                ['Valor / fórmula', ValuationPurpose::money((float) $valuation->final_max_value, $valuation->purpose)],
                 ['Observação', 'Base superior do valor por m² aplicado à área do imóvel.'],
             ],
         ]);
@@ -160,7 +166,7 @@ class SimplePdfReportGenerator
     private function finalOpinion(PropertyValuation $valuation): void
     {
         $this->section('7. Parecer final');
-        $this->paragraph('Com base nas amostras comparativas disponíveis na data-base da avaliação, o valor estimado de mercado é '.$this->money((float) $valuation->final_central_value).', com faixa sugerida entre '.$this->money((float) $valuation->final_min_value).' e '.$this->money((float) $valuation->final_max_value).'.');
+        $this->paragraph('Com base nas amostras comparativas disponíveis na data-base da avaliação, o valor estimado de mercado é '.ValuationPurpose::money((float) $valuation->final_central_value, $valuation->purpose).', com faixa sugerida entre '.ValuationPurpose::money((float) $valuation->final_min_value, $valuation->purpose).' e '.ValuationPurpose::money((float) $valuation->final_max_value, $valuation->purpose).'.');
         $this->section('8. Observações, limitações e responsabilidade');
         $this->paragraph('Esta avaliação depende da qualidade dos dados disponíveis, da amostra comparativa preservada e das condições de mercado na data do parecer. Não substitui laudo técnico ou pericial quando exigido por norma, banco ou decisão judicial.');
     }
@@ -305,7 +311,8 @@ class SimplePdfReportGenerator
         $cellWidth = $width / $columnCount;
 
         foreach ($rows as $rowIndex => $row) {
-            $height = $rowIndex === 0 ? 24 : 30;
+            $wrapped = array_map(fn (string $value): array => $this->wrap($value, $cellWidth - 6, 7), $row);
+            $height = max($rowIndex === 0 ? 24 : 30, max(array_map('count', $wrapped)) * 8 + 14);
             $this->ensure($height + 2);
 
             foreach ($row as $columnIndex => $value) {
@@ -318,7 +325,7 @@ class SimplePdfReportGenerator
                 $this->rect($x, $this->y - $height, $cellWidth, $height);
                 $font = $rowIndex === 0 ? 'F2' : 'F1';
                 $size = $rowIndex === 0 ? 7 : 7;
-                $lines = array_slice($this->wrap($value, $cellWidth - 6, $size), 0, 2);
+                $lines = $wrapped[$columnIndex];
                 $lineY = $this->y - 10;
 
                 foreach ($lines as $line) {
@@ -419,13 +426,6 @@ class SimplePdfReportGenerator
         $wrapped = wordwrap($ascii, $maxChars, "\n", true);
 
         return explode("\n", $wrapped);
-    }
-
-    private function money(float $value): string
-    {
-        $rounded = round($value / 1000) * 1000;
-
-        return 'R$ '.number_format($rounded, 0, ',', '.');
     }
 
     private function number(float $value): string

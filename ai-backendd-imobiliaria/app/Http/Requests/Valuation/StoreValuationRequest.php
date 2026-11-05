@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Valuation;
 
 use App\Domain\Valuation\ResidentialType;
+use App\Domain\Valuation\ValuationPurpose;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -16,6 +17,7 @@ class StoreValuationRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'purpose' => ['sometimes', 'required', 'string', Rule::in(ValuationPurpose::values())],
             'city' => ['required', 'array', 'min:1'],
             'city.*' => ['required', 'string', 'max:120'],
             'neighborhood' => ['required', 'array', 'min:1'],

@@ -1,3 +1,5 @@
+export type ValuationPurpose = "sale" | "rent";
+
 export type ResidentialType = "house" | "apartment" | "townhouse";
 
 export type ValuationStatus = "calculated" | "insufficient_sample";
@@ -7,6 +9,7 @@ export type ComparableReviewStatus = "pending" | "approved" | "rejected";
 export type ComparableReviewDecision = Exclude<ComparableReviewStatus, "pending">;
 
 export interface ValuationInput {
+  purpose: ValuationPurpose;
   city: string[];
   neighborhood: string[];
   residential_type: ResidentialType;
@@ -59,6 +62,7 @@ export interface SampleSummary {
 }
 
 export interface ComparableEvidence {
+  purpose?: ValuationPurpose;
   market_property_id: number;
   residential_type: ResidentialType;
   raw_type: string;
@@ -86,6 +90,8 @@ export interface ValuationUser {
 }
 
 export interface Valuation {
+  purpose: ValuationPurpose;
+  purpose_label: string;
   id: number;
   code: string;
   status: ValuationStatus;

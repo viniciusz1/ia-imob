@@ -239,7 +239,7 @@ final class MarketValuationCalculator
 
         $valid = $matched
             ->toBase()
-            ->map(fn (MarketProperty $property): ?array => $this->toComparableEvidence($property))
+            ->map(fn (MarketProperty $property): ?array => $this->toComparableEvidence($property, $input->purpose))
             ->filter()
             ->values();
 
@@ -250,15 +250,19 @@ final class MarketValuationCalculator
         ];
     }
 
-    private function toComparableEvidence(MarketProperty $property): ?array
+    private function toComparableEvidence(MarketProperty $property, string $purpose): ?array
     {
-        $price = (float) $property->valor;
+        $price = (float) ($purpose === ValuationPurpose::RENT ? $property->valor_aluguel : $property->valor);
         $area = (float) $property->area;
         $bedrooms = (int) $property->quartos;
         $bathrooms = (int) $property->banheiros;
         $garageSpaces = (int) $property->vagas;
 
-        if ($price < 50000 || $price > 100000000 || $area < 20 || $area > 2000) {
+        $validPrice = is_finite($price) && ($purpose === ValuationPurpose::RENT
+            ? $price > 0
+            : $price >= 50000 && $price <= 100000000);
+
+        if (! $validPrice || ! is_finite($area) || $area < 20 || $area > 2000) {
             return null;
         }
 
@@ -268,6 +272,7 @@ final class MarketValuationCalculator
 
         return [
             'market_property_id' => $property->id,
+            'purpose' => $purpose,
             'residential_type' => ResidentialType::fromScrapedType($property->tipo),
             'raw_type' => $property->tipo,
             'city' => $property->cidade,

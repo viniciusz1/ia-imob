@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuctionController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\MarketPriceSuggestionController;
 use App\Http\Controllers\Api\NewPropertiesController;
 use App\Http\Controllers\Api\PermissionController;
 use App\Http\Controllers\Api\RoleController;
@@ -27,6 +28,7 @@ Route::middleware(['auth:sanctum', EnsureAgencyIsActive::class])->group(function
     Route::get('auctions', [AuctionController::class, 'index']);
 
     // Properties Module
+    Route::post('valuations/price-suggestion', MarketPriceSuggestionController::class)->middleware('throttle:30,1');
     Route::apiResource('properties', \App\Http\Controllers\Api\PropertyController::class);
     Route::get('valuations/{valuation}/report.pdf', [\App\Http\Controllers\Api\ValuationController::class, 'report']);
     Route::get('valuations/{valuation}/report.docx', [\App\Http\Controllers\Api\ValuationController::class, 'wordReport']);
