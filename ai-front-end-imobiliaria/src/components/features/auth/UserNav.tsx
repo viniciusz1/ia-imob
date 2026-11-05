@@ -1,28 +1,27 @@
 "use client";
 
-import { useAuthStore } from "../../../store/useAuthStore";
-import { authService } from "../../../services/authService";
-import { clearAuthenticatedSession } from "../../../services/authSessionCookie";
-import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
 import { LogOut } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
-import { initialsOf } from "@/components/layout/SidebarUserCard";
-import { Button } from "../../ui/button";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "../../ui/dropdown-menu";
+import { useSidebarCollapsed } from "@/components/layout/SidebarNav";
+import { SidebarUserCard } from "@/components/layout/SidebarUserCard";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
+import { authService } from "@/services/authService";
+import { clearAuthenticatedSession } from "@/services/authSessionCookie";
+import { useAuthStore } from "@/store/useAuthStore";
 
-export function UserNav() {
-    const { user, clearAuth } = useAuthStore();
+/**
+ * Account block at the bottom of the sidebar: who is signed in and a visible
+ * "Sair" button (it used to hide inside an avatar menu in the topbar).
+ */
+export function UserNav({ roleLabel }: { roleLabel?: string }) {
+    const clearAuth = useAuthStore((state) => state.clearAuth);
     const router = useRouter();
     const queryClient = useQueryClient();
+    const collapsed = useSidebarCollapsed();
 
     const handleLogout = async () => {
         try {
@@ -38,30 +37,33 @@ export function UserNav() {
         }
     };
 
-    if (!user) return null;
+    const button = (
+        <button
+            aria-label="Sair da conta"
+            className={cn(
+                "flex shrink-0 cursor-pointer items-center justify-center rounded-lg text-sidebar-muted transition-colors hover:bg-destructive/15 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring/60",
+                collapsed ? "size-11" : "size-9",
+            )}
+            onClick={() => void handleLogout()}
+            type="button"
+        >
+            <LogOut className="size-[1.125rem]" />
+        </button>
+    );
 
     return (
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button aria-label="Menu da conta" className="rounded-full" size="icon" variant="ghost">
-                    <span className="flex size-8 items-center justify-center rounded-full bg-muted text-xs text-foreground">
-                        {initialsOf(user.name)}
-                    </span>
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="end" forceMount>
-                <DropdownMenuLabel className="font-normal">
-                    <div className="flex flex-col gap-1">
-                        <p className="truncate text-sm leading-none">{user.name}</p>
-                        <p className="truncate text-xs leading-none text-muted-foreground">{user.email}</p>
-                    </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onSelect={handleLogout} variant="destructive">
-                    <LogOut />
-                    Sair da conta
-                </DropdownMenuItem>
-            </DropdownMenuContent>
-        </DropdownMenu>
+        <SidebarUserCard
+            action={
+                <TooltipProvider delayDuration={150}>
+                    <Tooltip>
+                        <TooltipTrigger asChild>{button}</TooltipTrigger>
+                        <TooltipContent side={collapsed ? "right" : "top"} sideOffset={8}>
+                            Sair da conta
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+            }
+            roleLabel={roleLabel}
+        />
     );
 }

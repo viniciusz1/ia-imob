@@ -12,7 +12,6 @@ import { CrawlerAutoRefresh } from "@/components/features/crawler/CrawlerAutoRef
 import { shouldAutoRefreshCrawlerPath } from "@/components/features/crawler/CrawlerRefreshBoundary";
 import { AppShell } from "@/components/layout/AppShell";
 import { SidebarBrand } from "@/components/layout/SidebarBrand";
-import { SidebarUserCard } from "@/components/layout/SidebarUserCard";
 import { authService } from "@/services/authService";
 import { clearAuthenticatedSession } from "@/services/authSessionCookie";
 import { hasPermission } from "@/lib/permissions";
@@ -82,18 +81,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <AppShell
             brand={<SidebarBrand caption="Administração da plataforma" href="/admin" icon={ShieldCheck} title="IA Imob" />}
             navigation={<PlatformAdminNavigation />}
-            sidebarFooter={<SidebarUserCard roleLabel="Platform Admin" />}
+            sidebarFooter={<UserNav roleLabel="Platform Admin" />}
             topbar={<PlatformAdminTopbar />}
             topbarActions={
-                <>
-                    {/* Crawler list screens mirror live worker state, so they refresh on a timer. */}
-                    {shouldAutoRefreshCrawlerPath(pathname) && (
-                        <div className="hidden sm:block">
-                            <CrawlerAutoRefresh />
-                        </div>
-                    )}
-                    <UserNav />
-                </>
+                // Crawler list screens mirror live worker state, so they refresh on a timer.
+                shouldAutoRefreshCrawlerPath(pathname) && (
+                    <div className="hidden sm:block">
+                        <CrawlerAutoRefresh />
+                    </div>
+                )
             }
         >
             {children}

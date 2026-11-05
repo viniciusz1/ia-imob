@@ -5,7 +5,6 @@ import { UserNav } from "@/components/features/auth/UserNav";
 import { AppNavigation, AppTopbarTitle } from "@/components/features/navigation/AppNavigation";
 import { AppShell } from "@/components/layout/AppShell";
 import { SidebarBrand } from "@/components/layout/SidebarBrand";
-import { SidebarUserCard } from "@/components/layout/SidebarUserCard";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function DashboardLayout({
@@ -19,14 +18,9 @@ export default function DashboardLayout({
             <AppShell
                 brand={<SidebarBrand caption="Sistema imobiliário" href="/" icon={Building2} title="IA Imob" />}
                 navigation={<AppNavigation />}
-                sidebarFooter={<SidebarUserCard />}
+                sidebarFooter={<UserNav />}
                 topbar={<AppTopbarTitle />}
-                topbarActions={
-                    <>
-                        <ThemeToggle />
-                        <UserNav />
-                    </>
-                }
+                topbarActions={<ThemeToggle />}
             >
                 {children}
             </AppShell>

@@ -1,5 +1,7 @@
 "use client";
 
+import type { ReactNode } from "react";
+
 import { useSidebarCollapsed } from "@/components/layout/SidebarNav";
 import { useAuthStore } from "@/store/useAuthStore";
 
@@ -11,8 +13,14 @@ export function initialsOf(name: string | undefined): string {
     return (first + last).toUpperCase() || "?";
 }
 
-/** Signed-in user pinned to the bottom of the sidebar; just the avatar tile in the rail. */
-export function SidebarUserCard({ roleLabel }: { roleLabel?: string }) {
+interface SidebarUserCardProps {
+    roleLabel?: string;
+    /** Account action (e.g. sign out); beside the name, or under the avatar in the rail. */
+    action?: ReactNode;
+}
+
+/** Signed-in user pinned to the bottom of the sidebar. */
+export function SidebarUserCard({ roleLabel, action }: SidebarUserCardProps) {
     const user = useAuthStore((state) => state.user);
     const collapsed = useSidebarCollapsed();
 
@@ -29,9 +37,12 @@ export function SidebarUserCard({ roleLabel }: { roleLabel?: string }) {
 
     if (collapsed) {
         return (
-            <div className="flex justify-center" title={`${user.name} · ${roleLabel ?? user.email}`}>
-                {avatar}
-                <span className="sr-only">{user.name}</span>
+            <div className="flex flex-col items-center gap-2">
+                <div title={`${user.name} · ${roleLabel ?? user.email}`}>
+                    {avatar}
+                    <span className="sr-only">{user.name}</span>
+                </div>
+                {action}
             </div>
         );
     }
@@ -43,6 +54,7 @@ export function SidebarUserCard({ roleLabel }: { roleLabel?: string }) {
                 <p className="truncate text-sm font-medium text-sidebar-foreground">{user.name}</p>
                 <p className="truncate text-xs text-sidebar-muted">{roleLabel ?? user.email}</p>
             </div>
+            {action}
         </div>
     );
 }
