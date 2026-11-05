@@ -20,6 +20,7 @@ import { SectionHeader } from "@/components/layout/SectionHeader";
 import { Badge } from "@/components/ui/badge";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Card } from "@/components/ui/card";
+import { ShareBar, StackedBar } from "@/components/ui/charts";
 import { FormField } from "@/components/ui/form-field";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -148,6 +149,31 @@ export function ValuationDashboardClient() {
         )}
       </section>
 
+      {indicators !== undefined && (
+        <Card className="gap-5">
+          <div className="space-y-2 px-6 sm:px-8">
+            <h2 className="text-xl leading-6 font-semibold tracking-[-0.01em]">Resultado das avaliações</h2>
+            <p className="text-sm leading-4 font-semibold text-subtle">
+              Quantas avaliações do período chegaram a um valor e quantas ficaram sem amostra suficiente.
+            </p>
+          </div>
+          <div className="px-6 sm:px-8">
+            <StackedBar
+              label="Avaliações calculadas e com amostra insuficiente"
+              segments={[
+                { key: "calculated", label: "Calculadas", tone: "success", value: indicators.calculated.value },
+                {
+                  key: "insufficient",
+                  label: "Amostra insuficiente",
+                  tone: "warning",
+                  value: indicators.insufficient_sample.value,
+                },
+              ]}
+            />
+          </div>
+        </Card>
+      )}
+
       {indicators === undefined ? (
         <Skeleton className="h-72 w-full rounded-xl" />
       ) : (
@@ -198,6 +224,8 @@ export function ValuationDashboardClient() {
 function ValuationRows({ rows, groupLabel }: { rows: ValuationRow[]; groupLabel: string }) {
   const paged = usePagedItems(rows);
   const showMedian = rows.some((row) => row.medianValue !== undefined);
+  // Bars compare each group with the largest one across all pages.
+  const largestCount = Math.max(0, ...rows.map((row) => row.count));
 
   if (rows.length === 0) {
     return (
@@ -213,26 +241,23 @@ function ValuationRows({ rows, groupLabel }: { rows: ValuationRow[]; groupLabel:
       <Table>
         <TableHeader>
           <TableRow className="hover:bg-transparent">
-            <TableHead className="sm:pl-5">{groupLabel}</TableHead>
-            <TableHead className={showMedian ? "text-right" : "text-right sm:pr-5"}>
-              Avaliações
-            </TableHead>
-            {showMedian ? <TableHead className="text-right sm:pr-5">Valor mediano</TableHead> : null}
+            <TableHead>{groupLabel}</TableHead>
+            <TableHead className="text-right">Avaliações</TableHead>
+            {showMedian ? <TableHead className="text-right">Valor mediano</TableHead> : null}
           </TableRow>
         </TableHeader>
         <TableBody>
           {paged.pageItems.map((row) => (
             <TableRow key={row.label}>
-              <TableCell className="text-foreground sm:pl-5">{row.label}</TableCell>
-              <TableCell
-                className={
-                  showMedian ? "text-right tabular-nums" : "text-right tabular-nums sm:pr-5"
-                }
-              >
-                {formatCount(row.count)}
+              <TableCell className="font-medium text-foreground">{row.label}</TableCell>
+              <TableCell className="text-right tabular-nums">
+                <span className="inline-flex items-center justify-end gap-3">
+                  <ShareBar className="hidden sm:inline-flex" max={largestCount} value={row.count} />
+                  <span className="min-w-10">{formatCount(row.count)}</span>
+                </span>
               </TableCell>
               {showMedian ? (
-                <TableCell className="text-right tabular-nums sm:pr-5">
+                <TableCell className="text-right tabular-nums">
                   {row.medianValue == null ? EMPTY_VALUE : formatCurrency(row.medianValue)}
                 </TableCell>
               ) : null}

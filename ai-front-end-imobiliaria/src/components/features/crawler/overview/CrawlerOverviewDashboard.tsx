@@ -13,7 +13,13 @@ import {
 import { useState } from "react";
 
 import { CrawlerHeaderActions } from "@/components/features/crawler/CrawlerHeaderActions";
-import { HealthBadge, LifecycleBadge, OperationStateBadge } from "@/components/features/crawler/CrawlerStatusBadges";
+import {
+  HEALTH_STATUS,
+  HealthBadge,
+  LIFECYCLE_STATUS,
+  LifecycleBadge,
+  OperationStateBadge,
+} from "@/components/features/crawler/CrawlerStatusBadges";
 import { EmptyState } from "@/components/layout/EmptyState";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { SectionHeader } from "@/components/layout/SectionHeader";
@@ -21,27 +27,44 @@ import { StatCard } from "@/components/layout/StatCard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { ChartLegendList, DonutChart, type ChartTone } from "@/components/ui/charts";
 import { testCrawlerIntegration } from "@/services/crawlerService";
 import type { CrawlerIntegration, CrawlerOverview, WorkerInstance } from "@/types/crawler";
 
-function StateCountList({ title, entries, renderBadge }: {
+function StateCountList({ title, entries, renderBadge, toneOf }: {
   title: string;
   entries: Array<[string, number]>;
   renderBadge: (state: string) => React.ReactNode;
+  toneOf: (state: string) => ChartTone;
 }) {
+  const segments = entries.map(([state, count]) => ({
+    key: state,
+    label: renderBadge(state),
+    value: count,
+    tone: toneOf(state),
+  }));
+
   return (
-    <div className="space-y-2 px-4 py-4 sm:px-5">
-      <p className="text-xs uppercase tracking-wide text-muted-foreground">{title}</p>
-      <ul className="space-y-2">
-        {entries.map(([state, count]) => (
-          <li className="flex items-center justify-between gap-3" key={state}>
-            {renderBadge(state)}
-            <span className="text-sm text-foreground tabular-nums">{count}</span>
-          </li>
-        ))}
-      </ul>
+    <div className="space-y-4 px-6 py-5 sm:px-8">
+      <p className="text-sm leading-4 font-semibold text-subtle">{title}</p>
+      <div className="flex items-center gap-6">
+        <DonutChart label={`Crawl Agencies por ${title.toLowerCase()}`} segments={segments} size={120} />
+        <ChartLegendList segments={segments} />
+      </div>
     </div>
   );
+}
+
+const BADGE_TONE: Record<string, ChartTone> = {
+  success: "success",
+  warning: "warning",
+  destructive: "destructive",
+  info: "info",
+};
+
+function toneFor<T extends string>(map: Record<T, { variant: string }>, state: string): ChartTone {
+  const variant = (map as Record<string, { variant: string } | undefined>)[state]?.variant;
+  return (variant && BADGE_TONE[variant]) || "muted";
 }
 
 export function CrawlerOverviewDashboard({
@@ -81,16 +104,18 @@ export function CrawlerOverviewDashboard({
       <div className="grid gap-6 lg:grid-cols-2">
         <Card className="gap-0 overflow-hidden py-0">
           <SectionHeader href="/admin/crawler/agencies" icon={HeartPulse} title="Estado das Crawl Agencies" />
-          <div className="grid divide-y sm:grid-cols-2 sm:divide-x sm:divide-y-0">
+          <div className="grid divide-y xl:grid-cols-2 xl:divide-x xl:divide-y-0">
             <StateCountList
               entries={Object.entries(initialOverview.agencies.lifecycle)}
               renderBadge={(state) => <LifecycleBadge state={state} />}
               title="Ciclo de vida"
+              toneOf={(state) => toneFor(LIFECYCLE_STATUS, state)}
             />
             <StateCountList
               entries={Object.entries(initialOverview.agencies.health)}
               renderBadge={(state) => <HealthBadge state={state} />}
               title="Saúde"
+              toneOf={(state) => toneFor(HEALTH_STATUS, state)}
             />
           </div>
         </Card>
@@ -102,7 +127,7 @@ export function CrawlerOverviewDashboard({
           ) : (
             <ul className="divide-y">
               {initialOverview.active_operations.map((operation) => (
-                <li className="flex items-center gap-3 px-4 py-3 sm:px-5" key={operation.id}>
+                <li className="flex items-center gap-3 px-6 py-3 sm:px-8" key={operation.id}>
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-sm text-foreground">#{operation.id} · {operation.type}</span>
                     {operation.crawl_agency && (
@@ -122,7 +147,7 @@ export function CrawlerOverviewDashboard({
         {activeWorkers.length === 0 ? (
           <EmptyState icon={Cpu} title="Nenhum worker ativo." variant="inline" />
         ) : (
-          <div className="flex flex-wrap gap-2 px-4 py-4 sm:px-5">
+          <div className="flex flex-wrap gap-2 px-6 py-4 sm:px-8">
             {activeWorkers.map((worker) => (
               <Badge className="font-mono" key={worker.id} variant="muted">{worker.worker_key}</Badge>
             ))}
@@ -135,9 +160,9 @@ export function CrawlerOverviewDashboard({
         {integrations.length === 0 ? (
           <EmptyState icon={Plug} title="Nenhuma integração configurada." variant="inline" />
         ) : (
-          <div className="grid gap-4 p-4 sm:p-5 md:grid-cols-2">
+          <div className="grid gap-4 px-6 pb-6 sm:px-8 sm:pb-8 md:grid-cols-2">
             {integrations.map((integration) => (
-              <div className="space-y-3 rounded-lg border p-4" key={integration.key}>
+              <div className="space-y-3 rounded-xl border border-transparent bg-muted p-4" key={integration.key}>
                 <div className="flex items-center justify-between gap-3">
                   <p className="text-sm text-foreground">{integration.label}</p>
                   <Badge variant={integration.availability === "configured" ? "success" : "destructive"}>

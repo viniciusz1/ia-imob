@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { ChartColumn, SearchX } from "lucide-react";
 import { EmptyState } from "@/components/layout/EmptyState";
+import { ShareBar } from "@/components/ui/charts";
 import {
   Table,
   TableBody,
@@ -90,6 +91,8 @@ export function MarketBreakdownTable({ pricing, rankings }: MarketBreakdownTable
 
 function BreakdownRows({ rows, groupLabel }: { rows: BreakdownRow[]; groupLabel: string }) {
   const paged = usePagedItems(rows);
+  // Bars compare each group with the largest one across all pages.
+  const largestSample = Math.max(0, ...rows.map((row) => row.sampleSize));
 
   if (rows.length === 0) {
     return (
@@ -105,23 +108,26 @@ function BreakdownRows({ rows, groupLabel }: { rows: BreakdownRow[]; groupLabel:
       <Table>
         <TableHeader>
           <TableRow className="hover:bg-transparent">
-            <TableHead className="sm:pl-5">{groupLabel}</TableHead>
+            <TableHead>{groupLabel}</TableHead>
             <TableHead className="text-right">Imóveis</TableHead>
             <TableHead className="text-right">Mediana</TableHead>
-            <TableHead className="text-right sm:pr-5">R$/m²</TableHead>
+            <TableHead className="text-right">R$/m²</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {paged.pageItems.map((row) => (
             <TableRow key={row.label}>
-              <TableCell className="text-foreground sm:pl-5">{row.label}</TableCell>
-              <TableCell className="text-right tabular-nums text-muted-foreground">
-                {formatCount(row.sampleSize)}
+              <TableCell className="font-medium text-foreground">{row.label}</TableCell>
+              <TableCell className="text-right tabular-nums">
+                <span className="inline-flex items-center justify-end gap-3">
+                  <ShareBar className="hidden sm:inline-flex" max={largestSample} value={row.sampleSize} />
+                  <span className="min-w-10 text-foreground">{formatCount(row.sampleSize)}</span>
+                </span>
               </TableCell>
               <TableCell className="text-right tabular-nums">
                 {row.insufficientSample ? EMPTY_VALUE : formatCurrency(row.median)}
               </TableCell>
-              <TableCell className="text-right tabular-nums sm:pr-5">
+              <TableCell className="text-right tabular-nums">
                 {row.insufficientSample
                   ? EMPTY_VALUE
                   : formatSquareMetrePrice(row.medianPerSquareMetre)}
