@@ -10,6 +10,7 @@ use App\Models\Crawler\DiscoverySnapshot;
 use App\Models\Crawler\DiscoverySnapshotUrl;
 use App\Models\Crawler\ExtractionProfile;
 use App\Models\Crawler\MarketDataContractVersion;
+use App\Models\Crawler\ProfileValidationReport;
 use App\Models\CrawlerRun;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -387,6 +388,49 @@ class ProductionCrawlApiTest extends TestCase
 
         $operation = CrawlerOperation::query()->findOrFail($response->json('data.id'));
         $this->assertEquals($fixedPolicy, $operation->plan['extraction_policy']);
+    }
+
+    public function test_plan_reuses_the_extraction_policy_the_profile_was_validated_with(): void
+    {
+        [$admin, $agency, $snapshot, , $approvedProfile] = $this->fixtures();
+        $validatedPolicy = [
+            'id' => 1,
+            'name' => 'Extração estruturada com fallback',
+            'version' => 1,
+            'source' => 'catalog',
+            'strategies' => ['xpath', 'css', 'fit_markdown_regex'],
+            'configuration' => [],
+        ];
+        $validationOperation = CrawlerOperation::query()->create([
+            'type' => 'profile_validation',
+            'state' => 'succeeded',
+            'requested_by' => $admin->id,
+            'crawl_agency_id' => $agency->id,
+            'plan' => ['extraction_profile_id' => $approvedProfile->id, 'extraction_policy' => $validatedPolicy],
+        ]);
+        ProfileValidationReport::query()->create([
+            'operation_id' => $validationOperation->id,
+            'extraction_profile_id' => $approvedProfile->id,
+            'sampled_url_count' => 20,
+            'valid_record_count' => 19,
+            'valid_ratio' => 0.95,
+            'required_field_coverage' => ['valor' => 1.0],
+            'blocking_failures' => [],
+            'warnings' => [],
+            'eligible' => true,
+        ]);
+
+        $response = $this->actingAs($admin)
+            ->postJson('/api/v1/admin/crawler/production-crawls', [
+                'crawl_agency_id' => $agency->id,
+                'discovery_mode' => 'existing',
+                'discovery_snapshot_id' => $snapshot->id,
+                'extraction_profile_id' => $approvedProfile->id,
+            ])
+            ->assertCreated();
+
+        $operation = CrawlerOperation::query()->findOrFail($response->json('data.id'));
+        $this->assertEquals($validatedPolicy, $operation->plan['extraction_policy']);
     }
 
     public function test_plan_rejects_discovery_or_profile_from_another_crawl_agency(): void

@@ -19,7 +19,7 @@ class ExtractionProfileValidationApiTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_validation_samples_urls_and_keeps_profile_and_agency_approval_separate(): void
+    public function test_validation_samples_urls_and_approving_profile_activates_agency_automatically(): void
     {
         [$admin, $agency, $contract, $snapshot, $profile] = $this->fixtures();
 
@@ -33,7 +33,7 @@ class ExtractionProfileValidationApiTest extends TestCase
         $this->assertSame('https://validation.example.com/property/1', $operation->plan['urls'][0]);
         $this->assertSame('https://validation.example.com/property/25', $operation->plan['urls'][19]);
 
-        $report = ProfileValidationReport::query()->create([
+        ProfileValidationReport::query()->create([
             'operation_id' => $operation->id,
             'extraction_profile_id' => $profile->id,
             'sampled_url_count' => 20,
@@ -57,34 +57,24 @@ class ExtractionProfileValidationApiTest extends TestCase
         $this->assertSame($admin->id, $profile->decided_by);
         $this->assertNotNull($profile->decided_at);
         $this->assertSame('Abaixo da recomendação, mas aprovado após revisão humana.', $profile->decision_reason);
+        $this->assertSame('active', $agency->refresh()->lifecycle_state);
 
         $this->actingAs($admin)
             ->postJson("/api/v1/admin/crawler/extraction-profiles/{$profile->id}/activate")
             ->assertOk()
             ->assertJsonPath('data.status', 'active');
 
-        $this->assertSame('onboarding', $agency->refresh()->lifecycle_state);
-
-        $profileReviewer = User::factory()->create(['agency_id' => null]);
-        $profileReviewer->givePermissionTo(Permission::findByName('crawler.profiles.approve', 'web'));
-
-        $this->actingAs($profileReviewer)
-            ->postJson("/api/v1/admin/crawler/crawl-agencies/{$agency->id}/activate")
-            ->assertForbidden();
-
-        $this->actingAs($admin)
-            ->postJson("/api/v1/admin/crawler/crawl-agencies/{$agency->id}/activate")
-            ->assertOk()
-            ->assertJsonPath('data.lifecycle_state', 'active');
+        $this->assertSame('active', $agency->refresh()->lifecycle_state);
     }
 
     public function test_candidate_profile_can_be_activated_directly_without_prior_manual_approval(): void
     {
-        [$admin, , , , $profile] = $this->fixtures();
+        [$admin, $agency, , , $profile] = $this->fixtures();
 
         $this->assertSame('candidate', $profile->status);
+        $this->assertSame('onboarding', $agency->refresh()->lifecycle_state);
 
-        $response = $this->actingAs($admin)
+        $this->actingAs($admin)
             ->postJson("/api/v1/admin/crawler/extraction-profiles/{$profile->id}/activate")
             ->assertOk()
             ->assertJsonPath('data.status', 'active')
@@ -96,6 +86,7 @@ class ExtractionProfileValidationApiTest extends TestCase
         $this->assertNotNull($profile->activated_at);
         $this->assertSame($admin->id, $profile->decided_by);
         $this->assertSame('Ativado diretamente.', $profile->decision_reason);
+        $this->assertSame('active', $agency->refresh()->lifecycle_state);
     }
 
     public function test_validation_plan_prioritizes_urls_matching_the_detail_profile(): void

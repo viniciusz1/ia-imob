@@ -103,7 +103,7 @@ export function CrawlAgencyOnboardingClient({
 
   const resolvedPlan: OnboardingPlan = plan ?? {
     id: 0,
-    prospect_id: 0,
+    prospect_id: null,
     crawl_agency_id: agency.id,
     status: "draft",
     name: null,
@@ -115,7 +115,7 @@ export function CrawlAgencyOnboardingClient({
     steps: [],
     confirmed_by: null,
     confirmed_at: null,
-    created_by: 0,
+    created_by: null,
     created_at: agency.created_at,
     updated_at: agency.updated_at,
   };

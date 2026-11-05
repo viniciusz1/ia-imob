@@ -3,6 +3,7 @@
 namespace App\Services\Crawler;
 
 use App\Models\Crawler\CrawlerOperation;
+use App\Models\Crawler\DiscoveryPolicyVersion;
 use App\Models\Crawler\ExtractionProfile;
 use App\Models\Crawler\OnboardingExecution;
 use App\Models\Crawler\ProfileValidationReport;
@@ -123,14 +124,21 @@ class ExtractionProfileWorkflowService
             throw ValidationException::withMessages(['decision' => 'A validation report is required before approval.']);
         }
 
-        $profile->update([
-            'status' => $decision,
-            'decided_by' => $actor->id,
-            'decided_at' => now(),
-            'decision_reason' => $reason,
-        ]);
+        return DB::transaction(function () use ($profile, $decision, $reason, $actor): ExtractionProfile {
+            DB::statement('SELECT pg_advisory_xact_lock(?)', [$profile->crawl_agency_id]);
+            $profile->update([
+                'status' => $decision,
+                'decided_by' => $actor->id,
+                'decided_at' => now(),
+                'decision_reason' => $reason,
+            ]);
 
-        return $profile->refresh()->load(['latestValidationReport', 'decider', 'activator']);
+            if ($decision === 'approved') {
+                $this->activateCrawlAgencyFromProfile($profile);
+            }
+
+            return $profile->refresh()->load(['latestValidationReport', 'decider', 'activator']);
+        });
     }
 
     public function activate(ExtractionProfile $profile, User $actor): ExtractionProfile
@@ -157,9 +165,72 @@ class ExtractionProfileWorkflowService
                 'activated_by' => $actor->id,
                 'activated_at' => now(),
             ]);
-            $profile->crawlAgency()->update(['revalidation_required' => false]);
+            $this->activateCrawlAgencyFromProfile($profile);
+            $this->approvePendingOnboardingExecution($profile, $actor);
 
             return $profile->refresh()->load(['latestValidationReport', 'decider', 'activator']);
         });
+    }
+
+    private function activateCrawlAgencyFromProfile(ExtractionProfile $profile): void
+    {
+        $agency = $profile->crawlAgency()->firstOrFail();
+        $updates = ['revalidation_required' => false];
+
+        if ($agency->lifecycle_state === 'onboarding') {
+            $updates['lifecycle_state'] = 'active';
+        }
+
+        if ($agency->active_discovery_policy_version_id === null) {
+            $policyId = OnboardingExecution::query()
+                ->where('crawl_agency_id', $agency->id)
+                ->whereNotNull('discovery_policy_version_id')
+                ->latest('id')
+                ->value('discovery_policy_version_id');
+
+            if (
+                $policyId !== null
+                && DiscoveryPolicyVersion::query()
+                    ->whereKey($policyId)
+                    ->where('status', 'available')
+                    ->exists()
+            ) {
+                $updates['active_discovery_policy_version_id'] = $policyId;
+            }
+        }
+
+        $agency->update($updates);
+    }
+
+    private function approvePendingOnboardingExecution(ExtractionProfile $profile, User $actor): void
+    {
+        $execution = OnboardingExecution::query()
+            ->where('crawl_agency_id', $profile->crawl_agency_id)
+            ->where('state', 'awaiting_approval')
+            ->latest('id')
+            ->first();
+
+        if ($execution === null) {
+            return;
+        }
+
+        $report = ProfileValidationReport::query()
+            ->where('extraction_profile_id', $profile->id)
+            ->latest('id')
+            ->first();
+
+        $execution->update([
+            'state' => 'awaiting_first_production',
+            'current_step' => 'first_production',
+            'first_production_discovery_mode' => $execution->first_production_discovery_mode ?? 'fresh',
+            'extraction_profile_id' => $profile->id,
+            'profile_validation_report_id' => $report?->id ?? $execution->profile_validation_report_id,
+            'approved_by' => $actor->id,
+            'approved_at' => now(),
+            'approval_reason' => $profile->decision_reason ?? 'Ativado diretamente.',
+            'paused_at' => now(),
+            'attention_code' => null,
+            'attention_message' => null,
+        ]);
     }
 }

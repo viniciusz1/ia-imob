@@ -8,6 +8,7 @@ use App\Models\Crawler\DiscoveryPolicyVersion;
 use App\Models\Crawler\DiscoverySnapshot;
 use App\Models\Crawler\ExtractionProfile;
 use App\Models\Crawler\OnboardingExecution;
+use App\Models\Crawler\ProfileValidationReport;
 use App\Models\Crawler\QualityPolicyVersion;
 use App\Models\CrawlerRun;
 use App\Models\User;
@@ -33,7 +34,9 @@ class ProductionCrawlService
             ? ExtractionProfile::query()->find($input['extraction_profile_id'])
             : ExtractionProfile::query()
                 ->where('crawl_agency_id', $agency->id)
-                ->where('status', 'active')
+                ->whereIn('status', ['active', 'approved'])
+                ->orderByRaw("CASE WHEN status = 'active' THEN 0 ELSE 1 END")
+                ->latest('version')
                 ->first();
         if ($profile === null
             || $profile->crawl_agency_id !== $agency->id
@@ -99,7 +102,8 @@ class ProductionCrawlService
         if ($discoveryPolicy !== null) {
             $plan['discovery_policy'] = $discoveryPolicy;
         }
-        $extractionPolicy = data_get($profile->parameters, 'extraction_policy');
+        $extractionPolicy = data_get($profile->parameters, 'extraction_policy')
+            ?? $this->validatedExtractionPolicy($profile);
         if (is_array($extractionPolicy)) {
             $plan['extraction_policy'] = $extractionPolicy;
         }
@@ -141,6 +145,27 @@ class ProductionCrawlService
                 'plan' => $plan,
             ])->refresh();
         });
+    }
+
+    /**
+     * Produção deve extrair com a mesma cadeia de estratégias que aprovou o perfil.
+     */
+    private function validatedExtractionPolicy(ExtractionProfile $profile): ?array
+    {
+        $operationId = ProfileValidationReport::query()
+            ->where('extraction_profile_id', $profile->id)
+            ->latest('id')
+            ->value('operation_id');
+        if ($operationId === null) {
+            return null;
+        }
+
+        $policy = data_get(
+            CrawlerOperation::query()->find($operationId)?->plan,
+            'extraction_policy',
+        );
+
+        return is_array($policy) ? $policy : null;
     }
 
     private function resolveDiscoveryPolicy(

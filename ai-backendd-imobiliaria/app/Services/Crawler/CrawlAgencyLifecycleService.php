@@ -22,7 +22,7 @@ class CrawlAgencyLifecycleService
         if ($target === CrawlAgencyLifecycle::Active) {
             $hasActiveProfile = ExtractionProfile::query()
                 ->where('crawl_agency_id', $crawlAgency->id)
-                ->where('status', 'active')
+                ->whereIn('status', ['active', 'approved'])
                 ->exists();
 
             if (! $hasActiveProfile || $crawlAgency->revalidation_required) {

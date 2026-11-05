@@ -199,4 +199,118 @@ return [
             'aliases' => '',
         ],
     ],
+    'guaramirim' => [
+        'amizade' => [
+            'name' => 'Amizade',
+            'aliases' => 'bairro amizade, amizade!',
+        ],
+        'area-rural' => [
+            'name' => 'Área Rural',
+            'aliases' => 'area rural, zona rural, area rural de guaramirim, área rural de guaramirim',
+        ],
+        'avai' => [
+            'name' => 'Avaí',
+            'aliases' => 'avai, bairro avai',
+        ],
+        'bananal-do-sul' => [
+            'name' => 'Bananal do Sul',
+            'aliases' => 'bananal do sul, bananal, estrada bananal do sul, bananal sul',
+        ],
+        'barro-branco' => [
+            'name' => 'Barro Branco',
+            'aliases' => 'barro branco',
+        ],
+        'beira-rio' => [
+            'name' => 'Beira Rio',
+            'aliases' => 'beira rio, beira-rio',
+        ],
+        'bruderthal' => [
+            'name' => 'Bruderthal',
+            'aliases' => 'bruderthal i, bruderthal 1, bruderthal ii, bruderthal 2',
+        ],
+        'caixa-d-agua' => [
+            'name' => "Caixa d'Água",
+            'aliases' => "caixa d'agua, caixa d agua, caixa d'água, caixa d água, caixa da agua, caixa d' agua, caixa d' água, caixa d´agua, caixa d´àgua, caixa d’ água",
+        ],
+        'centro' => [
+            'name' => 'Centro',
+            'aliases' => 'centro de guaramirim',
+        ],
+        'corticeira' => [
+            'name' => 'Corticeira',
+            'aliases' => 'bairro corticeira',
+        ],
+        'corticeirinha' => [
+            'name' => 'Corticeirinha',
+            'aliases' => '',
+        ],
+        'duas-mamas' => [
+            'name' => 'Duas Mamas',
+            'aliases' => '',
+        ],
+        'escolinha' => [
+            'name' => 'Escolinha',
+            'aliases' => 'bairro escolinha',
+        ],
+        'figueirinha' => [
+            'name' => 'Figueirinha',
+            'aliases' => '',
+        ],
+        'guamiranga' => [
+            'name' => 'Guamiranga',
+            'aliases' => 'guaramiringa',
+        ],
+        'ilha-da-figueira' => [
+            'name' => 'Ilha da Figueira',
+            'aliases' => 'ilha da figueira, ilha figueira, ilha da figuieira',
+        ],
+        'imigrantes' => [
+            'name' => 'Imigrantes',
+            'aliases' => 'bairro imigrantes',
+        ],
+        'jacu-acu' => [
+            'name' => 'Jacu Açu',
+            'aliases' => 'jacu acu, jacu-acu, jacuacu, jacuaçu, jacu açu',
+        ],
+        'nova-esperanca' => [
+            'name' => 'Nova Esperança',
+            'aliases' => 'nova esperanca',
+        ],
+        'poco-grande' => [
+            'name' => 'Poço Grande',
+            'aliases' => 'poco grande',
+        ],
+        'ponta-comprida' => [
+            'name' => 'Ponta Comprida',
+            'aliases' => 'estrada ponta comprida',
+        ],
+        'putanga' => [
+            'name' => 'Putanga',
+            'aliases' => '',
+        ],
+        'quati' => [
+            'name' => 'Quati',
+            'aliases' => '',
+        ],
+        'recanto-feliz' => [
+            'name' => 'Recanto Feliz',
+            'aliases' => 'recanto feliz',
+        ],
+        'rio-branco' => [
+            'name' => 'Rio Branco',
+            'aliases' => 'rio branco',
+        ],
+        'serenata' => [
+            'name' => 'Serenata',
+            'aliases' => '',
+        ],
+        'tibagi' => [
+            'name' => 'Tibagi',
+            'aliases' => '',
+        ],
+        'vila-amizade' => [
+            'name' => 'Vila Amizade',
+            'aliases' => 'vila amizade',
+        ],
+    ],
 ];

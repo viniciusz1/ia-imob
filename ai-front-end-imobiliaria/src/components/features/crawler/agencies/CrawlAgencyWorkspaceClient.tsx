@@ -58,10 +58,10 @@ export function CrawlAgencyWorkspaceClient({
   const activeOperation = operations.find(isActiveCrawlerOperation);
   const execution = executions[0] ?? null;
   const displayedAgency = useMemo(
-    () => execution?.approval && agency.lifecycle_state === "onboarding"
+    () => (execution?.approval || profiles.some((profile) => ["active", "approved"].includes(profile.status))) && agency.lifecycle_state === "onboarding"
       ? { ...agency, lifecycle_state: "active" as const }
       : agency,
-    [agency, execution?.approval],
+    [agency, execution?.approval, profiles],
   );
   const publishedRun = runs.find((run) => run.publication_state === "published");
   const quarantinedRun = runs.find((run) => run.publication_state === "quarantined" && run.quality_rejection === null);

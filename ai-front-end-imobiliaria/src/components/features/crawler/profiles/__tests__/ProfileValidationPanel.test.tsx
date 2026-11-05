@@ -2,7 +2,6 @@ import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
-  activateCrawlAgency,
   activateExtractionProfile,
   decideExtractionProfile,
   getCrawlerOperation,
@@ -134,25 +133,27 @@ describe("ProfileValidationPanel", () => {
     expect(screen.getByText("Perfil v1")).toBeInTheDocument();
   });
 
-  it("keeps agency activation on the active profile after removing the next-action band", async () => {
-    vi.mocked(activateCrawlAgency).mockResolvedValue({
-      id: 42,
-      name: "Imóveis Exemplo",
-      slug: "imoveis-exemplo",
-      base_url: "https://agency.example.com",
-      root_domain: "agency.example.com",
-      lifecycle_state: "active",
-      health_state: "unknown",
-      revalidation_required: false,
-      current_published_crawl_run_id: null,
-      created_at: "2026-07-15T12:00:00Z",
-      updated_at: "2026-07-16T13:00:00Z",
+  it("does not require a separate Crawl Agency activation button when a profile is active or activated", async () => {
+    const onLifecycleChange = vi.fn();
+    vi.mocked(activateExtractionProfile).mockResolvedValue({
+      ...profile,
+      status: "active",
+      activated_by: 1,
+      activated_at: "2026-07-16T13:00:00Z",
     });
-    render(<ProfileValidationPanel agencyLifecycle="onboarding" initialProfile={{ ...profile, status: "active" }} />);
+    render(
+      <ProfileValidationPanel
+        agencyLifecycle="onboarding"
+        initialProfile={profile}
+        onLifecycleChange={onLifecycleChange}
+      />,
+    );
 
-    fireEvent.click(screen.getByRole("button", { name: "Ativar Crawl Agency" }));
+    expect(screen.queryByRole("button", { name: "Ativar Crawl Agency" })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Ativar Perfil de Extração" }));
 
-    await waitFor(() => expect(activateCrawlAgency).toHaveBeenCalledWith(42));
+    await waitFor(() => expect(activateExtractionProfile).toHaveBeenCalledWith(9));
+    expect(onLifecycleChange).toHaveBeenCalledWith("active");
     expect(screen.queryByRole("button", { name: "Ativar Crawl Agency" })).not.toBeInTheDocument();
   });
 

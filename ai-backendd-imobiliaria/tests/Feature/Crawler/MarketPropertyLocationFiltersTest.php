@@ -7,6 +7,7 @@ use App\Models\Crawler\CrawlAgency;
 use App\Models\CrawlerRun;
 use App\Models\MarketProperty;
 use App\Services\Crawler\CityCatalog;
+use App\Services\Crawler\NeighborhoodCatalog;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
 use Tests\TestCase;
@@ -172,5 +173,43 @@ class MarketPropertyLocationFiltersTest extends TestCase
         $this->assertSame(['América'], $byAgencyData['bairros']);
         $this->assertSame([4], $byAgencyData['quartos']);
         $this->assertSame(['churrasqueira'], $byAgencyData['comodidades']);
+    }
+
+    public function test_it_standardizes_guaramirim_neighborhoods_in_filters(): void
+    {
+        MarketProperty::factory()->create(['cidade' => 'Guaramirim', 'bairro' => 'Avai']);
+        MarketProperty::factory()->create(['cidade' => 'Guaramirim', 'bairro' => 'Avaí']);
+        MarketProperty::factory()->create(['cidade' => 'Guaramirim', 'bairro' => 'Estrada Bananal do Sul']);
+        MarketProperty::factory()->create(['cidade' => 'Guaramirim', 'bairro' => 'Bananal']);
+        MarketProperty::factory()->create(['cidade' => 'Guaramirim', 'bairro' => "Caixa D'Água"]);
+        MarketProperty::factory()->create(['cidade' => 'Guaramirim', 'bairro' => 'Caixa da agua']);
+        MarketProperty::factory()->create(['cidade' => 'Guaramirim', 'bairro' => 'Jacuacu']);
+        MarketProperty::factory()->create(['cidade' => 'Guaramirim', 'bairro' => 'Bruderthal I']);
+        MarketProperty::factory()->create(['cidade' => 'Guaramirim', 'bairro' => '2 quartos e 1 banheiro social']);
+
+        $data = app(MarketPropertyController::class)->filters(Request::create('/api/v1/market-properties/filters'))->getData(true);
+
+        $this->assertSame([
+            'Avaí',
+            'Bananal do Sul',
+            'Bruderthal',
+            "Caixa d'Água",
+            'Jacu Açu',
+        ], $data['bairros_por_cidade']['Guaramirim']);
+    }
+
+    public function test_it_normalizes_stored_guaramirim_market_property_neighborhoods(): void
+    {
+        $unaccented = MarketProperty::factory()->create(['cidade' => 'Guaramirim', 'bairro' => 'Avai']);
+        $alias = MarketProperty::factory()->create(['cidade' => 'Guaramirim', 'bairro' => 'Estrada Bananal do Sul']);
+        $caixa = MarketProperty::factory()->create(['cidade' => 'Guaramirim', 'bairro' => 'Caixa da agua']);
+        $junk = MarketProperty::factory()->create(['cidade' => 'Guaramirim', 'bairro' => '02 vagas de garagem. Aluguel R$ 2.200']);
+
+        NeighborhoodCatalog::normalizeStoredMarketProperties('Guaramirim');
+
+        $this->assertSame('Avaí', $unaccented->refresh()->bairro);
+        $this->assertSame('Bananal do Sul', $alias->refresh()->bairro);
+        $this->assertSame("Caixa d'Água", $caixa->refresh()->bairro);
+        $this->assertNull($junk->refresh()->bairro);
     }
 }

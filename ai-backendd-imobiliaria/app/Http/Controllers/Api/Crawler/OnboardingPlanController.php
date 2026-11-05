@@ -11,6 +11,8 @@ use App\Http\Resources\Crawler\OnboardingExecutionResource;
 use App\Http\Resources\Crawler\OnboardingPlanResource;
 use App\Models\Crawler\CrawlAgency;
 use App\Models\Crawler\OnboardingPlan;
+use App\Models\Crawler\Prospect;
+use App\Models\User;
 use App\Services\Crawler\OnboardingPlanInlinePolicyService;
 use App\Services\Crawler\OnboardingPlanService;
 use Illuminate\Http\JsonResponse;
@@ -18,10 +20,10 @@ use Illuminate\Http\Request;
 
 class OnboardingPlanController extends Controller
 {
-    public function show(CrawlAgency $crawlAgency): OnboardingPlanResource
+    public function show(Request $request, CrawlAgency $crawlAgency): OnboardingPlanResource
     {
         return new OnboardingPlanResource(
-            $this->planFor($crawlAgency)->load([
+            $this->planFor($crawlAgency, $request->user())->load([
                 'executionModel.discoveryPolicy',
                 'executionModel.extractionPolicy',
             ]),
@@ -34,7 +36,7 @@ class OnboardingPlanController extends Controller
         OnboardingPlanService $service,
     ): OnboardingPlanResource {
         return new OnboardingPlanResource(
-            $service->configure($this->planFor($crawlAgency), $request->validated()),
+            $service->configure($this->planFor($crawlAgency, $request->user()), $request->validated()),
         );
     }
 
@@ -43,7 +45,7 @@ class OnboardingPlanController extends Controller
         CrawlAgency $crawlAgency,
         OnboardingPlanService $service,
     ): JsonResponse {
-        $execution = $service->confirm($this->planFor($crawlAgency), $request->user());
+        $execution = $service->confirm($this->planFor($crawlAgency, $request->user()), $request->user());
         $status = $execution->wasRecentlyCreated ? 201 : 200;
 
         return (new OnboardingExecutionResource($execution))
@@ -57,7 +59,7 @@ class OnboardingPlanController extends Controller
         OnboardingPlanInlinePolicyService $service,
     ): DiscoveryPolicyVersionResource|ExtractionPolicyVersionResource {
         $policy = $service->save(
-            $this->planFor($crawlAgency),
+            $this->planFor($crawlAgency, $request->user()),
             $request->validated('kind'),
             $request->validated('name'),
             $request->user(),
@@ -68,11 +70,16 @@ class OnboardingPlanController extends Controller
             : new ExtractionPolicyVersionResource($policy);
     }
 
-    private function planFor(CrawlAgency $crawlAgency): OnboardingPlan
+    private function planFor(CrawlAgency $crawlAgency, ?User $actor = null): OnboardingPlan
     {
+        $prospectId = Prospect::query()
+            ->where('promoted_crawl_agency_id', $crawlAgency->id)
+            ->value('id');
+
         return OnboardingPlan::query()->firstOrCreate(
             ['crawl_agency_id' => $crawlAgency->id],
             [
+                'prospect_id' => $prospectId,
                 'status' => 'draft',
                 'steps' => [
                     ['key' => 'review_agency', 'state' => 'pending'],
@@ -81,6 +88,7 @@ class OnboardingPlanController extends Controller
                     ['key' => 'profile_validation', 'state' => 'pending'],
                     ['key' => 'activation', 'state' => 'pending'],
                 ],
+                'created_by' => $actor?->id,
             ],
         );
     }

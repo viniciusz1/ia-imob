@@ -96,6 +96,44 @@ class OnboardingExecutionApiTest extends TestCase
         $this->assertSame($model['extraction_policy_version_id'], $execution->extraction_policy_version_id);
     }
 
+    public function test_agency_created_without_prospect_can_create_and_confirm_automated_onboarding_plan(): void
+    {
+        $agency = CrawlAgency::query()->create([
+            'name' => 'Nix Imoveis',
+            'slug' => 'nix-imoveis',
+            'base_url' => 'https://imoveisnix.com.br',
+            'root_domain' => 'imoveisnix.com.br',
+            'city' => 'Jaraguá do Sul',
+            'state' => 'SC',
+            'lifecycle_state' => 'onboarding',
+        ]);
+        $model = $this->createCatalog('Onboarding Jaraguá do Sul estruturado');
+
+        $this->actingAs($this->admin)
+            ->getJson("/api/v1/admin/crawler/crawl-agencies/{$agency->id}/onboarding-plan")
+            ->assertCreated()
+            ->assertJsonPath('data.crawl_agency_id', $agency->id)
+            ->assertJsonPath('data.prospect_id', null)
+            ->assertJsonPath('data.created_by', $this->admin->id);
+
+        $this->actingAs($this->admin)
+            ->putJson("/api/v1/admin/crawler/crawl-agencies/{$agency->id}/onboarding-plan", [
+                'name' => 'Nix Imoveis — Onboarding Jaraguá do Sul estruturado',
+                'conduction' => 'automated',
+                'execution_model_version_id' => $model['id'],
+                'first_production_discovery_mode' => 'fresh',
+            ])
+            ->assertOk()
+            ->assertJsonPath('data.prospect_id', null)
+            ->assertJsonPath('data.conduction', 'automated');
+
+        $this->actingAs($this->admin)
+            ->postJson("/api/v1/admin/crawler/crawl-agencies/{$agency->id}/onboarding-plan/confirm")
+            ->assertCreated()
+            ->assertJsonPath('data.crawl_agency_id', $agency->id)
+            ->assertJsonPath('data.state', 'queued');
+    }
+
     public function test_database_allows_only_one_nonterminal_execution_per_agency(): void
     {
         [$agency] = $this->promoteProspect();

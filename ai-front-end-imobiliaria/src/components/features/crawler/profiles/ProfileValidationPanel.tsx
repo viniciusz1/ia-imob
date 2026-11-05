@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  activateCrawlAgency,
   activateExtractionProfile,
   decideExtractionProfile,
   getProfileValidationReport,
@@ -99,7 +98,7 @@ export function ProfileValidationPanel({
   const [operation, setOperation] = useState<CrawlerOperation | null>(() => profileValidationOperation(initialOperations, initialProfile.id));
   const [reason, setReason] = useState("");
   const [expanded, setExpanded] = useState(initiallyExpanded);
-  const [pendingAction, setPendingAction] = useState<"approve" | "reject" | "activate-profile" | "activate-agency" | null>(null);
+  const [pendingAction, setPendingAction] = useState<"approve" | "reject" | "activate-profile" | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const canDecide = profile.status === "candidate" || profile.status === "revalidation_required";
   const validRatioRecommended = Boolean(report && report.valid_ratio >= 0.8);
@@ -158,6 +157,10 @@ export function ProfileValidationPanel({
     setActionError(null);
     try {
       updateProfile(await decideExtractionProfile(profile.id, decision, reason));
+      if (decision === "approved" && lifecycle === "onboarding") {
+        setLifecycle("active");
+        onLifecycleChange?.("active");
+      }
       setReason("");
       toast.success(decision === "approved" ? "Perfil aprovado." : "Perfil rejeitado.");
     } catch (error) {
@@ -174,26 +177,13 @@ export function ProfileValidationPanel({
     setActionError(null);
     try {
       updateProfile(await activateExtractionProfile(profile.id));
+      if (lifecycle === "onboarding") {
+        setLifecycle("active");
+        onLifecycleChange?.("active");
+      }
       toast.success("Perfil de Extração ativado.");
     } catch (error) {
       const message = crawlerOperationErrorMessage(error, "Não foi possível ativar o Perfil de Extração.");
-      setActionError(message);
-      toast.error(message);
-    } finally {
-      setPendingAction(null);
-    }
-  };
-
-  const activateAgency = async () => {
-    setPendingAction("activate-agency");
-    setActionError(null);
-    try {
-      const agency = await activateCrawlAgency(profile.crawl_agency_id);
-      setLifecycle(agency.lifecycle_state);
-      onLifecycleChange?.(agency.lifecycle_state);
-      toast.success("Crawl Agency ativada.");
-    } catch (error) {
-      const message = crawlerOperationErrorMessage(error, "Não foi possível ativar a Crawl Agency.");
       setActionError(message);
       toast.error(message);
     } finally {
@@ -218,15 +208,6 @@ export function ProfileValidationPanel({
               type="button"
             >
               {pendingAction === "activate-profile" ? "Ativando Perfil…" : "Ativar Perfil de Extração"}
-            </Button>
-          )}
-          {profile.status === "active" && lifecycle === "onboarding" && (
-            <Button
-              disabled={pendingAction !== null}
-              onClick={() => void activateAgency()}
-              type="button"
-            >
-              {pendingAction === "activate-agency" ? "Ativando Crawl Agency…" : "Ativar Crawl Agency"}
             </Button>
           )}
         </div>

@@ -130,7 +130,16 @@ class MarketPropertyController extends Controller
                     return null;
                 }
 
-                $bairro = NeighborhoodCatalog::canonicalNameFor($rawBairro, $cidade) ?? $rawBairro;
+                $hasCityCatalog = NeighborhoodCatalog::hasCatalogFor($cidade);
+                $canonicalBairro = NeighborhoodCatalog::canonicalNameFor($rawBairro, $cidade);
+
+                if ($canonicalBairro !== null) {
+                    $bairro = $canonicalBairro;
+                } elseif (! $hasCityCatalog) {
+                    $bairro = $rawBairro;
+                } else {
+                    return null;
+                }
 
                 return [
                     'cidade' => $cidade,
@@ -142,17 +151,7 @@ class MarketPropertyController extends Controller
             ->sortKeys()
             ->map(fn ($properties) => $properties->pluck('bairro')->unique()->sort()->values());
 
-        $bairros = (clone $bairrosQuery)
-            ->whereNotNull('bairro')
-            ->where('bairro', '!=', '')
-            ->distinct()
-            ->orderBy('bairro')
-            ->pluck('bairro')
-            ->map(fn ($bairro) => NeighborhoodCatalog::canonicalNameFor((string) $bairro) ?? trim((string) $bairro))
-            ->reject(fn ($bairro) => CityCatalog::isInvalidLocationValue((string) $bairro) || NeighborhoodCatalog::isInvalidLocationValue((string) $bairro))
-            ->unique()
-            ->sort()
-            ->values();
+        $bairros = $bairrosPorCidade->flatten()->unique()->sort()->values();
 
         $imobiliarias = $queryExcluding(['imobiliaria'])
             ->join('crawler.crawl_runs as run', 'run.id', '=', 'crawler.market_properties.crawler_run_id')

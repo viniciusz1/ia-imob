@@ -40,10 +40,15 @@ export function ExecuteCrawlPanel({
   defaultIsValidation,
 }: ExecuteCrawlPanelProps) {
   const [profileList, setProfileList] = useState(profiles);
+  const [currentAgency, setCurrentAgency] = useState(agency);
 
   useEffect(() => {
     setProfileList(profiles);
   }, [profiles]);
+
+  useEffect(() => {
+    setCurrentAgency(agency);
+  }, [agency]);
 
   const hasUsableProductionProfiles = profileList.some((profile) => ["active", "approved"].includes(profile.status));
   const hasEligibleValidationProfiles = profileList.some(
@@ -94,12 +99,15 @@ export function ExecuteCrawlPanel({
           initialOperations={initialOperations}
           onProfileChange={(updated) => {
             setProfileList((current) => current.map((p) => p.id === updated.id ? updated : (p.status === "active" ? { ...p, status: "approved" as const } : p)));
+            if (["active", "approved"].includes(updated.status)) {
+              setCurrentAgency((prev) => prev.lifecycle_state === "onboarding" ? { ...prev, lifecycle_state: "active" } : prev);
+            }
           }}
           profiles={profileList}
         />
       ) : (
         <ProductionCrawlPanel
-          agency={agency}
+          agency={currentAgency}
           discoveryPolicies={discoveryPolicies}
           hasActiveQualityPolicy={hasActiveQualityPolicy}
           pendingCandidateRunId={pendingCandidateRunId}

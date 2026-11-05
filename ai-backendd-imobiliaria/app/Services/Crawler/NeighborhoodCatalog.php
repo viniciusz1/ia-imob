@@ -265,7 +265,12 @@ final class NeighborhoodCatalog
             })
             ->update(['bairro' => null]);
 
-        $targetCities = $city !== null ? [$city] : ['Jaraguá do Sul'];
+        $targetCities = $city !== null
+            ? [$city]
+            : array_values(array_filter(array_map(
+                static fn (string $citySlug): ?string => CityCatalog::canonicalNameFor($citySlug),
+                array_keys(self::entries()),
+            )));
 
         foreach ($targetCities as $targetCity) {
             $hasCatalog = self::hasCatalogFor($targetCity);
