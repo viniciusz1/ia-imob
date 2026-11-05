@@ -128,7 +128,7 @@ export function ProductionCrawlPanel({ agency: initialAgency, discoveryPolicies:
           </div>
         </div>
       )}
-      <div className="space-y-1 rounded-lg border p-4">
+      <div className="space-y-1 rounded-xl border border-transparent bg-muted p-4">
         <p className="text-xs uppercase tracking-wide text-muted-foreground">Política de Discovery Ativa</p>
         {agency.active_discovery_policy ? (
           <>
@@ -179,7 +179,7 @@ export function ProductionCrawlPanel({ agency: initialAgency, discoveryPolicies:
         </FormField>
       </div>
       {discovery !== "fresh" && (
-        <div className="flex items-start gap-3 rounded-lg border p-4">
+        <div className="flex items-start gap-3 rounded-xl border border-transparent bg-muted p-4">
           <Checkbox
             checked={onlyNewUrls}
             disabled={!canExecute || operationId !== null}

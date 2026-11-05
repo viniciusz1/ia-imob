@@ -58,7 +58,7 @@ export function CrawlAgencySchedulePanel({ initialSchedule }: { initialSchedule:
         )}
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-1 rounded-lg border p-4">
+          <div className="space-y-1 rounded-xl border border-transparent bg-muted p-4">
             <p className="text-xs uppercase tracking-wide text-muted-foreground">Discovery dos crawls agendados</p>
             {schedule.discovery_policy ? (
               <p className="text-sm text-foreground">
@@ -68,7 +68,7 @@ export function CrawlAgencySchedulePanel({ initialSchedule }: { initialSchedule:
               <p className="text-sm text-destructive">Sem Política de Discovery Ativa; nenhum crawl será agendado.</p>
             )}
           </div>
-          <div className="space-y-1 rounded-lg border p-4">
+          <div className="space-y-1 rounded-xl border border-transparent bg-muted p-4">
             <p className="text-xs uppercase tracking-wide text-muted-foreground">Execução automática</p>
             <p className="text-sm text-foreground tabular-nums">Próxima execução: {nextRun}</p>
           </div>

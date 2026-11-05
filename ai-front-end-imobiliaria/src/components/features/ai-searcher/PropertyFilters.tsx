@@ -639,7 +639,7 @@ export function PropertyFilters(
             />
 
             {/* Filtros salvos */}
-            <div className="flex items-center gap-2 border-b px-4 py-3 sm:px-5">
+            <div className="flex items-center gap-2 border-b px-6 py-3 sm:px-8">
               <Select
                 value={activeFilterId ?? ""}
                 onValueChange={handleSelectFilter}
@@ -709,7 +709,7 @@ export function PropertyFilters(
             </div>
           </>
         ) : (
-          <div className="flex items-center gap-3 border-b px-4 py-3 sm:px-5">
+          <div className="flex items-center gap-3 border-b px-6 py-3 sm:px-8">
             <Button
               type="button"
               variant="ghost"
@@ -974,7 +974,7 @@ export function PropertyFilters(
               </FilterGroup>
 
               <FilterGroup title="Características">
-                <Accordion type="multiple" className="rounded-lg border px-3">
+                <Accordion type="multiple" className="rounded-xl border border-transparent bg-muted px-3">
                   {COMODIDADE_GROUPS.map((group) => {
                     const visibleKeys =
                       availableComodidades !== undefined
@@ -1054,7 +1054,7 @@ export function PropertyFilters(
           )}
         </div>
 
-        <div className="border-t px-4 py-4 sm:px-5">
+        <div className="border-t px-6 py-4 sm:px-8">
           <Button
             type="button"
             onClick={applyFilters}
@@ -1128,7 +1128,7 @@ function FilterGroup({
   const titleClassName = "text-xs tracking-wide text-muted-foreground uppercase";
 
   return (
-    <div className="space-y-3 px-4 py-4 sm:px-5">
+    <div className="space-y-3 px-6 py-4 sm:px-8">
       <div className="flex min-h-5 items-center justify-between gap-2">
         {htmlFor ? (
           <label htmlFor={htmlFor} className={titleClassName}>
@@ -1214,7 +1214,7 @@ function FilterNavigationRow({
       type="button"
       onClick={onClick}
       aria-label={`${title}: ${summary}`}
-      className="flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring/40 sm:px-5"
+      className="flex w-full cursor-pointer items-center gap-3 px-6 py-3 text-left transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring/40 sm:px-8"
     >
       <span className="min-w-0 flex-1">
         <span className="flex items-center gap-2 text-sm text-foreground">
@@ -1361,7 +1361,7 @@ function FilterSection({
   const allSelected = items.length > 0 && items.every((item) => selectedItems.includes(item));
 
   return (
-    <div className="space-y-3 px-4 py-4 sm:px-5">
+    <div className="space-y-3 px-6 py-4 sm:px-8">
       <div className="flex min-h-5 items-center justify-between gap-2">
         <span className="text-xs tracking-wide text-muted-foreground uppercase">
           {selectedItems.length > 0

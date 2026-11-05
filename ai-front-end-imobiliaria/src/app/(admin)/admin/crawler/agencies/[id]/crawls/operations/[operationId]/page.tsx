@@ -57,17 +57,17 @@ export default async function CrawlOperationDetailPage({ params }: { params: Pro
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-3">
-              <div className="space-y-1 rounded-lg border p-4">
+              <div className="space-y-1 rounded-xl border border-transparent bg-muted p-4">
                 <p className="text-xs uppercase tracking-wide text-muted-foreground">Registros válidos</p>
                 <p className="text-2xl tabular-nums">
                   {report.valid_record_count}/{report.sampled_url_count} · {Math.round(report.valid_ratio * 100)}%
                 </p>
               </div>
-              <div className="space-y-1 rounded-lg border p-4">
+              <div className="space-y-1 rounded-xl border border-transparent bg-muted p-4">
                 <p className="text-xs uppercase tracking-wide text-muted-foreground">Cobertura obrigatória</p>
                 <p className="text-2xl tabular-nums">{coverageRecommended ? "Atendida" : "Abaixo do recomendado"}</p>
               </div>
-              <div className="space-y-1 rounded-lg border p-4">
+              <div className="space-y-1 rounded-xl border border-transparent bg-muted p-4">
                 <p className="text-xs uppercase tracking-wide text-muted-foreground">Falhas Críticas de Validação</p>
                 <p className="text-2xl tabular-nums">{report.blocking_failures.length}</p>
               </div>

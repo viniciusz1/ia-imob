@@ -197,7 +197,7 @@ export function ProductionBatchDetail({
         </p>
       )}
       {batch.historical_incomplete && (
-        <p className="rounded-md border p-3 text-sm">
+        <p className="rounded-xl border border-transparent bg-muted p-3 text-sm">
           Lote histórico: total solicitado e agências ignoradas não foram
           registrados. Os nomes disponíveis correspondem ao cadastro recuperado
           na migração.
@@ -221,7 +221,7 @@ export function ProductionBatchDetail({
           </Card>
         ))}
       </div>
-      <div className="space-y-2 rounded-lg border p-4">
+      <div className="space-y-2 rounded-xl border border-transparent bg-muted p-4">
         <div className="flex justify-between text-sm">
           <span>
             {batch.state === "completed"

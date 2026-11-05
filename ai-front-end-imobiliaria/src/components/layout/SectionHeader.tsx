@@ -29,16 +29,14 @@ export function SectionHeader({
     as: Heading = "h2",
 }: SectionHeaderProps) {
     return (
-        <div className="flex items-start justify-between gap-3 border-b px-4 py-4 sm:px-5 sm:py-5">
+        <div className="flex items-start justify-between gap-3 px-6 pt-6 pb-5 sm:px-8 sm:pt-8 sm:pb-6">
             <div className="flex min-w-0 items-center gap-3">
                 {Icon && (
-                    <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
-                        <Icon className="size-4" />
-                    </span>
+                    <Icon aria-hidden="true" className="size-6 shrink-0 text-sidebar-highlight" strokeWidth={2} />
                 )}
                 <div className="min-w-0">
-                    <Heading className="truncate text-lg font-semibold text-foreground">{title}</Heading>
-                    {description && <p className="mt-0.5 truncate text-xs text-muted-foreground sm:text-[0.8125rem]">{description}</p>}
+                    <Heading className="truncate text-xl leading-6 font-semibold tracking-[-0.01em] text-foreground">{title}</Heading>
+                    {description && <p className="mt-2 truncate text-sm leading-4 font-semibold text-subtle">{description}</p>}
                 </div>
             </div>
             {href ? (

@@ -476,7 +476,7 @@ export function UserFormModal({
                         <section className="space-y-4">
                             <SectionTitle>Horários de acesso</SectionTitle>
                             <div className="grid gap-4 sm:grid-cols-2">
-                                <div className="space-y-4 rounded-lg border p-4">
+                                <div className="space-y-4 rounded-xl border border-transparent bg-muted p-4">
                                     <p className="text-xs tracking-wide text-muted-foreground uppercase">
                                         1º período
                                     </p>
@@ -502,7 +502,7 @@ export function UserFormModal({
                                     </div>
                                 </div>
 
-                                <div className="space-y-4 rounded-lg border p-4">
+                                <div className="space-y-4 rounded-xl border border-transparent bg-muted p-4">
                                     <p className="text-xs tracking-wide text-muted-foreground uppercase">
                                         2º período
                                     </p>
@@ -627,7 +627,7 @@ interface SwitchTileProps {
 
 function SwitchTile({ id, label, description, checked, onCheckedChange }: SwitchTileProps) {
     return (
-        <div className="flex items-center justify-between gap-4 rounded-lg border p-4">
+        <div className="flex items-center justify-between gap-4 rounded-xl border border-transparent bg-muted p-4">
             <div className="space-y-1">
                 <Label htmlFor={id}>{label}</Label>
                 <p className="text-xs text-muted-foreground">{description}</p>

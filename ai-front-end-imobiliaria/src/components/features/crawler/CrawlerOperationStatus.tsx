@@ -4,7 +4,7 @@ import type { CrawlerOperation } from "@/types/crawler";
 
 export function CrawlerOperationStatus({ operation }: { operation: CrawlerOperation }) {
   return (
-    <section aria-label={`Operação ${operation.id}`} className="space-y-3 rounded-lg border p-4">
+    <section aria-label={`Operação ${operation.id}`} className="space-y-3 rounded-xl border border-transparent bg-muted p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="text-sm text-foreground tabular-nums">Operação #{operation.id}</p>
         <OperationStateBadge state={operation.state} />

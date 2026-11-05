@@ -16,7 +16,7 @@ export function CrawlRunSnapshotsPanel({ runs }: { runs: CrawlRun[] }) {
   return (
     <div className="grid gap-4 md:grid-cols-2">
       {runs.map((run) => (
-        <div className="space-y-3 rounded-lg border p-4" key={run.id}>
+        <div className="space-y-3 rounded-xl border border-transparent bg-muted p-4" key={run.id}>
           <div className="flex items-center justify-between gap-3">
             <Link className="text-sm text-primary hover:underline" href={`/admin/crawler/runs/${run.id}`}>
               Snapshot #{run.id}

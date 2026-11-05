@@ -16,7 +16,7 @@ interface SwitchTileProps {
 /** On/off option shown as a bordered tile: label and help text on the left, switch on the right. */
 export function SwitchTile({ id, title, description, checked, onCheckedChange, className }: SwitchTileProps) {
     return (
-        <div className={cn("flex items-center justify-between gap-4 rounded-lg border p-4", className)}>
+        <div className={cn("flex items-center justify-between gap-4 rounded-xl border border-transparent bg-muted p-4", className)}>
             <div className="min-w-0 space-y-0.5">
                 <Label className="text-sm text-foreground" htmlFor={id}>
                     {title}

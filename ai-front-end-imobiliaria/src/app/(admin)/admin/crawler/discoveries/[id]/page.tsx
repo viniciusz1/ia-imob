@@ -34,7 +34,7 @@ export default async function DiscoverySnapshotPage({ params }: DiscoverySnapsho
         ) : (
           <ul className="divide-y">
             {urls.data.map((item) => (
-              <li className="flex items-center gap-2 px-4 py-3 sm:px-5" key={item.id}>
+              <li className="flex items-center gap-2 px-6 py-3 sm:px-8" key={item.id}>
                 <a
                   className="min-w-0 truncate text-sm text-primary hover:underline"
                   href={item.url}

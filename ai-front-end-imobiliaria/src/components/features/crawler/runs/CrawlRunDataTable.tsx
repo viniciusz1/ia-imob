@@ -42,7 +42,7 @@ export function CrawlRunDataTable({ runId, initialPage }: CrawlRunDataTableProps
 
   return (
     <>
-      <div className="space-y-3 border-b px-4 py-4 sm:px-5">
+      <div className="space-y-3 border-b px-6 py-4 sm:px-8">
         <div className="flex flex-wrap gap-2">
           {(Object.keys(labels) as RunView[]).map((item) => (
             <Button

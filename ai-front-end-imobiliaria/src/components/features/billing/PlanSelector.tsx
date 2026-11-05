@@ -57,14 +57,14 @@ export function PlanSelector({
           title="Método de pagamento"
         />
 
-        <div className="p-4 sm:p-5">
+        <div className="px-6 pb-6 sm:px-8 sm:pb-8">
           <BillingTypeSelector
             value={billingType}
             onChange={onChangeBillingType}
           />
         </div>
 
-        <div className="flex flex-wrap items-center justify-between gap-3 border-t px-4 py-4 sm:px-5">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t px-6 py-4 sm:px-8">
           <p className="text-sm text-muted-foreground">
             {selectedPlan ? (
               <>

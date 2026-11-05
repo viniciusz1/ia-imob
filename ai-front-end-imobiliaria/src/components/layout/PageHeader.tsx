@@ -35,7 +35,7 @@ export function PageHeader({ title, description, actions, badge, backHref }: Pag
                         <h1 className="text-xl font-semibold tracking-tight text-foreground">{title}</h1>
                         {badge}
                     </div>
-                    {description && <div className="text-[0.8125rem] text-muted-foreground">{description}</div>}
+                    {description && <div className="text-sm leading-4 font-semibold text-subtle">{description}</div>}
                 </div>
             </div>
             {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}

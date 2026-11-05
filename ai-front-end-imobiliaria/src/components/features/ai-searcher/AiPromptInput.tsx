@@ -251,7 +251,7 @@ export function AiPromptInput({
   }
 
   return (
-    <Card className="gap-4 p-4 sm:p-5">
+    <Card className="gap-4 p-6 sm:p-8">
       <div className="flex items-center gap-3">
         <span className="hidden size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary sm:flex">
           <Sparkles className="size-5" />

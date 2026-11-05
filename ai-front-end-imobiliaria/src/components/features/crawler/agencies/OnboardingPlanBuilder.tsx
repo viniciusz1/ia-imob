@@ -86,7 +86,7 @@ function PolicySummary({
   version: number | null;
 }) {
   return (
-    <div className="space-y-2 rounded-lg border p-4">
+    <div className="space-y-2 rounded-xl border border-transparent bg-muted p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="text-sm text-foreground">{label}: {name}</p>
         {version !== null && <Badge variant="outline">v{version}</Badge>}
@@ -151,7 +151,7 @@ function ConductionOption({
     <button
       aria-pressed={selected}
       className={cn(
-        "rounded-lg border p-4 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 disabled:cursor-not-allowed disabled:opacity-60",
+        "rounded-xl border border-transparent bg-muted p-4 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 disabled:cursor-not-allowed disabled:opacity-60",
         selected ? "border-primary bg-primary/5" : "hover:bg-muted/40",
       )}
       disabled={disabled}
@@ -502,7 +502,7 @@ export function OnboardingPlanBuilder({
           </div>
         ) : (
           <div className="space-y-4">
-            <section className="space-y-4 rounded-lg border p-4">
+            <section className="space-y-4 rounded-xl border border-transparent bg-muted p-4">
               <div className="space-y-1">
                 <h3 className="text-sm text-foreground">1. Discovery</h3>
                 <p className="text-xs text-muted-foreground">
@@ -597,7 +597,7 @@ export function OnboardingPlanBuilder({
               </div>
             </section>
 
-            <section className="space-y-4 rounded-lg border p-4">
+            <section className="space-y-4 rounded-xl border border-transparent bg-muted p-4">
               <div className="space-y-1">
                 <h3 className="text-sm text-foreground">2. Extração</h3>
                 <p className="text-xs text-muted-foreground">
@@ -705,7 +705,7 @@ export function OnboardingPlanBuilder({
           </section>
         )}
 
-        <section className="space-y-4 rounded-lg border p-4">
+        <section className="space-y-4 rounded-xl border border-transparent bg-muted p-4">
           <div className="space-y-1">
             <h3 className="text-sm text-foreground">Primeira produção</h3>
             <p className="text-xs text-muted-foreground">Este modo fica visível e será congelado junto com a combinação.</p>

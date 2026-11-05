@@ -69,7 +69,7 @@ export function CrawlHistoryPanel({ agencyId, operations, runs }: CrawlHistoryPa
     <>
       <div
         aria-label="Filtrar histórico por tipo"
-        className="flex flex-wrap gap-2 border-b px-4 py-3 sm:px-5"
+        className="flex flex-wrap gap-2 border-b px-6 py-3 sm:px-8"
         role="group"
       >
         {typeOptions.map((option) => (

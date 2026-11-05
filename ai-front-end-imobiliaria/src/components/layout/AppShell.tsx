@@ -61,8 +61,9 @@ interface AppShellProps {
 
 /**
  * The authenticated application frame, after the Hubstrom layout: a dark
- * 80px icon rail (expandable to show labels), an 80px topbar band with the
- * module title, and the scrolling content area on the lighter page color.
+ * 80px icon rail (expandable to show labels), a topbar band with the
+ * module title (88px, as the reference page header bar), and the scrolling
+ * content area on the lighter page color with the 32px page gutter.
  *
  * Below `lg` the sidebar is an off-canvas drawer, always shown with labels.
  */
@@ -121,7 +122,7 @@ export function AppShell({
                 >
                     <div
                         className={cn(
-                            "relative flex h-20 shrink-0 items-center border-b border-sidebar-border",
+                            "relative flex h-[5.5rem] shrink-0 items-center border-b border-sidebar-border",
                             collapsed ? "justify-center px-0" : "gap-3 px-5",
                         )}
                     >
@@ -157,7 +158,7 @@ export function AppShell({
                 </aside>
 
                 <div className="flex min-w-0 flex-1 flex-col">
-                    <header className="flex h-20 shrink-0 items-center gap-3 border-b border-border bg-topbar px-4 text-topbar-foreground sm:gap-4 sm:px-6 lg:px-7">
+                    <header className="flex h-[5.5rem] shrink-0 items-center gap-3 border-b border-border bg-topbar px-4 text-topbar-foreground sm:gap-4 sm:px-6 lg:px-8">
                         <button
                             aria-label="Abrir menu"
                             className="shrink-0 rounded-md p-1 text-muted-foreground hover:text-foreground lg:hidden"
@@ -171,7 +172,7 @@ export function AppShell({
                     </header>
 
                     <main
-                        className="min-h-0 flex-1 overflow-auto overscroll-contain bg-background p-4 sm:p-6 lg:px-7 lg:py-6"
+                        className="min-h-0 flex-1 overflow-auto overscroll-contain bg-background p-4 sm:p-6 lg:p-8"
                         id={MAIN_ID}
                         ref={mainRef}
                     >

@@ -626,7 +626,7 @@ export function ValuationsClient() {
                   </FormField>
                 </div>
 
-                <div className="flex items-center justify-between gap-4 rounded-lg border p-4">
+                <div className="flex items-center justify-between gap-4 rounded-xl border border-transparent bg-muted p-4">
                   <div className="space-y-0.5">
                     <Label htmlFor="flood_risk">Risco de enchente</Label>
                     <p className="text-xs text-muted-foreground">Aplica um ajuste negativo ao valor final.</p>
@@ -688,7 +688,7 @@ export function ValuationsClient() {
                 variant="inline"
               />
             ) : (
-              <div className="space-y-5 p-4 sm:p-5">
+              <div className="space-y-5 px-6 pb-6 sm:px-8 sm:pb-8">
                 {selectedRange ? (
                   <>
                     <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 sm:p-5">
@@ -727,7 +727,7 @@ export function ValuationsClient() {
                 )}
 
                 <div className="grid gap-4 md:grid-cols-2">
-                  <div className="rounded-lg border p-4 text-sm">
+                  <div className="rounded-xl border border-transparent bg-muted p-4 text-sm">
                     <p className="flex items-center gap-2 text-xs tracking-wide text-muted-foreground uppercase">
                       <Home className="size-3.5" />
                       Imóvel avaliado
@@ -741,7 +741,7 @@ export function ValuationsClient() {
                       {selected.subject_property.bathrooms} banheiros, {selected.subject_property.garage_spaces} vagas
                     </p>
                   </div>
-                  <div className="rounded-lg border p-4 text-sm">
+                  <div className="rounded-xl border border-transparent bg-muted p-4 text-sm">
                     <p className="flex items-center gap-2 text-xs tracking-wide text-muted-foreground uppercase">
                       <Users className="size-3.5" />
                       Amostra
@@ -801,7 +801,7 @@ export function ValuationsClient() {
                 variant="inline"
               />
             ) : isLoadingHistory ? (
-              <div className="flex items-center gap-2 px-4 py-6 text-sm text-muted-foreground sm:px-5">
+              <div className="flex items-center gap-2 px-6 py-6 text-sm text-muted-foreground sm:px-8">
                 <Loader2 className="size-4 animate-spin" />
                 Carregando avaliações...
               </div>
@@ -888,7 +888,7 @@ function RangeTile({
   value: string;
 }) {
   return (
-    <div className="rounded-lg border p-4">
+    <div className="rounded-xl border border-transparent bg-muted p-4">
       <div className="flex items-center justify-between gap-3">
         <p className="text-sm text-muted-foreground">{label}</p>
         <span className={`flex size-8 shrink-0 items-center justify-center rounded-lg ${rangeTileTones[tone]}`}>
@@ -955,7 +955,7 @@ function ComparableReviewPanel({
         title="Revisão de comparáveis"
       />
 
-      <div className="flex flex-wrap items-center gap-2 border-b px-4 py-3 sm:px-5">
+      <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3 sm:px-8">
         <Button
           type="button"
           variant="outline"
@@ -1074,7 +1074,7 @@ function ComparableReviewPanel({
         total={pagination.total}
       />
 
-      <div className="flex flex-wrap items-center justify-between gap-3 border-t px-4 py-4 sm:px-5">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-t px-6 py-4 sm:px-8">
         <p className="text-xs text-muted-foreground">
           {canCalculate
             ? "Todos os comparáveis foram revisados."

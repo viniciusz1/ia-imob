@@ -97,7 +97,7 @@ export function PlatformOverviewClient({ agencies }: PlatformOverviewClientProps
                     ) : (
                         <ul className="divide-y">
                             {recent.map((agency) => (
-                                <li className="flex items-center gap-3 px-4 py-3 sm:px-5" key={agency.id}>
+                                <li className="flex items-center gap-3 px-6 py-3 sm:px-8" key={agency.id}>
                                     <div className="min-w-0 flex-1">
                                         <Link
                                             className="block truncate text-sm text-foreground hover:text-primary hover:underline"
@@ -126,7 +126,7 @@ export function PlatformOverviewClient({ agencies }: PlatformOverviewClientProps
                             icon={Radar}
                             title="Dados de mercado"
                         />
-                        <div className="space-y-4 px-4 py-4 sm:px-5">
+                        <div className="space-y-4 px-6 py-4 sm:px-8">
                             <p className="text-sm text-muted-foreground">
                                 As Crawl Agencies alimentam o Buscador com IA e as avaliações. Elas não são
                                 clientes da plataforma.

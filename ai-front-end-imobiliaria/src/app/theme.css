@@ -30,6 +30,9 @@
   --navy-700: #2b313c; /* page, segmented track */
   --navy-600: #363d4a;
   --silver: #b9c0ca; /* selected segmented pill */
+  /* Brand button, from the reference stylesheet (--button-brand-default/hover). */
+  --green-button: #249f64;
+  --green-button-hover: #1d8252;
   /* ========================================================================== */
 
   /* Corner rounding. Cards use rounded-2xl, controls rounded-lg. */
@@ -73,6 +76,11 @@
   --input: #d5d9e0;
   --field: #ffffff;
   --ring: #2f9d80;
+  --brand-button: var(--green-button);
+  --brand-button-hover: var(--green-button-hover);
+  --brand-button-foreground: #ffffff;
+  /* Card subtitle color (--text-subtle). */
+  --subtle: #64748b;
 
   --topbar: #ffffff;
   --topbar-foreground: #151922;
@@ -139,6 +147,10 @@
   --input: var(--navy-600);
   --field: var(--navy-900);
   --ring: var(--green);
+  --brand-button: var(--green-button);
+  --brand-button-hover: var(--green-button-hover);
+  --brand-button-foreground: #ffffff;
+  --subtle: #8c95a3;
 
   --topbar: var(--navy-900);
   --topbar-foreground: #ffffff;

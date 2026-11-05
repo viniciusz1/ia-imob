@@ -191,7 +191,7 @@ export function MarketFiltersPanel({ filters, onChange }: MarketFiltersPanelProp
         title="Filtros"
       />
 
-      <div className="space-y-4 p-4 sm:p-5">
+      <div className="space-y-4 px-6 pb-6 sm:px-8 sm:pb-8">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <FormField htmlFor="analytics-city" label="Cidade">
             <Select

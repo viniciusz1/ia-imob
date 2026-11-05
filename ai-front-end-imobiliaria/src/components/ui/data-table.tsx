@@ -62,7 +62,7 @@ export function DataTable<TData, TValue>({
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-card-edge bg-card text-card-foreground shadow-xs shadow-black/[0.03] dark:shadow-none">
+    <div className="overflow-hidden rounded-2xl border border-card-edge bg-card pt-6 text-card-foreground shadow-[1px_2px_4px_rgba(0,0,0,0.05)] sm:pt-8">
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (

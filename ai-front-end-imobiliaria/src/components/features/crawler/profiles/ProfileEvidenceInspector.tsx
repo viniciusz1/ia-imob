@@ -112,7 +112,7 @@ export function ProfileEvidenceInspector({ agencyId, profileId, reportId, totalR
   }
 
   return (
-    <section aria-label="Evidências da validação" className="space-y-4 rounded-lg border p-4">
+    <section aria-label="Evidências da validação" className="space-y-4 rounded-xl border border-transparent bg-muted p-4">
       <div className="flex flex-wrap items-end gap-3">
         <form
           className="min-w-72 flex-1"
@@ -299,7 +299,7 @@ export function ProfileEvidenceInspector({ agencyId, profileId, reportId, totalR
                   Próxima URL
                 </Button>
               </div>
-              <details className="rounded-lg border p-4">
+              <details className="rounded-xl border border-transparent bg-muted p-4">
                 <summary className="cursor-pointer text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40">
                   Ver payload técnico integral
                 </summary>

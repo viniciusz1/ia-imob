@@ -65,7 +65,7 @@ export function AgencySearchAllowanceCard({ agency }: AgencySearchAllowanceCardP
             />
 
             {usage && (
-                <div className="space-y-3 border-b px-4 py-4 sm:px-5">
+                <div className="space-y-3 border-b px-6 py-4 sm:px-8">
                     <div className="grid grid-cols-3 gap-3">
                         <div className="space-y-1">
                             <p className="text-xs uppercase tracking-wide text-muted-foreground">Utilizadas</p>
@@ -87,7 +87,7 @@ export function AgencySearchAllowanceCard({ agency }: AgencySearchAllowanceCardP
                 </div>
             )}
 
-            <div className="flex items-start gap-3 px-4 py-4 sm:px-5">
+            <div className="flex items-start gap-3 px-6 py-4 sm:px-8">
                 <FormField
                     className="flex-1"
                     hint={

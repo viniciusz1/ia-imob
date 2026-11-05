@@ -161,7 +161,7 @@ export function CrawlAgencyWorkspaceClient({
             title="Operação atual"
           />
           {activeOperation ? (
-            <div className="space-y-3 px-4 py-4 sm:px-5">
+            <div className="space-y-3 px-6 py-4 sm:px-8">
               <p className="text-sm text-foreground">#{activeOperation.id} · {activeOperation.type}</p>
               <Progress className="h-2" value={activeOperation.progress.percentage} />
               <p className="text-xs text-muted-foreground tabular-nums">
@@ -184,7 +184,7 @@ export function CrawlAgencyWorkspaceClient({
         <Card className="gap-0 overflow-hidden py-0">
           <SectionHeader as="h3" icon={Database} title="Dados vigentes" />
           {publishedRun ? (
-            <div className="space-y-1 px-4 py-4 sm:px-5">
+            <div className="space-y-1 px-6 py-4 sm:px-8">
               <Link className="text-sm text-primary hover:underline" href={`/admin/crawler/runs/${publishedRun.id}`}>
                 Snapshot #{publishedRun.id} publicado
               </Link>
@@ -198,7 +198,7 @@ export function CrawlAgencyWorkspaceClient({
 
         <Card className="gap-0 overflow-hidden py-0">
           <SectionHeader as="h3" href={`${root}/schedule`} icon={CalendarClock} linkLabel="Ver agendamento" title="Agendamento" />
-          <div className="space-y-2 px-4 py-4 sm:px-5">
+          <div className="space-y-2 px-6 py-4 sm:px-8">
             <p className="text-sm text-foreground">
               {schedulePresetLabels[schedule.effective_preset]} · {schedule.effective_timezone}
             </p>
@@ -219,7 +219,7 @@ export function CrawlAgencyWorkspaceClient({
           <SectionHeader as="h3" icon={TriangleAlert} title="Precisa de atenção" />
           <ul className="divide-y">
             {agency.revalidation_required && (
-              <li className="flex items-start gap-3 px-4 py-3 sm:px-5">
+              <li className="flex items-start gap-3 px-6 py-3 sm:px-8">
                 <TriangleAlert className="mt-0.5 size-4 shrink-0 text-warning" />
                 <Link className="text-sm text-foreground hover:text-primary hover:underline" href={`${root}/profiles`}>
                   Revalidação necessária: revise e valide o Perfil de Extração.
@@ -227,7 +227,7 @@ export function CrawlAgencyWorkspaceClient({
               </li>
             )}
             {quarantinedRun && (
-              <li className="flex items-start gap-3 px-4 py-3 sm:px-5">
+              <li className="flex items-start gap-3 px-6 py-3 sm:px-8">
                 <TriangleAlert className="mt-0.5 size-4 shrink-0 text-warning" />
                 <Link
                   className="text-sm text-foreground hover:text-primary hover:underline"
@@ -248,7 +248,7 @@ export function CrawlAgencyWorkspaceClient({
         ) : (
           <ol className="divide-y">
             {recent.map((operation) => (
-              <li className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-5" key={operation.id}>
+              <li className="flex flex-wrap items-center justify-between gap-3 px-6 py-3 sm:px-8" key={operation.id}>
                 <span className="flex min-w-0 items-center gap-3">
                   <span className="truncate text-sm text-foreground">#{operation.id} · {operation.type}</span>
                   <OperationStateBadge state={operation.state} />

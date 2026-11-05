@@ -95,7 +95,7 @@ export function DiscoverySnapshotsPanel({ onboardingRecovery, snapshots }: Disco
   return (
     <div>
       {onboardingRecovery && (
-        <div className="border-b px-4 py-4 sm:px-5">
+        <div className="border-b px-6 py-4 sm:px-8">
           <aside className="flex items-start gap-3 rounded-lg border border-primary/20 bg-primary/5 px-4 py-3 text-sm">
             <RotateCcw aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-primary" />
             <div className="min-w-0 space-y-1">
@@ -136,7 +136,7 @@ export function DiscoverySnapshotsPanel({ onboardingRecovery, snapshots }: Disco
                 aria-controls={panelId}
                 aria-expanded={expanded}
                 className={cn(
-                  "flex w-full cursor-pointer items-center justify-between gap-4 px-4 py-3 text-left transition-colors hover:bg-muted/50 focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:outline-none focus-visible:ring-inset sm:px-5",
+                  "flex w-full cursor-pointer items-center justify-between gap-4 px-6 py-3 text-left transition-colors hover:bg-muted/50 focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:outline-none focus-visible:ring-inset sm:px-8",
                   expanded && "bg-muted/40",
                 )}
                 onClick={() => toggleSnapshot(snapshot.id)}
@@ -158,7 +158,7 @@ export function DiscoverySnapshotsPanel({ onboardingRecovery, snapshots }: Disco
               </button>
 
               {onboardingRecovery && adoptionCandidate && canExecute && (
-                <div className="space-y-2 border-t bg-primary/5 px-4 py-3 sm:px-5">
+                <div className="space-y-2 border-t bg-primary/5 px-6 py-3 sm:px-8">
                   {adoptionCandidate.adoption.sample_url && (
                     <p className="text-sm break-all">
                       <span className="text-muted-foreground">URL de Amostra:</span> {adoptionCandidate.adoption.sample_url}
@@ -179,13 +179,13 @@ export function DiscoverySnapshotsPanel({ onboardingRecovery, snapshots }: Disco
                   id={panelId}
                 >
                   {urlState?.status === "loading" && (
-                    <p className="flex items-center gap-2 px-4 py-3 text-sm text-muted-foreground sm:px-5" role="status">
+                    <p className="flex items-center gap-2 px-6 py-3 text-sm text-muted-foreground sm:px-8" role="status">
                       <LoaderCircle aria-hidden="true" className="size-3.5 animate-spin" />
                       Carregando URLs do Snapshot…
                     </p>
                   )}
                   {urlState?.status === "error" && urlState.page === undefined && (
-                    <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-5" role="alert">
+                    <div className="flex flex-wrap items-center justify-between gap-3 px-6 py-3 sm:px-8" role="alert">
                       <p className="text-sm text-destructive">Não foi possível carregar as URLs deste Snapshot.</p>
                       <Button
                         onClick={() => void loadUrls(snapshot.id, urlState.requestedPage, urlState.requestedPerPage)}
@@ -200,7 +200,7 @@ export function DiscoverySnapshotsPanel({ onboardingRecovery, snapshots }: Disco
                   {loadedPage !== undefined && (
                     <>
                       {loadedPage.data.length === 0 ? (
-                        <p className="px-4 py-3 text-sm text-muted-foreground sm:px-5">Este Snapshot não contém URLs.</p>
+                        <p className="px-6 py-3 text-sm text-muted-foreground sm:px-8">Este Snapshot não contém URLs.</p>
                       ) : (
                         <div className="max-h-[32rem] overflow-y-auto">
                           <Table>
@@ -249,7 +249,7 @@ export function DiscoverySnapshotsPanel({ onboardingRecovery, snapshots }: Disco
                           pageSize={loadedPage.meta.per_page}
                           total={loadedPage.meta.total}
                         />
-                        <div className="flex flex-wrap items-center gap-3 px-4 pb-3 sm:px-5 sm:py-3 sm:pl-0">
+                        <div className="flex flex-wrap items-center gap-3 px-6 pb-3 sm:px-8 sm:py-3 sm:pl-0">
                           {refreshing && (
                             <span className="inline-flex items-center gap-1 text-xs text-muted-foreground" role="status">
                               <LoaderCircle aria-hidden="true" className="size-3.5 animate-spin" />

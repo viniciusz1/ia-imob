@@ -46,7 +46,7 @@ export default async function AdminAgencyDetailPage({ params }: AdminAgencyDetai
                     <SectionHeader icon={Landmark} title="Dados da agência" />
                     <dl className="divide-y">
                         {details.map((detail) => (
-                            <div className="flex items-center justify-between gap-4 px-4 py-3 sm:px-5" key={detail.label}>
+                            <div className="flex items-center justify-between gap-4 px-6 py-3 sm:px-8" key={detail.label}>
                                 <dt className="text-sm text-muted-foreground">{detail.label}</dt>
                                 <dd className="truncate text-sm text-foreground tabular-nums">{detail.value}</dd>
                             </div>

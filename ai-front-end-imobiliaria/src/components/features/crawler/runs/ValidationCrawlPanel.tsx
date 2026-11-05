@@ -154,7 +154,7 @@ export function ValidationCrawlPanel({ agencyId, activeOnboarding, initialOperat
         </NativeSelect>
       </FormField>
       {selectedProfile && (
-        <dl className="grid gap-4 rounded-lg border p-4 text-sm sm:grid-cols-3">
+        <dl className="grid gap-4 rounded-xl border border-transparent bg-muted p-4 text-sm sm:grid-cols-3">
           <div className="space-y-1">
             <dt className="text-xs uppercase tracking-wide text-muted-foreground">Snapshot de Discovery</dt>
             <dd className="tabular-nums">#{selectedProfile.discovery_snapshot_id}</dd>

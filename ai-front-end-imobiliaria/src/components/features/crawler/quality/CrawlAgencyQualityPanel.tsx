@@ -20,7 +20,7 @@ function SnapshotRow({ run }: { run: CrawlRun }) {
   const awaitingReview = run.publication_state === "quarantined" && run.quality_rejection === null;
 
   return (
-    <li className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-5">
+    <li className="flex flex-wrap items-center justify-between gap-3 px-6 py-3 sm:px-8">
       <div className="min-w-0">
         <p className="text-sm text-foreground">Snapshot #{run.id}</p>
         <p className="text-xs text-muted-foreground tabular-nums">

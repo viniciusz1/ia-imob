@@ -192,11 +192,11 @@ export function RoleFormModal({
                             </div>
 
                             {isLoadingPermissions ? (
-                                <p className="rounded-lg border p-4 text-sm text-muted-foreground">
+                                <p className="rounded-xl border border-transparent bg-muted p-4 text-sm text-muted-foreground">
                                     Carregando permissões...
                                 </p>
                             ) : availablePermissions?.length === 0 ? (
-                                <p className="rounded-lg border p-4 text-sm text-muted-foreground">
+                                <p className="rounded-xl border border-transparent bg-muted p-4 text-sm text-muted-foreground">
                                     Nenhuma permissão encontrada.
                                 </p>
                             ) : (
@@ -249,7 +249,7 @@ export function RoleFormModal({
                                                     };
 
                                                     return (
-                                                        <div aria-label={groupName} className="space-y-3 rounded-lg border p-4" role="group">
+                                                        <div aria-label={groupName} className="space-y-3 rounded-xl border border-transparent bg-muted p-4" role="group">
                                                             <div className="flex items-center justify-between gap-3">
                                                                 <p className="text-xs tracking-wide text-muted-foreground uppercase">
                                                                     {groupName}

@@ -161,7 +161,7 @@ export function CurrentSubscriptionBanner({
         title="Assinatura atual"
       />
 
-      <div className="space-y-4 p-4 sm:p-5">
+      <div className="space-y-4 px-6 pb-6 sm:px-8 sm:pb-8">
         <div className="flex flex-wrap items-center gap-4 rounded-lg border border-primary/20 bg-primary/5 p-4">
           <span
             className={cn(
@@ -193,7 +193,7 @@ export function CurrentSubscriptionBanner({
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <div className="flex items-center gap-3 rounded-lg border p-4">
+          <div className="flex items-center gap-3 rounded-xl border border-transparent bg-muted p-4">
             <CalendarClock className="size-4 shrink-0 text-muted-foreground" />
             <div className="min-w-0">
               <p className="text-xs uppercase tracking-wide text-muted-foreground">
@@ -204,7 +204,7 @@ export function CurrentSubscriptionBanner({
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-3 rounded-lg border p-4">
+          <div className="flex items-center gap-3 rounded-xl border border-transparent bg-muted p-4">
             <Wallet className="size-4 shrink-0 text-muted-foreground" />
             <div className="min-w-0">
               <p className="text-xs uppercase tracking-wide text-muted-foreground">

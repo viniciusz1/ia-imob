@@ -268,7 +268,7 @@ export function ProspectsClient({ initialProspects, initialSuggestions = [] }: {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="rounded-lg border p-4">
+          <div className="rounded-xl border border-transparent bg-muted p-4">
             <div className="mb-3 flex items-center justify-between gap-3">
               <div className="flex items-center gap-2 text-sm text-foreground">
                 <Filter className="size-4 text-muted-foreground" />
@@ -334,7 +334,7 @@ export function ProspectsClient({ initialProspects, initialSuggestions = [] }: {
             </p>
           </div>
 
-          <div className="rounded-lg border p-4">
+          <div className="rounded-xl border border-transparent bg-muted p-4">
             <div className="mb-3">
               <p className="text-sm text-foreground">Decisão em lote</p>
               <p className="text-xs text-muted-foreground">
@@ -501,7 +501,7 @@ export function ProspectsClient({ initialProspects, initialSuggestions = [] }: {
           </CardHeader>
           <CardContent className="space-y-4">
             {initialSuggestions.map((suggestion) => (
-              <div className="space-y-3 rounded-lg border p-4" key={suggestion.id}>
+              <div className="space-y-3 rounded-xl border border-transparent bg-muted p-4" key={suggestion.id}>
                 <Link
                   className="text-sm text-primary hover:underline"
                   href={`/admin/crawler/agencies/${suggestion.crawl_agency_id}`}

@@ -30,7 +30,7 @@ export function TabbedPanel({ title, description, icon, tabs, className }: Tabbe
     <Card className={cn("gap-0 overflow-hidden py-0", className)}>
       <SectionHeader description={description} icon={icon} title={title} />
       <Tabs className="gap-0" defaultValue={tabs[0]?.value}>
-        <div className="border-b px-4 py-3 sm:px-5">
+        <div className="px-6 pb-4 sm:px-8">
           <TabsList className="flex-wrap">
             {tabs.map((tab) => (
               <TabsTrigger key={tab.value} value={tab.value}>

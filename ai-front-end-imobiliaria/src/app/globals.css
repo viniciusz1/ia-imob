@@ -28,6 +28,10 @@
   --color-segment: var(--segment);
   --color-segment-foreground: var(--segment-foreground);
   --color-card-edge: var(--card-edge);
+  --color-brand-button: var(--brand-button);
+  --color-brand-button-hover: var(--brand-button-hover);
+  --color-brand-button-foreground: var(--brand-button-foreground);
+  --color-subtle: var(--subtle);
   --color-segment-active: var(--segment-active);
   --color-segment-active-foreground: var(--segment-active-foreground);
   --color-chart-5: var(--chart-5);

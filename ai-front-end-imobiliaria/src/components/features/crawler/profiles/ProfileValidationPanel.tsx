@@ -204,7 +204,7 @@ export function ProfileValidationPanel({
   };
 
   return (
-    <article className="space-y-4 rounded-lg border p-4" id={`profile-${profile.id}`}>
+    <article className="space-y-4 rounded-xl border border-transparent bg-muted p-4" id={`profile-${profile.id}`}>
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0 space-y-1">
           <div className="flex flex-wrap items-center gap-2">
@@ -307,7 +307,7 @@ export function ProfileValidationPanel({
           </section>
 
           {report && (
-            <section className="space-y-4 rounded-lg border p-4">
+            <section className="space-y-4 rounded-xl border border-transparent bg-muted p-4">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <h4 className="text-base text-foreground">Resultado da validação</h4>
@@ -345,7 +345,7 @@ export function ProfileValidationPanel({
                 ))}
               </div>
               {((report.blocking_failures?.length ?? 0) > 0 || (report.warnings?.length ?? 0) > 0) && (
-                <div className="space-y-2 rounded-lg border p-4">
+                <div className="space-y-2 rounded-xl border border-transparent bg-muted p-4">
                   <h5 className="text-sm text-foreground">Alertas e falhas</h5>
                   {report.blocking_failures?.map((failure) => (
                     <p className="flex items-start gap-2 text-sm text-destructive" key={failure}>
@@ -403,7 +403,7 @@ export function ProfileValidationPanel({
           )}
 
           {(profile.decider || profile.decided_at || profile.decision_reason) && (
-            <section className="space-y-1 rounded-lg border p-4 text-sm">
+            <section className="space-y-1 rounded-xl border border-transparent bg-muted p-4 text-sm">
               <h4 className="text-base text-foreground">Decisão registrada</h4>
               <p className="text-foreground">
                 {profile.decider?.name ?? (profile.decided_by ? `Usuário #${profile.decided_by}` : "Responsável não informado")} · {formatDate(profile.decided_at)}
@@ -412,7 +412,7 @@ export function ProfileValidationPanel({
             </section>
           )}
           {(profile.activator || profile.activated_at) && (
-            <section className="space-y-1 rounded-lg border p-4 text-sm">
+            <section className="space-y-1 rounded-xl border border-transparent bg-muted p-4 text-sm">
               <h4 className="text-base text-foreground">Ativação registrada</h4>
               <p className="text-foreground">
                 {profile.activator?.name ?? (profile.activated_by ? `Usuário #${profile.activated_by}` : "Responsável não informado")} · {formatDate(profile.activated_at)}
@@ -446,7 +446,7 @@ function MetricTile({
   hintClassName?: string;
 }) {
   return (
-    <div className="rounded-lg border p-4">
+    <div className="rounded-xl border border-transparent bg-muted p-4">
       <p className="text-xs uppercase tracking-wide text-muted-foreground">{label}</p>
       <p className="mt-1 text-lg text-foreground tabular-nums">{value}</p>
       <p className={cn("text-xs", hintClassName)}>{hint}</p>

@@ -29,7 +29,7 @@ function DetailList({ rows }: { rows: DetailRow[] }) {
   return (
     <dl className="divide-y">
       {rows.map((row) => (
-        <div className="flex items-start justify-between gap-4 px-4 py-3 sm:px-5" key={row.label}>
+        <div className="flex items-start justify-between gap-4 px-6 py-3 sm:px-8" key={row.label}>
           <dt className="text-sm text-muted-foreground">{row.label}</dt>
           <dd className="min-w-0 text-right">
             <span className="block text-sm break-words text-foreground">{row.value}</span>

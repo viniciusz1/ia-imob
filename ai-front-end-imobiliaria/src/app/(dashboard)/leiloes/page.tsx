@@ -565,7 +565,7 @@ export default function AuctionsPage() {
 
                 {isAdvancedOpen && (
                     <Card className="gap-0 py-0">
-                        <div className="grid gap-6 p-4 sm:p-5 md:grid-cols-2">
+                        <div className="grid gap-6 p-6 sm:p-8 md:grid-cols-2">
                             <div className="space-y-3">
                                 <h3 className="flex items-center gap-2 text-sm text-foreground">
                                     <DollarSign className="size-4 text-muted-foreground" />
@@ -649,7 +649,7 @@ export default function AuctionsPage() {
                             </div>
                         </div>
 
-                        <div className="flex justify-end gap-2 border-t px-4 py-3 sm:px-5">
+                        <div className="flex justify-end gap-2 border-t px-6 py-3 sm:px-8">
                             <Button onClick={clearFilters} size="sm" type="button" variant="ghost">
                                 Redefinir filtros
                             </Button>
@@ -1038,7 +1038,7 @@ function AuctionDetail({ item }: { item: AuctionApiResource }) {
                                 ))}
                             </div>
                         ) : (
-                            <p className="rounded-lg border p-4 text-sm text-muted-foreground">
+                            <p className="rounded-xl border border-transparent bg-muted p-4 text-sm text-muted-foreground">
                                 Nenhuma praça informada.
                             </p>
                         )}
@@ -1079,7 +1079,7 @@ function AuctionDetail({ item }: { item: AuctionApiResource }) {
                 {item.description && (
                     <div className="space-y-2">
                         <p className="text-xs tracking-wide text-muted-foreground uppercase">Descrição / Laudo</p>
-                        <div className="max-h-40 overflow-y-auto rounded-lg border p-4 text-sm text-muted-foreground">
+                        <div className="max-h-40 overflow-y-auto rounded-xl border border-transparent bg-muted p-4 text-sm text-muted-foreground">
                             {item.description}
                         </div>
                     </div>

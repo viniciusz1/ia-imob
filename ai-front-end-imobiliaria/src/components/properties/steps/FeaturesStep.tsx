@@ -143,7 +143,7 @@ export function FeaturesStep({ featuresOptions }: FeaturesStepProps) {
                                     <label
                                         key={feature.id}
                                         className={cn(
-                                            "flex cursor-pointer items-center gap-3 rounded-lg border px-4 py-3 transition-colors hover:bg-muted/50",
+                                            "flex cursor-pointer items-center gap-3 rounded-xl border border-transparent bg-muted px-4 py-3 transition-colors hover:bg-muted/50",
                                             checked && "border-primary/30 bg-primary/5 hover:bg-primary/10",
                                         )}
                                     >

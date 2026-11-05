@@ -92,7 +92,7 @@ export function DiscoveryGenerator({ agencyId, contracts }: DiscoveryGeneratorPr
             return (
               <label
                 className={cn(
-                  "flex cursor-pointer items-center gap-3 rounded-lg border p-4 text-sm transition-colors",
+                  "flex cursor-pointer items-center gap-3 rounded-xl border border-transparent bg-muted p-4 text-sm transition-colors",
                   checked ? "border-primary/20 bg-primary/5" : "hover:bg-muted/40",
                 )}
                 key={source.value}
@@ -146,14 +146,14 @@ export function DiscoveryGenerator({ agencyId, contracts }: DiscoveryGeneratorPr
               value={query}
             />
           </FormField>
-          <label className="flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-colors hover:bg-muted/40">
+          <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-transparent bg-muted p-4 transition-colors hover:bg-muted/40">
             <Checkbox checked={includeSubdomains} onCheckedChange={(checked) => setIncludeSubdomains(checked === true)} />
             <span className="grid gap-1">
               <span className="text-sm text-foreground">Incluir subdomínios</span>
               <span className="text-xs text-muted-foreground">Procura URLs além do domínio principal.</span>
             </span>
           </label>
-          <label className="flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-colors hover:bg-muted/40">
+          <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-transparent bg-muted p-4 transition-colors hover:bg-muted/40">
             <Checkbox checked={useBrowserForHomepage} onCheckedChange={(checked) => setUseBrowserForHomepage(checked === true)} />
             <span className="grid gap-1">
               <span className="text-sm text-foreground">Usar browser na página inicial</span>

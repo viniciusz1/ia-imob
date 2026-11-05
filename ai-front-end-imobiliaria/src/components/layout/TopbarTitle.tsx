@@ -27,20 +27,20 @@ export function TopbarTitle({ icon: Icon, title, tabs, tabsLabel }: TopbarTitleP
     return (
         <div className="flex min-w-0 items-center gap-6">
             <div className={cn("min-w-0 items-center gap-2.5", hasTabs ? "hidden xl:flex" : "flex")}>
-                {Icon && <Icon aria-hidden="true" className="size-7 shrink-0 text-sidebar-highlight" strokeWidth={2.25} />}
-                <p className="truncate text-[1.625rem] leading-none font-semibold tracking-tight">{title}</p>
+                {Icon && <Icon aria-hidden="true" className="size-8 shrink-0 text-sidebar-highlight" strokeWidth={2.25} />}
+                <p className="truncate text-[2rem] leading-9 font-semibold tracking-[-0.01em]">{title}</p>
             </div>
 
             {hasTabs && (
                 <nav
                     aria-label={tabsLabel ?? title}
-                    className="flex min-w-0 items-center gap-1 overflow-x-auto rounded-xl bg-segment p-1.5"
+                    className="flex min-w-0 items-center gap-2 overflow-x-auto rounded-md bg-segment px-3 py-2"
                 >
                     {tabs.map((tab) => (
                         <Link
                             aria-current={tab.active ? "page" : undefined}
                             className={cn(
-                                "flex h-8 shrink-0 items-center rounded-lg px-3 text-[0.8125rem] font-semibold whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
+                                "flex h-8 shrink-0 items-center rounded-sm px-3 text-[0.8125rem] font-semibold whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
                                 tab.active
                                     ? "bg-segment-active text-segment-active-foreground shadow-xs"
                                     : "text-segment-foreground hover:text-foreground",

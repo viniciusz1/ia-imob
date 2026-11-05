@@ -161,7 +161,7 @@ function OperationAttempt({ execution, operation }: { execution: OnboardingExecu
   const linkClassName = "text-primary hover:underline";
 
   return (
-    <li className="space-y-3 rounded-lg border p-4">
+    <li className="space-y-3 rounded-xl border border-transparent bg-muted p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="text-sm text-foreground">Tentativa {operation.attempt} · Operação #{operation.id}</p>
         <OperationStateBadge state={operation.state} />
@@ -349,7 +349,7 @@ export function OnboardingExecutionTimeline({
       <CardContent className="space-y-6">
         <section
           className={cn(
-            "flex items-start gap-3 rounded-lg border px-4 py-3 text-sm",
+            "flex items-start gap-3 rounded-xl border border-transparent bg-muted px-4 py-3 text-sm",
             requiresAttention ? "border-destructive/30 bg-destructive/5" : "border-primary/20 bg-primary/5",
           )}
         >

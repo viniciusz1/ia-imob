@@ -114,7 +114,7 @@ const policyStatus: Record<QualityPolicy["status"], { label: string; variant: "m
 
 function RuleValue({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-lg border p-4">
+    <div className="rounded-xl border border-transparent bg-muted p-4">
       <dt className="text-xs uppercase tracking-wide text-muted-foreground">{label}</dt>
       <dd className="mt-1 text-lg text-foreground tabular-nums">{(value * 100).toLocaleString("pt-BR", { maximumFractionDigits: 2 })}%</dd>
     </div>

@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import { STAT_TONES, type StatTone } from "@/components/layout/StatCard";
+import { STAT_TONES, STAT_VALUE_TONES, type StatTone } from "@/components/layout/StatCard";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { EMPTY_VALUE } from "./format";
@@ -24,32 +24,32 @@ export function StatTile({
   insufficientSample = false,
 }: StatTileProps) {
   return (
-    <Card className="h-full gap-0 p-5">
-      <div className="flex items-start justify-between gap-3">
-        <p className="min-w-0 truncate text-sm text-muted-foreground" title={label}>
-          {label}
-        </p>
+    <Card className="h-full gap-4 p-6">
+      <p className="min-w-0 truncate text-sm leading-4 font-semibold text-subtle" title={label}>
+        {label}
+      </p>
+
+      {/* O valor nunca é cortado: em coluna estreita ele desce para baixo do
+          ícone em vez de perder caractere. */}
+      <div className="flex flex-wrap items-center gap-3">
         <span
           className={cn(
-            "flex size-10 shrink-0 items-center justify-center rounded-lg",
+            "flex shrink-0 items-center justify-center rounded-xl p-[9px]",
             STAT_TONES[insufficientSample ? "muted" : tone],
           )}
         >
           <Icon aria-hidden className="size-5" />
         </span>
+        <p
+          className={cn(
+            "text-2xl leading-8 font-semibold tracking-[-0.01em] tabular-nums",
+            insufficientSample ? "text-muted-foreground" : STAT_VALUE_TONES[tone],
+          )}
+          title={insufficientSample ? "Amostra insuficiente" : undefined}
+        >
+          {insufficientSample ? EMPTY_VALUE : value}
+        </p>
       </div>
-
-      {/* O valor fica sozinho na linha com a largura inteira do card, porque é
-          ele que não pode perder caractere quando a coluna estreita. */}
-      <p
-        className={cn(
-          "mt-2 text-3xl leading-none tracking-tight tabular-nums",
-          insufficientSample ? "text-muted-foreground" : "text-foreground",
-        )}
-        title={insufficientSample ? "Amostra insuficiente" : undefined}
-      >
-        {insufficientSample ? EMPTY_VALUE : value}
-      </p>
     </Card>
   );
 }

@@ -147,7 +147,7 @@ function VariantB(props: SampleUrlPickerPrototypeProps) {
   const [source, setSource] = useState("snapshot");
   const state = useSnapshotUrls(props.snapshotId, source === "snapshot");
   return (
-    <div className="space-y-4 rounded-lg border p-4">
+    <div className="space-y-4 rounded-xl border border-transparent bg-muted p-4">
       <div>
         <p className="text-sm text-foreground">Como deseja definir a URL de amostra?</p>
         <p className="text-xs text-muted-foreground">Você poderá revisar a escolha antes de gerar o perfil.</p>
@@ -166,7 +166,7 @@ function VariantB(props: SampleUrlPickerPrototypeProps) {
           <Label htmlFor={`profile-sample-url-${props.agencyId}`}>Cole a URL do imóvel</Label>
           <ManualInput {...props} />
         </TabsContent>
-        <TabsContent className="space-y-3 rounded-lg border p-4" value="suggestion">
+        <TabsContent className="space-y-3 rounded-xl border border-transparent bg-muted p-4" value="suggestion">
           <p className="text-sm text-muted-foreground">
             Vamos analisar a home da imobiliária e procurar uma página de imóvel adequada.
           </p>

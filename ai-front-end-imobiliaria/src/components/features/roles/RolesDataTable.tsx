@@ -37,7 +37,7 @@ export function RolesDataTable({ data, onEdit, onDelete }: RolesDataTableProps) 
     });
 
     return (
-        <Card className="gap-0 overflow-hidden py-0">
+        <Card className="gap-0 overflow-hidden pt-6 pb-0 sm:pt-8">
             <Table>
                 <TableHeader>
                     {table.getHeaderGroups().map((headerGroup) => (

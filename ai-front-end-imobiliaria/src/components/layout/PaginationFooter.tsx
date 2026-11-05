@@ -60,7 +60,7 @@ export function PaginationFooter({
     return (
         <div
             className={cn(
-                "flex flex-wrap items-center justify-between gap-3 border-t px-4 py-3.5 sm:px-5",
+                "mx-6 flex flex-wrap items-center justify-between gap-3 border-t py-4 sm:mx-8",
                 className,
             )}
         >
