@@ -12,9 +12,10 @@ class PropertyTypeCatalogTest extends TestCase
         $entries = PropertyTypeCatalog::entries();
         $bySlug = array_column($entries, null, 'slug');
 
-        $this->assertCount(19, $entries);
+        $this->assertCount(20, $entries);
         $this->assertContains('apartamento em condomínio', $bySlug['apartamento']['aliases']);
         $this->assertContains('apartamento penthouse', $bySlug['cobertura']['aliases']);
+        $this->assertContains('duplex residencial', $bySlug['duplex']['aliases']);
         $this->assertContains('kit-net', $bySlug['kitnet']['aliases']);
         $this->assertContains('estúdio residencial', $bySlug['studio']['aliases']);
         $this->assertContains('loft open-space', $bySlug['loft']['aliases']);
@@ -42,6 +43,8 @@ class PropertyTypeCatalogTest extends TestCase
         );
         $this->assertSame('Apartamento', PropertyTypeCatalog::canonicalNameFor('Apartamento garden'));
         $this->assertSame('Apartamento', PropertyTypeCatalog::canonicalNameFor('Apartamento Alto Padrão'));
+        $this->assertSame('Duplex', PropertyTypeCatalog::canonicalNameFor('Duplex'));
+        $this->assertSame('Duplex', PropertyTypeCatalog::canonicalNameFor('dúplex residencial'));
         $this->assertSame('Casa', PropertyTypeCatalog::canonicalNameFor('Casa Alto Padrão'));
         $this->assertSame('Geminado', PropertyTypeCatalog::canonicalNameFor('Geminado Triplex'));
         $this->assertSame('Terreno', PropertyTypeCatalog::canonicalNameFor('Loteamento'));

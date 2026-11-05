@@ -13,6 +13,12 @@ ALIASES,
 penthouse, apartamento cobertura, apto cobertura, apt cobertura, cobertura residencial, cobertura de prédio, cobertura de edifício, cobertura em condomínio, cobertura de condomínio, unidade cobertura, apartamento tipo cobertura, apto tipo cobertura, cobertura apartamento, cobertura em prédio, cobertura em edifício, cobertura duplex, cobertura triplex, cobertura linear, cobertura plana, cobertura residencial duplex, cobertura residencial triplex, cobertura com terraço, cobertura com rooftop, cobertura com terraço privativo, cobertura com área externa, cobertura com área privativa, cobertura no último andar, apartamento penthouse, penthouse residencial, penthouse apartment, unidade penthouse, unidade no topo do prédio, unidade no topo do edifício, cobertura de alto padrão, cobertura padrão, cobertura urbana, cobertura condominial, cobertura de uso residencial, residência tipo cobertura, imóvel tipo cobertura, coberturas, apartamentos cobertura, aptos cobertura, apto penthouse, apt penthouse, cobertura com terraço exclusivo, cobertura com rooftop privativo, cobertura de edifício residencial, cobertura de prédio residencial, cobertura em edifício residencial
 ALIASES,
     ],
+    'duplex' => [
+        'name' => 'Duplex',
+        'aliases' => <<<'ALIASES'
+duplex, dúplex, duplex residencial, dúplex residencial, imóvel duplex, imovel duplex, imóvel tipo duplex, imovel tipo duplex, residência duplex, residencia duplex, residência tipo duplex, residencia tipo duplex, moradia duplex, moradia tipo duplex, unidade duplex, unidade residencial duplex, duplex urbano, duplex residencial urbano, duplex em condomínio, duplex em condominio, duplex de condomínio, duplex de condominio, duplex individual, duplex independente, duplex padrão, duplex padrao, duplex alto padrão, duplex alto padrao, duplex de alto padrão, duplex de alto padrao, duplex com terraço, duplex com terraco, duplex mobiliado, duplex não mobiliado, duplex nao mobiliado, casa duplex, sobrado duplex, casas duplex, sobrados duplex, imóveis duplex, imoveis duplex, unidades duplex
+ALIASES,
+    ],
     'kitnet' => [
         'name' => 'Kitnet',
         'aliases' => <<<'ALIASES'

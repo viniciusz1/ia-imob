@@ -15,7 +15,7 @@ class CrawlerPropertyTypeCatalogSeederTest extends TestCase
     {
         $this->seed();
 
-        $this->assertDatabaseCount('crawler.property_types', 19);
+        $this->assertDatabaseCount('crawler.property_types', 20);
         $aliases = json_decode(
             (string) DB::table('crawler.property_types')
                 ->where('slug', 'apartamento')
@@ -36,6 +36,7 @@ class CrawlerPropertyTypeCatalogSeederTest extends TestCase
         $systemTypeLabelsByValue = array_column($systemTypes, 'label', 'value');
 
         $this->assertSame('Apartamento', $systemTypeLabelsByValue['apartamento']);
+        $this->assertSame('Duplex', $systemTypeLabelsByValue['duplex']);
         $this->assertSame('Imóvel Rural', $systemTypeLabelsByValue['imovel-rural']);
     }
 
