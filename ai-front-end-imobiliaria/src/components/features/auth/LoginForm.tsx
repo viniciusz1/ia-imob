@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -105,17 +104,8 @@ export function LoginForm() {
 
     return (
         <div className="w-full">
-            {/* A logo tem fundo próprio (casa verde), então funciona nos dois temas. */}
-            <Image
-                src="/logo.png"
-                alt="Logo do sistema"
-                width={512}
-                height={512}
-                priority
-                className="size-16"
-            />
-
-            <div className="mt-10 space-y-2">
+            {/* The logo lives on the brand panel (desktop) and the brand strip (mobile). */}
+            <div className="space-y-2">
                 <h1 className="text-3xl font-semibold tracking-tight">
                     Acesse sua conta
                 </h1>
