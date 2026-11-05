@@ -43,6 +43,8 @@ export function AgencyFormModal({ open, onOpenChange, agency }: AgencyFormModalP
     const form = useForm<AgencyFormValues>({
         resolver: zodResolver(agencyFormSchema),
         defaultValues: getDefaultValues(agency),
+        mode: "onChange",
+        reValidateMode: "onChange",
     });
 
     useEffect(() => {

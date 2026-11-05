@@ -76,4 +76,15 @@ describe('RoleFormModal', () => {
         fireEvent.click(screen.getByLabelText('Criar Usuários'));
         expect(submitButton).toBeEnabled();
     });
+
+    it('mostra que o nome do grupo é obrigatório quando o campo é apagado', async () => {
+        render(<RoleFormModal open={true} onOpenChange={vi.fn()} initialData={null} />);
+
+        const nameInput = screen.getByLabelText(/Nome do Grupo/i);
+        fireEvent.change(nameInput, { target: { value: 'G' } });
+        fireEvent.change(nameInput, { target: { value: '   ' } });
+
+        expect(await screen.findByText('Nome do grupo é obrigatório')).toBeInTheDocument();
+        expect(nameInput).toHaveAttribute('aria-invalid', 'true');
+    });
 });

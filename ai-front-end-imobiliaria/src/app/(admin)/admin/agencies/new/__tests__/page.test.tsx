@@ -72,14 +72,14 @@ describe("AdminNewAgencyPage", () => {
                 agency: {
                     name: "Nova Agência",
                     slug: "nova-agencia",
-                    phone: "11999999999",
+                    phone: "(11) 99999-9999",
                     email: "contato@nova.com",
                 },
                 admin: {
                     name: "Admin Silva",
                     email: "admin@nova.com",
                     username: "admin.silva",
-                    phone: "11988888888",
+                    phone: "(11) 98888-8888",
                     password: "senhaSegura123",
                     password_confirmation: "senhaSegura123",
                 },

@@ -10,6 +10,7 @@ import { Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-field";
+import { formatPhoneBR } from "@/lib/brazilianFormats";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -78,11 +79,12 @@ function getDefaultValues(user?: User | null): UserFormValues {
     return {
         name: user?.name || "",
         email: user?.email || "",
-        phone: user?.phone || "",
+        phone: formatPhoneBR(user?.phone || ""),
         person_type: user?.person_type || "F",
         creci: user?.creci || "",
         order: user?.order || 0,
-        role_id: user?.role_id || 1,
+        // New users start without a group: it must be chosen explicitly.
+        role_id: user?.role_id ?? 0,
         team_id: user?.team_id || null,
         notes: user?.notes || "",
         is_active: user?.is_active ?? true,
@@ -123,7 +125,11 @@ export function UserFormModal({
     const form = useForm<UserFormInput, unknown, UserFormValues>({
         resolver: zodResolver(isEditing ? userFormSchema : createUserSchema),
         defaultValues: getDefaultValues(initialData),
+        // Errors show while the user types in a field (never on untouched ones).
+        mode: "onChange",
+        reValidateMode: "onChange",
     });
+    const phoneField = form.register("phone");
 
     // Reset do formulário quando o modal abre/fecha ou quando initialData muda
     useEffect(() => {
@@ -225,6 +231,7 @@ export function UserFormModal({
                                 >
                                     <Input
                                         id="modal-email"
+                                        placeholder="nome@empresa.com.br"
                                         type="email"
                                         {...form.register("email")}
                                     />
@@ -238,7 +245,13 @@ export function UserFormModal({
                                 >
                                     <Input
                                         id="modal-phone"
-                                        {...form.register("phone")}
+                                        inputMode="tel"
+                                        placeholder="(11) 99999-9999"
+                                        {...phoneField}
+                                        onChange={(event) => {
+                                            event.target.value = formatPhoneBR(event.target.value);
+                                            void phoneField.onChange(event);
+                                        }}
                                     />
                                 </FormField>
 
@@ -314,7 +327,7 @@ export function UserFormModal({
                         <section className="space-y-4">
                             <SectionTitle>Profissional</SectionTitle>
                             <div className="grid gap-5 sm:grid-cols-2">
-                                <FormField htmlFor="modal-creci" label="CRECI">
+                                <FormField error={errors.creci?.message} htmlFor="modal-creci" label="CRECI">
                                     <Input
                                         id="modal-creci"
                                         {...form.register("creci")}
@@ -340,12 +353,13 @@ export function UserFormModal({
                                 >
                                     <Select
                                         onValueChange={(val) =>
-                                            form.setValue(
-                                                "role_id",
-                                                Number(val)
-                                            )
+                                            form.setValue("role_id", Number(val), {
+                                                shouldDirty: true,
+                                                shouldTouch: true,
+                                                shouldValidate: true,
+                                            })
                                         }
-                                        value={String(roleId)}
+                                        value={roleId ? String(roleId) : ""}
                                     >
                                         <SelectTrigger className="w-full" id="modal-group">
                                             <SelectValue placeholder={isLoadingRoles ? "Carregando grupos..." : "Selecione o grupo"} />
@@ -470,7 +484,7 @@ export function UserFormModal({
                                     <Input
                                         id="modal-password"
                                         type="password"
-                                        {...form.register("password")}
+                                        {...form.register("password", { deps: ["password_confirmation"] })}
                                     />
                                 </FormField>
                                 <FormField
@@ -504,7 +518,7 @@ export function UserFormModal({
                                             <Input
                                                 id="modal-wp1-start"
                                                 type="time"
-                                                {...form.register("work_period_1_start")}
+                                                {...form.register("work_period_1_start", { deps: ["work_period_1_end"] })}
                                             />
                                         </FormField>
                                         <FormField
@@ -530,7 +544,7 @@ export function UserFormModal({
                                             <Input
                                                 id="modal-wp2-start"
                                                 type="time"
-                                                {...form.register("work_period_2_start")}
+                                                {...form.register("work_period_2_start", { deps: ["work_period_2_end"] })}
                                             />
                                         </FormField>
                                         <FormField
@@ -558,6 +572,7 @@ export function UserFormModal({
                             <SectionTitle>Configurações para o site</SectionTitle>
                             <div className="grid gap-5 sm:grid-cols-2">
                                 <FormField
+                                    error={errors.website_name?.message}
                                     className="sm:col-span-2"
                                     htmlFor="modal-website-name"
                                     label="Nome exibido no site"

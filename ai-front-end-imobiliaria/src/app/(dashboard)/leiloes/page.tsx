@@ -216,6 +216,7 @@ export default function AuctionsPage() {
     const [isCreateAlertOpen, setIsCreateAlertOpen] = useState(false);
     const [isViewAlertsOpen, setIsViewAlertsOpen] = useState(false);
     const [alertName, setAlertName] = useState("");
+    const [alertNameTouched, setAlertNameTouched] = useState(false);
     const [isSavingAlert, setIsSavingAlert] = useState(false);
 
     const loadAlerts = useCallback(async () => {
@@ -310,6 +311,25 @@ export default function AuctionsPage() {
 
     const advancedFilterCount = [minBid, maxBid, dateFrom, dateTo].filter(Boolean).length;
 
+    // Live checks of the advanced search: they paint the field red while wrong.
+    const minBidValue = minBid === "" ? null : Number(minBid);
+    const maxBidValue = maxBid === "" ? null : Number(maxBid);
+    const minBidError = minBidValue !== null && minBidValue < 0 ? "Informe um valor positivo" : undefined;
+    const maxBidError =
+        maxBidValue !== null && maxBidValue < 0
+            ? "Informe um valor positivo"
+            : maxBidValue !== null && minBidValue !== null && maxBidValue < minBidValue
+              ? "O lance máximo deve ser maior que o mínimo"
+              : undefined;
+    const dateToError = dateFrom && dateTo && dateTo < dateFrom ? "A data final deve ser depois da inicial" : undefined;
+    const alertNameError = !alertNameTouched
+        ? undefined
+        : !alertName.trim()
+          ? "Informe um nome para o alerta"
+          : alertName.length > 255
+            ? "O nome deve ter no máximo 255 caracteres"
+            : undefined;
+
     const hasActiveFilters =
         Boolean(searchTerm.trim()) ||
         selectedCity !== "Todas" ||
@@ -333,6 +353,7 @@ export default function AuctionsPage() {
 
     const openCreateAlert = () => {
         setAlertName(selectedCity !== "Todas" ? `Leilões em ${selectedCity}` : "Novo Alerta de Leilões");
+        setAlertNameTouched(false);
         setIsCreateAlertOpen(true);
     };
 
@@ -589,20 +610,22 @@ export default function AuctionsPage() {
                                     Faixa de lance mínimo
                                 </h3>
                                 <div className="grid grid-cols-2 gap-4">
-                                    <FormField htmlFor="auction-min-bid" label="Lance mínimo">
+                                    <FormField error={minBidError} htmlFor="auction-min-bid" label="Lance mínimo">
                                         <Input
                                             id="auction-min-bid"
                                             inputMode="numeric"
+                                            min={0}
                                             onChange={(e) => setMinBid(e.target.value)}
                                             placeholder="Ex: 100000"
                                             type="number"
                                             value={minBid}
                                         />
                                     </FormField>
-                                    <FormField htmlFor="auction-max-bid" label="Lance máximo">
+                                    <FormField error={maxBidError} htmlFor="auction-max-bid" label="Lance máximo">
                                         <Input
                                             id="auction-max-bid"
                                             inputMode="numeric"
+                                            min={0}
                                             onChange={(e) => setMaxBid(e.target.value)}
                                             placeholder="Ex: 500000"
                                             type="number"
@@ -638,7 +661,7 @@ export default function AuctionsPage() {
                                             value={dateFrom}
                                         />
                                     </FormField>
-                                    <FormField htmlFor="auction-date-to" label="Até a data">
+                                    <FormField error={dateToError} htmlFor="auction-date-to" label="Até a data">
                                         <DatePicker
                                             id="auction-date-to"
                                             onChange={setDateTo}
@@ -834,11 +857,16 @@ export default function AuctionsPage() {
                     </DialogHeader>
 
                     <div className="space-y-5 px-6 py-5">
-                        <FormField htmlFor="auction-alert-name" label="Nome do alerta" required>
+                        <FormField error={alertNameError} htmlFor="auction-alert-name" label="Nome do alerta" required>
                             <Input
                                 autoFocus
                                 id="auction-alert-name"
-                                onChange={(e) => setAlertName(e.target.value)}
+                                maxLength={255}
+                                onBlur={() => setAlertNameTouched(true)}
+                                onChange={(e) => {
+                                    setAlertName(e.target.value);
+                                    setAlertNameTouched(true);
+                                }}
                                 onKeyDown={(e) => {
                                     if (e.key === "Enter") handleSaveAlert();
                                 }}

@@ -1,5 +1,14 @@
 import { z } from "zod";
 
+import {
+    PASSWORD_MIN,
+    optionalHttpUrl,
+    requiredEmail,
+    requiredPhoneBR,
+    requiredText,
+    username,
+} from "@/schemas/commonFieldRules";
+
 // =============================================================================
 // Schema Zod — Formulário de Usuário
 // =============================================================================
@@ -7,29 +16,25 @@ import { z } from "zod";
 export const userFormSchema = z
     .object({
         // -- Dados Principais e Contato --
-        name: z
-            .string({ message: "Nome é obrigatório" })
-            .min(3, "Nome deve ter pelo menos 3 caracteres"),
-        email: z
-            .string({ message: "Email é obrigatório" })
-            .email("Email inválido"),
-        phone: z
-            .string({ message: "Telefone é obrigatório" })
-            .min(10, "Telefone deve ter pelo menos 10 caracteres"),
+        name: requiredText("Nome").min(3, "Nome deve ter pelo menos 3 caracteres"),
+        email: requiredEmail(),
+        phone: requiredPhoneBR(),
         person_type: z.enum(["F", "J"], {
             message: "Tipo de pessoa é obrigatório",
         }),
         avatar: z.custom<File | null>().optional(),
 
         // -- Profissional --
-        creci: z.string().optional().or(z.literal("")),
+        creci: z.string().trim().max(30, "CRECI deve ter no máximo 30 caracteres").optional().or(z.literal("")),
         order: z.coerce
             .number({ message: "Ordem é obrigatória" })
             .int("Ordem deve ser um número inteiro")
             .min(0, "Ordem deve ser positiva"),
-        role_id: z.coerce.number({
-            message: "Grupo é obrigatório",
-        }),
+        // No silent default: the group decides what the user can do.
+        role_id: z.coerce
+            .number({ message: "Selecione o grupo do usuário" })
+            .int("Selecione o grupo do usuário")
+            .positive("Selecione o grupo do usuário"),
         team_id: z.coerce.number().nullable().optional(),
         notes: z.string().optional().or(z.literal("")),
 
@@ -39,12 +44,10 @@ export const userFormSchema = z
         has_broker_page: z.boolean().default(false),
 
         // -- Credenciais --
-        username: z
-            .string({ message: "Usuário é obrigatório" })
-            .min(3, "Usuário deve ter pelo menos 3 caracteres"),
+        username: username(),
         password: z
             .string()
-            .min(8, "Senha deve ter pelo menos 8 caracteres")
+            .min(PASSWORD_MIN, `Senha deve ter pelo menos ${PASSWORD_MIN} caracteres`)
             .optional()
             .or(z.literal("")),
         password_confirmation: z.string().optional().or(z.literal("")),
@@ -56,17 +59,9 @@ export const userFormSchema = z
         work_period_2_end: z.string().optional().or(z.literal("")),
 
         // -- Configurações para o Site --
-        website_name: z.string().optional().or(z.literal("")),
-        facebook_link: z
-            .string()
-            .url("Link do Facebook deve ser uma URL válida")
-            .optional()
-            .or(z.literal("")),
-        instagram_link: z
-            .string()
-            .url("Link do Instagram deve ser uma URL válida")
-            .optional()
-            .or(z.literal("")),
+        website_name: z.string().trim().max(255, "Nome no site deve ter no máximo 255 caracteres").optional().or(z.literal("")),
+        facebook_link: optionalHttpUrl("Link do Facebook", 500),
+        instagram_link: optionalHttpUrl("Link do Instagram", 500),
         description: z.string().optional().or(z.literal("")),
     })
     // Validação: senhas devem coincidir
@@ -115,10 +110,10 @@ export type UserFormInput = z.input<typeof userFormSchema>;
 // Schema para criação (senha obrigatória)
 export const createUserSchema = userFormSchema.refine(
     (data) => {
-        return data.password && data.password.length >= 8;
+        return Boolean(data.password && data.password.length >= PASSWORD_MIN);
     },
     {
-        message: "Senha é obrigatória para novos usuários (mínimo 8 caracteres)",
+        message: `Senha é obrigatória para novos usuários (mínimo ${PASSWORD_MIN} caracteres)`,
         path: ["password"],
     }
 );

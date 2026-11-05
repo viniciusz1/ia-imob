@@ -39,6 +39,9 @@ export function LoginForm() {
             password: "",
             remember: false,
         },
+        // Messages after leaving a field, then live while correcting it.
+        mode: "onTouched",
+        reValidateMode: "onChange",
     });
 
     const loginValue = watch("login");

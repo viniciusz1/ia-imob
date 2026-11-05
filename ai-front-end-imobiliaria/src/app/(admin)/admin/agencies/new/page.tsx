@@ -18,6 +18,7 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import { FormField } from "@/components/ui/form-field";
+import { formatPhoneBR } from "@/lib/brazilianFormats";
 import { Input } from "@/components/ui/input";
 import { createAgency } from "@/services/adminApi";
 import {
@@ -55,7 +56,11 @@ export default function AdminNewAgencyPage() {
             adminPassword: "",
             adminPasswordConfirmation: "",
         },
+        mode: "onChange",
+        reValidateMode: "onChange",
     });
+    const agencyPhoneField = form.register("agencyPhone");
+    const adminPhoneField = form.register("adminPhone");
     const validity = useSchemaValidity(form.control, registerAgencySchema, FIELD_LABELS);
 
     const onSubmit = async (values: RegisterAgencyFormValues) => {
@@ -131,8 +136,17 @@ export default function AdminNewAgencyPage() {
                         >
                             <Input id="agencySlug" {...form.register("agencySlug")} />
                         </FormField>
-                        <FormField htmlFor="agencyPhone" label="Telefone da Agência">
-                            <Input id="agencyPhone" {...form.register("agencyPhone")} />
+                        <FormField error={errors.agencyPhone?.message} htmlFor="agencyPhone" label="Telefone da Agência">
+                            <Input
+                                id="agencyPhone"
+                                inputMode="tel"
+                                placeholder="(11) 3333-4444"
+                                {...agencyPhoneField}
+                                onChange={(event) => {
+                                    event.target.value = formatPhoneBR(event.target.value);
+                                    void agencyPhoneField.onChange(event);
+                                }}
+                            />
                         </FormField>
                         <FormField error={errors.agencyEmail?.message} htmlFor="agencyEmail" label="E-mail da Agência">
                             <Input id="agencyEmail" type="email" {...form.register("agencyEmail")} />
@@ -161,12 +175,21 @@ export default function AdminNewAgencyPage() {
                         <FormField error={errors.adminUsername?.message} htmlFor="adminUsername" label="Usuário" required>
                             <Input id="adminUsername" {...form.register("adminUsername")} />
                         </FormField>
-                        <FormField htmlFor="adminPhone" label="Telefone do Administrador">
-                            <Input id="adminPhone" {...form.register("adminPhone")} />
+                        <FormField error={errors.adminPhone?.message} htmlFor="adminPhone" label="Telefone do Administrador">
+                            <Input
+                                id="adminPhone"
+                                inputMode="tel"
+                                placeholder="(11) 99999-9999"
+                                {...adminPhoneField}
+                                onChange={(event) => {
+                                    event.target.value = formatPhoneBR(event.target.value);
+                                    void adminPhoneField.onChange(event);
+                                }}
+                            />
                         </FormField>
                         <div className="hidden sm:block" />
                         <FormField error={errors.adminPassword?.message} htmlFor="adminPassword" label="Senha" required>
-                            <Input id="adminPassword" type="password" {...form.register("adminPassword")} />
+                            <Input id="adminPassword" type="password" {...form.register("adminPassword", { deps: ["adminPasswordConfirmation"] })} />
                         </FormField>
                         <FormField
                             error={errors.adminPasswordConfirmation?.message}

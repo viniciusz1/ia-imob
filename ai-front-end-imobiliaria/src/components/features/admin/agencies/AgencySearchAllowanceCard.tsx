@@ -36,6 +36,11 @@ export function AgencySearchAllowanceCard({ agency }: AgencySearchAllowanceCardP
     const [isSaving, setIsSaving] = useState(false);
     const parsedLimit = Number(limit);
     const isValid = Number.isInteger(parsedLimit) && parsedLimit >= 0 && parsedLimit <= 1_000_000;
+    const limitError = isValid
+        ? undefined
+        : limit.trim() === ""
+          ? "Informe o limite semanal"
+          : "Informe um número inteiro entre 0 e 1.000.000";
     const progress = usage && usage.limit > 0
         ? Math.min((usage.used / usage.limit) * 100, 100)
         : usage?.used ? 100 : 0;
@@ -90,6 +95,7 @@ export function AgencySearchAllowanceCard({ agency }: AgencySearchAllowanceCardP
             <div className="flex items-start gap-3 px-6 py-4 sm:px-8">
                 <FormField
                     className="flex-1"
+                    error={limitError}
                     hint={
                         <span id="market-search-weekly-limit-help">
                             Cada página entregue conta como uma busca. Use 0 para desativar.

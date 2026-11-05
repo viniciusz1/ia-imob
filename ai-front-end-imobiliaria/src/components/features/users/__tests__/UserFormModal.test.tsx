@@ -75,7 +75,10 @@ describe('UserFormModal', () => {
     });
 
     it('mantém Criar usuário desabilitado até preencher os campos obrigatórios', () => {
-        vi.mocked(useRoles).mockReturnValue({ data: undefined, isLoading: false } as ReturnType<typeof useRoles>);
+        vi.mocked(useRoles).mockReturnValue({
+            data: [{ id: 3, name: 'Corretor', permissions: [] }],
+            isLoading: false,
+        } as unknown as ReturnType<typeof useRoles>);
 
         render(<UserFormModal open={true} onOpenChange={vi.fn()} initialData={null} />);
 
@@ -90,7 +93,43 @@ describe('UserFormModal', () => {
         fireEvent.change(screen.getByLabelText(/^Senha/), { target: { value: 'segredo123' } });
         fireEvent.change(screen.getByLabelText(/Repita a senha/), { target: { value: 'segredo123' } });
 
+        // The group is never preselected: without it the user can't be created.
+        expect(submit).toBeDisabled();
+        expect(screen.getByText(/^Preencha: .*Grupo do usuário/)).toBeInTheDocument();
+
+        fireEvent.click(screen.getByRole('combobox', { name: /Grupo do Usuário/ }));
+        fireEvent.click(screen.getByRole('option', { name: 'Corretor' }));
+
         expect(submit).toBeEnabled();
         expect(screen.queryByText(/^Preencha:/)).not.toBeInTheDocument();
+    });
+
+    it('mostra o erro de e-mail enquanto digita e marca o campo como inválido', async () => {
+        vi.mocked(useRoles).mockReturnValue({ data: undefined, isLoading: false } as ReturnType<typeof useRoles>);
+        render(<UserFormModal open={true} onOpenChange={vi.fn()} initialData={null} />);
+
+        const email = screen.getByLabelText(/E-mail/);
+        expect(email).not.toHaveAttribute('aria-invalid');
+
+        fireEvent.change(email, { target: { value: 'joao@' } });
+
+        expect(await screen.findByText('Informe um e-mail válido, como nome@empresa.com.br')).toBeInTheDocument();
+        expect(email).toHaveAttribute('aria-invalid', 'true');
+
+        fireEvent.change(email, { target: { value: 'joao@empresa.com.br' } });
+        await vi.waitFor(() => expect(email).not.toHaveAttribute('aria-invalid', 'true'));
+    });
+
+    it('formata o telefone enquanto digita e recusa números sem DDD', async () => {
+        vi.mocked(useRoles).mockReturnValue({ data: undefined, isLoading: false } as ReturnType<typeof useRoles>);
+        render(<UserFormModal open={true} onOpenChange={vi.fn()} initialData={null} />);
+
+        const phone = screen.getByLabelText(/Telefone/) as HTMLInputElement;
+        fireEvent.change(phone, { target: { value: '11999998888' } });
+        expect(phone.value).toBe('(11) 99999-8888');
+
+        fireEvent.change(phone, { target: { value: '9999' } });
+        expect(await screen.findByText('Informe um telefone com DDD, como (11) 99999-9999')).toBeInTheDocument();
+        expect(phone).toHaveAttribute('aria-invalid', 'true');
     });
 });

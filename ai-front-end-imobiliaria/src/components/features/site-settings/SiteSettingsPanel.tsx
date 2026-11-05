@@ -17,6 +17,28 @@ import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
+import { formatPhoneBR } from "@/lib/brazilianFormats";
+import { type SiteSettingsField, siteSettingsErrors } from "@/schemas/siteSettingsSchema";
+
+const FIELD_LABELS: Record<SiteSettingsField, string> = {
+    logo_path: "URL do logotipo",
+    favicon_path: "URL do favicon",
+    color_primary: "Cor primária",
+    color_secondary: "Cor secundária",
+    color_accent: "Cor de destaque",
+    color_bg: "Fundo da página",
+    color_surface: "Superfície (cards)",
+    color_text: "Texto",
+    color_muted: "Texto secundário",
+    default_whatsapp: "WhatsApp padrão",
+    facebook_url: "Facebook",
+    instagram_url: "Instagram",
+    google_analytics_id: "Google Analytics ID",
+    meta_pixel_id: "Meta Pixel ID",
+    hero_title: "Título do hero",
+    hero_subtitle: "Subtítulo do hero",
+    about_text: "Sobre a imobiliária",
+};
 
 const PAGE_TITLE = "Configurações do site";
 const PAGE_DESCRIPTION = "Personalize a aparência e o conteúdo do seu site público.";
@@ -35,6 +57,8 @@ export function SiteSettingsPanel() {
     const [settings, setSettings] = useState<SiteSettingsData | null>(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    // Fields the user has edited: their errors show live, the others stay quiet.
+    const [touched, setTouched] = useState<ReadonlySet<SiteSettingsField>>(() => new Set());
 
     useEffect(() => {
         getSiteSettings()
@@ -72,10 +96,15 @@ export function SiteSettingsPanel() {
 
     function update<K extends keyof SiteSettingsPayload>(key: K, value: SiteSettingsPayload[K]) {
         setSettings((prev) => (prev ? { ...prev, [key]: value } : prev));
+        setTouched((prev) => (prev.has(key as SiteSettingsField) ? prev : new Set(prev).add(key as SiteSettingsField)));
     }
 
+    const errors = siteSettingsErrors(settings);
+    const invalidFields = Object.keys(errors) as SiteSettingsField[];
+    const fieldError = (key: SiteSettingsField) => (touched.has(key) ? errors[key] : undefined);
+
     async function handleSave() {
-        if (!settings) return;
+        if (!settings || invalidFields.length > 0) return;
         setSaving(true);
 
         const payload: SiteSettingsPayload = {
@@ -110,15 +139,30 @@ export function SiteSettingsPanel() {
     }
 
     const saveButton = (
-        <Button onClick={handleSave} disabled={saving}>
+        <Button onClick={handleSave} disabled={saving || invalidFields.length > 0}>
             {saving ? <Loader2 className="animate-spin" /> : <Save />}
             Salvar
         </Button>
     );
+    const invalidHint =
+        invalidFields.length > 0 ? (
+            <p className="text-[0.8125rem] text-subtle">
+                Corrija: {invalidFields.map((field) => FIELD_LABELS[field]).join(", ")}
+            </p>
+        ) : null;
 
     return (
         <div className="space-y-6">
-            <PageHeader actions={saveButton} description={PAGE_DESCRIPTION} title={PAGE_TITLE} />
+            <PageHeader
+                actions={
+                    <div className="flex flex-wrap items-center justify-end gap-3">
+                        {invalidHint}
+                        {saveButton}
+                    </div>
+                }
+                description={PAGE_DESCRIPTION}
+                title={PAGE_TITLE}
+            />
 
             <div className="grid gap-6 xl:grid-cols-2">
                 {/* Branding */}
@@ -131,7 +175,7 @@ export function SiteSettingsPanel() {
                         <CardDescription>Logotipo e ícone que aparecem no seu site.</CardDescription>
                     </CardHeader>
                     <CardContent className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                        <FormField htmlFor="logo" label="URL do logotipo">
+                        <FormField error={fieldError("logo_path")} htmlFor="logo" label="URL do logotipo">
                             <Input
                                 id="logo"
                                 value={settings.logo_path ?? ""}
@@ -139,7 +183,7 @@ export function SiteSettingsPanel() {
                                 placeholder="https://exemplo.com/logo.png"
                             />
                         </FormField>
-                        <FormField htmlFor="favicon" label="URL do favicon">
+                        <FormField error={fieldError("favicon_path")} htmlFor="favicon" label="URL do favicon">
                             <Input
                                 id="favicon"
                                 value={settings.favicon_path ?? ""}
@@ -160,7 +204,7 @@ export function SiteSettingsPanel() {
                         <CardDescription>Título e texto exibidos no topo da página inicial do seu site.</CardDescription>
                     </CardHeader>
                     <CardContent className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                        <FormField htmlFor="hero_title" label="Título do hero">
+                        <FormField error={fieldError("hero_title")} htmlFor="hero_title" label="Título do hero">
                             <Input
                                 id="hero_title"
                                 value={settings.hero_title ?? ""}
@@ -168,7 +212,7 @@ export function SiteSettingsPanel() {
                                 placeholder="Encontre o imóvel dos seus sonhos"
                             />
                         </FormField>
-                        <FormField htmlFor="hero_subtitle" label="Subtítulo do hero">
+                        <FormField error={fieldError("hero_subtitle")} htmlFor="hero_subtitle" label="Subtítulo do hero">
                             <Input
                                 id="hero_subtitle"
                                 value={settings.hero_subtitle ?? ""}
@@ -176,7 +220,7 @@ export function SiteSettingsPanel() {
                                 placeholder="Imóveis selecionados à venda e para alugar."
                             />
                         </FormField>
-                        <FormField className="sm:col-span-2" htmlFor="about_text" label="Sobre a imobiliária">
+                        <FormField className="sm:col-span-2" error={fieldError("about_text")} htmlFor="about_text" label="Sobre a imobiliária">
                             <Textarea
                                 id="about_text"
                                 rows={4}
@@ -200,7 +244,7 @@ export function SiteSettingsPanel() {
                 </CardHeader>
                 <CardContent className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
                     {COLOR_FIELDS.map(({ key, label }) => (
-                        <FormField key={key} htmlFor={key} label={label}>
+                        <FormField error={fieldError(key as SiteSettingsField)} key={key} htmlFor={key} label={label}>
                             <div className="flex gap-2">
                                 <input
                                     id={key}
@@ -210,6 +254,7 @@ export function SiteSettingsPanel() {
                                     className="size-10 shrink-0 cursor-pointer rounded-lg border border-input bg-background p-1"
                                 />
                                 <Input
+                                    aria-invalid={Boolean(fieldError(key as SiteSettingsField)) || undefined}
                                     aria-label={`${label} (hex)`}
                                     value={String(settings[key] ?? "")}
                                     onChange={(e) => update(key, e.target.value)}
@@ -231,15 +276,16 @@ export function SiteSettingsPanel() {
                     <CardDescription>Links de contato e códigos de rastreamento.</CardDescription>
                 </CardHeader>
                 <CardContent className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
-                    <FormField htmlFor="whatsapp" label="WhatsApp padrão">
+                    <FormField error={fieldError("default_whatsapp")} htmlFor="whatsapp" label="WhatsApp padrão">
                         <Input
                             id="whatsapp"
                             value={settings.default_whatsapp ?? ""}
-                            onChange={(e) => update("default_whatsapp", e.target.value || null)}
+                            inputMode="tel"
+                            onChange={(e) => update("default_whatsapp", formatPhoneBR(e.target.value) || null)}
                             placeholder="(47) 99999-0000"
                         />
                     </FormField>
-                    <FormField htmlFor="facebook" label="Facebook">
+                    <FormField error={fieldError("facebook_url")} htmlFor="facebook" label="Facebook">
                         <Input
                             id="facebook"
                             value={settings.facebook_url ?? ""}
@@ -247,7 +293,7 @@ export function SiteSettingsPanel() {
                             placeholder="https://facebook.com/suapagina"
                         />
                     </FormField>
-                    <FormField htmlFor="instagram" label="Instagram">
+                    <FormField error={fieldError("instagram_url")} htmlFor="instagram" label="Instagram">
                         <Input
                             id="instagram"
                             value={settings.instagram_url ?? ""}
@@ -255,7 +301,7 @@ export function SiteSettingsPanel() {
                             placeholder="https://instagram.com/seuperfil"
                         />
                     </FormField>
-                    <FormField htmlFor="ga" label="Google Analytics ID">
+                    <FormField error={fieldError("google_analytics_id")} htmlFor="ga" label="Google Analytics ID">
                         <Input
                             id="ga"
                             value={settings.google_analytics_id ?? ""}
@@ -263,7 +309,7 @@ export function SiteSettingsPanel() {
                             placeholder="G-XXXXXXXXXX"
                         />
                     </FormField>
-                    <FormField htmlFor="pixel" label="Meta Pixel ID">
+                    <FormField error={fieldError("meta_pixel_id")} htmlFor="pixel" label="Meta Pixel ID">
                         <Input
                             id="pixel"
                             value={settings.meta_pixel_id ?? ""}
@@ -274,7 +320,10 @@ export function SiteSettingsPanel() {
                 </CardContent>
             </Card>
 
-            <div className="flex flex-wrap justify-end gap-3">{saveButton}</div>
+            <div className="flex flex-wrap items-center justify-end gap-3">
+                {invalidHint}
+                {saveButton}
+            </div>
         </div>
     );
 }

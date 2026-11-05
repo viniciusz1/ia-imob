@@ -90,6 +90,8 @@ export function RoleFormModal({
     const form = useForm<RoleFormValues>({
         resolver: zodResolver(roleFormSchema),
         defaultValues: getDefaultValues(initialData),
+        mode: "onChange",
+        reValidateMode: "onChange",
     });
 
     // Reset do formulário quando o modal abre/fecha ou quando initialData muda

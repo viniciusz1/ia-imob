@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import {
     getUsers,
     getUserById,
@@ -28,34 +29,46 @@ export function useUser(id: number, enabled: boolean = true) {
 
 export function useCreateUser() {
     const queryClient = useQueryClient();
+    // The list pages render their data on the server, so the cache alone
+    // doesn't update them: refresh the route after a change.
+    const router = useRouter();
 
     return useMutation({
         mutationFn: (data: UserFormData) => createUser(data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: USERS_QUERY_KEY });
+            router.refresh();
         },
     });
 }
 
 export function useUpdateUser(id: number) {
     const queryClient = useQueryClient();
+    // The list pages render their data on the server, so the cache alone
+    // doesn't update them: refresh the route after a change.
+    const router = useRouter();
 
     return useMutation({
         mutationFn: (data: UserFormData) => updateUser(id, data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: USERS_QUERY_KEY });
             queryClient.invalidateQueries({ queryKey: [...USERS_QUERY_KEY, id] });
+            router.refresh();
         },
     });
 }
 
 export function useDeleteUser() {
     const queryClient = useQueryClient();
+    // The list pages render their data on the server, so the cache alone
+    // doesn't update them: refresh the route after a change.
+    const router = useRouter();
 
     return useMutation({
         mutationFn: (id: number) => deleteUser(id),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: USERS_QUERY_KEY });
+            router.refresh();
         },
     });
 }
