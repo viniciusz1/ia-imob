@@ -35,6 +35,14 @@ function type(text: string) {
     fireEvent.change(screen.getByLabelText("campo"), { target: { value: text } });
 }
 
+/** Types one key at a time, appending to whatever the field shows (like a browser). */
+function typeKeys(keys: string) {
+    for (const key of keys) {
+        const field = screen.getByLabelText("campo") as HTMLInputElement;
+        fireEvent.change(field, { target: { value: field.value + key } });
+    }
+}
+
 describe("MoneyInput", () => {
     it("shifts digits in as cents and formats pt-BR", () => {
         const onValue = vi.fn();
@@ -71,6 +79,30 @@ describe("DecimalInput", () => {
 
         expect(screen.getByLabelText("campo")).toHaveValue("123.456,75");
         expect(onValue).toHaveBeenLastCalledWith(123456.75);
+    });
+
+    it("keeps growing past the thousands grouping when typed key by key", () => {
+        const onValue = vi.fn();
+        render(<Harness Component={DecimalInput} onValue={onValue} />);
+
+        typeKeys("20000");
+
+        expect(screen.getByLabelText("campo")).toHaveValue("20.000");
+        expect(onValue).toHaveBeenLastCalledWith(20000);
+
+        typeKeys(",5");
+        expect(screen.getByLabelText("campo")).toHaveValue("20.000,5");
+        expect(onValue).toHaveBeenLastCalledWith(20000.5);
+    });
+
+    it("reads a pasted grouped number as thousands", () => {
+        const onValue = vi.fn();
+        render(<Harness Component={DecimalInput} onValue={onValue} />);
+
+        type("10.000");
+
+        expect(screen.getByLabelText("campo")).toHaveValue("10.000");
+        expect(onValue).toHaveBeenLastCalledWith(10000);
     });
 
     it("reads a pasted coordinate with a dot as a negative decimal", () => {

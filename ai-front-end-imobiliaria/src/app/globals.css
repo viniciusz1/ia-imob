@@ -120,6 +120,20 @@
   }
 }
 
+/* A FormField with an error paints whatever control it holds red, including
+   wrapped controls (inputs with an adornment, selects, date pickers). */
+@layer components {
+  [data-slot="form-field"][data-invalid="true"]
+    :is([data-slot="input"], textarea, [data-slot="select-trigger"], [data-slot="native-select"], [data-slot="multi-select"], [data-slot="date-picker"] button) {
+    border-color: var(--destructive);
+  }
+  [data-slot="form-field"][data-invalid="true"]
+    :is([data-slot="input"], textarea, [data-slot="select-trigger"], [data-slot="native-select"], [data-slot="multi-select"], [data-slot="date-picker"] button):focus-visible {
+    border-color: var(--destructive);
+    box-shadow: 0 0 0 1px var(--destructive);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

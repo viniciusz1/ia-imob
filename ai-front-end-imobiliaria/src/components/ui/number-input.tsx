@@ -140,7 +140,14 @@ function DecimalInput({
   function normalize(raw: string): string {
     let working = raw
     const typedDotAtEnd = raw.length === text.length + 1 && raw.endsWith(".") && !text.includes(",")
-    const pastedDecimal = /^-?\d+\.\d+$/.test(raw.trim())
+    // Only a paste (or a first entry) can bring a "." meant as the decimal point,
+    // e.g. "-26.4851". While typing, the "." in the field is our own thousands
+    // grouping: "1.000" + "0" must become 10.000, never 1,00. A pasted value
+    // shaped like grouped thousands ("10.000") is read as thousands as well.
+    const isPaste = text === "" || raw.length - text.length > 1
+    const trimmedRaw = raw.trim()
+    const pastedDecimal =
+      isPaste && /^-?\d+\.\d+$/.test(trimmedRaw) && !/^-?\d{1,3}(\.\d{3})+$/.test(trimmedRaw)
     if ((typedDotAtEnd || pastedDecimal) && decimals > 0) {
       const last = working.lastIndexOf(".")
       working = `${working.slice(0, last)},${working.slice(last + 1)}`
