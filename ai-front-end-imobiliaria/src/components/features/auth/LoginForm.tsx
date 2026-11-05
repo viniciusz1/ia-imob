@@ -105,23 +105,14 @@ export function LoginForm() {
 
     return (
         <div className="w-full">
-            {/* Duas versões da logo: o wordmark é escuro e some no tema
-                escuro, então a variante clara entra no lugar */}
+            {/* A logo tem fundo próprio (casa verde), então funciona nos dois temas. */}
             <Image
-                src="/prospectai-logo.png"
-                alt="Prospectai"
-                width={825}
-                height={200}
+                src="/logo.png"
+                alt="Logo do sistema"
+                width={512}
+                height={512}
                 priority
-                className="h-11 w-auto dark:hidden"
-            />
-            <Image
-                src="/prospectai-logo-dark.png"
-                alt="Prospectai"
-                width={825}
-                height={200}
-                priority
-                className="hidden h-11 w-auto dark:block"
+                className="size-16"
             />
 
             <div className="mt-10 space-y-2">

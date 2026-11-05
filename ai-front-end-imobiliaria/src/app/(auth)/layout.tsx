@@ -84,7 +84,7 @@ export default function AuthLayout({
 
                 <footer className="relative z-10 flex items-center justify-between gap-4">
                     <p className="font-mono text-xs text-muted-foreground">
-                        © {new Date().getFullYear()} Prospectai · Sistema Imobiliário
+                        © {new Date().getFullYear()} · Sistema Imobiliário
                     </p>
                     <ThemeToggle />
                 </footer>

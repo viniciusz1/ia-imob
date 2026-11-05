@@ -1,30 +1,26 @@
-import type { LucideIcon } from "lucide-react";
+import Image from "next/image";
 
 import { SidebarBrandFrame } from "@/components/layout/SidebarNav";
 
 interface SidebarBrandProps {
     href: string;
-    icon: LucideIcon;
+    /** Accessible name of the home link, e.g. "Início do CRM". */
     title: string;
-    /** Small caption under the title, e.g. "Administração da plataforma". */
+    /** Area shown next to the logo when the sidebar is expanded. */
     caption?: string;
 }
 
 /**
- * Product mark at the top of the sidebar; only the green mark in the rail.
- * Stays a server-safe component (layouts pass it a Lucide icon) and hands the
- * rendered mark to the client frame that knows whether the rail is collapsed.
+ * Product logo at the top of the sidebar: only the logo in the rail, the logo
+ * plus the area name when expanded. Server-safe; the client frame knows
+ * whether the rail is collapsed.
  */
-export function SidebarBrand({ href, icon: Icon, title, caption }: SidebarBrandProps) {
+export function SidebarBrand({ href, title, caption }: SidebarBrandProps) {
     return (
         <SidebarBrandFrame
             caption={caption}
             href={href}
-            mark={
-                <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-sidebar-highlight/15">
-                    <Icon className="size-[1.375rem] text-sidebar-highlight" strokeWidth={2} />
-                </span>
-            }
+            mark={<Image alt="" className="size-10 shrink-0" height={512} priority src="/logo.png" width={512} />}
             title={title}
         />
     );

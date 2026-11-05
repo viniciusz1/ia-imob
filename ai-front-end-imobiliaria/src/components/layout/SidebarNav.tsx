@@ -152,22 +152,15 @@ interface SidebarBrandFrameProps {
     caption?: string;
 }
 
-/** Client half of SidebarBrand: shows the name next to the mark unless the rail is collapsed. */
+/** Client half of SidebarBrand: the logo, plus the area name unless the rail is collapsed. */
 export function SidebarBrandFrame({ href, mark, title, caption }: SidebarBrandFrameProps) {
     const collapsed = useSidebarCollapsed();
 
     return (
-        <Link
-            aria-label={collapsed ? title : undefined}
-            className={cn("flex min-w-0 items-center gap-3 rounded-lg", focusRing)}
-            href={href}
-        >
+        <Link aria-label={title} className={cn("flex min-w-0 items-center gap-3 rounded-lg", focusRing)} href={href}>
             {mark}
-            {!collapsed && (
-                <span className="min-w-0">
-                    <span className="block truncate text-base leading-tight font-semibold text-sidebar-foreground">{title}</span>
-                    {caption && <span className="block truncate text-xs text-sidebar-muted">{caption}</span>}
-                </span>
+            {!collapsed && caption && (
+                <span className="min-w-0 truncate text-sm leading-tight font-semibold text-sidebar-foreground">{caption}</span>
             )}
         </Link>
     );

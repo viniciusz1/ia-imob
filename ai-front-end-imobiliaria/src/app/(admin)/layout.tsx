@@ -4,7 +4,7 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import { Loader2, ShieldCheck } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 import { PlatformAdminNavigation, PlatformAdminTopbar } from "@/components/features/admin/navigation/PlatformAdminNavigation";
 import { UserNav } from "@/components/features/auth/UserNav";
@@ -79,7 +79,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
     return (
         <AppShell
-            brand={<SidebarBrand caption="Administração da plataforma" href="/admin" icon={ShieldCheck} title="IA Imob" />}
+            brand={<SidebarBrand caption="Administração da plataforma" href="/admin" title="Início da administração" />}
             navigation={<PlatformAdminNavigation />}
             sidebarFooter={<UserNav roleLabel="Platform Admin" />}
             topbar={<PlatformAdminTopbar />}

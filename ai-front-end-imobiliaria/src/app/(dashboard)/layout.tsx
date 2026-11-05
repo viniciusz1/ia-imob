@@ -1,4 +1,3 @@
-import { Building2 } from "lucide-react";
 
 import { RestoreAuthSession } from "@/components/features/auth/RestoreAuthSession";
 import { UserNav } from "@/components/features/auth/UserNav";
@@ -16,7 +15,7 @@ export default function DashboardLayout({
         <>
             <RestoreAuthSession />
             <AppShell
-                brand={<SidebarBrand caption="Sistema imobiliário" href="/" icon={Building2} title="IA Imob" />}
+                brand={<SidebarBrand caption="Sistema imobiliário" href="/" title="Início do CRM" />}
                 navigation={<AppNavigation />}
                 sidebarFooter={<UserNav />}
                 topbar={<AppTopbarTitle />}
