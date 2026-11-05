@@ -120,7 +120,7 @@ export function PropertiesClient({ initialData, page, pageCount, pageSize, total
                 title="Imóveis"
             />
 
-            <Card className="gap-0 overflow-hidden pt-6 pb-0 sm:pt-8">
+            <Card className="gap-0 overflow-hidden py-0">
                 <Table>
                     <TableHeader>
                         <TableRow className="hover:bg-transparent">

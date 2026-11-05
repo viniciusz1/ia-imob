@@ -115,7 +115,7 @@ export function AgenciesClient({ initialData }: AgenciesClientProps) {
                 title="Agências"
             />
 
-            <Card className="gap-0 overflow-hidden pt-6 pb-0 sm:pt-8">
+            <Card className="gap-0 overflow-hidden py-0">
                 {isLoading && <AgenciesTableSkeleton />}
                 {error && (
                     <EmptyState

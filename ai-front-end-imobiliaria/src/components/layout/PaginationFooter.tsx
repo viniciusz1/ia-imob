@@ -60,7 +60,7 @@ export function PaginationFooter({
     return (
         <div
             className={cn(
-                "mx-6 flex flex-wrap items-center justify-between gap-3 border-t py-4 sm:mx-8",
+                "flex flex-wrap items-center justify-between gap-3 border-t px-6 py-4 sm:px-8",
                 className,
             )}
         >
@@ -105,12 +105,12 @@ export function PaginationFooter({
                                 onClick={() => onPageChange(slot)}
                                 size="icon-sm"
                                 type="button"
-                                variant={slot === current ? "default" : "ghost"}
+                                variant={slot === current ? "default" : "outline"}
                             >
                                 {slot}
                             </Button>
                         ) : (
-                            <span className="w-8 text-center text-sm text-muted-foreground" key={slot}>
+                            <span className="w-9 text-center text-sm text-muted-foreground" key={slot}>
                                 …
                             </span>
                         ),

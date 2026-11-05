@@ -44,14 +44,14 @@ export function MultiSelectFilter<TValue extends string | number>({
         : `${selected.length} selecionados`;
 
   return (
-    <div className="space-y-1.5">
+    <div className="space-y-2">
       <Label>{label}</Label>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
             variant="outline"
             size="sm"
-            className="w-full min-w-0 justify-between px-3 has-[>svg]:px-3 hover:border-muted-foreground/30 hover:bg-background hover:text-foreground"
+            className="h-11 w-full min-w-0 justify-between rounded-lg bg-field px-3.5 text-sm font-normal has-[>svg]:px-3.5 hover:border-muted-foreground/30 hover:bg-field hover:text-foreground"
             disabled={values.length === 0}
           >
             <span

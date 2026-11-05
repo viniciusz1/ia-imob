@@ -8,9 +8,9 @@ function Table({ className, ...props }: React.ComponentProps<"table">) {
   return (
     <div
       data-slot="table-container"
-      // Inset to the card padding, as in the reference: the header band and
-      // the row dividers start where the card title starts.
-      className="relative w-full overflow-x-auto px-6 last:pb-4 sm:px-8"
+      // Edge to edge of the card: the header band and the row dividers touch
+      // its borders, and the first/last cells carry the card inset instead.
+      className="relative w-full overflow-x-auto"
     >
       <table
         data-slot="table"
@@ -72,7 +72,7 @@ function TableHead({ className, ...props }: React.ComponentProps<"th">) {
     <th
       data-slot="table-head"
       className={cn(
-        "bg-muted text-foreground/85 h-10 border-r border-border px-3 py-2 text-left align-middle text-[0.8125rem] font-semibold whitespace-nowrap last:border-r-0 [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
+        "bg-muted text-foreground/85 h-11 border-r border-border px-4 py-2 text-left align-middle text-[0.8125rem] font-semibold whitespace-nowrap first:pl-6 last:border-r-0 last:pr-6 sm:first:pl-8 sm:last:pr-8 [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
         className
       )}
       {...props}
@@ -85,7 +85,7 @@ function TableCell({ className, ...props }: React.ComponentProps<"td">) {
     <td
       data-slot="table-cell"
       className={cn(
-        "px-3 py-3 align-middle text-sm leading-6 whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
+        "px-4 py-3.5 align-middle text-sm leading-6 whitespace-nowrap first:pl-6 last:pr-6 sm:first:pl-8 sm:last:pr-8 [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
         className
       )}
       {...props}

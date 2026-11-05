@@ -79,8 +79,8 @@ function DatePicker({
           <button
             aria-label={ariaLabel}
             className={cn(
-              "flex w-full min-w-0 cursor-pointer items-center gap-2 rounded-sm border border-input bg-field pr-9 pl-3 text-left text-sm shadow-xs shadow-black/5 transition-colors outline-none hover:border-muted-foreground/30 focus-visible:border-primary focus-visible:ring-[3px] focus-visible:ring-primary/25 disabled:cursor-not-allowed disabled:opacity-50 data-invalid:border-destructive data-[state=open]:border-primary data-[state=open]:ring-[3px] data-[state=open]:ring-primary/25",
-              size === "sm" ? "h-9" : "h-10"
+              "flex w-full min-w-0 cursor-pointer items-center gap-2 rounded-lg border border-input bg-field pr-10 pl-3.5 text-left text-sm shadow-xs shadow-black/5 transition-colors outline-none hover:border-muted-foreground/30 focus-visible:border-primary focus-visible:ring-[3px] focus-visible:ring-primary/25 disabled:cursor-not-allowed disabled:opacity-50 data-invalid:border-destructive data-[state=open]:border-primary data-[state=open]:ring-[3px] data-[state=open]:ring-primary/25",
+              size === "sm" ? "h-10" : "h-11"
             )}
             data-invalid={ariaInvalid || undefined}
             disabled={disabled}

@@ -26,7 +26,7 @@ function FormField({
   children,
 }: FormFieldProps) {
   return (
-    <div className={cn("space-y-1.5", className)} data-slot="form-field">
+    <div className={cn("space-y-2", className)} data-slot="form-field">
       <Label htmlFor={htmlFor}>
         {label}
         {required && <span className="-ml-1.5 text-destructive">*</span>}
