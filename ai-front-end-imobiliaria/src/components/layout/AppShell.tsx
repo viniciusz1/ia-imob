@@ -146,7 +146,13 @@ export function AppShell({
                         </button>
                     </div>
 
-                    <div className={cn("flex-1 overflow-x-hidden overflow-y-auto py-5", collapsed ? "px-0" : "px-3")}>
+                    {/* Rola, mas sem barra à vista: o menu encosta na borda do painel. */}
+                    <div
+                        className={cn(
+                            "flex-1 overflow-x-hidden overflow-y-auto py-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+                            collapsed ? "px-0" : "px-3",
+                        )}
+                    >
                         {navigation}
                     </div>
 
