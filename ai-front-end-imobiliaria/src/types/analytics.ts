@@ -92,3 +92,46 @@ export interface ValuationAnalytics {
   by_month: { indicator: string; items: { label: string; count: number }[] };
   by_user: { indicator: string; items: ValuationGroupItem[] };
 }
+
+export interface AuctionGroupItem {
+  label: string;
+  count: number;
+  below_market: number;
+  median_minimum_bid: number | null;
+  median_discount: number | null;
+}
+
+export interface AuctionOpportunity {
+  id: number;
+  title: string;
+  type: string;
+  city: string | null;
+  neighbourhood: string | null;
+  modality: string;
+  status: string;
+  starts_at: string | null;
+  area: number | null;
+  minimum_bid: number | null;
+  appraisal_value: number | null;
+  discount: number | null;
+  market_estimate: number | null;
+  market_gap: number | null;
+  url: string | null;
+}
+
+export interface AuctionAnalytics {
+  total_lots: CountIndicator;
+  with_appraisal: CountIndicator;
+  median_minimum_bid: ValueIndicator;
+  median_appraisal: ValueIndicator;
+  median_discount: ValueIndicator;
+  median_minimum_bid_per_square_metre: ValueIndicator;
+  compared_to_market: CountIndicator;
+  below_market: CountIndicator;
+  below_market_share: ValueIndicator;
+  median_market_gap: ValueIndicator;
+  by_modality: { indicator: string; items: AuctionGroupItem[] };
+  by_type: { indicator: string; items: AuctionGroupItem[] };
+  by_neighbourhood: { indicator: string; items: AuctionGroupItem[] };
+  opportunities: { indicator: string; items: AuctionOpportunity[] };
+}

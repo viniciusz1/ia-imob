@@ -8,6 +8,7 @@ import {
   Gavel,
   Globe,
   Landmark,
+  PieChart,
   Radar,
   Sparkles,
   ShieldCheck,
@@ -90,6 +91,17 @@ export const dashboardModules: DashboardModule[] = [
     },
   },
   {
+    id: "analytics-overview",
+    title: "Módulo analítico",
+    href: "/analitico",
+    icon: PieChart,
+    permissions: ["analytics.market.view"],
+    dashboard: {
+      title: "Módulo analítico",
+      description: "Mercado, leilões e avaliações sob o mesmo filtro.",
+    },
+  },
+  {
     id: "market-analytics",
     title: "Análise de mercado",
     href: "/analitico/mercado",
@@ -98,6 +110,17 @@ export const dashboardModules: DashboardModule[] = [
     dashboard: {
       title: "Análise de mercado",
       description: "Acompanhe estoque, preços e rankings do mercado coletado.",
+    },
+  },
+  {
+    id: "auction-analytics",
+    title: "Análise de leilões",
+    href: "/analitico/leiloes",
+    icon: Gavel,
+    permissions: ["analytics.market.view"],
+    dashboard: {
+      title: "Análise de leilões",
+      description: "Compare lances mínimos com a avaliação e com o valor de mercado estimado.",
     },
   },
   {

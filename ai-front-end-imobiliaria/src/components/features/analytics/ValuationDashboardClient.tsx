@@ -36,6 +36,7 @@ import type { ValuationGroupItem } from "@/types/analytics";
 import { PaginationFooter, usePagedItems } from "./PagedList";
 import { StatTile } from "./StatTile";
 import { TabbedPanel } from "./TabbedPanel";
+import { useMarketAnalyticsFilters } from "./useMarketAnalyticsFilters";
 import {
   EMPTY_VALUE,
   formatCount,
@@ -51,7 +52,21 @@ interface ValuationRow {
 }
 
 export function ValuationDashboardClient() {
-  const [period, setPeriod] = useState({ data_inicio: "", data_fim: "" });
+  // O período vem dos mesmos filtros gerais do resto do módulo analítico, então
+  // ele sobrevive à navegação entre as telas; os demais filtros não se aplicam
+  // às avaliações da imobiliária.
+  const { filters, setFilters } = useMarketAnalyticsFilters();
+  const [period, setPeriod] = useState({
+    data_inicio: filters.data_inicio,
+    data_fim: filters.data_fim,
+  });
+
+  // O período escolhido volta para a URL dos filtros gerais, então ele segue
+  // junto na navegação entre as telas do módulo analítico.
+  const updatePeriod = (next: typeof period) => {
+    setPeriod(next);
+    setFilters({ ...filters, ...next });
+  };
 
   // keepPreviousData: changing the period keeps the numbers on screen until
   // the new ones arrive instead of flashing back to skeletons.
@@ -80,7 +95,7 @@ export function ValuationDashboardClient() {
 
       <Card className="gap-0 overflow-hidden py-0">
         <SectionHeader
-          description="Considera as avaliações salvas dentro do intervalo escolhido."
+          description="Considera as avaliações salvas dentro do intervalo escolhido; os demais filtros gerais não se aplicam às avaliações."
           icon={CalendarRange}
           title="Período das avaliações"
         />
@@ -91,7 +106,7 @@ export function ValuationDashboardClient() {
               aria-label="Data inicial das avaliações"
               size="sm"
               value={period.data_inicio}
-              onChange={(value) => setPeriod({ ...period, data_inicio: value })}
+              onChange={(value) => updatePeriod({ ...period, data_inicio: value })}
             />
           </FormField>
           <FormField htmlFor="valuation-end-date" label="Até">
@@ -100,7 +115,7 @@ export function ValuationDashboardClient() {
               aria-label="Data final das avaliações"
               size="sm"
               value={period.data_fim}
-              onChange={(value) => setPeriod({ ...period, data_fim: value })}
+              onChange={(value) => updatePeriod({ ...period, data_fim: value })}
             />
           </FormField>
         </div>
