@@ -17,6 +17,10 @@ const buttonVariants = cva(
           "border border-muted-foreground/35 bg-field text-foreground shadow-xs shadow-black/5 hover:border-muted-foreground/60 hover:bg-secondary dark:shadow-none",
         secondary:
           "bg-secondary text-secondary-foreground hover:bg-secondary/75",
+        // Brand-light action (reference: --button-brand-light): sits next to a
+        // primary green button without looking disabled or dark.
+        soft:
+          "border border-primary/45 bg-primary/12 text-primary hover:border-primary/70 hover:bg-primary/20",
         ghost: "text-foreground hover:bg-secondary",
         link: "text-primary underline-offset-4 hover:underline",
       },
