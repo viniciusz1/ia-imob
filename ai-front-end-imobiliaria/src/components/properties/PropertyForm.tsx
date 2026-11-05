@@ -57,7 +57,15 @@ function toCount(value: number | string | null | undefined): number {
     return toNullableNumber(value) ?? 0;
 }
 
-function getDefaultValues(property?: Property | null): PropertyFormValues {
+/**
+ * Counts the user must inform: empty on a new property (so nothing is saved
+ * with a silent 0), the stored value when editing.
+ */
+function toRequiredCount(property: Property | null | undefined, value: number | string | null | undefined): number | null {
+    return property ? toCount(value) : null;
+}
+
+function getDefaultValues(property?: Property | null): PropertyFormInput {
     return {
         reference_code: property?.reference_code ?? "",
         title: property?.title ?? "",
@@ -84,10 +92,10 @@ function getDefaultValues(property?: Property | null): PropertyFormValues {
         show_price: property?.show_price ?? true,
         usable_area: toNullableNumber(property?.usable_area),
         total_area: toNullableNumber(property?.total_area),
-        bedrooms: toCount(property?.bedrooms),
+        bedrooms: toRequiredCount(property, property?.bedrooms),
         suites: toCount(property?.suites),
-        bathrooms: toCount(property?.bathrooms),
-        garage_spaces: toCount(property?.garage_spaces),
+        bathrooms: toRequiredCount(property, property?.bathrooms),
+        garage_spaces: toRequiredCount(property, property?.garage_spaces),
         floor_number: toNullableNumber(property?.floor_number),
         total_floors: toNullableNumber(property?.total_floors),
         build_year: toNullableNumber(property?.build_year),
@@ -127,6 +135,10 @@ export function PropertyForm({ mode, initialData }: PropertyFormProps) {
     const form = useForm<PropertyFormInput, unknown, PropertyFormValues>({
         resolver: zodResolver(propertySchema),
         defaultValues: getDefaultValues(initialData),
+        // Validate while the user works: a field shows its error once it has
+        // been left, and from then on it re-checks on every keystroke.
+        mode: "onTouched",
+        reValidateMode: "onChange",
     });
 
     // Reset the image list when a different property is loaded (adjusting state while rendering).
@@ -462,11 +474,19 @@ export function PropertyForm({ mode, initialData }: PropertyFormProps) {
                         <Button type="button" variant="outline" onClick={() => router.push("/properties")}>
                             Cancelar
                         </Button>
+                        {/* Distinct keys: otherwise React reuses the same <button> and only
+                            flips type="button" to "submit" while handling the click on the
+                            penultimate step, so the browser submits the form and the property
+                            is saved before the last step is ever shown. */}
                         {!isLastStep ? (
                             <Button
                                 aria-describedby={gateHint ? "property-step-gate" : undefined}
+                                key="next-step"
                                 type="button"
-                                onClick={() => moveStep("next")}
+                                onClick={(event) => {
+                                    event.preventDefault();
+                                    moveStep("next");
+                                }}
                                 disabled={isLoading || !canGoNext}
                             >
                                 Próxima
@@ -475,6 +495,7 @@ export function PropertyForm({ mode, initialData }: PropertyFormProps) {
                         ) : (
                             <Button
                                 aria-describedby={gateHint ? "property-step-gate" : undefined}
+                                key="submit-property"
                                 type="submit"
                                 disabled={isLoading || !canSave}
                             >

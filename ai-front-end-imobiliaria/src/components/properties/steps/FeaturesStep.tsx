@@ -39,8 +39,15 @@ export function FeaturesStep({ featuresOptions }: FeaturesStepProps) {
                     <div className="space-y-4">
                         <FieldGroupTitle>Áreas e construção</FieldGroupTitle>
                         <div className="grid grid-cols-1 gap-x-5 gap-y-6 sm:grid-cols-3 lg:grid-cols-4">
-                            <NumericField kind="decimal" label="Área Útil (m²)" name="usable_area" suffix="m²" />
-                            <NumericField kind="decimal" label="Área Total (m²)" name="total_area" suffix="m²" />
+                            <NumericField
+                                kind="decimal"
+                                label="Área Útil (m²)"
+                                maxIntegerDigits={7}
+                                name="usable_area"
+                                required
+                                suffix="m²"
+                            />
+                            <NumericField kind="decimal" label="Área Total (m²)" maxIntegerDigits={7} name="total_area" suffix="m²" />
                             <NumericField
                                 kind="integer"
                                 label="Ano de Construção"
@@ -54,10 +61,10 @@ export function FeaturesStep({ featuresOptions }: FeaturesStepProps) {
                     <div className="space-y-4 border-t pt-6">
                         <FieldGroupTitle>Cômodos, vagas e andares</FieldGroupTitle>
                         <div className="grid grid-cols-2 gap-x-5 gap-y-6 sm:grid-cols-3 lg:grid-cols-6">
-                            <NumericField emptyAsZero kind="integer" label="Quartos" maxDigits={2} name="bedrooms" />
+                            <NumericField kind="integer" label="Quartos" maxDigits={2} name="bedrooms" required />
                             <NumericField emptyAsZero kind="integer" label="Suítes" maxDigits={2} name="suites" />
-                            <NumericField emptyAsZero kind="integer" label="Banheiros" maxDigits={2} name="bathrooms" />
-                            <NumericField emptyAsZero kind="integer" label="Vagas" maxDigits={3} name="garage_spaces" />
+                            <NumericField kind="integer" label="Banheiros" maxDigits={2} name="bathrooms" required />
+                            <NumericField kind="integer" label="Vagas" maxDigits={3} name="garage_spaces" required />
                             <NumericField allowNegative kind="integer" label="Andar" maxDigits={3} name="floor_number" />
                             <NumericField kind="integer" label="Total de Andares" maxDigits={3} name="total_floors" />
                         </div>

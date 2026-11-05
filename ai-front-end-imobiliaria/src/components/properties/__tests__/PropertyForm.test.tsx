@@ -142,6 +142,19 @@ describe("PropertyForm step gating", () => {
         expect(await screen.findByRole("button", { name: /salvar alterações/i })).toBeEnabled();
     });
 
+    it("moves from the penultimate step to the last one without saving", async () => {
+        render(<PropertyForm initialData={validProperty} mode="edit" />);
+
+        await waitFor(() => expect(screen.getByRole("button", { name: /próxima/i })).toBeEnabled());
+        openStep(/mídias/i);
+        fireEvent.click(await screen.findByRole("button", { name: /próxima/i }));
+
+        expect(await screen.findByRole("button", { name: /salvar alterações/i })).toBeInTheDocument();
+        await new Promise((resolve) => setTimeout(resolve, 50));
+        expect(mocks.update).not.toHaveBeenCalled();
+        expect(mocks.create).not.toHaveBeenCalled();
+    });
+
     it("keeps the final save disabled until the whole form is valid", async () => {
         render(
             <PropertyForm
@@ -156,5 +169,68 @@ describe("PropertyForm step gating", () => {
         expect(await screen.findByRole("button", { name: /salvar alterações/i })).toBeDisabled();
         expect(screen.getByText("Revise as etapas: Gestão Interna")).toBeInTheDocument();
         expect(mocks.update).not.toHaveBeenCalled();
+    });
+});
+
+/** Types one key at a time, appending to what the field shows (like a browser). */
+function typeKeys(field: HTMLElement, keys: string) {
+    for (const key of keys) {
+        const input = field as HTMLInputElement;
+        fireEvent.change(input, { target: { value: input.value + key } });
+    }
+}
+
+describe("PropertyForm live validation", () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+    });
+
+    it("flags an emptied bedrooms count as required and blocks Próxima", async () => {
+        render(<PropertyForm initialData={validProperty} mode="edit" />);
+        await waitFor(() => expect(screen.getByRole("tab", { name: /características/i })).toBeEnabled());
+        openStep(/características/i);
+
+        const bedrooms = await screen.findByLabelText(/^quartos/i);
+        fireEvent.change(bedrooms, { target: { value: "" } });
+        fireEvent.blur(bedrooms);
+
+        expect(await screen.findByText("Informe a quantidade de quartos")).toBeInTheDocument();
+        expect(bedrooms).toHaveAttribute("aria-invalid", "true");
+        expect(screen.getByRole("button", { name: /próxima/i })).toBeDisabled();
+        expect(screen.getByText("Campos pendentes: Quartos")).toBeInTheDocument();
+    });
+
+    it("rejects a construction year more than ten years ahead as soon as it is typed", async () => {
+        const year = new Date().getFullYear();
+        render(<PropertyForm initialData={validProperty} mode="edit" />);
+        await waitFor(() => expect(screen.getByRole("tab", { name: /características/i })).toBeEnabled());
+        openStep(/características/i);
+
+        const buildYear = await screen.findByLabelText(/ano de construção/i);
+        typeKeys(buildYear, String(year + 11));
+
+        expect(await screen.findByText(`Informe um ano até ${year + 10}`)).toBeInTheDocument();
+        expect(buildYear).toHaveAttribute("aria-invalid", "true");
+
+        fireEvent.change(buildYear, { target: { value: "" } });
+        typeKeys(buildYear, String(year + 10));
+
+        await waitFor(() => expect(screen.queryByText(`Informe um ano até ${year + 10}`)).not.toBeInTheDocument());
+        expect(buildYear).not.toHaveAttribute("aria-invalid", "true");
+    });
+
+    it("accepts a 20.000 m² usable area typed key by key", async () => {
+        render(<PropertyForm initialData={validProperty} mode="edit" />);
+        await waitFor(() => expect(screen.getByRole("tab", { name: /características/i })).toBeEnabled());
+        openStep(/características/i);
+
+        const usableArea = await screen.findByLabelText(/área útil/i);
+        fireEvent.change(usableArea, { target: { value: "" } });
+        typeKeys(usableArea, "20000");
+        fireEvent.blur(usableArea);
+
+        expect(usableArea).toHaveValue("20.000");
+        await waitFor(() => expect(screen.getByRole("button", { name: /próxima/i })).toBeEnabled());
+        expect(usableArea).not.toHaveAttribute("aria-invalid", "true");
     });
 });

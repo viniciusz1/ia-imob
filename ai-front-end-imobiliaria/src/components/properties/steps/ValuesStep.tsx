@@ -14,6 +14,10 @@ import type { PropertyFormValues } from "@/schemas/propertySchema";
 
 export function ValuesStep() {
     const { watch, setValue } = useFormContext<PropertyFormValues>();
+    // The purpose decides which price is mandatory (see crossFieldIssues).
+    const purpose = watch("purpose");
+    const saleRequired = purpose === "venda" || purpose === "venda_locacao";
+    const rentRequired = purpose === "locacao" || purpose === "venda_locacao";
 
     return (
         <div className="space-y-6">
@@ -23,8 +27,22 @@ export function ValuesStep() {
                     <CardDescription>Preços de venda e locação e custos mensais, em reais.</CardDescription>
                 </CardHeader>
                 <CardContent className="grid grid-cols-1 gap-x-5 gap-y-6 sm:grid-cols-2 lg:grid-cols-4">
-                    <NumericField kind="money" label="Valor de Venda" name="sale_price" placeholder="0,00" prefix="R$" />
-                    <NumericField kind="money" label="Valor de Locação" name="rent_price" placeholder="0,00" prefix="R$" />
+                    <NumericField
+                        kind="money"
+                        label="Valor de Venda"
+                        name="sale_price"
+                        placeholder="0,00"
+                        prefix="R$"
+                        required={saleRequired}
+                    />
+                    <NumericField
+                        kind="money"
+                        label="Valor de Locação"
+                        name="rent_price"
+                        placeholder="0,00"
+                        prefix="R$"
+                        required={rentRequired}
+                    />
                     <NumericField kind="money" label="IPTU" name="property_tax" placeholder="0,00" prefix="R$" />
                     <NumericField kind="money" label="Condomínio" name="condo_fee" placeholder="0,00" prefix="R$" />
                 </CardContent>

@@ -33,8 +33,10 @@ type NumericFieldProps = NumericKind & {
     prefix?: string;
     suffix?: string;
     placeholder?: string;
-    /** Counts like bedrooms can't be empty: an emptied field goes back to 0. */
+    /** Optional counts (e.g. suítes): an emptied field goes back to 0. */
     emptyAsZero?: boolean;
+    /** Shows the required asterisk next to the label. */
+    required?: boolean;
 };
 
 /**
@@ -51,6 +53,7 @@ export function NumericField({
     suffix,
     placeholder,
     emptyAsZero = false,
+    required = false,
     ...numeric
 }: NumericFieldProps) {
     const { control, trigger } = useFormContext<PropertyFormValues>();
@@ -71,7 +74,14 @@ export function NumericField({
                     },
                     onValueChange: (next: number | null) => {
                         field.onChange(next === null && emptyAsZero ? 0 : next);
-                        if (fieldState.invalid) void trigger(name);
+                        // A field with a fixed length (a 4-digit year) is judged as soon
+                        // as it is complete, without waiting for the user to leave it.
+                        const complete =
+                            numeric.kind === "integer" &&
+                            numeric.maxDigits !== undefined &&
+                            next !== null &&
+                            String(Math.abs(next)).length >= numeric.maxDigits;
+                        if (fieldState.invalid || complete) void trigger(name);
                     },
                     placeholder,
                     ref: field.ref,
@@ -99,7 +109,13 @@ export function NumericField({
                     );
 
                 return (
-                    <FormField className={className} error={fieldState.error?.message} htmlFor={name} label={label}>
+                    <FormField
+                        className={className}
+                        error={fieldState.error?.message}
+                        htmlFor={name}
+                        label={label}
+                        required={required}
+                    >
                         {prefix || suffix ? (
                             <InputAdornment prefix={prefix} suffix={suffix}>
                                 {input}

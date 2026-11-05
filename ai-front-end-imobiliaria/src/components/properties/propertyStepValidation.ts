@@ -1,6 +1,6 @@
 import type { z } from "zod";
 
-import { propertySchema, type PropertyFormValues } from "@/schemas/propertySchema";
+import { crossFieldIssues, propertySchema, type PropertyFormValues } from "@/schemas/propertySchema";
 
 export const STEP_VALUES = ["basic", "features", "values", "location", "media", "management"] as const;
 
@@ -119,16 +119,21 @@ export type StepIssues = Record<PropertyStep, string[]>;
  */
 export function issuesByStep(values: PropertyFormInput): StepIssues {
     const issues: StepIssues = { basic: [], features: [], values: [], location: [], media: [], management: [] };
-    const result = propertySchema.safeParse(values);
-    if (result.success) return issues;
 
-    for (const issue of result.error.issues) {
-        const field = String(issue.path[0] ?? "");
+    const add = (field: string) => {
         // Fields the wizard does not know about block the first step, so nothing slips through.
         const step = STEP_BY_FIELD.get(field) ?? "basic";
         const label = FIELD_LABELS[field as PropertyField] ?? field;
         if (!issues[step].includes(label)) issues[step].push(label);
+    };
+
+    const result = propertySchema.safeParse(values);
+    if (!result.success) {
+        for (const issue of result.error.issues) add(String(issue.path[0] ?? ""));
     }
+    // Cross-field rules (price by purpose, areas, suites) are checked even when
+    // other fields still fail, which can keep the schema from reaching them.
+    for (const issue of crossFieldIssues(values)) add(issue.path);
 
     return issues;
 }
