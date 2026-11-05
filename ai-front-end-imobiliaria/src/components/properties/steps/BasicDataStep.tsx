@@ -45,8 +45,9 @@ export function BasicDataStep({
                 <CardTitle>Dados básicos</CardTitle>
                 <CardDescription>Identificação, tipo e situação do imóvel.</CardDescription>
             </CardHeader>
-            <CardContent className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <CardContent className="grid grid-cols-1 gap-x-5 gap-y-6 sm:grid-cols-2 lg:grid-cols-6">
                 <FormField
+                    className="lg:col-span-2"
                     error={errors.reference_code?.message}
                     htmlFor="reference_code"
                     label="Código de Referência"
@@ -60,7 +61,7 @@ export function BasicDataStep({
                 </FormField>
 
                 <FormField
-                    className="lg:col-span-2"
+                    className="lg:col-span-4"
                     error={errors.title?.message}
                     htmlFor="title"
                     label="Título"
@@ -70,6 +71,7 @@ export function BasicDataStep({
                 </FormField>
 
                 <FormField
+                    className="lg:col-span-2"
                     error={errors.property_type?.message}
                     htmlFor="property_type"
                     label="Tipo de Imóvel"
@@ -97,6 +99,7 @@ export function BasicDataStep({
                 </FormField>
 
                 <FormField
+                    className="lg:col-span-2"
                     error={errors.purpose?.message}
                     htmlFor="purpose"
                     label="Finalidade"
@@ -124,6 +127,7 @@ export function BasicDataStep({
                 </FormField>
 
                 <FormField
+                    className="sm:col-span-2 lg:col-span-2"
                     error={errors.status?.message}
                     htmlFor="status"
                     label="Status"
@@ -151,7 +155,7 @@ export function BasicDataStep({
                 </FormField>
 
                 <FormField
-                    className="sm:col-span-2 lg:col-span-3"
+                    className="sm:col-span-2 lg:col-span-6"
                     error={errors.description?.message}
                     htmlFor="description"
                     label="Descrição"

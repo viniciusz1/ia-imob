@@ -1,16 +1,18 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { isAxiosError } from "axios";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FormProvider, useForm } from "react-hook-form";
 import type { z } from "zod";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { ArrowLeft, ArrowRight, Loader2, Save } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Loader2, Save } from "lucide-react";
+import { Tabs as TabsPrimitive } from "radix-ui";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
 import { propertySchema, type PropertyFormValues } from "@/schemas/propertySchema";
 import type { Property, SelectOption } from "@/types/property";
 import { useCreateProperty, useGetFeatures, useUpdateProperty } from "@/hooks/useProperties";
@@ -306,16 +308,62 @@ export function PropertyForm({ mode, initialData }: PropertyFormProps) {
                     value={activeStep}
                     onValueChange={(value) => setActiveStep(value as (typeof STEP_VALUES)[number])}
                 >
-                    <TabsList className="w-full flex-wrap justify-start">
-                        {STEP_VALUES.map((step, index) => (
-                            <TabsTrigger key={step} value={step} className="group/step">
-                                <span className="flex size-5 items-center justify-center rounded-full bg-muted text-xs text-muted-foreground tabular-nums group-data-[state=active]/step:bg-primary group-data-[state=active]/step:text-primary-foreground">
-                                    {index + 1}
-                                </span>
-                                {STEP_LABELS[step]}
-                            </TabsTrigger>
-                        ))}
-                    </TabsList>
+                    {/* Stepper: same Radix tabs (roles, keyboard, handlers), drawn as numbered steps. */}
+                    <Card className="gap-0 py-0">
+                        <TabsPrimitive.List
+                            aria-label="Etapas do cadastro"
+                            className="flex items-center overflow-x-auto px-6 py-5 sm:px-8"
+                        >
+                            {STEP_VALUES.map((step, index) => {
+                                const stepState =
+                                    index === currentStepIndex ? "current" : index < currentStepIndex ? "done" : "upcoming";
+
+                                return (
+                                    <Fragment key={step}>
+                                        {index > 0 && (
+                                            <span
+                                                aria-hidden="true"
+                                                className={cn(
+                                                    "mx-3 h-0.5 min-w-6 flex-1 rounded-full",
+                                                    index <= currentStepIndex ? "bg-primary/70" : "bg-border",
+                                                )}
+                                            />
+                                        )}
+                                        <TabsPrimitive.Trigger
+                                            className="flex shrink-0 cursor-pointer items-center gap-2.5 rounded-lg py-1 pr-1 outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+                                            value={step}
+                                        >
+                                            <span
+                                                className={cn(
+                                                    "flex size-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold tabular-nums transition-colors",
+                                                    stepState === "current" && "bg-primary text-primary-foreground",
+                                                    stepState === "done" && "border-2 border-primary text-primary",
+                                                    stepState === "upcoming" && "bg-secondary text-muted-foreground",
+                                                )}
+                                            >
+                                                {stepState === "done" ? (
+                                                    <>
+                                                        <Check aria-hidden="true" className="size-4" strokeWidth={3} />
+                                                        <span className="sr-only">{index + 1}</span>
+                                                    </>
+                                                ) : (
+                                                    index + 1
+                                                )}
+                                            </span>
+                                            <span
+                                                className={cn(
+                                                    "text-sm font-semibold whitespace-nowrap transition-colors",
+                                                    stepState === "upcoming" ? "text-muted-foreground" : "text-foreground",
+                                                )}
+                                            >
+                                                {STEP_LABELS[step]}
+                                            </span>
+                                        </TabsPrimitive.Trigger>
+                                    </Fragment>
+                                );
+                            })}
+                        </TabsPrimitive.List>
+                    </Card>
 
                     <TabsContent value="basic">
                         <BasicDataStep
@@ -352,8 +400,8 @@ export function PropertyForm({ mode, initialData }: PropertyFormProps) {
                     </TabsContent>
                 </Tabs>
 
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                    <div className="flex items-center gap-3">
+                <Card className="flex-row flex-wrap items-center justify-between gap-3 px-6 py-4 sm:px-8">
+                    <div className="flex items-center gap-4">
                         <Button
                             type="button"
                             variant="outline"
@@ -363,7 +411,7 @@ export function PropertyForm({ mode, initialData }: PropertyFormProps) {
                             <ArrowLeft />
                             Anterior
                         </Button>
-                        <span className="text-xs text-muted-foreground tabular-nums">
+                        <span className="text-sm font-semibold text-subtle tabular-nums">
                             Etapa {currentStepIndex + 1} de {STEP_VALUES.length}
                         </span>
                     </div>
@@ -393,7 +441,7 @@ export function PropertyForm({ mode, initialData }: PropertyFormProps) {
                             </Button>
                         )}
                     </div>
-                </div>
+                </Card>
             </form>
         </FormProvider>
     );

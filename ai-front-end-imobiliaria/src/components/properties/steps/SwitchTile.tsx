@@ -13,15 +13,20 @@ interface SwitchTileProps {
     className?: string;
 }
 
-/** On/off option shown as a bordered tile: label and help text on the left, switch on the right. */
+/** On/off option shown as a filled tile (tinted green while on): label and help text on the left, switch on the right. */
 export function SwitchTile({ id, title, description, checked, onCheckedChange, className }: SwitchTileProps) {
     return (
-        <div className={cn("flex items-center justify-between gap-4 rounded-xl border border-transparent bg-muted p-4", className)}>
-            <div className="min-w-0 space-y-0.5">
+        <div
+            className={cn(
+                "flex items-center justify-between gap-4 rounded-xl bg-muted px-4 py-3.5 transition-colors has-[[data-state=checked]]:bg-primary/10 has-[[data-state=checked]]:ring-1 has-[[data-state=checked]]:ring-primary/40",
+                className,
+            )}
+        >
+            <div className="min-w-0 space-y-1.5">
                 <Label className="text-sm text-foreground" htmlFor={id}>
                     {title}
                 </Label>
-                <p className="text-xs text-muted-foreground">{description}</p>
+                <p className="text-[0.8125rem] leading-4 text-subtle">{description}</p>
             </div>
             <Switch checked={checked} id={id} onCheckedChange={onCheckedChange} />
         </div>

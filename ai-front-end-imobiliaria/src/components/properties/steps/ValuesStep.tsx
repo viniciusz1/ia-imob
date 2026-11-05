@@ -11,6 +11,7 @@ import {
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { SwitchTile } from "@/components/properties/steps/SwitchTile";
+import { InputAdornment } from "@/components/properties/steps/FieldLayout";
 import type { PropertyFormValues } from "@/schemas/propertySchema";
 
 function nullableNumber(value: unknown): number | null {
@@ -29,38 +30,50 @@ export function ValuesStep() {
                     <CardTitle>Valores</CardTitle>
                     <CardDescription>Preços de venda e locação e custos mensais, em reais.</CardDescription>
                 </CardHeader>
-                <CardContent className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                <CardContent className="grid grid-cols-1 gap-x-5 gap-y-6 sm:grid-cols-2 lg:grid-cols-4">
                     <FormField htmlFor="sale_price" label="Valor de Venda">
-                        <Input
-                            id="sale_price"
-                            type="number"
-                            step="0.01"
-                            {...register("sale_price", { setValueAs: nullableNumber })}
-                        />
+                        <InputAdornment prefix="R$">
+                            <Input
+                                className="pl-11"
+                                id="sale_price"
+                                type="number"
+                                step="0.01"
+                                {...register("sale_price", { setValueAs: nullableNumber })}
+                            />
+                        </InputAdornment>
                     </FormField>
                     <FormField htmlFor="rent_price" label="Valor de Locação">
-                        <Input
-                            id="rent_price"
-                            type="number"
-                            step="0.01"
-                            {...register("rent_price", { setValueAs: nullableNumber })}
-                        />
+                        <InputAdornment prefix="R$">
+                            <Input
+                                className="pl-11"
+                                id="rent_price"
+                                type="number"
+                                step="0.01"
+                                {...register("rent_price", { setValueAs: nullableNumber })}
+                            />
+                        </InputAdornment>
                     </FormField>
                     <FormField htmlFor="property_tax" label="IPTU">
-                        <Input
-                            id="property_tax"
-                            type="number"
-                            step="0.01"
-                            {...register("property_tax", { setValueAs: nullableNumber })}
-                        />
+                        <InputAdornment prefix="R$">
+                            <Input
+                                className="pl-11"
+                                id="property_tax"
+                                type="number"
+                                step="0.01"
+                                {...register("property_tax", { setValueAs: nullableNumber })}
+                            />
+                        </InputAdornment>
                     </FormField>
                     <FormField htmlFor="condo_fee" label="Condomínio">
-                        <Input
-                            id="condo_fee"
-                            type="number"
-                            step="0.01"
-                            {...register("condo_fee", { setValueAs: nullableNumber })}
-                        />
+                        <InputAdornment prefix="R$">
+                            <Input
+                                className="pl-11"
+                                id="condo_fee"
+                                type="number"
+                                step="0.01"
+                                {...register("condo_fee", { setValueAs: nullableNumber })}
+                            />
+                        </InputAdornment>
                     </FormField>
                 </CardContent>
             </Card>
@@ -70,7 +83,7 @@ export function ValuesStep() {
                     <CardTitle>Condições</CardTitle>
                     <CardDescription>Negociação e exibição do preço no site.</CardDescription>
                 </CardHeader>
-                <CardContent className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+                <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-3">
                     <SwitchTile
                         checked={watch("accepts_financing")}
                         description="Indica se aceita financiamento bancário."

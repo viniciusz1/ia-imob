@@ -73,9 +73,9 @@ export function LocationStep() {
                     <CardTitle>Endereço</CardTitle>
                     <CardDescription>Busque pelo CEP para preencher logradouro, bairro, cidade e UF.</CardDescription>
                 </CardHeader>
-                <CardContent className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                <CardContent className="grid grid-cols-1 gap-x-5 gap-y-6 sm:grid-cols-2 lg:grid-cols-6">
                     <FormField
-                        className="sm:col-span-2"
+                        className="sm:col-span-2 lg:col-span-2"
                         error={errors.zip_code?.message}
                         htmlFor="zip_code"
                         label="CEP"
@@ -89,8 +89,6 @@ export function LocationStep() {
                             </Button>
                         </div>
                     </FormField>
-                    <div className="hidden lg:col-span-2 lg:block" />
-
                     <FormField
                         className="sm:col-span-2 lg:col-span-3"
                         error={errors.street?.message}
@@ -103,10 +101,10 @@ export function LocationStep() {
                     <FormField error={errors.number?.message} htmlFor="number" label="Número" required>
                         <Input aria-invalid={!!errors.number} id="number" {...register("number")} />
                     </FormField>
-                    <FormField htmlFor="complement" label="Complemento">
+                    <FormField className="lg:col-span-2" htmlFor="complement" label="Complemento">
                         <Input id="complement" {...register("complement")} />
                     </FormField>
-                    <FormField error={errors.neighborhood?.message} htmlFor="neighborhood" label="Bairro" required>
+                    <FormField className="lg:col-span-2" error={errors.neighborhood?.message} htmlFor="neighborhood" label="Bairro" required>
                         <Input aria-invalid={!!errors.neighborhood} id="neighborhood" {...register("neighborhood")} />
                     </FormField>
                     <FormField error={errors.city?.message} htmlFor="city" label="Cidade" required>
@@ -123,7 +121,7 @@ export function LocationStep() {
                     <CardTitle>Mapa e privacidade</CardTitle>
                     <CardDescription>Coordenadas do imóvel e o que aparece na vitrine pública.</CardDescription>
                 </CardHeader>
-                <CardContent className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                <CardContent className="grid grid-cols-1 gap-x-5 gap-y-6 sm:grid-cols-2">
                     <FormField htmlFor="latitude" label="Latitude">
                         <Input
                             id="latitude"

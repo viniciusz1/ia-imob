@@ -60,7 +60,7 @@ export function InternalManagementStep() {
                     <CardTitle>Captação e exclusividade</CardTitle>
                     <CardDescription>Responsáveis, contrato de exclusividade e chaves.</CardDescription>
                 </CardHeader>
-                <CardContent className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                <CardContent className="grid grid-cols-1 gap-x-5 gap-y-6 sm:grid-cols-2">
                     <FormField
                         hint="Campo temporário por ID até integração de autocomplete."
                         htmlFor="broker_id"
