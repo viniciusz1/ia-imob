@@ -25,15 +25,15 @@ function Tabs({
   )
 }
 
-// "default" is the house pill-tab style (same as the status filters): a
-// transparent row of rounded buttons, the active one tinted with the primary
-// color. "line" is the underline variant for tabs that sit on a border.
+// "default" is the segmented control: a tinted track holding the options,
+// the selected one a light pill with dark text. "line" is the underline
+// variant for tabs that sit on a border.
 const tabsListVariants = cva(
   "group/tabs-list text-muted-foreground inline-flex w-fit items-center group-data-[orientation=vertical]/tabs:h-fit group-data-[orientation=vertical]/tabs:flex-col",
   {
     variants: {
       variant: {
-        default: "h-auto gap-1 bg-transparent p-0",
+        default: "h-auto max-w-full gap-1 overflow-x-auto rounded-lg bg-segment p-1",
         line: "h-auto gap-1 rounded-none border-b bg-transparent p-0",
       },
     },
@@ -68,7 +68,7 @@ function TabsTrigger({
       data-slot="tabs-trigger"
       className={cn(
         "relative inline-flex shrink-0 cursor-pointer items-center justify-center gap-2 text-sm whitespace-nowrap text-muted-foreground transition-colors outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/40 disabled:pointer-events-none disabled:opacity-50 group-data-[orientation=vertical]/tabs:w-full group-data-[orientation=vertical]/tabs:justify-start [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
-        "group-data-[variant=default]/tabs-list:h-9 group-data-[variant=default]/tabs-list:rounded-lg group-data-[variant=default]/tabs-list:px-3 group-data-[variant=default]/tabs-list:hover:bg-muted group-data-[variant=default]/tabs-list:data-[state=active]:bg-primary/10 group-data-[variant=default]/tabs-list:data-[state=active]:text-primary",
+        "group-data-[variant=default]/tabs-list:h-8 group-data-[variant=default]/tabs-list:rounded-md group-data-[variant=default]/tabs-list:px-3 group-data-[variant=default]/tabs-list:text-[0.8125rem] group-data-[variant=default]/tabs-list:font-medium group-data-[variant=default]/tabs-list:data-[state=active]:bg-segment-active group-data-[variant=default]/tabs-list:data-[state=active]:text-segment-active-foreground group-data-[variant=default]/tabs-list:data-[state=active]:shadow-xs",
         "group-data-[variant=line]/tabs-list:-mb-px group-data-[variant=line]/tabs-list:border-b-2 group-data-[variant=line]/tabs-list:border-transparent group-data-[variant=line]/tabs-list:px-4 group-data-[variant=line]/tabs-list:py-3 group-data-[variant=line]/tabs-list:data-[state=active]:border-primary group-data-[variant=line]/tabs-list:data-[state=active]:text-foreground",
         className
       )}
