@@ -26,7 +26,7 @@ function ToggleGroup({
       <div
         data-slot="toggle-group"
         className={cn(
-          "inline-flex items-center gap-1 rounded-lg bg-segment p-1 text-muted-foreground",
+          "inline-flex items-center gap-1 rounded-xl bg-segment p-1.5 text-segment-foreground",
           className
         )}
         {...props}
@@ -56,7 +56,7 @@ function ToggleGroupItem({
       data-slot="toggle-group-item"
       data-state={isSelected ? "on" : "off"}
       className={cn(
-        "inline-flex h-8 items-center justify-center whitespace-nowrap rounded-md px-3 text-[0.8125rem] font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+        "inline-flex h-8 items-center justify-center whitespace-nowrap rounded-lg px-3 text-[0.8125rem] font-semibold ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
         isSelected && "bg-segment-active text-segment-active-foreground shadow-xs",
         !isSelected && "hover:text-foreground",
         className

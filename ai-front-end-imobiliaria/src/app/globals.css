@@ -26,6 +26,8 @@
   --color-topbar: var(--topbar);
   --color-topbar-foreground: var(--topbar-foreground);
   --color-segment: var(--segment);
+  --color-segment-foreground: var(--segment-foreground);
+  --color-card-edge: var(--card-edge);
   --color-segment-active: var(--segment-active);
   --color-segment-active-foreground: var(--segment-active-foreground);
   --color-chart-5: var(--chart-5);

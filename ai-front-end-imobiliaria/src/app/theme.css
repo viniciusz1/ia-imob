@@ -1,14 +1,14 @@
 /* ============================================================================
    THEME — single source of truth for the app's colors.
    ----------------------------------------------------------------------------
-   Layout reference: dark navy dashboard (Hubstrom style). The page is a mid
-   navy, cards sit a step darker on top of it, and blocks inside a card
-   (tiles, table header bands, segmented controls) are a step lighter than
-   the card. The sidebar and the topbar are the darkest band in both modes.
+   Layout reference: the Hubstrom dashboards. Values below were sampled from
+   the reference screenshots:
 
-   The brand palette drives primary, ring and the selected states. Status
-   colors (teal / mustard / coral / steel blue) double as the chart palette,
-   the same way the reference dashboards color their donuts and bars.
+     rail / topbar / cards   #151922      page            #2b313c
+     blocks inside a card    #20242d      row dividers    #292f3a
+     primary (green)         #41b798      active icon     #34cca3
+     mustard #cdae4b · coral #e05d5d · blue #1796b3 · slate #6b7484
+     segmented control: track #2b313c, selected pill #b9c0ca, dark text
 
    👉  To re-theme, edit the PALETTE block. Everything else derives from it.
    ============================================================================ */
@@ -16,152 +16,152 @@
 :root,
 .light {
   /* ======================= PALETTE — edit to re-theme ======================= */
-  --brand-darkest: #2b1e3e; /* Deep Purple  */
-  --brand-mid: #4a4e8f; /* Cosmic Blue  */
-  --brand-accent: #a490c2; /* Lavender     */
-  --brand-lightest: #e6e6fa; /* Silver       */
+  --green: #41b798;
+  --green-bright: #34cca3;
+  --mustard: #cdae4b;
+  --coral: #e05d5d;
+  --blue: #1796b3;
+  --slate: #6b7484;
 
-  /* Navy neutrals shared by both modes (sidebar is dark in both). */
-  --navy-950: #15181f;
-  --navy-900: #1a1d26;
-  --navy-850: #1e222c;
-  --navy-800: #232732;
-  --navy-750: #282c38;
-  --navy-700: #2e3340;
+  --navy-950: #12151c;
+  --navy-900: #151922; /* rail, topbar, cards */
+  --navy-850: #1a1e27;
+  --navy-800: #20242d; /* blocks inside a card */
+  --navy-700: #2b313c; /* page, segmented track */
+  --navy-600: #363d4a;
+  --silver: #b9c0ca; /* selected segmented pill */
   /* ========================================================================== */
 
-  /* Corner rounding. Cards use rounded-2xl (1rem), controls rounded-lg
-     (0.5rem), menus rounded-md. */
+  /* Corner rounding. Cards use rounded-2xl, controls rounded-lg. */
   --radius: 0.5rem;
 
   /* ------------------------------ LIGHT MODE -------------------------------- */
-  --background: #f2f3f6;
-  --foreground: #1a1d26;
+  --background: #eef0f3;
+  --foreground: #151922;
 
   --card: #ffffff;
-  --card-foreground: #1a1d26;
+  --card-foreground: #151922;
+  /* Outline of a card against the page; dark mode has none. */
+  --card-edge: #e3e6eb;
 
   --popover: #ffffff;
-  --popover-foreground: #1a1d26;
+  --popover-foreground: #151922;
 
-  --primary: var(--brand-mid);
+  --primary: #2f9d80;
   --primary-foreground: #ffffff;
 
   --secondary: #eceef2;
-  --secondary-foreground: #1a1d26;
+  --secondary-foreground: #151922;
 
-  /* Blocks inside a card: tiles, table header band, segmented control track. */
   --muted: #f3f4f7;
   --muted-foreground: #6b7180;
 
-  --accent: #eef0f4;
-  --accent-foreground: #1a1d26;
+  --accent: #eceef2;
+  --accent-foreground: #151922;
 
-  --destructive: #cf4f4b;
+  --destructive: #cf4b4b;
   --destructive-foreground: #ffffff;
 
-  /* Status colors. Solid for icons, dots and bars; badges and banners use
-     them as a 10–15% tint with the solid color as text. */
-  --success: #2f9a76;
+  --success: #2f9d80;
   --success-foreground: #ffffff;
-  --warning: #b98a1f;
+  --warning: #b8932a;
   --warning-foreground: #ffffff;
-  --info: #2f7fae;
+  --info: #147f99;
   --info-foreground: #ffffff;
 
-  --border: #e3e6ec;
-  --input: #d6dae2;
-  /* Background of text inputs, selects and date pickers. */
+  --border: #e3e6eb;
+  --input: #d5d9e0;
   --field: #ffffff;
-  --ring: var(--brand-mid);
+  --ring: #2f9d80;
 
-  /* Topbar band above the content. */
   --topbar: #ffffff;
-  --topbar-foreground: #1a1d26;
+  --topbar-foreground: #151922;
 
-  /* Segmented control (tabs, view switches): track + selected pill. */
-  --segment: #eceef2;
+  --segment: #e8eaee;
+  --segment-foreground: #3b4250;
   --segment-active: #ffffff;
-  --segment-active-foreground: #1a1d26;
+  --segment-active-foreground: #151922;
 
-  --chart-1: #3fa583;
-  --chart-2: #c99a2e;
-  --chart-3: #d0574f;
-  --chart-4: #3b86b3;
-  --chart-5: var(--brand-mid);
+  --chart-1: #2f9d80;
+  --chart-2: #c4a13a;
+  --chart-3: #d65353;
+  --chart-4: #1789a6;
+  --chart-5: var(--slate);
 
+  /* The rail stays dark in both modes, as in the reference. */
   --sidebar: var(--navy-900);
-  --sidebar-foreground: #eceef3;
-  --sidebar-muted: #9298a6;
-  --sidebar-primary: var(--navy-700);
+  --sidebar-foreground: #eef0f3;
+  --sidebar-muted: #a3a9b4;
+  --sidebar-primary: color-mix(in oklab, var(--green) 16%, var(--navy-900));
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: var(--navy-800);
   --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: color-mix(in oklab, white 7%, transparent);
-  --sidebar-ring: var(--brand-accent);
-  /* Icon color of the selected menu item. */
-  --sidebar-highlight: var(--brand-accent);
+  --sidebar-border: var(--navy-700);
+  --sidebar-ring: var(--green);
+  --sidebar-highlight: var(--green-bright);
 }
 
 .dark {
   /* ------------------------------- DARK MODE -------------------------------- */
-  --background: var(--navy-800);
-  --foreground: #eceef3;
+  --background: var(--navy-700);
+  --foreground: #eef0f3;
 
   --card: var(--navy-900);
-  --card-foreground: #eceef3;
+  --card-foreground: #eef0f3;
+  --card-edge: transparent;
 
   --popover: var(--navy-850);
-  --popover-foreground: #eceef3;
+  --popover-foreground: #eef0f3;
 
-  --primary: var(--brand-accent);
+  --primary: var(--green);
   --primary-foreground: var(--navy-900);
 
   --secondary: var(--navy-700);
-  --secondary-foreground: #eceef3;
+  --secondary-foreground: #eef0f3;
 
-  --muted: var(--navy-750);
-  --muted-foreground: #9aa1ae;
+  --muted: var(--navy-800);
+  --muted-foreground: #979ea7;
 
   --accent: var(--navy-700);
-  --accent-foreground: #eceef3;
+  --accent-foreground: #eef0f3;
 
-  --destructive: #d9625e;
+  --destructive: var(--coral);
   --destructive-foreground: var(--navy-900);
 
-  --success: #5bb795;
+  --success: var(--green);
   --success-foreground: var(--navy-900);
-  --warning: #d4ae52;
+  --warning: var(--mustard);
   --warning-foreground: var(--navy-900);
-  --info: #4f9cc6;
-  --info-foreground: var(--navy-900);
+  --info: var(--blue);
+  --info-foreground: #ffffff;
 
-  --border: color-mix(in oklab, white 8%, transparent);
-  --input: color-mix(in oklab, white 13%, transparent);
-  --field: var(--navy-950);
-  --ring: var(--brand-accent);
+  --border: #292f3a;
+  --input: var(--navy-600);
+  --field: var(--navy-900);
+  --ring: var(--green);
 
   --topbar: var(--navy-900);
-  --topbar-foreground: #eceef3;
+  --topbar-foreground: #ffffff;
 
   --segment: var(--navy-700);
-  --segment-active: #d8dbe2;
+  --segment-foreground: #e6e8ec;
+  --segment-active: var(--silver);
   --segment-active-foreground: var(--navy-900);
 
-  --chart-1: #5bb795;
-  --chart-2: #d4ae52;
-  --chart-3: #d9625e;
-  --chart-4: #4f9cc6;
-  --chart-5: var(--brand-accent);
+  --chart-1: var(--green);
+  --chart-2: var(--mustard);
+  --chart-3: var(--coral);
+  --chart-4: var(--blue);
+  --chart-5: var(--slate);
 
-  --sidebar: #171a21;
-  --sidebar-foreground: #eceef3;
-  --sidebar-muted: #8d94a2;
-  --sidebar-primary: var(--navy-750);
+  --sidebar: var(--navy-900);
+  --sidebar-foreground: #eef0f3;
+  --sidebar-muted: #a3a9b4;
+  --sidebar-primary: color-mix(in oklab, var(--green) 16%, var(--navy-900));
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: var(--navy-850);
+  --sidebar-accent: var(--navy-800);
   --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: color-mix(in oklab, white 6%, transparent);
-  --sidebar-ring: var(--brand-accent);
-  --sidebar-highlight: var(--brand-accent);
+  --sidebar-border: var(--navy-700);
+  --sidebar-ring: var(--green);
+  --sidebar-highlight: var(--green-bright);
 }
