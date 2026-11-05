@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\Analytics\AuctionAnalyticsController;
 use App\Http\Controllers\Api\Analytics\MarketOverviewController;
 use App\Http\Controllers\Api\Analytics\MarketPricingController;
 use App\Http\Controllers\Api\Analytics\MarketRankingsController;
@@ -17,3 +18,6 @@ Route::middleware(['auth:sanctum', EnsureAgencyIsActive::class, 'can:analytics.m
 
 Route::middleware(['auth:sanctum', EnsureAgencyIsActive::class, 'can:analytics.market.view'])
     ->get('analytics/valuations', ValuationAnalyticsController::class);
+
+Route::middleware(['auth:sanctum', EnsureAgencyIsActive::class, 'can:analytics.market.view'])
+    ->get('analytics/auctions', AuctionAnalyticsController::class);
