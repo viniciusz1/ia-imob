@@ -52,6 +52,50 @@ describe("AppNavigation", () => {
     expect(screen.getByRole("link", { name: /avaliar imóvel/i })).not.toHaveAttribute("aria-current");
   });
 
+  it("lists every analysis of the analytics module", () => {
+    useAuthStore.getState().setUser({
+      id: 1,
+      name: "Administrador",
+      email: "admin@example.com",
+      is_platform_admin: false,
+      permissions: ["analytics.market.view"],
+    });
+
+    renderSidebar();
+
+    expect(screen.getByRole("link", { name: /^módulo analítico$/i })).toHaveAttribute(
+      "href",
+      "/analitico",
+    );
+    expect(screen.getByRole("link", { name: /^análise de leilões$/i })).toHaveAttribute(
+      "href",
+      "/analitico/leiloes",
+    );
+    expect(screen.getByRole("link", { name: /^análise de mercado$/i })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /^análise de avaliações$/i })).toBeInTheDocument();
+  });
+
+  it("lights up the deepest analysis instead of the module entry", () => {
+    mocks.pathname = "/analitico/leiloes";
+    useAuthStore.getState().setUser({
+      id: 1,
+      name: "Administrador",
+      email: "admin@example.com",
+      is_platform_admin: false,
+      permissions: ["analytics.market.view"],
+    });
+
+    renderSidebar();
+
+    expect(screen.getByRole("link", { name: /^análise de leilões$/i })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+    expect(screen.getByRole("link", { name: /^módulo analítico$/i })).not.toHaveAttribute(
+      "aria-current",
+    );
+  });
+
   it("shows Avaliar imóvel for users with valuation permissions", () => {
     useAuthStore.getState().setUser({
       id: 1,

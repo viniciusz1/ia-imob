@@ -7,6 +7,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ValuationDashboardClient } from "../ValuationDashboardClient";
 import { getValuationAnalytics } from "@/services/marketAnalyticsService";
 
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ replace: vi.fn() }),
+  usePathname: () => "/analitico/avaliacoes",
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 vi.mock("@/services/marketAnalyticsService", () => ({
   getValuationAnalytics: vi.fn(),
 }));

@@ -1,5 +1,6 @@
 import api, { API_PREFIX } from "./api";
 import type {
+  AuctionAnalytics,
   MarketAnalyticsFilters,
   MarketAnalyticsResponse,
   MarketOverview,
@@ -57,6 +58,20 @@ export function getMarketPricing(filters: Partial<MarketAnalyticsFilters>) {
 
 export function getMarketRankings(filters: Partial<MarketAnalyticsFilters>, limit = 10) {
   return get<MarketRankings>("rankings", filters, { limite: String(limit) });
+}
+
+export async function getAuctionAnalytics(
+  filters: Partial<MarketAnalyticsFilters>,
+  limit = 50,
+): Promise<MarketAnalyticsResponse<AuctionAnalytics>> {
+  const params = toQueryParams(filters);
+  params.set("limite", String(limit));
+
+  const { data } = await api.get<MarketAnalyticsResponse<AuctionAnalytics>>(
+    `${API_PREFIX}/analytics/auctions?${params.toString()}`,
+  );
+
+  return data;
 }
 
 export async function getValuationAnalytics(
