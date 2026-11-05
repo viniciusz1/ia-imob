@@ -144,8 +144,9 @@
   --info-foreground: #ffffff;
 
   --border: #292f3a;
-  --input: var(--navy-600);
-  --field: var(--navy-900);
+  /* Fields are filled a step above the card so they read as inputs, not holes. */
+  --input: #323946;
+  --field: #1d2129;
   --ring: var(--green);
   --brand-button: var(--green-button);
   --brand-button-hover: var(--green-button-hover);
