@@ -14,13 +14,13 @@ const buttonVariants = cva(
         destructive:
           "bg-destructive text-destructive-foreground shadow-xs shadow-black/5 hover:bg-destructive/90 focus-visible:ring-destructive/30",
         outline:
-          "border border-muted-foreground/35 bg-field text-foreground shadow-xs shadow-black/5 hover:border-muted-foreground/60 hover:bg-secondary dark:shadow-none",
+          "bg-muted-button text-foreground shadow-xs shadow-black/10 hover:bg-muted-button-hover",
         secondary:
           "bg-secondary text-secondary-foreground hover:bg-secondary/75",
-        // Brand-light action (reference: --button-brand-light): sits next to a
-        // primary green button without looking disabled or dark.
+        // Solid secondary action (reference: --button-main-default): next to a
+        // green button it stands out by its fill, never by a tinted border.
         soft:
-          "border border-primary/45 bg-primary/12 text-primary hover:border-primary/70 hover:bg-primary/20",
+          "bg-contrast-button text-contrast-button-foreground shadow-xs shadow-black/10 hover:bg-contrast-button-hover",
         ghost: "text-foreground hover:bg-secondary",
         link: "text-primary underline-offset-4 hover:underline",
       },

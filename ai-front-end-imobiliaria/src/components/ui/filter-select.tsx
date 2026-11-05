@@ -56,7 +56,7 @@ function FilterSelect({
           className={cn(
             "w-full",
             active &&
-              "border-primary/40 bg-primary/5 pr-9 text-primary hover:border-primary/60 dark:bg-primary/10 [&>svg:last-child]:hidden"
+              "border-transparent bg-brand-button pr-9 font-medium text-brand-button-foreground hover:border-transparent hover:bg-brand-button-hover [&>svg:last-child]:hidden"
           )}
           size={size}
         >
@@ -73,7 +73,7 @@ function FilterSelect({
       {active && (
         <button
           aria-label={`Limpar filtro ${ariaLabel}${activeLabel ? `: ${activeLabel}` : ""}`}
-          className="absolute top-1/2 right-2.5 flex size-5 -translate-y-1/2 cursor-pointer items-center justify-center rounded-md text-primary hover:bg-primary/10"
+          className="absolute top-1/2 right-2.5 flex size-6 -translate-y-1/2 cursor-pointer items-center justify-center rounded-md text-brand-button-foreground hover:bg-black/15"
           onClick={() => onValueChange(emptyValue)}
           type="button"
         >

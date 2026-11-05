@@ -68,7 +68,7 @@ function MultiSelect({
         <button
           aria-haspopup="listbox"
           className={cn(
-            "flex h-11 w-full min-w-0 cursor-pointer items-center justify-between gap-2 rounded-lg border border-input bg-field px-3.5 text-left text-sm shadow-xs shadow-black/5 transition-colors outline-none hover:border-muted-foreground/40 focus-visible:border-primary focus-visible:ring-[3px] focus-visible:ring-primary/25 disabled:cursor-not-allowed disabled:opacity-50 data-[state=open]:border-primary data-[state=open]:ring-[3px] data-[state=open]:ring-primary/25",
+            "flex h-11 w-full min-w-0 cursor-pointer items-center justify-between gap-2 rounded-lg border border-input bg-field px-3.5 text-left text-sm shadow-xs shadow-black/5 transition-colors outline-none hover:border-muted-foreground/40 focus-visible:border-primary focus-visible:ring-1 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50 data-[state=open]:border-primary data-[state=open]:ring-1 data-[state=open]:ring-primary",
             className
           )}
           data-slot="multi-select"

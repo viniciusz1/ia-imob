@@ -79,6 +79,14 @@
   --brand-button: var(--green-button);
   --brand-button-hover: var(--green-button-hover);
   --brand-button-foreground: #ffffff;
+  /* Solid secondary action (reference --button-main-default): dark slate in
+     light mode, light silver in dark mode — evidence by fill, not border. */
+  --contrast-button: #1f2633;
+  --contrast-button-hover: #2d3544;
+  --contrast-button-foreground: #ffffff;
+  /* Everyday buttons: a filled tone that shows on both page and card. */
+  --muted-button: #e6e8ec;
+  --muted-button-hover: #d9dce2;
   /* Card subtitle color (--text-subtle). */
   --subtle: #64748b;
 
@@ -151,6 +159,11 @@
   --brand-button: var(--green-button);
   --brand-button-hover: var(--green-button-hover);
   --brand-button-foreground: #ffffff;
+  --contrast-button: #d8dbe2;
+  --contrast-button-hover: #eceef2;
+  --contrast-button-foreground: var(--navy-900);
+  --muted-button: var(--navy-600);
+  --muted-button-hover: #414958;
   --subtle: #8c95a3;
 
   --topbar: var(--navy-900);

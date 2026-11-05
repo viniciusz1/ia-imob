@@ -32,6 +32,11 @@
   --color-brand-button-hover: var(--brand-button-hover);
   --color-brand-button-foreground: var(--brand-button-foreground);
   --color-subtle: var(--subtle);
+  --color-contrast-button: var(--contrast-button);
+  --color-contrast-button-hover: var(--contrast-button-hover);
+  --color-contrast-button-foreground: var(--contrast-button-foreground);
+  --color-muted-button: var(--muted-button);
+  --color-muted-button-hover: var(--muted-button-hover);
   --color-segment-active: var(--segment-active);
   --color-segment-active-foreground: var(--segment-active-foreground);
   --color-chart-5: var(--chart-5);
