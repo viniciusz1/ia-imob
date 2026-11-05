@@ -354,6 +354,49 @@ describe("ValuationsClient", () => {
     expect(screen.queryByRole("button", { name: /exportar excel/i })).not.toBeInTheDocument();
   });
 
+  it("keeps numeric fields within their limits and blocks the search while invalid", async () => {
+    vi.mocked(valuationService.getValuations).mockResolvedValue(paginated([]));
+
+    render(<ValuationsClient />);
+
+    const cityTrigger = await screen.findByLabelText("Cidade");
+    const neighborhoodTrigger = await screen.findByLabelText("Bairro");
+    await waitFor(() => expect(cityTrigger).toBeEnabled());
+
+    const area = screen.getByLabelText("Metragem") as HTMLInputElement;
+    fireEvent.change(area, { target: { value: "12ab345" } });
+    expect(area.value).toBe("1234");
+
+    fireEvent.change(area, { target: { value: "5" } });
+    expect(screen.getByText("Informe entre 20 e 2.000 m².")).toBeInTheDocument();
+
+    const bedrooms = screen.getByLabelText("Quartos") as HTMLInputElement;
+    fireEvent.change(bedrooms, { target: { value: "345" } });
+    expect(bedrooms.value).toBe("34");
+    expect(screen.getByText("Informe um número entre 0 e 10.")).toBeInTheDocument();
+
+    pickOption(cityTrigger, "Jaraguá do Sul");
+    pickOption(neighborhoodTrigger, "Centro");
+    fireEvent.click(screen.getByRole("button", { name: /buscar comparáveis/i }));
+
+    expect(valuationService.getValuationCandidates).not.toHaveBeenCalled();
+  });
+
+  it("points at the missing city and neighbourhood when searching without them", async () => {
+    vi.mocked(valuationService.getValuations).mockResolvedValue(paginated([]));
+
+    render(<ValuationsClient />);
+
+    const cityTrigger = await screen.findByLabelText("Cidade");
+    await waitFor(() => expect(cityTrigger).toBeEnabled());
+
+    fireEvent.click(screen.getByRole("button", { name: /buscar comparáveis/i }));
+
+    expect(await screen.findByText("Selecione pelo menos uma cidade.")).toBeInTheDocument();
+    expect(screen.getByText("Selecione pelo menos um bairro.")).toBeInTheDocument();
+    expect(valuationService.getValuationCandidates).not.toHaveBeenCalled();
+  });
+
   it("narrows available neighborhoods to the selected cities", async () => {
     vi.mocked(valuationService.getValuations).mockResolvedValue(paginated([]));
     vi.mocked(marketPropertyService.getMarketPropertyFilters).mockResolvedValue({

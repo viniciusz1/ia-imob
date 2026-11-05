@@ -38,6 +38,7 @@ import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { MultiSelect } from "@/components/ui/multi-select";
+import { cn } from "@/lib/utils";
 import {
   Select,
   SelectContent,
@@ -75,6 +76,7 @@ import type {
   ResidentialType,
   Valuation,
   ValuationInput,
+  ValuationRange,
 } from "@/types/valuation";
 
 const residentialTypes: Array<{ value: ResidentialType; label: string }> = [
@@ -95,6 +97,33 @@ const initialInput: ValuationInput = {
 };
 
 type DownloadFormat = "pdf" | "word" | "excel";
+
+type NumberField = keyof Pick<ValuationInput, "area" | "bedrooms" | "bathrooms" | "garage_spaces">;
+
+// Limits the form enforces before searching comparables; the inputs only accept digits up to maxLength.
+const numberFieldLimits: Record<NumberField, { min: number; max: number; maxLength: number; message: string }> = {
+  area: { min: 20, max: 2000, maxLength: 4, message: "Informe entre 20 e 2.000 m²." },
+  bedrooms: { min: 0, max: 10, maxLength: 2, message: "Informe um número entre 0 e 10." },
+  bathrooms: { min: 0, max: 10, maxLength: 2, message: "Informe um número entre 0 e 10." },
+  garage_spaces: { min: 0, max: 10, maxLength: 2, message: "Informe um número entre 0 e 10." },
+};
+
+const numberFields = Object.keys(numberFieldLimits) as NumberField[];
+
+function numberFieldErrors(form: ValuationInput): Partial<Record<NumberField, string>> {
+  const errors: Partial<Record<NumberField, string>> = {};
+
+  for (const field of numberFields) {
+    const { min, max, message } = numberFieldLimits[field];
+    const value = form[field];
+
+    if (!Number.isInteger(value) || value < min || value > max) {
+      errors[field] = message;
+    }
+  }
+
+  return errors;
+}
 
 const reviewStatusLabels: Record<ComparableReviewStatus, string> = {
   pending: "Pendente",
@@ -183,6 +212,8 @@ export function ValuationsClient() {
   const [availableNeighborhoods, setAvailableNeighborhoods] = useState<string[]>([]);
   const [neighborhoodsByCity, setNeighborhoodsByCity] = useState<Record<string, string[]>>({});
   const [isLoadingFilters, setIsLoadingFilters] = useState(true);
+  const [touchedFields, setTouchedFields] = useState<Set<NumberField>>(() => new Set());
+  const [submitAttempted, setSubmitAttempted] = useState(false);
   const permissions = Array.isArray(user?.permissions) ? user.permissions : null;
   const canCreate = permissions?.includes("valuations.create") ?? false;
   const canView = permissions?.includes("valuations.view") ?? false;
@@ -274,12 +305,26 @@ export function ValuationsClient() {
     }
   }
 
-  function updateNumber(field: keyof Pick<ValuationInput, "area" | "bedrooms" | "bathrooms" | "garage_spaces">, value: string) {
+  function updateNumber(field: NumberField, value: string) {
+    // Digits only, capped to the field length, so letters and absurd values never reach the form.
+    const digits = value.replace(/\D/g, "").slice(0, numberFieldLimits[field].maxLength);
+
     setForm((current) => ({
       ...current,
-      [field]: Number(value),
+      [field]: Number(digits),
     }));
+    setTouchedFields((current) => new Set(current).add(field));
   }
+
+  const fieldErrors = numberFieldErrors(form);
+
+  function visibleNumberError(field: NumberField): string | undefined {
+    return submitAttempted || touchedFields.has(field) ? fieldErrors[field] : undefined;
+  }
+
+  const cityError = submitAttempted && form.city.length === 0 ? "Selecione pelo menos uma cidade." : undefined;
+  const neighborhoodError =
+    submitAttempted && form.neighborhood.length === 0 ? "Selecione pelo menos um bairro." : undefined;
 
   const visibleNeighborhoods = useMemo(() => {
     if (form.city.length === 0 || Object.keys(neighborhoodsByCity).length === 0) {
@@ -315,10 +360,14 @@ export function ValuationsClient() {
     event.preventDefault();
     if (!canCreate) return;
 
+    setSubmitAttempted(true);
+
     if (form.city.length === 0 || form.neighborhood.length === 0) {
       toast.error("Selecione pelo menos uma cidade e um bairro.");
       return;
     }
+
+    if (Object.keys(numberFieldErrors(form)).length > 0) return;
 
     setIsLoadingCandidates(true);
     try {
@@ -448,6 +497,8 @@ export function ValuationsClient() {
 
   function handleNewValuation() {
     setForm(initialInput);
+    setTouchedFields(new Set());
+    setSubmitAttempted(false);
     setCandidates([]);
     setSelectedCandidateIds(new Set());
     setSelected(null);
@@ -499,8 +550,9 @@ export function ValuationsClient() {
           />
           <form className="space-y-6 px-6 pb-6 sm:px-8 sm:pb-8" onSubmit={handleSubmit}>
             <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-              <FormField htmlFor="city" label="Cidade">
+              <FormField error={cityError} htmlFor="city" label="Cidade">
                 <MultiSelect
+                  className={cityError ? "border-destructive" : undefined}
                   disabled={isLoadingFilters}
                   emptyMessage="Nenhuma cidade encontrada."
                   id="city"
@@ -512,8 +564,9 @@ export function ValuationsClient() {
                 />
               </FormField>
 
-              <FormField htmlFor="neighborhood" label="Bairro">
+              <FormField error={neighborhoodError} htmlFor="neighborhood" label="Bairro">
                 <MultiSelect
+                  className={neighborhoodError ? "border-destructive" : undefined}
                   disabled={isLoadingFilters}
                   emptyMessage="Nenhum bairro encontrado."
                   id="neighborhood"
@@ -547,14 +600,14 @@ export function ValuationsClient() {
             </div>
 
             <div className="grid grid-cols-2 gap-5 md:grid-cols-4">
-              <FormField htmlFor="area" label="Metragem">
+              <FormField error={visibleNumberError("area")} htmlFor="area" label="Metragem">
                 <div className="relative">
                   <Input
+                    aria-invalid={Boolean(visibleNumberError("area"))}
                     className="pr-12"
                     id="area"
-                    type="number"
-                    min={20}
-                    max={2000}
+                    inputMode="numeric"
+                    type="text"
                     value={form.area}
                     onChange={(event) => updateNumber("area", event.target.value)}
                     required
@@ -564,34 +617,34 @@ export function ValuationsClient() {
                   </span>
                 </div>
               </FormField>
-              <FormField htmlFor="bedrooms" label="Quartos">
+              <FormField error={visibleNumberError("bedrooms")} htmlFor="bedrooms" label="Quartos">
                 <Input
+                  aria-invalid={Boolean(visibleNumberError("bedrooms"))}
                   id="bedrooms"
-                  type="number"
-                  min={0}
-                  max={10}
+                  inputMode="numeric"
+                  type="text"
                   value={form.bedrooms}
                   onChange={(event) => updateNumber("bedrooms", event.target.value)}
                   required
                 />
               </FormField>
-              <FormField htmlFor="bathrooms" label="Banheiros">
+              <FormField error={visibleNumberError("bathrooms")} htmlFor="bathrooms" label="Banheiros">
                 <Input
+                  aria-invalid={Boolean(visibleNumberError("bathrooms"))}
                   id="bathrooms"
-                  type="number"
-                  min={0}
-                  max={10}
+                  inputMode="numeric"
+                  type="text"
                   value={form.bathrooms}
                   onChange={(event) => updateNumber("bathrooms", event.target.value)}
                   required
                 />
               </FormField>
-              <FormField htmlFor="garage_spaces" label="Vagas">
+              <FormField error={visibleNumberError("garage_spaces")} htmlFor="garage_spaces" label="Vagas">
                 <Input
+                  aria-invalid={Boolean(visibleNumberError("garage_spaces"))}
                   id="garage_spaces"
-                  type="number"
-                  min={0}
-                  max={10}
+                  inputMode="numeric"
+                  type="text"
                   value={form.garage_spaces}
                   onChange={(event) => updateNumber("garage_spaces", event.target.value)}
                   required
@@ -645,8 +698,8 @@ export function ValuationsClient() {
         />
       )}
 
-      <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
-          <Card className="gap-0 overflow-hidden py-0">
+      <div className="grid gap-6 xl:grid-cols-12">
+          <Card className="gap-0 overflow-hidden py-0 xl:col-span-8">
             <SectionHeader
               actions={
                 selected && (
@@ -660,14 +713,17 @@ export function ValuationsClient() {
               title="Resultado"
             />
             {!selected ? (
-              <EmptyState
-                description="Crie uma avaliação ou selecione um registro do histórico."
-                icon={Calculator}
-                title="Nenhuma avaliação selecionada"
-                variant="inline"
-              />
+              <div className="flex flex-1 items-center justify-center px-6 pb-8 sm:px-8">
+                <EmptyState
+                  className="w-full rounded-xl bg-muted py-16"
+                  description="Preencha o imóvel acima e busque comparáveis, ou abra uma avaliação do histórico."
+                  icon={Calculator}
+                  title="Nenhuma avaliação selecionada"
+                  variant="inline"
+                />
+              </div>
             ) : (
-              <div className="space-y-5 px-6 pb-6 sm:px-8 sm:pb-8">
+              <div className="flex flex-1 flex-col gap-5 px-6 pb-6 sm:px-8 sm:pb-8">
                 {selectedRange ? (
                   <>
                     <div className="rounded-xl border border-primary/40 bg-primary/10 p-5 sm:p-6">
@@ -678,6 +734,7 @@ export function ValuationsClient() {
                       <p className="mt-2 text-sm text-subtle tabular-nums">
                         Faixa de mercado entre {selectedRange.display.min} e {selectedRange.display.max}
                       </p>
+                      <RangeBar range={selectedRange} />
                     </div>
 
                     <div className="grid gap-4 sm:grid-cols-3">
@@ -731,7 +788,7 @@ export function ValuationsClient() {
                 </div>
 
                 {selected.can_download_report && canView && (
-                  <div className="flex flex-wrap justify-end gap-2 border-t pt-5">
+                  <div className="mt-auto flex flex-wrap justify-end gap-2 border-t pt-5">
                     <Button
                       type="button"
                       variant="outline"
@@ -765,7 +822,7 @@ export function ValuationsClient() {
           </Card>
 
 
-          <Card className="gap-0 overflow-hidden py-0">
+          <Card className="gap-0 overflow-hidden py-0 xl:col-span-4">
             <SectionHeader
               description="Avaliações salvas da imobiliária."
               icon={History}
@@ -791,48 +848,47 @@ export function ValuationsClient() {
                 variant="inline"
               />
             ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow className="hover:bg-transparent">
-                    <TableHead>Avaliação</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Valor central</TableHead>
-                    <TableHead className="w-px">
-                      <span className="sr-only">Ações</span>
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {valuations.map((valuation) => (
-                    <TableRow
+              <ul className="divide-y border-t">
+                {valuations.map((valuation) => {
+                  const isSelected = selected?.id === valuation.id;
+
+                  return (
+                    <li
+                      className={cn(
+                        "flex items-center gap-4 px-6 py-3 transition-colors sm:px-8",
+                        isSelected && "bg-primary/5 shadow-[inset_3px_0_0_var(--primary)]",
+                      )}
                       key={valuation.id}
-                      data-state={selected?.id === valuation.id ? "selected" : undefined}
                     >
-                      <TableCell>
-                        <p className="font-medium text-foreground tabular-nums">{valuation.code}</p>
-                        <p className="mt-0.5 text-[0.8125rem] text-subtle">
+                      <div className="min-w-0 flex-1 space-y-1">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <p className="text-sm font-semibold text-foreground tabular-nums">{valuation.code}</p>
+                          <Badge variant={valuationStatusBadgeVariant(valuation.status)}>
+                            {valuation.status_label}
+                          </Badge>
+                        </div>
+                        <p className="truncate text-[0.8125rem] text-subtle">
                           {valuation.subject_property.neighborhood}, {valuation.subject_property.city}
                         </p>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={valuationStatusBadgeVariant(valuation.status)}>
-                          {valuation.status_label}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right text-foreground tabular-nums">
+                      </div>
+                      <p className="shrink-0 text-sm font-semibold text-foreground tabular-nums">
                         {valuation.final_range?.display.central ?? "-"}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button type="button" variant="outline" size="sm" onClick={() => void handleSelect(valuation.id)}>
-                          Abrir
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                      </p>
+                      <Button
+                        onClick={() => void handleSelect(valuation.id)}
+                        size="sm"
+                        type="button"
+                        variant={isSelected ? "secondary" : "outline"}
+                      >
+                        Abrir
+                      </Button>
+                    </li>
+                  );
+                })}
+              </ul>
             )}
             {canView && (
+              <div className="mt-auto">
               <PaginationFooter
                 onPageChange={(page) => void loadHistory(page)}
                 page={historyPage.page}
@@ -840,6 +896,7 @@ export function ValuationsClient() {
                 pageSize={DEFAULT_PAGE_SIZE}
                 total={historyPage.total}
               />
+              </div>
             )}
           </Card>
       </div>
@@ -860,6 +917,34 @@ const rangeValueTones: Record<keyof typeof rangeTileTones, string> = {
   success: "text-success",
   info: "text-info",
 };
+
+/** Market range drawn as a bar from the minimum to the maximum, with the central value marked. */
+function RangeBar({ range }: { range: ValuationRange }) {
+  const span = range.max - range.min;
+  const centralShare = span > 0 ? Math.min(Math.max((range.central - range.min) / span, 0), 1) : 0.5;
+
+  return (
+    <div aria-hidden="true" className="mt-6">
+      <div className="relative h-2.5 rounded-full bg-gradient-to-r from-info via-primary to-success">
+        <span
+          className="absolute top-1/2 size-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-[3px] border-card bg-foreground"
+          style={{ left: `${centralShare * 100}%` }}
+        />
+      </div>
+      <div className="relative mt-2.5 flex h-4 justify-between text-[0.8125rem] leading-4 text-subtle">
+        <span>Mínimo</span>
+        {/* Kept clear of the end labels so they never overlap. */}
+        <span
+          className="absolute -translate-x-1/2 font-semibold text-foreground"
+          style={{ left: `${Math.min(Math.max(centralShare, 0.18), 0.82) * 100}%` }}
+        >
+          Central
+        </span>
+        <span>Máximo</span>
+      </div>
+    </div>
+  );
+}
 
 function RangeTile({
   icon: Icon,
