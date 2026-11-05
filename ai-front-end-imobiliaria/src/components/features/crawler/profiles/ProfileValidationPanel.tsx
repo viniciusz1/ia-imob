@@ -368,7 +368,7 @@ export function ProfileValidationPanel({
                 totalRecords={report.sampled_url_count}
               />
               {canDecide && allowDecision && (
-                <div className="space-y-4 rounded-lg border border-primary/20 bg-primary/5 p-4">
+                <div className="space-y-4 rounded-lg border border-primary bg-primary/5 p-4">
                   <p className="text-sm text-foreground">
                     Registre a justificativa da decisão. É possível aprovar abaixo da recomendação após revisar as evidências.
                   </p>

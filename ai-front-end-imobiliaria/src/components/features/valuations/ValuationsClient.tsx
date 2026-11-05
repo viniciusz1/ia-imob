@@ -783,7 +783,7 @@ export function ValuationsClient() {
                 <div className="flex flex-col gap-5 px-6 pb-6 sm:px-8 sm:pb-8">
                   {selectedRange ? (
                     <div className="grid gap-4 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
-                      <div className="flex flex-col justify-center rounded-xl border border-primary/40 bg-primary/10 p-5 sm:p-6">
+                      <div className="flex flex-col justify-center rounded-xl border border-primary bg-primary/10 p-5 sm:p-6">
                         <p className="text-sm leading-4 font-semibold text-primary">Valor estimado</p>
                         <p className="mt-3 text-[2.25rem] leading-10 font-semibold tracking-[-0.01em] text-foreground tabular-nums">
                           {selectedRange.display.central}

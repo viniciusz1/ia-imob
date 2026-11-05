@@ -162,7 +162,7 @@ export function CurrentSubscriptionBanner({
       />
 
       <div className="space-y-4 px-6 pb-6 sm:px-8 sm:pb-8">
-        <div className="flex flex-wrap items-center gap-4 rounded-lg border border-primary/20 bg-primary/5 p-4">
+        <div className="flex flex-wrap items-center gap-4 rounded-lg border border-primary bg-primary/5 p-4">
           <span
             className={cn(
               "flex size-10 shrink-0 items-center justify-center rounded-lg",

@@ -350,7 +350,7 @@ export function OnboardingExecutionTimeline({
         <section
           className={cn(
             "flex items-start gap-3 rounded-xl border border-transparent bg-muted px-4 py-3 text-sm",
-            requiresAttention ? "border-destructive/30 bg-destructive/5" : "border-primary/20 bg-primary/5",
+            requiresAttention ? "border-destructive/30 bg-destructive/5" : "border-primary bg-primary/5",
           )}
         >
           {requiresAttention ? (
@@ -463,7 +463,7 @@ export function OnboardingExecutionTimeline({
         {action !== null && !isAwaitingApproval && (
           <section
             aria-label="Próxima ação da Execução de Onboarding"
-            className="space-y-4 rounded-lg border border-primary/20 bg-primary/5 p-4"
+            className="space-y-4 rounded-lg border border-primary bg-primary/5 p-4"
           >
             <div className="space-y-1">
               <h3 className="text-base text-foreground">Próxima ação</h3>
@@ -593,7 +593,7 @@ export function OnboardingExecutionTimeline({
             )}
 
             {!isTerminal && canExecute && !(useExistingDiscoveryRecovery?.enabled || createCustomDiscoveryRecovery?.enabled) && (
-              <div className="space-y-2 border-t border-primary/20 pt-3">
+              <div className="space-y-2 border-t border-primary pt-3">
                 <p className="text-xs text-muted-foreground">Substituição flexível de Discovery</p>
                 <OnboardingDiscoveryRecovery
                   createCustomEnabled={true}

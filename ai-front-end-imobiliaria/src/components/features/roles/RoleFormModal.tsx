@@ -213,7 +213,7 @@ export function RoleFormModal({
                                             };
 
                                             return (
-                                                <div className="flex items-center gap-3 rounded-lg border border-primary/20 bg-primary/5 px-4 py-3">
+                                                <div className="flex items-center gap-3 rounded-lg border border-primary bg-primary/5 px-4 py-3">
                                                     <Checkbox
                                                         id="select-all-system"
                                                         checked={isAllSystemSelected}

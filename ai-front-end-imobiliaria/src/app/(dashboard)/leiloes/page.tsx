@@ -717,7 +717,7 @@ export default function AuctionsPage() {
 
                         return (
                             <article
-                                className="flex flex-col overflow-hidden rounded-2xl border border-card-edge bg-card shadow-[1px_2px_4px_rgba(0,0,0,0.05)] transition-colors hover:border-primary/40"
+                                className="flex flex-col overflow-hidden rounded-2xl border border-card-edge bg-card shadow-[1px_2px_4px_rgba(0,0,0,0.05)] transition-colors hover:border-primary"
                                 key={item.id}
                             >
                                 <div className="relative h-48 w-full bg-muted">
@@ -955,7 +955,7 @@ function RoundCard({ round }: { round: AuctionRoundResource }) {
         appraisal !== null && appraisal > minimum ? Math.round(((appraisal - minimum) / appraisal) * 100) : 0;
 
     return (
-        <div className="rounded-lg border border-primary/20 bg-primary/5 p-4">
+        <div className="rounded-lg border border-primary bg-primary/5 p-4">
             <div className="flex items-center justify-between gap-3 text-xs">
                 <span className="text-primary">{round.source_label || `${round.round_number}ª Praça`}</span>
                 <RoundStatusBadge status={round.status} />

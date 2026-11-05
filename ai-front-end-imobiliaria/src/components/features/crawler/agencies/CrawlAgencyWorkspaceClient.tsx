@@ -139,7 +139,7 @@ export function CrawlAgencyWorkspaceClient({
       {!execution && <CrawlAgencyOnboardingProgress agency={agency} profiles={profiles} snapshots={snapshots} />}
 
       {!execution && (
-        <Card className="border-primary/20 bg-primary/5">
+        <Card className="border-primary bg-primary/5">
           <CardHeader>
             <CardTitle>Próxima ação recomendada</CardTitle>
             <CardDescription>{state.detail}</CardDescription>

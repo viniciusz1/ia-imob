@@ -224,7 +224,7 @@ export function ProductionCrawlPanel({ agency: initialAgency, discoveryPolicies:
         </div>
       )}
       {isOverride && canManagePolicies && (
-        <div className="space-y-3 rounded-lg border border-primary/20 bg-primary/5 p-4">
+        <div className="space-y-3 rounded-lg border border-primary bg-primary/5 p-4">
           <div className="space-y-1">
             <p className="text-sm text-foreground">Salvar override como nova política ativa</p>
             <p className="text-xs text-muted-foreground">

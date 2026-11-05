@@ -96,7 +96,7 @@ export function DiscoverySnapshotsPanel({ onboardingRecovery, snapshots }: Disco
     <div>
       {onboardingRecovery && (
         <div className="border-b px-6 py-4 sm:px-8">
-          <aside className="flex items-start gap-3 rounded-lg border border-primary/20 bg-primary/5 px-4 py-3 text-sm">
+          <aside className="flex items-start gap-3 rounded-lg border border-primary bg-primary/5 px-4 py-3 text-sm">
             <RotateCcw aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-primary" />
             <div className="min-w-0 space-y-1">
               <p className="text-foreground">Continuar Execução de Onboarding #{onboardingRecovery.executionId}</p>

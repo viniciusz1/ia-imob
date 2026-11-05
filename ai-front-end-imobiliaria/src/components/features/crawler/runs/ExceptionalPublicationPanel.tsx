@@ -153,7 +153,7 @@ export function ExceptionalPublicationPanel({ initialRun }: { initialRun: CrawlR
           </>
         )}
         {run.exceptional_publication && (
-          <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm">
+          <div className="rounded-lg border border-primary bg-primary/5 p-4 text-sm">
             Publicado por #{run.exceptional_publication.published_by}: {run.exceptional_publication.reason}
           </div>
         )}

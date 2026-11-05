@@ -1313,7 +1313,7 @@ function FixedRoomFilterSection({
             className={cn(
               "flex h-9 cursor-pointer items-center justify-center rounded-lg border bg-background text-sm text-foreground tabular-nums transition-colors hover:bg-muted/50",
               "has-focus-visible:ring-2 has-focus-visible:ring-ring/40",
-              option.checked && "border-primary/30 bg-primary/10 text-primary hover:bg-primary/10"
+              option.checked && "border-primary bg-primary/10 text-primary hover:bg-primary/10"
             )}
           >
             <Checkbox

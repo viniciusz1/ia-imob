@@ -69,7 +69,7 @@ export function SubscriptionConfirmModal({
         </DialogHeader>
 
         <div className="space-y-5 px-6 py-5">
-          <div className="rounded-lg border border-primary/20 bg-primary/5 p-4">
+          <div className="rounded-lg border border-primary bg-primary/5 p-4">
             <p className="text-xs uppercase tracking-wide text-muted-foreground">
               Cobrança
             </p>

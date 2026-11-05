@@ -150,7 +150,7 @@ export function PropertyCard({ property }: PropertyCardProps) {
   ].filter((attribute) => attribute.value > 0);
 
   return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-card-edge bg-card shadow-[1px_2px_4px_rgba(0,0,0,0.05)] transition-colors hover:border-primary/30">
+    <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-card-edge bg-card shadow-[1px_2px_4px_rgba(0,0,0,0.05)] transition-colors hover:border-primary">
       <div className="relative h-52 overflow-hidden bg-secondary">
         <ImageWithFallback
           src={property.image}

@@ -246,7 +246,7 @@ export function AiPromptInput({
                   type="button"
                   onClick={() => handleSuggestionClick(suggestion)}
                   disabled={isLoading || disabled}
-                  className="flex cursor-pointer items-center gap-2 rounded-lg bg-muted px-3.5 py-2.5 text-sm text-foreground transition-colors outline-none hover:bg-secondary focus-visible:ring-[3px] focus-visible:ring-primary/25 disabled:pointer-events-none disabled:opacity-50"
+                  className="flex cursor-pointer items-center gap-2 rounded-lg bg-muted px-3.5 py-2.5 text-sm text-foreground transition-colors outline-none hover:bg-secondary focus-visible:ring-[3px] focus-visible:ring-primary disabled:pointer-events-none disabled:opacity-50"
                 >
                   <Search className="size-3.5 text-subtle" aria-hidden="true" />
                   {suggestion}

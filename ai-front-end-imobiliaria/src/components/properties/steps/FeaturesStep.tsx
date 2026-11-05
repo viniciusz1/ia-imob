@@ -93,7 +93,7 @@ export function FeaturesStep({ featuresOptions }: FeaturesStepProps) {
                                         key={feature.id}
                                         className={cn(
                                             "flex cursor-pointer items-center gap-3 rounded-xl bg-muted px-4 py-3.5 transition-colors hover:bg-secondary",
-                                            checked && "bg-primary/10 ring-1 ring-primary/40 hover:bg-primary/15",
+                                            checked && "bg-primary/10 ring-1 ring-primary hover:bg-primary/15",
                                         )}
                                     >
                                         <Checkbox

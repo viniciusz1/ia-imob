@@ -113,7 +113,7 @@ function StrategyChoices({
     <div className="grid gap-2 sm:grid-cols-2">
       {options.map((strategy) => (
         <div
-          className="flex items-center gap-3 rounded-lg border px-3 py-2.5 transition-colors has-[[data-state=checked]]:border-primary/30 has-[[data-state=checked]]:bg-primary/5"
+          className="flex items-center gap-3 rounded-lg border px-3 py-2.5 transition-colors has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/5"
           key={strategy.key}
         >
           <Checkbox
@@ -667,7 +667,7 @@ export function OnboardingPlanBuilder({
         {policySave && (
           <section
             aria-label="Salvar Configuração Pontual"
-            className="space-y-4 rounded-lg border border-primary/20 bg-primary/5 p-4"
+            className="space-y-4 rounded-lg border border-primary bg-primary/5 p-4"
           >
             <FormField htmlFor="point-policy-name" label="Nome da nova política">
               <Input
@@ -725,7 +725,7 @@ export function OnboardingPlanBuilder({
 
         <section
           aria-label="Revisão final do plano"
-          className="space-y-4 rounded-lg border border-primary/20 bg-primary/5 p-4"
+          className="space-y-4 rounded-lg border border-primary bg-primary/5 p-4"
         >
           <div className="space-y-1">
             <h3 className="text-sm text-foreground">Revisão final</h3>

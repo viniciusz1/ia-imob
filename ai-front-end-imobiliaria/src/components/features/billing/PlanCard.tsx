@@ -56,10 +56,10 @@ export function PlanCard({
       className={cn(
         "flex flex-col rounded-xl border bg-card p-6 shadow-xs shadow-black/[0.03] transition-colors",
         isSelected
-          ? "border-primary bg-primary/5 ring-2 ring-primary/30"
+          ? "border-primary bg-primary/5 ring-2 ring-primary"
           : isMostPopular
-            ? "border-primary ring-1 ring-primary/20"
-            : "hover:border-primary/30",
+            ? "border-primary ring-1 ring-primary"
+            : "hover:border-primary",
       )}
     >
       <div className="flex-1 space-y-5">

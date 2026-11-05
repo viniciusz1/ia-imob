@@ -55,8 +55,8 @@ export function BillingTypeSelector({
             className={cn(
               "flex cursor-pointer items-center gap-3 rounded-xl border border-transparent bg-muted p-4 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
               isSelected
-                ? "border-primary bg-primary/5 ring-1 ring-primary/20"
-                : "bg-card hover:border-primary/30 hover:bg-muted/50",
+                ? "border-primary bg-primary/5 ring-1 ring-primary"
+                : "bg-card hover:border-primary hover:bg-muted/50",
             )}
           >
             <span

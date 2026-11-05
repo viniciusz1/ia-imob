@@ -93,7 +93,7 @@ export function DiscoveryGenerator({ agencyId, contracts }: DiscoveryGeneratorPr
               <label
                 className={cn(
                   "flex cursor-pointer items-center gap-3 rounded-xl border border-transparent bg-muted p-4 text-sm transition-colors",
-                  checked ? "border-primary/20 bg-primary/5" : "hover:bg-muted/40",
+                  checked ? "border-primary bg-primary/5" : "hover:bg-muted/40",
                 )}
                 key={source.value}
               >

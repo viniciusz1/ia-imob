@@ -18,7 +18,7 @@ export function SwitchTile({ id, title, description, checked, onCheckedChange, c
     return (
         <div
             className={cn(
-                "flex items-center justify-between gap-4 rounded-xl bg-muted px-4 py-3.5 transition-colors has-[[data-state=checked]]:bg-primary/10 has-[[data-state=checked]]:ring-1 has-[[data-state=checked]]:ring-primary/40",
+                "flex items-center justify-between gap-4 rounded-xl bg-muted px-4 py-3.5 transition-colors has-[[data-state=checked]]:bg-primary/10 has-[[data-state=checked]]:ring-1 has-[[data-state=checked]]:ring-primary",
                 className,
             )}
         >

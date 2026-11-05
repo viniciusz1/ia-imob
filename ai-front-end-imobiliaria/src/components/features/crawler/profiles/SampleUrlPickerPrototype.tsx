@@ -177,7 +177,7 @@ function VariantB(props: SampleUrlPickerPrototypeProps) {
         </TabsContent>
       </Tabs>
       {props.sampleUrl && (
-        <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm">
+        <div className="rounded-lg border border-primary bg-primary/5 p-4 text-sm">
           <span className="text-muted-foreground">URL escolhida: </span>
           <span className="break-all text-foreground">{props.sampleUrl}</span>
         </div>
