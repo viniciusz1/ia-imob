@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import {
     BarChart3,
     Bot,
@@ -35,7 +34,6 @@ import {
     useUpcomingAuctions,
 } from "@/components/features/dashboard/useDashboardTotals";
 import { StatCard } from "@/components/layout/StatCard";
-import { Button } from "@/components/ui/button";
 import { dashboardModules, type DashboardModule } from "@/config/modules";
 import { hasPermission } from "@/lib/permissions";
 import { useAuthStore } from "@/store/useAuthStore";
@@ -135,22 +133,14 @@ export function DashboardContent() {
     const properties = visible("properties");
     const newProperties = visible("new-properties");
     const auctions = visible("auctions");
-    const aiSearcher = visible("ai-searcher");
     const valuations = visible("valuations");
 
     const canViewValuations = valuations !== null && hasPermission(userPermissions, "valuations.view");
-    const canCreateValuations = valuations !== null && hasPermission(userPermissions, "valuations.create");
 
     const propertiesTotal = usePropertiesTotal(properties !== null);
     const newData = useRecentNewProperties(newProperties !== null);
     const valuationsData = useRecentValuations(canViewValuations);
     const auctionsData = useUpcomingAuctions(auctions !== null && user !== null);
-
-    const quickActions = [
-        properties && { href: "/properties/create", label: "Cadastrar imóvel", icon: Plus },
-        canCreateValuations && { href: "/avaliacoes", label: "Avaliar imóvel", icon: Calculator },
-        aiSearcher && { href: aiSearcher.href, label: "Buscar com IA", icon: Bot },
-    ].filter((action): action is { href: string; label: string; icon: LucideIcon } => Boolean(action));
 
     const shortcuts: Shortcut[] = [];
     for (const id of SHORTCUT_ORDER) {
@@ -208,27 +198,13 @@ export function DashboardContent() {
 
     return (
         <div className="space-y-6">
-            <div className="flex flex-wrap items-end justify-between gap-4">
-                <div className="space-y-2">
-                    <h1 className="text-2xl leading-8 font-semibold tracking-[-0.01em] text-foreground">
-                        {firstName ? `Olá, ${firstName}` : "Olá!"}
-                    </h1>
-                    <p className="text-sm leading-4 font-semibold text-subtle" suppressHydrationWarning>
-                        {todayLabel()} · Veja como está sua operação e continue de onde parou.
-                    </p>
-                </div>
-                {quickActions.length > 0 && (
-                    <div className="flex flex-wrap items-center gap-2">
-                        {quickActions.map((action, index) => (
-                            <Button asChild key={action.href + action.label} variant={index === 0 ? "default" : "soft"}>
-                                <Link href={action.href}>
-                                    <action.icon />
-                                    {action.label}
-                                </Link>
-                            </Button>
-                        ))}
-                    </div>
-                )}
+            <div className="space-y-2">
+                <h1 className="text-2xl leading-8 font-semibold tracking-[-0.01em] text-foreground">
+                    {firstName ? `Olá, ${firstName}` : "Olá!"}
+                </h1>
+                <p className="text-sm leading-4 font-semibold text-subtle" suppressHydrationWarning>
+                    {todayLabel()} · Veja como está sua operação e continue de onde parou.
+                </p>
             </div>
 
             {hasStats && (
