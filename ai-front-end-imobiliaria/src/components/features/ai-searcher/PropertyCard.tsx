@@ -150,33 +150,33 @@ export function PropertyCard({ property }: PropertyCardProps) {
   ].filter((attribute) => attribute.value > 0);
 
   return (
-    <article className="group flex flex-col overflow-hidden rounded-xl border bg-card transition-colors hover:border-primary/30">
-      <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+    <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-card-edge bg-card shadow-[1px_2px_4px_rgba(0,0,0,0.05)] transition-colors hover:border-primary/30">
+      <div className="relative h-52 overflow-hidden bg-secondary">
         <ImageWithFallback
           src={property.image}
           alt={`${property.tipo} em ${property.bairro}`}
           className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
         {property.tipo && (
-          <Badge className="absolute top-3 left-3 shadow-xs">
+          <Badge className="absolute top-4 left-4 shadow-xs">
             {property.tipo}
           </Badge>
         )}
       </div>
 
-      <div className="flex flex-1 flex-col gap-4 p-4">
+      <div className="flex flex-1 flex-col gap-4 p-5 sm:p-6">
         <div className="space-y-1.5">
-          <p className="text-xl tracking-tight text-foreground tabular-nums">
+          <p className="text-xl leading-7 font-semibold tracking-[-0.01em] text-foreground tabular-nums">
             {formatPrice(property.preco)}
           </p>
-          <p className="flex items-center gap-1.5 text-sm text-foreground">
-            <MapPin className="size-3.5 shrink-0 text-muted-foreground" />
+          <p className="flex items-center gap-1.5 text-sm font-medium text-foreground">
+            <MapPin className="size-4 shrink-0 text-subtle" />
             <span className="truncate">
               {property.bairro} - {property.cidade}
             </span>
           </p>
           {property.imobiliaria && (
-            <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <p className="flex items-center gap-1.5 text-[0.8125rem] text-subtle">
               <Building2 className="size-3.5 shrink-0" />
               <span className="truncate">{property.imobiliaria}</span>
             </p>
@@ -184,10 +184,10 @@ export function PropertyCard({ property }: PropertyCardProps) {
         </div>
 
         {attributes.length > 0 && (
-          <ul className="flex flex-wrap items-center gap-x-4 gap-y-1.5 border-y py-3 text-sm text-foreground">
+          <ul className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[0.8125rem] text-subtle">
             {attributes.map(({ key, icon: Icon, value, label }) => (
               <li key={key} className="flex items-center gap-1.5">
-                <Icon className="size-3.5 shrink-0 text-muted-foreground" />
+                <Icon className="size-4 shrink-0" />
                 <span className="tabular-nums">
                   {key === "area" ? `${value}${label}` : `${value} ${label}`}
                 </span>
@@ -197,7 +197,7 @@ export function PropertyCard({ property }: PropertyCardProps) {
         )}
 
         {property.descricao && (
-          <p className="line-clamp-2 text-sm text-muted-foreground">
+          <p className="line-clamp-2 text-sm leading-5 text-muted-foreground">
             {property.descricao}
           </p>
         )}
@@ -230,10 +230,12 @@ export function PropertyCard({ property }: PropertyCardProps) {
           </div>
         )}
 
-        <Button onClick={handleViewDetails} className="mt-auto w-full" variant="outline">
-          <ExternalLink />
-          Ver Detalhes
-        </Button>
+        <div className="mt-auto border-t pt-4">
+          <Button onClick={handleViewDetails} className="w-full">
+            <ExternalLink />
+            Ver Detalhes
+          </Button>
+        </div>
       </div>
     </article>
   );
@@ -241,9 +243,9 @@ export function PropertyCard({ property }: PropertyCardProps) {
 
 export function PropertyCardSkeleton() {
   return (
-    <div className="flex flex-col overflow-hidden rounded-xl border bg-card">
-      <Skeleton className="aspect-[4/3] rounded-none" />
-      <div className="space-y-3 p-4">
+    <div className="flex flex-col overflow-hidden rounded-2xl border border-card-edge bg-card">
+      <Skeleton className="h-52 rounded-none" />
+      <div className="space-y-3 p-5 sm:p-6">
         <Skeleton className="h-6 w-36" />
         <Skeleton className="h-4 w-3/4" />
         <Skeleton className="h-3 w-1/2" />

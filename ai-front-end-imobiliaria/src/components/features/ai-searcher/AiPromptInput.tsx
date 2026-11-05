@@ -1,7 +1,7 @@
 "use client";
 
 import { useId, useRef, useState } from "react";
-import { ArrowUp, CircleAlert, Loader2, Search, Sparkles } from "lucide-react";
+import { ArrowUp, BedDouble, CircleAlert, Loader2, MapPin, Search, Sparkles, Wallet, type LucideIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
@@ -109,6 +109,13 @@ const PROMPT_SUGGESTIONS = [
   "Apartamento mobiliado com elevador",
 ];
 
+// Explains what the AI turns into filters; shown under the first search.
+const PROMPT_TIPS: Array<{ title: string; description: string; icon: LucideIcon }> = [
+  { title: "Tipo e localização", description: "Casa, apartamento, terreno; cidade e bairro citados no texto.", icon: MapPin },
+  { title: "Cômodos e vagas", description: "Quartos, suítes, banheiros e vagas de garagem.", icon: BedDouble },
+  { title: "Preço e comodidades", description: "Faixa de valor e itens como piscina, sacada ou elevador.", icon: Wallet },
+];
+
 interface AiPromptInputProps {
   onResults: (response: AiSearchResponse, prompt: string) => void;
   onLoadingChange: (loading: boolean) => void;
@@ -171,34 +178,35 @@ export function AiPromptInput({
 
   const searchForm = (
     <form onSubmit={handleSubmit} className="relative">
-      <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+      <Search className="pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-muted-foreground" />
       <Input
         id={inputId}
         ref={inputRef}
         value={prompt}
         onChange={(e) => setPrompt(e.target.value)}
         placeholder='Ex: "Apartamento de 3 quartos no bairro Amizade com piscina"'
-        className="pr-12 pl-9"
+        className="h-14 rounded-xl pr-36 pl-12 text-base data-[size=default]:h-14"
         disabled={isLoading || disabled}
       />
       {prompt && !isLoading && !disabled && (
         <Button
           type="submit"
-          size="icon-sm"
           aria-label="Buscar com IA"
-          className="absolute top-1/2 right-1 -translate-y-1/2"
+          className="absolute top-1/2 right-2 -translate-y-1/2"
         >
-          <ArrowUp />
+          <Sparkles />
+          Buscar
+          <ArrowUp className="hidden sm:block" />
         </Button>
       )}
       {isLoading && (
-        <Loader2 className="absolute top-1/2 right-3 size-4 -translate-y-1/2 animate-spin text-muted-foreground" />
+        <Loader2 className="absolute top-1/2 right-4 size-5 -translate-y-1/2 animate-spin text-primary" />
       )}
     </form>
   );
 
   const errorBanner = error && (
-    <div className="flex items-start gap-3 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-left text-sm text-foreground">
+    <div className="flex items-start gap-3 rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-left text-sm text-foreground">
       <CircleAlert className="mt-0.5 size-4 shrink-0 text-destructive" />
       <p>{error}</p>
     </div>
@@ -206,54 +214,69 @@ export function AiPromptInput({
 
   if (large) {
     return (
-      <section className="mx-auto w-full max-w-3xl rounded-xl border border-primary/20 bg-primary/5 px-5 py-8 sm:px-10 sm:py-10">
-        <div className="flex flex-col items-center text-center">
-          <span className="flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
-            <Sparkles className="size-6" />
-          </span>
-          <Label
-            htmlFor={inputId}
-            className="mt-4 text-xl tracking-tight text-foreground"
-          >
-            Busque seu imóvel com IA
-          </Label>
-          <p className="mt-2 max-w-lg text-sm text-muted-foreground">
-            Descreva com suas palavras o imóvel que procura. A IA transforma o
-            texto em filtros de tipo, localização, cômodos, preço e comodidades.
-          </p>
+      <Card className="gap-0 py-0">
+        <div className="flex items-start gap-3 px-6 pt-6 pb-5 sm:px-8 sm:pt-8 sm:pb-6">
+          <Sparkles aria-hidden="true" className="size-6 shrink-0 text-sidebar-highlight" strokeWidth={2} />
+          <div className="min-w-0 space-y-2">
+            <Label
+              htmlFor={inputId}
+              className="text-xl leading-6 font-semibold tracking-[-0.01em] text-foreground"
+            >
+              Busque seu imóvel com IA
+            </Label>
+            <p className="text-sm leading-4 font-semibold text-subtle">
+              Descreva com suas palavras o imóvel que procura. A IA transforma o
+              texto em filtros de tipo, localização, cômodos, preço e comodidades.
+            </p>
+          </div>
         </div>
 
-        <div className="mt-6 space-y-4">
-          {searchForm}
-          {errorBanner}
-        </div>
+        <div className="space-y-6 px-6 pb-6 sm:px-8 sm:pb-8">
+          <div className="space-y-4">
+            {searchForm}
+            {errorBanner}
+          </div>
 
-        <div className="mt-6 space-y-2.5">
-          <p className="text-center text-xs tracking-wide text-muted-foreground uppercase">
-            Experimente
-          </p>
-          <div className="flex flex-wrap justify-center gap-2">
-            {PROMPT_SUGGESTIONS.map((suggestion) => (
-              <button
-                key={suggestion}
-                type="button"
-                onClick={() => handleSuggestionClick(suggestion)}
-                disabled={isLoading || disabled}
-                className="cursor-pointer rounded-full border bg-card px-3 py-1.5 text-sm text-foreground transition-colors outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring/40 disabled:pointer-events-none disabled:opacity-50"
-              >
-                {suggestion}
-              </button>
+          <div className="space-y-3">
+            <p className="text-sm leading-4 font-semibold text-subtle">Experimente</p>
+            <div className="flex flex-wrap gap-2">
+              {PROMPT_SUGGESTIONS.map((suggestion) => (
+                <button
+                  key={suggestion}
+                  type="button"
+                  onClick={() => handleSuggestionClick(suggestion)}
+                  disabled={isLoading || disabled}
+                  className="flex cursor-pointer items-center gap-2 rounded-lg bg-muted px-3.5 py-2.5 text-sm text-foreground transition-colors outline-none hover:bg-secondary focus-visible:ring-[3px] focus-visible:ring-primary/25 disabled:pointer-events-none disabled:opacity-50"
+                >
+                  <Search className="size-3.5 text-subtle" aria-hidden="true" />
+                  {suggestion}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid gap-4 border-t pt-6 md:grid-cols-3">
+            {PROMPT_TIPS.map((tip) => (
+              <div className="flex items-start gap-3 rounded-xl bg-muted p-4" key={tip.title}>
+                <span className="flex shrink-0 items-center justify-center rounded-xl bg-primary/15 p-[9px] text-primary">
+                  <tip.icon className="size-5" aria-hidden="true" />
+                </span>
+                <div className="min-w-0 space-y-1">
+                  <p className="text-sm font-semibold text-foreground">{tip.title}</p>
+                  <p className="text-[0.8125rem] leading-5 text-subtle">{tip.description}</p>
+                </div>
+              </div>
             ))}
           </div>
         </div>
-      </section>
+      </Card>
     );
   }
 
   return (
-    <Card className="gap-4 p-6 sm:p-8">
+    <Card className="gap-5 px-6 py-6 sm:px-8">
       <div className="flex items-center gap-3">
-        <span className="hidden size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary sm:flex">
+        <span className="hidden shrink-0 items-center justify-center rounded-xl bg-primary/15 p-[9px] text-primary sm:flex">
           <Sparkles className="size-5" />
         </span>
         <div className="min-w-0 flex-1">
@@ -268,12 +291,12 @@ export function AiPromptInput({
 
       {activeFilters.length > 0 && (
         <div className="space-y-2">
-          <p className="text-xs tracking-wide text-muted-foreground uppercase">
+          <p className="text-sm leading-4 font-semibold text-subtle">
             Filtros interpretados pela IA
           </p>
-          <div className="flex flex-wrap gap-1.5">
+          <div className="flex flex-wrap gap-2">
             {activeFilters.map((f) => (
-              <Badge key={f.key} variant="outline" className="bg-card">
+              <Badge key={f.key} variant="secondary" className="px-2.5 py-1 text-[0.8125rem] font-medium">
                 <span className="text-muted-foreground">{f.label}:</span>
                 <span>{f.value}</span>
               </Badge>

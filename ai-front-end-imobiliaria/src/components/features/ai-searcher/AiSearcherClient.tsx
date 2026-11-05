@@ -51,7 +51,7 @@ const SORT_OPTIONS: { value: SortMode; label: string }[] = [
 ];
 
 const PROPERTY_GRID_CLASS =
-  "grid gap-4 @lg:grid-cols-2 @3xl:grid-cols-3 @5xl:grid-cols-4";
+  "grid gap-6 @lg:grid-cols-2 @3xl:grid-cols-3 @6xl:grid-cols-4";
 
 const RELAXED_FILTER_LABELS: Record<string, string> = {
   "comodidades.academia": "academia",
@@ -545,7 +545,7 @@ export function AiSearcherClient() {
       }
       actions={
         <div className="flex items-center gap-2">
-          <span className="hidden text-sm text-muted-foreground sm:inline">
+          <span className="hidden text-sm font-semibold text-subtle sm:inline">
             Modo de busca
           </span>
           <ToggleGroup
@@ -554,12 +554,11 @@ export function AiSearcherClient() {
             onValueChange={handleModeChange}
             role="radiogroup"
             aria-label="Modo de busca"
-            className="rounded-lg p-1"
           >
             <ToggleGroupItem
               value="ai"
               aria-label="Busca por IA"
-              className="h-8 cursor-pointer gap-1.5 rounded-md px-3"
+              className="cursor-pointer gap-1.5"
             >
               <Sparkles className="size-3.5" />
               IA
@@ -567,7 +566,7 @@ export function AiSearcherClient() {
             <ToggleGroupItem
               value="conventional"
               aria-label="Busca Convencional"
-              className="h-8 cursor-pointer gap-1.5 rounded-md px-3"
+              className="cursor-pointer gap-1.5"
             >
               <SlidersHorizontal className="size-3.5" />
               Filtros
@@ -586,11 +585,11 @@ export function AiSearcherClient() {
           className={
             isAiMode
               ? undefined
-              : "grid items-start gap-6 lg:grid-cols-[18rem_minmax(0,1fr)] xl:grid-cols-[20rem_minmax(0,1fr)]"
+              : "grid items-start gap-6 lg:grid-cols-[20rem_minmax(0,1fr)] xl:grid-cols-[22rem_minmax(0,1fr)]"
           }
         >
           {!isAiMode && (
-            <Skeleton className="hidden h-[36rem] rounded-xl lg:block" />
+            <Skeleton className="hidden h-[36rem] rounded-2xl lg:block" />
           )}
           <div className="@container min-w-0 space-y-4">
             <p
@@ -634,21 +633,21 @@ export function AiSearcherClient() {
 
   const results = (
     <section aria-label="Resultados da busca" className="@container min-w-0 space-y-4">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div className="space-y-0.5">
-          <h2 className="text-base text-foreground">Imóveis Disponíveis</h2>
+      <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-card-edge bg-card px-6 py-5 shadow-[1px_2px_4px_rgba(0,0,0,0.05)] sm:px-8">
+        <div className="space-y-2">
+          <h2 className="text-xl leading-6 font-semibold tracking-[-0.01em] text-foreground">Imóveis Disponíveis</h2>
           {(!isAiMode || totalItems > 0) && (
-            <p className="text-xs text-muted-foreground tabular-nums">
+            <p className="text-sm leading-4 font-semibold text-subtle tabular-nums">
               {totalItems}{" "}
               {totalItems === 1 ? "imóvel encontrado" : "imóveis encontrados"}
             </p>
           )}
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <label
             htmlFor={sortSelectId}
-            className="cursor-pointer text-sm whitespace-nowrap text-muted-foreground"
+            className="cursor-pointer text-sm font-semibold whitespace-nowrap text-subtle"
           >
             Ordenar por
           </label>
@@ -657,7 +656,7 @@ export function AiSearcherClient() {
             onValueChange={handleSortChange}
             disabled={allowanceExhausted}
           >
-            <SelectTrigger id={sortSelectId} size="sm" className="w-44 cursor-pointer">
+            <SelectTrigger id={sortSelectId} size="sm" className="w-52 cursor-pointer">
               <SelectValue placeholder="Selecione" />
             </SelectTrigger>
             <SelectContent>
@@ -676,7 +675,7 @@ export function AiSearcherClient() {
       </div>
 
       {isAiMode && aiApproximate && (
-        <div className="flex items-start gap-3 rounded-lg border border-warning/30 bg-warning/10 px-4 py-3 text-sm text-foreground">
+        <div className="flex items-start gap-3 rounded-xl border border-warning/30 bg-warning/10 p-4 text-sm text-foreground">
           <TriangleAlert className="mt-0.5 size-4 shrink-0 text-warning" />
           <p>
             Mostrando resultados aproximados
@@ -695,7 +694,7 @@ export function AiSearcherClient() {
       {searchError && (
         <div
           role="alert"
-          className="flex items-start gap-3 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-foreground"
+          className="flex items-start gap-3 rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-foreground"
         >
           <CircleAlert className="mt-0.5 size-4 shrink-0 text-destructive" />
           <p>{searchError}</p>
@@ -723,7 +722,10 @@ export function AiSearcherClient() {
       )}
 
       {properties.length > 0 && (
-        <fieldset disabled={allowanceExhausted} className="min-w-0">
+        <fieldset
+          disabled={allowanceExhausted}
+          className="min-w-0 overflow-hidden rounded-2xl border border-card-edge bg-card shadow-[1px_2px_4px_rgba(0,0,0,0.05)]"
+        >
           <PaginationFooter
             page={effectivePage}
             pageCount={totalPages}
@@ -731,7 +733,7 @@ export function AiSearcherClient() {
             total={totalItems}
             pageSize={perPage}
             itemLabel="imóveis"
-            className="px-0 pt-4 sm:px-0"
+            className="border-t-0"
           />
         </fieldset>
       )}
@@ -758,7 +760,7 @@ export function AiSearcherClient() {
   return (
     <div className="space-y-6">
       {pageHeader}
-      <div className="grid items-start gap-6 lg:grid-cols-[18rem_minmax(0,1fr)] xl:grid-cols-[20rem_minmax(0,1fr)]">
+      <div className="grid items-start gap-6 lg:grid-cols-[20rem_minmax(0,1fr)] xl:grid-cols-[22rem_minmax(0,1fr)]">
         <fieldset
           disabled={allowanceExhausted}
           className="min-w-0 lg:sticky lg:top-0"

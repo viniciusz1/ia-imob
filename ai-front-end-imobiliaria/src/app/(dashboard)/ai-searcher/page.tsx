@@ -17,7 +17,7 @@ export default function AiSearcherPage() {
             title="Buscador com IA"
             description="Carregando o buscador..."
           />
-          <Skeleton className="mx-auto h-80 w-full max-w-3xl rounded-xl" />
+          <Skeleton className="h-80 w-full rounded-2xl" />
         </div>
       }
     >

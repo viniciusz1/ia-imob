@@ -19,7 +19,7 @@ import { StatCard } from "@/components/layout/StatCard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
+import { FilterSelect } from "@/components/ui/filter-select";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -29,6 +29,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { getNewProperties } from "@/services/newPropertiesService";
 import type {
   NewPropertyAgencyGroup,
@@ -217,154 +218,146 @@ export function NewPropertiesClient() {
         </div>
       )}
 
-      <nav
-        className="space-y-4 rounded-2xl border border-card-edge bg-card p-6 sm:px-8"
-        aria-label="Filtrar imóveis por classificação"
-      >
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <div className="relative w-full lg:max-w-md">
-            <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
-            <Input
-              value={search}
-              onChange={(event) => { setSearch(event.target.value); setPage(1); }}
-              aria-label="Buscar imóveis"
-              placeholder="Buscar por imóvel, bairro ou cidade"
-              className="pl-10"
-              size="sm"
+      <Card className="gap-0 p-0">
+        <nav aria-label="Filtrar imóveis por classificação">
+          <div className="flex flex-wrap items-center gap-3 p-5 sm:p-6">
+            <div className="relative min-w-64 flex-1">
+              <Search className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
+              <Input
+                value={search}
+                onChange={(event) => { setSearch(event.target.value); setPage(1); }}
+                aria-label="Buscar imóveis"
+                placeholder="Buscar por imóvel, bairro ou cidade"
+                className="pl-10"
+                size="sm"
+              />
+            </div>
+            <ToggleGroup
+              aria-label="Classificação dos imóveis"
+              className="max-w-full overflow-x-auto"
+              onValueChange={(value) => { setFilter(value as NewPropertyFlagFilter); setPage(1); }}
+              type="single"
+              value={filter}
+            >
+              {FILTERS.map((option) => (
+                <ToggleGroupItem className="gap-1.5" key={option.value} value={option.value}>
+                  {option.value === "opportunity" && <TrendingDown className="size-4" aria-hidden="true" />}
+                  {option.value === "new" && <Sparkles className="size-4" aria-hidden="true" />}
+                  {option.label}
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
+          </div>
+
+          <div className="grid gap-3 border-t p-5 sm:grid-cols-2 sm:p-6 lg:grid-cols-4 2xl:grid-cols-5">
+            <FilterSelect
+              aria-label="Filtrar por imobiliária"
+              emptyValue="all"
+              onValueChange={(value) => { setAgency(value); setPage(1); }}
+              options={[
+                { value: "all", label: "Todas as imobiliárias" },
+                ...(filterOptions?.agencies.map((option) => ({ value: String(option.id), label: option.name })) ?? []),
+              ]}
+              placeholder="Imobiliária"
+              value={agency}
             />
-          </div>
-          <div className="flex flex-wrap gap-2 rounded-md bg-segment px-3 py-2">
-            {FILTERS.map((option) => (
-              <Button
-                key={option.value}
-                type="button"
-                size="xs"
-                variant="ghost"
-                className={cn(
-                  "rounded-sm text-[0.8125rem] font-semibold",
-                  filter === option.value
-                    ? "bg-segment-active text-segment-active-foreground shadow-xs hover:bg-segment-active hover:text-segment-active-foreground"
-                    : "text-segment-foreground hover:bg-transparent hover:text-foreground",
-                )}
-                aria-pressed={filter === option.value}
-                onClick={() => { setFilter(option.value); setPage(1); }}
-              >
-                {option.value === "opportunity" && <TrendingDown className="size-4" aria-hidden="true" />}
-                {option.value === "new" && <Sparkles className="size-4" aria-hidden="true" />}
-                {option.label}
+            <FilterSelect
+              aria-label="Filtrar por tipo"
+              emptyValue="all"
+              onValueChange={(value) => { setPropertyType(value); setPage(1); }}
+              options={[
+                { value: "all", label: "Todos os tipos" },
+                ...(filterOptions?.types.map((type) => ({ value: type, label: type })) ?? []),
+              ]}
+              placeholder="Tipo"
+              value={propertyType}
+            />
+            <FilterSelect
+              aria-label="Filtrar por cidade"
+              emptyValue="all"
+              onValueChange={(value) => { setCity(value); setPage(1); }}
+              options={[
+                { value: "all", label: "Todas as cidades" },
+                ...(filterOptions?.cities.map((option) => ({ value: option, label: option })) ?? []),
+              ]}
+              placeholder="Cidade"
+              value={city}
+            />
+            <FilterSelect
+              aria-label="Filtrar por bairro"
+              emptyValue="all"
+              onValueChange={(value) => { setNeighborhood(value); setPage(1); }}
+              options={[
+                { value: "all", label: "Todos os bairros" },
+                ...(filterOptions?.neighborhoods.map((option) => ({ value: option, label: option })) ?? []),
+              ]}
+              placeholder="Bairro"
+              value={neighborhood}
+            />
+            <FilterSelect
+              aria-label="Filtrar por finalidade"
+              emptyValue="all"
+              onValueChange={(value) => { setPurpose(value); setPage(1); }}
+              options={[
+                { value: "all", label: "Todas as finalidades" },
+                ...(filterOptions?.purposes.map((option) => ({
+                  value: option,
+                  label: option === "locacao" ? "Locação" : "Venda",
+                })) ?? []),
+              ]}
+              placeholder="Finalidade"
+              value={purpose}
+            />
+            <FilterSelect
+              aria-label="Filtrar por quartos"
+              emptyValue="all"
+              onValueChange={(value) => { setBedrooms(value as CountFilterValue); setPage(1); }}
+              options={[
+                { value: "all", label: "Qualquer quarto" },
+                ...COUNT_FILTER_VALUES.map((value) => ({ value, label: countLabel(value, "quartos") })),
+              ]}
+              placeholder="Quartos"
+              value={bedrooms}
+            />
+            <FilterSelect
+              aria-label="Filtrar por banheiros"
+              emptyValue="all"
+              onValueChange={(value) => { setBathrooms(value as CountFilterValue); setPage(1); }}
+              options={[
+                { value: "all", label: "Qualquer banheiro" },
+                ...COUNT_FILTER_VALUES.map((value) => ({ value, label: countLabel(value, "banheiros") })),
+              ]}
+              placeholder="Banheiros"
+              value={bathrooms}
+            />
+            <FilterSelect
+              aria-label="Filtrar por vagas"
+              emptyValue="all"
+              onValueChange={(value) => { setParkingSpaces(value as CountFilterValue); setPage(1); }}
+              options={[
+                { value: "all", label: "Qualquer vaga" },
+                ...COUNT_FILTER_VALUES.map((value) => ({ value, label: countLabel(value, "vagas") })),
+              ]}
+              placeholder="Vagas"
+              value={parkingSpaces}
+            />
+            <Select value={sort} onValueChange={(value) => { setSort(value as NonNullable<NewPropertiesParams["sort"]>); setPage(1); }}>
+              <SelectTrigger className="w-full" size="sm" aria-label="Ordenar imóveis"><SelectValue placeholder="Ordenar" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="identified_desc">Mais recentes</SelectItem>
+                <SelectItem value="identified_asc">Mais antigos</SelectItem>
+                <SelectItem value="opportunity_desc">Melhor oportunidade</SelectItem>
+              </SelectContent>
+            </Select>
+            {hasPropertyFilters && (
+              <Button className="justify-self-start" type="button" size="sm" variant="ghost" onClick={clearPropertyFilters}>
+                <X className="size-4" aria-hidden="true" />
+                Limpar filtros
               </Button>
-            ))}
+            )}
           </div>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-3 border-t pt-4">
-          <Select value={agency} onValueChange={(value) => { setAgency(value); setPage(1); }}>
-            <SelectTrigger size="sm" aria-label="Filtrar por imobiliária"><SelectValue placeholder="Imobiliária" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todas as imobiliárias</SelectItem>
-              {filterOptions?.agencies.map((option) => (
-                <SelectItem key={option.id} value={String(option.id)}>{option.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <Select value={propertyType} onValueChange={(value) => { setPropertyType(value); setPage(1); }}>
-            <SelectTrigger size="sm" aria-label="Filtrar por tipo">
-              <SelectValue placeholder="Tipo" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos os tipos</SelectItem>
-              {filterOptions?.types.map((type) => (
-                <SelectItem key={type} value={type}>{type}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <Select value={city} onValueChange={(value) => { setCity(value); setPage(1); }}>
-            <SelectTrigger size="sm" aria-label="Filtrar por cidade">
-              <SelectValue placeholder="Cidade" />
-            </SelectTrigger>
-            <SelectContent position="popper" align="start" className="max-h-64 overscroll-contain">
-              <SelectItem value="all">Todas as cidades</SelectItem>
-              {filterOptions?.cities.map((option) => (
-                <SelectItem key={option} value={option}>{option}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <Select value={neighborhood} onValueChange={(value) => { setNeighborhood(value); setPage(1); }}>
-            <SelectTrigger size="sm" aria-label="Filtrar por bairro"><SelectValue placeholder="Bairro" /></SelectTrigger>
-            <SelectContent position="popper" align="start" className="max-h-64 overscroll-contain">
-              <SelectItem value="all">Todos os bairros</SelectItem>
-              {filterOptions?.neighborhoods.map((option) => (
-                <SelectItem key={option} value={option}>{option}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <Select value={purpose} onValueChange={(value) => { setPurpose(value); setPage(1); }}>
-            <SelectTrigger size="sm" aria-label="Filtrar por finalidade"><SelectValue placeholder="Finalidade" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todas as finalidades</SelectItem>
-              {filterOptions?.purposes.map((option) => (
-                <SelectItem key={option} value={option}>{option === "locacao" ? "Locação" : "Venda"}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <Select value={bedrooms} onValueChange={(value) => { setBedrooms(value as CountFilterValue); setPage(1); }}>
-            <SelectTrigger size="sm" aria-label="Filtrar por quartos">
-              <SelectValue placeholder="Quartos" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Qualquer quarto</SelectItem>
-              {COUNT_FILTER_VALUES.map((value) => (
-                <SelectItem key={value} value={value}>{countLabel(value, "quartos")}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <Select value={bathrooms} onValueChange={(value) => { setBathrooms(value as CountFilterValue); setPage(1); }}>
-            <SelectTrigger size="sm" aria-label="Filtrar por banheiros">
-              <SelectValue placeholder="Banheiros" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Qualquer banheiro</SelectItem>
-              {COUNT_FILTER_VALUES.map((value) => (
-                <SelectItem key={value} value={value}>{countLabel(value, "banheiros")}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <Select value={parkingSpaces} onValueChange={(value) => { setParkingSpaces(value as CountFilterValue); setPage(1); }}>
-            <SelectTrigger size="sm" aria-label="Filtrar por vagas">
-              <SelectValue placeholder="Vagas" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Qualquer vaga</SelectItem>
-              {COUNT_FILTER_VALUES.map((value) => (
-                <SelectItem key={value} value={value}>{countLabel(value, "vagas")}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <Select value={sort} onValueChange={(value) => { setSort(value as NonNullable<NewPropertiesParams["sort"]>); setPage(1); }}>
-            <SelectTrigger size="sm" aria-label="Ordenar imóveis"><SelectValue placeholder="Ordenar" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="identified_desc">Mais recentes</SelectItem>
-              <SelectItem value="identified_asc">Mais antigos</SelectItem>
-              <SelectItem value="opportunity_desc">Melhor oportunidade</SelectItem>
-            </SelectContent>
-          </Select>
-
-          {hasPropertyFilters && (
-            <Button type="button" size="sm" variant="ghost" onClick={clearPropertyFilters}>
-              <X className="size-4" aria-hidden="true" />
-              Limpar filtros
-            </Button>
-          )}
-        </div>
-      </nav>
+        </nav>
+      </Card>
 
       {query.isPending ? (
         <NewPropertiesSkeleton />
