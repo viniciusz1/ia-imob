@@ -15,24 +15,27 @@ import {
     Radar,
     ShieldCheck,
     Sparkles,
-    TrendingDown,
     Users,
+    Zap,
+    type LucideIcon,
 } from "lucide-react";
 
 import {
-    DashboardFigure,
-    DashboardLinkRow,
-    DashboardPanel,
-} from "@/components/features/dashboard/DashboardPanel";
+    AuctionsBlock,
+    NewPropertiesBlock,
+    PlatformBlock,
+    ValuationsBlock,
+    type PlatformLink,
+} from "@/components/features/dashboard/DashboardBlocks";
+import { DashboardList, DashboardPanel, DashboardShortcut } from "@/components/features/dashboard/DashboardPanel";
 import {
-    useAuctionsTotal,
-    useNewPropertiesTotals,
     usePropertiesTotal,
-    useValuationsTotal,
+    useRecentNewProperties,
+    useRecentValuations,
+    useUpcomingAuctions,
 } from "@/components/features/dashboard/useDashboardTotals";
 import { StatCard } from "@/components/layout/StatCard";
 import { Button } from "@/components/ui/button";
-import { ChartLegendList, DonutChart, type ChartSegment } from "@/components/ui/charts";
 import { dashboardModules, type DashboardModule } from "@/config/modules";
 import { hasPermission } from "@/lib/permissions";
 import { useAuthStore } from "@/store/useAuthStore";
@@ -45,13 +48,38 @@ const fallbackDescriptions: Record<string, string> = {
     "site-settings": "Personalize o site público da imobiliária.",
 };
 
+const SHORTCUT_ICONS: Record<string, LucideIcon> = {
+    properties: Building2,
+    valuations: Calculator,
+    "ai-searcher": Bot,
+    "market-analytics": BarChart3,
+    "valuation-analytics": ClipboardList,
+    users: Users,
+    roles: ShieldCheck,
+    billing: CreditCard,
+    "site-settings": Globe,
+};
+
+// Order of the "Atalhos" list: day-to-day work first, then analyses, then management.
+const SHORTCUT_ORDER = [
+    "properties",
+    "valuations",
+    "ai-searcher",
+    "market-analytics",
+    "valuation-analytics",
+    "users",
+    "roles",
+    "billing",
+    "site-settings",
+];
+
 const modulesById = new Map(dashboardModules.map((module) => [module.id, module]));
 
 function descriptionOf(module: DashboardModule): string | undefined {
     return module.dashboard?.description ?? fallbackDescriptions[module.id];
 }
 
-/** Count for a KPI: "…" never shows; "—" when the request failed. */
+/** Count for a KPI; "—" when the request failed. */
 function countLabel(value: number | undefined, isError: boolean): string {
     if (isError || value === undefined) return "—";
     return value.toLocaleString("pt-BR");
@@ -67,25 +95,23 @@ function todayLabel(): string {
     return label.charAt(0).toUpperCase() + label.slice(1);
 }
 
-/** Legend entry with the color dot of its chart segment. */
-function LegendLabel({ className, children }: { className: string; children: string }) {
-    return (
-        <>
-            <span aria-hidden="true" className={`size-2.5 shrink-0 rounded-full ${className}`} />
-            {children}
-        </>
-    );
-}
-
 function StatSkeleton() {
     return (
-        <div aria-hidden="true" className="h-[7.75rem] animate-pulse rounded-2xl bg-card">
+        <div aria-hidden="true" className="h-[8.5rem] animate-pulse rounded-2xl bg-card">
             <div className="space-y-4 p-6">
                 <span className="block h-4 w-28 rounded bg-muted" />
                 <span className="block h-9 w-36 rounded bg-muted" />
             </div>
         </div>
     );
+}
+
+interface Shortcut {
+    key: string;
+    href: string;
+    icon: LucideIcon;
+    title: string;
+    description?: string;
 }
 
 export function DashboardContent() {
@@ -111,50 +137,94 @@ export function DashboardContent() {
     const auctions = visible("auctions");
     const aiSearcher = visible("ai-searcher");
     const valuations = visible("valuations");
-    const marketAnalytics = visible("market-analytics");
-    const valuationAnalytics = visible("valuation-analytics");
-    const management = ["users", "roles", "billing", "site-settings"]
-        .map(visible)
-        .filter((module): module is DashboardModule => module !== null);
-    const platform = ["platform-agencies", "crawler-operations"]
-        .map(visible)
-        .filter((module): module is DashboardModule => module !== null);
 
     const canViewValuations = valuations !== null && hasPermission(userPermissions, "valuations.view");
     const canCreateValuations = valuations !== null && hasPermission(userPermissions, "valuations.create");
 
     const propertiesTotal = usePropertiesTotal(properties !== null);
-    const newTotals = useNewPropertiesTotals(newProperties !== null);
-    const auctionsTotal = useAuctionsTotal(auctions !== null && user !== null);
-    const valuationsTotal = useValuationsTotal(canViewValuations);
-
-    const newSegments: ChartSegment[] = [
-        {
-            key: "new",
-            label: <LegendLabel className="bg-info">Novidades</LegendLabel>,
-            tone: "info",
-            value: newTotals.data?.newCount ?? 0,
-        },
-        {
-            key: "opportunities",
-            label: <LegendLabel className="bg-success">Oportunidades</LegendLabel>,
-            tone: "success",
-            value: newTotals.data?.opportunities ?? 0,
-        },
-    ];
+    const newData = useRecentNewProperties(newProperties !== null);
+    const valuationsData = useRecentValuations(canViewValuations);
+    const auctionsData = useUpcomingAuctions(auctions !== null && user !== null);
 
     const quickActions = [
         properties && { href: "/properties/create", label: "Cadastrar imóvel", icon: Plus },
         canCreateValuations && { href: "/avaliacoes", label: "Avaliar imóvel", icon: Calculator },
         aiSearcher && { href: aiSearcher.href, label: "Buscar com IA", icon: Bot },
-    ].filter((action): action is { href: string; label: string; icon: typeof Plus } => Boolean(action));
+    ].filter((action): action is { href: string; label: string; icon: LucideIcon } => Boolean(action));
 
-    const hasStats = properties !== null || newProperties !== null || auctions !== null || canViewValuations;
+    const shortcuts: Shortcut[] = [];
+    for (const id of SHORTCUT_ORDER) {
+        const entry = visible(id);
+        if (!entry) continue;
+        shortcuts.push({
+            key: entry.id,
+            href: entry.href,
+            icon: SHORTCUT_ICONS[entry.id] ?? entry.icon,
+            title: entry.id === "properties" ? "Gerenciar imóveis" : entry.title,
+            description: descriptionOf(entry),
+        });
+        if (entry.id === "properties") {
+            shortcuts.push({
+                key: "properties-create",
+                href: "/properties/create",
+                icon: Plus,
+                title: "Cadastrar imóvel",
+                description: "Preencha as etapas e publique um novo imóvel.",
+            });
+        }
+    }
+
+    const platformLinks: PlatformLink[] = ["platform-agencies", "crawler-operations"]
+        .map(visible)
+        .filter((module): module is DashboardModule => module !== null)
+        .map((module) => ({
+            href: module.href,
+            icon: module.id === "crawler-operations" ? Radar : Landmark,
+            title: module.title,
+            description:
+                descriptionOf(module) ??
+                (module.id === "crawler-operations"
+                    ? "Prospecção, fila, execuções e qualidade da coleta."
+                    : "Imobiliárias clientes, planos e acessos."),
+        }));
+
+    // A lone KPI only repeats its own block below, so the row needs at least two.
+    const statCount = [properties, newProperties, auctions].filter(Boolean).length + (canViewValuations ? 1 : 0);
+    const hasStats = statCount >= 2;
+    // Without the agency blocks (e.g. a Platform Admin), the auctions list joins
+    // the main column so both columns carry content.
+    const hasAgencyMain = newProperties !== null || canViewValuations;
+
+    const mainBlocks = [
+        newProperties && <NewPropertiesBlock href={newProperties.href} key="new-properties" />,
+        canViewValuations && <ValuationsBlock href="/avaliacoes" key="valuations" />,
+        platformLinks.length > 0 && <PlatformBlock key="platform" links={platformLinks} />,
+        !hasAgencyMain && auctions && <AuctionsBlock href={auctions.href} key="auctions" />,
+    ].filter(Boolean);
+
+    const sideBlocks = [
+        shortcuts.length > 0 && (
+            <DashboardPanel description="Vá direto para o que você usa." icon={Zap} key="shortcuts" title="Atalhos">
+                <DashboardList label="Atalhos">
+                    {shortcuts.map((shortcut) => (
+                        <DashboardShortcut
+                            description={shortcut.description}
+                            href={shortcut.href}
+                            icon={shortcut.icon}
+                            key={shortcut.key}
+                            title={shortcut.title}
+                        />
+                    ))}
+                </DashboardList>
+            </DashboardPanel>
+        ),
+        hasAgencyMain && auctions && <AuctionsBlock href={auctions.href} key="auctions" />,
+    ].filter(Boolean);
 
     return (
         <div className="space-y-6">
             <div className="flex flex-wrap items-end justify-between gap-4">
-                <div className="space-y-1.5">
+                <div className="space-y-2">
                     <h1 className="text-2xl leading-8 font-semibold tracking-[-0.01em] text-foreground">
                         {firstName ? `Olá, ${firstName}` : "Olá!"}
                     </h1>
@@ -165,7 +235,7 @@ export function DashboardContent() {
                 {quickActions.length > 0 && (
                     <div className="flex flex-wrap items-center gap-2">
                         {quickActions.map((action, index) => (
-                            <Button asChild key={action.href + action.label} variant={index === 0 ? "default" : "outline"}>
+                            <Button asChild key={action.href + action.label} variant={index === 0 ? "default" : "soft"}>
                                 <Link href={action.href}>
                                     <action.icon />
                                     {action.label}
@@ -191,7 +261,7 @@ export function DashboardContent() {
                             />
                         ))}
                     {newProperties &&
-                        (newTotals.isPending ? (
+                        (newData.isPending ? (
                             <StatSkeleton />
                         ) : (
                             <StatCard
@@ -200,11 +270,11 @@ export function DashboardContent() {
                                 icon={Sparkles}
                                 title="Novidades"
                                 tone="info"
-                                value={countLabel(newTotals.data?.newCount, newTotals.isError)}
+                                value={countLabel(newData.data?.newCount, newData.isError)}
                             />
                         ))}
                     {canViewValuations &&
-                        (valuationsTotal.isPending ? (
+                        (valuationsData.isPending ? (
                             <StatSkeleton />
                         ) : (
                             <StatCard
@@ -213,11 +283,11 @@ export function DashboardContent() {
                                 icon={Calculator}
                                 title="Avaliações"
                                 tone="success"
-                                value={countLabel(valuationsTotal.data, valuationsTotal.isError)}
+                                value={countLabel(valuationsData.data?.total, valuationsData.isError)}
                             />
                         ))}
                     {auctions &&
-                        (user === null || auctionsTotal.isPending ? (
+                        (user === null || auctionsData.isPending ? (
                             <StatSkeleton />
                         ) : (
                             <StatCard
@@ -226,208 +296,25 @@ export function DashboardContent() {
                                 icon={Gavel}
                                 title="Leilões"
                                 tone="warning"
-                                value={countLabel(auctionsTotal.data, auctionsTotal.isError)}
+                                value={countLabel(auctionsData.data?.total, auctionsData.isError)}
                             />
                         ))}
                 </div>
             )}
 
-            <div className="grid items-stretch gap-6 lg:grid-cols-2 2xl:grid-cols-3">
-                {platform.length > 0 && (
-                    <DashboardPanel
-                        description="Imobiliárias clientes e fontes de dados de mercado."
-                        icon={Landmark}
-                        title="Plataforma"
-                    >
-                        {platform.map((module) => (
-                            <DashboardLinkRow
-                                description={descriptionOf(module)}
-                                href={module.href}
-                                icon={module.id === "crawler-operations" ? Radar : Landmark}
-                                key={module.id}
-                                title={module.title}
-                                tone="primary"
-                            />
-                        ))}
-                    </DashboardPanel>
-                )}
-                {properties && (
-                    <DashboardPanel
-                        action={{ href: properties.href, label: "Ver carteira" }}
-                        description="Sua carteira e os atalhos do dia a dia."
-                        href={properties.href}
-                        icon={Building2}
-                        linkLabel="Imóveis"
-                        title="Imóveis"
-                    >
-                        <DashboardLinkRow
-                            description={descriptionOf(properties)}
-                            href={properties.href}
-                            icon={Building2}
-                            label="Gerenciar imóveis"
-                            meta={propertiesTotal.isPending ? undefined : countLabel(propertiesTotal.data, propertiesTotal.isError)}
-                            title="Gerenciar imóveis"
-                            tone="primary"
-                        />
-                        <DashboardLinkRow
-                            description="Preencha as etapas e publique um novo imóvel."
-                            href="/properties/create"
-                            icon={Plus}
-                            title="Cadastrar imóvel"
-                        />
-                        {aiSearcher && (
-                            <DashboardLinkRow
-                                description={descriptionOf(aiSearcher)}
-                                href={aiSearcher.href}
-                                icon={Bot}
-                                title="Buscar com IA"
-                            />
-                        )}
-                    </DashboardPanel>
-                )}
-
-                {newProperties && (
-                    <DashboardPanel
-                        action={{ href: newProperties.href, label: "Ver todos" }}
-                        description="Anúncios recentes e oportunidades do mercado."
-                        href={newProperties.href}
-                        icon={Sparkles}
-                        linkLabel="Novos imóveis"
-                        title="Novos imóveis"
-                    >
-                        {newTotals.isPending ? (
-                            <div className="flex items-center gap-6">
-                                <span className="size-[120px] shrink-0 animate-pulse rounded-full bg-muted" />
-                                <span className="h-24 flex-1 animate-pulse rounded-xl bg-muted" />
-                            </div>
-                        ) : (
-                            <div className="flex items-center gap-6">
-                                <DonutChart label="Novidades e oportunidades" segments={newSegments} size={120} />
-                                <ChartLegendList segments={newSegments} />
-                            </div>
-                        )}
-                        <DashboardLinkRow
-                            description="Imóveis com preço abaixo do mercado."
-                            href={`${newProperties.href}`}
-                            icon={TrendingDown}
-                            meta={newTotals.isPending ? undefined : countLabel(newTotals.data?.opportunities, newTotals.isError)}
-                            title="Ver oportunidades"
-                        />
-                    </DashboardPanel>
-                )}
-
-                {(valuations || valuationAnalytics) && (
-                    <DashboardPanel
-                        description="Valores de mercado a partir de imóveis comparáveis."
-                        href={valuations?.href ?? valuationAnalytics?.href}
-                        icon={Calculator}
-                        linkLabel="Avaliações"
-                        title="Avaliações"
-                    >
-                        {canViewValuations && (
-                            <DashboardFigure
-                                caption="Avaliações salvas"
-                                loading={valuationsTotal.isPending}
-                                value={countLabel(valuationsTotal.data, valuationsTotal.isError)}
-                            />
-                        )}
-                        {valuations && (
-                            <DashboardLinkRow
-                                description={descriptionOf(valuations)}
-                                href={valuations.href}
-                                icon={Calculator}
-                                title="Avaliar imóvel"
-                                tone="primary"
-                            />
-                        )}
-                        {valuationAnalytics && (
-                            <DashboardLinkRow
-                                description={descriptionOf(valuationAnalytics)}
-                                href={valuationAnalytics.href}
-                                icon={ClipboardList}
-                                title={valuationAnalytics.title}
-                            />
-                        )}
-                    </DashboardPanel>
-                )}
-
-                {auctions && (
-                    <DashboardPanel
-                        description="Judiciais, extrajudiciais e CAIXA na região."
-                        href={auctions.href}
-                        icon={Gavel}
-                        linkLabel="Leilões"
-                        title="Leilões"
-                    >
-                        <DashboardFigure
-                            caption="Leilões monitorados"
-                            loading={user !== null && auctionsTotal.isPending}
-                            value={countLabel(auctionsTotal.data, auctionsTotal.isError)}
-                        />
-                        <DashboardLinkRow
-                            description={descriptionOf(auctions)}
-                            href={auctions.href}
-                            icon={Gavel}
-                            label={auctions.dashboard?.title ?? auctions.title}
-                            title="Ver leilões"
-                            tone="primary"
-                        />
-                    </DashboardPanel>
-                )}
-
-                {marketAnalytics && (
-                    <DashboardPanel
-                        description="Estoque, preços e rankings do mercado coletado."
-                        href={marketAnalytics.href}
-                        icon={BarChart3}
-                        linkLabel="Análises"
-                        title="Análises"
-                    >
-                        <DashboardLinkRow
-                            description={descriptionOf(marketAnalytics)}
-                            href={marketAnalytics.href}
-                            icon={BarChart3}
-                            title={marketAnalytics.title}
-                            tone="primary"
-                        />
-                        {aiSearcher && (
-                            <DashboardLinkRow
-                                description="Descreva o imóvel e a IA monta a busca na base."
-                                href={aiSearcher.href}
-                                icon={Bot}
-                                label="Buscador com IA na base de mercado"
-                                title="Pesquisar a base de mercado"
-                            />
-                        )}
-                    </DashboardPanel>
-                )}
-
-                {management.length > 0 && (
-                    <DashboardPanel
-                        description="Equipe, permissões, plano e site."
-                        icon={ShieldCheck}
-                        title="Gestão"
-                    >
-                        {management.map((module) => (
-                            <DashboardLinkRow
-                                description={descriptionOf(module)}
-                                href={module.href}
-                                icon={MANAGEMENT_ICONS[module.id] ?? module.icon}
-                                key={module.id}
-                                title={module.title}
-                            />
-                        ))}
-                    </DashboardPanel>
-                )}
-
-            </div>
+            {mainBlocks.length > 0 && sideBlocks.length > 0 ? (
+                <div className="grid items-start gap-6 xl:grid-cols-3">
+                    <div className="min-w-0 space-y-6 xl:col-span-2">{mainBlocks}</div>
+                    <div className="min-w-0 space-y-6">{sideBlocks}</div>
+                </div>
+            ) : (
+                (mainBlocks.length > 0 || sideBlocks.length > 0) && (
+                    <div className="grid items-start gap-6 lg:grid-cols-2">
+                        {mainBlocks}
+                        {sideBlocks}
+                    </div>
+                )
+            )}
         </div>
     );
 }
-
-const MANAGEMENT_ICONS: Record<string, typeof Users> = {
-    users: Users,
-    roles: ShieldCheck,
-    billing: CreditCard,
-    "site-settings": Globe,
-};
