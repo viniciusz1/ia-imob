@@ -4,6 +4,7 @@ import { LayoutDashboard } from "lucide-react";
 import { usePathname } from "next/navigation";
 
 import { SidebarNav, SidebarNavLink, SidebarNavSection } from "@/components/layout/SidebarNav";
+import { TopbarTitle } from "@/components/layout/TopbarTitle";
 import { dashboardModules, type DashboardModule } from "@/config/modules";
 import { hasPermission } from "@/lib/permissions";
 import { useAuthStore } from "@/store/useAuthStore";
@@ -74,4 +75,12 @@ export function AppNavigation() {
             })}
         </SidebarNav>
     );
+}
+
+/** Topbar title of the CRM: the module the current route belongs to. */
+export function AppTopbarTitle() {
+    const pathname = usePathname();
+    const current = [dashboardItem, ...dashboardModules].find((candidate) => isActive(candidate, pathname));
+
+    return <TopbarTitle icon={current?.icon ?? LayoutDashboard} title={current?.title ?? "IA Imob"} />;
 }

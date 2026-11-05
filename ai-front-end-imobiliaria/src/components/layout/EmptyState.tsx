@@ -36,7 +36,7 @@ export function EmptyState({ icon: Icon, title, description, action, variant = "
     }
 
     return (
-        <Card className={cn("items-center justify-center gap-0 border-dashed py-16 shadow-none", className)}>
+        <Card className={cn("items-center justify-center gap-0 border-dashed border-border py-16 shadow-none", className)}>
             <div className="flex size-14 items-center justify-center rounded-2xl bg-muted">
                 <Icon className="size-7 text-muted-foreground" />
             </div>

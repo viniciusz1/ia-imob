@@ -37,7 +37,7 @@ export function SectionHeader({
                     </span>
                 )}
                 <div className="min-w-0">
-                    <Heading className="truncate text-base font-semibold text-foreground sm:text-lg">{title}</Heading>
+                    <Heading className="truncate text-lg font-semibold text-foreground">{title}</Heading>
                     {description && <p className="mt-0.5 truncate text-xs text-muted-foreground sm:text-[0.8125rem]">{description}</p>}
                 </div>
             </div>

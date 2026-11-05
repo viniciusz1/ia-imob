@@ -6,47 +6,16 @@ import { useEffect, useState } from "react";
 
 import { Loader2, ShieldCheck } from "lucide-react";
 
-import { PlatformAdminNavigation } from "@/components/features/admin/navigation/PlatformAdminNavigation";
+import { PlatformAdminNavigation, PlatformAdminTopbar } from "@/components/features/admin/navigation/PlatformAdminNavigation";
 import { UserNav } from "@/components/features/auth/UserNav";
 import { CrawlerAutoRefresh } from "@/components/features/crawler/CrawlerAutoRefresh";
 import { shouldAutoRefreshCrawlerPath } from "@/components/features/crawler/CrawlerRefreshBoundary";
 import { AppShell } from "@/components/layout/AppShell";
-import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
 import { SidebarBrand } from "@/components/layout/SidebarBrand";
 import { SidebarUserCard } from "@/components/layout/SidebarUserCard";
 import { authService } from "@/services/authService";
 import { clearAuthenticatedSession } from "@/services/authSessionCookie";
 import { hasPermission } from "@/lib/permissions";
-
-const BREADCRUMB_LABELS: Record<string, string> = {
-    admin: "Administração",
-    agencies: "Agências",
-    new: "Novo cadastro",
-    crawler: "Crawler",
-    prospects: "Prospecção",
-    operations: "Operações",
-    quality: "Qualidade",
-    settings: "Configurações",
-    crawls: "Crawls",
-    discoveries: "Discoveries",
-    onboarding: "Onboarding",
-    profiles: "Perfis de extração",
-    schedule: "Agenda",
-    runs: "Execuções",
-    queue: "Fila",
-    batches: "Execuções em lote",
-};
-
-const BREADCRUMB_PATH_LABELS: Record<string, string> = {
-    "/admin/crawler/agencies": "Agências",
-};
-
-// Route segments that group pages but have no page of their own.
-const UNLINKED_BREADCRUMBS = [
-    /^\/admin\/crawler\/runs$/,
-    /^\/admin\/crawler\/discoveries$/,
-    /^\/admin\/crawler\/agencies\/[^/]+\/crawls\/operations$/,
-];
 
 function hasSessionCookie(): boolean {
     if (typeof document === "undefined") return false;
@@ -114,7 +83,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             brand={<SidebarBrand caption="Administração da plataforma" href="/admin" icon={ShieldCheck} title="IA Imob" />}
             navigation={<PlatformAdminNavigation />}
             sidebarFooter={<SidebarUserCard roleLabel="Platform Admin" />}
-            topbar={<Breadcrumbs labels={BREADCRUMB_LABELS} pathLabels={BREADCRUMB_PATH_LABELS} unlinkedPaths={UNLINKED_BREADCRUMBS} />}
+            topbar={<PlatformAdminTopbar />}
             topbarActions={
                 <>
                     {/* Crawler list screens mirror live worker state, so they refresh on a timer. */}

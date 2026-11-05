@@ -29,7 +29,7 @@ export function StatCard({ title, value, hint, icon: Icon, tone = "primary", hre
     const card = (
         <Card
             className={cn(
-                "h-full gap-0 p-5",
+                "h-full gap-0 p-6",
                 href && "transition-colors group-hover:border-primary/30 group-hover:bg-muted/30",
             )}
         >

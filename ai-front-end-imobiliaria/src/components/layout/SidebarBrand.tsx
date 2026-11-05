@@ -1,5 +1,6 @@
 import type { LucideIcon } from "lucide-react";
-import Link from "next/link";
+
+import { SidebarBrandFrame } from "@/components/layout/SidebarNav";
 
 interface SidebarBrandProps {
     href: string;
@@ -9,20 +10,22 @@ interface SidebarBrandProps {
     caption?: string;
 }
 
-/** Product name and area at the top of the sidebar. */
+/**
+ * Product mark at the top of the sidebar; only the green mark in the rail.
+ * Stays a server-safe component (layouts pass it a Lucide icon) and hands the
+ * rendered mark to the client frame that knows whether the rail is collapsed.
+ */
 export function SidebarBrand({ href, icon: Icon, title, caption }: SidebarBrandProps) {
     return (
-        <Link
-            className="flex min-w-0 items-center gap-3 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring/60"
+        <SidebarBrandFrame
+            caption={caption}
             href={href}
-        >
-            <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-sidebar-highlight/15">
-                <Icon className="size-5 text-sidebar-highlight" />
-            </span>
-            <span className="min-w-0">
-                <span className="block truncate text-base leading-tight font-semibold text-sidebar-foreground">{title}</span>
-                {caption && <span className="block truncate text-xs text-sidebar-muted">{caption}</span>}
-            </span>
-        </Link>
+            mark={
+                <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-sidebar-highlight/15">
+                    <Icon className="size-[1.375rem] text-sidebar-highlight" strokeWidth={2} />
+                </span>
+            }
+            title={title}
+        />
     );
 }

@@ -17,13 +17,12 @@ import { usePathname } from "next/navigation";
 
 import {
     SidebarNav,
-    SidebarNavChild,
     SidebarNavDisabled,
     SidebarNavFooterLink,
     SidebarNavLink,
-    SidebarNavModule,
     SidebarNavSection,
 } from "@/components/layout/SidebarNav";
+import { TopbarTitle } from "@/components/layout/TopbarTitle";
 import { hasPermission } from "@/lib/permissions";
 import { useAuthStore } from "@/store/useAuthStore";
 
@@ -33,7 +32,7 @@ interface PlatformNavItem {
     icon: LucideIcon;
     permission: string;
     isActive: (pathname: string) => boolean;
-    /** Module pages listed under the item while the module is open. */
+    /** Module pages, shown as tabs in the topbar while the module is open. */
     children?: PlatformNavChild[];
 }
 
@@ -167,29 +166,6 @@ export function PlatformAdminNavigation() {
 
                         const active = item.isActive(pathname);
 
-                        if (item.children) {
-                            return (
-                                <SidebarNavModule
-                                    href={item.href}
-                                    icon={item.icon}
-                                    key={item.href}
-                                    label={item.label}
-                                    open={active}
-                                >
-                                    {item.children.map((child) => (
-                                        <SidebarNavChild
-                                            active={child.isActive(pathname)}
-                                            href={child.href}
-                                            icon={child.icon}
-                                            key={child.href}
-                                        >
-                                            {child.label}
-                                        </SidebarNavChild>
-                                    ))}
-                                </SidebarNavModule>
-                            );
-                        }
-
                         return (
                             <SidebarNavLink active={active} href={item.href} icon={item.icon} key={item.href}>
                                 {item.label}
@@ -203,5 +179,28 @@ export function PlatformAdminNavigation() {
                 Voltar ao CRM
             </SidebarNavFooterLink>
         </SidebarNav>
+    );
+}
+
+/** Topbar of the platform admin: the open section's title and, for modules, its pages as tabs. */
+export function PlatformAdminTopbar() {
+    const pathname = usePathname();
+    const item = navigationGroups
+        .flatMap((group) => group.items)
+        .find((candidate) => candidate.isActive(pathname));
+
+    if (!item) return <TopbarTitle title="Administração" />;
+
+    return (
+        <TopbarTitle
+            icon={item.icon}
+            tabs={item.children?.map((child) => ({
+                label: child.label,
+                href: child.href,
+                active: child.isActive(pathname),
+            }))}
+            tabsLabel={item.children ? `Páginas do ${item.label}` : undefined}
+            title={item.label}
+        />
     );
 }

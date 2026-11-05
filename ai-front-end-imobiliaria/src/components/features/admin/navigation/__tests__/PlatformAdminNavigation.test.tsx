@@ -2,7 +2,7 @@ import { render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { useAuthStore } from "@/store/useAuthStore";
-import { PlatformAdminNavigation } from "../PlatformAdminNavigation";
+import { PlatformAdminNavigation, PlatformAdminTopbar } from "../PlatformAdminNavigation";
 
 const mocks = vi.hoisted(() => ({ pathname: "/admin" }));
 
@@ -72,30 +72,53 @@ describe("PlatformAdminNavigation", () => {
         expect(screen.getByRole("link", { name: "Voltar ao CRM" })).toHaveAttribute("href", "/");
     });
 
-    it("lists the crawler pages only while inside the crawler module", () => {
+    it("keeps the crawler pages out of the sidebar and marks Crawler as the open module", () => {
+        mocks.pathname = "/admin/crawler/queue";
         signIn(["platform.agencies.view", "crawler.view"]);
 
-        const { rerender } = render(<PlatformAdminNavigation />);
-        expect(screen.queryByRole("link", { name: "Prospecção" })).not.toBeInTheDocument();
+        render(<PlatformAdminNavigation />);
 
+        const nav = screen.getByRole("navigation", { name: "Navegação da plataforma" });
+        expect(within(nav).queryByRole("link", { name: "Fila" })).not.toBeInTheDocument();
+        const current = within(nav).getAllByRole("link").filter((link) => link.getAttribute("aria-current") === "page");
+        expect(current.map((link) => link.getAttribute("href"))).toEqual(["/admin/crawler"]);
+    });
+});
+
+describe("PlatformAdminTopbar", () => {
+    beforeEach(() => {
+        mocks.pathname = "/admin";
+        useAuthStore.getState().clearAuth();
+    });
+
+    it("shows only the section title outside the crawler", () => {
+        mocks.pathname = "/admin/agencies";
+
+        render(<PlatformAdminTopbar />);
+
+        expect(screen.getByText("Agências")).toBeInTheDocument();
+        expect(screen.queryByRole("navigation", { name: "Páginas do Crawler" })).not.toBeInTheDocument();
+    });
+
+    it("lists the crawler pages as tabs while inside the crawler module", () => {
         mocks.pathname = "/admin/crawler";
-        rerender(<PlatformAdminNavigation />);
 
-        expect(screen.getByRole("link", { name: "Prospecção" })).toHaveAttribute("href", "/admin/crawler/prospects");
-        expect(screen.getByRole("link", { name: "Fila" })).toHaveAttribute("href", "/admin/crawler/queue");
-        expect(screen.getByRole("link", { name: "Execuções em lote" })).toHaveAttribute("href", "/admin/crawler/batches");
-        expect(
-            screen.getAllByRole("link", { name: "Agências" }).map((link) => link.getAttribute("href")),
-        ).toEqual(["/admin/agencies", "/admin/crawler/agencies"]);
-        expect(screen.getByRole("link", { name: "Qualidade" })).toHaveAttribute("href", "/admin/crawler/quality");
-        expect(screen.getByRole("link", { name: "Configurações" })).toHaveAttribute("href", "/admin/crawler/settings");
+        render(<PlatformAdminTopbar />);
 
-        const current = screen.getAllByRole("link").filter((link) => link.getAttribute("aria-current") === "page");
-        expect(current).toHaveLength(1);
-        expect(current[0]).toHaveAttribute("href", "/admin/crawler");
+        const tabs = screen.getByRole("navigation", { name: "Páginas do Crawler" });
+        expect(within(tabs).getAllByRole("link").map((link) => [link.textContent, link.getAttribute("href")])).toEqual([
+            ["Visão geral", "/admin/crawler"],
+            ["Prospecção", "/admin/crawler/prospects"],
+            ["Fila", "/admin/crawler/queue"],
+            ["Execuções em lote", "/admin/crawler/batches"],
+            ["Agências", "/admin/crawler/agencies"],
+            ["Qualidade", "/admin/crawler/quality"],
+            ["Configurações", "/admin/crawler/settings"],
+        ]);
     });
 
     it.each([
+        ["/admin/crawler", "Visão geral"],
         ["/admin/crawler/runs/42", "Agências"],
         ["/admin/crawler/agencies/7/crawls", "Agências"],
         ["/admin/crawler/discoveries/42", "Agências"],
@@ -104,12 +127,11 @@ describe("PlatformAdminNavigation", () => {
         ["/admin/crawler/quality", "Qualidade"],
     ])("marks the crawler page that owns %s as active", (pathname, label) => {
         mocks.pathname = pathname;
-        signIn(["platform.agencies.view", "crawler.view"]);
 
-        render(<PlatformAdminNavigation />);
+        render(<PlatformAdminTopbar />);
 
-        const nav = screen.getByRole("navigation", { name: "Navegação da plataforma" });
-        const current = within(nav).getAllByRole("link").filter((link) => link.getAttribute("aria-current") === "page");
+        const tabs = screen.getByRole("navigation", { name: "Páginas do Crawler" });
+        const current = within(tabs).getAllByRole("link").filter((link) => link.getAttribute("aria-current") === "page");
         expect(current.map((link) => link.textContent)).toEqual([label]);
     });
 });
