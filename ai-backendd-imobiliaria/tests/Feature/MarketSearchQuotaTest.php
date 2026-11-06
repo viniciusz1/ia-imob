@@ -72,6 +72,13 @@ class MarketSearchQuotaTest extends TestCase
             ->assertOk()->assertJsonCount(0, 'data');
     }
 
+    public function test_history_accepts_a_final_date_without_a_start_date(): void
+    {
+        $admin = User::factory()->create(['agency_id' => null]);
+        $admin->givePermissionTo('platform.market-search.view');
+        $this->actingAs($admin)->getJson('/api/v1/admin/market-search/history?to=2026-08-11')->assertOk();
+    }
+
     protected function setUp(): void
     {
         parent::setUp();
