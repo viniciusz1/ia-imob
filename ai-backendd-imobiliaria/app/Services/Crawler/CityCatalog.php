@@ -57,20 +57,24 @@ final class CityCatalog
 
     public static function synchronize(): void
     {
+        DB::statement("ALTER TABLE crawler.cities ADD COLUMN IF NOT EXISTS aliases JSONB NOT NULL DEFAULT '[]'::jsonb");
+
         foreach (self::entries() as $entry) {
             DB::statement(
                 <<<'SQL'
                     INSERT INTO crawler.cities
-                        (name, slug, state, created_at, updated_at)
-                    VALUES (?, ?, ?, NOW(), NOW())
+                        (name, slug, state, aliases, created_at, updated_at)
+                    VALUES (?, ?, ?, ?::jsonb, NOW(), NOW())
                     ON CONFLICT (slug, state) DO UPDATE SET
                         name = EXCLUDED.name,
+                        aliases = EXCLUDED.aliases,
                         updated_at = NOW()
                 SQL,
                 [
                     $entry['name'],
                     $entry['slug'],
                     $entry['state'],
+                    json_encode($entry['aliases'], JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE),
                 ],
             );
         }

@@ -4,7 +4,7 @@ return [
     'araquari' => [
         'name' => 'Araquari',
         'state' => 'SC',
-        'aliases' => '',
+        'aliases' => 'araquari sc',
     ],
     'ascurra' => [
         'name' => 'Ascurra',
@@ -14,22 +14,22 @@ return [
     'balneario-barra-do-sul' => [
         'name' => 'Balneário Barra do Sul',
         'state' => 'SC',
-        'aliases' => 'balneario barra do sul, barra do sul',
+        'aliases' => 'balneario barra do sul, barra do sul, baln barra do sul, bal barra do sul, balneario-barra-do-sul-sc',
     ],
     'balneario-camboriu' => [
         'name' => 'Balneário Camboriú',
         'state' => 'SC',
-        'aliases' => 'balneario camboriu',
+        'aliases' => 'balneario camboriu, bal camboriu, bc',
     ],
     'balneario-picarras' => [
         'name' => 'Balneário Piçarras',
         'state' => 'SC',
-        'aliases' => 'balneario picarras, picarras, piçarras',
+        'aliases' => 'balneario picarras, picarras, piçarras, bal picarras, baln picarras, balneario pi-arras, pi-arras',
     ],
     'barra-velha' => [
         'name' => 'Barra Velha',
         'state' => 'SC',
-        'aliases' => '',
+        'aliases' => 'barra velha sc, barra-velha-sc',
     ],
     'biguacu' => [
         'name' => 'Biguaçu',
@@ -39,7 +39,7 @@ return [
     'blumenau' => [
         'name' => 'Blumenau',
         'state' => 'SC',
-        'aliases' => '',
+        'aliases' => 'blumenau sc',
     ],
     'bom-retiro' => [
         'name' => 'Bom Retiro',
@@ -59,17 +59,17 @@ return [
     'campo-alegre' => [
         'name' => 'Campo Alegre',
         'state' => 'SC',
-        'aliases' => '',
+        'aliases' => 'campo alegre sc',
     ],
     'corupa' => [
         'name' => 'Corupá',
         'state' => 'SC',
-        'aliases' => 'corupa',
+        'aliases' => 'corupa, corup, corupa sc',
     ],
     'florianopolis' => [
         'name' => 'Florianópolis',
         'state' => 'SC',
-        'aliases' => 'florianopolis',
+        'aliases' => 'florianopolis, floripa',
     ],
     'garuva' => [
         'name' => 'Garuva',
@@ -84,7 +84,7 @@ return [
     'guaramirim' => [
         'name' => 'Guaramirim',
         'state' => 'SC',
-        'aliases' => '',
+        'aliases' => 'guaramirim sc, guaramirim-sc',
     ],
     'ilhota' => [
         'name' => 'Ilhota',
@@ -99,7 +99,7 @@ return [
     'itajai' => [
         'name' => 'Itajaí',
         'state' => 'SC',
-        'aliases' => 'itajai',
+        'aliases' => 'itajai, itaja',
     ],
     'itapema' => [
         'name' => 'Itapema',
@@ -109,17 +109,17 @@ return [
     'itapoa' => [
         'name' => 'Itapoá',
         'state' => 'SC',
-        'aliases' => 'itapoa',
+        'aliases' => 'itapoa, itapo',
     ],
     'jaragua-do-sul' => [
         'name' => 'Jaraguá do Sul',
         'state' => 'SC',
-        'aliases' => 'jaragua do sul',
+        'aliases' => 'jaragua do sul, jaragu do sul, jaragua-do-sul-sc, jaragua do sul sc',
     ],
     'joinville' => [
         'name' => 'Joinville',
         'state' => 'SC',
-        'aliases' => '',
+        'aliases' => 'joinville sc, joinville-sc',
     ],
     'luiz-alves' => [
         'name' => 'Luiz Alves',
@@ -134,7 +134,7 @@ return [
     'massaranduba' => [
         'name' => 'Massaranduba',
         'state' => 'SC',
-        'aliases' => '',
+        'aliases' => 'massaranduba sc, massaranduba-sc',
     ],
     'navegantes' => [
         'name' => 'Navegantes',
@@ -149,12 +149,12 @@ return [
     'penha' => [
         'name' => 'Penha',
         'state' => 'SC',
-        'aliases' => '',
+        'aliases' => 'penha sc, balneario penha',
     ],
     'pomerode' => [
         'name' => 'Pomerode',
         'state' => 'SC',
-        'aliases' => '',
+        'aliases' => 'pomerode sc, pomerode-sc',
     ],
     'porto-belo' => [
         'name' => 'Porto Belo',
@@ -169,7 +169,7 @@ return [
     'rio-dos-cedros' => [
         'name' => 'Rio dos Cedros',
         'state' => 'SC',
-        'aliases' => '',
+        'aliases' => 'rio dos cedros sc',
     ],
     'rio-negrinho' => [
         'name' => 'Rio Negrinho',
@@ -179,12 +179,12 @@ return [
     'sao-bento-do-sul' => [
         'name' => 'São Bento do Sul',
         'state' => 'SC',
-        'aliases' => 'sao bento do sul',
+        'aliases' => 'sao bento do sul, s o bento do sul, sao bento do sul sc',
     ],
     'sao-francisco-do-sul' => [
         'name' => 'São Francisco do Sul',
         'state' => 'SC',
-        'aliases' => 'sao francisco do sul',
+        'aliases' => 'sao francisco do sul, s o francisco do sul',
     ],
     'sao-jose' => [
         'name' => 'São José',
@@ -194,7 +194,7 @@ return [
     'schroeder' => [
         'name' => 'Schroeder',
         'state' => 'SC',
-        'aliases' => '',
+        'aliases' => 'schroeder sc, schroeder-sc',
     ],
     'tijucas' => [
         'name' => 'Tijucas',
@@ -204,7 +204,7 @@ return [
     'timbo' => [
         'name' => 'Timbó',
         'state' => 'SC',
-        'aliases' => 'timbo',
+        'aliases' => 'timbo, timb, timbo sc',
     ],
     'urubici' => [
         'name' => 'Urubici',

@@ -14,11 +14,13 @@ return new class extends Migration
                 name VARCHAR(255) NOT NULL,
                 slug VARCHAR(255) NOT NULL,
                 state CHAR(2) NOT NULL,
+                aliases JSONB NOT NULL DEFAULT '[]'::jsonb,
                 created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
                 updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
                 UNIQUE (slug, state)
             )
         SQL);
+        DB::statement("ALTER TABLE crawler.cities ADD COLUMN IF NOT EXISTS aliases JSONB NOT NULL DEFAULT '[]'::jsonb");
 
         CityCatalog::synchronize();
         CityCatalog::normalizeStoredMarketProperties();
