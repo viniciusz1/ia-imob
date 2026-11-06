@@ -27,6 +27,7 @@ export function postLoginPath(user: AuthorizationSubject): string {
   if (!user.is_platform_admin) return "/";
   if (hasPermission(user.permissions, "platform.agencies.view")) return "/admin";
   if (hasPermission(user.permissions, "crawler.view")) return "/admin/crawler";
+  if (hasPermission(user.permissions, "platform.market-search.view")) return "/admin/market-search";
 
   return "/";
 }

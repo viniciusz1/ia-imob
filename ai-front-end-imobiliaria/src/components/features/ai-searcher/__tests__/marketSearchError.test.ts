@@ -7,7 +7,7 @@ import {
 } from "../marketSearchError";
 
 describe("getMarketSearchErrorMessage", () => {
-    it("instructs the user to contact technical support for an exhausted allowance", () => {
+    it("shows when the weekly allowance renews", () => {
         const error = new AxiosError(
             "Too Many Requests",
             "ERR_BAD_REQUEST",
@@ -28,9 +28,18 @@ describe("getMarketSearchErrorMessage", () => {
             },
         );
 
-        expect(getMarketSearchErrorMessage(error)).toBe(
-            "Limite excedido. Entre em contato com a equipe técnica.",
-        );
+        expect(getMarketSearchErrorMessage(error)).toContain("17/08/2026");
+        expect(getMarketSearchErrorMessage(error)).toContain("semanal");
+        expect(isMarketSearchAllowanceExceeded(error)).toBe(true);
+    });
+    it("shows when the daily allowance renews", () => {
+        const error = new AxiosError("Too Many Requests", "ERR_BAD_REQUEST", undefined, undefined, {
+            status: 429, statusText: "Too Many Requests", headers: new AxiosHeaders(),
+            config: { headers: new AxiosHeaders() },
+            data: { code: "user_market_search_daily_limit_exhausted", allowance: { resets_at: "2026-08-12T00:00:00-03:00" } },
+        });
+        expect(getMarketSearchErrorMessage(error)).toContain("12/08/2026");
+        expect(getMarketSearchErrorMessage(error)).toContain("diário");
         expect(isMarketSearchAllowanceExceeded(error)).toBe(true);
     });
 });

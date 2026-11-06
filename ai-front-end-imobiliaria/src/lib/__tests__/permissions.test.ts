@@ -38,6 +38,9 @@ describe("hasPermission", () => {
 });
 
 describe("postLoginPath", () => {
+  it("routes a search auditor to the market search administration page", () => {
+    expect(postLoginPath({ is_platform_admin: true, permissions: ["platform.market-search.view"] })).toBe("/admin/market-search");
+  });
   it("sends a Platform Admin to the platform overview", () => {
     expect(postLoginPath({
       is_platform_admin: true,

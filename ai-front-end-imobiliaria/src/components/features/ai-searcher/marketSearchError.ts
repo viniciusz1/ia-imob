@@ -20,7 +20,8 @@ export function getMarketSearchErrorMessage(error: unknown): string {
     return reset ? `Limite diário de buscas atingido. Disponível novamente em ${new Date(reset).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}.` : "Limite diário de buscas atingido.";
   }
   if (error.response?.status === 429 && payload?.code === "market_search_allowance_exhausted") {
-    return "Limite excedido. Entre em contato com a equipe técnica.";
+    const reset = payload.allowance?.resets_at;
+    return reset ? `Limite semanal de buscas da imobiliária atingido. Disponível novamente em ${new Date(reset).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}.` : "Limite semanal de buscas da imobiliária atingido.";
   }
 
   return payload?.error || payload?.message || "Erro ao processar a busca. Tente novamente.";

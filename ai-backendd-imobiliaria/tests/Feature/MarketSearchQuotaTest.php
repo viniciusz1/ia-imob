@@ -15,6 +15,25 @@ class MarketSearchQuotaTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_default_daily_allowance_allows_twenty_searches(): void
+    {
+        $user = User::factory()->for(Agency::factory())->create();
+        for ($request = 0; $request < 20; $request++) {
+            $this->actingAs($user)->getJson('/api/v1/market-properties')->assertOk();
+        }
+        $this->actingAs($user)->getJson('/api/v1/market-properties')
+            ->assertStatus(429)->assertJsonPath('allowance.limit', 20)->assertJsonPath('allowance.used', 20);
+    }
+
+    public function test_agency_user_with_platform_permissions_cannot_manage_searches(): void
+    {
+        $user = User::factory()->for(Agency::factory())->create();
+        $user->givePermissionTo(['platform.market-search.view', 'platform.market-search.manage']);
+        $this->actingAs($user)->getJson('/api/v1/admin/market-search/users')->assertForbidden();
+        $this->actingAs($user)->getJson('/api/v1/admin/market-search/history')->assertForbidden();
+        $this->actingAs($user)->putJson('/api/v1/admin/market-search/users/'.$user->id, ['limit' => 100])->assertForbidden();
+    }
+
     public function test_daily_user_limit_blocks_the_next_market_search(): void
     {
         $user = User::factory()->for(Agency::factory())->create();
