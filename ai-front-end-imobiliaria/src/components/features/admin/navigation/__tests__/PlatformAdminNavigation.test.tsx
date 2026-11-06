@@ -69,7 +69,7 @@ describe("PlatformAdminNavigation", () => {
 
         render(<PlatformAdminNavigation />);
 
-        expect(screen.getByRole("link", { name: "Voltar ao CRM" })).toHaveAttribute("href", "/");
+        expect(screen.queryByRole("link", { name: "Voltar ao CRM" })).not.toBeInTheDocument();
     });
 
     it("keeps the crawler pages out of the sidebar and marks Crawler as the open module", () => {

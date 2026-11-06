@@ -2,7 +2,6 @@
 
 import {
     Building2,
-    ChevronLeft,
     Landmark,
     Layers,
     LayoutDashboard,
@@ -18,7 +17,6 @@ import { usePathname } from "next/navigation";
 import {
     SidebarNav,
     SidebarNavDisabled,
-    SidebarNavFooterLink,
     SidebarNavLink,
     SidebarNavSection,
 } from "@/components/layout/SidebarNav";
@@ -182,9 +180,6 @@ export function PlatformAdminNavigation() {
                 </SidebarNavSection>
             ))}
 
-            <SidebarNavFooterLink href="/" icon={ChevronLeft}>
-                Voltar ao CRM
-            </SidebarNavFooterLink>
         </SidebarNav>
     );
 }

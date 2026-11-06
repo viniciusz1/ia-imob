@@ -24,6 +24,9 @@ class UserResource extends JsonResource
             'is_platform_admin' => $this->agency_id === null,
             'permissions' => $this->getAllPermissions()
                 ->pluck('name')
+                ->when($this->agency_id === null, fn ($permissions) => $permissions->filter(
+                    fn (string $permission): bool => str_starts_with($permission, 'platform.') || str_starts_with($permission, 'crawler.')
+                ))
                 ->sort()
                 ->values()
                 ->all(),

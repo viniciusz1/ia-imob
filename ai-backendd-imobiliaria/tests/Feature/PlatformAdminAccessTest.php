@@ -30,6 +30,19 @@ class PlatformAdminAccessTest extends TestCase
         $response->assertStatus(200);
     }
 
+    public function test_platform_admin_cannot_access_agency_modules_even_with_analytics_permission(): void
+    {
+        $admin = User::where('email', 'platform@imobiliaria.com')->firstOrFail();
+        $admin->givePermissionTo('analytics.market.view');
+
+        $this->actingAs($admin)->getJson('/api/v1/auctions')->assertForbidden();
+        $this->actingAs($admin)->getJson('/api/v1/analytics/valuations')->assertForbidden();
+        $this->actingAs($admin)->getJson('/api/v1/analytics/auctions')->assertForbidden();
+        $response = $this->actingAs($admin)->getJson('/api/v1/user')->assertOk();
+        $this->assertNotContains('analytics.market.view', $response->json('data.permissions'));
+        $this->actingAs($admin)->getJson('/api/v1/admin/ping')->assertOk();
+    }
+
     public function test_agency_user_cannot_access_admin_endpoint(): void
     {
         $agency = Agency::factory()->create();

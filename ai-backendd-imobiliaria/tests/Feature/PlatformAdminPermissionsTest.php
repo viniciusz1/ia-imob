@@ -93,6 +93,19 @@ class PlatformAdminPermissionsTest extends TestCase
         }
     }
 
+    public function test_migration_revokes_analytics_from_platform_admin_without_removing_it_from_agency_admin(): void
+    {
+        $platform = Role::findByName('Platform Admin', $this->guard);
+        $agency = Role::findByName('Administrador', $this->guard);
+        $platform->givePermissionTo('analytics.market.view');
+
+        $migration = require database_path('migrations/2026_11_06_000005_revoke_platform_admin_market_analytics.php');
+        $migration->up();
+
+        $this->assertFalse($platform->fresh()->hasPermissionTo('analytics.market.view'));
+        $this->assertTrue($agency->fresh()->hasPermissionTo('analytics.market.view'));
+    }
+
     public function test_user_endpoint_serializes_platform_permissions_for_platform_admin(): void
     {
         $platformAdmin = \App\Models\User::where('email', 'platform@imobiliaria.com')->first();
@@ -111,6 +124,7 @@ class PlatformAdminPermissionsTest extends TestCase
         $this->assertContains('platform.agencies.update', $permissions);
         $this->assertContains('platform.agencies.deactivate', $permissions);
         $this->assertContains('crawler.snapshots.review', $permissions);
+        $this->assertNotContains('analytics.market.view', $permissions);
     }
 
     public function test_user_endpoint_excludes_platform_permissions_for_agency_user(): void

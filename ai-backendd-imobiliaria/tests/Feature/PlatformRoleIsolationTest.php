@@ -76,12 +76,12 @@ class PlatformRoleIsolationTest extends TestCase
             ->assertJsonMissing(['name' => 'platform.agencies.view']);
     }
 
-    public function test_platform_admin_still_sees_everything(): void
+    public function test_platform_admin_cannot_access_crm_role_catalog(): void
     {
         Sanctum::actingAs($this->platformAdmin());
 
-        $this->getJson('/api/v1/roles')->assertOk()->assertJsonFragment(['name' => 'Platform Admin']);
-        $this->getJson('/api/v1/permissions')->assertOk()->assertJsonFragment(['name' => 'crawler.view']);
+        $this->getJson('/api/v1/roles')->assertForbidden();
+        $this->getJson('/api/v1/permissions')->assertForbidden();
     }
 
     public function test_agency_admin_cannot_create_a_group_with_platform_permissions(): void

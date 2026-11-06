@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\NewPropertiesController;
 use App\Http\Controllers\Api\PermissionController;
 use App\Http\Controllers\Api\RoleController;
 use App\Http\Middleware\EnsureAgencyIsActive;
+use App\Http\Middleware\EnsureAgencyUser;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['throttle:5,1'])->group(function () {
@@ -20,49 +21,52 @@ Route::middleware(['auth:sanctum', EnsureAgencyIsActive::class])->group(function
     Route::get('/user', [AuthController::class, 'user']);
     Route::post('/ping', [AuthController::class, 'ping']);
 
-    Route::apiResource('roles', RoleController::class);
-    Route::get('permissions', [PermissionController::class, 'index']);
+    Route::middleware(EnsureAgencyUser::class)->group(function () {
 
-    // Auctions Module
-    Route::get('auctions', [AuctionController::class, 'index']);
+        Route::apiResource('roles', RoleController::class);
+        Route::get('permissions', [PermissionController::class, 'index']);
 
-    // Properties Module
-    Route::apiResource('properties', \App\Http\Controllers\Api\PropertyController::class);
-    Route::get('valuations/{valuation}/report.pdf', [\App\Http\Controllers\Api\ValuationController::class, 'report']);
-    Route::get('valuations/{valuation}/report.docx', [\App\Http\Controllers\Api\ValuationController::class, 'wordReport']);
-    Route::get('valuations/{valuation}/comparables.xlsx', [\App\Http\Controllers\Api\ValuationController::class, 'comparableEvidence']);
-    Route::post('valuations/candidates', [\App\Http\Controllers\Api\ValuationController::class, 'candidates']);
-    Route::apiResource('valuations', \App\Http\Controllers\Api\ValuationController::class)->only(['index', 'store', 'show']);
-    Route::get('market-properties/filters', [\App\Http\Controllers\Api\MarketPropertyController::class, 'filters']);
-    Route::apiResource('market-properties', \App\Http\Controllers\Api\MarketPropertyController::class);
-    Route::get('new-properties', NewPropertiesController::class);
+        // Auctions Module
+        Route::get('auctions', [AuctionController::class, 'index']);
 
-    // Property Images
-    Route::post('properties/{property}/images', [\App\Http\Controllers\Api\PropertyImageController::class, 'store']);
-    Route::delete('properties/{property}/images/{image}', [\App\Http\Controllers\Api\PropertyImageController::class, 'destroy']);
-    Route::put('properties/{property}/images/{image}/cover', [\App\Http\Controllers\Api\PropertyImageController::class, 'setCover']);
-    Route::post('properties/{property}/images/reorder', [\App\Http\Controllers\Api\PropertyImageController::class, 'reorder']);
+        // Properties Module
+        Route::apiResource('properties', \App\Http\Controllers\Api\PropertyController::class);
+        Route::get('valuations/{valuation}/report.pdf', [\App\Http\Controllers\Api\ValuationController::class, 'report']);
+        Route::get('valuations/{valuation}/report.docx', [\App\Http\Controllers\Api\ValuationController::class, 'wordReport']);
+        Route::get('valuations/{valuation}/comparables.xlsx', [\App\Http\Controllers\Api\ValuationController::class, 'comparableEvidence']);
+        Route::post('valuations/candidates', [\App\Http\Controllers\Api\ValuationController::class, 'candidates']);
+        Route::apiResource('valuations', \App\Http\Controllers\Api\ValuationController::class)->only(['index', 'store', 'show']);
+        Route::get('market-properties/filters', [\App\Http\Controllers\Api\MarketPropertyController::class, 'filters']);
+        Route::apiResource('market-properties', \App\Http\Controllers\Api\MarketPropertyController::class);
+        Route::get('new-properties', NewPropertiesController::class);
 
-    // Enums & Features
-    Route::get('enums', [\App\Http\Controllers\Api\SystemEnumController::class, 'index']);
-    Route::get('features', [\App\Http\Controllers\Api\FeatureController::class, 'index']);
+        // Property Images
+        Route::post('properties/{property}/images', [\App\Http\Controllers\Api\PropertyImageController::class, 'store']);
+        Route::delete('properties/{property}/images/{image}', [\App\Http\Controllers\Api\PropertyImageController::class, 'destroy']);
+        Route::put('properties/{property}/images/{image}/cover', [\App\Http\Controllers\Api\PropertyImageController::class, 'setCover']);
+        Route::post('properties/{property}/images/reorder', [\App\Http\Controllers\Api\PropertyImageController::class, 'reorder']);
 
-    // Saved Filters (Authenticated, user-scoped)
-    Route::apiResource('saved-filters', \App\Http\Controllers\Api\SavedFilterController::class);
+        // Enums & Features
+        Route::get('enums', [\App\Http\Controllers\Api\SystemEnumController::class, 'index']);
+        Route::get('features', [\App\Http\Controllers\Api\FeatureController::class, 'index']);
 
-    // White-Label Site settings (Branding, agency-scoped to the current user)
-    Route::get('site-settings', [\App\Http\Controllers\Api\SiteSettingsController::class, 'show']);
-    Route::put('site-settings', [\App\Http\Controllers\Api\SiteSettingsController::class, 'update']);
+        // Saved Filters (Authenticated, user-scoped)
+        Route::apiResource('saved-filters', \App\Http\Controllers\Api\SavedFilterController::class);
 
-    // AI Search (Authenticated)
-    Route::post('market-properties/ai-search', [\App\Http\Controllers\Api\AiSearchController::class, 'search']);
+        // White-Label Site settings (Branding, agency-scoped to the current user)
+        Route::get('site-settings', [\App\Http\Controllers\Api\SiteSettingsController::class, 'show']);
+        Route::put('site-settings', [\App\Http\Controllers\Api\SiteSettingsController::class, 'update']);
 
-    // Subscriptions (Authenticated)
-    Route::get('/subscriptions/current', [\App\Http\Controllers\Api\SubscriptionController::class, 'current']);
-    Route::post('/subscriptions', [\App\Http\Controllers\Api\SubscriptionController::class, 'store']);
-    Route::delete('/subscriptions/{id}', [\App\Http\Controllers\Api\SubscriptionController::class, 'destroy']);
+        // AI Search (Authenticated)
+        Route::post('market-properties/ai-search', [\App\Http\Controllers\Api\AiSearchController::class, 'search']);
 
-    require __DIR__.'/api/user_routes.php';
+        // Subscriptions (Authenticated)
+        Route::get('/subscriptions/current', [\App\Http\Controllers\Api\SubscriptionController::class, 'current']);
+        Route::post('/subscriptions', [\App\Http\Controllers\Api\SubscriptionController::class, 'store']);
+        Route::delete('/subscriptions/{id}', [\App\Http\Controllers\Api\SubscriptionController::class, 'destroy']);
+
+        require __DIR__.'/api/user_routes.php';
+    });
 });
 
 require __DIR__.'/api/analytics.php';

@@ -52,8 +52,7 @@ class RoleSeeder extends Seeder
                 ->where('guard_name', $guard)
                 ->where(function ($query): void {
                     $query->where('name', 'like', 'platform.%')
-                        ->orWhere('name', 'like', 'crawler.%')
-                        ->orWhere('name', 'like', 'analytics.%');
+                        ->orWhere('name', 'like', 'crawler.%');
                 })
                 ->get()
         );
