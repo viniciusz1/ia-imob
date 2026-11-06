@@ -42,11 +42,11 @@ class MarketSearchQuotaTest extends TestCase
         $user = User::factory()->for($agency)->create();
 
         $this->actingAs($user)
-            ->getJson('/api/v1/market-properties?per_page=21')
+            ->getJson('/api/v1/market-properties?per_page=48')
             ->assertOk();
 
         $this->actingAs($user)
-            ->getJson('/api/v1/market-properties?per_page=21&page=2')
+            ->getJson('/api/v1/market-properties?per_page=48&page=2')
             ->assertStatus(429)
             ->assertJsonPath('message', 'Limite excedido. Entre em contato com a equipe técnica.')
             ->assertJsonPath('code', 'market_search_allowance_exhausted')
@@ -142,7 +142,7 @@ class MarketSearchQuotaTest extends TestCase
             ->assertJsonPath('allowance.limit', 0);
     }
 
-    public function test_more_than_21_results_per_page_is_rejected_without_consuming_allowance(): void
+    public function test_more_than_48_results_per_page_is_rejected_without_consuming_allowance(): void
     {
         $agency = Agency::factory()->create();
         $user = User::factory()->for($agency)->create();

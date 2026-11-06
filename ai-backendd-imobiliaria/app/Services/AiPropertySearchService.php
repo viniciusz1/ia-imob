@@ -213,7 +213,7 @@ PROMPT;
         ]));
     }
 
-    public function search(array $filters, int $perPage = 21, ?string $sort = null, int $page = 1): array
+    public function search(array $filters, int $perPage = 48, ?string $sort = null, int $page = 1): array
     {
         $sort = $this->normalizeSort($sort ?: ($filters['sort'] ?? 'newest'));
         $attempts = $this->buildSearchAttempts($filters);

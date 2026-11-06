@@ -14,7 +14,6 @@ import { scrollAppToTop } from "@/components/layout/AppShell";
 import { EmptyState } from "@/components/layout/EmptyState";
 import { PageHeader } from "@/components/layout/PageHeader";
 import {
-  DEFAULT_PAGE_SIZE,
   PaginationFooter,
 } from "@/components/layout/PaginationFooter";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -34,6 +33,7 @@ import {
   isMarketSearchAllowanceExceeded,
 } from "./marketSearchError";
 import {
+  AI_SEARCHER_PAGE_SIZE,
   type AiSearcherProperty,
   type AiSearcherFiltersState,
   type SearchMode,
@@ -259,7 +259,7 @@ export function AiSearcherClient() {
             queryParams.set("page", queryParams.get("pagina")!);
             queryParams.delete("pagina");
           }
-          queryParams.set("per_page", String(DEFAULT_PAGE_SIZE));
+          queryParams.set("per_page", String(AI_SEARCHER_PAGE_SIZE));
 
           const response = await api.get(`${API_PREFIX}/market-properties?${queryParams.toString()}`);
 
@@ -320,7 +320,7 @@ export function AiSearcherClient() {
     [searchParams]
   );
 
-  const perPage = DEFAULT_PAGE_SIZE;
+  const perPage = AI_SEARCHER_PAGE_SIZE;
 
   const effectivePage = Math.min(Math.max(effectiveModePage, 1), Math.max(totalPages, 1));
 
@@ -602,7 +602,7 @@ export function AiSearcherClient() {
                 : "Carregando imóveis da base de dados..."}
             </p>
             <div className={PROPERTY_GRID_CLASS}>
-              {Array.from({ length: 8 }, (_, index) => (
+              {Array.from({ length: 12 }, (_, index) => (
                 <PropertyCardSkeleton key={index} />
               ))}
             </div>

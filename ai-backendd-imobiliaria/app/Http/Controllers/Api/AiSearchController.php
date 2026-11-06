@@ -20,14 +20,14 @@ class AiSearchController extends Controller
         $request->validate([
             'prompt' => ['required', 'string', 'max:500'],
             'page' => ['sometimes', 'integer', 'min:1'],
-            'per_page' => ['sometimes', 'integer', 'min:1', 'max:21'],
+            'per_page' => ['sometimes', 'integer', 'min:1', 'max:48'],
             'sort' => ['sometimes', 'string', 'in:price_asc,price_desc,area_asc,area_desc,newest'],
             'context_city' => ['sometimes', 'nullable', 'string', 'max:100'],
             'filters' => ['sometimes', 'array'],
         ]);
 
         $prompt = $request->input('prompt');
-        $perPage = $request->integer('per_page', 21);
+        $perPage = $request->integer('per_page', 48);
         $page = $request->integer('page', 1);
         $sort = $request->input('sort');
         $contextCity = $request->input('context_city');

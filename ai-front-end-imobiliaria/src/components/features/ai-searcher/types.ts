@@ -75,6 +75,8 @@ export interface SavedFilter {
 export type SearchMode = "ai" | "conventional";
 export type SortMode = "newest" | "price_asc" | "price_desc" | "area_asc" | "area_desc";
 
+export const AI_SEARCHER_PAGE_SIZE = 48;
+
 export interface AiSearchResponse {
   filters: Record<string, unknown>;
   data: AiSearcherProperty[];

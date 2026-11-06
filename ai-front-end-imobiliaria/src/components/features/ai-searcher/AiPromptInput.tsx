@@ -7,8 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { DEFAULT_PAGE_SIZE } from "@/components/layout/PaginationFooter";
-import type { AiSearchResponse, AiParsedFilter, SortMode } from "./types";
+import { AI_SEARCHER_PAGE_SIZE, type AiSearchResponse, type AiParsedFilter, type SortMode } from "./types";
 import api, { API_PREFIX } from "@/services/api";
 import {
   getMarketSearchErrorMessage,
@@ -153,7 +152,7 @@ export function AiPromptInput({
     try {
       const response = await api.post(`${API_PREFIX}/market-properties/ai-search`, {
         prompt: trimmed,
-        per_page: DEFAULT_PAGE_SIZE,
+        per_page: AI_SEARCHER_PAGE_SIZE,
         sort,
       });
 

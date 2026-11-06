@@ -36,7 +36,7 @@ class MarketPropertyController extends Controller
     {
         $request->validate([
             'page' => ['sometimes', 'integer', 'min:1'],
-            'per_page' => ['sometimes', 'integer', 'min:1', 'max:21'],
+            'per_page' => ['sometimes', 'integer', 'min:1', 'max:48'],
         ]);
 
         $agency = $request->user()?->agency;
@@ -63,7 +63,7 @@ class MarketPropertyController extends Controller
                     $query->orderBy('id', 'desc');
                 }
 
-                $perPage = $request->integer('per_page', 20);
+                $perPage = $request->integer('per_page', 48);
                 $properties = $query->paginate($perPage);
 
                 return MarketPropertyResource::collection($properties)->response();
