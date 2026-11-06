@@ -71,7 +71,7 @@ api.interceptors.request.use(async (config) => {
 // Interceptor: tratamento global de erros
 api.interceptors.response.use(
     (response) => response,
-    (error) => {
+    async (error) => {
         if (typeof window !== "undefined") {
             const status = error.response?.status;
 
@@ -92,6 +92,15 @@ api.interceptors.response.use(
                 toast.error("Erro interno no servidor. Tente novamente mais tarde.");
             } else if (!error.response) {
                 toast.error("Falha na conexão. Verifique se o servidor está online e sua internet.");
+            }
+        } else {
+            const status = error.response?.status;
+            if (status === 401 || status === 419) {
+                const { redirect } = await import("next/navigation");
+                redirect("/login");
+            } else if (status === 403) {
+                const { redirect } = await import("next/navigation");
+                redirect("/");
             }
         }
 
