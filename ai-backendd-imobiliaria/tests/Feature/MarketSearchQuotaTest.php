@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Agency;
 use App\Models\AgencyConfiguration;
 use App\Models\User;
+use App\Services\Ai\Providers\LlmProvider;
 use App\Services\MarketSearchQuotaService;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -89,6 +90,29 @@ class MarketSearchQuotaTest extends TestCase
         $this->actingAs($user)->getJson('/api/v1/market-properties')->assertStatus(429);
         $this->actingAs($admin)->getJson('/api/v1/admin/market-search/history?user_id='.$user->id)
             ->assertOk()->assertJsonCount(0, 'data');
+    }
+
+    public function test_failed_ai_search_returns_both_allowances_and_is_not_recorded(): void
+    {
+        $agency = Agency::factory()->create();
+        AgencyConfiguration::create(['agency_id' => $agency->id, 'market_search_weekly_limit' => 1]);
+        $user = User::factory()->for($agency)->create();
+        $user->forceFill(['market_search_daily_limit' => 1])->save();
+        $admin = User::factory()->create(['agency_id' => null]);
+        $admin->givePermissionTo('platform.market-search.view');
+        $this->app->instance(LlmProvider::class, new class implements LlmProvider
+        {
+            public function chat(array $messages, array $responseFormat = [], array $options = []): string
+            {
+                throw new RuntimeException('Provider unavailable');
+            }
+        });
+
+        $this->actingAs($user)->postJson('/api/v1/market-properties/ai-search', ['prompt' => 'Casa inédita'])
+            ->assertUnprocessable();
+        $this->actingAs($admin)->getJson('/api/v1/admin/market-search/history?user_id='.$user->id)
+            ->assertOk()->assertJsonCount(0, 'data');
+        $this->actingAs($user)->getJson('/api/v1/market-properties')->assertOk();
     }
 
     public function test_history_accepts_a_final_date_without_a_start_date(): void
