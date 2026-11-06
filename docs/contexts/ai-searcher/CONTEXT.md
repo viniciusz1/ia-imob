@@ -9,7 +9,7 @@ The Agency workspace in which Agency Users search the market-wide property inven
 _Avoid_: AI-only search, Agency inventory search, public property search
 
 **Market Search**:
-A successfully delivered page of at most 21 market-property results in the AI Searcher, through either natural-language mode or conventional-filter mode, including a valid page with no matches. Pagination, reordering, and filter changes each produce another Market Search; invalid, failed, and allowance-rejected requests do not.
+A successfully delivered page of at most 48 market-property results in the AI Searcher, through either natural-language mode or conventional-filter mode, including a valid page with no matches. Pagination, reordering, and filter changes each produce another Market Search; invalid, failed, and allowance-rejected requests do not.
 _Avoid_: AI request, prompt search, filter-only search
 
 **Search Week**:
@@ -17,12 +17,18 @@ The calendar usage period from Monday at 00:00 through the following Monday at 0
 _Avoid_: Rolling seven days, UTC week, billing cycle
 
 **Weekly Search Allowance**:
-The Agency-level maximum number of Market Searches that may be delivered during one Search Week. It defaults to 100 for every Agency and a Platform Admin may configure it individually; changing it during a Search Week changes only the remaining balance and never resets consumption. Zero disables Market Search for the Agency, and the allowance is never unlimited. Consumption is tracked only as an Agency aggregate, without prompt, filter, or per-user usage history.
+The Agency-level maximum number of Market Searches that may be delivered during one Search Week. It defaults to 100 for every Agency and a Platform Admin may configure it individually; changing it during a Search Week changes only the remaining balance and never resets consumption. Zero disables Market Search for the Agency, and the allowance is never unlimited.
 _Avoid_: Per-user limit, AI token limit, global request limit
 
 **Exhausted Search Allowance**:
 The Agency state in which its users have collectively consumed the Weekly Search Allowance for the current Search Week. Further Market Searches are rejected until renewal or a sufficient allowance increase, while already delivered results remain available.
 _Avoid_: User suspension, Agency deactivation, subscription cancellation
+
+**Daily User Search Allowance**:
+The maximum Market Searches an Agency User may deliver in a calendar day in `America/Sao_Paulo`. It defaults to 20, can be changed by a Platform Admin, and applies alongside the Weekly Search Allowance. Zero disables the user's searches.
+
+**Market Search History**:
+The record of each successfully delivered Market Search, including its Agency User, Agency, time, mode and submitted prompt or filters. Platform Admins with the appropriate Permission can inspect it.
 
 ## Relationships
 

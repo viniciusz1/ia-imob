@@ -15,6 +15,10 @@ export function getMarketSearchErrorMessage(error: unknown): string {
   }
 
   const payload = error.response?.data;
+  if (error.response?.status === 429 && payload?.code === "user_market_search_daily_limit_exhausted") {
+    const reset = payload.allowance?.resets_at;
+    return reset ? `Limite diário de buscas atingido. Disponível novamente em ${new Date(reset).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}.` : "Limite diário de buscas atingido.";
+  }
   if (error.response?.status === 429 && payload?.code === "market_search_allowance_exhausted") {
     return "Limite excedido. Entre em contato com a equipe técnica.";
   }
@@ -25,5 +29,5 @@ export function getMarketSearchErrorMessage(error: unknown): string {
 export function isMarketSearchAllowanceExceeded(error: unknown): boolean {
   return axios.isAxiosError<MarketSearchErrorPayload>(error)
     && error.response?.status === 429
-    && error.response.data?.code === "market_search_allowance_exhausted";
+    && ["market_search_allowance_exhausted", "user_market_search_daily_limit_exhausted"].includes(error.response.data?.code ?? "");
 }

@@ -81,6 +81,13 @@ const navigationGroups: PlatformNavGroup[] = [
         label: "Dados de mercado",
         items: [
             {
+                label: "Buscas dos usuários",
+                href: "/admin/market-search",
+                icon: Search,
+                permission: "platform.market-search.view",
+                isActive: (pathname) => pathname.startsWith("/admin/market-search"),
+            },
+            {
                 label: "Crawler",
                 href: crawlerRoot,
                 icon: Radar,

@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Exceptions\MarketSearchAllowanceExceeded;
+use App\Exceptions\UserMarketSearchLimitExceeded;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\MarketPropertyResource;
 use App\Services\AiPropertySearchService;
 use App\Services\MarketSearchQuotaService;
+use App\Services\UserMarketSearchService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -36,7 +38,7 @@ class AiSearchController extends Controller
         abort_if($agency === null, 403, 'O IA Searcher exige uma Agência.');
 
         try {
-            return $quota->execute($agency, function () use (
+            return $quota->execute($agency, fn () => app(UserMarketSearchService::class)->execute($request->user(), 'ai', $request->only(['prompt', 'context_city', 'filters', 'page', 'per_page', 'sort']), function () use (
                 $request,
                 $service,
                 $prompt,
@@ -65,13 +67,15 @@ class AiSearchController extends Controller
                         'sort' => $result['meta']['sort'],
                     ],
                 ]);
-            });
+            }));
         } catch (MarketSearchAllowanceExceeded $exception) {
             return response()->json([
                 'message' => $exception->getMessage(),
                 'code' => 'market_search_allowance_exhausted',
                 'allowance' => $exception->allowance,
             ], 429);
+        } catch (UserMarketSearchLimitExceeded $exception) {
+            return response()->json(['code' => 'user_market_search_daily_limit_exhausted', 'message' => $exception->getMessage(), 'allowance' => $exception->allowance], 429);
         } catch (\RuntimeException $e) {
             return response()->json([
                 'message' => 'Não foi possível processar a busca por IA.',

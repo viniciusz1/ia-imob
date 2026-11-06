@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Exceptions\MarketSearchAllowanceExceeded;
+use App\Exceptions\UserMarketSearchLimitExceeded;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\MarketPropertyResource;
 use App\Models\MarketProperty;
@@ -10,6 +11,7 @@ use App\Services\Crawler\CityCatalog;
 use App\Services\Crawler\NeighborhoodCatalog;
 use App\Services\Crawler\PropertyTypeCatalog;
 use App\Services\MarketSearchQuotaService;
+use App\Services\UserMarketSearchService;
 use Illuminate\Http\Request;
 
 class MarketPropertyController extends Controller
@@ -43,7 +45,7 @@ class MarketPropertyController extends Controller
         abort_if($agency === null, 403, 'O IA Searcher exige uma Agência.');
 
         try {
-            return $quota->execute($agency, function () use ($request) {
+            return $quota->execute($agency, fn () => app(UserMarketSearchService::class)->execute($request->user(), 'filters', $request->query(), function () use ($request) {
                 $query = MarketProperty::query()->latestRun()->with(['crawlerRun.crawlAgency']);
 
                 $query->applyFilters($this->extractFilters($request));
@@ -67,13 +69,15 @@ class MarketPropertyController extends Controller
                 $properties = $query->paginate($perPage);
 
                 return MarketPropertyResource::collection($properties)->response();
-            });
+            }));
         } catch (MarketSearchAllowanceExceeded $exception) {
             return response()->json([
                 'message' => $exception->getMessage(),
                 'code' => 'market_search_allowance_exhausted',
                 'allowance' => $exception->allowance,
             ], 429);
+        } catch (UserMarketSearchLimitExceeded $exception) {
+            return response()->json(['code' => 'user_market_search_daily_limit_exhausted', 'message' => $exception->getMessage(), 'allowance' => $exception->allowance], 429);
         }
     }
 

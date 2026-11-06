@@ -35,6 +35,8 @@ class PermissionSeeder extends Seeder
             'platform.agencies.create',
             'platform.agencies.update',
             'platform.agencies.deactivate',
+            'platform.market-search.view',
+            'platform.market-search.manage',
             'crawler.view',
             'crawler.prospects.manage',
             'crawler.agencies.manage',

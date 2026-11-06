@@ -28,6 +28,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     const pathname = usePathname();
     const requiredPermission = pathname.startsWith("/admin/crawler")
         ? "crawler.view"
+        : pathname.startsWith("/admin/market-search")
+        ? "platform.market-search.view"
         : "platform.agencies.view";
     const [isChecking, setIsChecking] = useState(() => {
         if (typeof document === "undefined") return true;

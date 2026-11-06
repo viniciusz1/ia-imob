@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AdminAgencyController;
 use App\Http\Controllers\Api\AdminController;
+use App\Http\Controllers\Api\AdminMarketSearchController;
 use App\Http\Controllers\Api\Crawler\CrawlAgencyController;
 use App\Http\Controllers\Api\Crawler\CrawlAgencyDiscoveryPolicyController;
 use App\Http\Controllers\Api\Crawler\CrawlerIntegrationController;
@@ -50,6 +51,14 @@ Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:platform.age
     Route::get('/ping', [AdminController::class, 'ping']);
     Route::get('/agencies', [AdminAgencyController::class, 'index']);
     Route::get('/agencies/{agency}', [AdminAgencyController::class, 'show']);
+});
+
+Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:platform.market-search.view'])->group(function () {
+    Route::get('/market-search/users', [AdminMarketSearchController::class, 'users']);
+    Route::get('/market-search/history', [AdminMarketSearchController::class, 'history']);
+});
+Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:platform.market-search.manage'])->group(function () {
+    Route::put('/market-search/users/{user}', [AdminMarketSearchController::class, 'update']);
 });
 
 // Write endpoints: gated by platform.agencies.create
