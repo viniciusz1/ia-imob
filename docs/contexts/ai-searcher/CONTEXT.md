@@ -32,5 +32,8 @@ The record of each successfully delivered Market Search, including its Agency Us
 
 ## Relationships
 
+**Market Search Access Policy**:
+The Agency-level allowlists of property cities and Crawl Agencies that its users can search. Each list is independently unrestricted by default. When both are configured, a property must satisfy both. Platform Admins manage the policy; both search modes and their filter options enforce it, including approximate searches. Other consumers of market inventory are unaffected.
+
 - An **Agency** has one shared **Weekly Search Allowance** for all of its Agency Users.
 - A **Platform Admin** has no Agency and cannot perform a **Market Search** through the AI Searcher.

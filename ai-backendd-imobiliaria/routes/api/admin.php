@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AdminAgencyController;
 use App\Http\Controllers\Api\AdminController;
+use App\Http\Controllers\Api\AdminMarketSearchAccessController;
 use App\Http\Controllers\Api\AdminMarketSearchController;
 use App\Http\Controllers\Api\Crawler\CrawlAgencyController;
 use App\Http\Controllers\Api\Crawler\CrawlAgencyDiscoveryPolicyController;
@@ -49,6 +50,7 @@ use Illuminate\Support\Facades\Route;
 // Read endpoints: gated by platform.agencies.view
 Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:platform.agencies.view'])->group(function () {
     Route::get('/ping', [AdminController::class, 'ping']);
+    Route::get('/market-search/access-options', [AdminMarketSearchAccessController::class, 'options']);
     Route::get('/agencies', [AdminAgencyController::class, 'index']);
     Route::get('/agencies/{agency}', [AdminAgencyController::class, 'show']);
 });
@@ -69,6 +71,7 @@ Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:platform.age
 // Update endpoints: gated by platform.agencies.update
 Route::middleware(['auth:sanctum', EnsurePlatformAdmin::class, 'can:platform.agencies.update'])->group(function () {
     Route::put('/agencies/{agency}', [AdminAgencyController::class, 'update']);
+    Route::put('/agencies/{agency}/market-search-access', [AdminMarketSearchAccessController::class, 'update']);
     Route::put('/agencies/{agency}/market-search-allowance', [AdminAgencyController::class, 'updateMarketSearchAllowance']);
 });
 

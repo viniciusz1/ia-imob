@@ -103,6 +103,26 @@ class MarketProperty extends Model
         });
     }
 
+    public function scopeAllowedForAgency($query, ?Agency $agency): void
+    {
+        $configuration = $agency?->configuration;
+        if ($configuration?->allowed_cities !== null) {
+            $aliases = [];
+            foreach ($configuration->allowed_cities as $city) {
+                $aliases = array_merge($aliases, CityCatalog::aliasesFor($city));
+            }
+            $query->where(function ($cities) use ($aliases): void {
+                $cities->whereRaw('1 = 0');
+                foreach (array_unique($aliases) as $alias) {
+                    $cities->orWhereRaw('f_unaccent(LOWER(cidade)) = f_unaccent(LOWER(?))', [$alias]);
+                }
+            });
+        }
+        if ($configuration?->allowed_crawl_agency_ids !== null) {
+            $query->whereHas('crawlerRun', fn ($run) => $run->whereIn('crawl_agency_id', $configuration->allowed_crawl_agency_ids));
+        }
+    }
+
     public function scopeApplyFilters($query, array $filters): void
     {
         if (! empty($filters['tipo'])) {

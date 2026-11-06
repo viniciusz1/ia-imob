@@ -46,7 +46,7 @@ class MarketPropertyController extends Controller
 
         try {
             return $quota->execute($agency, fn () => app(UserMarketSearchService::class)->execute($request->user(), 'filters', $request->query(), function () use ($request) {
-                $query = MarketProperty::query()->latestRun()->with(['crawlerRun.crawlAgency']);
+                $query = MarketProperty::query()->latestRun()->allowedForAgency($request->user()->agency)->with(['crawlerRun.crawlAgency']);
 
                 $query->applyFilters($this->extractFilters($request));
 
@@ -84,13 +84,16 @@ class MarketPropertyController extends Controller
     public function filters(?Request $request = null)
     {
         $request ??= request();
+        $agency = ($request->user() ?? auth()->user())?->agency;
+        abort_if($agency === null, 403, 'O IA Searcher exige uma Agência.');
         $activeFilters = $this->extractFilters($request);
 
-        $queryExcluding = function (array $excludedKeys) use ($activeFilters) {
+        $queryExcluding = function (array $excludedKeys) use ($activeFilters, $agency) {
             $scopedFilters = array_diff_key($activeFilters, array_flip($excludedKeys));
 
             return MarketProperty::query()
                 ->latestRun()
+                ->allowedForAgency($agency)
                 ->applyFilters($scopedFilters);
         };
 

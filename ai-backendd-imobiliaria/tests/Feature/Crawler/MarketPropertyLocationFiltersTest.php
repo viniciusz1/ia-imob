@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\MarketPropertyController;
 use App\Models\Crawler\CrawlAgency;
 use App\Models\CrawlerRun;
 use App\Models\MarketProperty;
+use App\Models\User;
 use App\Services\Crawler\CityCatalog;
 use App\Services\Crawler\NeighborhoodCatalog;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -15,6 +16,12 @@ use Tests\TestCase;
 class MarketPropertyLocationFiltersTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->actingAs(User::factory()->create());
+    }
 
     public function test_it_groups_available_neighborhoods_by_city(): void
     {

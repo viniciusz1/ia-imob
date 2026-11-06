@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { getAgency } from "@/services/adminApi";
 import { AgencySearchAllowanceCard } from "@/components/features/admin/agencies/AgencySearchAllowanceCard";
+import { AgencyMarketSearchAccessCard } from "@/components/features/admin/agencies/AgencyMarketSearchAccessCard";
 
 interface AdminAgencyDetailPageProps {
     params: Promise<{ id: string }>;
@@ -55,6 +56,7 @@ export default async function AdminAgencyDetailPage({ params }: AdminAgencyDetai
                 </Card>
 
                 <AgencySearchAllowanceCard agency={agency} />
+                <AgencyMarketSearchAccessCard agency={agency} />
             </div>
         </div>
     );

@@ -3,6 +3,7 @@ import api, { API_PREFIX } from "./api";
 const BASE = `${API_PREFIX}/admin`;
 
 export interface AgencySummary {
+    market_search_access?: MarketSearchAccess;
     id: number;
     name: string;
     slug: string;
@@ -12,6 +13,25 @@ export interface AgencySummary {
     updated_at: string | null;
     market_search_weekly_limit: number;
     market_search_usage?: MarketSearchUsage;
+}
+
+export interface MarketSearchAccess {
+    allowed_cities: string[] | null;
+    allowed_crawl_agency_ids: number[] | null;
+}
+
+export interface MarketSearchAccessOptions {
+    cities: string[];
+    crawl_agencies: { id: number; name: string; root_domain: string }[];
+}
+
+export async function getMarketSearchAccessOptions(): Promise<MarketSearchAccessOptions> {
+    const { data } = await api.get<MarketSearchAccessOptions>(`${BASE}/market-search/access-options`);
+    return data;
+}
+
+export async function updateMarketSearchAccess(id: number, access: MarketSearchAccess): Promise<void> {
+    await api.put(`${BASE}/agencies/${id}/market-search-access`, access);
 }
 
 export interface MarketSearchUsage {

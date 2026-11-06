@@ -12,12 +12,16 @@ class AgencyConfiguration extends Model
     protected $fillable = [
         'agency_id',
         'market_search_weekly_limit',
+        'allowed_cities',
+        'allowed_crawl_agency_ids',
     ];
 
     protected function casts(): array
     {
         return [
             'market_search_weekly_limit' => 'integer',
+            'allowed_cities' => 'array',
+            'allowed_crawl_agency_ids' => 'array',
         ];
     }
 

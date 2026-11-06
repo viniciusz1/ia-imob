@@ -5,6 +5,7 @@ namespace Tests\Feature\Crawler;
 use App\Http\Controllers\Api\MarketPropertyController;
 use App\Http\Resources\Api\MarketPropertyResource;
 use App\Models\MarketProperty;
+use App\Models\User;
 use App\Services\Crawler\PropertyTypeCatalog;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
@@ -13,6 +14,12 @@ use Tests\TestCase;
 class MarketPropertyTypeCatalogTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->actingAs(User::factory()->create());
+    }
 
     public function test_it_backfills_known_aliases_and_hides_unknown_types_from_filters(): void
     {
